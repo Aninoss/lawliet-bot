@@ -1,27 +1,26 @@
 package commands.runnables.interactionscategory;
 
+import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.RandomPicker;
 import core.mention.Mention;
 import core.utils.MentionUtil;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
-    trigger = "celebrate",
-    emoji = "\uD83C\uDF89",
-    exclusiveUsers = { 397209883793162240L, 381156056660967426L },
-    executableWithoutArgs = true
+        trigger = "celebrate",
+        emoji = "\uD83C\uDF89",
+        exclusiveUsers = { 397209883793162240L, 381156056660967426L },
+        executableWithoutArgs = true
 )
 public class CelebrateCommand extends Command {
 
     protected String[] getGifs() {
-        return new String[]{"https://media1.tenor.com/images/53e00327a221637f76bdb3d20e4568a0/tenor.gif?itemid=7399759",
+        return new String[] { "https://media1.tenor.com/images/53e00327a221637f76bdb3d20e4568a0/tenor.gif?itemid=7399759",
                 "https://media1.tenor.com/images/fbbd906d9cb5624fbafd7f536aec5cc3/tenor.gif?itemid=16786818",
                 "https://media1.tenor.com/images/3d2574a66760415d655fdd6f5e57c044/tenor.gif?itemid=18653960",
                 "https://media1.tenor.com/images/07869599e4a13f14ed4a6425c835537a/tenor.gif?itemid=15417564",
@@ -35,46 +34,49 @@ public class CelebrateCommand extends Command {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        User user0 = event.getMessage().getUserAuthor().get();
+        Member member0 = event.getMember();
         Mention mention = MentionUtil.getMentionedString(getLocale(), event.getMessage(), args, null);
 
-        if (mention.getMentionText().isEmpty())
-            mentionBlank(event, args, user0);
-        else
-            mentionUsed(event, mention.getFilteredOriginalText().orElse(""), user0, mention.getMentionText());
+        if (mention.getMentionText().isEmpty()) {
+            mentionBlank(event, args, member0);
+        } else {
+            mentionUsed(event, mention.getFilteredOriginalText().orElse(""), member0, mention.getMentionText());
+        }
 
         return true;
     }
 
-    private void mentionUsed(MessageCreateEvent event, String args, User author, String mention) throws ExecutionException, InterruptedException {
+    private void mentionUsed(GuildMessageReceivedEvent event, String args, Member author, String mention) {
         String text;
         if (args.equalsIgnoreCase("with") || args.equals("mit")) {
-            text = getString("template_mention_with", author.getDisplayName(event.getServer().get()), mention);
+            text = getString("template_mention_with", author.getEffectiveName(), mention);
         } else {
-            if (args.isEmpty())
-                text = getString("template_mention_notext", author.getDisplayName(event.getServer().get()), mention);
-            else
-                text = getString("template_mention_text", author.getDisplayName(event.getServer().get()), args, mention);
+            if (args.isEmpty()) {
+                text = getString("template_mention_notext", author.getEffectiveName(), mention);
+            } else {
+                text = getString("template_mention_text", author.getEffectiveName(), args, mention);
+            }
         }
         send(event, text);
     }
 
-    private void mentionBlank(MessageCreateEvent event, String args, User author) throws ExecutionException, InterruptedException {
+    private void mentionBlank(GuildMessageReceivedEvent event, String args, Member author) {
         String text;
-        if (args.isEmpty())
-            text = getString("template_nomention_notext", author.getDisplayName(event.getServer().get()));
-        else
-            text = getString("template_nomention_text", author.getDisplayName(event.getServer().get()), args);
+        if (args.isEmpty()) {
+            text = getString("template_nomention_notext", author.getEffectiveName());
+        } else {
+            text = getString("template_nomention_text", author.getEffectiveName(), args);
+        }
         send(event, text);
     }
 
-    private void send(MessageCreateEvent event, String text) throws ExecutionException, InterruptedException {
+    private void send(GuildMessageReceivedEvent event, String text) {
         String[] gifs = getGifs();
         String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), gifs.length)];
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, text)
                 .setImage(gifUrl);
-        event.getChannel().sendMessage(eb).get();
+        event.getChannel().sendMessage(eb.build()).queue();
     }
 
 }

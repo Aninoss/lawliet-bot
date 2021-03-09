@@ -16,7 +16,7 @@ public class LoveCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736277076868595794/736277083407384626/love.gif",
                 "https://media.discordapp.net/attachments/736277076868595794/736277085747675206/love.gif",
                 "https://media.discordapp.net/attachments/736277076868595794/736277089451507712/love.gif",
