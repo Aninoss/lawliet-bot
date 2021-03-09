@@ -14,6 +14,8 @@ import modules.Mod;
 import modules.mute.MuteData;
 import modules.mute.MuteManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "chmute",
@@ -74,7 +76,7 @@ public class ChannelMuteCommand extends Command {
         MuteData muteData = new MuteData(server, channel, successfulUsers);
         boolean doneSomething = MuteManager.getInstance().executeMute(muteData, mute);
 
-        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
+        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedMembers(getLocale(), userList);
         EmbedBuilder actionEmbed = EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), message.getUserAuthor().get().getMentionTag(), channel.getMentionTag()));
 
         if (doneSomething)

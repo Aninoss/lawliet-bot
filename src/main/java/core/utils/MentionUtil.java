@@ -6,10 +6,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import com.vdurmont.emoji.EmojiParser;
 import core.MainLogger;
 import core.ShardManager;
@@ -22,18 +24,19 @@ import net.dv8tion.jda.api.entities.*;
 
 public class MentionUtil {
 
-    public static MentionList<Member> getMembers(Message message, String content) {
-        return getMembers(message, content, message.getGuild().getMembers());
+    public static MentionList<Member> getMembers(Message message, String input) {
+        return getMembers(message, input, message.getGuild().getMembers());
     }
 
-    public static MentionList<Member> getMembers(Message message, String content, List<Member> members) {
+    public static MentionList<Member> getMembers(Message message, String input, List<Member> members) {
         ArrayList<Member> list = new ArrayList<>(message.getMentionedMembers());
-        if (!content.contains(ShardManager.getInstance().getSelf().getId()))
+        if (!input.contains(ShardManager.getInstance().getSelf().getId())) {
             list.remove(message.getGuild().getSelfMember());
+        }
         list.removeIf(member -> !members.contains(member));
 
         for (Member member : list) {
-            content = content
+            input = input
                     .replace(member.getAsMention(), "")
                     .replace(getUserMentionTag(member.getIdLong()), "");
         }
@@ -41,68 +44,121 @@ public class MentionUtil {
         return generateMentionList(
                 members,
                 list,
-                content,
-                u -> ((Member)u).getId(),
-                u -> "@" + ((Member)u).getUser().getAsTag(),
-                u -> "@" + ((Member)u).getUser().getName(),
-                u -> "@" + ((Member)u).getEffectiveName() + "#" + ((Member)u).getUser().getDiscriminator(),
-                u -> "@" + ((Member)u).getEffectiveName(),
-                u -> ((Member)u).getUser().getAsTag(),
-                u -> ((Member)u).getUser().getName(),
-                u -> ((Member)u).getEffectiveName()
+                input,
+                u -> ((Member) u).getId(),
+                u -> "@" + ((Member) u).getUser().getAsTag(),
+                u -> "@" + ((Member) u).getUser().getName(),
+                u -> "@" + ((Member) u).getEffectiveName() + "#" + ((Member) u).getUser().getDiscriminator(),
+                u -> "@" + ((Member) u).getEffectiveName(),
+                u -> ((Member) u).getUser().getAsTag(),
+                u -> ((Member) u).getUser().getName(),
+                u -> ((Member) u).getEffectiveName()
         );
     }
 
-    public static MentionList<Role> getRoles(Message message, String content) {
+    public static MentionList<User> getUsers(Message message, String input, List<User> users) {
+        ArrayList<User> list = message.getMentionedMembers().stream().map(Member::getUser).collect(Collectors.toCollection(ArrayList::new));
+        if (!input.contains(ShardManager.getInstance().getSelf().getId())) {
+            list.remove(message.getGuild().getSelfMember().getUser());
+        }
+        list.removeIf(user -> !users.contains(user));
+
+        for (User user : list) {
+            input = input
+                    .replace(user.getAsMention(), "")
+                    .replace(getUserMentionTag(user.getIdLong()), "");
+        }
+
+        return generateMentionList(
+                users,
+                list,
+                input,
+                u -> ((User) u).getId(),
+                u -> "@" + ((User) u).getAsTag(),
+                u -> "@" + ((User) u).getName(),
+                u -> ((User) u).getAsTag(),
+                u -> ((User) u).getName()
+        );
+    }
+    
+    public static CompletableFuture<MentionList<User>> getUsersFromString(String input) {
+        return CompletableFuture.supplyAsync(() -> {
+            String newInput = input;
+            ArrayList<User> userList = new ArrayList<>();
+
+            for (String segment : input.split(" ")) {
+                if (StringUtil.stringIsLong(segment)) {
+                    long userId = Long.parseUnsignedLong(segment);
+                    if (NumberUtil.countDigits(userId) >= 17) {
+                        try {
+                            User user = ShardManager.getInstance().fetchUserById(userId).get();
+                            if (!userList.contains(user)) {
+                                userList.add(user);
+                                newInput = newInput.replace(segment, "");
+                            }
+                        } catch (InterruptedException | ExecutionException e) {
+                            //Ignore
+                        }
+                    }
+                }
+            }
+
+            return new MentionList<>(newInput, userList);
+        });
+    }
+
+    public static MentionList<Role> getRoles(Message message, String input) {
         ArrayList<Role> list = new ArrayList<>(message.getMentionedRoles());
         list.removeIf(role -> !message.getGuild().getRoles().contains(role));
 
-        for (Role role : list)
-            content = content.replace(role.getAsMention(), "");
+        for (Role role : list) {
+            input = input.replace(role.getAsMention(), "");
+        }
 
         return generateMentionList(
                 message.getGuild().getRoles(),
                 list,
-                content,
-                r -> ((Role)r).getId(),
-                r -> "@" + ((Role)r).getName(),
-                r -> ((Role)r).getName()
+                input,
+                r -> ((Role) r).getId(),
+                r -> "@" + ((Role) r).getName(),
+                r -> ((Role) r).getName()
         );
     }
 
-    public static MentionList<TextChannel> getTextChannels(Message message, String content) {
+    public static MentionList<TextChannel> getTextChannels(Message message, String input) {
         ArrayList<TextChannel> list = new ArrayList<>(message.getMentionedChannels());
         list.removeIf(channel -> !message.getGuild().getTextChannels().contains(channel));
 
-        for (TextChannel channel : list)
-            content = content.replace(channel.getAsMention(), "");
+        for (TextChannel channel : list) {
+            input = input.replace(channel.getAsMention(), "");
+        }
 
         return generateMentionList(
                 message.getGuild().getTextChannels(),
                 list,
-                content,
-                c -> ((TextChannel)c).getId(),
-                c -> "#" + ((TextChannel)c).getName(),
-                c -> ((TextChannel)c).getName()
+                input,
+                c -> ((TextChannel) c).getId(),
+                c -> "#" + ((TextChannel) c).getName(),
+                c -> ((TextChannel) c).getName()
         );
     }
 
-    public static MentionList<VoiceChannel> getVoiceChannels(Message message, String content) {
+    public static MentionList<VoiceChannel> getVoiceChannels(Message message, String input) {
         ArrayList<VoiceChannel> list = new ArrayList<>();
 
         return generateMentionList(
                 message.getGuild().getVoiceChannels(),
                 list,
-                content,
-                c -> ((VoiceChannel)c).getId(),
-                c -> "#" + ((VoiceChannel)c).getName(),
-                c -> ((VoiceChannel)c).getName()
+                input,
+                c -> ((VoiceChannel) c).getId(),
+                c -> "#" + ((VoiceChannel) c).getName(),
+                c -> ((VoiceChannel) c).getName()
         );
     }
 
-    private static <T> MentionList<T> generateMentionList(Collection<T> sourceList, ArrayList<T> mentionList, String content, MentionFunction... functions) {
+    private static <T> MentionList<T> generateMentionList(Collection<T> sourceList, ArrayList<T> mentionList, String input, MentionFunction... functions) {
         if (mentionList.size() > 0) {
-            return new MentionList<>(content, mentionList);
+            return new MentionList<>(input, mentionList);
         }
 
         for (MentionFunction function : functions) {
@@ -110,20 +166,22 @@ public class MentionUtil {
 
             for (T t : sourceList) {
                 String tag = function.apply(t);
-                if (matches(content, tag)) {
-                    content = content.replaceAll("(?i)" + Pattern.quote(tag), "");
-                    if (!mentionList.contains(t))
+                if (matches(input, tag)) {
+                    input = input.replaceAll("(?i)" + Pattern.quote(tag), "");
+                    if (!mentionList.contains(t)) {
                         mentionList.add(t);
+                    }
                     found = true;
                 }
             }
 
-            if (found)
+            if (found) {
                 break;
+            }
         }
 
-        content = content.trim();
-        return new MentionList<>(content, mentionList);
+        input = input.trim();
+        return new MentionList<>(input, mentionList);
     }
 
     private static boolean matches(String str, String check) {
@@ -197,8 +255,9 @@ public class MentionUtil {
             fileType = conn.getContentType().toLowerCase();
 
             for (int i = 0; i < 2; i++) {
-                if (fileType.endsWith("jpg") || fileType.endsWith("jpeg") || fileType.endsWith("png") || fileType.endsWith("bmp") || fileType.endsWith("webp"))
+                if (fileType.endsWith("jpg") || fileType.endsWith("jpeg") || fileType.endsWith("png") || fileType.endsWith("bmp") || fileType.endsWith("webp")) {
                     return true;
+                }
                 fileType = url.toLowerCase();
             }
 
@@ -220,8 +279,9 @@ public class MentionUtil {
                 if (groupString != null && groupString.equals(guildId)) {
                     Optional.ofNullable(guild.getTextChannelById(m.group("channel"))).ifPresent(channel -> {
                         try {
-                            if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_HISTORY))
+                            if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_HISTORY)) {
                                 list.add(channel.retrieveMessageById(m.group("message")).complete());
+                            }
                         } catch (Throwable e) {
                             //Ignore
                         }
@@ -232,23 +292,23 @@ public class MentionUtil {
         });
     }
 
-    public static MentionList<String> getEmojis(Message message, String content) {
+    public static MentionList<String> getEmojis(Message message, String input) {
         ArrayList<String> emojiList = new ArrayList<>();
 
         if (message != null) {
             for (Emote emote : message.getEmotes()) {
                 emojiList.add(JDAUtil.emoteToTag(emote));
-                content = content.replace(emote.getAsMention(), "");
+                input = input.replace(emote.getAsMention(), "");
             }
         }
 
-        List<String> unicodeEmojis = EmojiParser.extractEmojis(content);
+        List<String> unicodeEmojis = EmojiParser.extractEmojis(input);
         for (String unicodeEmoji : unicodeEmojis) {
             emojiList.add(unicodeEmoji);
-            content = content.replace(unicodeEmoji, "");
+            input = input.replace(unicodeEmoji, "");
         }
 
-        return new MentionList<>(content, emojiList);
+        return new MentionList<>(input, emojiList);
     }
 
     private static Mention getMentionStringOfMentions(ArrayList<String> mentions, Locale locale, String filteredOriginalText, boolean multi, boolean containedBlockedUser) {
@@ -291,10 +351,11 @@ public class MentionUtil {
 
         /* add everyone mention */
         if (message.mentionsEveryone() || args.contains("everyone") || args.contains("all") || args.contains("@here")) {
-            if (mentions.isEmpty())
+            if (mentions.isEmpty()) {
                 mentions.add(TextManager.getString(locale, TextManager.GENERAL, "everyone_start"));
-            else
+            } else {
                 mentions.add(TextManager.getString(locale, TextManager.GENERAL, "everyone_end"));
+            }
 
             multi = true;
             args = args.replace("@everyone", "")
@@ -315,11 +376,20 @@ public class MentionUtil {
         return getMentionStringOfMentions(mentions, locale, null, false, false);
     }
 
-    public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, List<Member> memberList) {
+    public static Mention getMentionedStringOfDiscriminatedMembers(Locale locale, List<Member> memberList) {
         final ArrayList<String> mentions = new ArrayList<>();
 
         /* add usernames */
         memberList.forEach(member -> mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName())));
+
+        return getMentionStringOfMentions(mentions, locale, null, false, false);
+    }
+
+    public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, List<User> userList) {
+        final ArrayList<String> mentions = new ArrayList<>();
+
+        /* add usernames */
+        userList.forEach(user -> mentions.add(StringUtil.escapeMarkdown(user.getName())));
 
         return getMentionStringOfMentions(mentions, locale, null, false, false);
     }
@@ -347,15 +417,18 @@ public class MentionUtil {
 
         for (String part : str.split(" ")) {
             if (part.length() > 0) {
-                if (available >= 0 && (part.equals("all") || part.equals("allin")))
+                if (available >= 0 && (part.equals("all") || part.equals("allin"))) {
                     return available;
-                if (available >= 0 && part.equals("half"))
+                }
+                if (available >= 0 && part.equals("half")) {
                     return available / 2;
+                }
 
                 String valueString = StringUtil.filterDoubleString(part);
                 String partPostfix = part.substring(valueString.length()).toLowerCase();
-                if (valueString.isEmpty())
+                if (valueString.isEmpty()) {
                     continue;
+                }
 
                 double value = Double.parseDouble(valueString);
                 switch (partPostfix) {

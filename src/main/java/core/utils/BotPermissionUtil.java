@@ -132,6 +132,19 @@ public class BotPermissionUtil {
                 canWrite(channel, permissions);
     }
 
+    public static boolean canInteract(Guild guild, User user) {
+        return canInteract(guild, user.getIdLong());
+    }
+
+    public static boolean canInteract(Guild guild, long userId) {
+        Member member = guild.getMemberById(userId);
+        if (member != null) {
+            return guild.getSelfMember().canInteract(member);
+        } else {
+            return true;
+        }
+    }
+
     public static List<Role> getMemberRoles(Guild guild) {
         int min = (int) (guild.getMemberCount() * 0.75);
         return guild.getRoles().stream()

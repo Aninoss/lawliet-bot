@@ -1,158 +1,179 @@
 package commands.runnables.moderationcategory;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnReactionListener;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.Mention;
+import core.mention.MentionList;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Mod;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
-    trigger = "warn",
-    userPermissions = PermissionDeprecated.KICK_MEMBERS,
-    emoji = "\uD83D\uDEA8",
-    executableWithoutArgs = false
+        trigger = "warn",
+        userGuildPermissions = Permission.BAN_MEMBERS,
+        emoji = "\uD83D\uDEA8",
+        executableWithoutArgs = false
 )
-public class WarnCommand extends Command implements OnReactionAddListener {
+public class WarnCommand extends Command implements OnReactionListener {
+
+    private enum Status { PENDING, CANCELED, COMPLETED, ERROR }
 
     protected final int CHAR_LIMIT = 300;
 
-    private Message message;
-    protected List<User> userList;
+    private List<User> userList;
+    private String reason;
     private ModerationBean moderationBean;
-    protected String reason;
+    private Status status = Status.PENDING;
+    private final ArrayList<User> usersErrorList = new ArrayList<>();
+    private final boolean sendWarning;
+    private final boolean autoActions;
 
     public WarnCommand(Locale locale, String prefix) {
+        this(locale, prefix, true, true);
+    }
+
+    public WarnCommand(Locale locale, String prefix, boolean sendWarning, boolean autoActions) {
         super(locale, prefix);
+        this.sendWarning = sendWarning;
+        this.autoActions = autoActions;
+    }
+
+    protected MentionList<User> getUserList(Message message, String args) throws Throwable {
+        MentionList<Member> memberMentionList = MentionUtil.getMembers(message, args);
+        List<User> userList = memberMentionList.getList().stream()
+                .map(Member::getUser)
+                .collect(Collectors.toList());
+
+        return new MentionList<>(memberMentionList.getResultMessageString(), userList);
+    }
+
+    protected void process(Guild guild, User target, String reason) throws Throwable {
+    }
+
+    protected boolean canProcess(Member executor, User target) throws Throwable {
+        return true;
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        if (!setUserListAndReason(event, args))
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+        if (!setUserListAndReason(event, args)) {
             return false;
+        }
 
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
-
         if (userList.size() > 1 || moderationBean.isQuestion()) {
-            Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("confirmaion", reason.length() > 0, mention.getMentionText(), reason));
-            if (reason.length() > 0) eb.addField(getString("reason"), "```" + reason + "```", false);
-            postMessage(event.getServerTextChannel().get(), eb);
-            for(int i = 0; i < 2; i++) this.message.addReaction(StringUtil.getEmojiForBoolean(i == 0)).get();
+            registerReactionListener(StringUtil.getEmojiForBoolean(true), StringUtil.getEmojiForBoolean(false));
         } else {
-            return execute(event.getServerTextChannel().get(), event.getMessage().getUserAuthor().get());
+            boolean success = execute(event.getChannel(), event.getMember());
+            drawMessage(draw());
+            return success;
         }
 
         return true;
     }
 
-    private boolean setUserListAndReason(MessageCreateEvent event, String args) throws ExecutionException, InterruptedException {
+    private boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
         Message message = event.getMessage();
-        MentionList<User> userMentionList = getMentionList(message, args);
-        userList = userMentionList.getList();
+        MentionList<User> userMention = getUserList(message, args);
+        userList = userMention.getList();
         if (userList.size() == 0) {
-            message.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                    TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"))).get();
+            message.getChannel().sendMessage(
+                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions")).build()
+            ).queue();
             return false;
         }
 
-        reason = userMentionList.getResultMessageString().replace("`", "");
-        reason = reason.trim();
-        if (reason.length() > CHAR_LIMIT) {
-            message.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", String.valueOf(CHAR_LIMIT))));
-            return false;
-        }
+        reason = userMention.getResultMessageString().trim();
+        reason = StringUtil.shortenString(reason, CHAR_LIMIT);
 
         return true;
     }
 
-    protected MentionList<User> getMentionList(Message message, String args) throws ExecutionException, InterruptedException {
-        return MentionUtil.getMembers(message, args);
-    }
-
-    private boolean execute(ServerTextChannel channel, User executer) throws Throwable {
-        removeReactionListener();
-
-        ArrayList<User> usersErrorList = new ArrayList<>();
-        for(User user: userList) {
-            if (!canProcess(channel.getServer(), executer, user)) usersErrorList.add(user);
+    private boolean execute(TextChannel channel, Member executor) throws Throwable {
+        for (User user : userList) {
+            if (!canProcess(executor, user)) {
+                usersErrorList.add(user);
+            }
         }
         if (usersErrorList.size() > 0) {
-            Mention mentionError = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), usersErrorList);
-            postMessage(channel, EmbedFactory.getEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getMentionText()), TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permissions_title")));
+            status = Status.ERROR;
             return false;
         }
 
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
-        EmbedBuilder actionEmbed = EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), executer.getMentionTag(), StringUtil.escapeMarkdown(channel.getServer().getName())));
-        if (reason.length() > 0) actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
-
-        Mod.postLog(this, actionEmbed, moderationBean, userList).join();
-        for(User user: userList) {
-            if (sendWarning())
-                Mod.insertWarning(getLocale(), channel.getServer(), user, executer, reason, autoActions());
-            process(channel.getServer(), user);
+        EmbedBuilder actionEmbed = EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), executor.getAsMention(), StringUtil.escapeMarkdown(channel.getGuild().getName())));
+        if (reason.length() > 0) {
+            actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
         }
 
-        EmbedBuilder successEb = EmbedFactory.getEmbedDefault(this, getString("success_description", mention.isMultiple(), mention.getMentionText()));
-        if (reason.length() > 0) successEb.addField(getString("reason"), "```" + reason + "```", false);
-        postMessage(channel, successEb);
+        Mod.postLogUsers(this, actionEmbed, moderationBean, userList).join();
+        for (User user : userList) {
+            if (sendWarning) {
+                Mod.insertWarning(getLocale(), channel.getGuild(), user, executor, reason, autoActions);
+            }
+            process(channel.getGuild(), user, reason);
+        }
 
-        return true;
-    }
-
-    protected boolean sendDM() {
-        return true;
-    }
-
-    protected boolean sendWarning() {
-        return true;
-    }
-
-    protected boolean autoActions() {
-        return true;
-    }
-
-    private void postMessage(ServerTextChannel channel, EmbedBuilder eb) throws ExecutionException, InterruptedException {
-        if (message == null) message = channel.sendMessage(eb).get();
-        else message.edit(eb).get();
-    }
-
-    public void process(Server server, User user) throws Throwable {}
-
-    public boolean canProcess(Server server, User userStarter, User userAim) {
+        status = Status.COMPLETED;
         return true;
     }
 
     @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (event.getEmoji().isUnicodeEmoji()) {
-            for (int i = 0; i < 2; i++) {
-                if (event.getEmoji().asUnicodeEmoji().get().equals(StringUtil.getEmojiForBoolean(i == 0))) {
-                    if (i == 0) {
-                        execute(event.getServerTextChannel().get(),  event.getUser().get());
-                    } else {
-                        removeReactionListener();
-                        postMessage(event.getServerTextChannel().get(), EmbedFactory.getAbortEmbed(this));
-                    }
+    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+        for (int i = 0; i < 2; i++) {
+            if (event.getReactionEmote().getAsReactionCode().equals(StringUtil.getEmojiForBoolean(i == 0))) {
+                removeReactionListener();
+                if (i == 0) {
+                    execute(event.getChannel(), event.getMember());
+                } else {
+                    status = Status.CANCELED;
                 }
+                return true;
             }
         }
+        return false;
     }
 
     @Override
-    public Message getReactionMessage() {
-        return message;
+    public EmbedBuilder draw() {
+        switch (status) {
+            case COMPLETED:
+                Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("success_description", mention.isMultiple(), mention.getMentionText()));
+                if (reason.length() > 0) {
+                    eb.addField(getString("reason"), "```" + StringUtil.escapeMarkdownInField(reason) + "```", false);
+                }
+                return eb;
+
+            case CANCELED:
+                return EmbedFactory.getAbortEmbed(this);
+
+            case ERROR:
+                Mention mentionError = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), usersErrorList);
+                return EmbedFactory.getEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getMentionText()), TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permissions_title"));
+
+            default:
+                mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
+                eb = EmbedFactory.getEmbedDefault(this, getString("confirmaion", reason.length() > 0, mention.getMentionText(), reason));
+                if (reason.length() > 0) {
+                    eb.addField(getString("reason"), "```" + reason + "```", false);
+                }
+                return eb;
+        }
     }
 
-    @Override
-    public void onReactionTimeOut(Message message) throws Throwable {}
 }

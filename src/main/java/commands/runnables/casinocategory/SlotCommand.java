@@ -27,8 +27,8 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 public class SlotCommand extends CasinoAbstract {
 
     private final String[] FRUITS_CONTAINER = { "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🍎", "🍐", "🍑", "🍒", "🍓", "🆒" };
-    private final double[] WIN_POSSABILITIES = { 10, 20, 100, 200 };
-    private final double[] WIN_AMOUNT_ADJUSTMENT = { 1.6, 1.2, 0.8, 0.4 };
+    private final double[] WIN_POSSIBILITIES = { 10, 20, 100, 200 };
+    private final double[] WIN_AMOUNT_ADJUSTMENT = { 1.3, 1.1, 0.9, 0.7 };
     private final String ALL_EMOJI = "✅";
 
     private int winLevel;
@@ -45,8 +45,8 @@ public class SlotCommand extends CasinoAbstract {
         double n = new Random().nextDouble();
 
         winLevel = 0;
-        for (int i = 0; i < WIN_POSSABILITIES.length; i++) {
-            n -= 1.0 / WIN_POSSABILITIES[i];
+        for (int i = 0; i < WIN_POSSIBILITIES.length; i++) {
+            n -= 1.0 / WIN_POSSIBILITIES[i];
             if (n <= 0) {
                 winLevel = i + 1;
                 break;
@@ -185,7 +185,7 @@ public class SlotCommand extends CasinoAbstract {
             lose();
             setLog(LogStatus.LOSE, getString("end", 0));
         } else {
-            win(WIN_POSSABILITIES[winLevel - 1] / WIN_POSSABILITIES.length * WIN_AMOUNT_ADJUSTMENT[winLevel - 1] - 1);
+            win(WIN_POSSIBILITIES[winLevel - 1] / WIN_POSSIBILITIES.length * WIN_AMOUNT_ADJUSTMENT[winLevel - 1] - 1);
             setLog(LogStatus.WIN, getString("end", winLevel));
         }
         drawMessage(draw());

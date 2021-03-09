@@ -6,6 +6,7 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.PermissionCheckRuntime;
 import modules.Mod;
 import mysql.modules.guild.DBGuild;
@@ -55,9 +56,9 @@ public abstract class AutoModAbstract {
         designEmbed(message, guildBean.getLocale(), eb);
 
         Command command = CommandManager.createCommandByClass(commandClass, guildBean.getLocale(), guildBean.getPrefix());
-        Mod.postLog(command, eb, guild, member).thenRun(() -> {
+        Mod.postLogMembers(command, eb, guild, member).thenRun(() -> {
             try {
-                Mod.insertWarning(guildBean.getLocale(), guild, member, guild.getSelfMember(), commandTitle, withAutoActions(message, guildBean.getLocale()));
+                Mod.insertWarning(guildBean.getLocale(), member, guild.getSelfMember(), commandTitle, withAutoActions(message, guildBean.getLocale()));
             } catch (ExecutionException e) {
                 MainLogger.get().error("Error when creating command instance");
             }

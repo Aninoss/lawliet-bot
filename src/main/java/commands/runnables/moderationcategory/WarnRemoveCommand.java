@@ -67,7 +67,7 @@ public class WarnRemoveCommand extends Command implements OnReactionAddListener 
         }
 
         nString = removeAll ? getString("all") : StringUtil.numToString(n);
-        userString = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), users).getMentionText();
+        userString = MentionUtil.getMentionedStringOfDiscriminatedMembers(getLocale(), users).getMentionText();
 
         if (DBModeration.getInstance().retrieve(channel.getServer().getId()).isQuestion()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("confirmation", n != 1, nString, userString));

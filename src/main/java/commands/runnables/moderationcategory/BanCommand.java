@@ -1,42 +1,49 @@
 package commands.runnables.moderationcategory;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
-import core.MainLogger;
-import core.utils.BotPermissionUtil;
+import core.mention.MentionList;
+import core.utils.MentionUtil;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 
 @CommandProperties(
     trigger = "ban",
-    botPermissions = PermissionDeprecated.BAN_MEMBERS,
-    userPermissions = PermissionDeprecated.BAN_MEMBERS,
+    botPermissions = Permission.BAN_MEMBERS,
+    userGuildPermissions = Permission.BAN_MEMBERS,
     emoji = "\uD83D\uDEAB",
     executableWithoutArgs = false
 )
-public class BanCommand extends WarnCommand  {
+//TODO: can now ban with id?
+public class BanCommand extends KickCommand  {
 
     public BanCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    public void process(Server server, User user) throws Throwable {
-        try {
-            server.banUser(user, 1, reason).get();
-        } catch (InterruptedException | ExecutionException e) {
-            MainLogger.get().error("Exception on ban", e);
-            server.banUser(user).get();
-        }
+    protected MentionList<User> getUserList(Message message, String args) throws ExecutionException, InterruptedException {
+        MentionList<Member> memberMentionList = MentionUtil.getMembers(message, args);
+        ArrayList<User> userList = memberMentionList.getList().stream()
+                .map(Member::getUser)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        MentionList<User> userMentionList = MentionUtil.getUsersFromString(memberMentionList.getResultMessageString()).get();
+        userList.addAll(userMentionList.getList());
+
+        return new MentionList<>(userMentionList.getResultMessageString(), userList);
     }
 
     @Override
-    protected boolean autoActions() {
-        return false;
-    }
-
-    @Override
-    public boolean canProcess(Server server, User userStarter, User userAim) {
-        return BotPermissionUtil.canBan(server, userAim) && server.canBanUser(userStarter, userAim);
+    protected void process(Guild guild, User target, String reason) {
+        guild.ban(target.getId(), 1, reason)
+                .queue(v -> {}, e -> guild.ban(target.getId(), 1).queue());
     }
     
 }

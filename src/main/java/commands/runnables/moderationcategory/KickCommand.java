@@ -1,42 +1,35 @@
 package commands.runnables.moderationcategory;
 
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
-import core.MainLogger;
 import core.utils.BotPermissionUtil;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 
 @CommandProperties(
     trigger = "kick",
-    botPermissions = PermissionDeprecated.KICK_MEMBERS,
-    userPermissions = PermissionDeprecated.KICK_MEMBERS,
+    botPermissions = Permission.KICK_MEMBERS,
+    userGuildPermissions = Permission.KICK_MEMBERS,
     emoji = "\uD83D\uDEAA",
     executableWithoutArgs = false
 )
 public class KickCommand extends WarnCommand  {
 
     public KickCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, true, false);
     }
 
     @Override
-    public void process(Server server, User user) throws Throwable {
-        try {
-            server.kickUser(user, reason).get();
-        } catch (InterruptedException | ExecutionException e) {
-            MainLogger.get().error("Exception on kick", e);
-            server.kickUser(user).get();
-        }
+    protected void process(Guild guild, User target, String reason) {
+        guild.kick(target.getId(), reason)
+                .queue(v -> {}, e -> guild.kick(target.getId()).queue());
     }
 
     @Override
-    protected boolean autoActions() {
-        return false;
-    }
-
-    @Override
-    public boolean canProcess(Server server, User userStarter, User userAim) {
-        return BotPermissionUtil.canKick(server, userAim) && server.canKickUser(userStarter, userAim);
+    protected boolean canProcess(Member executor, User target) {
+        return BotPermissionUtil.canInteract(executor.getGuild(), target);
     }
 
 }
