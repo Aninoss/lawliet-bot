@@ -1,14 +1,14 @@
 package core.internet;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class InternetCache {
 
@@ -25,7 +25,7 @@ public class InternetCache {
 
     private static final HashMap<String, Instant> expirationDates = new HashMap<>();
     private static final LoadingCache<String, CompletableFuture<HttpResponse>> cache = CacheBuilder.newBuilder()
-            .removalListener((removalNotification) -> expirationDates.remove((String)removalNotification.getKey()))
+            .removalListener((removalNotification) -> expirationDates.remove(removalNotification.getKey()))
             .expireAfterWrite(1, TimeUnit.HOURS)
             .maximumSize(50)
             .build(
