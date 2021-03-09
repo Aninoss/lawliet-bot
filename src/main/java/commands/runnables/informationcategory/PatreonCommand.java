@@ -1,22 +1,18 @@
 package commands.runnables.informationcategory;
 
+import java.util.*;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.Settings;
-import core.ShardManager;
 import core.EmbedFactory;
+import core.ShardManager;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Optional;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "patreon",
@@ -42,16 +38,16 @@ public class PatreonCommand extends Command {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("info", ExternalLinks.PATREON_PAGE))
                 .setImage("https://cdn.discordapp.com/attachments/499629904380297226/763202405474238464/Patreon_Banner_New.png")
-                .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI);
+                .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false);
 
         StringBuilder sb = new StringBuilder();
         for(int i = Settings.PATREON_ROLE_IDS.length - 1; i >= 3; i--)
             sb.append(getPatreonUsersString(i));
         sb.append(getString("andmanymore"));
 
-        eb.addField(getString("slot_title"), sb.toString());
-        EmbedUtil.addLog(eb, null, getString("status", PatreonCache.getInstance().getUserTier(event.getMessageAuthor().getId())));
-        event.getChannel().sendMessage(eb).get();
+        eb.addField(getString("slot_title"), sb.toString(), false);
+        EmbedUtil.addLog(eb, null, getString("status", PatreonCache.getInstance().getUserTier(event.getMember().getIdLong())));
+        event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 
@@ -61,11 +57,10 @@ public class PatreonCommand extends Command {
         userTiers.keySet().stream()
                 .filter(userId -> userTiers.get(userId) == patreonTier + 1 && Arrays.stream(USER_ID_NOT_VISIBLE).noneMatch(uid -> uid == userId))
                 .map(userId -> ShardManager.getInstance().fetchUserById(userId).join())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .filter(Objects::nonNull)
                 .forEach(user -> {
                     String value = getString("slot_value", patreonTier);
-                    patreonUsers.append(getString("slot", StringUtil.escapeMarkdown(user.getDiscriminatedName()), value))
+                    patreonUsers.append(getString("slot", StringUtil.escapeMarkdown(user.getAsTag()), value))
                             .append("\n");
                 });
 

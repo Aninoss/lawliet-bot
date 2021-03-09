@@ -1,23 +1,22 @@
 package commands.runnables.informationcategory;
 
-import commands.listeners.CommandProperties;
-
+import java.util.Locale;
+import java.util.Optional;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "serverinfo",
         emoji = "\uD83D\uDC6A",
         executableWithoutArgs = true,
-        aliases = {"serverinfos", "serverstat", "serverstats"}
+        aliases = { "serverinfos", "serverstat", "serverstats" }
 )
 public class ServerInfoCommand extends Command {
 
@@ -27,29 +26,32 @@ public class ServerInfoCommand extends Command {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        Server server = event.getServer().get();
+        Guild guild = event.getGuild();
 
-        String[] args = {
-                StringUtil.escapeMarkdown(server.getName()),
-                server.getIdAsString(),
-                server.getOwner().map(owner -> StringUtil.escapeMarkdown(owner.getDiscriminatedName())).orElse("-"),
-                server.getRegion().getName(),
-                TimeUtil.getInstantString(getLocale(), server.getCreationTimestamp(), true),
-                server.getIcon().isPresent() ? server.getIcon().get().getUrl().toString() : "-",
-                StringUtil.numToString(server.getMemberCount()),
-                StringUtil.numToString(server.getMembers().stream().filter(member -> !member.isBot()).count()),
-                StringUtil.numToString(server.getMembers().stream().filter(User::isBot).count()),
-                StringUtil.numToString(server.getBoostCount()),
-                StringUtil.numToString(server.getRoles().size()),
-                StringUtil.numToString(server.getChannels().stream().filter(channel -> channel.asServerTextChannel().isPresent() || channel.asServerVoiceChannel().isPresent()).count()),
-                StringUtil.numToString(server.getChannels().stream().filter(channel -> channel.asServerTextChannel().isPresent()).count()),
-                StringUtil.numToString(server.getChannels().stream().filter(channel -> channel.asServerVoiceChannel().isPresent()).count())
+        long bots = guild.getMembers().stream().filter(m -> m.getUser().isBot()).count();
+        String[] argsArray = {
+                StringUtil.escapeMarkdown(guild.getName()),
+                guild.getId(),
+                Optional.ofNullable(guild.getOwner()).map(owner -> StringUtil.escapeMarkdown(owner.getUser().getAsTag())).orElse("-"),
+                guild.getRegion().getName(),
+                TimeUtil.getInstantString(getLocale(), guild.getTimeCreated().toInstant(), true),
+                guild.getIconUrl() != null ? guild.getIconUrl() : "-",
+                StringUtil.numToString(guild.getMemberCount()),
+                StringUtil.numToString(bots),
+                StringUtil.numToString(guild.getMemberCount() - bots),
+                StringUtil.numToString(guild.getBoostCount()),
+                StringUtil.numToString(guild.getRoles().size()),
+                StringUtil.numToString(guild.getChannels().stream().filter(channel -> channel.getType() == ChannelType.TEXT || channel.getType() == ChannelType.VOICE).count()),
+                StringUtil.numToString(guild.getChannels().stream().filter(channel -> channel.getType() == ChannelType.TEXT).count()),
+                StringUtil.numToString(guild.getChannels().stream().filter(channel -> channel.getType() == ChannelType.VOICE).count())
         };
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", args));
-        if (server.getIcon().isPresent()) eb.setThumbnail(server.getIcon().get());
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", argsArray));
+        if (guild.getIconUrl() != null) {
+            eb.setThumbnail(guild.getIconUrl());
+        }
 
-        event.getServerTextChannel().get().sendMessage(eb).get();
+        event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 

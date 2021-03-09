@@ -188,8 +188,8 @@ public class CommandManager {
                 command.getLocale(),
                 event.getChannel(),
                 event.getMember(),
-                command.getUserGuildPermissions(),
-                command.getUserChannelPermissions(),
+                command.getAdjustedUserGuildPermissions(),
+                command.getAdjustedUserChannelPermissions(),
                 command.getBotPermissions()
         );
         if (errEmbed == null || command instanceof HelpCommand) {

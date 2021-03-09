@@ -168,14 +168,20 @@ public abstract class Command implements OnTriggerListener {
         return new CommandLanguage(title, descLong, usage, examples);
     }
 
-    public Permission[] getUserGuildPermissions() {
+    public Permission[] getAdjustedUserGuildPermissions() {
         Permission[] permissions = commandProperties.userGuildPermissions();
         return processUserPermissions(permissions);
     }
 
-    public Permission[] getUserChannelPermissions() {
+    public Permission[] getAdjustedUserChannelPermissions() {
         Permission[] permissions = commandProperties.userChannelPermissions();
         return processUserPermissions(permissions);
+    }
+
+    public Permission[] getUserPermissions() {
+        List<Permission> permissionList = Arrays.asList(getCommandProperties().userGuildPermissions());
+        permissionList.addAll(Arrays.asList(getCommandProperties().userChannelPermissions()));
+        return permissionList.toArray(new Permission[0]);
     }
 
     private Permission[] processUserPermissions(Permission[] permissions) {

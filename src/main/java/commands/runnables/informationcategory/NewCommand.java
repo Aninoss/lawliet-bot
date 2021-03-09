@@ -1,8 +1,13 @@
 package commands.runnables.informationcategory;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
-import commands.Command;
 import constants.AssetIds;
 import constants.TrackerResult;
 import core.EmbedFactory;
@@ -14,24 +19,17 @@ import mysql.modules.tracker.TrackerBeanSlot;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionBean;
 import mysql.modules.version.VersionBeanSlot;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "new",
         emoji = "\uD83C\uDD95",
         executableWithoutArgs = true,
-        aliases = {"changelog"}
+        aliases = { "changelog" }
 )
 public class NewCommand extends Command implements OnTrackerRequestListener {
 
@@ -45,28 +43,32 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         versionBean = DBVersion.getInstance().retrieve();
 
-        //Ohne Argumente
+        // without args
         if (args.length() == 0) {
             List<VersionBeanSlot> versions = versionBean.getCurrentVersions(3);
-            event.getChannel().sendMessage(getEmbedNormal(event.getServer().get(), event.getMessage().getUserAuthor().get(), versions, true)).get();
+            event.getChannel().sendMessage(getEmbedNormal(event.getMember(), versions, true).build()).queue();
             return true;
         } else {
-            //Anzahl
+            // number
             if (StringUtil.stringIsLong(args)) {
                 int i = Integer.parseInt(args);
                 if (i >= 1) {
                     if (i <= 10) {
                         List<VersionBeanSlot> versions = versionBean.getCurrentVersions(i);
-                        event.getChannel().sendMessage(getEmbedNormal(event.getServer().get(), event.getMessage().getUserAuthor().get(), versions, false)).get();
+                        event.getChannel().sendMessage(
+                                getEmbedNormal(event.getMember(), versions, false).build()
+                        ).queue();
                         return true;
                     } else {
-                        event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                                TextManager.getString(getLocale(), TextManager.GENERAL,"too_large", "10"))).get();
+                        event.getChannel().sendMessage(
+                                EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_large", "10")).build()
+                        ).queue();
                         return false;
                     }
                 } else {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                            TextManager.getString(getLocale(), TextManager.GENERAL,"too_small", "1"))).get();
+                    event.getChannel().sendMessage(
+                            EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")).build()
+                    ).queue();
                     return false;
                 }
             } else {
@@ -74,20 +76,23 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
                 List<VersionBeanSlot> versions = versionBean.getSlots().stream().filter(slot -> askVersions.contains(slot.getVersion())).collect(Collectors.toList());
 
                 if (versions.size() > 0) {
-                    event.getChannel().sendMessage(getEmbedNormal(event.getServer().get(), event.getMessage().getUserAuthor().get(), versions, false)).get();
+                    event.getChannel().sendMessage(
+                            getEmbedNormal(event.getMember(), versions, false).build()
+                    ).queue();
                     return true;
                 } else {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                            TextManager.getNoResultsString(getLocale(), args))).get();
+                    event.getChannel().sendMessage(
+                            EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), args)).build()
+                    ).queue();
                     return false;
                 }
             }
         }
     }
 
-    private EmbedBuilder getEmbedNormal(Server server, User user, List<VersionBeanSlot> versions, boolean showEmptyFooter) {
+    private EmbedBuilder getEmbedNormal(Member member, List<VersionBeanSlot> versions, boolean showEmptyFooter) {
         EmbedBuilder eb = getVersionsEmbed(versions, showEmptyFooter);
-        EmbedUtil.addTrackerNoteLog(getLocale(), server, user, eb, getPrefix(), getTrigger());
+        EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
         return eb;
     }
 
@@ -100,9 +105,14 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
     private EmbedBuilder getVersionsEmbed(List<VersionBeanSlot> versions, boolean showEmptyFooter) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         if (showEmptyFooter) EmbedUtil.setFooter(eb, this, getString("footer"));
-        for(int i = versions.size() - 1; i >= 0; i--) {
+        for (int i = versions.size() - 1; i >= 0; i--) {
             VersionBeanSlot slot = versions.get(i);
-            eb.addField(slot.getVersion(), ("• "+TextManager.getString(getLocale(), TextManager.VERSIONS, slot.getVersion())).replace("\n", "\n• ").replace("%PREFIX", getPrefix()));
+            String versionsString = TextManager.getString(getLocale(), TextManager.VERSIONS, slot.getVersion());
+            eb.addField(
+                    slot.getVersion(),
+                    ("• " + versionsString).replace("\n", "\n• ").replace("%PREFIX", getPrefix()),
+                    false
+            );
         }
         return eb;
     }
@@ -112,13 +122,13 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
         if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionBeanSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
 
-            slot.getChannel().get().sendMessage(getVersionsEmbed(newestSlot))
-                    .exceptionally(ExceptionLogger.get());
+            slot.getTextChannel().get().sendMessage(getVersionsEmbed(newestSlot).build())
+                    .complete();
 
             if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID) {
-                Role role = slot.getGuild().get().getRoleById(703879430799622155L).get();
-                slot.getChannel().get().sendMessage(role.getMentionTag())
-                        .thenAccept(m -> m.delete().exceptionally(ExceptionLogger.get()));
+                Role role = slot.getGuild().get().getRoleById(703879430799622155L);
+                slot.getTextChannel().get().sendMessage(role.getAsMention())
+                        .flatMap(Message::delete).queue();
             }
 
             slot.setArgs(BotUtil.getCurrentVersion());

@@ -1,16 +1,15 @@
 package commands.runnables.informationcategory;
 
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
-import core.TextManager;
+import core.ShardManager;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "userinfo",
@@ -25,29 +24,28 @@ public class MemberInfoCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String args) throws Throwable {
+    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) {
         String[] type = getString("type").split("\n");
         int typeN = 0;
-        if (!user.isBot()) {
+        if (!member.getUser().isBot()) {
             typeN = 1;
-            if (server.getOwnerId() == user.getId()) typeN = 2;
-            if (user.isBotOwner()) typeN = 3;
+            if (event.getGuild().getOwnerIdLong() == member.getIdLong()) typeN = 2;
+            if (member.getIdLong() == ShardManager.getInstance().getOwnerId()) typeN = 3;
         }
 
-        String[] args = {
+        String[] argsArray = {
                 type[typeN],
-                StringUtil.escapeMarkdown(user.getName()),
-                user.getNickname(server).isPresent() ? StringUtil.escapeMarkdown(user.getNickname(server).get()) : "-",
-                user.getDiscriminator(),
-                user.getIdAsString(),
-                user.getAvatar().getUrl().toString() + "?size=2048",
-                user.getJoinedAtTimestamp(server).isPresent() ? TimeUtil.getInstantString(getLocale(), user.getJoinedAtTimestamp(server).get(), true) : "-",
-                TimeUtil.getInstantString(getLocale(), user.getCreationTimestamp(), true),
-                TextManager.getString(getLocale(), TextManager.GENERAL, "status_" + user.getStatus().getStatusString())
+                StringUtil.escapeMarkdown(member.getUser().getName()),
+                member.getNickname() != null ? member.getNickname() : "-",
+                member.getUser().getDiscriminator(),
+                member.getId(),
+                member.getUser().getEffectiveAvatarUrl() + "?size=1024",
+                member.hasTimeJoined() ? TimeUtil.getInstantString(getLocale(), member.getTimeJoined().toInstant(), true) : "-",
+                TimeUtil.getInstantString(getLocale(), member.getTimeCreated().toInstant(), true)
         };
 
-        return EmbedFactory.getEmbedDefault(this, getString("template", args)).
-                setThumbnail(user.getAvatar().getUrl().toString());
+        return EmbedFactory.getEmbedDefault(this, getString("template", argsArray)).
+                setThumbnail(member.getUser().getEffectiveAvatarUrl());
     }
 
 }

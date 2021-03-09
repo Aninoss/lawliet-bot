@@ -8,6 +8,7 @@ import core.EmbedFactory;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "ping",
@@ -24,15 +25,15 @@ public class PingCommand extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Instant startTime = (Instant) getAttachments().get("starting_time");
         long milisInternal = TimeUtil.getMillisBetweenInstants(startTime, Instant.now());
-        long milisGateway = event.getApi().getLatestGatewayLatency().toMillis();
-        long milisRest = event.getApi().measureRestLatency().get().toMillis();
+        long milisGateway = event.getJDA().getGatewayPing();
+        long milisRest = event.getJDA().getRestPing().complete();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("pong",
                 StringUtil.numToString(milisInternal),
                 StringUtil.numToString(milisGateway),
                 StringUtil.numToString(milisRest)
         ));
-        event.getChannel().sendMessage(eb).get();
+        event.getChannel().sendMessage(eb.build()).queue();
 
         return true;
     }

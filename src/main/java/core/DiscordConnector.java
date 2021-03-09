@@ -37,7 +37,7 @@ public class DiscordConnector {
             .setMemberCachePolicy(MemberCachePolicy.ALL)
             .setChunkingFilter(ChunkingFilter.ALL)
             .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
-            .enableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS) //TODO: required?
+            .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)
             .setActivity(Activity.watching(getActivityText()))
             .addEventListeners(new DiscordEventAdapter());

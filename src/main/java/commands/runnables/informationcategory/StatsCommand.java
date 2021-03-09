@@ -1,25 +1,23 @@
 package commands.runnables.informationcategory;
 
-import commands.listeners.CommandProperties;
-
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import constants.ExternalLinks;
-import core.*;
+import core.EmbedFactory;
+import core.ShardManager;
 import core.utils.BotUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.modules.survey.DBSurvey;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.version.DBVersion;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.event.message.MessageCreateEvent;
-
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "stats",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
         emoji = "\uD83D\uDCCA",
         executableWithoutArgs = true,
         onlyPublicVersion = true,
@@ -32,11 +30,22 @@ public class StatsCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        String dephordName = ShardManager.getInstance().fetchUserById(303085910784737281L).get().map(User::getDiscriminatedName).orElse("???");
-        String neverCookFirstName = ShardManager.getInstance().fetchUserById(298153126223937538L).get().map(User::getDiscriminatedName).orElse("???");
-        String owner = ShardManager.getInstance().fetchOwner().get().getDiscriminatedName();
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+        String dephordName = "???";
+        try {
+            dephordName = ShardManager.getInstance().fetchUserById(303085910784737281L).get().getAsTag();
+        } catch (InterruptedException | ExecutionException e) {
+            //Ignore
+        }
 
+        String neverCookFirstName = "???";
+        try {
+            neverCookFirstName = ShardManager.getInstance().fetchUserById(298153126223937538L).get().getAsTag();
+        } catch (InterruptedException | ExecutionException e) {
+            //Ignore
+        }
+
+        String owner = ShardManager.getInstance().fetchOwner().get().getAsTag();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,
                 getString(
@@ -49,12 +58,10 @@ public class StatsCommand extends Command {
                         StringUtil.numToString(DBTracker.getInstance().retrieve().getSlots().size()),
                         owner,
                         StringUtil.numToString(DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
-                ) +
-                        "\n\n" +
-                        getString("translator", dephordName, neverCookFirstName)
+                ) + "\n\n" + getString("translator", dephordName, neverCookFirstName)
         );
 
-        event.getServerTextChannel().get().sendMessage(eb).get();
+        event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 

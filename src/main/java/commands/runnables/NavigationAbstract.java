@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 
 public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnReactionListener {
 
-    private final int DEFAULT_STATE = 0;
+    protected final int DEFAULT_STATE = 0;
 
     private String[] options;
     private int reactions;
