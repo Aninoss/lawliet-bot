@@ -12,7 +12,6 @@ import commands.runnables.fisherysettingscategory.FisheryRolesCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
 import core.PermissionCheckRuntime;
-import lombok.extern.log4j.Log4j2;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;

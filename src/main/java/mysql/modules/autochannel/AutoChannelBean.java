@@ -3,7 +3,6 @@ package mysql.modules.autochannel;
 import java.util.ArrayList;
 import java.util.Optional;
 import core.CustomObservableList;
-import lombok.extern.log4j.Log4j2;
 import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.checkerframework.checker.nullness.qual.NonNull;

@@ -1,6 +1,5 @@
 package websockets.syncserver.events;
 
-import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;

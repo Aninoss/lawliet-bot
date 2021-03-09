@@ -1,19 +1,21 @@
 package commands.runnables.fisherysettingscategory;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Random;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import commands.Command;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-
 import commands.listeners.OnStaticReactionAddListener;
+import commands.runnables.NavigationAbstract;
 import constants.*;
-import core.CustomObservableList;
-import core.EmbedFactory;
-import core.ListGen;
-import core.TextManager;
+import core.*;
+import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
-import core.utils.DiscordUtil;
+import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -21,39 +23,31 @@ import mysql.modules.fisheryusers.FisheryGuildBean;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
-
-
-
-
-
-
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.ReactionAddEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import org.javacord.api.util.logging.ExceptionLogger;
-
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Random;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 @CommandProperties(
         trigger = "fishery",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
-        userPermissions = PermissionDeprecated.MANAGE_SERVER,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "️⚙️️",
         executableWithoutArgs = true,
         aliases = { "fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings" }
 )
-public class FisheryCommand extends Command implements OnNavigationListenerOld, OnStaticReactionAddListener {
+public class FisheryCommand extends NavigationAbstract implements OnStaticReactionAddListener {
 
     private static final int MAX_CHANNELS = 50;
 
     private GuildBean guildBean;
     private boolean stopLock = true;
-    private NavigationHelper<ServerTextChannel> channelNavigationHelper;
-    private CustomObservableList<ServerTextChannel> ignoredChannels;
+    private NavigationHelper<AtomicTextChannel> channelNavigationHelper;
+    private CustomObservableList<AtomicTextChannel> ignoredChannels;
 
     public static final String treasureEmoji = "💰";
     public static final String keyEmoji = "🔑";
@@ -66,26 +60,27 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
-        ignoredChannels = fisheryGuildBean.getIgnoredChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);
-        channelNavigationHelper = new NavigationHelper<>(this, ignoredChannels, ServerTextChannel.class, MAX_CHANNELS);
+        ignoredChannels = AtomicTextChannel.transformIdList(event.getGuild(), fisheryGuildBean.getIgnoredChannelIds());
+        channelNavigationHelper = new NavigationHelper<>(this, ignoredChannels, AtomicTextChannel.class, MAX_CHANNELS);
+        registerNavigationListener(7);
         return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
-            ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
-            return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0);
+            ArrayList<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+            return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMessage().getMember(), 0);
         }
 
         return null;
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -159,7 +154,7 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options_" + guildBean.getFisheryStatus().ordinal()).split("\n"));
@@ -169,7 +164,7 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
                         .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(guildBean.isFisheryTreasureChests())), getString("state0_mtreasurechests_desc"), true)
                         .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(guildBean.isFisheryReminders())), getString("state0_mreminders_desc"), true)
                         .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(guildBean.hasFisheryCoinsGivenLimit())), getString("state0_mcoinsgivenlimit_desc"), true)
-                        .addField(getString("state0_mchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), false);
+                        .addField(getString("state0_mchannels"), new ListGen<AtomicTextChannel>().getList(ignoredChannels, getLocale(), IMentionable::getAsMention), false);
 
             case 1:
                 return channelNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
@@ -182,64 +177,59 @@ public class FisheryCommand extends Command implements OnNavigationListenerOld, 
     }
 
     @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {
-    }
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 7;
-    }
-
-    @Override
-    public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
-        if (DiscordUtil.emojiIsString(event.getEmoji(), keyEmoji) &&
-                !treasureBlockCache.asMap().containsKey(message.getId())
+    public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
+        if (event.getReactionEmote().getAsReactionCode().equals(keyEmoji) &&
+                !treasureBlockCache.asMap().containsKey(message.getIdLong())
         ) {
-            treasureBlockCache.put(message.getId(), true);
-            if (message.getChannel().canYouRemoveReactionsOfOthers())
-                message.getCurrentCachedInstance().ifPresent(m -> m.removeAllReactions().exceptionally(ExceptionLogger.get()));
+            treasureBlockCache.put(message.getIdLong(), true);
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+                message.clearReactions().queue();
+            }
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
-                    .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getUser().get().getMentionTag()));
-            message.getCurrentCachedInstance().ifPresent(m -> m.edit(eb).exceptionally(ExceptionLogger.get()));
+                    .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getMember().getAsMention()));
+            message.editMessage(eb.build()).queue();
 
-            FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getUserId());
+            FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getUserIdLong());
             MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
                 Random r = new Random();
-                String[] winLose = new String[]{ "win", "lose" };
+                String[] winLose = new String[] { "win", "lose" };
                 int resultInt = r.nextInt(2);
                 String result = winLose[resultInt];
 
                 long won = Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
 
                 String treasureImage;
-                if (resultInt == 0) treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
-                else treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
+                if (resultInt == 0) {
+                    treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
+                } else {
+                    treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
+                }
 
                 EmbedBuilder eb2 = EmbedFactory.getEmbedDefault()
                         .setTitle(FisheryCommand.treasureEmoji + " " + getString("treasure_title"))
-                        .setDescription(getString("treasure_opened_" + result, event.getUser().get().getMentionTag(), StringUtil.numToString(won)))
+                        .setDescription(getString("treasure_opened_" + result, event.getMember().getAsMention(), StringUtil.numToString(won)))
                         .setImage(treasureImage)
                         .setFooter(getString("treasure_footer"));
 
-                message.getCurrentCachedInstance().ifPresent(m -> m.edit(eb2).exceptionally(ExceptionLogger.get()));
-                if (message.getChannel().canYouRemoveReactionsOfOthers())
-                    message.getCurrentCachedInstance().ifPresent(m -> m.removeAllReactions().exceptionally(ExceptionLogger.get()));
+                message.editMessage(eb2.build()).queue();
+                if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+                    message.clearReactions().queue();
+                }
 
-                ServerTextChannel channel = event.getServerTextChannel().get();
-                if (resultInt == 0 && channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks()) {
-                    channel.sendMessage(userBean.changeValues(0, won))
-                            .exceptionally(ExceptionLogger.get())
-                            .thenAccept(m -> {
+                TextChannel channel = event.getChannel();
+                if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
+                    channel.sendMessage(userBean.changeValuesEmbed(0, won).build())
+                            .queue(m -> {
                                 MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove_account_change", () -> {
-                                    m.getCurrentCachedInstance().ifPresent(m2 -> m2.delete().exceptionally(ExceptionLogger.get()));
+                                    m.delete().queue();
                                 });
                             });
                 }
 
                 MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
-                    message.getCurrentCachedInstance().ifPresent(m -> m.delete().exceptionally(ExceptionLogger.get()));
+                    message.delete().queue();
                 });
             });
         }

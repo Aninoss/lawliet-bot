@@ -5,7 +5,6 @@ import constants.AssetIds;
 import core.ShardManager;
 import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
-import lombok.extern.log4j.Log4j2;
 import mysql.modules.bump.DBBump;
 
 public class BumpReminder {

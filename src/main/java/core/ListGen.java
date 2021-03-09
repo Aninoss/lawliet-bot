@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.function.Function;
 import core.utils.StringUtil;
-import lombok.extern.log4j.Log4j2;
 
 public class ListGen<T> {
 

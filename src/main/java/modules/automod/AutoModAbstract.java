@@ -7,7 +7,6 @@ import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
-import lombok.extern.log4j.Log4j2;
 import modules.Mod;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;

@@ -13,7 +13,6 @@ import core.*;
 import core.schedule.ScheduleInterface;
 import core.utils.JDAUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
-import lombok.extern.log4j.Log4j2;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.guild.DBGuild;

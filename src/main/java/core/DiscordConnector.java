@@ -5,7 +5,6 @@ import javax.security.auth.login.LoginException;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
-import lombok.extern.log4j.Log4j2;
 import modules.BumpReminder;
 import modules.FisheryVCObserver;
 import modules.repair.MainRepair;

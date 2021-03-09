@@ -31,7 +31,7 @@ import commands.runnables.splatoon2category.SalmonCommand;
 import commands.runnables.splatoon2category.SplatnetCommand;
 import commands.runnables.utilitycategory.*;
 import constants.Settings;
-import lombok.extern.log4j.Log4j2;
+import core.MainLogger;
 
 public class CommandContainer {
 

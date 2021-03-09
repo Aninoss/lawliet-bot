@@ -4,7 +4,6 @@ import java.util.Optional;
 import commands.runnables.utilitycategory.ReminderCommand;
 import core.PermissionCheckRuntime;
 import core.schedule.MainScheduler;
-import lombok.extern.log4j.Log4j2;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.RemindersBean;
 import net.dv8tion.jda.api.Permission;

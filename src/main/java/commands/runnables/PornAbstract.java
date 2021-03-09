@@ -27,7 +27,6 @@ import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
 import core.utils.StringUtil;
-import lombok.extern.log4j.Log4j2;
 import modules.porn.PornImage;
 import modules.porn.PornImageDownloader;
 import mysql.modules.nsfwfilter.DBNSFWFilters;

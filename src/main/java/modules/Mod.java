@@ -16,7 +16,6 @@ import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.utils.JDAUtil;
 import javafx.util.Pair;
-import lombok.extern.log4j.Log4j2;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
 import mysql.modules.warning.DBServerWarnings;

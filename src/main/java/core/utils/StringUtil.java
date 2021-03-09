@@ -1,16 +1,15 @@
 package core.utils;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Locale;
 import constants.Emojis;
 import constants.Language;
 import core.ShardManager;
 import core.TextManager;
 import net.dv8tion.jda.api.entities.Message;
 import org.jsoup.Jsoup;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.Locale;
 
 public final class StringUtil {
 
@@ -198,7 +197,7 @@ public final class StringUtil {
         return "❌";
     }
 
-    public static String getOnOffForBoolean(Locale locale, boolean bool) throws IOException {
+    public static String getOnOffForBoolean(Locale locale, boolean bool) {
         StringBuilder sb = new StringBuilder("**");
 
         if (bool) sb.append("✅ ");

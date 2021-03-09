@@ -3,13 +3,15 @@ package commands.runnables.fisherysettingscategory;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import constants.Response;
 import constants.Settings;
-import core.*;
+import core.CustomObservableList;
+import core.EmbedFactory;
+import core.ListGen;
+import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Fishery;
@@ -18,51 +20,61 @@ import mysql.modules.fisheryusers.FisheryGuildBean;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "fisheryroles",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
-        userPermissions = PermissionDeprecated.MANAGE_SERVER,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "📜",
         executableWithoutArgs = true,
-        aliases = {"fishingroles", "fishroles", "fisheryr"}
+        aliases = { "fishingroles", "fishroles", "fisheryr" }
 )
-public class FisheryRolesCommand extends Command implements OnNavigationListenerOld {
+public class FisheryRolesCommand extends NavigationAbstract {
 
     private static final int MAX_ROLES = 50;
 
     private GuildBean guildBean;
     private FisheryGuildBean fisheryGuildBean;
-    private CustomObservableList<Role> roles;
 
     public FisheryRolesCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
-        roles = fisheryGuildBean.getRoles();
 
-        checkRolesWithLog(roles, null);
+        checkRolesWithLog(fisheryGuildBean.getRoles());
+        registerNavigationListener(12);
         return true;
     }
-    
+
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                ArrayList<Role> roleList = MentionUtil.getRoles(event.getMessage(), inputString).getList();
+                ArrayList<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
                 if (roleList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
-                    if (!checkRolesWithLog(roleList, event.getMessage().getUserAuthor().get())) return Response.FALSE;
+                    if (!checkRolesWithLog(event.getMember(), roleList)) {
+                        return Response.FALSE;
+                    }
 
+                    CustomObservableList<Role> roles = fisheryGuildBean.getRoles();
                     int existingRoles = 0;
                     for (Role role : roleList) {
-                        if (roles.contains(role)) existingRoles++;
+                        if (roles.contains(role)) {
+                            existingRoles++;
+                        }
                     }
 
                     if (existingRoles >= roleList.size()) {
@@ -85,14 +97,14 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                 }
 
             case 3:
-                ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
+                ArrayList<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
                 if (channelList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
-                    ServerTextChannel channel = channelList.get(0);
+                    TextChannel channel = channelList.get(0);
                     if (checkWriteInChannelWithLog(channel)) {
-                        guildBean.setFisheryAnnouncementChannelId(channel.getId());
+                        guildBean.setFisheryAnnouncementChannelId(channel.getIdLong());
                         setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
                         setState(0);
                         return Response.TRUE;
@@ -102,8 +114,8 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                 }
 
             case 4:
-                if (inputString.contains("-") && !inputString.replaceFirst("-", "").contains("-")) {
-                    String[] parts = (inputString + " ").split("-");
+                if (input.contains("-") && !input.replaceFirst("-", "").contains("-")) {
+                    String[] parts = (input + " ").split("-");
                     long priceMin = MentionUtil.getAmountExt(parts[0]);
                     long priceMax = MentionUtil.getAmountExt(parts[1]);
 
@@ -129,7 +141,7 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -138,7 +150,7 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                         return false;
 
                     case 0:
-                        if (roles.size() < MAX_ROLES) {
+                        if (fisheryGuildBean.getRoles().size() < MAX_ROLES) {
                             setState(1);
                             return true;
                         } else {
@@ -147,7 +159,7 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                         }
 
                     case 1:
-                        if (roles.size() > 0) {
+                        if (fisheryGuildBean.getRoles().size() > 0) {
                             setState(2);
                             return true;
                         } else {
@@ -180,6 +192,7 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                 return false;
 
             case 2:
+                CustomObservableList<Role> roles = fisheryGuildBean.getRoles();
                 if (i == -1) {
                     setState(0);
                     return true;
@@ -216,17 +229,15 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
     }
 
     private String getRoleString(Role role) {
-        int n = roles.indexOf(role);
-        try {
-            return getString("state0_rolestring", role.getMentionTag(), StringUtil.numToString(Fishery.getFisheryRolePrice(role.getServer(), new ArrayList<>(fisheryGuildBean.getRoleIds()), n)));
-        } catch (ExecutionException e) {
-            MainLogger.get().error("Exception", e);
-            return "";
-        }
+        int n = fisheryGuildBean.getRoles().indexOf(role);
+        return getString(
+                "state0_rolestring",
+                role.getAsMention(), StringUtil.numToString(Fishery.getFisheryRolePrice(role.getGuild(), new ArrayList<>(fisheryGuildBean.getRoleIds()), n))
+        );
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         switch (state) {
@@ -234,26 +245,26 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
                 setOptions(getString("state0_options").split("\n"));
 
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description", String.valueOf(MAX_ROLES)))
-                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), this::getRoleString), false)
+                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(fisheryGuildBean.getRoles(), getLocale(), this::getRoleString), false)
                         .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getLocale(), guildBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
-                        .addField(getString("state0_mannouncementchannel"), guildBean.getFisheryAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
+                        .addField(getString("state0_mannouncementchannel"), guildBean.getFisheryAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(guildBean.getFisheryRoleMin()), StringUtil.numToString(guildBean.getFisheryRoleMax())), true);
 
             case 1:
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
+                CustomObservableList<Role> roles = fisheryGuildBean.getRoles();
                 String[] roleStrings = new String[roles.size()];
-                for(int i = 0; i < roleStrings.length; i++) {
+                for (int i = 0; i < roleStrings.length; i++) {
                     roleStrings[i] = getRoleString(roles.get(i));
                 }
                 setOptions(roleStrings);
 
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
-                return eb;
+                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:
-                setOptions(new String[]{getString("state3_options")});
+                setOptions(new String[] { getString("state3_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
 
             case 4:
@@ -262,14 +273,6 @@ public class FisheryRolesCommand extends Command implements OnNavigationListener
             default:
                 return null;
         }
-    }
-
-    @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {}
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 12;
     }
 
 }

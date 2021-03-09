@@ -9,6 +9,8 @@ import commands.CommandListenerMeta;
 import commands.CommandManager;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.informationcategory.HelpCommand;
+import constants.Response;
+import core.MainLogger;
 import core.ShardManager;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
@@ -16,7 +18,6 @@ import core.utils.MentionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
-import lombok.extern.log4j.Log4j2;
 import modules.MessageQuote;
 import mysql.modules.autoquote.DBAutoQuote;
 import mysql.modules.guild.DBGuild;
@@ -33,8 +34,9 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
         String prefix = guildBean.getPrefix();
         String content = event.getMessage().getContentRaw();
 
-        if (content.toLowerCase().startsWith("i.") && prefix.equalsIgnoreCase("L."))
+        if (content.toLowerCase().startsWith("i.") && prefix.equalsIgnoreCase("L.")) {
             content = prefix + content.substring(2);
+        }
 
         String[] prefixes = {
                 prefix,
@@ -51,14 +53,16 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
         }
 
         if (prefixFound > -1) {
-            if (prefixFound > 0 && manageMessageInput(event))
+            if (prefixFound > 0 && manageMessageInput(event)) {
                 return true;
+            }
 
             String newContent = content.substring(prefixes[prefixFound].length()).trim();
             if (newContent.contains("  ")) newContent = newContent.replace("  ", " ");
             String commandTrigger = newContent.split(" ")[0].toLowerCase();
-            if (newContent.contains("<") && newContent.split("<")[0].length() < commandTrigger.length())
+            if (newContent.contains("<") && newContent.split("<")[0].length() < commandTrigger.length()) {
                 commandTrigger = newContent.split("<")[0].toLowerCase();
+            }
 
             String args;
             try {
@@ -87,8 +91,9 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                 }
             }
         } else {
-            if (manageMessageInput(event))
+            if (manageMessageInput(event)) {
                 return true;
+            }
             checkAutoQuote(event);
         }
 
@@ -118,10 +123,16 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
     private boolean manageMessageInput(GuildMessageReceivedEvent event) {
         List<CommandListenerMeta<?>> listeners = CommandContainer.getInstance().getListeners(OnMessageInputListener.class).stream()
                 .filter(listener -> listener.check(event))
+                .sorted((l1, l2) -> l2.getCreationTime().compareTo(l1.getCreationTime()))
                 .collect(Collectors.toList());
 
         if (listeners.size() > 0) {
-            listeners.forEach(listener -> ((OnMessageInputListener) listener.getCommand()).processMessageInput(event));
+            for (CommandListenerMeta<?> listener : listeners) {
+                Response response = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event);
+                if (response != null) {
+                    return true;
+                }
+            }
             return true;
         } else {
             return false;

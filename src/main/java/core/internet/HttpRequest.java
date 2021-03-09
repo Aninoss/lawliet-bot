@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import core.GlobalThreadPool;
 import core.utils.BotUtil;
-import lombok.extern.log4j.Log4j2;
 
 public class HttpRequest {
 

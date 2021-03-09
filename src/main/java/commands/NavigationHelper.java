@@ -1,6 +1,5 @@
 package commands;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
 import commands.runnables.NavigationAbstract;
@@ -104,14 +103,14 @@ public class NavigationHelper<T> {
         return EmbedFactory.getEmbedDefault(command, desc, title);
     }
 
-    public EmbedBuilder drawDataRemove() throws IOException {
+    public EmbedBuilder drawDataRemove() {
         return drawDataRemove(
                 TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_remove_title" + typeString),
                 TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_remove_desc" + typeString)
         );
     }
 
-    public EmbedBuilder drawDataRemove(String title, String desc) throws IOException {
+    public EmbedBuilder drawDataRemove(String title, String desc) {
         Function<T, String> nameFunction;
         if (type == Type.Unknown) nameFunction = Object::toString;
         else nameFunction = obj -> ((MentionableAtomicAsset<?>)obj).get().map(IMentionable::getAsMention).orElse("-");

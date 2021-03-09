@@ -303,12 +303,12 @@ public abstract class Command implements OnTriggerListener {
 
     public Optional<Long> getTextChannelId() {
         return Optional.ofNullable(atomicTextChannel)
-                .map(AtomicTextChannel::getId);
+                .map(AtomicTextChannel::getIdLong);
     }
 
     public Optional<Long> getMemberId() {
         return Optional.ofNullable(atomicMember)
-                .map(AtomicMember::getId);
+                .map(AtomicMember::getIdLong);
     }
 
     public CommandProperties getCommandProperties() {

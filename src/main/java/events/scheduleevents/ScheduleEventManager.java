@@ -10,7 +10,6 @@ import java.util.function.Consumer;
 import core.schedule.ScheduleAdapter;
 import core.schedule.ScheduleInterface;
 import core.utils.TimeUtil;
-import lombok.extern.log4j.Log4j2;
 import org.reflections.Reflections;
 
 public class ScheduleEventManager {

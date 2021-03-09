@@ -1,40 +1,37 @@
 package commands.runnables.fisherysettingscategory;
 
+import java.util.Locale;
+import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnMessageInputListener;
-import commands.listeners.OnReactionAddListener;
-import commands.Command;
+import commands.listeners.OnReactionListener;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import java.io.IOException;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "vctime",
-        botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
-        userPermissions = PermissionDeprecated.MANAGE_SERVER,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "⏲️",
         executableWithoutArgs = true,
         patreonRequired = true,
         aliases = { "voicechanneltime", "vccap", "voicechannelcap", "vccaps", "vclimit", "vclimits", "vctimeout" }
 )
-public class VCTimeCommand extends Command implements OnReactionAddListener, OnMessageInputListener {
+public class VCTimeCommand extends Command implements OnReactionListener, OnMessageInputListener {
 
     private static final String CLEAR_EMOJI = "\uD83D\uDDD1️";
     private static final String QUIT_EMOJI = "❌";
 
-    private Message message;
     private GuildBean guildBean;
+    private EmbedBuilder eb;
 
     public VCTimeCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -42,106 +39,85 @@ public class VCTimeCommand extends Command implements OnReactionAddListener, OnM
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-            guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-            if (args.length() > 0) {
-                return mainExecution(event, args);
-            } else {
-                message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this,
-                        getString("status",
-                                guildBean.getFisheryVcHoursCap().isPresent(),
-                                guildBean.getFisheryVcHoursCap().map(in -> StringUtil.numToString(in)).orElse(getString("unlimited")),
-                                CLEAR_EMOJI,
-                                QUIT_EMOJI
-                        ))).get();
-                message.addReaction(CLEAR_EMOJI);
-                message.addReaction(QUIT_EMOJI);
-                return true;
-            }
-    }
+        guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+        if (args.length() > 0) {
+            drawMessage(mainExecution(event, args));
+            return true;
+        } else {
+            this.eb = EmbedFactory.getEmbedDefault(
+                    this,
+                    getString(
+                            "status",
+                            guildBean.getFisheryVcHoursCap().isPresent(),
+                            guildBean.getFisheryVcHoursCap().map(StringUtil::numToString).orElse(getString("unlimited")),
+                            CLEAR_EMOJI,
+                            QUIT_EMOJI
+                    )
+            );
 
-    private boolean mainExecution(MessageCreateEvent event, String argString) throws Throwable {
-        removeReactionListener(message);
-        removeMessageForwarder();
-
-        if (argString.equalsIgnoreCase("unlimited")) {
-            markUnlimited(event.getServerTextChannel().get());
+            registerReactionListener(CLEAR_EMOJI, QUIT_EMOJI);
+            registerMessageInputListener(false);
             return true;
         }
+    }
 
-        if (!StringUtil.stringIsInt(argString)) {
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")));
-            return false;
+    private EmbedBuilder mainExecution(GuildMessageReceivedEvent event, String args) {
+        if (args.equalsIgnoreCase("unlimited")) {
+            return markUnlimited();
         }
 
-        int value = Integer.parseInt(argString);
+        if (!StringUtil.stringIsInt(args)) {
+            return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
+        }
+
+        int value = Integer.parseInt(args);
 
         if (value < 1 || value > 23) {
-            sendMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "23")));
-            return false;
+            return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "23"));
         }
 
         guildBean.setFisheryVcHoursCap(value);
-
-        sendMessage(event.getServerTextChannel().get(), EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(value), StringUtil.numToString(value))));
-        return true;
+        return EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(value), StringUtil.numToString(value)));
     }
 
-    private void sendMessage(ServerTextChannel channel, EmbedBuilder embedBuilder) throws ExecutionException, InterruptedException {
-        if (message != null) message.edit(embedBuilder);
-        else channel.sendMessage(embedBuilder).get();
-        message = null;
-    }
-
-    private void markUnlimited(ServerTextChannel channel) throws IOException, ExecutionException, InterruptedException {
-        removeMessageForwarder();
-        removeReactionListener();
+    private EmbedBuilder markUnlimited() {
         guildBean.setFisheryVcHoursCap(null);
-        sendMessage(channel, EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(null), getString("unlimited"))));
+        return EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(null), getString("unlimited")));
     }
 
     private int getNumberSlot(Integer i) {
-        if (i == null) return 0;
-        else if (i == 1) return 1;
+        if (i == null) {
+            return 0;
+        } else if (i == 1) return 1;
         return 2;
     }
 
     @Override
-    public Response onForwardedRecieved(MessageCreateEvent event) throws Throwable {
-        return mainExecution(event, event.getMessage().getContent()) ? Response.TRUE : Response.FALSE;
+    public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
+        removeReactionListenerWithMessage();
+        deregisterMessageInputListener();
+        this.eb = mainExecution(event, input);
+        return Response.TRUE;
     }
 
     @Override
-    public Message getForwardedMessage() {
-        return message;
-    }
-
-    @Override
-    public void onForwardedTimeOut() {}
-
-    @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (event.getEmoji().isUnicodeEmoji()) {
-            if (event.getEmoji().asUnicodeEmoji().get().equals(CLEAR_EMOJI))
-                markUnlimited(event.getServerTextChannel().get());
-            else if (event.getEmoji().asUnicodeEmoji().get().equals(QUIT_EMOJI)) {
-                removeReactionListenerWithMessage();
-                removeNavigation();
-            }
+    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+        if (event.getReactionEmote().getAsReactionCode().equals(CLEAR_EMOJI)) {
+            removeReactionListenerWithMessage();
+            deregisterMessageInputListener();
+            this.eb = markUnlimited();
+            return true;
+        } else if (event.getReactionEmote().getAsReactionCode().equals(QUIT_EMOJI)) {
+            removeReactionListenerWithMessage();
+            deregisterMessageInputListener();
+            return true;
         }
+        return false;
     }
 
     @Override
-    public void onNewActivityOverwrite() {
-        removeNavigation();
-        removeReactionListener();
+    public EmbedBuilder draw() throws Throwable {
+        return this.eb;
     }
-
-    @Override
-    public Message getReactionMessage() {
-        return message;
-    }
-
-    @Override
-    public void onReactionTimeOut(Message message) {}
 
 }

@@ -16,7 +16,7 @@ public class HighfiveCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736274901673181216/736274910271373412/highfive.gif",
                 "https://media.discordapp.net/attachments/736274901673181216/736274914381922444/highfive.gif",
                 "https://media.discordapp.net/attachments/736274901673181216/736274917502353408/highfive.gif",

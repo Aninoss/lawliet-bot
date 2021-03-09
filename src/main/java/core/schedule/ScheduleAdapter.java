@@ -1,7 +1,6 @@
 package core.schedule;
 
 import java.util.TimerTask;
-import lombok.extern.log4j.Log4j2;
 
 public class ScheduleAdapter extends TimerTask {
 

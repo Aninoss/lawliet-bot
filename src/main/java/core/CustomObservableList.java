@@ -23,14 +23,15 @@ public class CustomObservableList<T> extends ObservableListWrapper<T> implements
     }
 
     private void onChange(ListChangeListener.Change<? extends T> c) {
-        while(c.next()) {
+        while (c.next()) {
             if (c.wasAdded()) {
                 c.getAddedSubList().forEach(t -> {
                     if (t instanceof Observable) ((Observable) t).addObserver(this);
                 });
                 listAddListeners.forEach(listAddListener -> listAddListener.onListAdd(c.getAddedSubList()));
-            } else if (c.wasRemoved())
+            } else if (c.wasRemoved()) {
                 listRemoveListeners.forEach(listRemoveListener -> listRemoveListener.onListRemove(c.getRemoved()));
+            }
         }
     }
 
@@ -51,17 +52,31 @@ public class CustomObservableList<T> extends ObservableListWrapper<T> implements
 
     @Override
     public void update(Observable o, Object arg) {
-        listUpdateListeners.forEach(listUpdateListener -> listUpdateListener.onListUpdate((T)o));
+        listUpdateListeners.forEach(listUpdateListener -> listUpdateListener.onListUpdate((T) o));
     }
 
-    public interface ListAddListener<T> { void onListAdd(List<? extends T> list); }
-    public interface ListRemoveListener<T> { void onListRemove(List<? extends T> list); }
-    public interface ListUpdateListener<T> { void onListUpdate(T t); }
+    public interface ListAddListener<T> {
+
+        void onListAdd(List<? extends T> list);
+
+    }
+
+    public interface ListRemoveListener<T> {
+
+        void onListRemove(List<? extends T> list);
+
+    }
+
+    public interface ListUpdateListener<T> {
+
+        void onListUpdate(T t);
+
+    }
 
     public <U> CustomObservableList<U> transform(Function<T, U> function, Function<U, T> backFunction) {
         ArrayList<U> listTemp = new ArrayList<>();
 
-        for(T t: new ArrayList<>(this)) {
+        for (T t : new ArrayList<>(this)) {
             U u = function.apply(t);
             if (u != null) {
                 listTemp.add(u);
@@ -71,8 +86,18 @@ public class CustomObservableList<T> extends ObservableListWrapper<T> implements
         }
 
         CustomObservableList<U> newList = new CustomObservableList<>(listTemp);
-        newList.addListAddListener(addedList -> addedList.forEach(element -> add(backFunction.apply(element))));
-        newList.addListRemoveListener(removedList -> removedList.forEach(element -> remove(backFunction.apply(element))));
+        newList.addListAddListener(addedList -> addedList.forEach(element -> {
+            T t = backFunction.apply(element);
+            if (t != null) {
+                add(backFunction.apply(element));
+            }
+        }));
+        newList.addListRemoveListener(removedList -> removedList.forEach(element -> {
+            T t = backFunction.apply(element);
+            if (t != null) {
+                remove(backFunction.apply(element));
+            }
+        }));
 
         return newList;
     }

@@ -2,7 +2,6 @@ package websockets.syncserver.events;
 
 import java.util.HashMap;
 import core.cache.PatreonCache;
-import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;

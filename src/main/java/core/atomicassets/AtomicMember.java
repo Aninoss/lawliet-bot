@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import core.CustomObservableList;
 import core.ShardManager;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 
 public class AtomicMember implements MentionableAtomicAsset<Member> {
@@ -23,7 +26,7 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
     }
 
     @Override
-    public long getId() {
+    public long getIdLong() {
         return memberId;
     }
 
@@ -50,6 +53,13 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
         return members.stream()
                 .map(AtomicMember::new)
                 .collect(Collectors.toList());
+    }
+
+    public static CustomObservableList<AtomicMember> transformIdList(Guild guild, CustomObservableList<Long> list) {
+        return list.transform(
+                id -> Optional.ofNullable(guild.getMemberById(id)).map(AtomicMember::new).orElse(null),
+                atomic -> atomic.get().map(ISnowflake::getIdLong).orElse(null)
+        );
     }
 
 }

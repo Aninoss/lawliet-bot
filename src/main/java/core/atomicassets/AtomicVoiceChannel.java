@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import core.CustomObservableList;
 import core.ShardManager;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
 public class AtomicVoiceChannel implements AtomicAsset<VoiceChannel> {
@@ -50,6 +53,13 @@ public class AtomicVoiceChannel implements AtomicAsset<VoiceChannel> {
         return channels.stream()
                 .map(AtomicVoiceChannel::new)
                 .collect(Collectors.toList());
+    }
+
+    public static CustomObservableList<AtomicVoiceChannel> transformIdList(Guild guild, CustomObservableList<Long> list) {
+        return list.transform(
+                id -> Optional.ofNullable(guild.getVoiceChannelById(id)).map(AtomicVoiceChannel::new).orElse(null),
+                atomic -> atomic.get().map(ISnowflake::getIdLong).orElse(null)
+        );
     }
 
 }

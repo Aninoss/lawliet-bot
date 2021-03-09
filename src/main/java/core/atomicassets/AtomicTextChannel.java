@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import core.CustomObservableList;
 import core.ShardManager;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class AtomicTextChannel implements MentionableAtomicAsset<TextChannel> {
@@ -23,7 +26,7 @@ public class AtomicTextChannel implements MentionableAtomicAsset<TextChannel> {
     }
 
     @Override
-    public long getId() {
+    public long getIdLong() {
         return channelId;
     }
 
@@ -50,6 +53,13 @@ public class AtomicTextChannel implements MentionableAtomicAsset<TextChannel> {
         return channels.stream()
                 .map(AtomicTextChannel::new)
                 .collect(Collectors.toList());
+    }
+
+    public static CustomObservableList<AtomicTextChannel> transformIdList(Guild guild, CustomObservableList<Long> list) {
+        return list.transform(
+                id -> Optional.ofNullable(guild.getTextChannelById(id)).map(AtomicTextChannel::new).orElse(null),
+                atomic -> atomic.get().map(ISnowflake::getIdLong).orElse(null)
+        );
     }
 
 }

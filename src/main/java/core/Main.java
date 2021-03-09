@@ -3,7 +3,6 @@ package core;
 import java.io.File;
 import java.time.Instant;
 import core.utils.BotUtil;
-import lombok.extern.log4j.Log4j2;
 import mysql.DBMain;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionBean;

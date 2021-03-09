@@ -1,13 +1,13 @@
 package commands.runnables.interactionscategory;
+
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.InteractionAbstract;
 
-import java.util.Locale;
-
 @CommandProperties(
-    trigger = "bite",
-    emoji = "\uD83E\uDE78",
-    executableWithoutArgs = true
+        trigger = "bite",
+        emoji = "\uD83E\uDE78",
+        executableWithoutArgs = true
 )
 public class BiteCommand extends InteractionAbstract {
 
@@ -16,7 +16,7 @@ public class BiteCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736272811789779006/736272843343659120/bite.gif",
                 "https://media.discordapp.net/attachments/736272811789779006/736272848963764224/bite.gif",
                 "https://media.discordapp.net/attachments/736272811789779006/736272854709960784/bite.gif",

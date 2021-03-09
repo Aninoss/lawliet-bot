@@ -3,7 +3,6 @@ package core.cache;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import core.GlobalThreadPool;
-import lombok.extern.log4j.Log4j2;
 
 public abstract class SingleCache <T> {
 

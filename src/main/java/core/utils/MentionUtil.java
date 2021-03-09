@@ -11,12 +11,12 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.vdurmont.emoji.EmojiParser;
+import core.MainLogger;
 import core.ShardManager;
 import core.TextManager;
 import core.cache.PatternCache;
 import core.mention.Mention;
 import core.mention.MentionList;
-import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 

@@ -10,7 +10,6 @@ import constants.Emojis;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
-import lombok.extern.log4j.Log4j2;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
 import mysql.modules.guild.DBGuild;
