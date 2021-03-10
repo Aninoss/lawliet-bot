@@ -1,29 +1,34 @@
 package commands.runnables.utilitycategory;
 
+import java.util.List;
+import java.util.Locale;
 import commands.listeners.CommandProperties;
-
-import commands.Command;
+import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import constants.Response;
-import core.*;
+import core.EmbedFactory;
+import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.AutoChannel;
 import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
-
-import java.util.ArrayList;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "autochannel",
-        botPermissions = PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER | PermissionDeprecated.MOVE_MEMBERS | PermissionDeprecated.CONNECT_ON_SERVER,
-        userPermissions = PermissionDeprecated.MANAGE_CHANNELS_ON_SERVER | PermissionDeprecated.MOVE_MEMBERS,
+        botPermissions = { Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT },
+        userGuildPermissions = { Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT },
         emoji = "🔊",
         executableWithoutArgs = true,
         aliases = { "tempchannel" }
 )
-public class AutoChannelCommand extends Command implements OnNavigationListenerOld {
+public class AutoChannelCommand extends NavigationAbstract {
     
     private AutoChannelBean autoChannelBean;
 
@@ -34,6 +39,7 @@ public class AutoChannelCommand extends Command implements OnNavigationListenerO
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
+        registerNavigationListener(4);
         return true;
     }
 
@@ -41,20 +47,20 @@ public class AutoChannelCommand extends Command implements OnNavigationListenerO
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                ArrayList<ServerVoiceChannel> channelList = MentionUtil.getVoiceChannels(event.getMessage(), inputString).getList();
+                List<VoiceChannel> channelList = MentionUtil.getVoiceChannels(event.getMessage(), input).getList();
                 if (channelList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
-                    autoChannelBean.setParentChannelId(channelList.get(0).getId());
+                    autoChannelBean.setParentChannelId(channelList.get(0).getIdLong());
                     setLog(LogStatus.SUCCESS, getString("channelset"));
                     setState(0);
                     return Response.TRUE;
                 }
 
             case 2:
-                if (inputString.length() > 0 && inputString.length() < 50) {
-                    autoChannelBean.setNameMask(inputString);
+                if (input.length() > 0 && input.length() < 50) {
+                    autoChannelBean.setNameMask(input);
                     setLog(LogStatus.SUCCESS, getString("channelnameset"));
                     setState(0);
                     return Response.TRUE;
@@ -124,7 +130,7 @@ public class AutoChannelCommand extends Command implements OnNavigationListenerO
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
-                        .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(autoChannelBean.getParentChannel().map(Nameable::getName).orElse(notSet)), true)
+                        .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(autoChannelBean.getParentChannel().map(GuildChannel::getName).orElse(notSet)), true)
                         .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(StringUtil.escapeMarkdown(autoChannelBean.getNameMask()),
                                 "`%VCNAME`",
                                 "`%INDEX`",
@@ -140,14 +146,6 @@ public class AutoChannelCommand extends Command implements OnNavigationListenerO
             default:
                 return null;
         }
-    }
-
-    @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {}
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 4;
     }
 
 }

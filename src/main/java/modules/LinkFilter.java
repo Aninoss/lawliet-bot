@@ -22,7 +22,7 @@ public class LinkFilter {
                 JDAUtil.sendPrivateMessage(message.getMember(),
                         "⚠️ Du benötigst den ersten Fischereirang, bevor du Links auf **Anicord** senden kannst!\nMehr Informationen dazu findest du auf <#608455541978824739>"
                 ).queue();
-                message.getGuild().getTextChannelById(462420339364724751L)
+                message.getGuild().getTextChannelById(819350890263085097L)
                         .sendMessage("LINK BLOCK FOR " + message.getAuthor().getAsTag() + " IN " + message.getTextChannel().getAsMention() + ": " + message.getContentRaw())
                         .queue();
             }

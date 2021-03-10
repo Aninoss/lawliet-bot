@@ -1,13 +1,12 @@
 package commands.cooldownchecker;
 
-import constants.Settings;
-import core.schedule.MainScheduler;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Optional;
+import constants.Settings;
+import core.schedule.MainScheduler;
 
 public class CoolDownUserData {
 
@@ -29,7 +28,7 @@ public class CoolDownUserData {
     public synchronized boolean canPostCoolDownMessage() {
         if (canPostCoolDownMessage) {
             canPostCoolDownMessage = false;
-            MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "cool_down", () -> this.canPostCoolDownMessage = true);
+            MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "cool_down", () -> this.canPostCoolDownMessage = true);
             return true;
         }
 

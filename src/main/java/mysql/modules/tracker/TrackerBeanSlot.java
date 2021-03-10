@@ -1,12 +1,12 @@
 package mysql.modules.tracker;
 
-import core.assets.TextChannelAsset;
-import mysql.BeanWithGuild;
-import net.dv8tion.jda.api.entities.Message;
 import java.time.Instant;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import core.assets.TextChannelAsset;
+import mysql.BeanWithGuild;
+import net.dv8tion.jda.api.entities.Message;
 
 public class TrackerBeanSlot extends BeanWithGuild implements TextChannelAsset {
 
@@ -39,7 +39,7 @@ public class TrackerBeanSlot extends BeanWithGuild implements TextChannelAsset {
         return Optional.ofNullable(messageId);
     }
 
-    public CompletableFuture<Message> getMessage() {
+    public CompletableFuture<Message> retrieveMessage() {
         return getTextChannel().map(channel -> channel.retrieveMessageById(getMessageId().orElse(0L)).submit())
                 .orElseGet(() -> CompletableFuture.failedFuture(new NoSuchElementException("No text channel")));
     }

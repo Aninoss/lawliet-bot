@@ -106,7 +106,11 @@ public class AutoChannel {
     private static ChannelAction<VoiceChannel> addOriginalPermissions(VoiceChannel parentVoice, ChannelAction<VoiceChannel> channelAction) {
         for(PermissionOverride permissionOverride : parentVoice.getPermissionOverrides()) {
             if (permissionOverride.getPermissionHolder() != null) {
-                channelAction = channelAction.addPermissionOverride(permissionOverride.getPermissionHolder(), permissionOverride.getAllowed(), permissionOverride.getDenied());
+                channelAction = channelAction.addPermissionOverride(
+                        permissionOverride.getPermissionHolder(),
+                        permissionOverride.getAllowed(),
+                        permissionOverride.getDenied()
+                );
             }
         }
         return channelAction;
@@ -120,7 +124,7 @@ public class AutoChannel {
         return channelAction.addPermissionOverride(
                 parentVoice.getGuild().getSelfMember(),
                 allowRaw | Permission.MANAGE_CHANNEL.getRawValue() | Permission.VOICE_CONNECT.getRawValue(),
-                denyRaw
+                denyRaw & ~Permission.MANAGE_CHANNEL.getRawValue() & ~Permission.VOICE_CONNECT.getRawValue()
         );
     }
 
@@ -129,7 +133,11 @@ public class AutoChannel {
         long allowRaw = botPermission != null ? botPermission.getAllowedRaw() : 0L;
         long denyRaw = botPermission != null ? botPermission.getDeniedRaw() : 0L;
 
-        return channelAction.addPermissionOverride(member, allowRaw | Permission.MANAGE_CHANNEL.getRawValue(), denyRaw);
+        return channelAction.addPermissionOverride(
+                member,
+                allowRaw | Permission.MANAGE_CHANNEL.getRawValue(),
+                denyRaw & ~Permission.MANAGE_CHANNEL.getRawValue()
+        );
     }
 
     private static String getNewVoiceName(AutoChannelBean autoChannelBean, VoiceChannel parentVoice, Member member, int n) {

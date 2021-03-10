@@ -55,7 +55,7 @@ public class QuoteCommand extends Command {
             // id with channel
             if (StringUtil.stringIsLong(newString)) {
                 try {
-                    Message message = MessageCache.getInstance().get(channel, Long.parseLong(newString)).get();
+                    Message message = MessageCache.getInstance().retrieveMessage(channel, Long.parseLong(newString)).get();
                     MessageQuote.postQuote(getLocale(), channel, message, false);
                     return true;
                 } catch (ExecutionException | InterruptedException e) {

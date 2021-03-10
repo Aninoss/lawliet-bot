@@ -2,11 +2,12 @@ package commands.runnables.utilitycategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
+import net.dv8tion.jda.api.Permission;
 
 @CommandProperties(
         trigger = "revokerole",
-        userPermissions = PermissionDeprecated.MANAGE_ROLES,
-        botPermissions = PermissionDeprecated.MANAGE_ROLES,
+        userGuildPermissions = Permission.MANAGE_ROLES,
+        botPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDCE4",
         executableWithoutArgs = false,
         patreonRequired = true,

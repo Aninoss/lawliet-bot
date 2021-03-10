@@ -29,24 +29,29 @@ public class RoleAssigner {
             .expireAfterWrite(Duration.ofHours(1))
             .build();
 
-    public Optional<CompletableFuture<Boolean>> assignRoles(Guild guild, Role role, boolean add) {
+    public Optional<CompletableFuture<Boolean>> assignRoles(Role role, boolean add) {
+        Guild guild = role.getGuild();
         synchronized (guild) {
-            if (busyServers.asMap().containsKey(guild.getIdLong()))
+            if (busyServers.asMap().containsKey(guild.getIdLong())) {
                 return Optional.empty();
+            }
 
             AtomicBoolean active = new AtomicBoolean(true);
             busyServers.put(guild.getIdLong(), active);
             return Optional.of(CompletableFuture.supplyAsync(() -> {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                     for (Member member : new ArrayList<>(guild.getMembers())) {
                         if (active.get() &&
                                 member.getRoles().contains(role) != add &&
                                 guild.getMembers().contains(member)
                         ) {
                             if (BotPermissionUtil.can(role.getGuild(), Permission.MANAGE_ROLES) && role.getGuild().getSelfMember().canInteract(role)) {
-                                if (add) role.getGuild().addRoleToMember(member, role).complete();
-                                else role.getGuild().removeRoleFromMember(member, role).complete();
+                                if (add) {
+                                    role.getGuild().addRoleToMember(member, role).complete();
+                                } else {
+                                    role.getGuild().removeRoleFromMember(member, role).complete();
+                                }
                             }
                         }
                     }

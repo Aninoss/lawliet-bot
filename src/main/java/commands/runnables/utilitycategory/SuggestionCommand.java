@@ -1,25 +1,32 @@
 package commands.runnables.utilitycategory;
 
+import java.time.Duration;
+import java.util.Locale;
+import java.util.Optional;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
 import constants.AssetIds;
 import constants.Emojis;
-import core.QuickUpdater;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
+import core.QuickUpdater;
 import core.RatelimitManager;
-import core.utils.DiscordUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
 import mysql.modules.suggestions.DBSuggestions;
 import mysql.modules.suggestions.SuggestionsBean;
 import net.dv8tion.jda.api.EmbedBuilder;
-
-import java.time.temporal.ChronoUnit;
-import java.util.Locale;
-import java.util.Optional;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 
 @CommandProperties(
         trigger = "suggestion",
@@ -40,47 +47,55 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         SuggestionsBean suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
         if (suggestionsBean.isActive()) {
-            Optional<ServerTextChannel> channelOpt = suggestionsBean.getChannel();
-            if (channelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOpt.get(), PermissionDeprecated.READ_MESSAGES | PermissionDeprecated.SEND_MESSAGES | PermissionDeprecated.EMBED_LINKS | PermissionDeprecated.ADD_REACTIONS)) {
-                if (RatelimitManager.getInstance().checkAndSet("suggestion", event.getMessageAuthor().getId(), 1, 1, ChronoUnit.MINUTES).isEmpty()) {
-                    ServerTextChannel channel = channelOpt.get();
-                    String author = event.getMessage().getUserAuthor().get().getDiscriminatedName();
+            Optional<TextChannel> channelOpt = suggestionsBean.getChannel();
+            if (channelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.MESSAGE_WRITE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION)) {
+                if (RatelimitManager.getInstance().checkAndSet("suggestion", event.getMember().getIdLong(), 1, Duration.ofMinutes(1)).isEmpty()) {
+                    TextChannel channel = channelOpt.get();
+                    String author = event.getMessage().getMember().getUser().getAsTag();
                     String content = StringUtil.shortenString(args, 1024);
 
-                    Message message = channel.sendMessage(
-                            event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID ? "<@&762314049953988650>" : "",
-                            generateEmbed(content, author, generateFooter(0, 0))
-                    ).get();
-                    message.addReaction(EMOJI_LIKE).get();
-                    message.addReaction(EMOJI_DISLIKE).get();
+                    channel.sendMessage(event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID ? "<@&762314049953988650>" : "")
+                            .embed(generateEmbed(content, author, generateFooter(0, 0)).build())
+                            .queue(message -> {
+                                message.addReaction(EMOJI_LIKE).queue();
+                                message.addReaction(EMOJI_DISLIKE).queue();
 
-                    suggestionsBean.getSuggestionMessages().put(
-                            message.getId(),
-                            new SuggestionMessage(
-                                    event.getGuild().getIdLong(),
-                                    message.getId(),
-                                    content,
-                                    author
-                            )
-                    );
+                                suggestionsBean.getSuggestionMessages().put(
+                                        message.getIdLong(),
+                                        new SuggestionMessage(
+                                                event.getGuild().getIdLong(),
+                                                message.getIdLong(),
+                                                content,
+                                                author
+                                        )
+                                );
+                            });
 
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("success"))).get();
+                    event.getChannel().sendMessage(
+                            EmbedFactory.getEmbedDefault(this, getString("success")).build()
+                    ).queue();
                     return true;
                 } else {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("ratelimit"), getString("ratelimit_title"))).get();
+                    event.getChannel().sendMessage(
+                            EmbedFactory.getEmbedError(this, getString("ratelimit"), getString("ratelimit_title")).build()
+                    ).queue();
                 }
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("channelnotfound"), getString("channelnotfound_title"))).get();
+                event.getChannel().sendMessage(
+                        EmbedFactory.getEmbedError(this, getString("channelnotfound"), getString("channelnotfound_title")).build()
+                ).queue();
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("notactive"), getString("notactive_title"))).get();
+            event.getChannel().sendMessage(
+                    EmbedFactory.getEmbedError(this, getString("notactive"), getString("notactive_title")).build()
+            ).queue();
         }
         return false;
     }
 
     private EmbedBuilder generateEmbed(String content, String author, String footer) {
         return EmbedFactory.getEmbedDefault()
-                .setTitle(getEmoji() + " " + getString("message_title", author) + Emojis.EMPTY_EMOJI)
+                .setTitle(getCommandProperties().emoji() + " " + getString("message_title", author) + Emojis.EMPTY_EMOJI)
                 .setDescription(content)
                 .setFooter(footer);
     }
@@ -94,46 +109,43 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
     }
 
     @Override
-    public void onReactionAddStatic(Message message, ReactionAddEvent event) throws Throwable {
+    public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
         onReactionStatic(message, event);
     }
 
     @Override
-    public void onReactionRemoveStatic(Message message, ReactionRemoveEvent event) throws Throwable {
+    public void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) {
         onReactionStatic(message, event);
     }
 
-    private void onReactionStatic(Message message, SingleReactionEvent event) {
+    private void onReactionStatic(Message message, GenericGuildMessageReactionEvent event) {
         DBSuggestions.getInstance()
                 .retrieve(event.getGuild().getIdLong())
                 .getSuggestionMessages()
-                .computeIfPresent(message.getId(), (messageId, suggestionMessage) -> {
-                    Emoji emoji = event.getEmoji();
-                    if (DiscordUtil.emojiIsString(emoji, EMOJI_LIKE) || DiscordUtil.emojiIsString(emoji, EMOJI_DISLIKE)) {
-                        QuickUpdater.getInstance().update(
-                                "suggestion",
-                                messageId,
-                                () -> {
-                                    String footer = generateFooter(
-                                            message.getReactionByEmoji(EMOJI_LIKE).map(r -> r.getCount() - 1).orElse(0),
-                                            message.getReactionByEmoji(EMOJI_DISLIKE).map(r -> r.getCount() - 1).orElse(0)
-                                    );
-
-                                    String oldFooter = "";
-                                    if (message.getEmbeds().size() > 0) {
-                                        oldFooter = message.getEmbeds().get(0).getFooter().flatMap(EmbedFooter::getText).orElse("");
-                                    }
-
-                                    if (!footer.equals(oldFooter)) {
-                                        return message.edit(generateEmbed(
-                                                suggestionMessage.getContent(),
-                                                suggestionMessage.getAuthor(),
-                                                footer
-                                        ));
-                                    }
-                                    return null;
-                                }
+                .computeIfPresent(message.getIdLong(), (messageId, suggestionMessage) -> {
+                    String emoji = event.getReactionEmote().getAsReactionCode();
+                    if (emoji.equals(EMOJI_LIKE) || emoji.equals(EMOJI_DISLIKE)) {
+                        String footer = generateFooter(
+                                JDAUtil.getMessageReactionFromMessage(message, EMOJI_LIKE).map(r -> r.getCount() - 1).orElse(0),
+                                JDAUtil.getMessageReactionFromMessage(message, EMOJI_LIKE).map(r -> r.getCount() - 1).orElse(0)
                         );
+
+                        String oldFooter = "";
+                        if (message.getEmbeds().size() > 0) {
+                            oldFooter = Optional.ofNullable(message.getEmbeds().get(0).getFooter())
+                                    .map(MessageEmbed.Footer::getText)
+                                    .orElse("");
+                        }
+
+                        if (!footer.equals(oldFooter)) {
+                            QuickUpdater.getInstance().update(
+                                    "suggestion",
+                                    messageId,
+                                    message.editMessage(
+                                            generateEmbed(suggestionMessage.getContent(), suggestionMessage.getAuthor(), footer).build()
+                                    )
+                            );
+                        }
                     }
                     return suggestionMessage;
                 });
@@ -141,7 +153,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
     @Override
     public String titleStartIndicator() {
-        return getEmoji();
+        return getCommandProperties().emoji();
     }
 
 }

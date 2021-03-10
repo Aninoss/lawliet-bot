@@ -41,7 +41,7 @@ public class MuteManager {
                 PermissionOverride permissionOverride = permissionOverrideOpt.get();
                 if (mute && !permissionOverride.getDenied().contains(Permission.MESSAGE_WRITE)) {
                     manager = manager.putPermissionOverride(member,
-                            permissionOverride.getAllowedRaw(),
+                            permissionOverride.getAllowedRaw() & ~Permission.MESSAGE_WRITE.getRawValue(),
                             permissionOverride.getDeniedRaw() | Permission.MESSAGE_WRITE.getRawValue()
                     );
                     updated = true;

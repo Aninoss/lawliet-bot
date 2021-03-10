@@ -5,6 +5,7 @@ import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.OnStaticReactionAddListener;
 import constants.Emojis;
+import core.MainLogger;
 import core.ShardManager;
 import core.cache.MessageCache;
 import events.discordevents.DiscordEvent;
@@ -14,12 +15,12 @@ import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
-@DiscordEvent()
+@DiscordEvent
 public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionAddAbstract {
 
     @Override
     public boolean onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) throws Throwable {
-        MessageCache.getInstance().get(event.getChannel(), event.getMessageIdLong())
+        MessageCache.getInstance().retrieveMessage(event.getChannel(), event.getMessageIdLong())
                 .thenAccept(message -> {
                     if (message.getAuthor().getIdLong() == ShardManager.getInstance().getSelfId() &&
                             message.getEmbeds().size() > 0

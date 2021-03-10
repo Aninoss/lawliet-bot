@@ -1,7 +1,7 @@
 package commands.runnables.utilitycategory;
 
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddListener;
+import commands.listeners.OnReactionListener;
 import commands.Command;
 import core.EmbedFactory;
 import core.utils.DiscordUtil;
@@ -18,7 +18,7 @@ import java.util.Locale;
         patreonRequired = true,
         aliases = { "triggerremove", "starterremove", "startermessagedelete", "startermessageremove", "messagedelete", "messageremove", "starterdelete" }
 )
-public class TriggerDeleteCommand extends Command implements OnReactionAddListener {
+public class TriggerDeleteCommand extends Command implements OnReactionListener {
 
     private Message message;
 

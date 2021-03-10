@@ -61,8 +61,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
         Response response = controllerMessage(event, input, state);
-        if (response != null)
+        if (response != null) {
             processDraw(event.getChannel());
+        }
 
         return null;
     }
@@ -190,18 +191,21 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         if (index >= reactions - 2 && options != null && options.length > reactions) {
             if (index == reactions - 2) {
                 page--;
-                if (page < 0)
+                if (page < 0) {
                     page = pageMax;
+                }
             } else if (index == reactions - 1) {
                 page++;
-                if (page > pageMax)
+                if (page > pageMax) {
                     page = 0;
+                }
             }
             startCalculation.set(false);
             return index;
         } else {
-            if (options != null && options.length > reactions && index >= 0)
+            if (options != null && options.length > reactions && index >= 0) {
                 index += (reactions - 2) * page;
+            }
             startCalculation.set(true);
             return index;
         }
@@ -224,8 +228,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             } else {
                 newOptions = new String[reactions];
                 Arrays.fill(newOptions, "");
-                if (Math.min(reactions - 2, options.length - (reactions - 2) * page) >= 0)
+                if (Math.min(reactions - 2, options.length - (reactions - 2) * page) >= 0) {
                     System.arraycopy(options, page * (reactions - 2), newOptions, 0, Math.min(reactions - 2, options.length - (reactions - 2) * page));
+                }
 
                 newOptions[reactions - 2] = TextManager.getString(locale, TextManager.GENERAL, "list_previous");
                 newOptions[reactions - 1] = TextManager.getString(locale, TextManager.GENERAL, "list_next");
@@ -260,13 +265,18 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         }
     }
 
+    public void removeNavigation() {
+        removeReactionListener();
+        deregisterMessageInputListener();
+    }
+
     public void removeNavigationWithMessage() {
         removeReactionListenerWithMessage();
         deregisterMessageInputListener();
     }
 
     public boolean checkWriteInChannelWithLog(TextChannel channel) {
-        if (BotPermissionUtil.canWriteEmbed(channel)) {
+        if (channel != null && BotPermissionUtil.canWriteEmbed(channel)) {
             return true;
         }
         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#" + channel.getName()));
@@ -294,15 +304,17 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public boolean checkRolesWithLog(Member member, List<Role> roles) {
-        if (roles.size() == 0)
+        if (roles.size() == 0) {
             return true;
-        if (member == null)
+        }
+        if (member == null) {
             member = roles.get(0).getGuild().getSelfMember();
+        }
 
         ArrayList<Role> unmanagableRoles = new ArrayList<>();
 
         for (Role role : roles) {
-            if (!role.getGuild().getSelfMember().canInteract(role)) {
+            if (role != null && !role.getGuild().getSelfMember().canInteract(role)) {
                 unmanagableRoles.add(role);
             }
         }
@@ -343,8 +355,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     public void setOptions(String[] options) {
         this.options = options;
         if (options != null) {
-            if (reactions > 2)
+            if (reactions > 2) {
                 this.pageMax = Math.max(0, options.length - 1) / (reactions - 2);
+            }
         }
     }
 

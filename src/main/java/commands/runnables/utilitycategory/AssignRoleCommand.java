@@ -1,39 +1,40 @@
 package commands.runnables.utilitycategory;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddListener;
+import commands.listeners.OnReactionListener;
 import core.EmbedFactory;
-import core.ShardManager;
 import core.TextManager;
-import core.utils.BotPermissionUtil;
+import core.atomicassets.AtomicRole;
 import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import modules.RoleAssigner;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "assignrole",
-        userPermissions = PermissionDeprecated.MANAGE_ROLES,
-        botPermissions = PermissionDeprecated.MANAGE_ROLES,
+        userGuildPermissions = Permission.MANAGE_ROLES,
+        botPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDCE5",
         executableWithoutArgs = false,
         patreonRequired = true,
         turnOffTimeout = true,
         aliases = { "giverole", "assign" }
 )
-public class AssignRoleCommand extends Command implements OnReactionAddListener {
+public class AssignRoleCommand extends Command implements OnReactionListener {
 
     private static final String CANCEL_EMOJI = "❌";
 
     private CompletableFuture<Boolean> future = null;
-    private Message message;
-    private Role role;
+    private AtomicRole atomicRole;
 
     public AssignRoleCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -41,76 +42,74 @@ public class AssignRoleCommand extends Command implements OnReactionAddListener 
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        ArrayList<Role> roles = MentionUtil.getRoles(event.getMessage(), args).getList();
+        List<Role> roles = MentionUtil.getRoles(event.getMessage(), args).getList();
 
         /* check for no role mention */
         if (roles.isEmpty()) {
-            event.getChannel()
-                    .sendMessage(EmbedFactory.getEmbedError(this, getString("no_role"))).get();
+            event.getChannel().sendMessage(
+                    EmbedFactory.getEmbedError(this, getString("no_role")).build()
+            ).queue();
             return false;
         }
-        role = roles.get(0);
+        Role role = roles.get(0);
+        atomicRole = new AtomicRole(role);
 
-         /* check for missing role manage permissions bot */
-        if (!BotPermissionUtil.canManageRole(ShardManager.getInstance().getSelf(), role)) {
-            event.getChannel()
-                    .sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", role.getMentionTag()))).get();
+        /* check for missing role manage permissions bot */
+        if (!event.getGuild().getSelfMember().canInteract(role)) {
+            event.getChannel().sendMessage(
+                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", role.getAsMention())).build()
+            ).queue();
             return false;
         }
 
         /* check for missing role manage permissions user */
-        if (!BotPermissionUtil.canManageRole(event.getMessageAuthor().asUser().get(), role)) {
-            event.getChannel()
-                    .sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", role.getMentionTag()))).get();
+        if (!event.getMember().canInteract(role)) {
+            event.getChannel().sendMessage(
+                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", role.getAsMention())).build()
+            ).queue();
             return false;
         }
 
-        Optional<CompletableFuture<Boolean>> futureOpt = RoleAssigner.getInstance().assignRoles(event.getServer().get(), role, addRole());
+        Optional<CompletableFuture<Boolean>> futureOpt = RoleAssigner.getInstance().assignRoles(role, addRole());
 
         /* check for busy */
         if (futureOpt.isEmpty()) {
-            event.getChannel()
-                    .sendMessage(EmbedFactory.getEmbedError(this, getString("busy_desc"), getString("busy_title"))).get();
+            event.getChannel().sendMessage(
+                    EmbedFactory.getEmbedError(this, getString("busy_desc"), getString("busy_title")).build()
+            ).queue();
             return false;
         }
 
         future = futureOpt.get();
         future.thenAccept(this::onAssignmentFinished);
 
-        message = event.getChannel()
-                .sendMessage(EmbedFactory.getEmbedDefault(this, getString("loading", role.getMentionTag(), JDAUtil.getLoadingReaction(event.getServerTextChannel().get()), CANCEL_EMOJI))).get();
-        message.addReaction(CANCEL_EMOJI).get();
-
+        registerReactionListener(CANCEL_EMOJI);
         return true;
     }
 
-    protected boolean addRole() { return true; }
+    protected boolean addRole() {
+        return true;
+    }
 
     private void onAssignmentFinished(boolean success) {
         removeReactionListener();
-        try {
-            if (success)
-                message.edit(EmbedFactory.getEmbedDefault(this, getString("success_desc", role.getMentionTag()))).get();
-            else
-                message.edit(EmbedFactory.getEmbedError(this, getString("canceled_desc", role.getMentionTag()), getString("canceled_title"))).get();
-        } catch (InterruptedException | ExecutionException e) {
-            MainLogger.get().error("Exception in role assignment finished", e);
+        if (success) {
+            drawMessage(EmbedFactory.getEmbedDefault(this, getString("success_desc", atomicRole.getAsMention())));
+        } else {
+            drawMessage(EmbedFactory.getEmbedError(this, getString("canceled_desc", atomicRole.getAsMention()), getString("canceled_title")));
         }
     }
 
     @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        if (event.getEmoji().equalsEmoji(CANCEL_EMOJI) && future != null) {
-            removeReactionListener();
-            RoleAssigner.getInstance().cancel(event.getGuild().getIdLong());
-        }
+    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+        removeReactionListener();
+        RoleAssigner.getInstance().cancel(event.getGuild().getIdLong());
+        return false;
     }
 
     @Override
-    public Message getReactionMessage() {
-        return message;
+    public EmbedBuilder draw() throws Throwable {
+        return EmbedFactory.getEmbedDefault(this, getString("loading", atomicRole.getAsMention(), JDAUtil.getLoadingReaction(getTextChannel().orElse(null)), CANCEL_EMOJI));
     }
 
-    @Override
-    public void onReactionTimeOut(Message message) {}
 }

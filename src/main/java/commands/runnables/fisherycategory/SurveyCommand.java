@@ -54,8 +54,9 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) throws IOException {
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), event.getChannel(), Permission.MESSAGE_MANAGE))
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), event.getChannel(), Permission.MESSAGE_MANAGE)) {
             return;
+        }
 
         event.getReaction().removeReaction(event.getUser()).queue();
 
@@ -88,9 +89,11 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         List<SurveySecondVote> surveySecondVotes = surveyBean.getSurveySecondVotesForUserId(event.getUserIdLong());
 
-        if (surveySecondVotes.size() == 0)
+        if (surveySecondVotes.size() == 0) {
             voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        else voteStrings[1] = "";
+        } else {
+            voteStrings[1] = "";
+        }
 
         for (SurveySecondVote surveySecondVote : surveySecondVotes) {
             voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getInstance().getGuildName(surveySecondVote.getGuildId()).orElse(String.valueOf(surveySecondVote.getGuildId()))) + ")\n";
@@ -118,8 +121,9 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
             if (correctEmoji && reaction.getCount() > (addedEmoji.equals(emoji) ? 2 : 1)) {
                 for (User user : reaction.retrieveUsers()) {
-                    if (user.getIdLong() != ShardManager.getInstance().getSelfId())
+                    if (user.getIdLong() != ShardManager.getInstance().getSelfId()) {
                         reaction.removeReaction(user).queue();
+                    }
                 }
             }
         }
@@ -168,14 +172,18 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         //Survey Message
         EmbedBuilder eb = getSurveyEmbed(currentSurvey, tracker);
-        if (!tracker)
+        if (!tracker) {
             EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
+        }
         Message message = channel.sendMessage(eb.build()).complete();
 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
-                if (i == 0) message.addReaction(LetterEmojis.LETTERS[j]).complete();
-                else message.addReaction(LetterEmojis.RED_LETTERS[j]).complete();
+                if (i == 0) {
+                    message.addReaction(LetterEmojis.LETTERS[j]).complete();
+                } else {
+                    message.addReaction(LetterEmojis.RED_LETTERS[j]).complete();
+                }
             }
         }
         message.addReaction(BELL_EMOJI).complete();
@@ -190,8 +198,9 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         eb.addField(getString("results_question"), surveyQuestion.getQuestion(), false);
 
         StringBuilder answerString = new StringBuilder();
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) {
             answerString.append(LetterEmojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
+        }
         eb.addField(getString("results_answers"), answerString.toString(), false);
 
         long firstVotesTotal = lastSurvey.getFirstVoteNumber();
@@ -248,8 +257,9 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         eb.addField(getString("majority"), majorityString.toString(), false);
 
         Instant after = TimeUtil.localDateToInstant(surveyBean.getNextDate());
-        if (!tracker)
+        if (!tracker) {
             EmbedUtil.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), after, false)));
+        }
         EmbedUtil.addRemainingTime(eb, after);
 
         return eb;
@@ -263,12 +273,14 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
-        if (slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get()))
+        if (slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get())) {
             return TrackerResult.CONTINUE;
+        }
 
         TextChannel channel = slot.getTextChannel().get();
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channel, Permission.MESSAGE_ADD_REACTION))
+        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION)) {
             return TrackerResult.CONTINUE;
+        }
 
         channel.deleteMessageById(slot.getMessageId().get()).complete();
 

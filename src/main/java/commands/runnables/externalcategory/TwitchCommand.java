@@ -111,9 +111,8 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
                 Message message = channel.sendMessage(eb.build()).complete(); /* post twitch status if live and not live before */
                 slot.setMessageId(message.getIdLong());
             } else {
-                slot.getMessage().thenAccept(message -> {
-                    message.editMessage(eb.build()).complete(); /* edit twitch status if live and live before */
-                });
+                slot.getTextChannel().get()
+                        .editMessageById(slot.getMessageId().get(), eb.build()).complete(); /* edit twitch status if live and live before */
             }
         }
 

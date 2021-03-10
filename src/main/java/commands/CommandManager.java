@@ -295,7 +295,7 @@ public class CommandManager {
             return true;
         }
 
-        if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_ADD_REACTION)) {
+        if (BotPermissionUtil.canRead(event.getChannel(), Permission.MESSAGE_ADD_REACTION)) {
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_EXT_EMOJI))
                 event.getMessage().addReaction(Emojis.NO).queue();
             else

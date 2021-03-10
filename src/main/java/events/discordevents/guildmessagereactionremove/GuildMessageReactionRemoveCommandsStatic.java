@@ -19,7 +19,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
 
     @Override
     public boolean onGuildMessageReactionRemove(GuildMessageReactionRemoveEvent event) {
-        MessageCache.getInstance().get(event.getChannel(), event.getMessageIdLong())
+        MessageCache.getInstance().retrieveMessage(event.getChannel(), event.getMessageIdLong())
                 .thenAccept(message -> {
                     if (message.getAuthor().getIdLong() == ShardManager.getInstance().getSelfId() &&
                             message.getEmbeds().size() > 0

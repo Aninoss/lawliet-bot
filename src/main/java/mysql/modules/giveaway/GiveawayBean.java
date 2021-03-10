@@ -1,10 +1,10 @@
 package mysql.modules.giveaway;
 
-import core.assets.MessageAsset;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Observable;
 import java.util.Optional;
+import core.assets.MessageAsset;
 
 public class GiveawayBean extends Observable implements MessageAsset {
 
@@ -31,7 +31,7 @@ public class GiveawayBean extends Observable implements MessageAsset {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.active = active || getEnd().isAfter(Instant.now());
+        this.active = active;
     }
 
     @Override

@@ -298,8 +298,8 @@ public class ShardManager {
                 .orElseThrow();
     }
 
-    public boolean emoteIsKnown(Emote emote) {
-        return getEmoteById(emote.getIdLong()).isPresent();
+    public boolean emoteIsKnown(String emoteTag) {
+        return getEmoteById(JDAUtil.extractIdFromEmote(emoteTag)).isPresent();
     }
 
     public Optional<Emote> getLocalEmoteById(long emoteId) {
@@ -313,7 +313,7 @@ public class ShardManager {
     }
 
     public Optional<String> getEmoteById(long emojiId) {
-        Optional<String> emojiOptional = getLocalEmoteById(emojiId).map(JDAUtil::emoteToTag);
+        Optional<String> emojiOptional = getLocalEmoteById(emojiId).map(JDAUtil::emoteToEmoji);
         return emojiOptional.or(() -> ExternalEmojiCache.getInstance().getEmoteById(emojiId));
     }
 

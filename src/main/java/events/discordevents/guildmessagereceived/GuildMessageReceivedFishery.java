@@ -1,5 +1,6 @@
 package events.discordevents.guildmessagereceived;
 
+import java.util.Random;
 import constants.FisheryStatus;
 import core.CustomObservableList;
 import core.utils.BotPermissionUtil;
@@ -13,7 +14,6 @@ import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import java.util.Random;
 
 @DiscordEvent(priority = EventPriority.LOW)
 public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
@@ -37,7 +37,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
                 new Random().nextInt(400) == 0 &&
                 guildBean.getFisheryStatus() == FisheryStatus.ACTIVE &&
                 guildBean.isFisheryTreasureChests() &&
-                BotPermissionUtil.canWriteEmbed(event.getChannel(), Permission.MESSAGE_ADD_REACTION)
+                BotPermissionUtil.canWriteEmbed(event.getChannel(), Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION)
         ) {
             boolean noSpamChannel = true;
             CustomObservableList<Long> ignoredChannelIds = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getIgnoredChannelIds();

@@ -1,79 +1,31 @@
 package commands.runnables.utilitycategory;
 
-import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionAddListener;
-
-import commands.Command;
-import core.EmbedFactory;
-import core.utils.DiscordUtil;
-import core.utils.StringUtil;
-import mysql.modules.autoquote.DBAutoQuote;
-
 import java.util.Locale;
+import commands.listeners.CommandProperties;
+import commands.runnables.CommandOnOffSwitchAbstract;
+import mysql.modules.autoquote.DBAutoQuote;
+import net.dv8tion.jda.api.Permission;
 
 @CommandProperties(
         trigger = "autoquote",
-        userPermissions = PermissionDeprecated.MANAGE_SERVER,
+        userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "\uD83D\uDCDD",
         executableWithoutArgs = true
 )
-public class AutoQuoteCommand extends Command implements OnReactionAddListener {
-
-    private Message message;
-
-    private final String[] activeArgs = new String[]{"off", "on"};
+public class AutoQuoteCommand extends CommandOnOffSwitchAbstract {
 
     public AutoQuoteCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, false);
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        if (args.length() > 0) {
-            int option = -1;
-            for(int i=0; i < activeArgs.length; i++) {
-                String str = activeArgs[i];
-                if (args.equalsIgnoreCase(str)) option = i;
-            }
-
-            if (option == -1) {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("invalid", args)));
-                return false;
-            }
-
-            boolean active = option == 1;
-            DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).setActive(active);
-            event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", active))).get();
-            return true;
-        } else {
-            String onOffText = StringUtil.getOnOffForBoolean(getLocale(), DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive());
-            message = event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reaction", onOffText))).get();
-            for(int i = 0; i < 2; i++) {
-                message.addReaction(StringUtil.getEmojiForBoolean(i == 1));
-            }
-            return true;
-        }
+    protected boolean isActive() {
+        return DBAutoQuote.getInstance().retrieve(getGuildId().get()).isActive();
     }
 
     @Override
-    public void onReactionAdd(SingleReactionEvent event) throws Throwable {
-        for(int i = 0; i < 2; i++) {
-            String str = StringUtil.getEmojiForBoolean(i == 1);
-            if (DiscordUtil.emojiIsString(event.getEmoji(), str)) {
-                boolean active = i == 1;
-                DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).setActive(active);
-                getReactionMessage().edit(EmbedFactory.getEmbedDefault(this, getString("set", active))).get();
-                removeReactionListener(getReactionMessage());
-                return;
-            }
-        }
+    protected void setActive(boolean active) {
+        DBAutoQuote.getInstance().retrieve(getGuildId().get()).setActive(active);
     }
 
-    @Override
-    public Message getReactionMessage() {
-        return message;
-    }
-
-    @Override
-    public void onReactionTimeOut(Message message) {}
 }

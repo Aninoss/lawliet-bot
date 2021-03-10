@@ -217,6 +217,7 @@ public final class StringUtil {
                 .replaceAll("(?i)%ServerID", message.getGuild().getId())
                 .replaceAll("(?i)%@User", message.getMember().getAsMention())
                 .replaceAll("(?i)%@Bot", ShardManager.getInstance().getSelf().getAsMention())
+                .replaceAll("(?i)%@BotID", ShardManager.getInstance().getSelf().getId())
                 .replaceAll("(?i)%Prefix", prefix);
     }
 

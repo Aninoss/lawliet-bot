@@ -1,34 +1,40 @@
 package commands.runnables.utilitycategory;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-import commands.Command;
+import java.util.stream.Collectors;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
+import commands.runnables.NavigationAbstract;
 import constants.Response;
+import core.CustomObservableList;
 import core.EmbedFactory;
+import core.ListGen;
+import core.atomicassets.AtomicRole;
+import core.atomicassets.MentionableAtomicAsset;
 import core.utils.MentionUtil;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "autoroles",
-        botPermissions = PermissionDeprecated.MANAGE_ROLES,
-        userPermissions = PermissionDeprecated.MANAGE_ROLES,
+        botPermissions = Permission.MANAGE_ROLES,
+        userGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "👪",
         executableWithoutArgs = true,
-        aliases = {"basicroles", "autorole", "aroles", "joinroles", "jroles"}
+        aliases = { "basicroles", "autorole", "aroles", "joinroles", "jroles" }
 )
-public class AutoRolesCommand extends Command implements OnNavigationListenerOld {
+public class AutoRolesCommand extends NavigationAbstract {
 
     private static final int MAX_ROLES = 12;
 
-    private AutoRolesBean autoRolesBean;
-    private NavigationHelper<Role> roleNavigationHelper;
-    private CustomObservableList<Role> roles;
+    private NavigationHelper<AtomicRole> roleNavigationHelper;
+    private CustomObservableList<AtomicRole> roles;
 
     public AutoRolesCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -36,18 +42,19 @@ public class AutoRolesCommand extends Command implements OnNavigationListenerOld
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        autoRolesBean = DBAutoRoles.getInstance().retrieve(event.getGuild().getIdLong());
-        roles = autoRolesBean.getRoleIds().transform(roleId -> autoRolesBean.getGuild().get().getRoleById(roleId), DiscordEntity::getId);
-        roleNavigationHelper = new NavigationHelper<>(this, roles, Role.class, MAX_ROLES);
-        checkRolesWithLog(roles, event.getMessage().getUserAuthor().get());
+        AutoRolesBean autoRolesBean = DBAutoRoles.getInstance().retrieve(event.getGuild().getIdLong());
+        roles = AtomicRole.transformIdList(event.getGuild(), autoRolesBean.getRoleIds());
+        roleNavigationHelper = new NavigationHelper<>(this, roles, AtomicRole.class, MAX_ROLES);
+        checkRolesWithLog(event.getMember(), roles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
+        registerNavigationListener(12);
         return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws IOException, ExecutionException {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
-            List<Role> roleList = MentionUtil.getRoles(event.getMessage(), inputString).getList();
-            return roleNavigationHelper.addData(roleList, inputString, event.getMessage().getUserAuthor().get(), 0);
+            List<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
+            return roleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), 0);
         }
 
         return null;
@@ -95,7 +102,7 @@ public class AutoRolesCommand extends Command implements OnNavigationListenerOld
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                       .addField(getString("state0_mroles"), new ListGen<Role>().getList(roles, getLocale(), Role::getMentionTag), true);
+                        .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(roles, getLocale(), MentionableAtomicAsset::getAsMention), true);
 
             case 1:
                 return roleNavigationHelper.drawDataAdd();
@@ -106,14 +113,6 @@ public class AutoRolesCommand extends Command implements OnNavigationListenerOld
             default:
                 return null;
         }
-    }
-
-    @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {}
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 12;
     }
 
 }
