@@ -2,7 +2,7 @@ package commands.runnables.fisherysettingscategory;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import com.google.common.cache.Cache;
@@ -12,7 +12,10 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.NavigationAbstract;
 import constants.*;
-import core.*;
+import core.CustomObservableList;
+import core.EmbedFactory;
+import core.ListGen;
+import core.TextManager;
 import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
@@ -72,7 +75,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
     @Override
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
-            ArrayList<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+            List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
             return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMessage().getMember(), 0);
         }
 

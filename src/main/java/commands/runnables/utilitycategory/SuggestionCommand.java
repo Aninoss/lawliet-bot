@@ -37,7 +37,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         SuggestionsBean suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
         if (suggestionsBean.isActive()) {
             Optional<ServerTextChannel> channelOpt = suggestionsBean.getChannel();

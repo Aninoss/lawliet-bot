@@ -35,7 +35,7 @@ public class ShipCommand extends Command {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException {
         Message message = event.getMessage();
-        ArrayList<Member> list = MentionUtil.getMembers(message, args).getList();
+        ArrayList<Member> list = new ArrayList<>(MentionUtil.getMembers(message, args).getList());
         if (list.size() == 1 && list.get(0).getIdLong() != event.getMember().getIdLong()) {
             list.add(event.getMember());
         }

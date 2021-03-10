@@ -36,7 +36,7 @@ public abstract class MemberAccountAbstract extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
         Message message = event.getMessage();
         MentionList<Member> userMention = MentionUtil.getMembers(message, args);
-        ArrayList<Member> list = userMention.getList();
+        ArrayList<Member> list = new ArrayList<>(userMention.getList());
 
         boolean userMentioned = true;
         if (list.size() == 0) {

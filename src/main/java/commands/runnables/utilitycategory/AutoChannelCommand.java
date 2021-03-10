@@ -32,13 +32,13 @@ public class AutoChannelCommand extends Command implements OnNavigationListenerO
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
         return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
                 ArrayList<ServerVoiceChannel> channelList = MentionUtil.getVoiceChannels(event.getMessage(), inputString).getList();
@@ -69,7 +69,7 @@ public class AutoChannelCommand extends Command implements OnNavigationListenerO
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -117,7 +117,7 @@ public class AutoChannelCommand extends Command implements OnNavigationListenerO
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         switch (state) {
             case 0:

@@ -33,7 +33,7 @@ public class WhiteListCommand extends Command implements OnNavigationListenerOld
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         WhiteListedChannelsBean whiteListedChannelsBean = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
         whiteListedChannels = whiteListedChannelsBean.getChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);
         channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, ServerTextChannel.class, MAX_CHANNELS);
@@ -41,7 +41,7 @@ public class WhiteListCommand extends Command implements OnNavigationListenerOld
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
             return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0);
@@ -51,7 +51,7 @@ public class WhiteListCommand extends Command implements OnNavigationListenerOld
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -93,7 +93,7 @@ public class WhiteListCommand extends Command implements OnNavigationListenerOld
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         String everyChannel = getString("all");
         switch (state) {
             case 0:

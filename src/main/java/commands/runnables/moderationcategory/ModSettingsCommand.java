@@ -1,9 +1,9 @@
 package commands.runnables.moderationcategory;
 
-import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
-import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
@@ -13,42 +13,49 @@ import core.utils.StringUtil;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "mod",
-        botPermissions = PermissionDeprecated.KICK_MEMBERS | PermissionDeprecated.BAN_MEMBERS,
-        userPermissions = PermissionDeprecated.MANAGE_SERVER,
+        botPermissions = { Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS },
+        userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "️⚙️️",
         executableWithoutArgs = true,
         aliases = {"modsettings"}
 )
-public class ModSettingsCommand extends Command implements OnNavigationListenerOld {
+public class ModSettingsCommand extends NavigationAbstract {
 
     private ModerationBean moderationBean;
-    private int autoKickTemp, autoBanTemp;
+    private int autoKickTemp;
+    private int autoBanTemp;
 
     public ModSettingsCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
+        registerNavigationListener(4);
         return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                ArrayList<ServerTextChannel> channelsList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
+                List<TextChannel> channelsList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
                 if (channelsList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
-                    ServerTextChannel channel = channelsList.get(0);
+                    TextChannel channel = channelsList.get(0);
                     if (checkWriteInChannelWithLog(channel)) {
-                        moderationBean.setAnnouncementChannelId(channel.getId());
+                        moderationBean.setAnnouncementChannelId(channel.getIdLong());
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
                         return Response.TRUE;
@@ -58,8 +65,8 @@ public class ModSettingsCommand extends Command implements OnNavigationListenerO
                 }
 
             case 2:
-                if (StringUtil.stringIsInt(inputString)) {
-                    int value = Integer.parseInt(inputString);
+                if (StringUtil.stringIsInt(input)) {
+                    int value = Integer.parseInt(input);
                     if (value >= 1) {
                         autoKickTemp = value;
                         setState(4);
@@ -74,8 +81,8 @@ public class ModSettingsCommand extends Command implements OnNavigationListenerO
                 }
 
             case 3:
-                if (StringUtil.stringIsInt(inputString)) {
-                    int value = Integer.parseInt(inputString);
+                if (StringUtil.stringIsInt(input)) {
+                    int value = Integer.parseInt(input);
                     if (value >= 1) {
                         autoBanTemp = value;
                         setState(5);
@@ -90,8 +97,8 @@ public class ModSettingsCommand extends Command implements OnNavigationListenerO
                 }
 
             case 4:
-                if (StringUtil.stringIsInt(inputString)) {
-                    int value = Integer.parseInt(inputString);
+                if (StringUtil.stringIsInt(input)) {
+                    int value = Integer.parseInt(input);
                     if (value >= 1) {
                         moderationBean.setAutoKick(autoKickTemp, value);
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
@@ -107,8 +114,8 @@ public class ModSettingsCommand extends Command implements OnNavigationListenerO
                 }
 
             case 5:
-                if (StringUtil.stringIsInt(inputString)) {
-                    int value = Integer.parseInt(inputString);
+                if (StringUtil.stringIsInt(input)) {
+                    int value = Integer.parseInt(input);
                     if (value >= 1) {
                         moderationBean.setAutoBan(autoBanTemp, value);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
@@ -129,7 +136,7 @@ public class ModSettingsCommand extends Command implements OnNavigationListenerO
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -244,13 +251,13 @@ public class ModSettingsCommand extends Command implements OnNavigationListenerO
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         switch (state) {
             case 0:
                 String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mchannel"), moderationBean.getAnnouncementChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
+                        .addField(getString("state0_mchannel"), moderationBean.getAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(getLocale(), moderationBean.isQuestion()), true)
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc", getAutoModString(moderationBean.getAutoKick(), moderationBean.getAutoKickDays()), getAutoModString(moderationBean.getAutoBan(), moderationBean.getAutoBanDays())), false);
 
@@ -279,17 +286,9 @@ public class ModSettingsCommand extends Command implements OnNavigationListenerO
         }
     }
 
-    private String getAutoModString(int value, int days) throws IOException {
+    private String getAutoModString(int value, int days) {
         if (value <= 0) return StringUtil.getOnOffForBoolean(getLocale(), false);
         return getString("state0_mautomod_templ", value > 1, StringUtil.numToString(value), days > 0 ? getString("days", days > 1, StringUtil.numToString(days)) : getString("total"));
-    }
-
-    @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {}
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 4;
     }
 
 }

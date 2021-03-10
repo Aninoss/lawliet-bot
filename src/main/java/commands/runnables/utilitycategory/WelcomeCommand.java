@@ -1,23 +1,27 @@
 package commands.runnables.utilitycategory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
-
 import constants.Emojis;
 import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.utils.*;
+import core.utils.FileUtil;
+import core.utils.InternetUtil;
+import core.utils.MentionUtil;
+import core.utils.StringUtil;
 import modules.Welcome;
 import modules.graphics.WelcomeGraphics;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageBean;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
     trigger = "welcome",
@@ -36,7 +40,7 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(event.getGuild().getIdLong());
         author = event.getMessage().getUserAuthor().get();
         welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteInChannelWithLog);
@@ -44,7 +48,7 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
         return true;    }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
                 if (inputString.length() > 0) {
@@ -150,7 +154,7 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -218,7 +222,7 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         switch (state) {

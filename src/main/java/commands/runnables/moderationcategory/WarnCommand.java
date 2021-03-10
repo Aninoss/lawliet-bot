@@ -86,7 +86,7 @@ public class WarnCommand extends Command implements OnReactionListener {
         return true;
     }
 
-    private boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
+    protected boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
         Message message = event.getMessage();
         MentionList<User> userMention = getUserList(message, args);
         userList = userMention.getList();
@@ -114,8 +114,7 @@ public class WarnCommand extends Command implements OnReactionListener {
             return false;
         }
 
-        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
-        EmbedBuilder actionEmbed = EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), executor.getAsMention(), StringUtil.escapeMarkdown(channel.getGuild().getName())));
+        EmbedBuilder actionEmbed = getActionEmbed(executor, channel);
         if (reason.length() > 0) {
             actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
         }
@@ -130,6 +129,21 @@ public class WarnCommand extends Command implements OnReactionListener {
 
         status = Status.COMPLETED;
         return true;
+    }
+
+    protected EmbedBuilder getActionEmbed(Member executor, TextChannel channel) {
+        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
+        return EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), executor.getAsMention(), StringUtil.escapeMarkdown(channel.getGuild().getName())));
+    }
+
+    protected EmbedBuilder getConfirmationEmbed() {
+        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
+        return EmbedFactory.getEmbedDefault(this, getString("confirmaion", mention.getMentionText()));
+    }
+
+    protected EmbedBuilder getSuccessEmbed() {
+        Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
+        return EmbedFactory.getEmbedDefault(this, getString("success_description", mention.isMultiple(), mention.getMentionText()));
     }
 
     @Override
@@ -152,8 +166,7 @@ public class WarnCommand extends Command implements OnReactionListener {
     public EmbedBuilder draw() {
         switch (status) {
             case COMPLETED:
-                Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("success_description", mention.isMultiple(), mention.getMentionText()));
+                EmbedBuilder eb = getSuccessEmbed();
                 if (reason.length() > 0) {
                     eb.addField(getString("reason"), "```" + StringUtil.escapeMarkdownInField(reason) + "```", false);
                 }
@@ -167,13 +180,20 @@ public class WarnCommand extends Command implements OnReactionListener {
                 return EmbedFactory.getEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getMentionText()), TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permissions_title"));
 
             default:
-                mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
-                eb = EmbedFactory.getEmbedDefault(this, getString("confirmaion", reason.length() > 0, mention.getMentionText(), reason));
+                eb = getConfirmationEmbed();
                 if (reason.length() > 0) {
                     eb.addField(getString("reason"), "```" + reason + "```", false);
                 }
                 return eb;
         }
+    }
+
+    public List<User> getUserList() {
+        return userList;
+    }
+
+    public String getReason() {
+        return reason;
     }
 
 }

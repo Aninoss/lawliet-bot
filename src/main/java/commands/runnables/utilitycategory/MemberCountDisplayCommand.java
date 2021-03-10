@@ -43,14 +43,14 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         memberCountBean = DBMemberCountDisplays.getInstance().retrieve(event.getGuild().getIdLong());
         memberCountBean.getMemberCountBeanSlots().trim(vcId -> event.getServer().get().getVoiceChannelById(vcId));
         return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             ArrayList<ServerVoiceChannel> vcList = MentionUtil.getVoiceChannels(event.getMessage(), inputString).getList();
             if (vcList.size() == 0) {
@@ -94,7 +94,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -195,7 +195,7 @@ public class MemberCountDisplayCommand extends Command implements OnNavigationLi
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         switch (state) {

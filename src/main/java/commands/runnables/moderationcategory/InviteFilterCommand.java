@@ -1,84 +1,96 @@
 package commands.runnables.moderationcategory;
 
+import java.util.List;
 import java.util.Locale;
-import commands.Command;
+import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
+import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import constants.Response;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
+import core.atomicassets.AtomicMember;
+import core.atomicassets.AtomicTextChannel;
+import core.atomicassets.MentionableAtomicAsset;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.spblock.DBSPBlock;
 import mysql.modules.spblock.SPBlockBean;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "invitefilter",
-        botPermissions = PermissionDeprecated.MANAGE_MESSAGES,
-        userPermissions = PermissionDeprecated.MANAGE_MESSAGES | PermissionDeprecated.KICK_MEMBERS | PermissionDeprecated.BAN_MEMBERS,
+        botPermissions = Permission.MESSAGE_MANAGE,
+        userGuildPermissions = { Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS },
         emoji = "✉️",
         executableWithoutArgs = true,
         aliases = { "invitesfilter", "spblock", "inviteblock", "spfilter", "invitesblock" }
 )
-public class InviteFilterCommand extends Command implements OnNavigationListenerOld {
+public class InviteFilterCommand extends NavigationAbstract {
     
     private SPBlockBean spBlockBean;
-    private CustomObservableList<User> ignoredUsers, logReceivers;
-    private CustomObservableList<ServerTextChannel> ignoredChannels;
+    private CustomObservableList<AtomicMember> ignoredUsers;
+    private CustomObservableList<AtomicMember>logReceivers;
+    private CustomObservableList<AtomicTextChannel> ignoredChannels;
 
     public InviteFilterCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         spBlockBean = DBSPBlock.getInstance().retrieve(event.getGuild().getIdLong());
-        ignoredUsers = spBlockBean.getIgnoredUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
-        logReceivers = spBlockBean.getLogReceiverUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
-        ignoredChannels = spBlockBean.getIgnoredChannelIds().transform(userId -> event.getServer().get().getTextChannelById(userId), DiscordEntity::getId);
+        ignoredUsers = AtomicMember.transformIdList(event.getGuild(), spBlockBean.getIgnoredUserIds());
+        logReceivers = AtomicMember.transformIdList(event.getGuild(), spBlockBean.getLogReceiverUserIds());
+        ignoredChannels = AtomicTextChannel.transformIdList(event.getGuild(), spBlockBean.getIgnoredChannelIds());
+        registerNavigationListener(5);
         return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                ArrayList<User> userIgnoredList = MentionUtil.getMembers(event.getMessage(), inputString).getList();
+                List<Member> userIgnoredList = MentionUtil.getMembers(event.getMessage(), input).getList();
                 if (userIgnoredList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
                     ignoredUsers.clear();
-                    ignoredUsers.addAll(userIgnoredList);
+                    ignoredUsers.addAll(userIgnoredList.stream().map(AtomicMember::new).collect(Collectors.toList()));
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     setState(0);
                     return Response.TRUE;
                 }
 
             case 2:
-                ArrayList<ServerTextChannel> channelIgnoredList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
+                List<TextChannel> channelIgnoredList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
                 if (channelIgnoredList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
                     ignoredChannels.clear();
-                    ignoredChannels.addAll(channelIgnoredList);
+                    ignoredChannels.addAll(channelIgnoredList.stream().map(AtomicTextChannel::new).collect(Collectors.toList()));
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                     setState(0);
                     return Response.TRUE;
                 }
 
             case 3:
-                ArrayList<User> logRecieverList = MentionUtil.getMembers(event.getMessage(), inputString).getList();
+                List<Member> logRecieverList = MentionUtil.getMembers(event.getMessage(), input).getList();
                 if (logRecieverList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
                     logReceivers.clear();
-                    logReceivers.addAll(logRecieverList);
+                    logReceivers.addAll(logRecieverList.stream().map(AtomicMember::new).collect(Collectors.toList()));
 
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     setState(0);
@@ -91,7 +103,7 @@ public class InviteFilterCommand extends Command implements OnNavigationListener
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -178,15 +190,15 @@ public class InviteFilterCommand extends Command implements OnNavigationListener
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), spBlockBean.isActive()), true)
-                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(ignoredUsers, getLocale(), User::getMentionTag), true)
-                       .addField(getString("state0_mignoredchannels"), new ListGen<ServerTextChannel>().getList(ignoredChannels, getLocale(), Mentionable::getMentionTag), true)
-                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(logReceivers, getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                       .addField(getString("state0_mignoredchannels"), new ListGen<AtomicTextChannel>().getList(ignoredChannels, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                       .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(logReceivers, getLocale(), MentionableAtomicAsset::getAsMention), true)
                        .addField(getString("state0_maction"),getString("state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true);
 
             case 1:
@@ -208,15 +220,6 @@ public class InviteFilterCommand extends Command implements OnNavigationListener
             default:
                 return null;
         }
-    }
-
-    @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {
-    }
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 5;
     }
 
 }

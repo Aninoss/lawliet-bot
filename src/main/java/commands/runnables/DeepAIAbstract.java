@@ -1,7 +1,6 @@
 package commands.runnables;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +30,7 @@ public abstract class DeepAIAbstract extends Command {
             Message.Attachment messageAttachment = attachmentList.get(0);
             url = messageAttachment.getProxyUrl();
         } else {
-            ArrayList<URL> imageList = MentionUtil.getImages(args).getList();
+            List<URL> imageList = MentionUtil.getImages(args).getList();
             if (imageList.size() > 0) {
                 url = imageList.get(0).toString();
             }

@@ -35,7 +35,7 @@ public class AutoRolesCommand extends Command implements OnNavigationListenerOld
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         autoRolesBean = DBAutoRoles.getInstance().retrieve(event.getGuild().getIdLong());
         roles = autoRolesBean.getRoleIds().transform(roleId -> autoRolesBean.getGuild().get().getRoleById(roleId), DiscordEntity::getId);
         roleNavigationHelper = new NavigationHelper<>(this, roles, Role.class, MAX_ROLES);
@@ -54,7 +54,7 @@ public class AutoRolesCommand extends Command implements OnNavigationListenerOld
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -90,7 +90,7 @@ public class AutoRolesCommand extends Command implements OnNavigationListenerOld
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));

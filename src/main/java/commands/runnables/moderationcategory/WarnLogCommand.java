@@ -17,6 +17,9 @@ import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.GuildWarningsSlot;
 import mysql.modules.warning.ServerWarningsBean;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "warnlog",
@@ -31,17 +34,17 @@ public class WarnLogCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder generateUserEmbed(Server server, User user, boolean userIsAuthor, String args) throws Throwable {
-        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(server.getId(), user.getId()));
+    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) {
+        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(event.getGuild().getIdLong(), member.getIdLong()));
 
         StringBuilder latestWarnings = new StringBuilder();
 
         List<GuildWarningsSlot> slots = serverWarningsBean.getLatest(3);
         Collections.reverse(slots);
         for(GuildWarningsSlot serverWarningsSlot: slots) {
-            Optional<User> requestor = serverWarningsSlot.getRequesterMember();
+            Optional<Member> requestor = serverWarningsSlot.getRequesterMember();
             Optional<String> reason = serverWarningsSlot.getReason();
-            String userString = requestor.isPresent() ? (server.getMembers().contains(requestor.get()) ? requestor.get().getMentionTag() : String.format("**%s**", StringUtil.escapeMarkdown(requestor.get().getName()))) : TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user");
+            String userString = requestor.map(IMentionable::getAsMention).orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user"));
             String timeDiffString = TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), serverWarningsSlot.getTime(), true);
             latestWarnings.append(getString("latest_slot", reason.isPresent(), userString, timeDiffString, reason.orElse(getString("noreason"))));
         }
@@ -51,8 +54,8 @@ public class WarnLogCommand extends MemberAccountAbstract {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setTitle("")
-                .setAuthor(getString("author", getEmoji(), StringUtil.escapeMarkdown(user.getDisplayName(server))))
-                .setThumbnail(user.getAvatar().getUrl().toString());
+                .setAuthor(getString("author", getCommandProperties().emoji(), member.getEffectiveName()))
+                .setThumbnail(member.getUser().getEffectiveAvatarUrl());
         eb.addField(getString("latest"), latestWarningsString, false);
         eb.addField(getString("amount"), getString("amount_template",
                 StringUtil.numToString(serverWarningsBean.getAmountLatest(24, ChronoUnit.HOURS).size()),

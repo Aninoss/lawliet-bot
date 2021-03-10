@@ -57,7 +57,7 @@ public class AlertsCommand extends Command implements OnNavigationListenerOld {
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         serverId = event.getGuild().getIdLong();
         channelId = event.getServerTextChannel().get().getId();
         trackerBean = DBTracker.getInstance().retrieve();
@@ -67,7 +67,7 @@ public class AlertsCommand extends Command implements OnNavigationListenerOld {
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state != STATE_REMOVE) {
             return controll(inputString, false);
         }
@@ -75,7 +75,7 @@ public class AlertsCommand extends Command implements OnNavigationListenerOld {
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         for (EmojiConnection emojiConnection: emojiConnections) {
             if (emojiConnection.isEmoji(event.getEmoji()) || (i == -1 && emojiConnection instanceof BackEmojiConnection)) {
                 if (emojiConnection.getConnection().equalsIgnoreCase("back")) {

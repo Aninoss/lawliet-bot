@@ -2,6 +2,7 @@ package commands.runnables.fisherysettingscategory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
@@ -60,7 +61,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                ArrayList<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
+                List<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
                 if (roleList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
@@ -97,7 +98,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 }
 
             case 3:
-                ArrayList<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+                List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;

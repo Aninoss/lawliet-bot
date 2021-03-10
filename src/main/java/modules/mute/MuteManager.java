@@ -1,5 +1,6 @@
 package modules.mute;
 
+import java.util.*;
 import commands.Command;
 import commands.runnables.moderationcategory.ChannelMuteCommand;
 import mysql.modules.guild.DBGuild;
@@ -8,8 +9,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.managers.ChannelManager;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 public class MuteManager {
 
@@ -22,7 +21,7 @@ public class MuteManager {
         return instance;
     }
 
-    public boolean executeMute(MuteData muteData, boolean mute) throws ExecutionException, InterruptedException {
+    public boolean executeMute(MuteData muteData, boolean mute) {
         return updatePermissions(muteData, mute);
     }
 

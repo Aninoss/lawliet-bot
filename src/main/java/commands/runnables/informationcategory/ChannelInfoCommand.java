@@ -33,7 +33,7 @@ public class ChannelInfoCommand extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         boolean noMention = false;
         Guild guild = event.getGuild();
-        ArrayList<TextChannel> list = MentionUtil.getTextChannels(event.getMessage(), args).getList();
+        ArrayList<TextChannel> list = new ArrayList<>(MentionUtil.getTextChannels(event.getMessage(), args).getList());
         if (list.size() == 0) {
             list.add(event.getChannel());
             noMention = true;

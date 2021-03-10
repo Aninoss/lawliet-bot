@@ -1,13 +1,13 @@
 package commands.runnables.moderationcategory;
 
-import commands.listeners.CommandProperties;
-
 import java.util.Locale;
+import commands.listeners.CommandProperties;
+import net.dv8tion.jda.api.Permission;
 
 @CommandProperties(
         trigger = "chunmute",
-        userPermissions = PermissionDeprecated.MANAGE_CHANNEL_PERMISSIONS | PermissionDeprecated.MANAGE_CHANNEL,
-        botPermissions = PermissionDeprecated.MANAGE_CHANNEL_PERMISSIONS | PermissionDeprecated.MANAGE_CHANNEL,
+        userChannelPermissions = { Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS },
+        botPermissions = { Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS },
         emoji = "\uD83D\uDED1",
         executableWithoutArgs = false,
         aliases = {"channelunmute", "unmute", "unchmute", "unchannelmute"}

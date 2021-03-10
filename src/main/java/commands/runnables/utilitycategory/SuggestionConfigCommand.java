@@ -36,13 +36,13 @@ public class SuggestionConfigCommand extends Command implements OnNavigationList
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
         return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
             if (channelList.size() == 0) {
@@ -65,7 +65,7 @@ public class SuggestionConfigCommand extends Command implements OnNavigationList
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -100,7 +100,7 @@ public class SuggestionConfigCommand extends Command implements OnNavigationList
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         switch (state) {
             case 0:

@@ -1,6 +1,6 @@
 package commands.runnables.gimmickscategory;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
@@ -35,7 +35,7 @@ public class QuoteCommand extends Command {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        ArrayList<Message> directMessage = MentionUtil.getMessageWithLinks(event.getMessage(), args).get().getList();
+        List<Message> directMessage = MentionUtil.getMessageWithLinks(event.getMessage(), args).get().getList();
 
         // message link
         if (directMessage.size() > 0) {

@@ -4,87 +4,97 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import commands.Command;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
+import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import constants.Response;
+import core.CustomObservableList;
 import core.EmbedFactory;
+import core.ListGen;
 import core.TextManager;
+import core.atomicassets.AtomicMember;
+import core.atomicassets.MentionableAtomicAsset;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.automod.WordFilter;
 import mysql.modules.bannedwords.BannedWordsBean;
 import mysql.modules.bannedwords.DBBannedWords;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "wordfilter",
-        botPermissions = PermissionDeprecated.MANAGE_MESSAGES,
-        userPermissions = PermissionDeprecated.MANAGE_MESSAGES | PermissionDeprecated.KICK_MEMBERS,
+        botPermissions = Permission.MESSAGE_MANAGE,
+        userGuildPermissions = { Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS },
         emoji = "️🚧️",
         executableWithoutArgs = true,
         aliases = { "wordsfilter", "badwordfilter", "badwordsfilter", "bannedwords" }
 )
-public class WordFilterCommand extends Command implements OnNavigationListenerOld {
+public class WordFilterCommand extends NavigationAbstract {
 
     private static final int MAX_WORDS = 20;
     private static final int MAX_LETTERS = 20;
 
     private BannedWordsBean bannedWordsBean;
     private NavigationHelper<String> wordsNavigationHelper;
-    private CustomObservableList<User> ignoredUsers, logReceivers;
+    private CustomObservableList<AtomicMember> ignoredUsers;
+    private CustomObservableList<AtomicMember>logReceivers;
 
     public WordFilterCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    protected boolean onMessageReceived(MessageCreateEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         bannedWordsBean = DBBannedWords.getInstance().retrieve(event.getGuild().getIdLong());
-        ignoredUsers = bannedWordsBean.getIgnoredUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
-        logReceivers = bannedWordsBean.getLogReceiverUserIds().transform(userId -> event.getServer().get().getMemberById(userId), DiscordEntity::getId);
+        ignoredUsers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getIgnoredUserIds());
+        logReceivers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getLogReceiverUserIds());
         wordsNavigationHelper = new NavigationHelper<>(this, bannedWordsBean.getWords(), String.class, MAX_WORDS);
+        registerNavigationListener(12);
         return true;
     }
 
     @Override
-    public Response controllerMessage(MessageCreateEvent event, String inputString, int state) throws Throwable {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                ArrayList<User> userIgnoredList = MentionUtil.getMembers(event.getMessage(), inputString).getList();
-                if (userIgnoredList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                List<Member> memberIgnoredList = MentionUtil.getMembers(event.getMessage(), input).getList();
+                if (memberIgnoredList.size() == 0) {
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
                     ignoredUsers.clear();
-                    ignoredUsers.addAll(userIgnoredList);
+                    ignoredUsers.addAll(memberIgnoredList.stream().map(AtomicMember::new).collect(Collectors.toList()));
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     setState(0);
                     return Response.TRUE;
                 }
 
             case 2:
-                ArrayList<User> logRecieverList = MentionUtil.getMembers(event.getMessage(), inputString).getList();
+                List<Member> logRecieverList = MentionUtil.getMembers(event.getMessage(), input).getList();
                 if (logRecieverList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
                     logReceivers.clear();
-                    logReceivers.addAll(logRecieverList);
+                    logReceivers.addAll(logRecieverList.stream().map(AtomicMember::new).collect(Collectors.toList()));
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     setState(0);
                     return Response.TRUE;
                 }
 
             case 3:
-                String[] wordArray = WordFilter.translateString(inputString).split(" ");
+                String[] wordArray = WordFilter.translateString(input).split(" ");
                 List<String> wordList = Arrays
                         .stream(wordArray)
                         .filter(str -> str.length() > 0)
                         .map(str -> str.substring(0, Math.min(MAX_LETTERS, str.length())))
                         .collect(Collectors.toList());
-                return wordsNavigationHelper.addData(wordList, inputString, event.getMessage().getUserAuthor().get(), 0);
+                return wordsNavigationHelper.addData(wordList, input, event.getMember(), 0);
 
             default:
                 return null;
@@ -92,7 +102,7 @@ public class WordFilterCommand extends Command implements OnNavigationListenerOl
     }
 
     @Override
-    public boolean controllerReaction(SingleReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -165,14 +175,14 @@ public class WordFilterCommand extends Command implements OnNavigationListenerOl
     }
 
     @Override
-    public EmbedBuilder draw(DiscordApi api, int state) throws Throwable {
+    public EmbedBuilder draw(int state) {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), bannedWordsBean.isActive()), true)
-                       .addField(getString("state0_mignoredusers"), new ListGen<User>().getList(ignoredUsers, getLocale(), User::getMentionTag), true)
-                       .addField(getString("state0_mlogreciever"), new ListGen<User>().getList(logReceivers, getLocale(), User::getMentionTag), true)
+                       .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                       .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(logReceivers, getLocale(), MentionableAtomicAsset::getAsMention), true)
                        .addField(getString("state0_mwords"), getWordsString(), true);
 
             case 1:
@@ -189,14 +199,6 @@ public class WordFilterCommand extends Command implements OnNavigationListenerOl
             default:
                 return null;
         }
-    }
-
-    @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {}
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 12;
     }
 
     private String getWordsString() {
