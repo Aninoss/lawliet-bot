@@ -3,6 +3,7 @@ package commands.runnables.splatoon2category;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
@@ -14,13 +15,15 @@ import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerBeanSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 @CommandProperties(
     trigger = "splatnet",
-    botPermissions = PermissionDeprecated.USE_EXTERNAL_EMOJIS,
+        botPermissions = Permission.MESSAGE_EXT_EMOJI,
     withLoadingBar = true,
     emoji = "\uD83D\uDED2",
     executableWithoutArgs = true
@@ -34,14 +37,14 @@ public class SplatnetCommand extends Command implements OnTrackerRequestListener
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         EmbedBuilder eb = getEmbed();
-        EmbedUtil.addTrackerNoteLog(getLocale(), event.getServer().get(), event.getMessage().getUserAuthor().get(), eb, getPrefix(), getTrigger());
-        event.getChannel().sendMessage(eb).get();
+        EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
+        event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 
-    private EmbedBuilder getEmbed() throws Throwable {
+    private EmbedBuilder getEmbed() throws ExecutionException, InterruptedException {
         int datesShown = 2;
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 
@@ -98,9 +101,8 @@ public class SplatnetCommand extends Command implements OnTrackerRequestListener
 
     @Override
     public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
-        slot.getMessage().ifPresent(Message::delete);
-        Message message = slot.getChannel().get().sendMessage(getEmbed()).get();
-        slot.setMessageId(message.getId());
+        Message message = slot.getTextChannel().get().sendMessage(getEmbed().build()).complete();
+        slot.setMessageId(message.getIdLong());
         slot.setNextRequest(trackingTime);
 
         return TrackerResult.CONTINUE_AND_SAVE;
