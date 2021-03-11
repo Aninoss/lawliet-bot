@@ -3,9 +3,9 @@ package mysql.modules.whitelistedchannels;
 import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBMapCache;
+import mysql.DBMapObserverCache;
 
-public class DBWhiteListedChannels extends DBMapCache<Long, WhiteListedChannelsBean> {
+public class DBWhiteListedChannels extends DBMapObserverCache<Long, WhiteListedChannelsBean> {
 
     private static final DBWhiteListedChannels ourInstance = new DBWhiteListedChannels();
 

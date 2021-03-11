@@ -3,9 +3,9 @@ package mysql.modules.autoroles;
 import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBMapCache;
+import mysql.DBMapObserverCache;
 
-public class DBAutoRoles extends DBMapCache<Long, AutoRolesBean> {
+public class DBAutoRoles extends DBMapObserverCache<Long, AutoRolesBean> {
 
     private static final DBAutoRoles ourInstance = new DBAutoRoles();
 

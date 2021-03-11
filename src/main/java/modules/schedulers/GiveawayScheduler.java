@@ -12,7 +12,7 @@ import core.schedule.MainScheduler;
 import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import mysql.modules.giveaway.DBGiveaway;
-import mysql.modules.giveaway.GiveawayBean;
+import mysql.modules.giveaway.GiveawaySlot;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -40,25 +40,25 @@ public class GiveawayScheduler {
         started = true;
 
         try {
-            DBGiveaway.getInstance().retrieve().values().stream()
-                    .filter(GiveawayBean::isActive)
+            DBGiveaway.getInstance().retrieveAll().stream()
+                    .filter(GiveawaySlot::isActive)
                     .forEach(this::loadGiveawayBean);
         } catch (Throwable e) {
             MainLogger.get().error("Could not start giveaway", e);
         }
     }
 
-    public void loadGiveawayBean(GiveawayBean giveawayBean) {
-        MainScheduler.getInstance().schedule(giveawayBean.getEnd(), "giveaway", () -> onGiveawayDue(giveawayBean));
+    public void loadGiveawayBean(GiveawaySlot giveawaySlot) {
+        MainScheduler.getInstance().schedule(giveawaySlot.getEnd(), "giveaway", () -> onGiveawayDue(giveawaySlot));
     }
 
-    private void onGiveawayDue(GiveawayBean giveawayBean) {
-        if (giveawayBean.isActive()) {
-            ShardManager.getInstance().getLocalGuildById(giveawayBean.getGuildId())
-                    .map(guild -> guild.getTextChannelById(giveawayBean.getTextChannelId()))
+    private void onGiveawayDue(GiveawaySlot giveawaySlot) {
+        if (giveawaySlot.isActive()) {
+            ShardManager.getInstance().getLocalGuildById(giveawaySlot.getGuildId())
+                    .map(guild -> guild.getTextChannelById(giveawaySlot.getTextChannelId()))
                     .ifPresent(channel -> {
                         try {
-                            processGiveawayUsers(channel, DBGuild.getInstance().retrieve(channel.getGuild().getIdLong()), giveawayBean);
+                            processGiveawayUsers(channel, DBGuild.getInstance().retrieve(channel.getGuild().getIdLong()), giveawaySlot);
                         } catch (Throwable e) {
                             MainLogger.get().error("Error in giveaway", e);
                         }
@@ -66,13 +66,13 @@ public class GiveawayScheduler {
         }
     }
 
-    private void processGiveawayUsers(TextChannel channel, GuildBean guildBean, GiveawayBean giveawayBean) {
-        giveawayBean.retrieveMessage()
+    private void processGiveawayUsers(TextChannel channel, GuildBean guildBean, GiveawaySlot giveawaySlot) {
+        giveawaySlot.retrieveMessage()
                 .thenAccept(message -> {
                     for (MessageReaction reaction : message.getReactions()) {
-                        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(reaction.getReactionEmote(), giveawayBean.getEmoji())) {
+                        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(reaction.getReactionEmote(), giveawaySlot.getEmoji())) {
                             reaction.retrieveUsers().queue(users ->
-                                    processGiveaway(channel, guildBean, giveawayBean, message, new ArrayList<>(users))
+                                    processGiveaway(channel, guildBean, giveawaySlot, message, new ArrayList<>(users))
                             );
                             break;
                         }
@@ -80,10 +80,10 @@ public class GiveawayScheduler {
                 });
     }
 
-    private void processGiveaway(TextChannel channel, GuildBean guildBean, GiveawayBean giveawayBean, Message message, ArrayList<User> users) {
+    private void processGiveaway(TextChannel channel, GuildBean guildBean, GiveawaySlot giveawaySlot, Message message, ArrayList<User> users) {
         users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user));
         Collections.shuffle(users);
-        List<User> winners = users.subList(0, Math.min(users.size(), giveawayBean.getWinners()));
+        List<User> winners = users.subList(0, Math.min(users.size(), giveawaySlot.getWinners()));
 
         StringBuilder mentions = new StringBuilder();
         for (User user : winners) {
@@ -92,9 +92,9 @@ public class GiveawayScheduler {
 
         CommandProperties commandProps = Command.getCommandProperties(GiveawayCommand.class);
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(commandProps.emoji() + " " + giveawayBean.getTitle())
+                .setTitle(commandProps.emoji() + " " + giveawaySlot.getTitle())
                 .setDescription(TextManager.getString(guildBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
-        giveawayBean.getImageUrl().ifPresent(eb::setImage);
+        giveawaySlot.getImageUrl().ifPresent(eb::setImage);
         if (winners.size() > 0) {
             eb.addField(
                     Emojis.EMPTY_EMOJI,
@@ -105,7 +105,7 @@ public class GiveawayScheduler {
             eb.setDescription(TextManager.getString(guildBean.getLocale(), "utility", "giveaway_results_empty"));
         }
 
-        giveawayBean.stop();
+        giveawaySlot.stop();
         message.editMessage(mentions.toString())
                 .embed(eb.build())
                 .queue();

@@ -3,9 +3,9 @@ package mysql.modules.autoquote;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import mysql.DBMain;
-import mysql.DBMapCache;
+import mysql.DBMapObserverCache;
 
-public class DBAutoQuote extends DBMapCache<Long, AutoQuoteBean> {
+public class DBAutoQuote extends DBMapObserverCache<Long, AutoQuoteBean> {
 
     private static final DBAutoQuote ourInstance = new DBAutoQuote();
 

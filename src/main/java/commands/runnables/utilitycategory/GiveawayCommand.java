@@ -21,7 +21,7 @@ import core.atomicassets.MentionableAtomicAsset;
 import core.utils.*;
 import modules.schedulers.GiveawayScheduler;
 import mysql.modules.giveaway.DBGiveaway;
-import mysql.modules.giveaway.GiveawayBean;
+import mysql.modules.giveaway.GiveawaySlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -54,7 +54,7 @@ public class GiveawayCommand extends NavigationAbstract {
             EXAMPLE = 9,
             SENT = 10;
 
-    private CustomObservableMap<Long, GiveawayBean> giveawayBeans = null;
+    private CustomObservableMap<Long, GiveawaySlot> giveawayBeans = null;
 
     private long serverId;
     private long messageId;
@@ -76,7 +76,7 @@ public class GiveawayCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         serverId = event.getGuild().getIdLong();
-        giveawayBeans = DBGiveaway.getInstance().retrieve();
+        giveawayBeans = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
         title = getString("title");
         registerNavigationListener(12);
         return true;
@@ -218,7 +218,7 @@ public class GiveawayCommand extends NavigationAbstract {
                 return true;
 
             case 1:
-                if (getGiveawaySlotsForServer().size() > 0) {
+                if (getActiveGiveawaySlots().size() > 0) {
                     setState(EDIT_MESSAGE);
                     editMode = true;
                 } else {
@@ -256,9 +256,9 @@ public class GiveawayCommand extends NavigationAbstract {
             return true;
         }
 
-        List<GiveawayBean> giveaways = getGiveawaySlotsForServer();
+        List<GiveawaySlot> giveaways = getActiveGiveawaySlots();
         if (i >= 0 && i < giveaways.size()) {
-            GiveawayBean giveaway = giveaways.get(i);
+            GiveawaySlot giveaway = giveaways.get(i);
             messageId = giveaway.getMessageId();
             title = giveaway.getTitle();
             description = giveaway.getDescription();
@@ -328,7 +328,7 @@ public class GiveawayCommand extends NavigationAbstract {
                 if (messageIdOpt.isPresent()) {
                     setState(SENT);
                     removeNavigation();
-                    GiveawayBean giveawayBean = new GiveawayBean(
+                    GiveawaySlot giveawaySlot = new GiveawaySlot(
                             event.getGuild().getIdLong(),
                             channel.getIdLong(),
                             messageIdOpt.get(),
@@ -341,11 +341,11 @@ public class GiveawayCommand extends NavigationAbstract {
                             imageLink,
                             true
                     );
-                    GiveawayBean oldGiveaway = giveawayBeans.get(giveawayBean.getMessageId());
+                    GiveawaySlot oldGiveaway = giveawayBeans.get(giveawaySlot.getMessageId());
                     if (oldGiveaway != null) oldGiveaway.stop();
 
-                    giveawayBeans.put(giveawayBean.getMessageId(), giveawayBean);
-                    GiveawayScheduler.getInstance().loadGiveawayBean(giveawayBean);
+                    giveawayBeans.put(giveawaySlot.getMessageId(), giveawaySlot);
+                    GiveawayScheduler.getInstance().loadGiveawayBean(giveawaySlot);
                 } else {
                     setLog(LogStatus.FAILURE, getString("error"));
                 }
@@ -430,8 +430,8 @@ public class GiveawayCommand extends NavigationAbstract {
 
     @Draw(state = EDIT_MESSAGE)
     public EmbedBuilder onDrawEditMessage() {
-        String[] options = new ListGen<GiveawayBean>()
-                .getList(getGiveawaySlotsForServer(), ListGen.SLOT_TYPE_NONE, giveawayBean -> getString("state2_slot", giveawayBean.getTitle(), giveawayBean.getTextChannel().get().getAsMention()))
+        String[] options = new ListGen<GiveawaySlot>()
+                .getList(getActiveGiveawaySlots(), ListGen.SLOT_TYPE_NONE, giveawaySlot -> getString("state2_slot", giveawaySlot.getTitle(), giveawaySlot.getTextChannel().get().getAsMention()))
                 .split("\n");
         setOptions(options);
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
@@ -492,9 +492,9 @@ public class GiveawayCommand extends NavigationAbstract {
         return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
     }
 
-    private List<GiveawayBean> getGiveawaySlotsForServer() {
+    private List<GiveawaySlot> getActiveGiveawaySlots() {
         return giveawayBeans.values().stream()
-                .filter(giveaway -> giveaway.getGuildId() == serverId && giveaway.isActive())
+                .filter(GiveawaySlot::isActive)
                 .collect(Collectors.toList());
     }
 

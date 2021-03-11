@@ -8,9 +8,9 @@ import java.util.Optional;
 import modules.suggestions.SuggestionMessage;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBMapCache;
+import mysql.DBMapObserverCache;
 
-public class DBSuggestions extends DBMapCache<Long, SuggestionsBean> {
+public class DBSuggestions extends DBMapObserverCache<Long, SuggestionsBean> {
 
     private static final DBSuggestions ourInstance = new DBSuggestions();
 

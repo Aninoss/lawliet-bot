@@ -5,9 +5,9 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.Optional;
 import mysql.DBMain;
-import mysql.DBMapCache;
+import mysql.DBMapObserverCache;
 
-public class DBModeration extends DBMapCache<Long, ModerationBean> {
+public class DBModeration extends DBMapObserverCache<Long, ModerationBean> {
 
     private static final DBModeration ourInstance = new DBModeration();
 

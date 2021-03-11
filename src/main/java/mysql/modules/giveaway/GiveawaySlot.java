@@ -6,7 +6,7 @@ import java.util.Observable;
 import java.util.Optional;
 import core.assets.MessageAsset;
 
-public class GiveawayBean extends Observable implements MessageAsset {
+public class GiveawaySlot extends Observable implements MessageAsset {
 
     private final long guildId;
     private final long messageId;
@@ -20,7 +20,7 @@ public class GiveawayBean extends Observable implements MessageAsset {
     private final String imageUrl;
     private boolean active;
 
-    public GiveawayBean(long guildId, long channelId, long messageId, String emoji, int winners, Instant start, long durationMinutes, String title, String description, String imageUrl, boolean active) {
+    public GiveawaySlot(long guildId, long channelId, long messageId, String emoji, int winners, Instant start, long durationMinutes, String title, String description, String imageUrl, boolean active) {
         this.guildId = guildId;
         this.messageId = messageId;
         this.channelId = channelId;

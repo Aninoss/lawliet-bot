@@ -10,7 +10,7 @@ import core.CustomThread;
 import core.IntervalBlock;
 import core.MainLogger;
 
-public abstract class DBIntervalMapCache<T, U extends Observable> extends DBMapCache<T, U> implements Observer {
+public abstract class DBIntervalMapCache<T, U extends Observable> extends DBMapObserverCache<T, U> implements Observer {
 
     private ArrayList<U> changed = new ArrayList<>();
 
