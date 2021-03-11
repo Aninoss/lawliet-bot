@@ -71,6 +71,7 @@ public class ReminderCommand extends Command implements OnReactionListener {
                 event.getMember(),
                 new Permission[0],
                 new Permission[] { Permission.MESSAGE_WRITE },
+                new Permission[0],
                 new Permission[] { Permission.MESSAGE_WRITE }
 
         );

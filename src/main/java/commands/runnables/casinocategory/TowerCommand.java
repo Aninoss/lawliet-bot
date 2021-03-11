@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 @CommandProperties(
         trigger = "tower",
         emoji = "🏗️️",
-        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
         aliases = { "crash" }
 )

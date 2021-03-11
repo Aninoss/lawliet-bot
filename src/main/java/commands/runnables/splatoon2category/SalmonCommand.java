@@ -22,14 +22,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 @CommandProperties(
-    trigger = "salmon",
-        botPermissions = Permission.MESSAGE_EXT_EMOJI,
-    withLoadingBar = true,
-    emoji = "\uD83D\uDC1F",
-    executableWithoutArgs = true
+        trigger = "salmon",
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
+        withLoadingBar = true,
+        emoji = "\uD83D\uDC1F",
+        executableWithoutArgs = true
 )
 public class SalmonCommand extends Command implements OnTrackerRequestListener {
-    
+
     private Instant trackingTime;
 
     public SalmonCommand(Locale locale, String prefix) {
@@ -48,7 +48,7 @@ public class SalmonCommand extends Command implements OnTrackerRequestListener {
         int datesShown = 2;
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 
-        String[] urls = new String[]{
+        String[] urls = new String[] {
                 "https://splatoon2.ink/data/coop-schedules.json",
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
@@ -58,7 +58,7 @@ public class SalmonCommand extends Command implements OnTrackerRequestListener {
 
         Instant[] startTime = new Instant[datesShown];
         Instant[] endTime = new Instant[datesShown];
-        for(int i=0; i<datesShown; i++) {
+        for (int i = 0; i < datesShown; i++) {
             startTime[i] = new Date(salmonData.getJSONObject(i).getInt("start_time") * 1000L).toInstant();
             endTime[i] = new Date(salmonData.getJSONObject(i).getInt("end_time") * 1000L).toInstant();
         }
@@ -69,15 +69,15 @@ public class SalmonCommand extends Command implements OnTrackerRequestListener {
         }
 
         trackingTime = startTime[0];
-        for(int i=0; i<datesShown; i++) {
-            if (i > 0 && Instant.now().isAfter(endTime[i-1])) trackingTime = startTime[i];
+        for (int i = 0; i < datesShown; i++) {
+            if (i > 0 && Instant.now().isAfter(endTime[i - 1])) trackingTime = startTime[i];
             if (Instant.now().isAfter(startTime[i])) trackingTime = endTime[i];
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         EmbedUtil.setFooter(eb, this, getString("footer", startTime[0].isBefore(Instant.now()), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
 
-        for(int i=0; i<datesShown; i++) {
+        for (int i = 0; i < datesShown; i++) {
             String title = Emojis.SPLATOON_SALMONRUN + " __**" + TimeUtil.getInstantString(getLocale(), startTime[i], true) + " - " + TimeUtil.getInstantString(getLocale(), endTime[i], true) + "**__";
             String weapons = "";
             for (int j = 0; j < 4; j++) {

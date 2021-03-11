@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.function.Consumer;
+import core.MainLogger;
 import core.schedule.ScheduleAdapter;
 import core.schedule.ScheduleInterface;
 import core.utils.TimeUtil;

@@ -1,12 +1,11 @@
 package mysql.modules.reminders;
 
+import java.util.HashMap;
 import core.CustomObservableMap;
 import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
-
-import java.util.HashMap;
 
 public class DBReminders extends DBSingleCache<CustomObservableMap<Integer, RemindersBean>> {
 
@@ -53,7 +52,7 @@ public class DBReminders extends DBSingleCache<CustomObservableMap<Integer, Remi
         DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Reminders (id, serverId, channelId, time, message) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setInt(1, remindersBean.getId());
             preparedStatement.setLong(2, remindersBean.getGuildId());
-            preparedStatement.setLong(3, remindersBean.getChannelId());
+            preparedStatement.setLong(3, remindersBean.getTextChannelId());
             preparedStatement.setString(4, DBMain.instantToDateTimeString(remindersBean.getTime()));
             preparedStatement.setString(5, remindersBean.getMessage());
         });

@@ -1,9 +1,9 @@
 package core.atomicassets;
 
-import core.ShardManager;
-import net.dv8tion.jda.api.entities.Guild;
 import java.util.Objects;
 import java.util.Optional;
+import core.ShardManager;
+import net.dv8tion.jda.api.entities.Guild;
 
 public class AtomicGuild implements AtomicAsset<Guild> {
 

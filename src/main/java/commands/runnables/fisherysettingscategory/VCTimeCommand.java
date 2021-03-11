@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 
 @CommandProperties(
         trigger = "vctime",
-        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "⏲️",
         executableWithoutArgs = true,

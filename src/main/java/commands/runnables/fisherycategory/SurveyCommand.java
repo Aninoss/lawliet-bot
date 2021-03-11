@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 
 @CommandProperties(
         trigger = "survey",
-        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "✅",
         executableWithoutArgs = true
 )

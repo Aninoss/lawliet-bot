@@ -19,7 +19,9 @@ repositories {
 }
 
 dependencies {
+    //TODO: test new emoji library
     implementation 'net.dv8tion:JDA:4.2.0_238'
+    implementation 'club.minnced:discord-webhooks:0.5.5-rc'
     implementation 'com.sedmelluq:lavaplayer:1.3.60'
     implementation 'mysql:mysql-connector-java:8.0.23'
     implementation 'commons-io:commons-io:2.6'
@@ -27,6 +29,7 @@ dependencies {
     implementation 'org.discordbots:DBL-Java-Library:2.0.1'
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'com.vdurmont:emoji-java:5.1.1'
+    implementation 'com.kcthota:emoji4j:6.0'
     implementation 'com.github.Aninoss:Java-WebSocket:94609ebb95'
     implementation 'com.google.guava:guava:28.1-jre'
     implementation 'net.java.openjfx.backport:openjfx-78-backport:1.8.0-ea-b96.1'

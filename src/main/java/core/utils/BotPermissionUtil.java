@@ -1,5 +1,6 @@
 package core.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -12,10 +13,14 @@ import net.dv8tion.jda.api.entities.*;
 
 public class BotPermissionUtil {
 
-    public static EmbedBuilder getUserAndBotPermissionMissingEmbed(Locale locale, GuildChannel channel, Member member, Permission[] userGuildPermissions, Permission[] userChannelPermissions, Permission[] botPermissions) {
-        List<Permission> userPermission = getMissingPermissions(member, userGuildPermissions);
+    public static EmbedBuilder getUserAndBotPermissionMissingEmbed(Locale locale, GuildChannel channel, Member member,
+                                                                   Permission[] userGuildPermissions, Permission[] userChannelPermissions,
+                                                                   Permission[] botGuildPermissions, Permission[] botChannelPermissions
+    ) {
+        List<Permission> userPermission = new ArrayList<>(getMissingPermissions(member, userGuildPermissions));
         userPermission.addAll(getMissingPermissions(channel, member, userChannelPermissions));
-        List<Permission> botPermission = getMissingPermissions(channel, channel.getGuild().getSelfMember(), botPermissions);
+        List<Permission> botPermission = new ArrayList<>(getMissingPermissions(channel.getGuild().getSelfMember(), botGuildPermissions));
+        botPermission.addAll(getMissingPermissions(channel, channel.getGuild().getSelfMember(), botChannelPermissions));
 
         return getUserPermissionMissingEmbed(locale, userPermission, botPermission);
     }

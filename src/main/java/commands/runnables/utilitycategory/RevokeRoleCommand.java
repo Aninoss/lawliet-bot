@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.Permission;
 @CommandProperties(
         trigger = "revokerole",
         userGuildPermissions = Permission.MANAGE_ROLES,
-        botPermissions = Permission.MANAGE_ROLES,
+        botGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDCE4",
         executableWithoutArgs = false,
         patreonRequired = true,

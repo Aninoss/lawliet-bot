@@ -1,16 +1,15 @@
 package mysql.modules.tracker;
 
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Optional;
 import core.AlertScheduler;
 import core.CustomThread;
 import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
-
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
 
 public class DBTracker extends DBSingleCache<TrackerBean> {
 
@@ -67,7 +66,7 @@ public class DBTracker extends DBSingleCache<TrackerBean> {
     protected void insertTracker(TrackerBeanSlot slot) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getGuildId());
-            preparedStatement.setLong(2, slot.getChannelId());
+            preparedStatement.setLong(2, slot.getTextChannelId());
             preparedStatement.setString(3, slot.getCommandTrigger());
 
             Optional<Long> messageIdOpt = slot.getMessageId();
@@ -86,7 +85,7 @@ public class DBTracker extends DBSingleCache<TrackerBean> {
     protected void removeTracker(TrackerBeanSlot slot) {
         if (!Objects.isNull(slot)) {
             DBMain.getInstance().asyncUpdate("DELETE FROM Tracking WHERE channelId = ? AND command = ? AND commandKey = ?;", preparedStatement -> {
-                preparedStatement.setLong(1, slot.getChannelId());
+                preparedStatement.setLong(1, slot.getTextChannelId());
                 preparedStatement.setString(2, slot.getCommandTrigger());
                 preparedStatement.setString(3, slot.getCommandKey());
             });

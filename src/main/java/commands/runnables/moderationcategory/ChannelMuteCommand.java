@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 @CommandProperties(
         trigger = "chmute",
         userChannelPermissions = { Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS },
-        botPermissions = { Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS },
+        botGuildPermissions = { Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS },
         emoji = "\uD83D\uDED1",
         executableWithoutArgs = false,
         aliases = { "channelmute", "mute" }
@@ -60,7 +60,8 @@ public class ChannelMuteCommand extends Command {
                 event.getMember(),
                 getAdjustedUserGuildPermissions(),
                 getAdjustedUserChannelPermissions(),
-                getBotPermissions()
+                getAdjustedBotGuildPermissions(),
+                getAdjustedBotChannelPermissions()
         );
         if (errorEmbed != null) {
             message.getChannel().sendMessage(errorEmbed.build()).queue();

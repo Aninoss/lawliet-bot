@@ -63,7 +63,7 @@ public class DBSuggestions extends DBMapCache<Long, SuggestionsBean> {
             preparedStatement.setLong(1, suggestionsBean.getGuildId());
             preparedStatement.setBoolean(2, suggestionsBean.isActive());
 
-            Optional<Long> channelIdOpt = suggestionsBean.getChannelId();
+            Optional<Long> channelIdOpt = suggestionsBean.getTextChannelId();
             if (channelIdOpt.isPresent()) preparedStatement.setLong(3, channelIdOpt.get());
             else preparedStatement.setNull(3, Types.BIGINT);
         });

@@ -5,6 +5,7 @@ import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.OnStaticReactionRemoveListener;
 import constants.Emojis;
+import core.MainLogger;
 import core.ShardManager;
 import core.cache.MessageCache;
 import events.discordevents.DiscordEvent;

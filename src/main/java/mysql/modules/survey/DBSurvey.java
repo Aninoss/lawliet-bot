@@ -1,10 +1,5 @@
 package mysql.modules.survey;
 
-import javafx.util.Pair;
-import mysql.DBMapCache;
-import mysql.DBDataLoad;
-import mysql.DBMain;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +7,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
+import javafx.util.Pair;
+import mysql.DBDataLoad;
+import mysql.DBMain;
+import mysql.DBMapCache;
 
 public class DBSurvey extends DBMapCache<Integer, SurveyBean> {
 
@@ -137,13 +136,13 @@ public class DBSurvey extends DBMapCache<Integer, SurveyBean> {
     private HashMap<Pair<Long, Long>, SurveySecondVote> getSecondVotes(int surveyId) {
         return new DBDataLoad<SurveySecondVote>("SurveyMajorityVotes", "serverId, userId, majorityVote", "surveyId = ?",
                 preparedStatement -> preparedStatement.setInt(1, surveyId)
-        ).getHashMap(secondVote -> new Pair<>(secondVote.getServerId(), secondVote.getMemberId()), resultSet -> new SurveySecondVote(resultSet.getLong(1), resultSet.getLong(2), resultSet.getByte(3)));
+        ).getHashMap(secondVote -> new Pair<>(secondVote.getGuildId(), secondVote.getMemberId()), resultSet -> new SurveySecondVote(resultSet.getLong(1), resultSet.getLong(2), resultSet.getByte(3)));
     }
 
     private void addSecondVote(int surveyId, SurveySecondVote surveySecondVote) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO SurveyMajorityVotes (surveyId, serverId, userId, majorityVote) VALUES (?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setInt(1, surveyId);
-            preparedStatement.setLong(2, surveySecondVote.getServerId());
+            preparedStatement.setLong(2, surveySecondVote.getGuildId());
             preparedStatement.setLong(3, surveySecondVote.getMemberId());
             preparedStatement.setByte(4, surveySecondVote.getVote());
         });
@@ -152,7 +151,7 @@ public class DBSurvey extends DBMapCache<Integer, SurveyBean> {
     private void removeSecondVote(int surveyId, SurveySecondVote surveySecondVote) {
         DBMain.getInstance().asyncUpdate("DELETE FROM SurveyVotes WHERE surveyId = ? AND serverId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setInt(1, surveyId);
-            preparedStatement.setLong(2, surveySecondVote.getServerId());
+            preparedStatement.setLong(2, surveySecondVote.getGuildId());
             preparedStatement.setLong(3, surveySecondVote.getMemberId());
         });
     }

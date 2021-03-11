@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.entities.User;
 
 @CommandProperties(
         trigger = "unban",
-        botPermissions = Permission.BAN_MEMBERS,
+        botGuildPermissions = Permission.BAN_MEMBERS,
         userGuildPermissions = Permission.BAN_MEMBERS,
         emoji = "\uD83C\uDF3C",
         executableWithoutArgs = false

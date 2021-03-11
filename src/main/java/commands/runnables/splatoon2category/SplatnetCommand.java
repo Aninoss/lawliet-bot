@@ -22,14 +22,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 @CommandProperties(
-    trigger = "splatnet",
-        botPermissions = Permission.MESSAGE_EXT_EMOJI,
-    withLoadingBar = true,
-    emoji = "\uD83D\uDED2",
-    executableWithoutArgs = true
+        trigger = "splatnet",
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
+        withLoadingBar = true,
+        emoji = "\uD83D\uDED2",
+        executableWithoutArgs = true
 )
 public class SplatnetCommand extends Command implements OnTrackerRequestListener {
-    
+
     private Instant trackingTime;
 
     public SplatnetCommand(Locale locale, String prefix) {
@@ -48,7 +48,7 @@ public class SplatnetCommand extends Command implements OnTrackerRequestListener
         int datesShown = 2;
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 
-        String[] urls = new String[]{
+        String[] urls = new String[] {
                 "https://splatoon2.ink/data/merchandises.json",
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
@@ -71,7 +71,7 @@ public class SplatnetCommand extends Command implements OnTrackerRequestListener
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
 
         Instant trackingTime = null;
-        for(int i=0; i < netData.length(); i++) {
+        for (int i = 0; i < netData.length(); i++) {
             JSONObject data = netData.getJSONObject(i);
             Instant endTime = new Date(data.getLong("end_time") * 1000L).toInstant();
 
@@ -87,7 +87,9 @@ public class SplatnetCommand extends Command implements OnTrackerRequestListener
             String brand = languageData.getJSONObject("brands").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getString("id")).getString("name");
             //String effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
             String effect = getString("nothing");
-            if (data.getJSONObject("gear").getJSONObject("brand").has("frequent_skill")) effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
+            if (data.getJSONObject("gear").getJSONObject("brand").has("frequent_skill")) {
+                effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
+            }
 
             String fieldContent = getString("template", Emojis.SPLATOON_COIN, String.valueOf(price), TimeUtil.getInstantString(getLocale(), endTime, true), TimeUtil.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
             eb.addField(fieldTitle, fieldContent, true);

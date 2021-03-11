@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.User;
 
 @CommandProperties(
     trigger = "kick",
-    botPermissions = Permission.KICK_MEMBERS,
+    botGuildPermissions = Permission.KICK_MEMBERS,
     userGuildPermissions = Permission.KICK_MEMBERS,
     emoji = "\uD83D\uDEAA",
     executableWithoutArgs = false

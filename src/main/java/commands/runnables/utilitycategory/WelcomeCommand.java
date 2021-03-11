@@ -1,11 +1,11 @@
 package commands.runnables.utilitycategory;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
 import constants.Response;
@@ -20,20 +20,24 @@ import modules.graphics.WelcomeGraphics;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageBean;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
     trigger = "welcome",
-    botPermissions = PermissionDeprecated.ATTACH_FILES,
-    userPermissions = PermissionDeprecated.MANAGE_SERVER,
+    botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
+    userGuildPermissions = Permission.MANAGE_SERVER,
     emoji = "🙋",
     executableWithoutArgs = true
 )
-public class WelcomeCommand extends Command implements OnNavigationListenerOld {
+public class WelcomeCommand extends NavigationAbstract {
     
     private WelcomeMessageBean welcomeMessageBean;
-    private User author;
 
     public WelcomeCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -42,18 +46,18 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(event.getGuild().getIdLong());
-        author = event.getMessage().getUserAuthor().get();
         welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteInChannelWithLog);
         welcomeMessageBean.getGoodbyeChannel().ifPresent(this::checkWriteInChannelWithLog);
+        registerNavigationListener(11);
         return true;    }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws IOException {
         switch (state) {
             case 1:
-                if (inputString.length() > 0) {
-                    if (inputString.length() <= 20) {
-                        welcomeMessageBean.setWelcomeTitle(inputString);
+                if (input.length() > 0) {
+                    if (input.length() <= 20) {
+                        welcomeMessageBean.setWelcomeTitle(input);
                         setLog(LogStatus.SUCCESS, getString("titleset"));
                         setState(0);
                         return Response.TRUE;
@@ -65,9 +69,9 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
                 return Response.FALSE;
 
             case 2:
-                if (inputString.length() > 0) {
-                    if (inputString.length() <= 1000) {
-                        welcomeMessageBean.setWelcomeText(inputString);
+                if (input.length() > 0) {
+                    if (input.length() <= 1000) {
+                        welcomeMessageBean.setWelcomeText(input);
                         setLog(LogStatus.SUCCESS, getString("descriptionset"));
                         setState(0);
                         return Response.TRUE;
@@ -79,13 +83,13 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
                 return Response.FALSE;
 
             case 3:
-                ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
+                List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
                 if (channelList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
                     if (checkWriteInChannelWithLog(channelList.get(0))) {
-                        welcomeMessageBean.setWelcomeChannelId(channelList.get(0).getId());
+                        welcomeMessageBean.setWelcomeChannelId(channelList.get(0).getIdLong());
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
                         return Response.TRUE;
@@ -93,7 +97,7 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
                 }
 
             case 4:
-                List<MessageAttachment> attachmentList = event.getMessage().getAttachments();
+                List<Message.Attachment> attachmentList = event.getMessage().getAttachments();
                 if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
                     String downloadFileName = String.format("data/welcome_backgrounds/%d.png", event.getGuild().getIdLong());
                     if (FileUtil.downloadMessageAttachment(attachmentList.get(0), downloadFileName).isPresent()) {
@@ -107,9 +111,9 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
                 return Response.FALSE;
 
             case 6:
-                if (inputString.length() > 0) {
-                    if (inputString.length() <= 1000) {
-                        welcomeMessageBean.setGoodbyeText(inputString);
+                if (input.length() > 0) {
+                    if (input.length() <= 1000) {
+                        welcomeMessageBean.setGoodbyeText(input);
                         setLog(LogStatus.SUCCESS, getString("goodbyetextset"));
                         setState(0);
                         return Response.TRUE;
@@ -121,13 +125,13 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
                 return Response.FALSE;
 
             case 7:
-                channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
+                channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
                 if (channelList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
                     if (checkWriteInChannelWithLog(channelList.get(0))) {
-                        welcomeMessageBean.setGoodbyeChannelId(channelList.get(0).getId());
+                        welcomeMessageBean.setGoodbyeChannelId(channelList.get(0).getIdLong());
                         setLog(LogStatus.SUCCESS, getString("farechannelset"));
                         setState(0);
                         return Response.TRUE;
@@ -135,9 +139,9 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
                 }
 
             case 8:
-                if (inputString.length() > 0) {
-                    if (inputString.length() <= 1000) {
-                        welcomeMessageBean.setDmText(inputString);
+                if (input.length() > 0) {
+                    if (input.length() <= 1000) {
+                        welcomeMessageBean.setDmText(input);
                         setLog(LogStatus.SUCCESS, getString("dmtextset"));
                         setState(0);
                         return Response.TRUE;
@@ -155,101 +159,96 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
 
     @Override
     public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
-        switch (state) {
-            case 0:
-                switch (i) {
-                    case -1:
-                        removeNavigationWithMessage();
-                        return false;
+        if (state == 0) {
+            switch (i) {
+                case -1:
+                    removeNavigationWithMessage();
+                    return false;
 
-                    case 0:
-                        welcomeMessageBean.toggleWelcomeActive();
-                        setLog(LogStatus.SUCCESS, getString("activateset", !welcomeMessageBean.isWelcomeActive()));
-                        return true;
-
-                    case 1:
-                        setState(1);
-                        return true;
-
-                    case 2:
-                        setState(2);
-                        return true;
-
-                    case 3:
-                        setState(3);
-                        return true;
-
-                    case 4:
-                        setState(4);
-                        return true;
-
-                    case 5:
-                        welcomeMessageBean.toggleDmActive();
-                        setLog(LogStatus.SUCCESS, getString("dmset", !welcomeMessageBean.isDmActive()));
-                        return true;
-
-                    case 6:
-                        setState(8);
-                        return true;
-
-                    case 7:
-                        welcomeMessageBean.toggleGoodbyeActive();
-                        setLog(LogStatus.SUCCESS, getString("goodbyeset", !welcomeMessageBean.isGoodbyeActive()));
-                        return true;
-
-                    case 8:
-                        setState(6);
-                        return true;
-
-                    case 9:
-                        setState(7);
-                        return true;
-
-                    case 10:
-                        setState(5);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            default:
-                if (i == -1) {
-                    setState(0);
+                case 0:
+                    welcomeMessageBean.toggleWelcomeActive();
+                    setLog(LogStatus.SUCCESS, getString("activateset", !welcomeMessageBean.isWelcomeActive()));
                     return true;
-                } return false;
+
+                case 1:
+                    setState(1);
+                    return true;
+
+                case 2:
+                    setState(2);
+                    return true;
+
+                case 3:
+                    setState(3);
+                    return true;
+
+                case 4:
+                    setState(4);
+                    return true;
+
+                case 5:
+                    welcomeMessageBean.toggleDmActive();
+                    setLog(LogStatus.SUCCESS, getString("dmset", !welcomeMessageBean.isDmActive()));
+                    return true;
+
+                case 6:
+                    setState(8);
+                    return true;
+
+                case 7:
+                    welcomeMessageBean.toggleGoodbyeActive();
+                    setLog(LogStatus.SUCCESS, getString("goodbyeset", !welcomeMessageBean.isGoodbyeActive()));
+                    return true;
+
+                case 8:
+                    setState(6);
+                    return true;
+
+                case 9:
+                    setState(7);
+                    return true;
+
+                case 10:
+                    setState(5);
+                    return true;
+
+                default:
+                    return false;
+            }
+        } else if (i == -1) {
+            setState(0);
+            return true;
         }
+        return false;
     }
 
     @Override
-    public EmbedBuilder draw(int state) {
+    public EmbedBuilder draw(int state) throws ExecutionException, InterruptedException {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
-        switch (state) {
-            case 0:
-                setOptions(getString("state0_options").split("\n"));
-                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false)
-                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isWelcomeActive()), true)
-                        .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageBean.getWelcomeTitle()), true)
-                        .addField(getString("state0_mdescription"), stressVariables(welcomeMessageBean.getWelcomeText()),
-                               true)
-                        .addField(getString("state0_mchannel"), welcomeMessageBean.getWelcomeChannel().map(Mentionable::getMentionTag).orElse(notSet), true)
-                        .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false)
-                        .addField(getString("state0_mdm"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isDmActive()), true)
-                        .addField(getString("state0_mdmText"), stressVariables(welcomeMessageBean.getDmText().isEmpty() ? notSet : welcomeMessageBean.getDmText()),
-                                true)
-                        .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false)
-                        .addField(getString("state0_mgoodbye"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
-                        .addField(getString("state0_mgoodbyeText"), stressVariables(welcomeMessageBean.getGoodbyeText()), true)
-                        .addField(getString("state0_mfarewellchannel"), welcomeMessageBean.getGoodbyeChannel().map(Mentionable::getMentionTag).orElse(notSet), true);
-
-            default:
-                if (state == 5) {
-                    return getWelcomeMessageTest(author);
-                }
-                return EmbedFactory.getEmbedDefault(this, getString("state"+state+"_description"), getString("state"+state+"_title"));
+        if (state == 0) {
+            setOptions(getString("state0_options").split("\n"));
+            return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
+                    .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false)
+                    .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isWelcomeActive()), true)
+                    .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageBean.getWelcomeTitle()), true)
+                    .addField(getString("state0_mdescription"), stressVariables(welcomeMessageBean.getWelcomeText()),
+                            true
+                    )
+                    .addField(getString("state0_mchannel"), welcomeMessageBean.getWelcomeChannel().map(IMentionable::getAsMention).orElse(notSet), true)
+                    .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false)
+                    .addField(getString("state0_mdm"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isDmActive()), true)
+                    .addField(getString("state0_mdmText"), stressVariables(welcomeMessageBean.getDmText().isEmpty() ? notSet : welcomeMessageBean.getDmText()),
+                            true
+                    )
+                    .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false)
+                    .addField(getString("state0_mgoodbye"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
+                    .addField(getString("state0_mgoodbyeText"), stressVariables(welcomeMessageBean.getGoodbyeText()), true)
+                    .addField(getString("state0_mfarewellchannel"), welcomeMessageBean.getGoodbyeChannel().map(IMentionable::getAsMention).orElse(notSet), true);
+        } else if (state == 5) {
+            return getWelcomeMessageTest(getMember().get());
         }
+        return EmbedFactory.getEmbedDefault(this, getString("state" + state + "_description"), getString("state" + state + "_title"));
     }
 
     private String stressVariables(String text) {
@@ -261,25 +260,19 @@ public class WelcomeCommand extends Command implements OnNavigationListenerOld {
                 "`%MEMBERS`");
     }
 
-    @Override
-    public void onNavigationTimeOut(Message message) throws Throwable { }
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 11;
-    }
-
-    public EmbedBuilder getWelcomeMessageTest(User user) throws ExecutionException, InterruptedException {
-        Server server = welcomeMessageBean.getGuild().get();
+    public EmbedBuilder getWelcomeMessageTest(Member member) throws ExecutionException, InterruptedException {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(Welcome.resolveVariables(welcomeMessageBean.getWelcomeText(),
-                        StringUtil.escapeMarkdown(server.getName()),
-                        user.getMentionTag(),
-                        StringUtil.escapeMarkdown(user.getName()),
-                        StringUtil.escapeMarkdown(user.getDiscriminatedName()),
-                        StringUtil.numToString(server.getMemberCount())));
+                        StringUtil.escapeMarkdown(member.getUser().getName()),
+                        member.getAsMention(),
+                        StringUtil.escapeMarkdown(member.getUser().getName()),
+                        StringUtil.escapeMarkdown(member.getUser().getAsTag()),
+                        StringUtil.numToString(member.getGuild().getMemberCount())));
 
-        eb.setImage(InternetUtil.getURLFromInputStream(WelcomeGraphics.createImageWelcome(user, server, welcomeMessageBean.getWelcomeTitle())).toString());
+        eb.setImage(InternetUtil.getURLFromInputStream(
+                WelcomeGraphics.createImageWelcome(member, welcomeMessageBean.getWelcomeTitle()).get(),
+                "welcome.png"
+        ).toString());
         return eb;
     }
 

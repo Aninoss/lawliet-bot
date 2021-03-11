@@ -1,5 +1,6 @@
 package websockets.syncserver.events;
 
+import core.MainLogger;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;

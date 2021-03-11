@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "trigger",
-        botPermissions = Permission.MESSAGE_ATTACH_FILES,
+        botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
         withLoadingBar = true,
         emoji = "\uD83D\uDCA2",
         executableWithoutArgs = true,

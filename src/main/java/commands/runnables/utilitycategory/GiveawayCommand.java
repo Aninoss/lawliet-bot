@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 
 @CommandProperties(
         trigger = "giveaway",
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "🎆",
         releaseDate = { 2020, 10, 28 },

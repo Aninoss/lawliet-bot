@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "quote",
-        botPermissions = Permission.MESSAGE_HISTORY,
+        botGuildPermissions = Permission.MESSAGE_HISTORY,
         userChannelPermissions = Permission.MESSAGE_HISTORY,
         emoji = "\uD83D\uDCDD",
         executableWithoutArgs = false,

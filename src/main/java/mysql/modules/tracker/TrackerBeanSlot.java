@@ -1,12 +1,9 @@
 package mysql.modules.tracker;
 
 import java.time.Instant;
-import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import core.assets.TextChannelAsset;
 import mysql.BeanWithGuild;
-import net.dv8tion.jda.api.entities.Message;
 
 public class TrackerBeanSlot extends BeanWithGuild implements TextChannelAsset {
 
@@ -37,11 +34,6 @@ public class TrackerBeanSlot extends BeanWithGuild implements TextChannelAsset {
 
     public Optional<Long> getMessageId() {
         return Optional.ofNullable(messageId);
-    }
-
-    public CompletableFuture<Message> retrieveMessage() {
-        return getTextChannel().map(channel -> channel.retrieveMessageById(getMessageId().orElse(0L)).submit())
-                .orElseGet(() -> CompletableFuture.failedFuture(new NoSuchElementException("No text channel")));
     }
 
     public String getCommandTrigger() { return commandTrigger; }

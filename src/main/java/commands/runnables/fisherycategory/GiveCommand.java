@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "give",
-        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83C\uDF81",
         executableWithoutArgs = false,
         aliases = {"gift", "pay" }

@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 
 @CommandProperties(
         trigger = "autoroles",
-        botPermissions = Permission.MANAGE_ROLES,
+        botGuildPermissions = Permission.MANAGE_ROLES,
         userGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "👪",
         executableWithoutArgs = true,

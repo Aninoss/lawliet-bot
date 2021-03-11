@@ -1,6 +1,8 @@
 package core.atomicassets;
 
+import java.util.Locale;
 import java.util.Optional;
+import core.TextManager;
 import net.dv8tion.jda.api.entities.IMentionable;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -10,10 +12,14 @@ public interface MentionableAtomicAsset<T extends IMentionable> extends IMention
 
     Optional<T> get();
 
+    Locale getLocale();
+
     @Override
     @NonNull
     default String getAsMention() {
-        return get().map(IMentionable::getAsMention).orElse("-");
+        return get()
+                .map(IMentionable::getAsMention)
+                .orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "notset"));
     }
 
 }

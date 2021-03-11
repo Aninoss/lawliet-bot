@@ -9,6 +9,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import core.GlobalThreadPool;
+import core.MainLogger;
 import core.utils.BotUtil;
 
 public class HttpRequest {
@@ -43,8 +44,9 @@ public class HttpRequest {
 
     private static void download(CompletableFuture<HttpResponse> future, String urlString, String method, int pauseTimeMilis, String body, HttpProperty... headers) {
         try {
-            if (MainLogger.get().isDebugEnabled())
+            if (MainLogger.get().isDebugEnabled()) {
                 MainLogger.get().debug("Downloading from url {}", urlString);
+            }
 
             BufferedReader br;
             String line;
@@ -72,7 +74,9 @@ public class HttpRequest {
                 try (OutputStream os = connection.getOutputStream()) {
                     os.write(out);
                 }
-            } else connection.connect();
+            } else {
+                connection.connect();
+            }
 
             int code = connection.getResponseCode();
             if (code / 100 != 2) {

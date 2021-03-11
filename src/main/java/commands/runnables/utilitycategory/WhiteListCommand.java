@@ -1,32 +1,40 @@
 package commands.runnables.utilitycategory;
 
-import commands.listeners.CommandProperties;
-
-import commands.Command;
+import java.util.List;
+import java.util.Locale;
 import commands.NavigationHelper;
+import commands.listeners.CommandProperties;
+import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import constants.Response;
-import core.*;
+import core.CustomObservableList;
+import core.EmbedFactory;
+import core.ListGen;
+import core.TextManager;
+import core.atomicassets.AtomicTextChannel;
+import core.atomicassets.MentionableAtomicAsset;
 import core.utils.MentionUtil;
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
 import mysql.modules.whitelistedchannels.WhiteListedChannelsBean;
-
-import java.util.ArrayList;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "whitelist",
-        userPermissions = PermissionDeprecated.MANAGE_SERVER,
+        userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "✅",
         executableWithoutArgs = true,
-        aliases = {"wl"}
+        aliases = { "wl" }
 )
-public class WhiteListCommand extends Command implements OnNavigationListenerOld {
+public class WhiteListCommand extends NavigationAbstract {
 
     private static final int MAX_CHANNELS = 50;
 
-    private NavigationHelper<ServerTextChannel> channelNavigationHelper;
-    private CustomObservableList<ServerTextChannel> whiteListedChannels;
+    private NavigationHelper<AtomicTextChannel> channelNavigationHelper;
+    private CustomObservableList<AtomicTextChannel> whiteListedChannels;
 
     public WhiteListCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -35,16 +43,17 @@ public class WhiteListCommand extends Command implements OnNavigationListenerOld
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         WhiteListedChannelsBean whiteListedChannelsBean = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
-        whiteListedChannels = whiteListedChannelsBean.getChannelIds().transform(channelId -> event.getServer().get().getTextChannelById(channelId), DiscordEntity::getId);
-        channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, ServerTextChannel.class, MAX_CHANNELS);
+        whiteListedChannels = AtomicTextChannel.transformIdList(event.getGuild(), whiteListedChannelsBean.getChannelIds());
+        channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, AtomicTextChannel.class, MAX_CHANNELS);
+        registerNavigationListener(12);
         return true;
     }
 
     @Override
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
-            ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
-            return channelNavigationHelper.addData(channelList, inputString, event.getMessage().getUserAuthor().get(), 0);
+            List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+            return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMessage().getMember(), 0);
         }
 
         return null;
@@ -99,19 +108,18 @@ public class WhiteListCommand extends Command implements OnNavigationListenerOld
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                       .addField(getString("state0_mchannel"), new ListGen<ServerTextChannel>().getList(whiteListedChannels, everyChannel, Mentionable::getMentionTag), true);
+                        .addField(
+                                getString("state0_mchannel"),
+                                new ListGen<AtomicTextChannel>().getList(whiteListedChannels, everyChannel, MentionableAtomicAsset::getAsMention),
+                                true
+                        );
 
-            case 1: return channelNavigationHelper.drawDataAdd();
-            case 2: return channelNavigationHelper.drawDataRemove();
+            case 1:
+                return channelNavigationHelper.drawDataAdd();
+            case 2:
+                return channelNavigationHelper.drawDataRemove();
         }
         return null;
     }
 
-    @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {}
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 12;
-    }
 }

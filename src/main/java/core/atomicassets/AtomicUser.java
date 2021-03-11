@@ -1,9 +1,11 @@
 package core.atomicassets;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import constants.Locales;
 import core.CustomObservableList;
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -29,6 +31,11 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
     @Override
     public Optional<User> get() {
         return ShardManager.getInstance().getCachedUserById(userId);
+    }
+
+    @Override
+    public Locale getLocale() {
+        return new Locale(Locales.EN);
     }
 
     @Override

@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 
 @CommandProperties(
         trigger = "wordfilter",
-        botPermissions = Permission.MESSAGE_MANAGE,
+        botGuildPermissions = Permission.MESSAGE_MANAGE,
         userGuildPermissions = { Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS },
         emoji = "️🚧️",
         executableWithoutArgs = true,

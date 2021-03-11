@@ -1,12 +1,12 @@
 package mysql.modules.suggestions;
 
+import java.util.HashMap;
+import java.util.Optional;
 import core.CustomObservableMap;
 import modules.suggestions.SuggestionMessage;
 import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import java.util.HashMap;
-import java.util.Optional;
 
 public class SuggestionsBean extends BeanWithGuild {
 
@@ -32,11 +32,11 @@ public class SuggestionsBean extends BeanWithGuild {
         return messages;
     }
 
-    public Optional<Long> getChannelId() {
+    public Optional<Long> getTextChannelId() {
         return Optional.ofNullable(channelId);
     }
 
-    public Optional<TextChannel> getChannel() {
+    public Optional<TextChannel> getTextChannel() {
         return getGuild().map(guild -> guild.getTextChannelById(channelId != null ? channelId : 0L));
     }
 

@@ -205,19 +205,31 @@ public abstract class Command implements OnTriggerListener {
                 Arrays.stream(commandProperties.userChannelPermissions()).anyMatch(p -> p != Permission.MESSAGE_HISTORY);
     }
 
-    public Permission[] getBotPermissions() {
-        Permission[] permissions = commandProperties.botPermissions();
+    public Permission[] getAdjustedBotGuildPermissions() {
+        Permission[] permissions = commandProperties.botGuildPermissions();
+        return processBotPermissions(permissions);
+    }
+
+    public Permission[] getAdjustedBotChannelPermissions() {
+        Permission[] permissions = commandProperties.botChannelPermissions();
+        return processBotPermissions(permissions);
+    }
+
+    private Permission[] processBotPermissions(Permission[] permissions) {
         if (Arrays.stream(permissions).anyMatch(permission -> permission == Permission.ADMINISTRATOR)) {
             return new Permission[]{ Permission.ADMINISTRATOR };
         }
 
         //TODO: Does that work?
-        if ((this instanceof OnReactionListener || this instanceof NavigationAbstract || this instanceof OnStaticReactionAddListener) &&
-                Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_HISTORY)
-        ) {
-            permissions = Arrays.copyOf(permissions, permissions.length + 2);
-            permissions[permissions.length - 2] = Permission.MESSAGE_HISTORY;
-            permissions[permissions.length - 1] = Permission.MESSAGE_ADD_REACTION;
+        if ((this instanceof OnReactionListener || this instanceof NavigationAbstract || this instanceof OnStaticReactionAddListener)) {
+            if (Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_HISTORY)) {
+                permissions = Arrays.copyOf(permissions, permissions.length + 1);
+                permissions[permissions.length - 1] = Permission.MESSAGE_HISTORY;
+            }
+            if (Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_ADD_REACTION)) {
+                permissions = Arrays.copyOf(permissions, permissions.length + 1);
+                permissions[permissions.length - 1] = Permission.MESSAGE_ADD_REACTION;
+            }
         }
 
         return permissions;

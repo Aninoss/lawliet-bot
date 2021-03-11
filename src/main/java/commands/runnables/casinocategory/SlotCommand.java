@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         trigger = "slot",
         emoji = "🎰",
         executableWithoutArgs = true,
-        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         aliases = { "slots", "slotmachine" }
 )
 public class SlotCommand extends CasinoAbstract {

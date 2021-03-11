@@ -2,7 +2,6 @@ package modules.repair;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -11,6 +10,7 @@ import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryRolesCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
+import core.MainLogger;
 import core.PermissionCheckRuntime;
 import mysql.modules.autoroles.AutoRolesBean;
 import mysql.modules.autoroles.DBAutoRoles;
@@ -55,7 +55,7 @@ public class RolesRepair {
                     .forEach(member -> checkRoles(locale,
                             Command.getCommandLanguage(FisheryRolesCommand.class, locale).getTitle(),
                             member,
-                            fisheryGuildBean.getMemberBean(member.getIdLong()).getRoles().orElse(Collections.emptyList())
+                            fisheryGuildBean.getMemberBean(member.getIdLong()).getRoles()
                     ));
         }
     }

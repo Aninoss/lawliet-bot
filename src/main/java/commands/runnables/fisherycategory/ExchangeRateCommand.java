@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 @CommandProperties(
         trigger = "exch",
         emoji = "\uD83D\uDD01",
-        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
         aliases = {"exchangerate", "er", "exchr", "exchange"}
 )

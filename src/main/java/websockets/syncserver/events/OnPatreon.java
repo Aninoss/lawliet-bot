@@ -1,6 +1,7 @@
 package websockets.syncserver.events;
 
 import java.util.HashMap;
+import core.MainLogger;
 import core.cache.PatreonCache;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;

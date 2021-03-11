@@ -190,7 +190,8 @@ public class CommandManager {
                 event.getMember(),
                 command.getAdjustedUserGuildPermissions(),
                 command.getAdjustedUserChannelPermissions(),
-                command.getBotPermissions()
+                command.getAdjustedBotGuildPermissions(),
+                command.getAdjustedBotChannelPermissions()
         );
         if (errEmbed == null || command instanceof HelpCommand) {
             return true;

@@ -20,6 +20,7 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.TrackerResult;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.TextManager;
 import core.cache.PatreonCache;
 import core.cache.PatternCache;

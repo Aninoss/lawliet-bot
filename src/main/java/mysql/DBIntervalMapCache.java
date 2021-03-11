@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import core.Bot;
 import core.CustomThread;
 import core.IntervalBlock;
+import core.MainLogger;
 
 public abstract class DBIntervalMapCache<T, U extends Observable> extends DBMapCache<T, U> implements Observer {
 

@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 @CommandProperties(
         trigger = "exchf",
         emoji = "🔮",
-        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
         patreonRequired = true,
         aliases = { "exchforecast", "exchangerateforecast", "erforecast", "exchrforecast", "exchangeforecast" }

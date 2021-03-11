@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 @CommandProperties(
         trigger = "say",
-        botPermissions = Permission.MESSAGE_ATTACH_FILES,
+        botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
         emoji = "\uD83D\uDCAC",
         executableWithoutArgs = true,
         aliases = { "repeat" }

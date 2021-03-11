@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "acc",
-        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83D\uDE4B",
         executableWithoutArgs = true,
         aliases = { "profile", "profil", "account", "balance", "bal", "a" }

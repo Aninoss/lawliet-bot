@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "gear",
-        botPermissions = Permission.MESSAGE_EXT_EMOJI,
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83C\uDFA3",
         executableWithoutArgs = true,
         aliases = { "equip", "equipment", "inventory", "level", "g" }

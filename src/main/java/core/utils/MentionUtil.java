@@ -302,6 +302,7 @@ public class MentionUtil {
             }
         }
 
+        //TODO: fix
         List<String> unicodeEmojis = EmojiParser.extractEmojis(input);
         for (String unicodeEmoji : unicodeEmojis) {
             emojiList.add(unicodeEmoji);

@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 
 @CommandProperties(
         trigger = "autochannel",
-        botPermissions = { Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT },
+        botGuildPermissions = { Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT },
         userGuildPermissions = { Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT },
         emoji = "🔊",
         executableWithoutArgs = true,

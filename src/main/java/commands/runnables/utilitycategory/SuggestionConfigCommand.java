@@ -1,33 +1,34 @@
 package commands.runnables.utilitycategory;
 
-import commands.Command;
+import java.util.List;
+import java.util.Locale;
 import commands.listeners.CommandProperties;
-
+import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.suggestions.DBSuggestions;
 import mysql.modules.suggestions.SuggestionsBean;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.embed.EmbedBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.reaction.SingleReactionEvent;
-import java.util.ArrayList;
-import java.util.Locale;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "suggconfig",
-        userPermissions = PermissionDeprecated.MANAGE_SERVER,
+        userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "❕",
         executableWithoutArgs = true,
         releaseDate = { 2020, 12, 7 },
         aliases = { "suggestionconfig", "suggestionsconfig" }
 )
-public class SuggestionConfigCommand extends Command implements OnNavigationListenerOld {
+public class SuggestionConfigCommand extends NavigationAbstract {
 
     private SuggestionsBean suggestionsBean;
 
@@ -38,20 +39,21 @@ public class SuggestionConfigCommand extends Command implements OnNavigationList
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
+        registerNavigationListener(2);
         return true;
     }
 
     @Override
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
-            ArrayList<ServerTextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), inputString).getList();
+            List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
             if (channelList.size() == 0) {
-                setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), inputString));
+                setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                 return Response.FALSE;
             } else {
-                ServerTextChannel channel = channelList.get(0);
-                if (channel.canYouSee() && channel.canYouWrite() && channel.canYouEmbedLinks() && channel.canYouAddNewReactions()) {
-                    suggestionsBean.setChannelId(channelList.get(0).getId());
+                TextChannel channel = channelList.get(0);
+                if (BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION)) {
+                    suggestionsBean.setChannelId(channelList.get(0).getIdLong());
                     setLog(LogStatus.SUCCESS, getString("channelset"));
                     setState(0);
                     return Response.TRUE;
@@ -74,14 +76,13 @@ public class SuggestionConfigCommand extends Command implements OnNavigationList
                         return false;
 
                     case 0:
-                        if (suggestionsBean.isActive() || suggestionsBean.getChannel().isPresent()) {
+                        if (suggestionsBean.isActive() || suggestionsBean.getTextChannel().isPresent()) {
                             suggestionsBean.toggleActive();
                             setLog(LogStatus.SUCCESS, getString("activeset", suggestionsBean.isActive()));
-                            return true;
                         } else {
                             setLog(LogStatus.FAILURE, getString("active_nochannel"));
-                            return true;
                         }
+                        return true;
 
                     case 1:
                         setState(1);
@@ -107,7 +108,7 @@ public class SuggestionConfigCommand extends Command implements OnNavigationList
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getLocale(), suggestionsBean.isActive()), true)
-                        .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(suggestionsBean.getChannel().map(Mentionable::getMentionTag).orElse(notSet)), true);
+                        .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(suggestionsBean.getTextChannel().map(IMentionable::getAsMention).orElse(notSet)), true);
 
             case 1:
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
@@ -115,14 +116,6 @@ public class SuggestionConfigCommand extends Command implements OnNavigationList
             default:
                 return null;
         }
-    }
-
-    @Override
-    public void onNavigationTimeOut(Message message) throws Throwable {}
-
-    @Override
-    public int getMaxReactionNumber() {
-        return 2;
     }
 
 }

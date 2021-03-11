@@ -37,7 +37,8 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemove
 
 @CommandProperties(
         trigger = "reactionroles",
-        botPermissions = { Permission.MANAGE_ROLES, Permission.MESSAGE_HISTORY },
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
+        botGuildPermissions = { Permission.MANAGE_ROLES, Permission.MESSAGE_HISTORY },
         userGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "☑️️",
         executableWithoutArgs = true,

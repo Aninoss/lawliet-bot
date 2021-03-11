@@ -1,9 +1,8 @@
 package commands.listeners;
 
-import net.dv8tion.jda.api.Permission;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import net.dv8tion.jda.api.Permission;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CommandProperties {
@@ -15,7 +14,8 @@ public @interface CommandProperties {
     boolean withLoadingBar() default false;
     boolean executableWithoutArgs();
     boolean deleteOnTimeOut() default false;
-    Permission[] botPermissions() default {};
+    Permission[] botChannelPermissions() default {};
+    Permission[] botGuildPermissions() default {};
     Permission[] userChannelPermissions() default {};
     Permission[] userGuildPermissions() default {};
     boolean requiresEmbeds() default true;

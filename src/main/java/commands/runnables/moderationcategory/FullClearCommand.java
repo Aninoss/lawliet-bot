@@ -28,8 +28,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "fullclear",
-        botPermissions = { Permission.MANAGE_CHANNEL, Permission.MESSAGE_HISTORY },
-        userChannelPermissions = { Permission.MANAGE_CHANNEL, Permission.MESSAGE_HISTORY },
+        botChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
+        userChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
         withLoadingBar = true,
         emoji = "\uD83E\uDDF9",
         executableWithoutArgs = true,

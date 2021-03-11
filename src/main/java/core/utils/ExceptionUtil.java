@@ -56,7 +56,7 @@ public class ExceptionUtil {
         }
 
         if (submitToDeveloper) {
-            MainLogger.get().error("Exception for command \"{}\"} and code {}", command.getTrigger(), code, throwable);
+            MainLogger.get().error("Exception for command \"{}\" and code {}", command.getTrigger(), code, throwable);
             if (Bot.isProductionMode()) {
                 JDAUtil.sendPrivateMessage(
                         ShardManager.getInstance().getOwnerId(),

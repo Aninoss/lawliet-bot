@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 @CommandProperties(
         trigger = "assignrole",
         userGuildPermissions = Permission.MANAGE_ROLES,
-        botPermissions = Permission.MANAGE_ROLES,
+        botGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDCE5",
         executableWithoutArgs = false,
         patreonRequired = true,
