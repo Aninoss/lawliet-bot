@@ -45,8 +45,9 @@ public class GearCommand extends FisheryMemberAccountInterface {
         boolean patron = PatreonCache.getInstance().getUserTier(member.getIdLong()) >= 1;
         String patreonEmoji = "\uD83D\uDC51";
         String displayName = member.getEffectiveName();
-        while (displayName.length() > 0 && displayName.startsWith(patreonEmoji))
+        while (displayName.length() > 0 && displayName.startsWith(patreonEmoji)) {
             displayName = displayName.substring(patreonEmoji.length());
+        }
 
         eb.setAuthor(TextManager.getString(getLocale(), TextManager.GENERAL, "rankingprogress_title", patron, displayName, patreonEmoji), "", member.getUser().getEffectiveAvatarUrl())
                 .setThumbnail(member.getUser().getEffectiveAvatarUrl());

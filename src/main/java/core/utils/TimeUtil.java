@@ -11,7 +11,8 @@ import core.TextManager;
 
 public final class TimeUtil {
 
-    private TimeUtil() {}
+    private TimeUtil() {
+    }
 
     public static String getInstantString(Locale locale, Instant instant, boolean withClockTime) {
         String str = DateTimeFormatter
@@ -41,9 +42,15 @@ public final class TimeUtil {
         String addString = "";
         if (shorter) addString = "_shorter";
 
-        if (days > 0) remaining += days + " " + TextManager.getString(locale, TextManager.GENERAL, "days" + addString, days != 1) + ", ";
-        if (hours > 0) remaining += hours + " " + TextManager.getString(locale, TextManager.GENERAL, "hours" + addString, hours != 1) + ", ";
-        if (minutes > 0) remaining += minutes + " " + TextManager.getString(locale, TextManager.GENERAL, "minutes" + addString, minutes != 1) + ", ";
+        if (days > 0) {
+            remaining += days + " " + TextManager.getString(locale, TextManager.GENERAL, "days" + addString, days != 1) + ", ";
+        }
+        if (hours > 0) {
+            remaining += hours + " " + TextManager.getString(locale, TextManager.GENERAL, "hours" + addString, hours != 1) + ", ";
+        }
+        if (minutes > 0) {
+            remaining += minutes + " " + TextManager.getString(locale, TextManager.GENERAL, "minutes" + addString, minutes != 1) + ", ";
+        }
 
         if (remaining.length() > 0) remaining = remaining.substring(0, remaining.length() - 2);
         remaining = StringUtil.replaceLast(remaining, ",", " " + TextManager.getString(locale, TextManager.GENERAL, "and"));
@@ -91,7 +98,7 @@ public final class TimeUtil {
 
     public static int parseMonth(String monthString) {
         int month = -1;
-        String[] monthNames = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+        String[] monthNames = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
         for (int i = 0; i < 12; i++) {
             if (monthString.equalsIgnoreCase(monthNames[i])) {
                 month = i + 1;

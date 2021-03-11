@@ -16,7 +16,7 @@ public class GuildMemberRoleRemovePatreonRole extends GuildMemberRoleRemoveAbstr
     @Override
     public boolean onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) throws Throwable {
         if (event.getGuild().getIdLong() == AssetIds.SUPPORT_SERVER_ID) {
-            for(long roleId : Settings.PATREON_ROLE_IDS) {
+            for (long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getRoles().get(0).getIdLong() == roleId) {
                     MainLogger.get().info("PATREON LEFT {} ({})", event.getUser().getAsTag(), event.getUser().getId());
                     JDAUtil.sendPrivateMessage(

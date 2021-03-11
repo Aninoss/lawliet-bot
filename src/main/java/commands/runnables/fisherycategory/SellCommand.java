@@ -44,13 +44,16 @@ public class SellCommand extends Command implements FisheryInterface, OnReaction
             drawMessage(eb);
             return success;
         } else {
-            this.eb = EmbedFactory.getEmbedDefault(this,
-                    getString("status",
+            this.eb = EmbedFactory.getEmbedDefault(
+                    this,
+                    getString(
+                            "status",
                             StringUtil.numToString(userBean.getFish()),
                             StringUtil.numToString(userBean.getCoins()),
                             StringUtil.numToString(ExchangeRate.getInstance().get(0)),
                             getChangeEmoji()
-                    ));
+                    )
+            );
             registerReactionListener("❌");
             registerMessageInputListener(false);
             return true;
@@ -87,10 +90,14 @@ public class SellCommand extends Command implements FisheryInterface, OnReaction
         int rateNow = ExchangeRate.getInstance().get(0);
         int rateBefore = ExchangeRate.getInstance().get(-1);
 
-        if (rateNow > rateBefore) return "\uD83D\uDD3A";
-        else {
-            if (rateNow < rateBefore) return "\uD83D\uDD3B";
-            else return "•";
+        if (rateNow > rateBefore) {
+            return "\uD83D\uDD3A";
+        } else {
+            if (rateNow < rateBefore) {
+                return "\uD83D\uDD3B";
+            } else {
+                return "•";
+            }
         }
     }
 

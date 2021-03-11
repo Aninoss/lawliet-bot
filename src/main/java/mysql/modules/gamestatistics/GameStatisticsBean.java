@@ -16,7 +16,9 @@ public class GameStatisticsBean extends Observable {
 
     public void addValue(boolean won, double add) {
         if (add > 0) {
-            synchronized (this) { values[won ? 1 : 0] += add; }
+            synchronized (this) {
+                values[won ? 1 : 0] += add;
+            }
             setChanged();
             notifyObservers();
         }
@@ -26,8 +28,12 @@ public class GameStatisticsBean extends Observable {
 
     /* Getters */
 
-    public String getCommand() { return command; }
+    public String getCommand() {
+        return command;
+    }
 
-    public synchronized double getValue(boolean won) { return values[won ? 1 : 0]; }
+    public synchronized double getValue(boolean won) {
+        return values[won ? 1 : 0];
+    }
 
 }

@@ -18,6 +18,8 @@ public class MemeCommand extends RedditAbstract {
     }
 
     @Override
-    public String getSubreddit() { return "memes"; }
+    public String getSubreddit() {
+        return "memes";
+    }
 
 }

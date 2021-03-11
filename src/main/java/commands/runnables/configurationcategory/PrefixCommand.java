@@ -12,10 +12,10 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
-    trigger = "prefix",
-    userGuildPermissions = Permission.MANAGE_SERVER,
-    emoji = "\uD83D\uDCDB",
-    executableWithoutArgs = false
+        trigger = "prefix",
+        userGuildPermissions = Permission.MANAGE_SERVER,
+        emoji = "\uD83D\uDCDB",
+        executableWithoutArgs = false
 )
 public class PrefixCommand extends Command {
 
@@ -48,14 +48,19 @@ public class PrefixCommand extends Command {
                 event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("changed", args)).build()).queue();
                 return true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                        TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "5")).build()).queue();
+                event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+                        this,
+                        TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "5")
+                ).build()).queue();
                 return false;
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                    getString("no_arg")).build()).queue();
+            event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+                    this,
+                    getString("no_arg")
+            ).build()).queue();
             return false;
         }
     }
+
 }

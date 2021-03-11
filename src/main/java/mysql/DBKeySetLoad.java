@@ -9,7 +9,7 @@ import mysql.interfaces.SQLFunction;
 
 public class DBKeySetLoad<T> {
 
-   private final Statement statement;
+    private final Statement statement;
 
     public DBKeySetLoad(String table, String keyColumn) {
         try {

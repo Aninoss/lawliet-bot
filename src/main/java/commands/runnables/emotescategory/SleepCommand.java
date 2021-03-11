@@ -5,9 +5,9 @@ import commands.listeners.CommandProperties;
 import commands.runnables.EmoteAbstract;
 
 @CommandProperties(
-    trigger = "sleep",
-    emoji = "\uD83D\uDCA4",
-    executableWithoutArgs = true
+        trigger = "sleep",
+        emoji = "\uD83D\uDCA4",
+        executableWithoutArgs = true
 )
 public class SleepCommand extends EmoteAbstract {
 
@@ -16,7 +16,7 @@ public class SleepCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736261025166524498/736261034935058563/sleep.gif",
                 "https://media.discordapp.net/attachments/736261025166524498/736261044783153222/sleep.gif",
                 "https://media.discordapp.net/attachments/736261025166524498/736261050495926303/sleep.gif",

@@ -11,7 +11,7 @@ import commands.runnables.PornSearchAbstract;
         nsfw = true,
         requiresEmbeds = false,
         withLoadingBar = true,
-        aliases = {"rbooru", "realbooru", "rlbooru"}
+        aliases = { "rbooru", "realbooru", "rlbooru" }
 )
 public class RealbooruCommand extends PornSearchAbstract {
 
@@ -30,6 +30,8 @@ public class RealbooruCommand extends PornSearchAbstract {
     }
 
     @Override
-    public boolean isExplicit() { return true; }
+    public boolean isExplicit() {
+        return true;
+    }
 
 }

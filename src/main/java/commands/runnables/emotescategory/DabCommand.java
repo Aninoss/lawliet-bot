@@ -8,7 +8,7 @@ import commands.runnables.EmoteAbstract;
         trigger = "dab",
         emoji = "\uD83C\uDD92",
         executableWithoutArgs = true,
-        aliases = {"dap"}
+        aliases = { "dap" }
 )
 public class DabCommand extends EmoteAbstract {
 
@@ -17,7 +17,7 @@ public class DabCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736253507618865215/736253511095943269/dab.gif",
                 "https://media.discordapp.net/attachments/736253507618865215/736253518100299796/dab.gif",
                 "https://media.discordapp.net/attachments/736253507618865215/736253522198396928/dab.gif",

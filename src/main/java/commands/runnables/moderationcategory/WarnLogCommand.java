@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "warnlog",
         emoji = "\uD83D\uDCDD",
         executableWithoutArgs = true,
-        aliases = {"warns"}
+        aliases = { "warns" }
 )
 public class WarnLogCommand extends MemberAccountAbstract {
 
@@ -41,7 +41,7 @@ public class WarnLogCommand extends MemberAccountAbstract {
 
         List<GuildWarningsSlot> slots = serverWarningsBean.getLatest(3);
         Collections.reverse(slots);
-        for(GuildWarningsSlot serverWarningsSlot: slots) {
+        for (GuildWarningsSlot serverWarningsSlot : slots) {
             Optional<Member> requestor = serverWarningsSlot.getRequesterMember();
             Optional<String> reason = serverWarningsSlot.getReason();
             String userString = requestor.map(IMentionable::getAsMention).orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user"));
@@ -50,14 +50,17 @@ public class WarnLogCommand extends MemberAccountAbstract {
         }
 
         String latestWarningsString = latestWarnings.toString();
-        if (latestWarningsString.isEmpty()) latestWarningsString = TextManager.getString(getLocale(), TextManager.GENERAL, "empty");
+        if (latestWarningsString.isEmpty()) {
+            latestWarningsString = TextManager.getString(getLocale(), TextManager.GENERAL, "empty");
+        }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setTitle("")
                 .setAuthor(getString("author", getCommandProperties().emoji(), member.getEffectiveName()))
                 .setThumbnail(member.getUser().getEffectiveAvatarUrl());
         eb.addField(getString("latest"), latestWarningsString, false);
-        eb.addField(getString("amount"), getString("amount_template",
+        eb.addField(getString("amount"), getString(
+                "amount_template",
                 StringUtil.numToString(serverWarningsBean.getAmountLatest(24, ChronoUnit.HOURS).size()),
                 StringUtil.numToString(serverWarningsBean.getAmountLatest(7, ChronoUnit.DAYS).size()),
                 StringUtil.numToString(serverWarningsBean.getAmountLatest(30, ChronoUnit.DAYS).size()),

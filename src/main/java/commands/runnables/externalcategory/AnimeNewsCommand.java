@@ -19,10 +19,10 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
-    trigger = "animenews",
-    withLoadingBar = true,
-    emoji = "\uD83D\uDCF0",
-    executableWithoutArgs = true
+        trigger = "animenews",
+        withLoadingBar = true,
+        emoji = "\uD83D\uDCF0",
+        executableWithoutArgs = true
 )
 public class AnimeNewsCommand extends Command implements OnTrackerRequestListener {
 
@@ -34,8 +34,11 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         AnimeNewsPost post = AnimeNewsDownloader.getPost(getLocale());
         EmbedBuilder eb;
-        if (post != null) eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), getEmbed(post), getPrefix(), getTrigger());
-        else eb = EmbedFactory.getApiDownEmbed(getLocale(), getPrefix() + getTrigger());
+        if (post != null) {
+            eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), getEmbed(post), getPrefix(), getTrigger());
+        } else {
+            eb = EmbedFactory.getApiDownEmbed(getLocale(), getPrefix() + getTrigger());
+        }
         event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
@@ -53,11 +56,12 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
         slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
         PostBundle<AnimeNewsPost> postBundle = AnimeNewsDownloader.getPostTracker(getLocale(), slot.getArgs().orElse(null));
 
-        if (postBundle == null)
+        if (postBundle == null) {
             return TrackerResult.CONTINUE;
+        }
 
         TextChannel channel = slot.getTextChannel().get();
-        for(AnimeNewsPost post: postBundle.getPosts()) {
+        for (AnimeNewsPost post : postBundle.getPosts()) {
             channel.sendMessage(getEmbed(post).build()).complete();
         }
 

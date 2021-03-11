@@ -56,10 +56,12 @@ public class DailyCommand extends Command implements FisheryInterface {
             }
 
             StringBuilder sb = new StringBuilder(getString("point_default", StringUtil.numToString(fishes)));
-            if (bonusCombo > 0)
+            if (bonusCombo > 0) {
                 sb.append("\n").append(getString("point_combo", StringUtil.numToString(bonusCombo)));
-            if (bonusDonation > 0)
+            }
+            if (bonusDonation > 0) {
                 sb.append("\n").append(getString("point_donation", StringUtil.numToString(bonusDonation)));
+            }
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("codeblock", sb.toString()));
             eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", ExternalLinks.PATREON_PAGE, ExternalLinks.UPVOTE_URL), false);
@@ -81,4 +83,5 @@ public class DailyCommand extends Command implements FisheryInterface {
             return false;
         }
     }
+
 }

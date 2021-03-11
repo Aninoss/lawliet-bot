@@ -27,10 +27,8 @@ public class DBBannedUsers extends DBSingleCache<BannedUsersBean> {
     }
 
     private ArrayList<Long> getUserIds() {
-        return new DBDataLoad<Long>("BannedUsers", "userId", "1",
-                preparedStatement -> {
-                }
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        return new DBDataLoad<Long>("BannedUsers", "userId", "1")
+                .getArrayList(resultSet -> resultSet.getLong(1));
     }
 
     private void addUserId(long userId) {

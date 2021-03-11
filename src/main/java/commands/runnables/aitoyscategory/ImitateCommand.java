@@ -52,8 +52,9 @@ public class ImitateCommand extends Command {
         drawMessage(eb).get();
 
         eb = getEmbed(event.getGuild(), member, 2, tempMessageCache);
-        if (members.isEmpty())
+        if (members.isEmpty()) {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
+        }
 
         drawMessage(eb);
         return true;
@@ -62,12 +63,16 @@ public class ImitateCommand extends Command {
     private EmbedBuilder getEmbed(Guild guild, Member member, int n, ArrayList<Message> tempMessageCache) {
         TextAI textAI = new TextAI(n);
         TextAI.WordMap wordMap;
-        if (member != null) wordMap = TextAICache.getInstance().get(guild.getIdLong(), member.getIdLong(), n);
-        else wordMap = TextAICache.getInstance().get(guild.getIdLong(), n);
+        if (member != null) {
+            wordMap = TextAICache.getInstance().get(guild.getIdLong(), member.getIdLong(), n);
+        } else {
+            wordMap = TextAICache.getInstance().get(guild.getIdLong(), n);
+        }
 
         if (wordMap.isEmpty()) {
-            if (tempMessageCache.isEmpty())
+            if (tempMessageCache.isEmpty()) {
                 fetchMessages(guild, member, tempMessageCache);
+            }
 
             if (tempMessageCache.isEmpty()) return getErrorEmbed();
             tempMessageCache.forEach(message -> processMessage(textAI, wordMap, message));
@@ -83,8 +88,11 @@ public class ImitateCommand extends Command {
                     .setDescription(response.get());
             EmbedUtil.setFooter(eb, this);
 
-            if (member != null) EmbedUtil.setMemberAuthor(eb, member);
-            else eb.setAuthor(guild.getName(), null, guild.getIconUrl());
+            if (member != null) {
+                EmbedUtil.setMemberAuthor(eb, member);
+            } else {
+                eb.setAuthor(guild.getName(), null, guild.getIconUrl());
+            }
 
             return eb;
         } else {
@@ -123,8 +131,9 @@ public class ImitateCommand extends Command {
                     }
                 }
 
-                if (messages.size() < 100)
+                if (messages.size() < 100) {
                     break;
+                }
             }
         }
     }

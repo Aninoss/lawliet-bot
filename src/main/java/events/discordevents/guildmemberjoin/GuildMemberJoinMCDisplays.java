@@ -16,5 +16,5 @@ public class GuildMemberJoinMCDisplays extends GuildMemberJoinAbstract {
         MemberCountDisplay.getInstance().manage(locale, event.getGuild());
         return true;
     }
-    
+
 }

@@ -19,21 +19,30 @@ public class AnimeNewsDownloader {
 
     public static AnimeNewsPost getPost(Locale locale) throws InterruptedException, ExecutionException {
         String downloadUrl;
-        if (StringUtil.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
-        else downloadUrl = "https://www.animenewsnetwork.com/news/";
+        if (StringUtil.getLanguage(locale) == Language.DE) {
+            downloadUrl = "https://www.animenachrichten.de/";
+        } else {
+            downloadUrl = "https://www.animenewsnetwork.com/news/";
+        }
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
         if (httpResponse.getContent().isEmpty()) return null;
         String dataString = httpResponse.getContent().get();
 
-        if (StringUtil.getLanguage(locale) == Language.DE) return getPostDE(getCurrentPostStringDE(dataString)[0]);
-        else return getPostEN(getCurrentPostStringEN(dataString)[0]);
+        if (StringUtil.getLanguage(locale) == Language.DE) {
+            return getPostDE(getCurrentPostStringDE(dataString)[0]);
+        } else {
+            return getPostEN(getCurrentPostStringEN(dataString)[0]);
+        }
     }
 
     public static PostBundle<AnimeNewsPost> getPostTracker(Locale locale, String newestTimeString) throws InterruptedException, ExecutionException {
         String downloadUrl;
-        if (StringUtil.getLanguage(locale) == Language.DE) downloadUrl = "https://www.animenachrichten.de/";
-        else downloadUrl = "https://www.animenewsnetwork.com/news/";
+        if (StringUtil.getLanguage(locale) == Language.DE) {
+            downloadUrl = "https://www.animenachrichten.de/";
+        } else {
+            downloadUrl = "https://www.animenewsnetwork.com/news/";
+        }
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
         if (httpResponse.getContent().isEmpty()) return null;
@@ -41,8 +50,11 @@ public class AnimeNewsDownloader {
 
         ArrayList<AnimeNewsPost> postList = new ArrayList<>();
         String[] postStrings;
-        if (StringUtil.getLanguage(locale) == Language.DE) postStrings = getCurrentPostStringDE(dataString);
-        else postStrings = getCurrentPostStringEN(dataString);
+        if (StringUtil.getLanguage(locale) == Language.DE) {
+            postStrings = getCurrentPostStringDE(dataString);
+        } else {
+            postStrings = getCurrentPostStringEN(dataString);
+        }
 
         Instant compareTime;
         try {
@@ -53,13 +65,16 @@ public class AnimeNewsDownloader {
         }
         Instant newestTime = compareTime;
 
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             String postString = postStrings[i];
 
             AnimeNewsPost post;
             try {
-                if (StringUtil.getLanguage(locale) == Language.DE) post = getPostDE(postString);
-                else post = getPostEN(postString);
+                if (StringUtil.getLanguage(locale) == Language.DE) {
+                    post = getPostDE(postString);
+                } else {
+                    post = getPostEN(postString);
+                }
             } catch (NullPointerException e) {
                 MainLogger.get().error("Could not extract news post", e);
                 return null;
@@ -84,8 +99,11 @@ public class AnimeNewsDownloader {
         post.setImage(StringUtil.extractGroups(data, "data-lazy-srcset=\"", " ")[0]);
         post.setLink(StringUtil.extractGroups(data, "<a href=\"", "\"")[0]);
 
-        if (data.contains("#comments\">")) post.setComments(Integer.parseInt(StringUtil.extractGroups(data, "#comments\">", "<")[0]));
-        else post.setComments(Integer.parseInt(StringUtil.extractGroups(data, "#respond\">", "<")[0]));
+        if (data.contains("#comments\">")) {
+            post.setComments(Integer.parseInt(StringUtil.extractGroups(data, "#comments\">", "<")[0]));
+        } else {
+            post.setComments(Integer.parseInt(StringUtil.extractGroups(data, "#respond\">", "<")[0]));
+        }
 
         String dateString = StringUtil.extractGroups(data, "datetime=\"", "\"")[0];
         Instant instant = TimeUtil.parseDateString3(dateString);
@@ -125,4 +143,5 @@ public class AnimeNewsDownloader {
     private static String[] getCurrentPostStringEN(String str) {
         return StringUtil.extractGroups(str, "<div class=\"herald box news\"", "<div class=\"herald box news\"");
     }
+
 }

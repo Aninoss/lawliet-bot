@@ -31,9 +31,9 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
                             String title = embed.getTitle();
                             for (Class<? extends OnStaticReactionRemoveListener> clazz : CommandContainer.getInstance().getStaticReactionRemoveCommands()) {
                                 Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz, guildBean.getLocale(), guildBean.getPrefix());
-                                if (title.toLowerCase().startsWith(((OnStaticReactionRemoveListener)command).titleStartIndicator().toLowerCase()) && title.endsWith(Emojis.EMPTY_EMOJI)) {
+                                if (title.toLowerCase().startsWith(((OnStaticReactionRemoveListener) command).titleStartIndicator().toLowerCase()) && title.endsWith(Emojis.EMPTY_EMOJI)) {
                                     try {
-                                        ((OnStaticReactionRemoveListener)command).onStaticReactionRemove(message, event);
+                                        ((OnStaticReactionRemoveListener) command).onStaticReactionRemove(message, event);
                                     } catch (Throwable throwable) {
                                         MainLogger.get().error("Static reaction add exception", throwable);
                                     }
@@ -45,4 +45,5 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
 
         return true;
     }
+
 }

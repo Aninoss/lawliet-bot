@@ -13,7 +13,8 @@ import org.jsoup.Jsoup;
 
 public final class StringUtil {
 
-    private StringUtil() {}
+    private StringUtil() {
+    }
 
     public static boolean stringIsDouble(String string) {
         try {
@@ -43,9 +44,10 @@ public final class StringUtil {
     }
 
     public static boolean stringIsLetters(String string) {
-        for(char c : string.toCharArray()) {
-            if (!Character.isLetter(c))
+        for (char c : string.toCharArray()) {
+            if (!Character.isLetter(c)) {
                 return false;
+            }
         }
 
         return true;
@@ -54,7 +56,7 @@ public final class StringUtil {
     public static long filterLongFromString(String string) {
         StringBuilder numberString = new StringBuilder();
 
-        for(char c: string.replace(",", ".").toCharArray()) {
+        for (char c : string.replace(",", ".").toCharArray()) {
             if (Character.isDigit(c)) numberString.append(c);
             if (c == '.') break;
         }
@@ -75,11 +77,14 @@ public final class StringUtil {
     public static double filterDoubleFromString(String string) {
         StringBuilder numberString = new StringBuilder();
 
-        for(char c: string.replace(",", ".").toCharArray()) {
+        for (char c : string.replace(",", ".").toCharArray()) {
             if (Character.isDigit(c)) numberString.append(c);
             if (c == '.') {
-                if (numberString.toString().contains(".")) break;
-                else numberString.append(".");
+                if (numberString.toString().contains(".")) {
+                    break;
+                } else {
+                    numberString.append(".");
+                }
             }
         }
 
@@ -99,37 +104,42 @@ public final class StringUtil {
         StringBuilder numberString = new StringBuilder();
         string = string.replace(",", ".");
 
-        for(char c: string.toCharArray()) {
-            if (Character.isDigit(c)) numberString.append(c);
-            else if (c == '.') {
-                if (numberString.toString().contains(".")) break;
-                else numberString.append(".");
+        for (char c : string.toCharArray()) {
+            if (Character.isDigit(c)) {
+                numberString.append(c);
+            } else if (c == '.') {
+                if (numberString.toString().contains(".")) {
+                    break;
+                } else {
+                    numberString.append(".");
+                }
+            } else {
+                break;
             }
-            else break;
         }
 
         String filteredString = numberString.toString();
-        if (filteredString.endsWith("."))
+        if (filteredString.endsWith(".")) {
             filteredString = filteredString.substring(0, filteredString.length() - 1);
+        }
 
         return filteredString;
     }
 
     public static String filterLettersFromString(String string) {
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             string = string.replace(String.valueOf(i), "");
         }
         return string;
     }
 
     public static String replaceLast(String text, String regex, String replacement) {
-        return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
+        return text.replaceFirst("(?s)" + regex + "(?!.*?" + regex + ")", replacement);
     }
 
     public static String[] extractGroups(String string, String start, String end) {
         ArrayList<String> groups = new ArrayList<>();
-        while(string.contains(start) && string.contains(end))
-        {
+        while (string.contains(start) && string.contains(end)) {
             int startIndex = string.indexOf(start) + start.length();
             int endIndex = string.indexOf(end, startIndex);
             if (endIndex == -1) break;
@@ -150,15 +160,15 @@ public final class StringUtil {
     }
 
     public static String getBar(double value, int number) {
-        String[] blocks = {"░","█"};
-        double boxes = value*number;
+        String[] blocks = { "░", "█" };
+        double boxes = value * number;
         StringBuilder sb = new StringBuilder();
-        for(double i=0; i < Math.ceil(boxes); i++) {
+        for (double i = 0; i < Math.ceil(boxes); i++) {
             if (i >= boxes) break;
-            int index = (int) Math.min(blocks.length-1,Math.round((boxes-i) * (blocks.length-1)));
+            int index = (int) Math.min(blocks.length - 1, Math.round((boxes - i) * (blocks.length - 1)));
             sb.append(blocks[index]);
         }
-        while(sb.length()<number) sb.append(blocks[0]);
+        while (sb.length() < number) sb.append(blocks[0]);
         return sb.toString();
     }
 
@@ -171,23 +181,25 @@ public final class StringUtil {
     }
 
     public static String shortenString(String str, int limit, String postfix, boolean focusLineBreak) {
-        if (str.length() <= limit)
+        if (str.length() <= limit) {
             return str;
+        }
 
-        while(str.length() > limit - postfix.length() && str.contains("\n")) {
+        while (str.length() > limit - postfix.length() && str.contains("\n")) {
             int pos = str.lastIndexOf("\n");
             str = str.substring(0, pos);
         }
 
         if (!focusLineBreak) {
-            while (str.length() > limit - postfix.length() && str.contains(" ")){
+            while (str.length() > limit - postfix.length() && str.contains(" ")) {
                 int pos = str.lastIndexOf(" ");
                 str = str.substring(0, pos);
             }
         }
 
-        while (str.length() > 0 && (str.charAt(str.length() - 1) == '.' || str.charAt(str.length() - 1) == ' ' || str.charAt(str.length() - 1) == '\n'))
+        while (str.length() > 0 && (str.charAt(str.length() - 1) == '.' || str.charAt(str.length() - 1) == ' ' || str.charAt(str.length() - 1) == '\n')) {
             str = str.substring(0, str.length() - 1);
+        }
 
         return str.substring(0, Math.min(str.length(), limit - postfix.length())) + postfix;
     }
@@ -200,8 +212,11 @@ public final class StringUtil {
     public static String getOnOffForBoolean(Locale locale, boolean bool) {
         StringBuilder sb = new StringBuilder("**");
 
-        if (bool) sb.append("✅ ");
-        else sb.append("❌ ");
+        if (bool) {
+            sb.append("✅ ");
+        } else {
+            sb.append("❌ ");
+        }
 
         sb.append(TextManager.getString(locale, TextManager.GENERAL, "onoff", bool)).append("**");
 
@@ -240,14 +255,14 @@ public final class StringUtil {
     }
 
     public static boolean stringContainsLetters(String s) {
-        for(char c: s.toCharArray()) {
+        for (char c : s.toCharArray()) {
             if (Character.isLetter(c)) return true;
         }
         return false;
     }
 
     public static boolean stringContainsDigits(String s) {
-        for(char c: s.toCharArray()) {
+        for (char c : s.toCharArray()) {
             if (Character.isDigit(c)) return true;
         }
         return false;
@@ -265,9 +280,12 @@ public final class StringUtil {
     public static Language getLanguage(Locale locale) {
         String language = locale.getLanguage().split("_")[0].toLowerCase();
         switch (language) {
-            case "de": return Language.DE;
-            case "ru": return Language.RU;
-            default: return Language.EN;
+            case "de":
+                return Language.DE;
+            case "ru":
+                return Language.RU;
+            default:
+                return Language.EN;
         }
     }
 
@@ -298,17 +316,28 @@ public final class StringUtil {
         StringBuilder sb = new StringBuilder();
 
         if (health > 0) {
-            if (lostHealth) sb.append(Emojis.HEART_HIT);
-            else sb.append(Emojis.HEART_NORMAL);
-        } else sb.append(Emojis.HEART_HIT_GAMEOVER);
+            if (lostHealth) {
+                sb.append(Emojis.HEART_HIT);
+            } else {
+                sb.append(Emojis.HEART_NORMAL);
+            }
+        } else {
+            sb.append(Emojis.HEART_HIT_GAMEOVER);
+        }
 
-        for(int i = 0; i < healthMax; i++) {
+        for (int i = 0; i < healthMax; i++) {
             if (i < health) {
-                if (lostHealth) sb.append(Emojis.HEART_BAR_HIT);
-                else sb.append(Emojis.HEART_BAR);
+                if (lostHealth) {
+                    sb.append(Emojis.HEART_BAR_HIT);
+                } else {
+                    sb.append(Emojis.HEART_BAR);
+                }
             } else if (i == health) {
-                if (lostHealth) sb.append(Emojis.HEART_BAR_HIT_LOSE);
-                else sb.append(Emojis.HEART_BAR_EMPTY);
+                if (lostHealth) {
+                    sb.append(Emojis.HEART_BAR_HIT_LOSE);
+                } else {
+                    sb.append(Emojis.HEART_BAR_EMPTY);
+                }
             } else {
                 sb.append(Emojis.HEART_BAR_EMPTY);
             }
@@ -319,8 +348,9 @@ public final class StringUtil {
     }
 
     public static double similarityIgnoreLength(String s1, String s2) {
-        if (s1.length() > s2.length()) s1 = s1.substring(0, s2.length());
-        else if (s2.length() > s1.length()) s2 = s2.substring(0, s1.length());
+        if (s1.length() > s2.length()) {
+            s1 = s1.substring(0, s2.length());
+        } else if (s2.length() > s1.length()) s2 = s2.substring(0, s1.length());
 
         return similarity(s1, s2);
     }
@@ -329,13 +359,16 @@ public final class StringUtil {
         String longer = s1;
         String shorter = s2;
         if (s1.length() < s2.length()) {
-            longer = s2; shorter = s1;
+            longer = s2;
+            shorter = s1;
         }
         int longerLength = longer.length();
-        if (longerLength == 0)
+        if (longerLength == 0) {
             return 1.0;
-        if (s1.equalsIgnoreCase(s2))
+        }
+        if (s1.equalsIgnoreCase(s2)) {
             return 1.0;
+        }
 
         return (longerLength - editDistance(longer, shorter)) / (double) longerLength;
     }
@@ -348,21 +381,25 @@ public final class StringUtil {
         for (int i = 0; i <= s1.length(); i++) {
             int lastValue = i;
             for (int j = 0; j <= s2.length(); j++) {
-                if (i == 0)
+                if (i == 0) {
                     costs[j] = j;
-                else {
+                } else {
                     if (j > 0) {
                         int newValue = costs[j - 1];
-                        if (s1.charAt(i - 1) != s2.charAt(j - 1))
-                            newValue = Math.min(Math.min(newValue, lastValue),
-                                    costs[j]) + 1;
+                        if (s1.charAt(i - 1) != s2.charAt(j - 1)) {
+                            newValue = Math.min(
+                                    Math.min(newValue, lastValue),
+                                    costs[j]
+                            ) + 1;
+                        }
                         costs[j - 1] = lastValue;
                         lastValue = newValue;
                     }
                 }
             }
-            if (i > 0)
+            if (i > 0) {
                 costs[s2.length()] = lastValue;
+            }
         }
         return costs[s2.length()];
     }

@@ -26,9 +26,9 @@ public class QuickUpdater {
         long id = System.nanoTime();
 
         restAction = restAction.addCheck(() -> {
-                    Long idCheck = idCache.getIfPresent(stringKey);
-                    return idCheck == null || idCheck == id;
-                });
+            Long idCheck = idCache.getIfPresent(stringKey);
+            return idCheck == null || idCheck == id;
+        });
 
         idCache.put(stringKey, id);
         return restAction;

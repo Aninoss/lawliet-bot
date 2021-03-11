@@ -61,8 +61,11 @@ public class DBServerWarnings extends DBMapCache<Pair<Long, Long>, ServerWarning
             preparedStatement.setLong(4, serverWarningsSlot.getRequesterUserId());
 
             Optional<String> reason = serverWarningsSlot.getReason();
-            if (reason.isPresent()) preparedStatement.setString(5, reason.get());
-            else preparedStatement.setNull(5, Types.VARCHAR);
+            if (reason.isPresent()) {
+                preparedStatement.setString(5, reason.get());
+            } else {
+                preparedStatement.setNull(5, Types.VARCHAR);
+            }
         });
     }
 

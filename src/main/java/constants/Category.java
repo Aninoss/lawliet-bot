@@ -18,7 +18,7 @@ public interface Category {
             MODERATION = "moderation",
             PATREON_ONLY = "patreon_only";
 
-    String[] LIST = new String[]{
+    String[] LIST = new String[] {
             GIMMICKS,
             AI_TOYS,
             CONFIGURATION,

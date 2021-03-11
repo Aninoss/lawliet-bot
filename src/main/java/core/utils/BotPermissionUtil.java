@@ -97,7 +97,7 @@ public class BotPermissionUtil {
 
     public static boolean can(Guild guild, Permission... permissions) {
         return Arrays.stream(permissions)
-                        .allMatch(permission -> guild.getSelfMember().hasPermission(permissions));
+                .allMatch(permission -> guild.getSelfMember().hasPermission(permissions));
     }
 
     public static boolean can(GuildChannel channel, Permission... permissions) {
@@ -108,7 +108,7 @@ public class BotPermissionUtil {
 
     public static boolean can(Member member, Permission... permissions) {
         return Arrays.stream(permissions)
-                        .allMatch(permission -> member.hasPermission(permissions));
+                .allMatch(permission -> member.hasPermission(permissions));
     }
 
     public static boolean can(Member member, GuildChannel channel, Permission... permissions) {

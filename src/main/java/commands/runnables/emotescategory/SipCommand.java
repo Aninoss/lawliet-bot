@@ -8,7 +8,7 @@ import commands.runnables.EmoteAbstract;
         trigger = "sip",
         emoji = "☕",
         executableWithoutArgs = true,
-        aliases = {"teasip", "tea"}
+        aliases = { "teasip", "tea" }
 )
 public class SipCommand extends EmoteAbstract {
 
@@ -17,7 +17,7 @@ public class SipCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/761612990784471041/761613273048678430/sip.gif",
                 "https://media.discordapp.net/attachments/761612990784471041/761613300508262420/sip.gif",
                 "https://media.discordapp.net/attachments/761612990784471041/761613356704333847/sip.gif",

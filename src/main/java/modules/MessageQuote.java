@@ -16,8 +16,9 @@ import net.dv8tion.jda.api.entities.TextChannel;
 public class MessageQuote {
 
     public static void postQuote(Locale locale, TextChannel channel, Message searchedMessage, boolean showAutoQuoteTurnOff) {
-        if (BotPermissionUtil.canWriteEmbed(channel))
+        if (BotPermissionUtil.canWriteEmbed(channel)) {
             return;
+        }
 
         if (searchedMessage.getTextChannel().isNSFW() && !channel.isNSFW()) {
             channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(locale).build()).queue();
@@ -30,21 +31,27 @@ public class MessageQuote {
         if (searchedMessage.getEmbeds().size() == 0) {
             eb = EmbedFactory.getEmbedDefault()
                     .setFooter(Command.getCommandLanguage(QuoteCommand.class, locale).getTitle() + footerAdd);
-            if (searchedMessage.getContentRaw().length() > 0) eb.setDescription("\"" + searchedMessage.getContentRaw() + "\"");
-            if (searchedMessage.getAttachments().size() > 0) eb.setImage(searchedMessage.getAttachments().get(0).getUrl());
+            if (searchedMessage.getContentRaw().length() > 0) {
+                eb.setDescription("\"" + searchedMessage.getContentRaw() + "\"");
+            }
+            if (searchedMessage.getAttachments().size() > 0) {
+                eb.setImage(searchedMessage.getAttachments().get(0).getUrl());
+            }
         } else {
             MessageEmbed embed = searchedMessage.getEmbeds().get(0);
             eb = new EmbedBuilder(embed);
 
-            if (embed.getImage() != null)
+            if (embed.getImage() != null) {
                 eb.setImage(embed.getImage().getUrl());
-            else if (searchedMessage.getAttachments().size() > 0)
+            } else if (searchedMessage.getAttachments().size() > 0) {
                 eb.setImage(searchedMessage.getAttachments().get(0).getUrl());
+            }
 
-            if (embed.getFooter() != null)
+            if (embed.getFooter() != null) {
                 eb.setFooter(embed.getFooter().getText() + " - " + Command.getCommandLanguage(QuoteCommand.class, locale).getTitle() + footerAdd);
-            else
+            } else {
                 eb.setFooter(Command.getCommandLanguage(QuoteCommand.class, locale).getTitle() + footerAdd);
+            }
         }
 
         eb.setTimestamp(searchedMessage.getTimeCreated())
@@ -56,7 +63,8 @@ public class MessageQuote {
                                 StringUtil.escapeMarkdownInField(searchedMessage.getMember().getEffectiveName()), "#" + searchedMessage.getChannel().getName()
                         ),
                         "",
-                        searchedMessage.getAuthor().getEffectiveAvatarUrl());
+                        searchedMessage.getAuthor().getEffectiveAvatarUrl()
+                );
 
         channel.sendMessage(eb.build()).queue();
     }

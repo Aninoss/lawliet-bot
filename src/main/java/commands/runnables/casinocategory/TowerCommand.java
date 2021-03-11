@@ -45,7 +45,7 @@ public class TowerCommand extends CasinoAbstract {
 
     @Override
     public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
-        for(int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
             if (event.getReactionEmote().getAsReactionCode().equals(ACTION_EMOJIS[i])) {
                 if (i == 0) {
                     if (towerMultiplier < 10.0) {
@@ -81,7 +81,7 @@ public class TowerCommand extends CasinoAbstract {
 
         /* build tower */
         StringBuilder towerText = new StringBuilder(towerLevel < LEVEL_LIMIT ? (Emojis.EMPTY_EMOJI + "\n") : "");
-        for(int i = 0; i < Math.min(LEVEL_LIMIT, towerLevel) && !crashed; i++) {
+        for (int i = 0; i < Math.min(LEVEL_LIMIT, towerLevel) && !crashed; i++) {
             if (i == 0 && falling && towerLevel <= LEVEL_LIMIT) {
                 towerText.append(getString("base", EMPTY_EMOJI, towerEmojisAnimated[0], towerEmojisAnimated[1]))
                         .append("\n");

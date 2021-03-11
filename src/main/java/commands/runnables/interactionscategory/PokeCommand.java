@@ -16,7 +16,7 @@ public class PokeCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736273767520665610/736273774760165506/poke.gif",
                 "https://media.discordapp.net/attachments/736273767520665610/736273784067194890/poke.gif",
                 "https://media.discordapp.net/attachments/736273767520665610/736273788198715522/poke.gif",

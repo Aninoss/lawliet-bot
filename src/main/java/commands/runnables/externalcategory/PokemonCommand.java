@@ -13,11 +13,11 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
-    trigger = "pokemon",
-    withLoadingBar = true,
-    emoji = "\uD83C\uDDF5",
-    exclusiveUsers = { 397209883793162240L, 381156056660967426L },
-    executableWithoutArgs = false
+        trigger = "pokemon",
+        withLoadingBar = true,
+        emoji = "\uD83C\uDDF5",
+        exclusiveUsers = { 397209883793162240L, 381156056660967426L },
+        executableWithoutArgs = false
 )
 public class PokemonCommand extends Command {
 
@@ -42,18 +42,21 @@ public class PokemonCommand extends Command {
 
     private Pokemon fetchPokemon(String searchKey) throws ExecutionException, InterruptedException {
         HttpResponse response = InternetCache.getData("https://www.pokewiki.de/" + searchKey, 60 * 60).get();
-        if (response.getCode() != 200 || response.getContent().isEmpty())
+        if (response.getCode() != 200 || response.getContent().isEmpty()) {
             return null;
+        }
         String content = response.getContent().get();
 
         String title = StringUtil.extractGroups(content, "<meta property=\"og:title\" content=\"", "\"/>")[0];
-        if (!title.contains(" "))
+        if (!title.contains(" ")) {
             return null;
+        }
         String desc = StringUtil.extractGroups(content, "<meta property=\"og:description\" content=\"", "\"/>")[0];
 
         String thumbnail = "";
-        if (content.contains("<meta property=\"og:image\" content=\""))
+        if (content.contains("<meta property=\"og:image\" content=\"")) {
             thumbnail = StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\"/>")[0];
+        }
 
         String url = StringUtil.extractGroups(content, "<meta property=\"og:url\" content=\"", "\"/>")[0];
         return new Pokemon(title, desc, thumbnail, url);

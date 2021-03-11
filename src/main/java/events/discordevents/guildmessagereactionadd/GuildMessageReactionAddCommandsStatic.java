@@ -31,9 +31,9 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
                             String title = embed.getTitle();
                             for (Class<? extends OnStaticReactionAddListener> clazz : CommandContainer.getInstance().getStaticReactionAddCommands()) {
                                 Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz, guildBean.getLocale(), guildBean.getPrefix());
-                                if (title.toLowerCase().startsWith(((OnStaticReactionAddListener)command).titleStartIndicator().toLowerCase()) && title.endsWith(Emojis.EMPTY_EMOJI)) {
+                                if (title.toLowerCase().startsWith(((OnStaticReactionAddListener) command).titleStartIndicator().toLowerCase()) && title.endsWith(Emojis.EMPTY_EMOJI)) {
                                     try {
-                                        ((OnStaticReactionAddListener)command).onStaticReactionAdd(message, event);
+                                        ((OnStaticReactionAddListener) command).onStaticReactionAdd(message, event);
                                     } catch (Throwable throwable) {
                                         MainLogger.get().error("Static reaction add exception", throwable);
                                     }

@@ -16,7 +16,7 @@ public class ShrugCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/743231747415867483/743231795050315787/shrug.gif",
                 "https://media.discordapp.net/attachments/743231747415867483/743231970557034597/shrug.gif",
                 "https://media.discordapp.net/attachments/743231747415867483/743232018091081769/shrug.gif",

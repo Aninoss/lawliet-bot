@@ -8,7 +8,7 @@ import commands.runnables.InteractionAbstract;
         trigger = "wave",
         emoji = "\uD83D\uDC4B",
         executableWithoutArgs = true,
-        aliases = {"greet", "bye", "hi", "cya"}
+        aliases = { "greet", "bye", "hi", "cya" }
 )
 public class WaveCommand extends InteractionAbstract {
 
@@ -17,7 +17,7 @@ public class WaveCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736274581492465665/736274586097811500/wave.gif",
                 "https://media.discordapp.net/attachments/736274581492465665/736274589025566740/wave.gif",
                 "https://media.discordapp.net/attachments/736274581492465665/736274593622523954/wave.gif",

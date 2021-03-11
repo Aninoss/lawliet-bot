@@ -33,9 +33,13 @@ public class SurveyBean extends Observable {
 
     /* Getters */
 
-    public int getSurveyId() { return surveyId; }
+    public int getSurveyId() {
+        return surveyId;
+    }
 
-    public LocalDate getStartDate() { return startDate; }
+    public LocalDate getStartDate() {
+        return startDate;
+    }
 
     public CustomObservableMap<Long, SurveyFirstVote> getFirstVotes() {
         return firstVotes;
@@ -49,7 +53,7 @@ public class SurveyBean extends Observable {
         LocalDate localDate = getStartDate();
         do {
             localDate = localDate.plus(1, ChronoUnit.DAYS);
-        } while(localDate.getDayOfWeek() != DayOfWeek.MONDAY && localDate.getDayOfWeek() != DayOfWeek.THURSDAY);
+        } while (localDate.getDayOfWeek() != DayOfWeek.MONDAY && localDate.getDayOfWeek() != DayOfWeek.THURSDAY);
 
         return localDate;
     }
@@ -77,7 +81,7 @@ public class SurveyBean extends Observable {
         List<String> surveyList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/survey_" + locale.getDisplayName() + ".txt"));
         int serverIdTemp = surveyId;
 
-        while(serverIdTemp >= surveyList.size()) serverIdTemp -= surveyList.size();
+        while (serverIdTemp >= surveyList.size()) serverIdTemp -= surveyList.size();
         String[] parts = surveyList.get(serverIdTemp).split("\\|"); //0 = Question, 1 = 1st Answer, 2 = 2nd Answer
         return new SurveyQuestion(parts[0], Arrays.copyOfRange(parts, 1, parts.length));
     }
@@ -97,7 +101,7 @@ public class SurveyBean extends Observable {
     }
 
     public byte getWon() {
-        long votesA = getFirstVoteNumbers((byte)0);
+        long votesA = getFirstVoteNumbers((byte) 0);
         long votesTotal = getFirstVoteNumber();
         long votesB = votesTotal - votesA;
 

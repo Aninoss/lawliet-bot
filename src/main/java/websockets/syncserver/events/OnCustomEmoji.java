@@ -16,7 +16,7 @@ public class OnCustomEmoji implements SyncServerFunction {
 
         ShardManager.getInstance().getLocalEmoteById(emojiId)
                 .map(JDAUtil::emoteToEmoji)
-                .ifPresent(tag ->  responseJson.put("tag", tag));
+                .ifPresent(tag -> responseJson.put("tag", tag));
 
         return responseJson;
     }

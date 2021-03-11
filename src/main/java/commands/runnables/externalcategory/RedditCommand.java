@@ -22,10 +22,10 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
-    trigger = "reddit",
-    withLoadingBar = true,
-    emoji = "\uD83E\uDD16",
-    executableWithoutArgs = false
+        trigger = "reddit",
+        withLoadingBar = true,
+        emoji = "\uD83E\uDD16",
+        executableWithoutArgs = false
 )
 public class RedditCommand extends Command implements OnTrackerRequestListener {
 
@@ -71,17 +71,21 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                 .setAuthor(post.getAuthor(), "https://www.reddit.com/user/" + post.getAuthor(), "")
                 .setTimestamp(post.getInstant());
 
-        if (InternetUtil.stringHasURL(post.getThumbnail(), true))
+        if (InternetUtil.stringHasURL(post.getThumbnail(), true)) {
             eb.setThumbnail(post.getThumbnail());
-        if (InternetUtil.stringHasURL(post.getUrl(), true))
+        }
+        if (InternetUtil.stringHasURL(post.getUrl(), true)) {
             eb.setTitle(post.getTitle(), post.getUrl());
-        if (InternetUtil.stringHasURL(post.getImage(), true))
+        }
+        if (InternetUtil.stringHasURL(post.getImage(), true)) {
             eb.setImage(post.getImage());
+        }
 
         String flairText = "";
         String flair = post.getFlair();
-        if (flair != null && !("" + flair).equals("null") && !("" + flair).equals("") && !("" + flair).equals(" "))
+        if (flair != null && !("" + flair).equals("null") && !("" + flair).equals("") && !("" + flair).equals(" ")) {
             flairText = flair + " | ";
+        }
 
         String nsfwString = "";
         if (post.isNsfw()) {
@@ -107,13 +111,14 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
             boolean containsOnlyNsfw = true;
 
             if (postBundle != null) {
-                for(int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
+                for (int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     RedditPost post = postBundle.getPosts().get(i);
                     if (!post.isNsfw() || channel.isNSFW()) {
                         channel.sendMessage(getEmbed(post).build()).complete();
                         containsOnlyNsfw = false;
-                        if (slot.getArgs().isEmpty())
+                        if (slot.getArgs().isEmpty()) {
                             break;
+                        }
                     }
                 }
 

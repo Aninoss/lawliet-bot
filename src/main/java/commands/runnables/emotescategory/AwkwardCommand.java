@@ -5,9 +5,9 @@ import commands.listeners.CommandProperties;
 import commands.runnables.EmoteAbstract;
 
 @CommandProperties(
-    trigger = "awkward",
-    emoji = "\uD83D\uDE05",
-    executableWithoutArgs = true
+        trigger = "awkward",
+        emoji = "\uD83D\uDE05",
+        executableWithoutArgs = true
 )
 public class AwkwardCommand extends EmoteAbstract {
 
@@ -16,7 +16,7 @@ public class AwkwardCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736253855339249695/736253858308817007/awkward.gif",
                 "https://media.discordapp.net/attachments/736253855339249695/736253865015377960/awkward.gif",
                 "https://media.discordapp.net/attachments/736253855339249695/736253872057745539/awkward.gif",

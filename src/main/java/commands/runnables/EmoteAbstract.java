@@ -24,10 +24,12 @@ public abstract class EmoteAbstract extends Command {
         String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), gifs.length)];
 
         String quote = "";
-        if (args.length() > 0)
+        if (args.length() > 0) {
             quote = "\n\n> " + args.replace("\n", "\n> ");
+        }
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(
+                this,
                 getString("template", "**" + StringUtil.escapeMarkdown(event.getMessage().getMember().getEffectiveName()) + "**") + quote
         ).setImage(gifUrl);
 

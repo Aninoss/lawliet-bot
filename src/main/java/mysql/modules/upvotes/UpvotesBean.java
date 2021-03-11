@@ -22,10 +22,11 @@ public class UpvotesBean {
     }
 
     public Instant getLastUpvote(long userId) {
-        if (upvoteMap.containsKey(userId))
+        if (upvoteMap.containsKey(userId)) {
             return upvoteMap.get(userId).getLastUpdate();
-        else
+        } else {
             return Instant.now().minus(24, ChronoUnit.HOURS);
+        }
     }
 
 

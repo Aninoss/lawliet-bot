@@ -36,7 +36,7 @@ public class ListGen<T> {
     public String getList(Collection<T> objs, String valueIfEmpty, int slotType, Function<T, String> getNames) {
         StringBuilder sb = new StringBuilder();
         int i = 1;
-        for(T obj: objs) {
+        for (T obj : objs) {
             try {
                 String value = getNames.apply(obj);
                 switch (slotType) {

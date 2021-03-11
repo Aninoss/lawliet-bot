@@ -12,7 +12,7 @@ import commands.runnables.RealbooruAbstract;
         requiresEmbeds = false,
         patreonRequired = true,
         withLoadingBar = true,
-        aliases = {"ass", "r1ass"}
+        aliases = { "ass", "r1ass" }
 )
 public class RealLifeAssCommand extends RealbooruAbstract {
 

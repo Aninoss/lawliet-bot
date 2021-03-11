@@ -82,8 +82,9 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
                 hourlyBatch.execute();
                 powerUpBatch.execute();
 
-                if (Bot.isRunning())
+                if (Bot.isRunning()) {
                     Thread.sleep(100);
+                }
             }
         } catch (Throwable e) {
             update(fisheryGuildBean, null);
@@ -292,8 +293,7 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
     }
 
     public void cleanUp() {
-        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserGained WHERE TIMESTAMPDIFF(HOUR, time, NOW()) > 168;", preparedStatement -> {
-        });
+        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUserGained WHERE TIMESTAMPDIFF(HOUR, time, NOW()) > 168;");
     }
 
     public void removePowerPlant(long serverId) {

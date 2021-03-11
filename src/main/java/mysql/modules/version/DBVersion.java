@@ -18,8 +18,7 @@ public class DBVersion extends DBSingleCache<VersionBean> {
 
     @Override
     protected VersionBean loadBean() {
-        ArrayList<VersionBeanSlot> slots = new DBDataLoad<VersionBeanSlot>("Version", "version, date", "1 ORDER BY date", preparedStatement -> {
-        })
+        ArrayList<VersionBeanSlot> slots = new DBDataLoad<VersionBeanSlot>("Version", "version, date", "1 ORDER BY date")
                 .getArrayList(
                         resultSet -> new VersionBeanSlot(
                                 resultSet.getString(1),

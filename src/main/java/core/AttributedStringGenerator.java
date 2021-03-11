@@ -38,7 +38,7 @@ public class AttributedStringGenerator {
     }
 
     private Optional<FontBounds> getFontBounds(String str) {
-        for(Font font: fonts) {
+        for (Font font : fonts) {
             int upTo = font.canDisplayUpTo(str);
             if (upTo == -1) {
                 return Optional.of(new FontBounds(font, str.length()));

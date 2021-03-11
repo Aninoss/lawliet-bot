@@ -19,7 +19,7 @@ public class DBOsuAccounts extends DBSingleCache<CustomObservableMap<Long, OsuBe
 
     @Override
     protected CustomObservableMap<Long, OsuBeanBean> loadBean() throws Exception {
-        HashMap<Long, OsuBeanBean> osuMap = new DBDataLoad<OsuBeanBean>("OsuAccounts", "userId, osuId", "1", preparedStatement -> {})
+        HashMap<Long, OsuBeanBean> osuMap = new DBDataLoad<OsuBeanBean>("OsuAccounts", "userId, osuId", "1")
                 .getHashMap(OsuBeanBean::getUserId, resultSet -> new OsuBeanBean(resultSet.getLong(1), resultSet.getLong(2)));
 
         return new CustomObservableMap<>(osuMap)

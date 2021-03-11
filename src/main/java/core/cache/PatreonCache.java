@@ -16,14 +16,17 @@ public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
         return ourInstance;
     }
 
-    private PatreonCache() {}
+    private PatreonCache() {
+    }
 
     public int getUserTier(long userId) {
-        if (userId == ShardManager.getInstance().getOwnerId())
+        if (userId == ShardManager.getInstance().getOwnerId()) {
             return 6;
+        }
 
-        if (!Bot.isProductionMode())
+        if (!Bot.isProductionMode()) {
             return 0;
+        }
 
         return getAsync().getOrDefault(userId, 0);
     }

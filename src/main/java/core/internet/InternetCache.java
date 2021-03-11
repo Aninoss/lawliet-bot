@@ -63,8 +63,9 @@ public class InternetCache {
     }
 
     public static void setExpirationDate(Instant instant, String... urls) {
-        for(String url: urls)
+        for (String url : urls) {
             expirationDates.put(url, instant);
+        }
     }
 
 }

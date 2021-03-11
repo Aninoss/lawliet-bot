@@ -17,7 +17,7 @@ public class FurryFuckCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736283579457208414/736283596993855548/furryfuck.gif",
                 "https://media.discordapp.net/attachments/736283579457208414/736283604535214100/furryfuck.gif",
                 "https://media.discordapp.net/attachments/736283579457208414/736283613531734127/furryfuck.gif",

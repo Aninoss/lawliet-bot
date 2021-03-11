@@ -11,7 +11,7 @@ public class Discordbotsgg {
     public static void updateServerCount(long serverCount) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("guildCount", serverCount);
-        HttpProperty[] properties = new HttpProperty[]{
+        HttpProperty[] properties = new HttpProperty[] {
                 new HttpProperty("Content-Type", "application/json"),
                 new HttpProperty("Authorization", System.getenv("DISCORDBOTSGG_TOKEN"))
         };

@@ -46,7 +46,7 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
         Optional<TwitchStream> streamOpt = TwitchDownloader.getInstance().getStream(args);
         if (streamOpt.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"))
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(TextManager.getNoResultsString(getLocale(), args));
             event.getChannel().sendMessage(eb.build()).queue();
             return false;
@@ -86,15 +86,16 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
         try {
             streamOpt = TwitchDownloader.getInstance().getStream(slot.getCommandKey());
         } catch (Throwable e) {
-            if (slot.getArgs().isEmpty())
+            if (slot.getArgs().isEmpty()) {
                 streamOpt = Optional.empty();
-            else
+            } else {
                 throw e;
+            }
         }
 
         if (streamOpt.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(),TextManager.GENERAL,"no_results"))
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
             channel.sendMessage(eb.build()).complete();

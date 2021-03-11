@@ -29,14 +29,14 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
-    trigger = "welcome",
-    botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-    userGuildPermissions = Permission.MANAGE_SERVER,
-    emoji = "🙋",
-    executableWithoutArgs = true
+        trigger = "welcome",
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
+        userGuildPermissions = Permission.MANAGE_SERVER,
+        emoji = "🙋",
+        executableWithoutArgs = true
 )
 public class WelcomeCommand extends NavigationAbstract {
-    
+
     private WelcomeMessageBean welcomeMessageBean;
 
     public WelcomeCommand(Locale locale, String prefix) {
@@ -49,7 +49,8 @@ public class WelcomeCommand extends NavigationAbstract {
         welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteInChannelWithLog);
         welcomeMessageBean.getGoodbyeChannel().ifPresent(this::checkWriteInChannelWithLog);
         registerNavigationListener(11);
-        return true;    }
+        return true;
+    }
 
     @Override
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws IOException {
@@ -93,7 +94,9 @@ public class WelcomeCommand extends NavigationAbstract {
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
                         return Response.TRUE;
-                    } else return Response.FALSE;
+                    } else {
+                        return Response.FALSE;
+                    }
                 }
 
             case 4:
@@ -135,7 +138,9 @@ public class WelcomeCommand extends NavigationAbstract {
                         setLog(LogStatus.SUCCESS, getString("farechannelset"));
                         setState(0);
                         return Response.TRUE;
-                    } else return Response.FALSE;
+                    } else {
+                        return Response.FALSE;
+                    }
                 }
 
             case 8:
@@ -252,22 +257,26 @@ public class WelcomeCommand extends NavigationAbstract {
     }
 
     private String stressVariables(String text) {
-        return Welcome.resolveVariables(StringUtil.escapeMarkdown(text),
+        return Welcome.resolveVariables(
+                StringUtil.escapeMarkdown(text),
                 "`%SERVER`",
                 "`%USER_MENTION`",
                 "`%USER_NAME`",
                 "`%USER_DISCRIMINATED`",
-                "`%MEMBERS`");
+                "`%MEMBERS`"
+        );
     }
 
     public EmbedBuilder getWelcomeMessageTest(Member member) throws ExecutionException, InterruptedException {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setDescription(Welcome.resolveVariables(welcomeMessageBean.getWelcomeText(),
+                .setDescription(Welcome.resolveVariables(
+                        welcomeMessageBean.getWelcomeText(),
                         StringUtil.escapeMarkdown(member.getUser().getName()),
                         member.getAsMention(),
                         StringUtil.escapeMarkdown(member.getUser().getName()),
                         StringUtil.escapeMarkdown(member.getUser().getAsTag()),
-                        StringUtil.numToString(member.getGuild().getMemberCount())));
+                        StringUtil.numToString(member.getGuild().getMemberCount())
+                ));
 
         eb.setImage(InternetUtil.getURLFromInputStream(
                 WelcomeGraphics.createImageWelcome(member, welcomeMessageBean.getWelcomeTitle()).get(),

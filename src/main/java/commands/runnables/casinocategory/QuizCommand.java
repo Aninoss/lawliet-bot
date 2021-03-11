@@ -108,15 +108,17 @@ public class QuizCommand extends CasinoAbstract {
     @Override
     public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .addField(getString("question"), question,false)
-                .addField(getString("answers"), getAnswersString(),false);
+                .addField(getString("question"), question, false)
+                .addField(getString("answers"), getAnswersString(), false);
 
-        if (coinsInput != 0)
+        if (coinsInput != 0) {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        }
 
         String label = "tutorial";
-        if (getStatus() == Status.ACTIVE)
+        if (getStatus() == Status.ACTIVE) {
             label = "tutorial_start";
+        }
 
         eb.addField(Emojis.EMPTY_EMOJI, getString(label, playerName, StringUtil.numToString(coinsInput), Emojis.COUNTDOWN_10), false);
         return eb;

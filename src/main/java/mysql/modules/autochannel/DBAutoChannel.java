@@ -66,8 +66,11 @@ public class DBAutoChannel extends DBMapCache<Long, AutoChannelBean> {
             preparedStatement.setLong(1, autoChannelBean.getGuildId());
 
             Optional<Long> channelIdOpt = autoChannelBean.getParentChannelId();
-            if (channelIdOpt.isPresent()) preparedStatement.setLong(2, channelIdOpt.get());
-            else preparedStatement.setNull(2, Types.BIGINT);
+            if (channelIdOpt.isPresent()) {
+                preparedStatement.setLong(2, channelIdOpt.get());
+            } else {
+                preparedStatement.setNull(2, Types.BIGINT);
+            }
 
             preparedStatement.setBoolean(3, autoChannelBean.isActive());
             preparedStatement.setString(4, autoChannelBean.getNameMask());
@@ -97,7 +100,7 @@ public class DBAutoChannel extends DBMapCache<Long, AutoChannelBean> {
 
     public ArrayList<Long> retrieveAllChildChannelServerIds() {
         return new DBKeySetLoad<Long>("AutoChannelChildChannels", "serverId")
-                        .get(resultSet -> resultSet.getLong(1));
+                .get(resultSet -> resultSet.getLong(1));
     }
 
 }

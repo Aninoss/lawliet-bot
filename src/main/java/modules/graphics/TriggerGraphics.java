@@ -27,14 +27,15 @@ public class TriggerGraphics {
 
         GifSequenceWriter gifSequenceWriter = new GifSequenceWriter(ios, image.getType(), 25, true);
 
-        for(int j=0; j<25; j++) {
+        for (int j = 0; j < 25; j++) {
             int quake = 5;
             Random r = new Random();
-            double xPlus = - quake + r.nextDouble() * quake * 2;
-            double yPlus = - quake + r.nextDouble() * quake * 2;
+            double xPlus = -quake + r.nextDouble() * quake * 2;
+            double yPlus = -quake + r.nextDouble() * quake * 2;
 
             BufferedImage result = new BufferedImage(image.getWidth(), (int) (image.getHeight() + 114 * (image.getWidth() / 600.0)),
-                    BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage.TYPE_INT_ARGB
+            );
 
             Graphics2D g = result.createGraphics();
             g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);

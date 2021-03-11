@@ -52,8 +52,9 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
                 setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "nobet"));
             }
             String[] emojis = onGameStart(event, args);
-            if (emojis == null)
+            if (emojis == null) {
                 return false;
+            }
 
             if (!allowBet) {
                 coinsInput = 0;

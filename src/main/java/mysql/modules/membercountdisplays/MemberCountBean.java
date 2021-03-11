@@ -17,6 +17,8 @@ public class MemberCountBean extends BeanWithGuild {
 
     /* Getters */
 
-    public CustomObservableMap<Long, MemberCountDisplaySlot> getMemberCountBeanSlots() { return memberCountBeanSlots; }
+    public CustomObservableMap<Long, MemberCountDisplaySlot> getMemberCountBeanSlots() {
+        return memberCountBeanSlots;
+    }
 
 }

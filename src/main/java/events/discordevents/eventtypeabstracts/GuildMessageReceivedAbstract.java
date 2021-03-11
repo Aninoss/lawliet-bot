@@ -21,8 +21,9 @@ public abstract class GuildMessageReceivedAbstract extends DiscordEventAbstract 
 
 
     public static void onGuildMessageReceivedStatic(GuildMessageReceivedEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        if (event.isWebhookMessage())
+        if (event.isWebhookMessage()) {
             return;
+        }
 
         Instant startTime = Instant.now();
         execute(listenerList, event.getMember().getUser(), event.getGuild().getIdLong(),

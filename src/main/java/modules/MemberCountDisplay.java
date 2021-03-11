@@ -49,8 +49,9 @@ public class MemberCountDisplay {
     }
 
     private String getCurrentVoiceName(VoiceChannel voiceChannel) {
-        if (voiceNameCache.asMap().containsKey(voiceChannel.getIdLong()))
+        if (voiceNameCache.asMap().containsKey(voiceChannel.getIdLong())) {
             return voiceNameCache.getIfPresent(voiceChannel.getIdLong());
+        }
         return voiceChannel.getName();
     }
 

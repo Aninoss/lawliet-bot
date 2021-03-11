@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "⛔",
         executableWithoutArgs = true,
-        aliases = {"nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters"}
+        aliases = { "nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters" }
 )
 public class NSFWFilterCommand extends NavigationAbstract {
 
@@ -47,8 +47,8 @@ public class NSFWFilterCommand extends NavigationAbstract {
                 String[] mentionedKeywords = input.split(" ");
 
                 int existingKeywords = 0;
-                for(String str: mentionedKeywords) {
-                    if (keywords.contains(str)) existingKeywords ++;
+                for (String str : mentionedKeywords) {
+                    if (keywords.contains(str)) existingKeywords++;
                 }
                 if (existingKeywords >= mentionedKeywords.length) {
                     setLog(LogStatus.FAILURE, getString("keywordexists", mentionedKeywords.length != 1));
@@ -56,8 +56,8 @@ public class NSFWFilterCommand extends NavigationAbstract {
                 }
 
                 int tooLongKeywords = 0;
-                for(String str: mentionedKeywords) {
-                    if (str.length() > MAX_LENGTH) tooLongKeywords ++;
+                for (String str : mentionedKeywords) {
+                    if (str.length() > MAX_LENGTH) tooLongKeywords++;
                 }
                 if (tooLongKeywords >= mentionedKeywords.length) {
                     setLog(LogStatus.FAILURE, getString("keywordtoolong", String.valueOf(MAX_LENGTH)));
@@ -65,7 +65,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
                 }
 
                 int n = 0;
-                for(String str: mentionedKeywords) {
+                for (String str : mentionedKeywords) {
                     if (!keywords.contains(str)) {
                         if (keywords.size() < MAX_FILTERS && !str.isEmpty() && str.length() <= MAX_LENGTH) {
                             keywords.add(str);
@@ -145,7 +145,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
 
             case 2:
                 String[] keywordStrings = new String[keywords.size()];
-                for(int i=0; i < keywordStrings.length; i++) {
+                for (int i = 0; i < keywordStrings.length; i++) {
                     keywordStrings[i] = keywords.get(i);
                 }
                 setOptions(keywordStrings);

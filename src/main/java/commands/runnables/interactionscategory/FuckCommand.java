@@ -17,7 +17,7 @@ public class FuckCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736281485216317442/736281490484363344/fuck.gif",
                 "https://media.discordapp.net/attachments/736281485216317442/736281495257219112/fuck.gif",
                 "https://media.discordapp.net/attachments/736281485216317442/736281501951590430/fuck.gif",

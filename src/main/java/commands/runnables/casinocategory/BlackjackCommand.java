@@ -102,7 +102,8 @@ public class BlackjackCommand extends CasinoAbstract {
                     MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_checkresults", () -> {
                         HashMap<PlayerType, Boolean> hasBlackJackMap = new HashMap<>();
                         for (PlayerType playerType : PlayerType.values()) {
-                            hasBlackJackMap.put(playerType,
+                            hasBlackJackMap.put(
+                                    playerType,
                                     getCardsValue(playerType) == 21 && getCardsForPlayer(playerType).size() == 2
                             );
                         }
@@ -155,18 +156,21 @@ public class BlackjackCommand extends CasinoAbstract {
     @Override
     public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .addField(getString("cards", false, String.valueOf(getCardsValue(PlayerType.PLAYER)), playerName),
+                .addField(
+                        getString("cards", false, String.valueOf(getCardsValue(PlayerType.PLAYER)), playerName),
                         getCardsString(PlayerType.PLAYER, cardRecentDrawn == PlayerType.PLAYER),
                         true
                 )
-                .addField(getString("cards", true, String.valueOf(getCardsValue(PlayerType.DEALER))),
+                .addField(
+                        getString("cards", true, String.valueOf(getCardsValue(PlayerType.DEALER))),
                         getCardsString(PlayerType.DEALER, cardRecentDrawn == PlayerType.DEALER),
                         true
                 );
         cardRecentDrawn = null;
 
-        if (coinsInput != 0)
+        if (coinsInput != 0) {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        }
 
         String key = turnForPlayer ? "tutorial" : "data";
 

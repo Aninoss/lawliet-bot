@@ -34,4 +34,5 @@ public class MuteData {
     public Optional<Instant> getStopTime() {
         return Optional.ofNullable(stopTime);
     }
+
 }

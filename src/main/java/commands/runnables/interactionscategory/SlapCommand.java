@@ -16,7 +16,7 @@ public class SlapCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736271623098990792/736271626714218507/slap.gif",
                 "https://media.discordapp.net/attachments/736271623098990792/736271635174391979/slap.gif",
                 "https://media.discordapp.net/attachments/736271623098990792/736271639301324860/slap.gif",

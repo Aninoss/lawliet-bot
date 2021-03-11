@@ -40,7 +40,7 @@ public class CoinFlipCommand extends CasinoAbstract {
 
         if (selection[0] != -1) {
             manageEnd();
-            return new String[]{};
+            return new String[] {};
         }
 
         return EMOJIS;
@@ -48,7 +48,7 @@ public class CoinFlipCommand extends CasinoAbstract {
 
     @Override
     public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
-        for(int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
             if (event.getReactionEmote().getAsReactionCode().equals(EMOJIS[i])) {
                 selection[0] = i;
                 drawMessage(draw());
@@ -66,11 +66,13 @@ public class CoinFlipCommand extends CasinoAbstract {
         eb.addField(getString("yourthrow"), getChoiceString(getTextChannel().get(), 1), true);
         eb.addField(Emojis.EMPTY_EMOJI, getString("template", playerName, StringUtil.numToString(coinsInput)), false);
 
-        if (selection[0] == -1)
+        if (selection[0] == -1) {
             eb.addField(Emojis.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]), false);
+        }
 
-        if (coinsInput != 0)
+        if (coinsInput != 0) {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        }
 
         return eb;
     }
@@ -87,11 +89,13 @@ public class CoinFlipCommand extends CasinoAbstract {
     }
 
     private String getChoiceString(TextChannel channel, int pos) {
-        if (pos == 1 && selection[0] == -1)
+        if (pos == 1 && selection[0] == -1) {
             return Emojis.EMPTY_EMOJI;
+        }
 
-        if (selection[0] != -1 && selection[1] == -1)
+        if (selection[0] != -1 && selection[1] == -1) {
             return Emojis.COUNTDOWN_3;
+        }
 
         switch (selection[pos]) {
             case 0:

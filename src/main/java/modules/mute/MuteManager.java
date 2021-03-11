@@ -40,7 +40,8 @@ public class MuteManager {
             if (permissionOverrideOpt.isPresent()) {
                 PermissionOverride permissionOverride = permissionOverrideOpt.get();
                 if (mute && !permissionOverride.getDenied().contains(Permission.MESSAGE_WRITE)) {
-                    manager = manager.putPermissionOverride(member,
+                    manager = manager.putPermissionOverride(
+                            member,
                             permissionOverride.getAllowedRaw() & ~Permission.MESSAGE_WRITE.getRawValue(),
                             permissionOverride.getDeniedRaw() | Permission.MESSAGE_WRITE.getRawValue()
                     );
@@ -66,8 +67,9 @@ public class MuteManager {
             }
         }
 
-        if (updated)
+        if (updated) {
             manager.reason(Command.getCommandLanguage(ChannelMuteCommand.class, locale).getTitle()).queue();
+        }
 
         return updated;
     }

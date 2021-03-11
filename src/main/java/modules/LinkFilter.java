@@ -19,7 +19,8 @@ public class LinkFilter {
         ) {
             message.delete().queue();
             if (guild.getIdLong() == AssetIds.ANICORD_SERVER_ID) {
-                JDAUtil.sendPrivateMessage(message.getMember(),
+                JDAUtil.sendPrivateMessage(
+                        message.getMember(),
                         "⚠️ Du benötigst den ersten Fischereirang, bevor du Links auf **Anicord** senden kannst!\nMehr Informationen dazu findest du auf <#608455541978824739>"
                 ).queue();
                 message.getGuild().getTextChannelById(819350890263085097L)

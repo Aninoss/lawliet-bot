@@ -36,4 +36,5 @@ public class HttpResponse {
     public int getCode() {
         return code;
     }
+
 }

@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.entities.User;
         emoji = "\uD83C\uDF3C",
         executableWithoutArgs = false
 )
-public class UnbanCommand extends WarnCommand  {
+public class UnbanCommand extends WarnCommand {
 
     public UnbanCommand(Locale locale, String prefix) {
         super(locale, prefix, false, false);
@@ -37,7 +37,11 @@ public class UnbanCommand extends WarnCommand  {
     protected void process(Guild guild, User target, String reason) {
         guild.unban(target.getId())
                 .reason(reason)
-                .queue(v -> {}, e -> guild.unban(target.getId()).queue());
+                .submit()
+                .exceptionally(e -> {
+                    guild.unban(target.getId()).queue();
+                    return null;
+                });
     }
-    
+
 }

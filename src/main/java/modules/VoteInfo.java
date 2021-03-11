@@ -15,7 +15,7 @@ public class VoteInfo {
         this.userVotes = userVotes;
         this.creatorId = creatorId;
 
-        for(int i=0; i < choices.length; i++) {
+        for (int i = 0; i < choices.length; i++) {
             choices[i] = choices[i].trim();
         }
         this.choices = choices;
@@ -62,7 +62,7 @@ public class VoteInfo {
 
         int[] votes = new int[userVotes.size()];
         for (int i = 0; i < userVotes.size(); i++) {
-            votes[i] = (int)userVotes.get(i).stream()
+            votes[i] = (int) userVotes.get(i).stream()
                     .filter(userId -> userCounter.get(userId) == 1)
                     .count();
         }

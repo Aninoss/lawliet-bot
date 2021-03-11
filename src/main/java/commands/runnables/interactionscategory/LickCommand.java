@@ -16,7 +16,7 @@ public class LickCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736276719161311264/736276727541661706/lick.gif",
                 "https://media.discordapp.net/attachments/736276719161311264/736276731530444870/lick.gif",
                 "https://media.discordapp.net/attachments/736276719161311264/736276735301255208/lick.gif",

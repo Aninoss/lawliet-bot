@@ -12,7 +12,7 @@ public class EmbedFactory {
     public static final Color FAILED_EMBED_COLOR = Color.RED;
 
     public static EmbedBuilder getEmbedDefault(Command command) {
-        return getEmbedDefault(command,null);
+        return getEmbedDefault(command, null);
     }
 
     public static EmbedBuilder getEmbedDefault(Command command, String description) {
@@ -20,8 +20,9 @@ public class EmbedFactory {
                 .setColor(DEFAULT_EMBED_COLOR)
                 .setTitle(command.getCommandProperties().emoji() + " " + command.getCommandLanguage().getTitle());
 
-        if (description != null && description.length() > 0)
+        if (description != null && description.length() > 0) {
             eb.setDescription(description);
+        }
         EmbedUtil.setFooter(eb, command);
         return eb;
     }
@@ -37,16 +38,17 @@ public class EmbedFactory {
     }
 
     public static EmbedBuilder getEmbedError(Command command) {
-        return getEmbedError(command,null);
+        return getEmbedError(command, null);
     }
 
     public static EmbedBuilder getEmbedError(Command command, String description) {
         EmbedBuilder eb = getEmbedError()
                 .setColor(FAILED_EMBED_COLOR)
-                .setTitle(TextManager.getString(command.getLocale(),TextManager.GENERAL,"wrong_args"));
+                .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "wrong_args"));
 
-        if (description != null && description.length() > 0)
+        if (description != null && description.length() > 0) {
             eb.setDescription(description);
+        }
         EmbedUtil.setFooter(eb, command);
         return eb;
     }
@@ -63,8 +65,8 @@ public class EmbedFactory {
 
     public static EmbedBuilder getNSFWBlockEmbed(Locale locale) {
         return getEmbedError()
-                .setTitle(TextManager.getString(locale,TextManager.GENERAL, "nsfw_block_title"))
-                .setDescription(TextManager.getString(locale,TextManager.GENERAL, "nsfw_block_description"));
+                .setTitle(TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_title"))
+                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_description"));
     }
 
     public static EmbedBuilder getApiDownEmbed(Locale locale, String service) {

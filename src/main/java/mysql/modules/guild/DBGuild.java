@@ -37,8 +37,9 @@ public class DBGuild extends DBMapCache<Long, GuildBean> {
     @Override
     protected GuildBean load(Long serverId) throws Exception {
         int shard = ShardManager.getInstance().getResponsibleShard(serverId);
-        if (shard < ShardManager.getInstance().getShardIntervalMin() || shard > ShardManager.getInstance().getShardIntervalMax())
+        if (shard < ShardManager.getInstance().getShardIntervalMin() || shard > ShardManager.getInstance().getShardIntervalMax()) {
             throw new Exception("Invalid server");
+        }
 
         boolean serverPresent = ShardManager.getInstance().getLocalGuildById(serverId).isPresent();
         if (serverPresent) {
@@ -107,8 +108,11 @@ public class DBGuild extends DBMapCache<Long, GuildBean> {
             preparedStatement.setBoolean(5, guildBean.isFisherySingleRoles());
 
             Optional<Long> announcementChannelIdOpt = guildBean.getFisheryAnnouncementChannelId();
-            if (announcementChannelIdOpt.isPresent()) preparedStatement.setLong(6, announcementChannelIdOpt.get());
-            else preparedStatement.setNull(6, Types.BIGINT);
+            if (announcementChannelIdOpt.isPresent()) {
+                preparedStatement.setLong(6, announcementChannelIdOpt.get());
+            } else {
+                preparedStatement.setNull(6, Types.BIGINT);
+            }
 
             preparedStatement.setBoolean(7, guildBean.isFisheryTreasureChests());
             preparedStatement.setBoolean(8, guildBean.isFisheryReminders());
@@ -116,8 +120,11 @@ public class DBGuild extends DBMapCache<Long, GuildBean> {
             preparedStatement.setLong(10, guildBean.getFisheryRoleMax());
 
             Optional<Integer> VCHoursOpt = guildBean.getFisheryVcHoursCap();
-            if (VCHoursOpt.isPresent()) preparedStatement.setInt(11, VCHoursOpt.get());
-            else preparedStatement.setNull(11, Types.INTEGER);
+            if (VCHoursOpt.isPresent()) {
+                preparedStatement.setInt(11, VCHoursOpt.get());
+            } else {
+                preparedStatement.setNull(11, Types.INTEGER);
+            }
 
             preparedStatement.setBoolean(12, guildBean.isCommandAuthorMessageRemove());
             preparedStatement.setBoolean(13, guildBean.hasFisheryCoinsGivenLimit());
@@ -135,8 +142,11 @@ public class DBGuild extends DBMapCache<Long, GuildBean> {
             preparedStatement.setBoolean(4, guildBean.isFisherySingleRoles());
 
             Optional<Long> announcementChannelIdOpt = guildBean.getFisheryAnnouncementChannelId();
-            if (announcementChannelIdOpt.isPresent()) preparedStatement.setLong(5, announcementChannelIdOpt.get());
-            else preparedStatement.setNull(5, Types.BIGINT);
+            if (announcementChannelIdOpt.isPresent()) {
+                preparedStatement.setLong(5, announcementChannelIdOpt.get());
+            } else {
+                preparedStatement.setNull(5, Types.BIGINT);
+            }
 
             preparedStatement.setBoolean(6, guildBean.isFisheryTreasureChests());
             preparedStatement.setBoolean(7, guildBean.isFisheryReminders());
@@ -144,8 +154,11 @@ public class DBGuild extends DBMapCache<Long, GuildBean> {
             preparedStatement.setLong(9, guildBean.getFisheryRoleMax());
 
             Optional<Integer> VCHoursOpt = guildBean.getFisheryVcHoursCap();
-            if (VCHoursOpt.isPresent()) preparedStatement.setInt(10, VCHoursOpt.get());
-            else preparedStatement.setNull(10, Types.INTEGER);
+            if (VCHoursOpt.isPresent()) {
+                preparedStatement.setInt(10, VCHoursOpt.get());
+            } else {
+                preparedStatement.setNull(10, Types.INTEGER);
+            }
 
             preparedStatement.setBoolean(11, guildBean.isCommandAuthorMessageRemove());
             preparedStatement.setBoolean(12, guildBean.hasFisheryCoinsGivenLimit());

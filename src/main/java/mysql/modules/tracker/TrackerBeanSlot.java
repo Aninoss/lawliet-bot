@@ -36,13 +36,21 @@ public class TrackerBeanSlot extends BeanWithGuild implements TextChannelAsset {
         return Optional.ofNullable(messageId);
     }
 
-    public String getCommandTrigger() { return commandTrigger; }
+    public String getCommandTrigger() {
+        return commandTrigger;
+    }
 
-    public String getCommandKey() { return commandKey; }
+    public String getCommandKey() {
+        return commandKey;
+    }
 
-    public Optional<String> getArgs() { return Optional.ofNullable(args); }
+    public Optional<String> getArgs() {
+        return Optional.ofNullable(args);
+    }
 
-    public Instant getNextRequest() { return nextRequest; }
+    public Instant getNextRequest() {
+        return nextRequest;
+    }
 
 
     /* Setters */
@@ -77,7 +85,9 @@ public class TrackerBeanSlot extends BeanWithGuild implements TextChannelAsset {
         active = false;
     }
 
-    public boolean isActive() { return active; }
+    public boolean isActive() {
+        return active;
+    }
 
     public void save() {
         setChanged();

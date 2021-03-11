@@ -16,7 +16,7 @@ import websockets.syncserver.SyncServerFunction;
 
 @SyncServerEvent(event = "COMMAND_LIST")
 public class OnCommandList implements SyncServerFunction {
-    
+
     @Override
     public JSONObject apply(JSONObject jsonObject) {
         JSONObject mainJSON = new JSONObject();

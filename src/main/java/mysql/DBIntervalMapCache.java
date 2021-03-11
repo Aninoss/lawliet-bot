@@ -18,15 +18,17 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBMapC
         super();
 
         Runtime.getRuntime().addShutdownHook(new CustomThread(() -> {
-            if (changed.size() > 0)
+            if (changed.size() > 0) {
                 intervalSave();
+            }
         }, "shutdown_intervalsave"));
 
         Thread t = new CustomThread(() -> {
             IntervalBlock intervalBlock = new IntervalBlock(Bot.isProductionMode() ? minutes : 1, ChronoUnit.MINUTES);
             while (intervalBlock.block()) {
-                if (changed.size() > 0)
+                if (changed.size() > 0) {
                     intervalSave();
+                }
             }
         }, "dbbean_interval_save", 1);
         t.start();

@@ -61,8 +61,11 @@ public class DBModeration extends DBMapCache<Long, ModerationBean> {
             preparedStatement.setLong(1, moderationBean.getGuildId());
 
             Optional<Long> channelIdOpt = moderationBean.getAnnouncementChannelId();
-            if (channelIdOpt.isPresent()) preparedStatement.setLong(2, channelIdOpt.get());
-            else preparedStatement.setNull(2, Types.BIGINT);
+            if (channelIdOpt.isPresent()) {
+                preparedStatement.setLong(2, channelIdOpt.get());
+            } else {
+                preparedStatement.setNull(2, Types.BIGINT);
+            }
 
             preparedStatement.setBoolean(3, moderationBean.isQuestion());
             preparedStatement.setInt(4, moderationBean.getAutoKick());

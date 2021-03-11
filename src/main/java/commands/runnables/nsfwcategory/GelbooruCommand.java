@@ -12,7 +12,7 @@ import commands.runnables.PornSearchAbstract;
         nsfw = true,
         requiresEmbeds = false,
         withLoadingBar = true,
-        aliases = {"gel", "gbooru", "gelbooru"}
+        aliases = { "gel", "gbooru", "gelbooru" }
 )
 public class GelbooruCommand extends PornSearchAbstract implements OnTrackerRequestListener {
 
@@ -31,6 +31,8 @@ public class GelbooruCommand extends PornSearchAbstract implements OnTrackerRequ
     }
 
     @Override
-    public boolean isExplicit() { return true; }
+    public boolean isExplicit() {
+        return true;
+    }
 
 }

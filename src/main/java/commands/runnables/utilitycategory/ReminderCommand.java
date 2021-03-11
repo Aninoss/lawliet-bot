@@ -90,7 +90,7 @@ public class ReminderCommand extends Command implements OnReactionListener {
             return false;
         }
 
-        for(String part : args.split(" ")) {
+        for (String part : args.split(" ")) {
             if (part.length() > 0) {
                 long value = MentionUtil.getTimeMinutesExt(part);
                 if (value > 0) {

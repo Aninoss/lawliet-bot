@@ -52,7 +52,8 @@ public class RolesRepair {
         if (fisheryGuildBean.getGuildBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryGuildBean.getRoleIds().size() > 0) {
             guild.getMembers().stream()
                     .filter(member -> !member.getUser().isBot() && userJoinedRecently(member, minutes))
-                    .forEach(member -> checkRoles(locale,
+                    .forEach(member -> checkRoles(
+                            locale,
                             Command.getCommandLanguage(FisheryRolesCommand.class, locale).getTitle(),
                             member,
                             fisheryGuildBean.getMemberBean(member.getIdLong()).getRoles()
@@ -67,7 +68,8 @@ public class RolesRepair {
             List<Role> roles = autoRolesBean.getRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
             guild.getMembers().stream()
                     .filter(member -> userJoinedRecently(member, minutes))
-                    .forEach(member -> checkRoles(locale,
+                    .forEach(member -> checkRoles(
+                            locale,
                             Command.getCommandLanguage(AutoRolesCommand.class, locale).getTitle(),
                             member,
                             roles

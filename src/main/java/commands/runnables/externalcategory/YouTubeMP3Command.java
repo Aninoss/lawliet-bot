@@ -48,8 +48,9 @@ public class YouTubeMP3Command extends Command {
             return false;
         }
 
-        if (args.contains("&"))
+        if (args.contains("&")) {
             args = args.split("&")[0];
+        }
 
         Optional<AudioTrackInfo> metaOpt = YouTubeMeta.getInstance().getFromVideoURL(args);
         if (metaOpt.isEmpty() || metaOpt.get().isStream) {

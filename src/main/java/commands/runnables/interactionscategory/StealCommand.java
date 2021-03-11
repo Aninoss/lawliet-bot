@@ -16,7 +16,7 @@ public class StealCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736271960065048577/736271967300223079/steal.gif",
                 "https://media.discordapp.net/attachments/736271960065048577/736271972966858772/steal.gif",
                 "https://media.discordapp.net/attachments/736271960065048577/736271981372112958/steal.gif",

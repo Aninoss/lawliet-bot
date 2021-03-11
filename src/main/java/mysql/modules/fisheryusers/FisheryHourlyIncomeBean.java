@@ -31,9 +31,13 @@ public class FisheryHourlyIncomeBean implements MemberAsset {
         return memberId;
     }
 
-    public Instant getTime() { return time; }
+    public Instant getTime() {
+        return time;
+    }
 
-    public long getFishIncome() { return fishIncome; }
+    public long getFishIncome() {
+        return fishIncome;
+    }
 
     public boolean checkChanged() {
         boolean changedTemp = changed;

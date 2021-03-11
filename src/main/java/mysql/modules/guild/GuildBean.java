@@ -34,8 +34,11 @@ public class GuildBean extends BeanWithGuild {
         this.fisherySingleRoles = fisherySingleRoles;
         this.fisheryTreasureChests = fisheryTreasureChests;
         this.fisheryReminders = fisheryReminders;
-        if (fisheryVcHoursCap == 0) this.fisheryVcHoursCap = null;
-        else this.fisheryVcHoursCap = fisheryVcHoursCap;
+        if (fisheryVcHoursCap == 0) {
+            this.fisheryVcHoursCap = null;
+        } else {
+            this.fisheryVcHoursCap = fisheryVcHoursCap;
+        }
         this.fisheryAnnouncementChannelId = fisheryAnnouncementChannelId != null && fisheryAnnouncementChannelId != 0 ? fisheryAnnouncementChannelId : null;
         this.commandAuthorMessageRemove = commandAuthorMessageRemove;
         this.fisheryCoinsGivenLimit = fisheryCoinsGivenLimit;

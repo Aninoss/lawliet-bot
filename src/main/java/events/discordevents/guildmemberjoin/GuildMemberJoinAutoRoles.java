@@ -36,5 +36,5 @@ public class GuildMemberJoinAutoRoles extends GuildMemberJoinAbstract {
 
         return true;
     }
-    
+
 }

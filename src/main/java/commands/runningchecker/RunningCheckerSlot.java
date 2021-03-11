@@ -29,14 +29,17 @@ public class RunningCheckerSlot {
     }
 
     public void stop() {
-        if (hasTimeOut)
+        if (hasTimeOut) {
             thread.interrupt();
+        }
     }
 
     public Instant getInstant() {
         return instant;
     }
 
-    public int getMaxCalculationTimeSec() { return maxCalculationTimeSec; }
+    public int getMaxCalculationTimeSec() {
+        return maxCalculationTimeSec;
+    }
 
 }

@@ -17,7 +17,7 @@ public class WebgateCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/745660306239258767/745660330562027540/1ae440510ab43961363838d69fa16aa3.jpg",
                 "https://media.discordapp.net/attachments/745660306239258767/745660333263159396/2e2ee82e.png",
                 "https://media.discordapp.net/attachments/745660306239258767/745660336215949412/3kpd5a.png",

@@ -21,6 +21,8 @@ public class RevokeRoleCommand extends AssignRoleCommand {
     }
 
     @Override
-    protected boolean addRole() { return false; }
+    protected boolean addRole() {
+        return false;
+    }
 
 }

@@ -16,7 +16,7 @@ public class RunCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736259684763435059/736259690962485268/run.gif",
                 "https://media.discordapp.net/attachments/736259684763435059/736259694955331694/run.gif",
                 "https://media.discordapp.net/attachments/736259684763435059/736259702135980144/run.gif",

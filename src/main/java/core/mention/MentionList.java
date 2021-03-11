@@ -20,4 +20,5 @@ public class MentionList<E> {
     public String getResultMessageString() {
         return resultMessageString.trim();
     }
+
 }

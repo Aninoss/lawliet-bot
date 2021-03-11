@@ -16,7 +16,7 @@ public class KissCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736280297171058759/736280301571145769/kiss.gif",
                 "https://media.discordapp.net/attachments/736280297171058759/736280306797248512/kiss.gif",
                 "https://media.discordapp.net/attachments/736280297171058759/736280315030667384/kiss.gif",

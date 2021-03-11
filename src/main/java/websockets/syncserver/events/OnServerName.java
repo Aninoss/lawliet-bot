@@ -16,7 +16,7 @@ public class OnServerName implements SyncServerFunction {
 
         ShardManager.getInstance().getLocalGuildById(serverId)
                 .map(Guild::getName)
-                .ifPresent(name ->  responseJson.put("name", name));
+                .ifPresent(name -> responseJson.put("name", name));
 
         return responseJson;
     }

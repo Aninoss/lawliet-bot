@@ -54,7 +54,7 @@ public class SlotCommand extends CasinoAbstract {
         }
 
         setFruits();
-        return new String[]{ ALL_EMOJI };
+        return new String[] { ALL_EMOJI };
     }
 
     private void setFruits() {
@@ -161,8 +161,9 @@ public class SlotCommand extends CasinoAbstract {
                 Emojis.SPACEHOLDER
         ));
 
-        if (coinsInput != 0)
+        if (coinsInput != 0) {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        }
 
         return eb;
     }
@@ -173,8 +174,11 @@ public class SlotCommand extends CasinoAbstract {
     }
 
     private String getSpinningWheel(int i) {
-        if (progress <= i) return Emojis.SLOT_SPINNING;
-        else return FRUITS_CONTAINER[fruits[i]];
+        if (progress <= i) {
+            return Emojis.SLOT_SPINNING;
+        } else {
+            return FRUITS_CONTAINER[fruits[i]];
+        }
     }
 
     private void manageEnd() {

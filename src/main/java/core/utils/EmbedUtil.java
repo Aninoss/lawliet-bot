@@ -75,8 +75,9 @@ public class EmbedUtil {
     }
 
     public static EmbedBuilder addRemainingTime(EmbedBuilder eb, Instant instant) {
-        if (instant.isAfter(Instant.now()))
+        if (instant.isAfter(Instant.now())) {
             eb.setTimestamp(instant);
+        }
         return eb;
     }
 
@@ -86,8 +87,9 @@ public class EmbedUtil {
     }
 
     public static EmbedBuilder setFooter(EmbedBuilder eb, Command command, String footer) {
-        if (footer == null || footer.isEmpty())
+        if (footer == null || footer.isEmpty()) {
             return setFooter(eb, command);
+        }
 
         command.getMember().ifPresent(member -> eb.setFooter(member.getUser().getAsTag() + "｜" + footer));
 

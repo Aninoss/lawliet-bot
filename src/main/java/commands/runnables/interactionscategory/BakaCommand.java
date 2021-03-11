@@ -5,9 +5,9 @@ import commands.listeners.CommandProperties;
 import commands.runnables.InteractionAbstract;
 
 @CommandProperties(
-    trigger = "baka",
-    emoji = "\uD83D\uDCA2",
-    executableWithoutArgs = true
+        trigger = "baka",
+        emoji = "\uD83D\uDCA2",
+        executableWithoutArgs = true
 )
 public class BakaCommand extends InteractionAbstract {
 
@@ -16,7 +16,7 @@ public class BakaCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736271836278423553/736271843027058788/baka.gif",
                 "https://media.discordapp.net/attachments/736271836278423553/736271848546893975/baka.gif",
                 "https://media.discordapp.net/attachments/736271836278423553/736271857443012730/baka.gif",

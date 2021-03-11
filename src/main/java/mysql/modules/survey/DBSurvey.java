@@ -78,8 +78,9 @@ public class DBSurvey extends DBMapCache<Integer, SurveyBean> {
                 Statement statement = DBMain.getInstance().statementExecuted("SELECT surveyId FROM SurveyDates ORDER BY start DESC, surveyId DESC LIMIT 1;");
                 ResultSet resultSet = statement.getResultSet();
 
-                if (resultSet.next())
+                if (resultSet.next()) {
                     currentSurveyId = resultSet.getInt(1);
+                }
 
                 resultSet.close();
                 statement.close();
@@ -157,10 +158,8 @@ public class DBSurvey extends DBMapCache<Integer, SurveyBean> {
     }
 
     private ArrayList<Long> getNotificationUserIds() {
-        return new DBDataLoad<Long>("SurveyNotifications", "userId", "1",
-                preparedStatement -> {
-                }
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        return new DBDataLoad<Long>("SurveyNotifications", "userId", "1")
+                .getArrayList(resultSet -> resultSet.getLong(1));
     }
 
     private void addNotificationUserId(long userId) {

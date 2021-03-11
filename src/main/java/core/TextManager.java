@@ -28,7 +28,7 @@ public class TextManager {
             String text = texts.getString(key);
 
             //Calculate References
-            for(String reference: StringUtil.extractGroups(text, "%<", ">")) {
+            for (String reference : StringUtil.extractGroups(text, "%<", ">")) {
                 String newString;
                 if (reference.contains(".")) {
                     String[] argsLink = reference.split("\\.");
@@ -71,8 +71,11 @@ public class TextManager {
     }
 
     public static String getString(Locale locale, String category, String key, boolean secondOption, String... args) {
-        if (!secondOption) return getString(locale, category, key, 0, args);
-        else return getString(locale, category, key, 1, args);
+        if (!secondOption) {
+            return getString(locale, category, key, 0, args);
+        } else {
+            return getString(locale, category, key, 1, args);
+        }
     }
 
     public static String getNoResultsString(Locale locale, String content) {

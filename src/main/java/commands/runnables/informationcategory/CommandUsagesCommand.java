@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "\uD83D\uDCD3",
         executableWithoutArgs = true,
         onlyPublicVersion = true,
-        aliases = {"cu", "commandusage"}
+        aliases = { "cu", "commandusage" }
 )
 public class CommandUsagesCommand extends ListAbstract {
 
@@ -32,7 +32,7 @@ public class CommandUsagesCommand extends ListAbstract {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        for(Class<? extends Command> clazz: CommandContainer.getInstance().getFullCommandList()) {
+        for (Class<? extends Command> clazz : CommandContainer.getInstance().getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             commandUsages.add(new Pair<>(DBCommandUsages.getInstance().retrieve(command.getTrigger()), command.getCommandProperties().emoji()));
         }

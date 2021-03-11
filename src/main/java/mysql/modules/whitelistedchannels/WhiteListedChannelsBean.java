@@ -21,6 +21,8 @@ public class WhiteListedChannelsBean extends BeanWithGuild {
         return channelIds;
     }
 
-    public boolean isWhiteListed(long channelId) { return channelIds.size() == 0 || channelIds.contains(channelId); }
+    public boolean isWhiteListed(long channelId) {
+        return channelIds.size() == 0 || channelIds.contains(channelId);
+    }
 
 }

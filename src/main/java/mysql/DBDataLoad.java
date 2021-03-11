@@ -14,6 +14,11 @@ public class DBDataLoad<T> {
 
     private final PreparedStatement preparedStatement;
 
+    public DBDataLoad(String table, String requiredAttributes, String where) {
+        this(table, requiredAttributes, where, ps -> {
+        });
+    }
+
     public DBDataLoad(String table, String requiredAttributes, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) {
         try {
             if (requiredAttributes.isEmpty()) throw new SQLException("No attributes specified!");

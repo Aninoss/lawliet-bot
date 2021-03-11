@@ -16,7 +16,7 @@ public class ThrowCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736272093900963923/736272105422716990/throw.gif",
                 "https://media.discordapp.net/attachments/736272093900963923/736272109927530566/throw.gif",
                 "https://media.discordapp.net/attachments/736272093900963923/736272115216679033/throw.gif",

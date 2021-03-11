@@ -29,7 +29,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         aliases = { "tempchannel" }
 )
 public class AutoChannelCommand extends NavigationAbstract {
-    
+
     private AutoChannelBean autoChannelBean;
 
     public AutoChannelCommand(Locale locale, String prefix) {
@@ -131,10 +131,12 @@ public class AutoChannelCommand extends NavigationAbstract {
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
                         .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(autoChannelBean.getParentChannel().map(GuildChannel::getName).orElse(notSet)), true)
-                        .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(StringUtil.escapeMarkdown(autoChannelBean.getNameMask()),
+                        .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(
+                                StringUtil.escapeMarkdown(autoChannelBean.getNameMask()),
                                 "`%VCNAME`",
                                 "`%INDEX`",
-                                "`%CREATOR`"), true)
+                                "`%CREATOR`"
+                        ), true)
                         .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isLocked())), true);
 
             case 1:

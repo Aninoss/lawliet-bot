@@ -90,6 +90,11 @@ public class DBMain implements DriverAction {
         throw exception;
     }
 
+    public CompletableFuture<Integer> asyncUpdate(String sql) {
+        return asyncUpdate(sql, preparedStatement -> {
+        });
+    }
+
     public CompletableFuture<Integer> asyncUpdate(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
 

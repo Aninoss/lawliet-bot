@@ -23,10 +23,11 @@ public class AutoChannel {
                 .replaceAll("(?i)" + Pattern.quote("%index"), Matcher.quoteReplacement(arg2))
                 .replaceAll("(?i)" + Pattern.quote("%creator"), Matcher.quoteReplacement(arg3));
     }
-    
+
     public static void processCreate(VoiceChannel voiceChannel, Member member) {
-        if (!voiceChannel.getMembers().contains(member))
+        if (!voiceChannel.getMembers().contains(member)) {
             return;
+        }
 
         Guild guild = voiceChannel.getGuild();
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
@@ -37,16 +38,20 @@ public class AutoChannel {
             ) {
                 int n = 1;
                 for (int i = 0; i < 50; i++) {
-                    if (!guild.getVoiceChannelsByName(getNewVoiceName(autoChannelBean, voiceChannel, member, n), true).isEmpty())
+                    if (!guild.getVoiceChannelsByName(getNewVoiceName(autoChannelBean, voiceChannel, member, n), true).isEmpty()) {
                         n++;
-                    else break;
+                    } else {
+                        break;
+                    }
                 }
 
-                if (!voiceChannel.getMembers().contains(member))
+                if (!voiceChannel.getMembers().contains(member)) {
                     return;
+                }
 
                 ChannelAction<VoiceChannel> channelAction = createNewVoice(autoChannelBean, voiceChannel, member, n);
-                channelAction.queue(vc -> processCreatedVoice(autoChannelBean, vc, member),
+                channelAction.queue(
+                        vc -> processCreatedVoice(autoChannelBean, vc, member),
                         e -> channelAction.setName("???")
                                 .queue(vc -> processCreatedVoice(autoChannelBean, vc, member))
                 );
@@ -57,7 +62,7 @@ public class AutoChannel {
     public static void processRemove(VoiceChannel voiceChannel) {
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(voiceChannel.getGuild().getIdLong());
 
-        for (long childChannelId: new ArrayList<>(autoChannelBean.getChildChannelIds())) {
+        for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (voiceChannel.getIdLong() == childChannelId) {
                 if (PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getGuildBean().getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
                     if (voiceChannel.getMembers().size() == 0) {
@@ -95,8 +100,9 @@ public class AutoChannel {
         channelAction = channelAction.setBitrate(parentVoice.getBitrate())
                 .setUserlimit(parentVoice.getUserLimit());
 
-        if (autoChannelBean.isLocked())
+        if (autoChannelBean.isLocked()) {
             channelAction = channelAction.setUserlimit(1);
+        }
 
         channelAction = addOriginalPermissions(parentVoice, channelAction);
         channelAction = addBotPermissions(parentVoice, channelAction);
@@ -104,7 +110,7 @@ public class AutoChannel {
     }
 
     private static ChannelAction<VoiceChannel> addOriginalPermissions(VoiceChannel parentVoice, ChannelAction<VoiceChannel> channelAction) {
-        for(PermissionOverride permissionOverride : parentVoice.getPermissionOverrides()) {
+        for (PermissionOverride permissionOverride : parentVoice.getPermissionOverrides()) {
             if (permissionOverride.getPermissionHolder() != null) {
                 channelAction = channelAction.addPermissionOverride(
                         permissionOverride.getPermissionHolder(),

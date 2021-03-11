@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit;
 import core.GlobalThreadPool;
 import core.MainLogger;
 
-public abstract class SingleCache <T> {
+public abstract class SingleCache<T> {
 
     private Instant nextReset = null;
     private T value = null;
@@ -19,8 +19,9 @@ public abstract class SingleCache <T> {
     }
 
     public synchronized T getAsync() {
-        if (value == null)
+        if (value == null) {
             return get();
+        }
 
         if (nextReset == null || Instant.now().isAfter(nextReset)) {
             resetUpdateTimer();
@@ -38,8 +39,9 @@ public abstract class SingleCache <T> {
         resetUpdateTimer();
         try {
             T newValue = fetchValue();
-            if (newValue != null)
+            if (newValue != null) {
                 this.value = newValue;
+            }
         } catch (Throwable e) {
             MainLogger.get().error("Uncaught exception", e);
         }

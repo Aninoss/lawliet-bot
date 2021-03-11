@@ -16,7 +16,7 @@ public class TickleCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736274285764542565/736274294211870890/tickle.gif",
                 "https://media.discordapp.net/attachments/736274285764542565/736274298494255174/tickle.gif",
                 "https://media.discordapp.net/attachments/736274285764542565/736274306392260608/tickle.gif",

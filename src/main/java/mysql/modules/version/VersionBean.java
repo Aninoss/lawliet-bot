@@ -14,7 +14,9 @@ public class VersionBean extends Observable {
         this.slots = new CustomObservableList<>(slots);
     }
 
-    public CustomObservableList<VersionBeanSlot> getSlots() { return slots; }
+    public CustomObservableList<VersionBeanSlot> getSlots() {
+        return slots;
+    }
 
     public VersionBeanSlot getCurrentVersion() {
         return getCurrentVersions(1).get(0);

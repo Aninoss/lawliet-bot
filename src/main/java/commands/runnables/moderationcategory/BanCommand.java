@@ -14,14 +14,14 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 
 @CommandProperties(
-    trigger = "ban",
-    botGuildPermissions = Permission.BAN_MEMBERS,
-    userGuildPermissions = Permission.BAN_MEMBERS,
-    emoji = "\uD83D\uDEAB",
-    executableWithoutArgs = false
+        trigger = "ban",
+        botGuildPermissions = Permission.BAN_MEMBERS,
+        userGuildPermissions = Permission.BAN_MEMBERS,
+        emoji = "\uD83D\uDEAB",
+        executableWithoutArgs = false
 )
 //TODO: can now ban with id?
-public class BanCommand extends KickCommand  {
+public class BanCommand extends KickCommand {
 
     public BanCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -43,7 +43,11 @@ public class BanCommand extends KickCommand  {
     @Override
     protected void process(Guild guild, User target, String reason) {
         guild.ban(target.getId(), 1, reason)
-                .queue(v -> {}, e -> guild.ban(target.getId(), 1).queue());
+                .submit()
+                .exceptionally(e -> {
+                    guild.ban(target.getId(), 1).queue();
+                    return  null;
+                });
     }
-    
+
 }

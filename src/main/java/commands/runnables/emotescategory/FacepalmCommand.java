@@ -16,7 +16,7 @@ public class FacepalmCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736262744474517584/736262755283238992/facepalm.gif",
                 "https://media.discordapp.net/attachments/736262744474517584/736262759964213439/facepalm.gif",
                 "https://media.discordapp.net/attachments/736262744474517584/736262764284346428/facepalm.gif",

@@ -70,15 +70,21 @@ public class DBTracker extends DBSingleCache<TrackerBean> {
             preparedStatement.setString(3, slot.getCommandTrigger());
 
             Optional<Long> messageIdOpt = slot.getMessageId();
-            if (messageIdOpt.isPresent()) preparedStatement.setLong(4, messageIdOpt.get());
-            else preparedStatement.setNull(4, Types.BIGINT);
+            if (messageIdOpt.isPresent()) {
+                preparedStatement.setLong(4, messageIdOpt.get());
+            } else {
+                preparedStatement.setNull(4, Types.BIGINT);
+            }
 
             preparedStatement.setString(5, slot.getCommandKey());
             preparedStatement.setString(6, DBMain.instantToDateTimeString(slot.getNextRequest()));
 
             Optional<String> argsOpt = slot.getArgs();
-            if (argsOpt.isPresent()) preparedStatement.setString(7, argsOpt.get());
-            else preparedStatement.setNull(7, Types.VARCHAR);
+            if (argsOpt.isPresent()) {
+                preparedStatement.setString(7, argsOpt.get());
+            } else {
+                preparedStatement.setNull(7, Types.VARCHAR);
+            }
         });
     }
 

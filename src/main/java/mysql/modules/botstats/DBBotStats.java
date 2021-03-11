@@ -15,11 +15,7 @@ public class DBBotStats {
     }
 
     public static void saveStatsCommandUsages() {
-        DBMain.getInstance().asyncUpdate(
-                "INSERT INTO StatsCommandUsages VALUES(NOW(), (SELECT SUM(usages) FROM CommandUsages));",
-                preparedStatement -> {
-                }
-        );
+        DBMain.getInstance().asyncUpdate("INSERT INTO StatsCommandUsages VALUES(NOW(), (SELECT SUM(usages) FROM CommandUsages));");
     }
 
     public static void saveStatsUpvotes() {

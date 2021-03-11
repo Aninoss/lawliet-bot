@@ -25,8 +25,9 @@ public class OnTopGG implements SyncServerFunction {
     @Override
     public JSONObject apply(JSONObject jsonObject) {
         long userId = jsonObject.getLong("user");
-        if (DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId))
+        if (DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId)) {
             return null;
+        }
 
         String type = jsonObject.getString("type");
         boolean isWeekend = jsonObject.has("isWeekend") && jsonObject.getBoolean("isWeekend");

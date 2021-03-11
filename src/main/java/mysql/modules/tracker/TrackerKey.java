@@ -27,7 +27,7 @@ public class TrackerKey {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof TrackerKey) {
-            TrackerKey other = (TrackerKey)obj;
+            TrackerKey other = (TrackerKey) obj;
             return channelId == other.channelId &&
                     commandTrigger.equals(other.commandTrigger) &&
                     commandKey.equals(other.commandKey);

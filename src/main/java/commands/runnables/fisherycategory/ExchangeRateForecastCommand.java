@@ -63,10 +63,14 @@ public class ExchangeRateForecastCommand extends Command {
         int rateNow = ExchangeRate.getInstance().get(offset);
         int rateBefore = ExchangeRate.getInstance().get(offset - 1);
 
-        if (rateNow > rateBefore) return "\uD83D\uDD3A";
-        else {
-            if (rateNow < rateBefore) return "\uD83D\uDD3B";
-            else return "•";
+        if (rateNow > rateBefore) {
+            return "\uD83D\uDD3A";
+        } else {
+            if (rateNow < rateBefore) {
+                return "\uD83D\uDD3B";
+            } else {
+                return "•";
+            }
         }
     }
 

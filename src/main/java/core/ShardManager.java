@@ -32,8 +32,9 @@ public class ShardManager {
     }
 
     private ShardManager() {
-        if (Bot.isProductionMode())
+        if (Bot.isProductionMode()) {
             startJDAPoller();
+        }
     }
 
     private final JDABlocker JDABlocker = new JDABlocker();
@@ -48,8 +49,9 @@ public class ShardManager {
         @Override
         protected Long fetchValue() {
             Optional<Long> localGuildSizeOpt = getLocalGuildSize();
-            if (localGuildSizeOpt.isEmpty())
+            if (localGuildSizeOpt.isEmpty()) {
                 return null;
+            }
             return SendEvent.sendRequestGlobalGuildSize(localGuildSizeOpt.get()).join().orElse(null);
         }
     };
@@ -155,8 +157,9 @@ public class ShardManager {
     }
 
     public void start() {
-        if (isEverythingConnected())
+        if (isEverythingConnected()) {
             ready = true;
+        }
     }
 
     public void stop() {
@@ -172,8 +175,9 @@ public class ShardManager {
     }
 
     public boolean guildIsManaged(long guildId) {
-        if (!JDABlocker.guildIsAvailable(guildId))
+        if (!JDABlocker.guildIsAvailable(guildId)) {
             return false;
+        }
 
         for (JDAExtended jda : jdaMap.values()) {
             if (jda.getJDA().getGuilds().stream()
@@ -224,8 +228,9 @@ public class ShardManager {
     }
 
     public Optional<Guild> getLocalGuildById(long guildId) {
-        if (!JDABlocker.guildIsAvailable(guildId))
+        if (!JDABlocker.guildIsAvailable(guildId)) {
             return Optional.empty();
+        }
 
         int shard = getResponsibleShard(guildId);
         return getJDA(shard)
@@ -246,8 +251,9 @@ public class ShardManager {
     public Optional<User> getCachedUserById(long userId) {
         for (JDAExtended jda : jdaMap.values()) {
             User user = jda.getJDA().getUserById(userId);
-            if (user != null)
+            if (user != null) {
                 return Optional.of(user);
+            }
         }
         return Optional.empty();
     }
@@ -305,8 +311,9 @@ public class ShardManager {
     public Optional<Emote> getLocalEmoteById(long emoteId) {
         for (JDA jda : getConnectedLocalJDAs()) {
             Optional<Emote> emoteOptional = Optional.ofNullable(jda.getEmoteById(emoteId));
-            if (emoteOptional.isPresent())
+            if (emoteOptional.isPresent()) {
                 return emoteOptional;
+            }
         }
 
         return Optional.empty();

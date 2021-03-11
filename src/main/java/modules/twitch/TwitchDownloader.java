@@ -52,8 +52,9 @@ public class TwitchDownloader {
             TwitchUser twitchUser = twitchUserOpt.get();
             JSONObject data = channelMetaCache.get(twitchUser.getChannelId());
 
-            if (data.isNull("stream"))
+            if (data.isNull("stream")) {
                 return Optional.of(new TwitchStream(twitchUser));
+            }
 
             return Optional.of(parseStreamData(twitchUser, data));
         }
@@ -78,13 +79,15 @@ public class TwitchDownloader {
         JSONObject data;
         data = fetchApi("https://api.twitch.tv/kraken/users?login=" + InternetUtil.escapeForURL(channelName));
 
-        if (!data.has("users"))
+        if (!data.has("users")) {
             return Optional.empty();
+        }
 
         JSONArray users = data.getJSONArray("users");
 
-        if (users.length() == 0)
+        if (users.length() == 0) {
             return Optional.empty();
+        }
 
         final String channelId = users.getJSONObject(0).getString("_id");
         final String logoUrl = users.getJSONObject(0).getString("logo");

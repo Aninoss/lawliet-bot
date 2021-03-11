@@ -57,13 +57,15 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         EmbedUtil.setFooter(eb, this);
 
         if (post.getEpisode().isPresent()) {
-            if (post.getEpisodeTitle().isPresent())
-                eb.setTitle(getString("template_title",post.getEpisode().get(), post.getEpisodeTitle().get()), post.getUrl());
-            else
+            if (post.getEpisodeTitle().isPresent()) {
+                eb.setTitle(getString("template_title", post.getEpisode().get(), post.getEpisodeTitle().get()), post.getUrl());
+            } else {
                 eb.setTitle(getString("template_title_bundle", post.getEpisode().get()), post.getUrl());
+            }
         } else {
-            if (post.getEpisodeTitle().isPresent())
+            if (post.getEpisodeTitle().isPresent()) {
                 eb.setTitle(post.getEpisodeTitle().get(), post.getUrl());
+            }
         }
 
         return eb;
@@ -76,7 +78,7 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());
 
         TextChannel channel = slot.getTextChannel().get();
-        for(int i = Math.min(4, postBundle.getPosts().size() - 1); i >= 0; i--) {
+        for (int i = Math.min(4, postBundle.getPosts().size() - 1); i >= 0; i--) {
             AnimeReleasePost post = postBundle.getPosts().get(i);
             channel.sendMessage(getEmbed(post).build()).complete();
         }

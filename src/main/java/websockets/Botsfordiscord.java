@@ -11,7 +11,7 @@ public class Botsfordiscord {
     public static void updateServerCount(long serverCount) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("server_count", String.valueOf(serverCount));
-        HttpProperty[] properties = new HttpProperty[]{
+        HttpProperty[] properties = new HttpProperty[] {
                 new HttpProperty("Content-Type", "application/json"),
                 new HttpProperty("Authorization", System.getenv("BOTSFORDISCORD_TOKEN"))
         };

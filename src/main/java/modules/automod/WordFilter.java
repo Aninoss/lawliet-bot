@@ -55,23 +55,24 @@ public class WordFilter extends AutoModAbstract {
 
     private boolean stringContainsWord(String input, ArrayList<String> badWords) {
         input = " " + translateString(input) + " ";
-        for(String word: badWords) {
-            if (input.contains(" " + word + " "))
+        for (String word : badWords) {
+            if (input.contains(" " + word + " ")) {
                 return true;
+            }
         }
         return false;
     }
 
     public static String translateString(String input) {
         return input.toLowerCase()
-                .replace("1","i")
-                .replace("3","e")
-                .replace("4","a")
-                .replace("@","a")
-                .replace("5","s")
-                .replace("7","t")
-                .replace("0","o")
-                .replace("9","g")
+                .replace("1", "i")
+                .replace("3", "e")
+                .replace("4", "a")
+                .replace("@", "a")
+                .replace("5", "s")
+                .replace("7", "t")
+                .replace("0", "o")
+                .replace("9", "g")
                 .replace("\n", " ")
                 .replaceAll("[^\\p{IsLatin}\\p{IsCyrillic}\\p{IsArabic} ]", "");
     }

@@ -50,7 +50,7 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
         progress = new boolean[answer.length()];
 
         registerMessageInputListener();
-        return new String[]{ "❌" };
+        return new String[] { "❌" };
     }
 
     @Override
@@ -66,21 +66,25 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
             key = "template_start";
             first = false;
         }
-        if (getStatus() != Status.ACTIVE && getStatus() != Status.WON)
+        if (getStatus() != Status.ACTIVE && getStatus() != Status.WON) {
             key = "template_end";
-        else if (getStatus() == Status.WON)
+        } else if (getStatus() == Status.WON) {
             key = "template";
+        }
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key,
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
+                key,
                 playerName,
                 StringUtil.numToString(coinsInput),
                 getProgress(),
                 StringUtil.generateHeartBar(health, MAX_HEALTH, wrongAnswer),
                 answer,
-                getUsedString()));
+                getUsedString()
+        ));
 
-        if (coinsInput != 0)
+        if (coinsInput != 0) {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
+        }
 
         wrongAnswer = false;
         return eb;
@@ -88,9 +92,12 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
 
     private String getProgress() {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i<progress.length; i++) {
-            if (progress[i]) sb.append(answer.charAt(i));
-            else sb.append('-');
+        for (int i = 0; i < progress.length; i++) {
+            if (progress[i]) {
+                sb.append(answer.charAt(i));
+            } else {
+                sb.append('-');
+            }
         }
 
         return sb.toString();
@@ -99,7 +106,7 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
     private String getUsedString() {
         StringBuilder sb = new StringBuilder();
 
-        for(int i = 0; i < used.size(); i++) {
+        for (int i = 0; i < used.size(); i++) {
             String str = used.get(i);
             if (i != 0) sb.append(", ");
             sb.append(str);
@@ -114,7 +121,9 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
 
         if (input.length() != 1) {
             if (!stringCouldMatch(input)) //if input can't be right return
+            {
                 return null;
+            }
 
             event.getMessage().delete().queue();
             used.add(input);
@@ -130,8 +139,9 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
 
         char inputChar = input.charAt(0);
 
-        if (!Character.isLetter(inputChar))
+        if (!Character.isLetter(inputChar)) {
             return null;
+        }
 
         if (!used.contains(String.valueOf(inputChar))) {
             used.add(String.valueOf(inputChar));
@@ -187,7 +197,9 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
 
     private boolean stringCouldMatch(String input) { //input should be uppercase
         if (input.length() != answer.length()) //string can't be right
+        {
             return false;
+        }
 
         char[] inputChars = input.toCharArray();
         char[] answerChars = answer.toCharArray();
@@ -196,10 +208,14 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
             if (!Character.isLetter(inputChars[i])) return false;
             if (progress[i]) { //char has been solved
                 if (inputChars[i] != answerChars[i])  //string can't be right
+                {
                     return false;
+                }
             } else { //hasn't been solved
                 if (used.contains(String.valueOf(inputChars[i]))) //string can't be right
+                {
                     return false;
+                }
             }
         }
         return true;

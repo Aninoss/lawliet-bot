@@ -14,4 +14,5 @@ public class BackEmojiConnection extends EmojiConnection {
     public BackEmojiConnection(boolean customEmoji, String connection) {
         super(customEmoji ? Emojis.BACK_EMOJI : Emojis.BACK_EMOJI_UNICODE, connection);
     }
+
 }

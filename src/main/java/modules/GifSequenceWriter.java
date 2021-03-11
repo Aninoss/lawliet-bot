@@ -28,12 +28,11 @@ public class GifSequenceWriter {
     /**
      * Creates a new GifSequenceWriter
      *
-     * @param outputStream the ImageOutputStream to be written to
-     * @param imageType one of the imageTypes specified in BufferedImage
+     * @param outputStream        the ImageOutputStream to be written to
+     * @param imageType           one of the imageTypes specified in BufferedImage
      * @param timeBetweenFramesMS the time between frames in miliseconds
-     * @param loopContinuously wether the gif should loop repeatedly
+     * @param loopContinuously    wether the gif should loop repeatedly
      * @throws IIOException if no gif ImageWriters are found
-     *
      * @author Elliot Kroo (elliot[at]kroo[dot]net)
      */
     public GifSequenceWriter(
@@ -48,8 +47,10 @@ public class GifSequenceWriter {
                 ImageTypeSpecifier.createFromBufferedImageType(imageType);
 
         imageMetaData =
-                gifWriter.getDefaultImageMetadata(imageTypeSpecifier,
-                        imageWriteParam);
+                gifWriter.getDefaultImageMetadata(
+                        imageTypeSpecifier,
+                        imageWriteParam
+                );
 
         String metaFormatName = imageMetaData.getNativeMetadataFormatName();
 
@@ -58,26 +59,31 @@ public class GifSequenceWriter {
 
         IIOMetadataNode graphicsControlExtensionNode = getNode(
                 root,
-                "GraphicControlExtension");
+                "GraphicControlExtension"
+        );
 
         graphicsControlExtensionNode.setAttribute("disposalMethod", "none");
         graphicsControlExtensionNode.setAttribute("userInputFlag", "FALSE");
         graphicsControlExtensionNode.setAttribute(
                 "transparentColorFlag",
-                "FALSE");
+                "FALSE"
+        );
         graphicsControlExtensionNode.setAttribute(
                 "delayTime",
-                Integer.toString(timeBetweenFramesMS / 10));
+                Integer.toString(timeBetweenFramesMS / 10)
+        );
         graphicsControlExtensionNode.setAttribute(
                 "transparentColorIndex",
-                "0");
+                "0"
+        );
 
         IIOMetadataNode commentsNode = getNode(root, "CommentExtensions");
         commentsNode.setAttribute("CommentExtension", "Created by MAH");
 
         IIOMetadataNode appEntensionsNode = getNode(
                 root,
-                "ApplicationExtensions");
+                "ApplicationExtensions"
+        );
 
         IIOMetadataNode child = new IIOMetadataNode("ApplicationExtension");
 
@@ -86,7 +92,7 @@ public class GifSequenceWriter {
 
         int loop = loopContinuously ? 0 : 1;
 
-        child.setUserObject(new byte[]{ 0x1, (byte) (loop & 0xFF), (byte) 0});
+        child.setUserObject(new byte[] { 0x1, (byte) (loop & 0xFF), (byte) 0 });
         appEntensionsNode.appendChild(child);
 
         imageMetaData.setFromTree(metaFormatName, root);
@@ -101,8 +107,10 @@ public class GifSequenceWriter {
                 new IIOImage(
                         img,
                         null,
-                        imageMetaData),
-                imageWriteParam);
+                        imageMetaData
+                ),
+                imageWriteParam
+        );
     }
 
     /**
@@ -122,7 +130,7 @@ public class GifSequenceWriter {
      */
     private static ImageWriter getWriter() throws IIOException {
         Iterator<ImageWriter> iter = ImageIO.getImageWritersBySuffix("gif");
-        if(!iter.hasNext()) {
+        if (!iter.hasNext()) {
             throw new IIOException("No GIF Image Writers Exist");
         } else {
             return iter.next();
@@ -135,7 +143,6 @@ public class GifSequenceWriter {
      *
      * @param rootNode the <tt>IIOMetadataNode</tt> to search for the child node.
      * @param nodeName the name of the child node.
-     *
      * @return the child node, if found or a new node created with the given name.
      */
     private static IIOMetadataNode getNode(
@@ -145,11 +152,12 @@ public class GifSequenceWriter {
         for (int i = 0; i < nNodes; i++) {
             if (rootNode.item(i).getNodeName().compareToIgnoreCase(nodeName)
                     == 0) {
-                return((IIOMetadataNode) rootNode.item(i));
+                return ((IIOMetadataNode) rootNode.item(i));
             }
         }
         IIOMetadataNode node = new IIOMetadataNode(nodeName);
         rootNode.appendChild(node);
-        return(node);
+        return (node);
     }
+
 }

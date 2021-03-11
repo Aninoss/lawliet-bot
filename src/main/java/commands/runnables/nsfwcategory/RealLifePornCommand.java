@@ -12,7 +12,7 @@ import commands.runnables.RealbooruAbstract;
         nsfw = true,
         requiresEmbeds = false,
         withLoadingBar = true,
-        aliases = {"r1porn"}
+        aliases = { "r1porn" }
 )
 public class RealLifePornCommand extends RealbooruAbstract implements OnTrackerRequestListener {
 

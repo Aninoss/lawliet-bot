@@ -16,7 +16,7 @@ public class YuriKissCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736281091534618674/736281096764784780/yurikiss.gif",
                 "https://media.discordapp.net/attachments/736281091534618674/736281104201285732/yurikiss.gif",
                 "https://media.discordapp.net/attachments/736281091534618674/736281115098087506/yurikiss.gif",

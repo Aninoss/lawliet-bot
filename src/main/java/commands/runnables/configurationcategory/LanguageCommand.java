@@ -21,8 +21,8 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class LanguageCommand extends Command implements OnReactionListener {
 
-    private final String[] LANGUAGE_EMOJIS = new String[]{"\uD83C\uDDE9\uD83C\uDDEA", "\uD83C\uDDF7\uD83C\uDDFA", "\uD83C\uDDEC\uD83C\uDDE7"};
-    private final String[] LANGUAGE_ARGS = new String[]{ "de", "ru", "en" };
+    private final String[] LANGUAGE_EMOJIS = new String[] { "\uD83C\uDDE9\uD83C\uDDEA", "\uD83C\uDDF7\uD83C\uDDFA", "\uD83C\uDDEC\uD83C\uDDE7" };
+    private final String[] LANGUAGE_ARGS = new String[] { "de", "ru", "en" };
 
     private boolean set = false;
 
@@ -34,7 +34,7 @@ public class LanguageCommand extends Command implements OnReactionListener {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (args.length() > 0) {
             int language = -1;
-            for(int i = 0; i< LANGUAGE_ARGS.length; i++) {
+            for (int i = 0; i < LANGUAGE_ARGS.length; i++) {
                 String str = LANGUAGE_ARGS[i];
                 if (args.equalsIgnoreCase(str)) language = i;
             }
@@ -56,7 +56,7 @@ public class LanguageCommand extends Command implements OnReactionListener {
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        for(int i = 0; i < LANGUAGE_EMOJIS.length; i++) {
+        for (int i = 0; i < LANGUAGE_EMOJIS.length; i++) {
             if (event.getReactionEmote().getAsReactionCode().equals(LANGUAGE_EMOJIS[i])) {
                 removeReactionListener();
                 setLocale(new Locale(Locales.LIST[i]));

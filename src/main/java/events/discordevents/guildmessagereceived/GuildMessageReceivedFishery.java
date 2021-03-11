@@ -28,9 +28,10 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
         if (!event.getMessage().getContentRaw().isEmpty()
                 && guildBean.getFisheryStatus() == FisheryStatus.ACTIVE
                 && !fisheryGuildBean.getIgnoredChannelIds().contains(event.getChannel().getIdLong())
-        )
+        ) {
             messageRegistered = fisheryGuildBean.getMemberBean(event.getMessage().getIdLong())
                     .registerMessage(event.getMessage());
+        }
 
         //manage treasure chests
         if (messageRegistered &&

@@ -16,7 +16,7 @@ public class EveryoneCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736272698870857738/736272703253643314/everyone.jpg",
                 "https://media.discordapp.net/attachments/736272698870857738/736272708106715236/everyone.jpg",
                 "https://media.discordapp.net/attachments/736272698870857738/736272711499776050/everyone.jpg",

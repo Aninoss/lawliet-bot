@@ -24,15 +24,15 @@ public interface OnReactionListener {
     default CompletableFuture<Long> registerReactionListener(String... emojis) {
         Command command = (Command) this;
         return command.getMember().map(member ->
-            registerReactionListener(member.getIdLong(), event -> event.getUserIdLong() == member.getIdLong() &&
-                    event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
-                    (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> emoji.equals(event.getReactionEmote().getAsReactionCode())))
-            ).thenApply(messageId -> {
-                command.getTextChannel().ifPresent(channel -> {
-                    Arrays.stream(emojis).forEach(emoji -> channel.addReactionById(messageId, emoji).queue());
-                });
-                return messageId;
-            })
+                registerReactionListener(member.getIdLong(), event -> event.getUserIdLong() == member.getIdLong() &&
+                        event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
+                        (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> emoji.equals(event.getReactionEmote().getAsReactionCode())))
+                ).thenApply(messageId -> {
+                    command.getTextChannel().ifPresent(channel -> {
+                        Arrays.stream(emojis).forEach(emoji -> channel.addReactionById(messageId, emoji).queue());
+                    });
+                    return messageId;
+                })
         ).orElse(null);
     }
 

@@ -28,7 +28,8 @@ public class PingCommand extends Command {
         long milisGateway = event.getJDA().getGatewayPing();
         long milisRest = event.getJDA().getRestPing().complete();
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("pong",
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
+                "pong",
                 StringUtil.numToString(milisInternal),
                 StringUtil.numToString(milisGateway),
                 StringUtil.numToString(milisRest)

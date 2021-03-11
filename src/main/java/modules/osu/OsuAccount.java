@@ -58,8 +58,9 @@ public class OsuAccount {
     }
 
     public String getAvatarUrl() {
-        if (avatarUrl.startsWith("/"))
+        if (avatarUrl.startsWith("/")) {
             return "https://osu.ppy.sh/" + this.avatarUrl;
+        }
         return avatarUrl;
     }
 

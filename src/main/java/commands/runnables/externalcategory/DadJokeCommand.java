@@ -17,9 +17,9 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
 
 @CommandProperties(
-    trigger = "dadjoke",
-    emoji = "\uD83D\uDE44",
-    executableWithoutArgs = true
+        trigger = "dadjoke",
+        emoji = "\uD83D\uDE44",
+        executableWithoutArgs = true
 )
 public class DadJokeCommand extends Command {
 
@@ -43,4 +43,5 @@ public class DadJokeCommand extends Command {
         event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, joke).build()).queue();
         return true;
     }
+
 }

@@ -28,9 +28,13 @@ public class FisheryGuildBean extends BeanWithGuild {
 
     /* Getters */
 
-    public CustomObservableList<Long> getIgnoredChannelIds() { return ignoredChannelIds; }
+    public CustomObservableList<Long> getIgnoredChannelIds() {
+        return ignoredChannelIds;
+    }
 
-    public CustomObservableList<Long> getRoleIds() { return roleIds; }
+    public CustomObservableList<Long> getRoleIds() {
+        return roleIds;
+    }
 
     public CustomObservableList<Role> getRoles() {
         return getGuild().map(guild -> {
@@ -40,7 +44,9 @@ public class FisheryGuildBean extends BeanWithGuild {
         }).orElse(new CustomObservableList<>(new ArrayList<>()));
     }
 
-    public synchronized CustomObservableMap<Long, FisheryMemberBean> getUsers() { return users; }
+    public synchronized CustomObservableMap<Long, FisheryMemberBean> getUsers() {
+        return users;
+    }
 
     public synchronized FisheryMemberBean getMemberBean(long userId) {
         return users.computeIfAbsent(userId, k -> new FisheryMemberBean(

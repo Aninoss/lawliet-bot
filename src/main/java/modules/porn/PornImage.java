@@ -36,4 +36,5 @@ public class PornImage {
     public boolean isVideo() {
         return video;
     }
+
 }

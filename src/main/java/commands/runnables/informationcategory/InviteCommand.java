@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "\uD83D\uDD17",
         executableWithoutArgs = true,
         onlyPublicVersion = true,
-        aliases = {"link", "addbot", "inv"}
+        aliases = { "link", "addbot", "inv" }
 )
 public class InviteCommand extends Command {
 
@@ -27,5 +27,5 @@ public class InviteCommand extends Command {
         ).queue();
         return true;
     }
-    
+
 }

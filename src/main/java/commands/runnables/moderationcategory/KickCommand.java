@@ -9,13 +9,13 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 
 @CommandProperties(
-    trigger = "kick",
-    botGuildPermissions = Permission.KICK_MEMBERS,
-    userGuildPermissions = Permission.KICK_MEMBERS,
-    emoji = "\uD83D\uDEAA",
-    executableWithoutArgs = false
+        trigger = "kick",
+        botGuildPermissions = Permission.KICK_MEMBERS,
+        userGuildPermissions = Permission.KICK_MEMBERS,
+        emoji = "\uD83D\uDEAA",
+        executableWithoutArgs = false
 )
-public class KickCommand extends WarnCommand  {
+public class KickCommand extends WarnCommand {
 
     public KickCommand(Locale locale, String prefix) {
         super(locale, prefix, true, false);
@@ -24,7 +24,11 @@ public class KickCommand extends WarnCommand  {
     @Override
     protected void process(Guild guild, User target, String reason) {
         guild.kick(target.getId(), reason)
-                .queue(v -> {}, e -> guild.kick(target.getId()).queue());
+                .submit()
+                .exceptionally(e -> {
+                    guild.kick(target.getId()).queue();
+                    return null;
+                });
     }
 
     @Override

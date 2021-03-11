@@ -44,4 +44,5 @@ public class VoiceChannelChangeUserLimitAutoChannel extends VoiceChannelUpdateUs
 
         return true;
     }
+
 }

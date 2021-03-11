@@ -8,7 +8,7 @@ import commands.runnables.EmoteAbstract;
         trigger = "yes",
         emoji = "\uD83D\uDC4D",
         executableWithoutArgs = true,
-        aliases = {"thumbsup", "thumpsup"}
+        aliases = { "thumbsup", "thumpsup" }
 )
 public class YesCommand extends EmoteAbstract {
 
@@ -17,7 +17,7 @@ public class YesCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736254151620820993/736254158205747270/yes.gif",
                 "https://media.discordapp.net/attachments/736254151620820993/736254160902553661/yes.gif",
                 "https://media.discordapp.net/attachments/736254151620820993/736254166216998912/yes.gif",

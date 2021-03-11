@@ -30,8 +30,9 @@ public class RandomPicker {
             i = n.nextInt(size);
         } while (serverPicks.contains(i));
         serverPicks.add(i);
-        if (serverPicks.size() == size)
+        if (serverPicks.size() == size) {
             serverPicks.remove(0);
+        }
 
         return i;
     }

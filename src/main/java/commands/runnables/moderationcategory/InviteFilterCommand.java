@@ -34,10 +34,10 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         aliases = { "invitesfilter", "spblock", "inviteblock", "spfilter", "invitesblock" }
 )
 public class InviteFilterCommand extends NavigationAbstract {
-    
+
     private SPBlockBean spBlockBean;
     private CustomObservableList<AtomicMember> ignoredUsers;
-    private CustomObservableList<AtomicMember>logReceivers;
+    private CustomObservableList<AtomicMember> logReceivers;
     private CustomObservableList<AtomicTextChannel> ignoredChannels;
 
     public InviteFilterCommand(Locale locale, String prefix) {
@@ -195,22 +195,22 @@ public class InviteFilterCommand extends NavigationAbstract {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                       .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), spBlockBean.isActive()), true)
-                       .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), MentionableAtomicAsset::getAsMention), true)
-                       .addField(getString("state0_mignoredchannels"), new ListGen<AtomicTextChannel>().getList(ignoredChannels, getLocale(), MentionableAtomicAsset::getAsMention), true)
-                       .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(logReceivers, getLocale(), MentionableAtomicAsset::getAsMention), true)
-                       .addField(getString("state0_maction"),getString("state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true);
+                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), spBlockBean.isActive()), true)
+                        .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                        .addField(getString("state0_mignoredchannels"), new ListGen<AtomicTextChannel>().getList(ignoredChannels, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                        .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(logReceivers, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                        .addField(getString("state0_maction"), getString("state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true);
 
             case 1:
-                setOptions(new String[]{getString("empty")});
+                setOptions(new String[] { getString("empty") });
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                setOptions(new String[]{getString("empty")});
+                setOptions(new String[] { getString("empty") });
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:
-                setOptions(new String[]{getString("empty")});
+                setOptions(new String[] { getString("empty") });
                 return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
 
             case 4:

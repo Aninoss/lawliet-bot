@@ -70,20 +70,23 @@ public abstract class PornAbstract extends Command {
             int patreonLevel = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong());
             if (patreonLevel <= 1 && (amount < 1 || amount > 20)) {
                 if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                            TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PATREON_PAGE, "30")).build()
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+                            this,
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PATREON_PAGE, "30")
+                            ).build()
                     ).queue();
                 } else {
                     event.getChannel()
-                            .sendMessage("❌ " +TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PATREON_PAGE, "30"))
+                            .sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PATREON_PAGE, "30"))
                             .queue();
                 }
                 return false;
-            }
-            else if (patreonLevel > 1 && (amount < 1 || amount > 30)) {
+            } else if (patreonLevel > 1 && (amount < 1 || amount > 30)) {
                 if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this,
-                            TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")).build()
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+                            this,
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")
+                            ).build()
                     ).queue();
                 } else {
                     event.getChannel()
@@ -113,7 +116,9 @@ public abstract class PornAbstract extends Command {
                         postNoResults(event, args);
                     }
                     return false;
-                } else return true;
+                } else {
+                    return true;
+                }
             }
 
             boolean embed = first &&
@@ -124,8 +129,9 @@ public abstract class PornAbstract extends Command {
             amount -= pornImages.size();
             first = false;
             CompletableFuture<Void> future = post(pornImages, args, event.getChannel(), embed, 3);
-            if (amount <= 0)
+            if (amount <= 0) {
                 future.get();
+            }
         } while (amount > 0);
 
         return true;
@@ -175,7 +181,8 @@ public abstract class PornAbstract extends Command {
 
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(slot.getGuildId()).getKeywords());
         ArrayList<PornImage> pornImages;
-        pornImages = alertsCache.get(getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFilter),
+        pornImages = alertsCache.get(
+                getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFilter),
                 () -> getPornImages(nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>())
         );
 
@@ -215,9 +222,10 @@ public abstract class PornAbstract extends Command {
             } else {
                 StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getCommandProperties().emoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
                 for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
-                    if (pornImages.get(i) != null)
+                    if (pornImages.get(i) != null) {
                         sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_link_template", pornImages.get(i).getImageUrl()))
                                 .append(' ');
+                    }
                 }
 
                 getNoticeOptional().ifPresent(notice -> sb.append("\n\n").append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice)));
@@ -251,8 +259,9 @@ public abstract class PornAbstract extends Command {
                     pornImageOpt.ifPresent(pornImages::add);
                 }
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                if (!e.toString().contains("java.util.NoSuchElementException"))
+                if (!e.toString().contains("java.util.NoSuchElementException")) {
                     MainLogger.get().error("Error while downloading porn", e);
+                }
             }
         });
 

@@ -46,14 +46,16 @@ public class VoteCache {
                 }
             }
 
-            if ((i < 0 && !emoji.equals("❌")) || !voteInfo.isActive())
+            if ((i < 0 && !emoji.equals("❌")) || !voteInfo.isActive()) {
                 return Optional.empty();
+            }
 
             if (i >= 0) {
-                if (add)
+                if (add) {
                     voteInfo.addVote(i, userId);
-                else
+                } else {
                     voteInfo.removeVote(i, userId);
+                }
             }
         } else {
             voteInfo = extractVoteInfoFromMessage(message);

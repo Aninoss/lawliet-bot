@@ -60,7 +60,7 @@ public abstract class DeepAIAbstract extends Command {
 
         String query = "image=" + url;
 
-        HttpProperty[] properties = new HttpProperty[]{
+        HttpProperty[] properties = new HttpProperty[] {
                 new HttpProperty("Api-Key", System.getenv("DEEPAI_TOKEN")),
                 new HttpProperty("Content-Type", "application/x-www-form-urlencoded")
         };

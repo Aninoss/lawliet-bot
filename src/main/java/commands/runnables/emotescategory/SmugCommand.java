@@ -16,7 +16,7 @@ public class SmugCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736262910678007808/736262917132910602/smug.gif",
                 "https://media.discordapp.net/attachments/736262910678007808/736262920786149467/smug.gif",
                 "https://media.discordapp.net/attachments/736262910678007808/736262926553579640/smug.gif",

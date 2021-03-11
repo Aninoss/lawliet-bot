@@ -43,15 +43,20 @@ public class AnimeReleaseDownloader {
             if (ok) {
                 if (!currentUsedIds.contains(post.getId()) &&
                         (postList.size() == 0 || newestPostId != null)
-                ) postList.add(post);
+                ) {
+                    postList.add(post);
+                }
                 newUsedIds.add(String.valueOf(post.getId()));
             }
         }
 
         StringBuilder sb = new StringBuilder();
         newUsedIds.forEach(str -> sb.append("|").append(str));
-        if (sb.length() > 0) newestPostId = sb.substring(1);
-        else newestPostId = "";
+        if (sb.length() > 0) {
+            newestPostId = sb.substring(1);
+        } else {
+            newestPostId = "";
+        }
 
         return new PostBundle<>(postList, newestPostId);
     }
@@ -102,9 +107,11 @@ public class AnimeReleaseDownloader {
 
     private static AnimeReleasePost parseEpisode(JSONObject data) {
         String anime = data.getString("title");
-        if (anime.contains(" - Episode "))
+        if (anime.contains(" - Episode ")) {
             anime = anime.substring(0, anime.indexOf(" - Episode "));
-        else anime = data.getString("crunchyroll:seriesTitle");
+        } else {
+            anime = data.getString("crunchyroll:seriesTitle");
+        }
 
         String description = data.getString("description");
         description = description.substring(description.indexOf("<br />") + "<br />".length());
@@ -126,13 +133,17 @@ public class AnimeReleaseDownloader {
         } catch (Throwable e) {
             //Ignore
             double value = data.getDouble("crunchyroll:episodeTitle");
-            if (((int) value) == value) episodeTitle = String.valueOf((int) value);
-            else episodeTitle = String.valueOf(value);
+            if (((int) value) == value) {
+                episodeTitle = String.valueOf((int) value);
+            } else {
+                episodeTitle = String.valueOf(value);
+            }
         }
 
         String thumbnail = "";
-        if (data.has("media:thumbnail"))
+        if (data.has("media:thumbnail")) {
             thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
+        }
         Instant date = TimeUtil.parseDateString2(data.getString("crunchyroll:premiumPubDate"));
         String url = data.getString("link").replace("/de/", "/");
         int id = data.getInt("crunchyroll:mediaId");

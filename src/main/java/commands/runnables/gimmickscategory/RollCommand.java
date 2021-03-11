@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "roll",
         emoji = "\uD83C\uDFB2",
         executableWithoutArgs = true,
-        aliases = {"dice", "diceroll"}
+        aliases = { "dice", "diceroll" }
 )
 public class RollCommand extends Command {
 
@@ -29,32 +29,34 @@ public class RollCommand extends Command {
         double drawn, border;
         boolean userMentioned = true;
 
-        if (args.length() == 0 || !StringUtil.stringIsDouble(args)){
+        if (args.length() == 0 || !StringUtil.stringIsDouble(args)) {
             border = 6;
             userMentioned = false;
-        }
-        else {
+        } else {
             border = Double.parseDouble(args);
             if (border < 2) {
                 event.getChannel().sendMessage(
-                        EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"too_small", "2")).build()
+                        EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "2")).build()
                 ).queue();
                 return false;
             }
             if (border > 999999999999999999.0) {
                 event.getChannel().sendMessage(
-                        EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"too_large", "999999999999999999")).build()
+                        EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_large", "999999999999999999")).build()
                 ).queue();
                 return false;
             }
         }
 
-        drawn = Math.floor(n.nextDouble()*border)+1;
+        drawn = Math.floor(n.nextDouble() * border) + 1;
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this,
-                getString("result", StringUtil.escapeMarkdown(event.getMember().getEffectiveName()), String.valueOf((long) drawn),String.valueOf((long) border)));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(
+                this,
+                getString("result", StringUtil.escapeMarkdown(event.getMember().getEffectiveName()), String.valueOf((long) drawn), String.valueOf((long) border))
+        );
         if (!userMentioned) EmbedUtil.setFooter(eb, this, getString("noarg"));
         event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
+
 }

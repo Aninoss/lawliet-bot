@@ -31,26 +31,30 @@ public abstract class InteractionAbstract extends Command {
 
         if (!mentionPresent && mention.containedBlockedUser()) {
             message.getChannel().sendMessage(
-                    EmbedFactory.getEmbedDefault(this,
-                            TextManager.getString(getLocale(),TextManager.GENERAL,"alone"))
+                    EmbedFactory.getEmbedDefault(
+                            this,
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "alone")
+                    )
                             .setImage("https://media.discordapp.net/attachments/736277561373491265/736277600053493770/hug.gif").build())
                     .queue();
             return false;
         }
 
         String quote = "";
-        if (mentionPresent)
+        if (mentionPresent) {
             args = mention.getFilteredOriginalText().get();
-        if (args.length() > 0)
-            quote = "\n\n> " +args.replace("\n", "\n> ");
+        }
+        if (args.length() > 0) {
+            quote = "\n\n> " + args.replace("\n", "\n> ");
+        }
 
         String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), gifs.length)];
         EmbedBuilder eb;
         if (mentionPresent) {
-            eb = EmbedFactory.getEmbedDefault(this,getString("template", mention.isMultiple(), mention.getMentionText(), "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**") + quote)
+            eb = EmbedFactory.getEmbedDefault(this, getString("template", mention.isMultiple(), mention.getMentionText(), "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**") + quote)
                     .setImage(gifUrl);
         } else {
-            eb = EmbedFactory.getEmbedDefault(this,getString("template_single", "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**") + quote)
+            eb = EmbedFactory.getEmbedDefault(this, getString("template_single", "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**") + quote)
                     .setImage(gifUrl);
         }
 

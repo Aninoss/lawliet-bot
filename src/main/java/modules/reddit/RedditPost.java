@@ -9,7 +9,8 @@ public class RedditPost {
     private boolean nsfw;
     private Instant instant;
 
-    public RedditPost() {}
+    public RedditPost() {
+    }
 
     public void setTitle(String title) {
         this.title = title;
@@ -20,8 +21,9 @@ public class RedditPost {
     }
 
     public void setUrl(String url) {
-        if (url.startsWith("/"))
+        if (url.startsWith("/")) {
             url = "https://www.reddit.com" + url;
+        }
         this.url = url;
     }
 
@@ -116,4 +118,5 @@ public class RedditPost {
     public void setInstant(Instant instant) {
         this.instant = instant;
     }
+
 }

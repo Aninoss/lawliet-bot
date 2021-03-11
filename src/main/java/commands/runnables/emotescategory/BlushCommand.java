@@ -16,7 +16,7 @@ public class BlushCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736260129418248242/736260135047135362/blush.gif",
                 "https://media.discordapp.net/attachments/736260129418248242/736260147059490906/blush.gif",
                 "https://media.discordapp.net/attachments/736260129418248242/736260154139476069/blush.gif",

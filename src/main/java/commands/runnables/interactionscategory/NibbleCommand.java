@@ -16,10 +16,10 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
-    trigger = "nibble",
-    emoji = "👂",
-    exclusiveUsers = { 397209883793162240L, 381156056660967426L },
-    executableWithoutArgs = true
+        trigger = "nibble",
+        emoji = "👂",
+        exclusiveUsers = { 397209883793162240L, 381156056660967426L },
+        executableWithoutArgs = true
 )
 public class NibbleCommand extends Command {
 
@@ -28,7 +28,7 @@ public class NibbleCommand extends Command {
     }
 
     protected String[] getGifs() {
-        return new String[]{"https://media1.tenor.com/images/60369861b53a2f4c2b0e1012220d63fd/tenor.gif?itemid=14714300",
+        return new String[] { "https://media1.tenor.com/images/60369861b53a2f4c2b0e1012220d63fd/tenor.gif?itemid=14714300",
                 "https://media1.tenor.com/images/110de9f955f52fcce475013ed978210d/tenor.gif?itemid=15638962",
                 "https://cdn.weeb.sh/images/rkakblmiZ.gif",
                 "https://media1.tenor.com/images/5fcfef1acfa20cdd836aad39512e8fcc/tenor.gif"
@@ -36,7 +36,7 @@ public class NibbleCommand extends Command {
     }
 
     protected String[] getGifsEar() {
-        return new String[]{"https://cdn.weeb.sh/images/rkakblmiZ.gif",
+        return new String[] { "https://cdn.weeb.sh/images/rkakblmiZ.gif",
                 "https://media1.tenor.com/images/5fcfef1acfa20cdd836aad39512e8fcc/tenor.gif"
         };
     }
@@ -49,7 +49,7 @@ public class NibbleCommand extends Command {
         MentionList<Member> userMention = MentionUtil.getMembers(event.getMessage(), args);
         List<Member> userList = userMention.getList();
         if (userList.isEmpty()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"));
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions"));
             event.getChannel().sendMessage(eb.build()).queue();
             return false;
         }

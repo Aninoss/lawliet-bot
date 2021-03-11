@@ -22,8 +22,9 @@ public class AninossRaidProtection {
     private Instant lastInstant = null;
 
     public synchronized boolean check(Member member, Role role) {
-        if (role.getGuild().getIdLong() != AssetIds.ANICORD_SERVER_ID)
+        if (role.getGuild().getIdLong() != AssetIds.ANICORD_SERVER_ID) {
             return true;
+        }
 
         boolean ok = lastMember == null || lastInstant == null || lastInstant.plus(1, ChronoUnit.MINUTES).isBefore(Instant.now());
         if (!ok) {

@@ -41,6 +41,8 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
         return downloadPorn(nsfwFilter, amount, domain, search, searchAdd, imageTemplate, animatedOnly, isExplicit(), usedResults);
     }
 
-    public boolean trackerUsesKey() { return false; }
+    public boolean trackerUsesKey() {
+        return false;
+    }
 
 }

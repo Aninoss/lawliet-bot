@@ -5,9 +5,9 @@ import commands.listeners.CommandProperties;
 import commands.runnables.EmoteAbstract;
 
 @CommandProperties(
-    trigger = "nosebleed",
-    emoji = "\uD83E\uDE78",
-    executableWithoutArgs = true
+        trigger = "nosebleed",
+        emoji = "\uD83E\uDE78",
+        executableWithoutArgs = true
 )
 public class NoseBleedCommand extends EmoteAbstract {
 
@@ -16,7 +16,7 @@ public class NoseBleedCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736261590508371980/736261596900491375/nosebleed.gif",
                 "https://media.discordapp.net/attachments/736261590508371980/736261602525053009/nosebleed.gif",
                 "https://media.discordapp.net/attachments/736261590508371980/736261608615182476/nosebleed.gif",

@@ -16,4 +16,5 @@ public class HttpProperty {
     public String getValue() {
         return value;
     }
+
 }

@@ -19,7 +19,8 @@ public class RainbowGraphics {
         image = GraphicsUtil.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
         BufferedImage rainbow = ImageIO.read(ResourceHandler.getFileResource("data/resources/rainbow.png"));
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(),
-                BufferedImage.TYPE_INT_ARGB);
+                BufferedImage.TYPE_INT_ARGB
+        );
 
         Graphics2D g = result.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);

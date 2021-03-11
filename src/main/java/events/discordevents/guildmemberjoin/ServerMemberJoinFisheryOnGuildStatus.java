@@ -13,11 +13,12 @@ public class ServerMemberJoinFisheryOnGuildStatus extends GuildMemberJoinAbstrac
     @Override
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
         FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
-        if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED)
+        if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED) {
             return true;
+        }
 
         fisheryGuildBean.getMemberBean(event.getUser().getIdLong()).setOnServer(true);
         return true;
     }
-    
+
 }

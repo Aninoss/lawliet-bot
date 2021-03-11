@@ -44,7 +44,9 @@ public class FurryCommand extends PornSearchAbstract implements OnTrackerRequest
     }
 
     @Override
-    public boolean isExplicit() { return true; }
+    public boolean isExplicit() {
+        return true;
+    }
 
     @Override
     protected String getAdditionalSearchKey() {

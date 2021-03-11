@@ -5,9 +5,9 @@ import commands.listeners.CommandProperties;
 import commands.runnables.RedditAbstract;
 
 @CommandProperties(
-    trigger = "wholesome",
-    emoji = "\uD83D\uDC96",
-    executableWithoutArgs = true
+        trigger = "wholesome",
+        emoji = "\uD83D\uDC96",
+        executableWithoutArgs = true
 )
 public class WholesomeCommand extends RedditAbstract {
 

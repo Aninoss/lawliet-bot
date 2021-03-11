@@ -8,7 +8,7 @@ import commands.runnables.EmoteAbstract;
         trigger = "no",
         emoji = "\uD83D\uDC4E",
         executableWithoutArgs = true,
-        aliases = {"nope", "thumbsdown", "thumpsdown"}
+        aliases = { "nope", "thumbsdown", "thumpsdown" }
 )
 public class NoCommand extends EmoteAbstract {
 
@@ -17,7 +17,7 @@ public class NoCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736254603410014320/736254607449128981/no.gif",
                 "https://media.discordapp.net/attachments/736254603410014320/736254609856659577/no.gif",
                 "https://media.discordapp.net/attachments/736254603410014320/736254616714608651/no.gif",

@@ -46,12 +46,14 @@ public abstract class RedditAbstract extends Command {
                 .setTitle(post.getTitle())
                 .setTimestamp(post.getInstant());
 
-        if (InternetUtil.stringHasURL(post.getUrl(), true))
+        if (InternetUtil.stringHasURL(post.getUrl(), true)) {
             eb.setTitle(post.getTitle(), post.getUrl());
-        if (InternetUtil.stringHasURL(post.getImage(), true))
+        }
+        if (InternetUtil.stringHasURL(post.getImage(), true)) {
             eb.setImage(post.getImage());
+        }
 
-        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.COMMANDS,"post_footer", StringUtil.numToString(post.getScore()), StringUtil.numToString(post.getComments())));
+        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.COMMANDS, "post_footer", StringUtil.numToString(post.getScore()), StringUtil.numToString(post.getComments())));
 
         event.getChannel().sendMessage(eb.build()).queue();
         return true;

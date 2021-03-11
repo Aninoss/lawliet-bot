@@ -80,7 +80,7 @@ public class MentionUtil {
                 u -> ((User) u).getName()
         );
     }
-    
+
     public static CompletableFuture<MentionList<User>> getUsersFromString(String input) {
         return CompletableFuture.supplyAsync(() -> {
             String newInput = input;

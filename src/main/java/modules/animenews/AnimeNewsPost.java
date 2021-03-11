@@ -56,9 +56,13 @@ public class AnimeNewsPost {
         this.author = author;
     }
 
-    public Instant getInstant() { return instant; }
+    public Instant getInstant() {
+        return instant;
+    }
 
-    public void setInstant(Instant instant) { this.instant = instant; }
+    public void setInstant(Instant instant) {
+        this.instant = instant;
+    }
 
     public String getCategory() {
         return category;
@@ -67,4 +71,5 @@ public class AnimeNewsPost {
     public void setCategory(String category) {
         this.category = category;
     }
+
 }

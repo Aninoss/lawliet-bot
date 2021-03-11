@@ -14,7 +14,8 @@ public class GuildJoinNotifyBotOwner extends GuildJoinAbstract {
     @Override
     public boolean onGuildJoin(GuildJoinEvent event) {
         if (event.getGuild().getMemberCount() >= 5000) {
-            JDAUtil.sendPrivateMessage(ShardManager.getInstance().getOwnerId(),
+            JDAUtil.sendPrivateMessage(
+                    ShardManager.getInstance().getOwnerId(),
                     "**+++** " + StringUtil.escapeMarkdown(event.getGuild().getName()) + " (" + event.getGuild().getMemberCount() + ")"
             ).queue();
         }

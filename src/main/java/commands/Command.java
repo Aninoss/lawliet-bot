@@ -186,7 +186,7 @@ public abstract class Command implements OnTriggerListener {
 
     private Permission[] processUserPermissions(Permission[] permissions) {
         if (Arrays.stream(permissions).anyMatch(permission -> permission == Permission.ADMINISTRATOR)) {
-            return new Permission[]{ Permission.ADMINISTRATOR };
+            return new Permission[] { Permission.ADMINISTRATOR };
         }
 
         //TODO: Does that work?
@@ -217,7 +217,7 @@ public abstract class Command implements OnTriggerListener {
 
     private Permission[] processBotPermissions(Permission[] permissions) {
         if (Arrays.stream(permissions).anyMatch(permission -> permission == Permission.ADMINISTRATOR)) {
-            return new Permission[]{ Permission.ADMINISTRATOR };
+            return new Permission[] { Permission.ADMINISTRATOR };
         }
 
         //TODO: Does that work?

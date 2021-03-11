@@ -40,8 +40,9 @@ public class RedditDownloader {
     }
 
     public static RedditPost getPost(Locale locale, String sub) throws InterruptedException, ExecutionException {
-        if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil))
+        if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil)) {
             return null;
+        }
 
         if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = InternetUtil.escapeForURL(sub.replace(" ", "_"));
@@ -54,11 +55,15 @@ public class RedditDownloader {
 
         HttpResponse httpResponse = InternetCache.getDataShortLived(downloadUrl).get();
         JSONObject tempData = httpResponseToJson(httpResponse);
-        if (tempData == null)
+        if (tempData == null) {
             return null;
+        }
 
-        if (!tempData.isNull("after")) postReference = tempData.getString("after");
-        else postReference = "";
+        if (!tempData.isNull("after")) {
+            postReference = tempData.getString("after");
+        } else {
+            postReference = "";
+        }
 
         JSONArray postData = filterPostData(tempData.getJSONArray("children"));
         if (postData.length() <= 0) {
@@ -71,8 +76,9 @@ public class RedditDownloader {
     }
 
     public static PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws InterruptedException, ExecutionException {
-        if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil))
+        if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil)) {
             return null;
+        }
 
         if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = InternetUtil.escapeForURL(sub.replace(" ", "_"));
@@ -81,8 +87,9 @@ public class RedditDownloader {
 
         HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 9).get();
         JSONObject tempData = httpResponseToJson(httpResponse);
-        if (tempData == null)
+        if (tempData == null) {
             return null;
+        }
 
         JSONArray postData = filterPostData(tempData.getJSONArray("children"));
         if (postData.length() <= 0) return null;
@@ -126,8 +133,9 @@ public class RedditDownloader {
             }
         }
 
-        while (postedIdList.size() > 100)
+        while (postedIdList.size() > 100) {
             postedIdList.remove(0);
+        }
 
         StringBuilder newArg = new StringBuilder();
         for (int i = 0; i < postedIdList.size(); i++) {
@@ -143,8 +151,9 @@ public class RedditDownloader {
         for (int i = 0; i < postData.length() - 1; i++) {
             JSONObject entry = postData.getJSONObject(i);
             JSONObject data = entry.getJSONObject("data");
-            if (!data.has("stickied") || !data.getBoolean("stickied"))
+            if (!data.has("stickied") || !data.getBoolean("stickied")) {
                 newArray.put(entry);
+            }
         }
 
         return newArray;
@@ -181,8 +190,9 @@ public class RedditDownloader {
         post.setAuthor(data.getString("author"));
 
         flair = data.get("link_flair_text");
-        if (flair != null && !("" + flair).equals("null") && !("" + flair).equals("") && !("" + flair).equals(" "))
+        if (flair != null && !("" + flair).equals("null") && !("" + flair).equals("") && !("" + flair).equals(" ")) {
             post.setFlair(flair.toString());
+        }
         description = data.getString("selftext");
         url = data.getString("url");
         post.setUrl(url);
@@ -219,7 +229,9 @@ public class RedditDownloader {
             description = StringUtil.shortenString(description, 2048 - linkText.length());
             if (!description.equals("")) description += "\n\n";
             description += linkText;
-        } else description = StringUtil.shortenString(description, 2048);
+        } else {
+            description = StringUtil.shortenString(description, 2048);
+        }
 
         post.setDescription(description);
         post.setDomain(domain);

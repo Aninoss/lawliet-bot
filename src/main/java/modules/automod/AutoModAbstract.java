@@ -26,7 +26,7 @@ public abstract class AutoModAbstract {
     }
 
     /*
-    * returns true if the message is fine
+     * returns true if the message is fine
      */
     public boolean check() {
         if (!message.getAuthor().isBot() && checkCondition(message)) {

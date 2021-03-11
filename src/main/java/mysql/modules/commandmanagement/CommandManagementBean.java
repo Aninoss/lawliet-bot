@@ -18,7 +18,9 @@ public class CommandManagementBean extends BeanWithGuild {
 
     /* Getters */
 
-    public CustomObservableList<String> getSwitchedOffElements() { return switchedOffElements; }
+    public CustomObservableList<String> getSwitchedOffElements() {
+        return switchedOffElements;
+    }
 
     public boolean commandIsTurnedOn(Command command) {
         return !switchedOffElements.contains(command.getTrigger()) && !switchedOffElements.contains(command.getCategory());

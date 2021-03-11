@@ -3,7 +3,7 @@ package commands;
 import java.time.Instant;
 import java.util.function.Function;
 
-public class CommandListenerMeta <T> {
+public class CommandListenerMeta<T> {
 
     private final long authorId;
     private final Function<T, Boolean> validityChecker;
@@ -25,7 +25,7 @@ public class CommandListenerMeta <T> {
     }
 
     public boolean check(Object o) {
-        return validityChecker.apply((T)o);
+        return validityChecker.apply((T) o);
     }
 
     public void timeOut() {

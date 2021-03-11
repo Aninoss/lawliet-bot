@@ -157,8 +157,9 @@ public class WelcomeGraphics {
 
     private static File getBackgroundFile(Guild guild) {
         File syncedBackgroundFile = ResourceHandler.getFileResource(String.format("data/welcome_backgrounds/%d.png", guild.getIdLong()));
-        if (syncedBackgroundFile.exists())
+        if (syncedBackgroundFile.exists()) {
             return syncedBackgroundFile;
+        }
 
         return ResourceHandler.getFileResource("data/welcome_backgrounds/placeholder.png");
     }

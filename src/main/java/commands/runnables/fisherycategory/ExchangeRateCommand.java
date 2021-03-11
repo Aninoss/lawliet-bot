@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "\uD83D\uDD01",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
-        aliases = {"exchangerate", "er", "exchr", "exchange"}
+        aliases = { "exchangerate", "er", "exchr", "exchange" }
 )
 public class ExchangeRateCommand extends Command implements OnTrackerRequestListener {
 
@@ -46,10 +46,14 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
         int rateNow = ExchangeRate.getInstance().get(0);
         int rateBefore = ExchangeRate.getInstance().get(-1);
 
-        if (rateNow > rateBefore) return "\uD83D\uDD3A";
-        else {
-            if (rateNow < rateBefore) return "\uD83D\uDD3B";
-            else return "•";
+        if (rateNow > rateBefore) {
+            return "\uD83D\uDD3A";
+        } else {
+            if (rateNow < rateBefore) {
+                return "\uD83D\uDD3B";
+            } else {
+                return "•";
+            }
         }
     }
 

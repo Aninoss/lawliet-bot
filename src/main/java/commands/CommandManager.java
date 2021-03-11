@@ -61,12 +61,14 @@ public class CommandManager {
                 cleanPreviousListeners(command, event.getMember());
                 sendOverwrittenSignals(command, event.getMember());
 
-                if (command instanceof PingCommand)
+                if (command instanceof PingCommand) {
                     command.getAttachments().put("starting_time", startTime);
+                }
 
                 command.processTrigger(event, args);
-                if (Bot.isPublicVersion())
+                if (Bot.isPublicVersion()) {
                     maybeSendInvite(event, command.getLocale());
+                }
             } catch (Throwable e) {
                 ExceptionUtil.handleCommandException(e, command, event.getChannel());
             }
@@ -115,8 +117,9 @@ public class CommandManager {
     }
 
     private static boolean checkCoolDown(GuildMessageReceivedEvent event, Command command) {
-        if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) >= 3)
+        if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) >= 3) {
             return true;
+        }
         CoolDownUserData cooldownUserData = CoolDownManager.getInstance().getCoolDownData(event.getMember().getIdLong());
 
         Optional<Integer> waitingSec = cooldownUserData.getWaitingSec(Settings.COOLDOWN_TIME_SEC);
@@ -197,8 +200,9 @@ public class CommandManager {
             return true;
         }
 
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel()))
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             sendError(event, command.getLocale(), errEmbed);
+        }
         return false;
     }
 
@@ -264,10 +268,11 @@ public class CommandManager {
 
     private static void autoRemoveMessageAfterCountdown(GuildMessageReceivedEvent event, Message message) {
         MainScheduler.getInstance().schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, "command_manager_error_countdown", () -> {
-            if (BotPermissionUtil.can(event.getMember(), Permission.MESSAGE_MANAGE))
+            if (BotPermissionUtil.can(event.getMember(), Permission.MESSAGE_MANAGE)) {
                 event.getChannel().deleteMessages(Arrays.asList(message, event.getMessage())).queue(); //audit lot?
-            else
+            } else {
                 message.delete().queue();
+            }
         });
     }
 
@@ -297,10 +302,11 @@ public class CommandManager {
         }
 
         if (BotPermissionUtil.canRead(event.getChannel(), Permission.MESSAGE_ADD_REACTION)) {
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_EXT_EMOJI))
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_EXT_EMOJI)) {
                 event.getMessage().addReaction(Emojis.NO).queue();
-            else
+            } else {
                 event.getMessage().addReaction("❌").queue();
+            }
             event.getMessage().addReaction("✍️").queue();
         }
 

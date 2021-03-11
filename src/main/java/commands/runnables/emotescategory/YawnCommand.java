@@ -8,7 +8,7 @@ import commands.runnables.EmoteAbstract;
         trigger = "yawn",
         emoji = "\uD83E\uDD71",
         executableWithoutArgs = true,
-        aliases = {"wakeup", "tired", "sleepy"}
+        aliases = { "wakeup", "tired", "sleepy" }
 )
 public class YawnCommand extends EmoteAbstract {
 
@@ -17,7 +17,7 @@ public class YawnCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736262435501113465/736262443247992832/yawn.gif",
                 "https://media.discordapp.net/attachments/736262435501113465/736262449401167889/yawn.gif",
                 "https://media.discordapp.net/attachments/736262435501113465/736262460868395029/yawn.gif",

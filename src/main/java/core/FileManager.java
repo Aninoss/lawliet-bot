@@ -15,10 +15,11 @@ public class FileManager {
                         new FileInputStream(file), StandardCharsets.UTF_8));
 
         String line;
-        while((line = br.readLine()) != null) {
+        while ((line = br.readLine()) != null) {
             list.add(line);
         }
 
         return list;
     }
+
 }

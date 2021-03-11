@@ -17,8 +17,9 @@ public class TextAI {
     }
 
     public WordMap extractModelToWordMap(String model, WordMap map) {
-        if (map == null)
+        if (map == null) {
             map = new WordMap();
+        }
 
         model = prepare(model);
         String[] words = model.split(" ");
@@ -84,13 +85,13 @@ public class TextAI {
             }
 
             /* the generated sentence will be used if it...
-            * 1) ...contains at least 30 characters
-            * 2) ...doesn't have more than 80% similarity with any real message
-            * 3) ...contains different parts from at least two different real messages
-            *
-            * if not, then the software generates a new sentence
-            * until all of the 3 requirements have been matched
-            * */
+             * 1) ...contains at least 30 characters
+             * 2) ...doesn't have more than 80% similarity with any real message
+             * 3) ...contains different parts from at least two different real messages
+             *
+             * if not, then the software generates a new sentence
+             * until all of the 3 requirements have been matched
+             * */
 
             if (messageVariety >= 1) {
                 String result = complete(sb.toString(), 3);
@@ -112,7 +113,7 @@ public class TextAI {
 
     private String generateWordChain(String[] words, int wordCount, int start) {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < wordCount; i++) {
+        for (int i = 0; i < wordCount; i++) {
             if (i > 0) sb.append(" ");
             sb.append(words[start + i]);
         }
@@ -125,9 +126,10 @@ public class TextAI {
         int validWords = words.length;
         int amount = 1;
 
-        outer : for(int i = 0; i < words.length - wordCountCheck; i++) {
+        outer:
+        for (int i = 0; i < words.length - wordCountCheck; i++) {
             String key = generateWordChain(words, wordCountCheck, i).toLowerCase();
-            for(int j = i + 1; j < words.length - wordCountCheck; j++) {
+            for (int j = i + 1; j < words.length - wordCountCheck; j++) {
                 String value = generateWordChain(words, wordCountCheck, j).toLowerCase();
                 if (key.equals(value)) {
                     amount--;

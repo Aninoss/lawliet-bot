@@ -17,15 +17,17 @@ public class SendEvent {
 
     public static CompletableFuture<JSONObject> sendFullyConnected() {
         CompletableFuture<JSONObject> future = SyncManager.getInstance().getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
-        if (Bot.isProductionMode())
+        if (Bot.isProductionMode()) {
             return future;
-        else
+        } else {
             return CompletableFuture.completedFuture(new JSONObject());
+        }
     }
 
     public static CompletableFuture<Optional<Long>> sendRequestGlobalGuildSize(long localServerSize) {
-        if (!Bot.isProductionMode())
+        if (!Bot.isProductionMode()) {
             return CompletableFuture.completedFuture(ShardManager.getInstance().getLocalGuildSize());
+        }
 
         return process(
                 "GLOBAL_SERVER_SIZE",

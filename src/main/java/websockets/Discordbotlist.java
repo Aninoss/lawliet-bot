@@ -12,7 +12,7 @@ public class Discordbotlist {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("guilds", serverCount);
 
-        HttpProperty[] properties = new HttpProperty[]{
+        HttpProperty[] properties = new HttpProperty[] {
                 new HttpProperty("Content-Type", "application/json"),
                 new HttpProperty("Authorization", System.getenv("DISCORDBOTLIST_TOKEN"))
         };

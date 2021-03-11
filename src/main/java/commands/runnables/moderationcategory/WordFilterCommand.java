@@ -42,7 +42,7 @@ public class WordFilterCommand extends NavigationAbstract {
     private BannedWordsBean bannedWordsBean;
     private NavigationHelper<String> wordsNavigationHelper;
     private CustomObservableList<AtomicMember> ignoredUsers;
-    private CustomObservableList<AtomicMember>logReceivers;
+    private CustomObservableList<AtomicMember> logReceivers;
 
     public WordFilterCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -180,21 +180,23 @@ public class WordFilterCommand extends NavigationAbstract {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                       .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), bannedWordsBean.isActive()), true)
-                       .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), MentionableAtomicAsset::getAsMention), true)
-                       .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(logReceivers, getLocale(), MentionableAtomicAsset::getAsMention), true)
-                       .addField(getString("state0_mwords"), getWordsString(), true);
+                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), bannedWordsBean.isActive()), true)
+                        .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                        .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(logReceivers, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                        .addField(getString("state0_mwords"), getWordsString(), true);
 
             case 1:
-                setOptions(new String[]{getString("empty")});
+                setOptions(new String[] { getString("empty") });
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                setOptions(new String[]{getString("empty")});
+                setOptions(new String[] { getString("empty") });
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
-            case 3: return wordsNavigationHelper.drawDataAdd(getString("state3_title"), getString("state3_description"));
-            case 4: return wordsNavigationHelper.drawDataRemove(getString("state4_title"), getString("state4_description"));
+            case 3:
+                return wordsNavigationHelper.drawDataAdd(getString("state3_title"), getString("state3_description"));
+            case 4:
+                return wordsNavigationHelper.drawDataRemove(getString("state4_title"), getString("state4_description"));
 
             default:
                 return null;
@@ -208,7 +210,7 @@ public class WordFilterCommand extends NavigationAbstract {
         } else {
             StringBuilder sb = new StringBuilder();
 
-            for(String word: words) {
+            for (String word : words) {
                 sb.append(" ").append(word);
             }
 

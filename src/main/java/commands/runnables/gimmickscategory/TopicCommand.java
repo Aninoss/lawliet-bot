@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
         trigger = "topic",
         emoji = "\uD83E\uDD60",
         executableWithoutArgs = true,
-        aliases = {"topics"}
+        aliases = { "topics" }
 )
 public class TopicCommand extends Command implements OnTrackerRequestListener {
 
@@ -54,8 +54,10 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
 
         long minutes = StringUtil.filterLongFromString(key);
         if (minutes > MAX_MINUTES || minutes < MIN_MINUTES) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this,
-                    TextManager.getString(getLocale(), TextManager.GENERAL, "number", StringUtil.numToString(MIN_MINUTES), StringUtil.numToString(MAX_MINUTES)));
+            EmbedBuilder eb = EmbedFactory.getEmbedError(
+                    this,
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "number", StringUtil.numToString(MIN_MINUTES), StringUtil.numToString(MAX_MINUTES))
+            );
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
 
             slot.getTextChannel().get().sendMessage(eb.build()).complete();

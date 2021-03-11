@@ -8,6 +8,7 @@ import java.time.temporal.ChronoUnit;
 public @interface ScheduleEventFixedRate {
 
     long rateValue();
+
     ChronoUnit rateUnit();
 
 }

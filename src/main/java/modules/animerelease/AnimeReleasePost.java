@@ -51,4 +51,5 @@ public class AnimeReleasePost {
     public String getDescription() {
         return description;
     }
+
 }

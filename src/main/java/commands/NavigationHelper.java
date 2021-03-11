@@ -48,13 +48,15 @@ public class NavigationHelper<T> {
             command.setLog(LogStatus.FAILURE, TextManager.getNoResultsString(command.getLocale(), inputString));
             return Response.FALSE;
         } else {
-            if (type == Type.Role && !command.checkRolesWithLog(author, (List<Role>) newList))
+            if (type == Type.Role && !command.checkRolesWithLog(author, (List<Role>) newList)) {
                 return Response.FALSE;
+            }
 
             int existingRoles = 0;
-            for(T t: newList) {
-                if (srcList.contains(t))
-                    existingRoles ++;
+            for (T t : newList) {
+                if (srcList.contains(t)) {
+                    existingRoles++;
+                }
             }
 
             if (existingRoles >= newList.size()) {
@@ -63,7 +65,7 @@ public class NavigationHelper<T> {
             }
 
             int n = 0;
-            for(T t: newList) {
+            for (T t : newList) {
                 if (!srcList.contains(t)) {
                     if (srcList.size() < max) {
                         srcList.add(t);
@@ -112,11 +114,14 @@ public class NavigationHelper<T> {
 
     public EmbedBuilder drawDataRemove(String title, String desc) {
         Function<T, String> nameFunction;
-        if (type == Type.Unknown) nameFunction = Object::toString;
-        else nameFunction = obj -> ((MentionableAtomicAsset<?>)obj).get().map(IMentionable::getAsMention).orElse("-");
+        if (type == Type.Unknown) {
+            nameFunction = Object::toString;
+        } else {
+            nameFunction = obj -> ((MentionableAtomicAsset<?>) obj).get().map(IMentionable::getAsMention).orElse("-");
+        }
 
         String[] strings = new String[srcList.size()];
-        for(int i = 0; i < strings.length; i++) {
+        for (int i = 0; i < strings.length; i++) {
             strings[i] = nameFunction.apply(srcList.get(i));
         }
         command.setOptions(strings);

@@ -16,7 +16,7 @@ public abstract class ListAbstract extends Command implements OnReactionListener
     private int page = 0;
     private final int entriesPerPage;
     private int size;
-    private final String[] SCROLL_EMOJIS = {"⏪", "⏩"};
+    private final String[] SCROLL_EMOJIS = { "⏪", "⏩" };
 
     public ListAbstract(Locale locale, String prefix, int entriesPerPage) {
         super(locale, prefix);
@@ -55,7 +55,7 @@ public abstract class ListAbstract extends Command implements OnReactionListener
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(getPageSize())));
 
-        for(int i = page * entriesPerPage; i < Math.min(size, page * entriesPerPage + entriesPerPage); i++) {
+        for (int i = page * entriesPerPage; i < Math.min(size, page * entriesPerPage + entriesPerPage); i++) {
             Pair<String, String> entry = getEntry(i);
             eb.addField(entry.getKey(), entry.getValue(), false);
         }

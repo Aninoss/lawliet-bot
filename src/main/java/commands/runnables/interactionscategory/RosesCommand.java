@@ -16,10 +16,10 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
-    trigger = "roses",
-    emoji = "🌹",
-    exclusiveUsers = { 397209883793162240L, 381156056660967426L },
-    executableWithoutArgs = false
+        trigger = "roses",
+        emoji = "🌹",
+        exclusiveUsers = { 397209883793162240L, 381156056660967426L },
+        executableWithoutArgs = false
 )
 public class RosesCommand extends Command {
 
@@ -51,7 +51,7 @@ public class RosesCommand extends Command {
         MentionList<Member> userMention = MentionUtil.getMembers(event.getMessage(), args);
         List<Member> userList = userMention.getList();
         if (userList.isEmpty()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL,"no_mentions"));
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions"));
             event.getChannel().sendMessage(eb.build()).queue();
             return false;
         }

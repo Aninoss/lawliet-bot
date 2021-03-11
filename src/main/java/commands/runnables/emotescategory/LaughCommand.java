@@ -8,7 +8,7 @@ import commands.runnables.EmoteAbstract;
         trigger = "laugh",
         emoji = "\uD83D\uDE06",
         executableWithoutArgs = true,
-        aliases = {"lol", "funny"}
+        aliases = { "lol", "funny" }
 )
 public class LaughCommand extends EmoteAbstract {
 
@@ -17,7 +17,7 @@ public class LaughCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736261908960903268/736261913096224869/laugh.gif",
                 "https://media.discordapp.net/attachments/736261908960903268/736261916850126968/laugh.gif",
                 "https://media.discordapp.net/attachments/736261908960903268/736261919228297256/laugh.gif",

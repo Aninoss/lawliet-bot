@@ -57,7 +57,7 @@ public class DiscordConnector {
         MainLogger.get().info("Bot is logging in...");
         RestAction.setDefaultTimeout(5, TimeUnit.SECONDS);
 
-        for(int i = shardMin; i <= shardMax; i++) {
+        for (int i = shardMin; i <= shardMax; i++) {
             try {
                 jdaBuilder.useSharding(i, totalShards)
                         .build();

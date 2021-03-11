@@ -24,11 +24,11 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
 
 @CommandProperties(
-    trigger = "maps",
-    botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-    withLoadingBar = true,
-    emoji = "\uD83D\uDDFA",
-    executableWithoutArgs = true
+        trigger = "maps",
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
+        withLoadingBar = true,
+        emoji = "\uD83D\uDDFA",
+        executableWithoutArgs = true
 )
 public class MapsCommand extends Command implements OnTrackerRequestListener {
 
@@ -55,7 +55,7 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
             region = "eu";
         }
 
-        String[] urls = new String[]{
+        String[] urls = new String[] {
                 "https://splatoon2.ink/data/schedules.json",
                 "https://splatoon2.ink/data/festivals.json",
                 "https://splatoon2.ink/data/locale/" + language + ".json"
@@ -95,8 +95,8 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
         emojiMap.put("league", Emojis.SPLATOON_LEAGUE);
 
         if (!isSplatfest) {
-            String[] modeIDs = new String[]{"regular", "gachi", "league"};
-            boolean[] showRules = new boolean[]{false, true, true};
+            String[] modeIDs = new String[] { "regular", "gachi", "league" };
+            boolean[] showRules = new boolean[] { false, true, true };
 
             for (int i = 0; i < modeIDs.length; i++) {
                 String id = modeIDs[i];
@@ -105,9 +105,9 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
                 String[] timeNames = getString("times").split("\n");
                 StringBuilder fieldContent = new StringBuilder();
                 for (int j = 0; j < timeNames.length; j++) {
-                    String[] stageNames = new String[]{
+                    String[] stageNames = new String[] {
                             languageData.getJSONObject("stages").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("stage_a").getString("id")).getString("name"),
-                            languageData.getJSONObject("stages").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("stage_b").getString("id")).getString("name")};
+                            languageData.getJSONObject("stages").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("stage_b").getString("id")).getString("name") };
                     String ruleName;
                     fieldContent.append("• ").append(timeNames[j]).append(": **").append(stageNames[0]).append("**, **").append(stageNames[1]).append("**");
                     if (showRules[i]) {
@@ -128,10 +128,10 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
             String[] timeNames = getString("times").split("\n");
             String fieldContent = "";
             for (int j = 0; j < timeNames.length; j++) {
-                String[] stageNames = new String[]{
+                String[] stageNames = new String[] {
                         languageData.getJSONObject("stages").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("stage_a").getString("id")).getString("name"),
                         languageData.getJSONObject("stages").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("stage_b").getString("id")).getString("name"),
-                        festMapName};
+                        festMapName };
                 fieldContent += "• " + timeNames[j] + ": **" + stageNames[0] + "**, **" + stageNames[1] + "**, **" + stageNames[2] + "**\n";
             }
             eb.addField(fieldTitle, fieldContent, false);

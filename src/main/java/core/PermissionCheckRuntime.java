@@ -23,7 +23,8 @@ public class PermissionCheckRuntime {
 
     private static final PermissionCheckRuntime instance = new PermissionCheckRuntime();
 
-    private PermissionCheckRuntime() {}
+    private PermissionCheckRuntime() {
+    }
 
     public static PermissionCheckRuntime getInstance() {
         return instance;
@@ -52,7 +53,7 @@ public class PermissionCheckRuntime {
             missingPermissions = BotPermissionUtil.getMissingPermissions(guild.getSelfMember(), permissions);
         }
 
-        if (missingPermissions.size() == 0){
+        if (missingPermissions.size() == 0) {
             return true;
         }
 
@@ -76,7 +77,7 @@ public class PermissionCheckRuntime {
     public boolean botCanManageRoles(Locale locale, Class<? extends Command> c, Role... roles) {
         ArrayList<Role> unreachableRoles = new ArrayList<>();
 
-        for(Role role: roles) {
+        for (Role role : roles) {
             if (!role.getGuild().getSelfMember().canInteract(role)) {
                 unreachableRoles.add(role);
             }

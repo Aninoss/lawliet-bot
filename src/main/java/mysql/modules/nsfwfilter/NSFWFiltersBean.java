@@ -17,6 +17,8 @@ public class NSFWFiltersBean extends BeanWithGuild {
 
     /* Getters */
 
-    public CustomObservableList<String> getKeywords() { return keywords; }
+    public CustomObservableList<String> getKeywords() {
+        return keywords;
+    }
 
 }

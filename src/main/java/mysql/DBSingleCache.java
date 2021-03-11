@@ -35,8 +35,9 @@ public abstract class DBSingleCache<T> extends DBCache {
 
     private void setExpirationTimer() {
         Integer expirationTimeMinutes = getExpirationTimeMinutes();
-        if (expirationTimeMinutes != null)
+        if (expirationTimeMinutes != null) {
             nextUpdate = Instant.now().plus(expirationTimeMinutes, ChronoUnit.MINUTES);
+        }
     }
 
     public boolean isCached() {

@@ -17,7 +17,7 @@ public class YaoiFuckCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736282657062912080/736282666126540870/yaoifuck.gif",
                 "https://media.discordapp.net/attachments/736282657062912080/736282674771001514/yaoifuck.gif",
                 "https://media.discordapp.net/attachments/736282657062912080/736282683608662021/yaoifuck.gif",

@@ -6,13 +6,14 @@ import constants.Settings;
 
 public final class NSFWUtil {
 
-    private NSFWUtil() {}
+    private NSFWUtil() {
+    }
 
     public static String filterPornSearchKey(String str, ArrayList<String> additionalFilter) {
-        for(String filter: Settings.NSFW_FILTERS) {
+        for (String filter : Settings.NSFW_FILTERS) {
             str = str.replaceAll("(?i)\\b" + Pattern.quote(filter) + "\\b", "");
         }
-        for(String filter: additionalFilter) {
+        for (String filter : additionalFilter) {
             str = str.replaceAll("(?i)\\b" + Pattern.quote(filter) + "\\b", "");
         }
         return str;
@@ -21,10 +22,10 @@ public final class NSFWUtil {
     public static String getNSFWTagRemoveList(ArrayList<String> additionalFilter) {
         StringBuilder str = new StringBuilder();
         additionalFilter.sort(String::compareTo);
-        for(String filter: Settings.NSFW_FILTERS) {
+        for (String filter : Settings.NSFW_FILTERS) {
             str.append(" -").append(filter.toLowerCase());
         }
-        for(String filter: additionalFilter) {
+        for (String filter : additionalFilter) {
             str.append(" -").append(filter.toLowerCase());
         }
         return str.toString();

@@ -11,14 +11,19 @@ import java.util.stream.Collectors;
 public class FontContainer {
 
     public static final FontContainer ourInstance = new FontContainer();
-    public static FontContainer getInstance() { return ourInstance; }
-    private FontContainer() {}
+
+    public static FontContainer getInstance() {
+        return ourInstance;
+    }
+
+    private FontContainer() {
+    }
 
     private final ArrayList<Font> fontList = new ArrayList<>();
 
     public void init() {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        for(File file : Objects.requireNonNull(ResourceHandler.getFileResource("data/resources/fonts").listFiles())) {
+        for (File file : Objects.requireNonNull(ResourceHandler.getFileResource("data/resources/fonts").listFiles())) {
             try {
                 Font font = Font.createFont(Font.TRUETYPE_FONT, new File(file.getAbsolutePath()));
                 fontList.add(font);

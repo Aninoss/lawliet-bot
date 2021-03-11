@@ -20,8 +20,9 @@ public class GuildMessageReceivedSingleBotMention extends GuildMessageReceivedAb
             GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
 
             String text = TextManager.getString(guildBean.getLocale(), TextManager.GENERAL, "bot_ping_help", guildBean.getPrefix());
-            if (BotPermissionUtil.canWrite(event.getChannel()))
+            if (BotPermissionUtil.canWrite(event.getChannel())) {
                 event.getChannel().sendMessage(text).queue();
+            }
 
             return false;
         }

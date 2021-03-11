@@ -18,10 +18,8 @@ public class DBAutoClaim extends DBSingleCache<AutoClaimBean> {
 
     @Override
     protected AutoClaimBean loadBean() throws Exception {
-        ArrayList<Long> autoClaimList = new DBDataLoad<Long>("AutoClaim", "userId", "active = 1",
-                preparedStatement -> {
-                }
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ArrayList<Long> autoClaimList = new DBDataLoad<Long>("AutoClaim", "userId", "active = 1")
+                .getArrayList(resultSet -> resultSet.getLong(1));
 
         AutoClaimBean autoClaimBean = new AutoClaimBean(autoClaimList);
         autoClaimBean.getUserList().addListAddListener(list -> list.forEach(this::addAutoClaim))

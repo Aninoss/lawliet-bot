@@ -8,7 +8,7 @@ import commands.runnables.EmoteAbstract;
         trigger = "stare",
         emoji = "\uD83D\uDC40",
         executableWithoutArgs = true,
-        aliases = {"see"}
+        aliases = { "see" }
 )
 public class StareCommand extends EmoteAbstract {
 
@@ -17,7 +17,7 @@ public class StareCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736260687633842216/736260702947508244/stare.gif",
                 "https://media.discordapp.net/attachments/736260687633842216/736260707611312288/stare.gif",
                 "https://media.discordapp.net/attachments/736260687633842216/736260716276875354/stare.gif",

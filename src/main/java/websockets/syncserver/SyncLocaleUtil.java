@@ -51,8 +51,9 @@ public class SyncLocaleUtil {
         for (String localeString : Locales.LIST) {
             Locale locale = new Locale(localeString);
             String str = solveVariablesOfCommandText(TextManager.getString(locale, commandCategory, key));
-            if (!str.isEmpty())
+            if (!str.isEmpty()) {
                 str = ("\n" + str).replace("\n", "\nL." + commandTrigger + " ").substring(1);
+            }
 
             jsonObject.put(locale.getDisplayName(), str);
         }

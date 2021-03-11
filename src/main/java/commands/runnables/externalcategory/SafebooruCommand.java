@@ -9,7 +9,7 @@ import commands.runnables.PornSearchAbstract;
         emoji = "\uD83D\uDE07",
         withLoadingBar = true,
         executableWithoutArgs = true,
-        aliases = {"softb", "safebooru", "softbooru", "sbooru"}
+        aliases = { "softb", "safebooru", "softbooru", "sbooru" }
 )
 public class SafebooruCommand extends PornSearchAbstract {
 
@@ -28,6 +28,8 @@ public class SafebooruCommand extends PornSearchAbstract {
     }
 
     @Override
-    public boolean isExplicit() { return false; }
+    public boolean isExplicit() {
+        return false;
+    }
 
 }

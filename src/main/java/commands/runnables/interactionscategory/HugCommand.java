@@ -16,7 +16,7 @@ public class HugCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736277561373491265/736277568629506146/hug.gif",
                 "https://media.discordapp.net/attachments/736277561373491265/736277578633183293/hug.gif",
                 "https://media.discordapp.net/attachments/736277561373491265/736277583767011368/hug.gif",

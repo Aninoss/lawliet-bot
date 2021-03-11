@@ -24,6 +24,8 @@ public abstract class RealbooruAbstract extends PornPredefinedAbstract {
     }
 
     @Override
-    public boolean isExplicit() { return true; }
+    public boolean isExplicit() {
+        return true;
+    }
 
 }

@@ -12,7 +12,7 @@ import commands.runnables.RealbooruAbstract;
         requiresEmbeds = false,
         patreonRequired = true,
         withLoadingBar = true,
-        aliases = {"boobs", "r1boobs"}
+        aliases = { "boobs", "r1boobs" }
 )
 public class RealLifeBoobsCommand extends RealbooruAbstract {
 

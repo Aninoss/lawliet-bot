@@ -56,13 +56,15 @@ public class AlertScheduler {
         } catch (Throwable throwable) {
             MainLogger.get().error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);
             minInstant = Instant.now().plus(10, ChronoUnit.MINUTES);
-            if (throwable.toString().contains("Unknown Channel"))
+            if (throwable.toString().contains("Unknown Channel")) {
                 slot.delete();
+            }
         }
 
         if (slot.isActive()) {
-            if (minInstant.isAfter(slot.getNextRequest()))
+            if (minInstant.isAfter(slot.getNextRequest())) {
                 slot.setNextRequest(minInstant);
+            }
             return true;
         }
 

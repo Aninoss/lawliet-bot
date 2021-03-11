@@ -137,8 +137,11 @@ public class CommandManagementCommand extends NavigationAbstract {
         if (!commandManagementBean.getSwitchedOffElements().contains(category)) {
             for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(category)) {
                 Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-                if (!hasOn && commandManagementBean.commandIsTurnedOn(command)) hasOn = true;
-                else if (!hasOff && !commandManagementBean.commandIsTurnedOn(command)) hasOff = true;
+                if (!hasOn && commandManagementBean.commandIsTurnedOn(command)) {
+                    hasOn = true;
+                } else if (!hasOff && !commandManagementBean.commandIsTurnedOn(command)) {
+                    hasOff = true;
+                }
             }
         }
 

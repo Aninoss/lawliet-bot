@@ -8,7 +8,7 @@ import commands.runnables.InteractionAbstract;
         trigger = "punch",
         emoji = "\uD83D\uDC4A",
         executableWithoutArgs = true,
-        aliases = {"hit", "attack"}
+        aliases = { "hit", "attack" }
 )
 public class PunchCommand extends InteractionAbstract {
 
@@ -17,7 +17,7 @@ public class PunchCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736270998772383826/736271005756031066/punch.gif",
                 "https://media.discordapp.net/attachments/736270998772383826/736271012462723223/punch.gif",
                 "https://media.discordapp.net/attachments/736270998772383826/736271018930208818/punch.gif",

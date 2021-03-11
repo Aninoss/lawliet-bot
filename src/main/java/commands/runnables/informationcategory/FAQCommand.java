@@ -24,7 +24,7 @@ public class FAQCommand extends ListAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         slots = new ArrayList<>();
-        for(int i = 0; i < TextManager.getKeySize(TextManager.FAQ) / 2; i++) {
+        for (int i = 0; i < TextManager.getKeySize(TextManager.FAQ) / 2; i++) {
             String question = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.question", i)).replace("%PREFIX", getPrefix());
             String answer = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.answer", i)).replace("%PREFIX", getPrefix());
             slots.add(new Pair<>(question, answer));

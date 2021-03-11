@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83C\uDF81",
         executableWithoutArgs = false,
-        aliases = {"gift", "pay" }
+        aliases = { "gift", "pay" }
 )
 public class GiveCommand extends Command implements FisheryInterface {
 
@@ -76,7 +76,8 @@ public class GiveCommand extends Command implements FisheryInterface {
                 fisheryUser1.addCoinsRaw(value);
                 fisheryUser1.addCoinsGiven(value);
 
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("successful",
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
+                        "successful",
                         StringUtil.numToString(value),
                         user1.getAsMention(),
                         user0.getAsMention(),
@@ -86,8 +87,9 @@ public class GiveCommand extends Command implements FisheryInterface {
                         StringUtil.numToString(coins1Pre + value)
                 ));
 
-                if (limitCapped)
+                if (limitCapped) {
                     EmbedUtil.addLog(eb, LogStatus.WARNING, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getEffectiveName())));
+                }
 
                 event.getChannel().sendMessage(eb.build()).queue();
                 return true;
@@ -107,4 +109,5 @@ public class GiveCommand extends Command implements FisheryInterface {
 
         return false;
     }
+
 }

@@ -25,10 +25,11 @@ public class AutoClaimBean {
     }
 
     public void setActive(long userId, boolean active) {
-        if (active && !userList.contains(userId))
+        if (active && !userList.contains(userId)) {
             userList.add(userId);
-        else if (!active)
+        } else if (!active) {
             userList.remove(userId);
+        }
     }
 
 }

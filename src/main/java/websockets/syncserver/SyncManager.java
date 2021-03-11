@@ -56,12 +56,14 @@ public class SyncManager {
     }
 
     public synchronized void start() {
-        if (started)
+        if (started) {
             return;
+        }
         started = true;
 
-        if (Bot.isProductionMode())
+        if (Bot.isProductionMode()) {
             startConnectionChecker();
+        }
         this.client.connect();
     }
 
@@ -86,8 +88,9 @@ public class SyncManager {
 
     private void addEvent(SyncServerFunction function) {
         SyncServerEvent event = function.getClass().getAnnotation(SyncServerEvent.class);
-        if (event != null)
+        if (event != null) {
             this.client.addEventHandler(event.event(), function);
+        }
     }
 
     private void startConnectionChecker() {

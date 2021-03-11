@@ -43,8 +43,9 @@ public class RunningCheckerManager {
         command.addCompletedListener(() -> {
             synchronized (this) {
                 runningCommandsList.remove(runningCheckerSlot);
-                if (runningCommandsList.isEmpty())
+                if (runningCommandsList.isEmpty()) {
                     runningCommandsCache.invalidate(userId);
+                }
             }
         });
     }

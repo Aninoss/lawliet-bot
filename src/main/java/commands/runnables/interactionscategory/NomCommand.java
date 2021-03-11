@@ -8,7 +8,7 @@ import commands.runnables.InteractionAbstract;
         trigger = "nom",
         emoji = "\uD83E\uDD62",
         executableWithoutArgs = true,
-        aliases = {"eat"}
+        aliases = { "eat" }
 )
 public class NomCommand extends InteractionAbstract {
 
@@ -17,7 +17,7 @@ public class NomCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736273366784278558/736273374858182757/nom.gif",
                 "https://media.discordapp.net/attachments/736273366784278558/736273380373954730/nom.gif",
                 "https://media.discordapp.net/attachments/736273366784278558/736273386904485951/nom.gif",

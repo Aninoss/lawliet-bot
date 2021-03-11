@@ -33,13 +33,17 @@ public class SPBlockBean extends BeanWithGuild {
         return logReceiverUserIds;
     }
 
-    public CustomObservableList<Long> getIgnoredChannelIds() { return ignoredChannelIds; }
+    public CustomObservableList<Long> getIgnoredChannelIds() {
+        return ignoredChannelIds;
+    }
 
     public boolean isActive() {
         return active;
     }
 
-    public ActionList getAction() { return action; }
+    public ActionList getAction() {
+        return action;
+    }
 
 
     /* Setters */
@@ -57,4 +61,5 @@ public class SPBlockBean extends BeanWithGuild {
             notifyObservers();
         }
     }
+
 }

@@ -8,7 +8,7 @@ import commands.runnables.InteractionAbstract;
         trigger = "kill",
         emoji = "☠️",
         executableWithoutArgs = true,
-        aliases = {"die"}
+        aliases = { "die" }
 )
 public class KillCommand extends InteractionAbstract {
 
@@ -17,7 +17,7 @@ public class KillCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736270438627278859/736270444973391992/kill.gif",
                 "https://media.discordapp.net/attachments/736270438627278859/736270452443316224/kill.gif",
                 "https://media.discordapp.net/attachments/736270438627278859/736270456952193125/kill.gif",

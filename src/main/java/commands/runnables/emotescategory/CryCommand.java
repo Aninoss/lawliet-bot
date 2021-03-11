@@ -8,7 +8,7 @@ import commands.runnables.EmoteAbstract;
         trigger = "cry",
         emoji = "\uD83D\uDE2D",
         executableWithoutArgs = true,
-        aliases = {"sad" , "sob"}
+        aliases = { "sad", "sob" }
 )
 public class CryCommand extends EmoteAbstract {
 
@@ -17,7 +17,7 @@ public class CryCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736255198808375307/736255201878474822/cry.gif",
                 "https://media.discordapp.net/attachments/736255198808375307/736255204030283837/cry.gif",
                 "https://media.discordapp.net/attachments/736255198808375307/736255209361375263/cry.gif",

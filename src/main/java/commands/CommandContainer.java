@@ -259,15 +259,19 @@ public class CommandContainer {
             addCommand(command.getTrigger(), command);
             for (String str : command.getCommandProperties().aliases()) addCommand(str, command);
 
-            if (command instanceof OnStaticReactionAddListener)
+            if (command instanceof OnStaticReactionAddListener) {
                 staticReactionAddCommands.add(((OnStaticReactionAddListener) command).getClass());
-            if (command instanceof OnStaticReactionRemoveListener)
+            }
+            if (command instanceof OnStaticReactionRemoveListener) {
                 staticReactionRemoveCommands.add(((OnStaticReactionRemoveListener) command).getClass());
-            if (command instanceof OnTrackerRequestListener)
+            }
+            if (command instanceof OnTrackerRequestListener) {
                 trackerCommands.add(((OnTrackerRequestListener) command).getClass());
+            }
 
-            if (command.canRunOnGuild(0L, 0L))
+            if (command.canRunOnGuild(0L, 0L)) {
                 addCommandCategoryMap(command);
+            }
         }
     }
 
@@ -277,9 +281,11 @@ public class CommandContainer {
     }
 
     private void addCommand(String trigger, Command command) {
-        if (commandMap.containsKey(trigger))
+        if (commandMap.containsKey(trigger)) {
             MainLogger.get().error("Duplicate key for \"" + command.getTrigger() + "\"");
-        else commandMap.put(trigger, command.getClass());
+        } else {
+            commandMap.put(trigger, command.getClass());
+        }
     }
 
 
@@ -319,7 +325,7 @@ public class CommandContainer {
                         .expireAfterWrite(Duration.ofMillis(Settings.TIME_OUT_TIME))
                         .removalListener(event -> {
                             if (event.getCause() == RemovalCause.EXPIRED) {
-                                ((CommandListenerMeta<?>)event.getValue()).timeOut();
+                                ((CommandListenerMeta<?>) event.getValue()).timeOut();
                             }
                         })
                         .build()

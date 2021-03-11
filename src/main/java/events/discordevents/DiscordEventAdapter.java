@@ -61,7 +61,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     private void putListener(DiscordEventAbstract listener, Set<Class<? extends DiscordEventAbstract>> listenerTypeAbstracts) {
-        for(Class<?> clazz : listenerTypeAbstracts) {
+        for (Class<?> clazz : listenerTypeAbstracts) {
             if (clazz.isInstance(listener)) {
                 ArrayList<DiscordEventAbstract> listenerList = listenerMap.computeIfAbsent(clazz, k -> new ArrayList<>());
                 listenerList.add(listener);
@@ -72,7 +72,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
     private ArrayList<DiscordEventAbstract> getListenerList(Class<? extends DiscordEventAbstract> clazz) {
         return listenerMap.computeIfAbsent(clazz, k -> new ArrayList<>());
     }
-    
+
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         DiscordConnector.getInstance().onJDAJoin(event.getJDA());

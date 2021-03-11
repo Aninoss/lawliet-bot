@@ -12,7 +12,7 @@ import commands.runnables.PornSearchAbstract;
         nsfw = true,
         requiresEmbeds = false,
         withLoadingBar = true,
-        aliases = {"rule34", "34"}
+        aliases = { "rule34", "34" }
 )
 public class Rule34Command extends PornSearchAbstract implements OnTrackerRequestListener {
 
@@ -31,6 +31,8 @@ public class Rule34Command extends PornSearchAbstract implements OnTrackerReques
     }
 
     @Override
-    public boolean isExplicit() { return true; }
+    public boolean isExplicit() {
+        return true;
+    }
 
 }

@@ -25,7 +25,7 @@ public class Fishery {
 
         if (roleIds.size() == 1) return (long) priceIdealMin;
 
-        double power = Math.pow(priceIdealMax / priceIdealMin, 1 / (double)(roleIds.size() - 1));
+        double power = Math.pow(priceIdealMax / priceIdealMin, 1 / (double) (roleIds.size() - 1));
 
         double price = Math.pow(power, n);
         double priceMax = Math.pow(power, roleIds.size() - 1);

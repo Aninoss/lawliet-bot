@@ -8,7 +8,7 @@ import commands.runnables.InteractionAbstract;
         trigger = "pat",
         emoji = "\uD83E\uDD1A",
         executableWithoutArgs = true,
-        aliases = {"praise", "yaoipat", "yuripat"}
+        aliases = { "praise", "yaoipat", "yuripat" }
 )
 public class PatCommand extends InteractionAbstract {
 
@@ -17,7 +17,7 @@ public class PatCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736275536317382717/736275542193733702/pat.gif",
                 "https://media.discordapp.net/attachments/736275536317382717/736275544949260368/pat.gif",
                 "https://media.discordapp.net/attachments/736275536317382717/736275548061302886/pat.gif",

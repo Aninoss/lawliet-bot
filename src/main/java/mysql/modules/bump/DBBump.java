@@ -22,8 +22,9 @@ public class DBBump {
         Statement statement = DBMain.getInstance().statementExecuted(sql);
         ResultSet resultSet = statement.getResultSet();
 
-        if (resultSet.next())
+        if (resultSet.next()) {
             instant = resultSet.getTimestamp(1).toInstant();
+        }
 
         resultSet.close();
         statement.close();

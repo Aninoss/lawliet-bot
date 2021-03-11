@@ -5,7 +5,7 @@ public class NumberUtil {
     public static long flattenLong(long value, int sliceKeepDigits) {
         int digits = countDigits(value);
         if (digits > sliceKeepDigits) {
-            return (long)(Math.round(value / Math.pow(10, digits - sliceKeepDigits)) * Math.pow(10, digits - sliceKeepDigits));
+            return (long) (Math.round(value / Math.pow(10, digits - sliceKeepDigits)) * Math.pow(10, digits - sliceKeepDigits));
         }
         return value;
     }
@@ -16,7 +16,7 @@ public class NumberUtil {
         }
 
         int digits = 0;
-        while(value != 0) {
+        while (value != 0) {
             value /= 10;
             digits++;
         }

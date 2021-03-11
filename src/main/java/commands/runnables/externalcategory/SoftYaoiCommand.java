@@ -9,7 +9,7 @@ import commands.runnables.SafebooruAbstract;
         emoji = "\uD83D\uDC6C",
         withLoadingBar = true,
         executableWithoutArgs = true,
-        aliases = {"safeyaoi", "sfwyaoi", "shounenai", "shounen-ai"}
+        aliases = { "safeyaoi", "sfwyaoi", "shounenai", "shounen-ai" }
 )
 public class SoftYaoiCommand extends SafebooruAbstract {
 

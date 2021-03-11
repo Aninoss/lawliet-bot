@@ -8,7 +8,7 @@ import commands.runnables.InteractionAbstract;
         trigger = "cuddle",
         emoji = "\uD83D\uDC50",
         executableWithoutArgs = true,
-        aliases = {"snuggle"}
+        aliases = { "snuggle" }
 )
 public class CuddleCommand extends InteractionAbstract {
 
@@ -17,7 +17,7 @@ public class CuddleCommand extends InteractionAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736279549121396816/736279555710386306/cuddle.gif",
                 "https://media.discordapp.net/attachments/736279549121396816/736279565739229275/cuddle.gif",
                 "https://media.discordapp.net/attachments/736279549121396816/736279573867659394/cuddle.gif",

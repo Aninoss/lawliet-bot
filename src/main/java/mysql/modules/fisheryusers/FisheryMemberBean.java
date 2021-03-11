@@ -72,8 +72,9 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         this.powerUpMap = powerUpMap;
         this.dailyValuesUpdated = dailyValuesUpdated;
 
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 6; i++) {
             this.powerUpMap.putIfAbsent(i, new FisheryMemberPowerUpBean(guildId, memberId, i, 0));
+        }
     }
 
     public FisheryMemberBean(long serverId, long memberId, FisheryGuildBean fisheryGuildBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryMemberPowerUpBean> powerUpMap) {
@@ -100,13 +101,15 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         if (level > 0) {
             if (fisheryGuildBean.getGuildBean().isFisherySingleRoles()) {
                 Role role = allRoles.get(level - 1);
-                if (role != null)
+                if (role != null) {
                     userRoles.add(role);
+                }
             } else {
                 for (int i = 0; i <= level - 1; i++) {
                     Role role = allRoles.get(i);
-                    if (role != null)
+                    if (role != null) {
                         userRoles.add(role);
+                    }
                 }
             }
         }
@@ -176,8 +179,9 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
             long sum = 0;
             for (int i = 0; i <= FisheryCategoryInterface.MAX; i++) {
                 sum += 15000L * FisheryMemberPowerUpBean.getValue(powerUpMap.get(i).getLevel());
-                if (sum >= Settings.FISHERY_MAX)
+                if (sum >= Settings.FISHERY_MAX) {
                     return Settings.FISHERY_MAX;
+                }
             }
             coinsGivenMax = sum;
         }
@@ -224,8 +228,9 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
                 checkValuesBound();
                 break;
             } catch (Throwable e) {
-                if (i == 2)
+                if (i == 2) {
                     MainLogger.get().error("Exception", e);
+                }
             }
         }
 
@@ -355,8 +360,9 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
     public void registerVC(int minutes) throws ExecutionException {
         if (!banned) {
             Optional<Integer> limitOpt = getGuildBean().getFisheryVcHoursCap();
-            if (limitOpt.isPresent() && ServerPatreonBoostCache.getInstance().get(getGuildId()))
+            if (limitOpt.isPresent() && ServerPatreonBoostCache.getInstance().get(getGuildId())) {
                 minutes = Math.min(minutes, limitOpt.get() * 60 - getVcMinutes());
+            }
 
             if (minutes > 0) {
                 long effect = getPowerUp(FisheryCategoryInterface.PER_VC).getEffect() * minutes;
@@ -434,8 +440,9 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
     public synchronized void changeValues(long fishAdd, long coinsAdd, Long newDailyStreak) {
         addFish(fishAdd);
         addCoinsRaw(coinsAdd);
-        if (newDailyStreak != null)
+        if (newDailyStreak != null) {
             setDailyStreak(newDailyStreak);
+        }
     }
 
     public EmbedBuilder changeValuesEmbed(long fishAdd, long coinsAdd) {
@@ -453,8 +460,9 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         /* Update Changes */
         addFish(fishAdd);
         addCoinsRaw(coinsAdd);
-        if (newDailyStreak != null)
+        if (newDailyStreak != null) {
             setDailyStreak(newDailyStreak);
+        }
 
         long rank = getRank();
 
@@ -475,24 +483,27 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
 
         String patreonEmoji = "👑";
         String displayName = member.getEffectiveName();
-        while (displayName.length() > 0 && displayName.startsWith(patreonEmoji))
+        while (displayName.length() > 0 && displayName.startsWith(patreonEmoji)) {
             displayName = displayName.substring(patreonEmoji.length());
+        }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", patron, displayName, patreonEmoji), null, member.getUser().getEffectiveAvatarUrl())
                 .setThumbnail(member.getUser().getEffectiveAvatarUrl());
 
         if (patron) eb.setColor(Color.YELLOW);
-        if (fishAdd > 0 || (fishAdd == 0 && coinsAdd > 0))
+        if (fishAdd > 0 || (fishAdd == 0 && coinsAdd > 0)) {
             eb.setColor(Color.GREEN);
-        else if (coinsAdd <= 0 && (fishAdd < 0 || coinsAdd < 0))
+        } else if (coinsAdd <= 0 && (fishAdd < 0 || coinsAdd < 0)) {
             eb.setColor(Color.RED);
+        }
 
         String codeBlock = CodeBlockColor.WHITE;
-        if (rank < rankPrevious)
+        if (rank < rankPrevious) {
             codeBlock = CodeBlockColor.GREEN;
-        else if (rank > rankPrevious)
+        } else if (rank > rankPrevious) {
             codeBlock = CodeBlockColor.RED;
+        }
 
         eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_desription",
                 getEmbedSlot(locale, fishIncome, fishIncomePrevious, false),
@@ -503,8 +514,9 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
                 codeBlock
         ));
 
-        if (banned)
+        if (banned) {
             EmbedUtil.addLog(eb, LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "banned"));
+        }
 
         return eb;
     }
@@ -520,22 +532,27 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
     }
 
     private void checkValuesBound() {
-        if (fish > Settings.FISHERY_MAX) fish = Settings.FISHERY_MAX;
-        else if (fish < 0) fish = 0;
+        if (fish > Settings.FISHERY_MAX) {
+            fish = Settings.FISHERY_MAX;
+        } else if (fish < 0) fish = 0;
 
-        if (coins > Settings.FISHERY_MAX) coins = Settings.FISHERY_MAX;
-        else if (coins < coinsHidden) coins = coinsHidden;
+        if (coins > Settings.FISHERY_MAX) {
+            coins = Settings.FISHERY_MAX;
+        } else if (coins < coinsHidden) coins = coinsHidden;
 
         if (fishIncome != null) {
-            if (fishIncome > Settings.FISHERY_MAX) fishIncome = Settings.FISHERY_MAX;
-            else if (fishIncome < 0) fishIncome = 0L;
+            if (fishIncome > Settings.FISHERY_MAX) {
+                fishIncome = Settings.FISHERY_MAX;
+            } else if (fishIncome < 0) fishIncome = 0L;
         }
 
-        if (dailyStreak > Settings.FISHERY_MAX) dailyStreak = Settings.FISHERY_MAX;
-        else if (dailyStreak < 0) dailyStreak = 0;
+        if (dailyStreak > Settings.FISHERY_MAX) {
+            dailyStreak = Settings.FISHERY_MAX;
+        } else if (dailyStreak < 0) dailyStreak = 0;
 
-        if (coinsGiven > Settings.FISHERY_MAX) coinsGiven = Settings.FISHERY_MAX;
-        else if (coinsGiven < 0) coinsGiven = 0;
+        if (coinsGiven > Settings.FISHERY_MAX) {
+            coinsGiven = Settings.FISHERY_MAX;
+        } else if (coinsGiven < 0) coinsGiven = 0;
     }
 
     public void levelUp(int powerUpId) {

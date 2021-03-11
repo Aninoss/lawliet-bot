@@ -12,8 +12,12 @@ public class VersionBeanSlot {
         this.date = date;
     }
 
-    public String getVersion() { return version; }
+    public String getVersion() {
+        return version;
+    }
 
-    public Instant getDate() { return date; }
+    public Instant getDate() {
+        return date;
+    }
 
 }

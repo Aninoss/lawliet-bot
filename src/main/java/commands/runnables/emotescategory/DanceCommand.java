@@ -8,7 +8,7 @@ import commands.runnables.EmoteAbstract;
         trigger = "dance",
         emoji = "\uD83D\uDD7A",
         executableWithoutArgs = true,
-        aliases = {"party"}
+        aliases = { "party" }
 )
 public class DanceCommand extends EmoteAbstract {
 
@@ -17,7 +17,7 @@ public class DanceCommand extends EmoteAbstract {
     }
 
     protected String[] getGifs() {
-        return new String[]{
+        return new String[] {
                 "https://media.discordapp.net/attachments/736255695296528484/736255699134316634/dance.gif",
                 "https://media.discordapp.net/attachments/736255695296528484/736255702888218645/dance.gif",
                 "https://media.discordapp.net/attachments/736255695296528484/736255712967131146/dance.gif",

@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.managers.ChannelManager;
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "️🧮️",
         executableWithoutArgs = true,
-        aliases = {"membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays", "mcdisplay" }
+        aliases = { "membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays", "mcdisplay" }
 )
 public class MemberCountDisplayCommand extends NavigationAbstract {
 
@@ -222,13 +222,13 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                                 })), false);
 
             case 1:
-                if (currentName != null && currentVC != null) setOptions(new String[]{getString("state1_options")});
+                if (currentName != null && currentVC != null) setOptions(new String[] { getString("state1_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description", StringUtil.escapeMarkdown(Optional.ofNullable(currentVC).flatMap(AtomicVoiceChannel::get).map(GuildChannel::getName).orElse(notSet)), highlightVariables(StringUtil.escapeMarkdown(Optional.ofNullable(currentName).orElse(notSet)))), getString("state1_title"));
 
             case 2:
                 ArrayList<MemberCountDisplaySlot> channelNames = new ArrayList<>(memberCountBean.getMemberCountBeanSlots().values());
                 String[] roleStrings = new String[channelNames.size()];
-                for(int i = 0; i < roleStrings.length; i++) {
+                for (int i = 0; i < roleStrings.length; i++) {
                     roleStrings[i] = channelNames.get(i).getMask();
                 }
                 setOptions(roleStrings);

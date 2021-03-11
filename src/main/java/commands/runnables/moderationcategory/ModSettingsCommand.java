@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "️⚙️️",
         executableWithoutArgs = true,
-        aliases = {"modsettings"}
+        aliases = { "modsettings" }
 )
 public class ModSettingsCommand extends NavigationAbstract {
 
@@ -72,11 +72,11 @@ public class ModSettingsCommand extends NavigationAbstract {
                         setState(4);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL,"too_small2", "1"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small2", "1"));
                         return Response.FALSE;
                     }
                 } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL,"no_digit"));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
                     return Response.FALSE;
                 }
 
@@ -88,11 +88,11 @@ public class ModSettingsCommand extends NavigationAbstract {
                         setState(5);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL,"too_small2", "1"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small2", "1"));
                         return Response.FALSE;
                     }
                 } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL,"no_digit"));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
                     return Response.FALSE;
                 }
 
@@ -105,11 +105,11 @@ public class ModSettingsCommand extends NavigationAbstract {
                         setState(0);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL,"too_small2", "1"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small2", "1"));
                         return Response.FALSE;
                     }
                 } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL,"no_digit"));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
                     return Response.FALSE;
                 }
 
@@ -122,11 +122,11 @@ public class ModSettingsCommand extends NavigationAbstract {
                         setState(0);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL,"too_small2", "1"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small2", "1"));
                         return Response.FALSE;
                     }
                 } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL,"no_digit"));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
                     return Response.FALSE;
                 }
 
@@ -178,7 +178,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     default:
-                            return false;
+                        return false;
                 }
 
             case 2:
@@ -262,23 +262,23 @@ public class ModSettingsCommand extends NavigationAbstract {
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc", getAutoModString(moderationBean.getAutoKick(), moderationBean.getAutoKickDays()), getAutoModString(moderationBean.getAutoBan(), moderationBean.getAutoBanDays())), false);
 
             case 1:
-                setOptions(new String[]{getString("state1_options")});
+                setOptions(new String[] { getString("state1_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                setOptions(new String[]{getString("state2_options")});
+                setOptions(new String[] { getString("state2_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:
-                setOptions(new String[]{getString("state3_options")});
+                setOptions(new String[] { getString("state3_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
 
             case 4:
-                setOptions(new String[]{getString("state4_options")});
+                setOptions(new String[] { getString("state4_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoKickTemp != 1, StringUtil.numToString(autoKickTemp)), getString("state4_title"));
 
             case 5:
-                setOptions(new String[]{getString("state4_options")});
+                setOptions(new String[] { getString("state4_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoBanTemp != 1, StringUtil.numToString(autoBanTemp)), getString("state5_title"));
 
             default:

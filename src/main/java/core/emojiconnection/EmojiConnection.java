@@ -33,12 +33,12 @@ public class EmojiConnection {
     public static EmojiConnection[] getEmojiConnectionArray(TextChannel channel, boolean withBackButton, String... connections) {
         EmojiConnection[] array = new EmojiConnection[connections.length];
         int index = 0;
-        for(int i=0; i<array.length; i++) {
+        for (int i = 0; i < array.length; i++) {
             if (withBackButton) {
                 array[i] = new BackEmojiConnection(channel, connections[i]);
                 withBackButton = false;
             } else {
-                array[i] = new EmojiConnection(LetterEmojis.LETTERS[index],connections[i]);
+                array[i] = new EmojiConnection(LetterEmojis.LETTERS[index], connections[i]);
                 index++;
             }
         }
@@ -50,7 +50,7 @@ public class EmojiConnection {
         EmojiConnection[] emojiConnections = getEmojiConnectionArray(channel, withBackButton, connections);
         StringBuilder sb = new StringBuilder();
 
-        for(int i = 0; i < emojiConnections.length; i++) {
+        for (int i = 0; i < emojiConnections.length; i++) {
             EmojiConnection emojiConnection = emojiConnections[i];
 
             if (pageSize != -1 && i == pageSize) sb.append("\n");
@@ -62,7 +62,7 @@ public class EmojiConnection {
 
         String str = sb.toString();
 
-        return str.substring(0,str.length()-1);
+        return str.substring(0, str.length() - 1);
     }
 
 }

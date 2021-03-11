@@ -75,14 +75,18 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
         }
 
         return new Pair<>(
-                getString("template_title",
+                getString(
+                        "template_title",
                         rankString,
-                        userString),
-                getString("template_descritpion",
+                        userString
+                ),
+                getString(
+                        "template_descritpion",
                         Emojis.SPACEHOLDER,
                         StringUtil.numToString(memberBean.getFishIncome()),
                         StringUtil.numToString(memberBean.getCoins()),
-                        StringUtil.numToString(memberBean.getFish()))
+                        StringUtil.numToString(memberBean.getFish())
+                )
         );
     }
 

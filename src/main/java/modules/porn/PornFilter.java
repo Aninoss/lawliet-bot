@@ -19,12 +19,13 @@ public class PornFilter {
 
         long totalWeight = pornImages.stream().mapToLong(PornImageMeta::getWeight).sum();
         long pos = (long) (new Random().nextDouble() * totalWeight);
-        for (PornImageMeta pornImageMeta : pornImages)
+        for (PornImageMeta pornImageMeta : pornImages) {
             if ((pos -= pornImageMeta.getWeight()) < 0) {
                 pornImageCacheSearchKey.add(pornImageMeta.getImageUrl());
                 usedResult.add(pornImageMeta.getImageUrl());
                 return pornImageMeta;
             }
+        }
 
         return null;
     }

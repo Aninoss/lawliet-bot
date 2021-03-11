@@ -17,8 +17,9 @@ public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMess
 
         if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID && event.getChannel().getIdLong() == GAME_CHANNEL_ID) {
             String numStr = event.getMessage().getContentRaw();
-            if (numStr.contains(" "))
+            if (numStr.contains(" ")) {
                 numStr = numStr.split(" ")[0];
+            }
 
             if (StringUtil.stringIsInt(numStr)) {
                 int val = Integer.parseInt(numStr);
@@ -30,10 +31,11 @@ public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMess
                         event.getMessage().reply(String.format("**%s** hat richtig geraten!\nDie Lösung war: `%s` (%d Versuche)", StringUtil.escapeMarkdown(event.getMember().getEffectiveName()), StringUtil.numToString(val), tries))
                                 .queue();
                     } else {
-                        if (res > 0)
+                        if (res > 0) {
                             event.getMessage().addReaction("⬆️").queue();
-                        else
+                        } else {
                             event.getMessage().addReaction("⬇️").queue();
+                        }
                     }
                 }
             }

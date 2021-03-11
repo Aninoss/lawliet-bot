@@ -13,7 +13,8 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "java.lang.InterruptedException",
     };
 
-    public ExceptionFilter() {}
+    public ExceptionFilter() {
+    }
 
     @Override
     public FilterReply decide(final ILoggingEvent event) {
@@ -27,8 +28,9 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
         }
 
         final ThrowableProxy throwableProxyImpl = (ThrowableProxy) throwableProxy;
-        if (!checkThrowable(throwableProxyImpl.getThrowable()))
+        if (!checkThrowable(throwableProxyImpl.getThrowable())) {
             return FilterReply.DENY;
+        }
 
         return FilterReply.NEUTRAL;
     }

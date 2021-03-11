@@ -19,11 +19,11 @@ import org.json.JSONObject;
 public class PornImageDownloader {
 
     public static CompletableFuture<Optional<PornImage>> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, boolean explicit, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws ExecutionException {
-        return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit,2, false, additionalFilters, usedResults);
+        return getPicture(domain, searchTerm, searchTermExtra, imageTemplate, animatedOnly, canBeVideo, explicit, 2, false, additionalFilters, usedResults);
     }
 
     public static CompletableFuture<Optional<PornImage>> getPicture(String domain, String searchTerm, String searchTermExtra, String imageTemplate, boolean animatedOnly, boolean canBeVideo, boolean explicit, int remaining, boolean softMode, ArrayList<String> additionalFilters, ArrayList<String> usedResults) throws ExecutionException {
-        while(searchTerm.contains("  ")) searchTerm = searchTerm.replace("  ", " ");
+        while (searchTerm.contains("  ")) searchTerm = searchTerm.replace("  ", " ");
         searchTerm = searchTerm.replace(", ", ",");
         searchTerm = searchTerm.replace("; ", ",");
 
@@ -127,21 +127,25 @@ public class PornImageDownloader {
     }
 
     private static PornImage getSpecificPictureOnPage(String domain, JSONObject postData, String imageTemplate) {
-        String postURL = "https://"+domain+"/index.php?page=post&s=view&id=" + postData.getInt("id");
+        String postURL = "https://" + domain + "/index.php?page=post&s=view&id=" + postData.getInt("id");
 
         Instant instant;
         if (postData.has("created_at")) {
             instant = TimeUtil.parseDateString(postData.getString("created_at"));
-        } else instant = Instant.now();
+        } else {
+            instant = Instant.now();
+        }
 
         String fileURL;
-        if (postData.has("file_url"))
+        if (postData.has("file_url")) {
             fileURL = postData.getString("file_url");
-        else
+        } else {
             fileURL = imageTemplate.replace("%d", postData.get("directory").toString()).replace("%f", postData.getString("image"));
+        }
 
-        if (fileURL.contains("?"))
+        if (fileURL.contains("?")) {
             fileURL = fileURL.split("\\?")[0];
+        }
 
         int score = 0;
         try {
@@ -152,4 +156,5 @@ public class PornImageDownloader {
 
         return new PornImage(fileURL, postURL, score, instant, !InternetUtil.urlContainsImage(fileURL) && !fileURL.endsWith("gif"));
     }
+
 }

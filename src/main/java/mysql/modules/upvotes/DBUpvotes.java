@@ -19,16 +19,14 @@ public class DBUpvotes extends DBSingleCache<UpvotesBean> {
 
     @Override
     protected UpvotesBean loadBean() throws Exception {
-        HashMap<Long, UpvoteSlot> upvoteMap = new DBDataLoad<UpvoteSlot>("Upvotes", "userId, lastDate", "1",
-                preparedStatement -> {
-                }
-        ).getHashMap(
-                UpvoteSlot::getUserId,
-                resultSet -> new UpvoteSlot(
-                        resultSet.getLong(1),
-                        resultSet.getTimestamp(2).toInstant()
-                )
-        );
+        HashMap<Long, UpvoteSlot> upvoteMap = new DBDataLoad<UpvoteSlot>("Upvotes", "userId, lastDate", "1")
+                .getHashMap(
+                        UpvoteSlot::getUserId,
+                        resultSet -> new UpvoteSlot(
+                                resultSet.getLong(1),
+                                resultSet.getTimestamp(2).toInstant()
+                        )
+                );
 
         UpvotesBean upvotesBean = new UpvotesBean(upvoteMap);
         upvotesBean.getUpvoteMap().addMapAddListener(this::addUpvote);
@@ -46,8 +44,7 @@ public class DBUpvotes extends DBSingleCache<UpvotesBean> {
     }
 
     public void cleanUp() {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();", preparedStatement -> {
-        });
+        DBMain.getInstance().asyncUpdate("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();");
     }
 
     @Override
