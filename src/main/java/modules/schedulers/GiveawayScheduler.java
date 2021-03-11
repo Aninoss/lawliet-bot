@@ -1,5 +1,6 @@
 package modules.schedulers;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,8 +49,17 @@ public class GiveawayScheduler {
         }
     }
 
-    public void loadGiveawayBean(GiveawaySlot giveawaySlot) {
-        MainScheduler.getInstance().schedule(giveawaySlot.getEnd(), "giveaway", () -> onGiveawayDue(giveawaySlot));
+    public void loadGiveawayBean(GiveawaySlot slot) {
+        loadGiveawayBean(slot.getGuildId(), slot.getMessageId(), slot.getEnd());
+    }
+
+    public void loadGiveawayBean(long guildId, long messageId, Instant due) {
+        MainScheduler.getInstance().schedule(due, "giveaway_" + messageId, () -> {
+            CustomObservableMap<Long, GiveawaySlot> map = DBGiveaway.getInstance().retrieve(guildId);
+            if (map.containsKey(messageId)) {
+                onGiveawayDue(map.get(messageId));
+            }
+        });
     }
 
     private void onGiveawayDue(GiveawaySlot giveawaySlot) {
