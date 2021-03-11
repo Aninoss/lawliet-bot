@@ -140,7 +140,6 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                         VoiceChannel voiceChannel = vcOpt.get();
                         ChannelManager manager = voiceChannel.getManager();
 
-                        //TODO: requires member cache
                         for (PermissionOverride permissionOverride : voiceChannel.getPermissionOverrides()) {
                             manager = manager.putPermissionOverride(
                                     permissionOverride.getPermissionHolder(),

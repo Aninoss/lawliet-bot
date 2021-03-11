@@ -186,6 +186,8 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 }
 
             case 1:
+
+            case 4:
                 if (i == -1) {
                     setState(0);
                     return true;
@@ -213,13 +215,6 @@ public class FisheryRolesCommand extends NavigationAbstract {
                     guildBean.setFisheryAnnouncementChannelId(null);
                     setState(0);
                     setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
-                    return true;
-                }
-                return false;
-
-            case 4:
-                if (i == -1) {
-                    setState(0);
                     return true;
                 }
                 return false;

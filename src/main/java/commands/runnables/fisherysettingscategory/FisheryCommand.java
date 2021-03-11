@@ -131,12 +131,11 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
                             if (stopLock) {
                                 stopLock = false;
                                 setLog(LogStatus.WARNING, getString("stoplock"));
-                                return true;
                             } else {
                                 DBFishery.getInstance().removePowerPlant(event.getGuild().getIdLong());
                                 setLog(LogStatus.SUCCESS, getString("setstatus"));
-                                return true;
                             }
+                            return true;
                         }
 
                     default:

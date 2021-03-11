@@ -17,6 +17,7 @@ import commands.listeners.OnTriggerListener;
 import constants.*;
 import core.ExceptionLogger;
 import core.MainLogger;
+import core.RestActionQueue;
 import core.TextManager;
 import core.emojiconnection.EmojiConnection;
 import core.utils.*;
@@ -195,14 +196,13 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                 }
             }
             startCalculation.set(false);
-            return index;
         } else {
             if (options != null && options.length > reactions && index >= 0) {
                 index += (reactions - 2) * page;
             }
             startCalculation.set(true);
-            return index;
         }
+        return index;
     }
 
     private CompletableFuture<Long> processDraw(TextChannel channel) {
@@ -245,17 +245,20 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
     private void addNavigationEmojis(TextChannel channel, long messageId) {
         if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_ADD_REACTION)) {
+            RestActionQueue restActionQueue = new RestActionQueue();
             for (int i = -1; i < reactions; i++) {
                 if (i == -1) {
                     if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI)) {
-                        channel.addReactionById(messageId, JDAEmojiUtil.emojiAsReactionTag(Emojis.BACK_EMOJI)).queue();
+                        restActionQueue.attach(channel.addReactionById(messageId, JDAEmojiUtil.emojiAsReactionTag(Emojis.BACK_EMOJI)));
                     } else {
-                        channel.addReactionById(messageId, Emojis.BACK_EMOJI_UNICODE).queue();
+                        restActionQueue.attach(channel.addReactionById(messageId, Emojis.BACK_EMOJI_UNICODE));
                     }
                 } else {
-                    channel.addReactionById(messageId, Emojis.LETTERS[i]).queue();
+                    restActionQueue.attach(channel.addReactionById(messageId, Emojis.LETTERS[i]));
                 }
             }
+            restActionQueue.getCurrentRestAction()
+                    .queue();
         }
     }
 

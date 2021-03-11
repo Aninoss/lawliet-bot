@@ -322,7 +322,7 @@ public class CommandContainer {
         Cache<Long, CommandListenerMeta<?>> cache = listenerMap.computeIfAbsent(
                 clazz,
                 e -> CacheBuilder.newBuilder()
-                        .expireAfterWrite(Duration.ofMillis(Settings.TIME_OUT_TIME))
+                        .expireAfterWrite(Duration.ofMinutes(Settings.TIME_OUT_MINUTES))
                         .removalListener(event -> {
                             if (event.getCause() == RemovalCause.EXPIRED) {
                                 ((CommandListenerMeta<?>) event.getValue()).timeOut();

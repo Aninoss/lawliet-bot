@@ -38,7 +38,7 @@ public abstract class ListAbstract extends Command implements OnReactionListener
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+    public boolean onReaction(GenericGuildMessageReactionEvent event) {
         if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), SCROLL_EMOJIS[0])) {
             page--;
             if (page < 0) page = getPageSize() - 1;

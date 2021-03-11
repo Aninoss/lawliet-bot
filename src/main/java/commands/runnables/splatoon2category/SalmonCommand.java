@@ -79,16 +79,16 @@ public class SalmonCommand extends Command implements OnTrackerRequestListener {
 
         for (int i = 0; i < datesShown; i++) {
             String title = Emojis.SPLATOON_SALMONRUN + " __**" + TimeUtil.getInstantString(getLocale(), startTime[i], true) + " - " + TimeUtil.getInstantString(getLocale(), endTime[i], true) + "**__";
-            String weapons = "";
+            StringBuilder weapons = new StringBuilder();
             for (int j = 0; j < 4; j++) {
                 if (!salmonData.getJSONObject(i).getJSONArray("weapons").isNull(j) && Integer.parseInt(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")) >= 0) {
-                    weapons += "**" + languageData.getJSONObject("weapons").getJSONObject(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")).getString("name") + "**, ";
+                    weapons.append("**").append(languageData.getJSONObject("weapons").getJSONObject(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")).getString("name")).append("**, ");
                 } else {
-                    weapons += "**?**, ";
+                    weapons.append("**?**, ");
                 }
             }
-            if (weapons.endsWith(", ")) weapons = weapons.substring(0, weapons.length() - 2);
-            String body = getString("template", languageData.getJSONObject("coop_stages").getJSONObject(salmonData.getJSONObject(i).getJSONObject("stage").getString("image")).getString("name"), weapons);
+            if (weapons.toString().endsWith(", ")) weapons = new StringBuilder(weapons.substring(0, weapons.length() - 2));
+            String body = getString("template", languageData.getJSONObject("coop_stages").getJSONObject(salmonData.getJSONObject(i).getJSONObject("stage").getString("image")).getString("name"), weapons.toString());
             eb.addField(title, body, false);
         }
 

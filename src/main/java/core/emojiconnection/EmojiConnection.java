@@ -1,10 +1,13 @@
 package core.emojiconnection;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import constants.Emojis;
 import core.utils.JDAEmojiUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.requests.RestAction;
 
 public class EmojiConnection {
 
@@ -16,8 +19,10 @@ public class EmojiConnection {
         this.emoji = emoji;
     }
 
-    public void addReaction(Message message) {
-        message.addReaction(JDAEmojiUtil.emojiAsReactionTag(emoji)).queue();
+    @Nonnull
+    @CheckReturnValue
+    public RestAction<Void> addReaction(Message message) {
+        return message.addReaction(JDAEmojiUtil.emojiAsReactionTag(emoji));
     }
 
     public boolean isEmoji(MessageReaction.ReactionEmote reactionEmote) {

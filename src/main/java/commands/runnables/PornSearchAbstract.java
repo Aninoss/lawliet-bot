@@ -24,7 +24,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
     }
 
     @Override
-    public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Exception {
+    public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) {
         String searchAdd = NSFWUtil.getNSFWTagRemoveList(nsfwFilter);
 
         String domain = getDomain();

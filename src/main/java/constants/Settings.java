@@ -4,7 +4,7 @@ import java.awt.*;
 
 public interface Settings {
 
-    int TIME_OUT_TIME = 10 * 60 * 1000;
+    int TIME_OUT_MINUTES = 10;
     long FISHERY_MAX = 9999999999999999L;
     String[] NSFW_FILTERS = { "shota", "loli", "bestiality", "beastiality", "cub", "vore", "gore", "scat", "rape" };
     int RESTART_HOUR = 9;

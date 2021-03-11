@@ -11,6 +11,7 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.ExchangeRate;
+import modules.Fishery;
 import mysql.modules.tracker.TrackerBeanSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -39,22 +40,7 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
     }
 
     private EmbedBuilder getEmbed() {
-        return EmbedFactory.getEmbedDefault(this, getString("template", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
-    }
-
-    private String getChangeEmoji() {
-        int rateNow = ExchangeRate.getInstance().get(0);
-        int rateBefore = ExchangeRate.getInstance().get(-1);
-
-        if (rateNow > rateBefore) {
-            return "\uD83D\uDD3A";
-        } else {
-            if (rateNow < rateBefore) {
-                return "\uD83D\uDD3B";
-            } else {
-                return "•";
-            }
-        }
+        return EmbedFactory.getEmbedDefault(this, getString("template", StringUtil.numToString(ExchangeRate.getInstance().get(0)), Fishery.getChangeEmoji()));
     }
 
     @Override

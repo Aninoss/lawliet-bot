@@ -139,8 +139,8 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
                 event.getChannel().clearReactionsById(getDrawMessageId().get())
                         .queue(v -> event.getChannel().addReactionById(getDrawMessageId().get(), EMOJI_CANCEL).queue());
             } else {
-                event.getChannel().removeReactionById(getDrawMessageId().get(), EMOJI_CONNECT).queue();
-                event.getChannel().addReactionById(getDrawMessageId().get(), EMOJI_CANCEL).queue();
+                event.getChannel().removeReactionById(getDrawMessageId().get(), EMOJI_CONNECT)
+                        .queue(v -> event.getChannel().addReactionById(getDrawMessageId().get(), EMOJI_CANCEL).queue());
             }
 
             OsuAccountSync.getInstance().add(event.getUserIdLong(), osuUsername -> {

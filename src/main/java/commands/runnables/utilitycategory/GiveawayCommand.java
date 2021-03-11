@@ -193,7 +193,7 @@ public class GiveawayCommand extends NavigationAbstract {
         return Response.FALSE;
     }
 
-    private String uploadFile(File file) throws ExecutionException, InterruptedException {
+    private String uploadFile(File file) {
         if (imageMessage != null) {
             imageMessage.delete().queue();
             imageMessage = null;

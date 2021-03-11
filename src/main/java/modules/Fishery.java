@@ -46,7 +46,27 @@ public class Fishery {
                 .setImage("https://cdn.discordapp.com/attachments/711665837114654781/711665915355201576/treasure_closed.png");
 
         channel.sendMessage(eb.build())
-                .flatMap(m -> m.addReaction(FisheryCommand.EMOJI_KEY)).queue();
+                .flatMap(m -> m.addReaction(FisheryCommand.EMOJI_KEY))
+                .queue();
+    }
+
+    public static String getChangeEmoji() {
+        return getChangeEmoji(0);
+    }
+
+    public static String getChangeEmoji(int offset) {
+        int rateNow = ExchangeRate.getInstance().get(offset);
+        int rateBefore = ExchangeRate.getInstance().get(offset - 1);
+
+        if (rateNow > rateBefore) {
+            return "\uD83D\uDD3A";
+        } else {
+            if (rateNow < rateBefore) {
+                return "\uD83D\uDD3B";
+            } else {
+                return "•";
+            }
+        }
     }
 
 }

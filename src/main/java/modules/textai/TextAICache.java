@@ -9,7 +9,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class TextAICache {
 
-    public static TextAICache ourInstance = new TextAICache();
+    public static final TextAICache ourInstance = new TextAICache();
 
     public static TextAICache getInstance() {
         return ourInstance;

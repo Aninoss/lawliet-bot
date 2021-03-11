@@ -198,7 +198,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
     }
 
     @Override
-    public void onReactionTimeOut() throws Throwable {
+    public void onReactionTimeOut() {
         if (status == Status.ACTIVE) {
             abort();
             EmbedBuilder eb = draw();

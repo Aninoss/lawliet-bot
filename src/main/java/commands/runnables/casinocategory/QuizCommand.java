@@ -1,5 +1,6 @@
 package commands.runnables.casinocategory;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
@@ -7,9 +8,11 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
-import constants.*;
+import constants.Category;
+import constants.Emojis;
+import constants.LogStatus;
+import constants.Settings;
 import core.EmbedFactory;
-import core.MainLogger;
 import core.TextManager;
 import core.internet.HttpRequest;
 import core.schedule.MainScheduler;
@@ -142,16 +145,12 @@ public class QuizCommand extends CasinoAbstract {
     }
 
     private void onTimeUp() {
-        try {
-            if (getStatus() == Status.ACTIVE) {
-                onAnswerSelected(-1);
-            }
-        } catch (ExecutionException e) {
-            MainLogger.get().error("Exception on countdown", e);
+        if (getStatus() == Status.ACTIVE) {
+            onAnswerSelected(-1);
         }
     }
 
-    private void onAnswerSelected(int selected) throws ExecutionException {
+    private void onAnswerSelected(int selected) {
         if (selected == correctAnswer) {
             win(answers.length * (difficulty + 1) / 8.0);
             setLog(LogStatus.WIN, getString("correct"));
@@ -161,7 +160,7 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         answerSelected = selected;
-        MainScheduler.getInstance().schedule(Settings.TIME_OUT_TIME, "quiz_remove", this::removeReactionListenerWithMessage);
+        MainScheduler.getInstance().schedule(Settings.TIME_OUT_MINUTES, ChronoUnit.MINUTES, "quiz_remove", this::removeReactionListenerWithMessage);
     }
 
 }

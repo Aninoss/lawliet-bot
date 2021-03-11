@@ -2,7 +2,8 @@ package core.internet;
 
 public class HttpProperty {
 
-    String key, value;
+    final String key;
+    final String value;
 
     public HttpProperty(String key, String value) {
         this.key = key;

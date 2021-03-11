@@ -95,20 +95,18 @@ public class NSFWFilterCommand extends NavigationAbstract {
                     case 0:
                         if (keywords.size() < MAX_FILTERS) {
                             setState(1);
-                            return true;
                         } else {
                             setLog(LogStatus.FAILURE, getString("toomanykeywords", String.valueOf(MAX_FILTERS)));
-                            return true;
                         }
+                        return true;
 
                     case 1:
                         if (keywords.size() > 0) {
                             setState(2);
-                            return true;
                         } else {
                             setLog(LogStatus.FAILURE, getString("nokeywordset"));
-                            return true;
                         }
+                        return true;
                 }
                 return false;
 

@@ -9,7 +9,11 @@ import core.utils.StringUtil;
 
 public class TextManager {
 
-    public static String COMMANDS = "commands", GENERAL = "general", PERMISSIONS = "permissions", VERSIONS = "versions", FAQ = "faq";
+    public static final String COMMANDS = "commands";
+    public static final String GENERAL = "general";
+    public static final String PERMISSIONS = "permissions";
+    public static final String VERSIONS = "versions";
+    public static final String FAQ = "faq";
 
     private static final HashMap<String, ResourceBundle> bundles = new HashMap<>();
 

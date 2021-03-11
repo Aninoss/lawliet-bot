@@ -29,7 +29,7 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
     }
 
     @Override
-    public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Exception {
+    public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) {
         if (!search.isEmpty()) notice = TextManager.getString(getLocale(), Category.NSFW, "porn_keyforbidden");
 
         search = getSearchKey();

@@ -29,7 +29,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
     protected abstract void setActive(boolean active);
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (args.length() > 0) {
             int option = -1;
             for (int i = 0; i < ACTIVE_ARGS.length; i++) {
@@ -50,15 +50,14 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
             setActive(active);
             event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getSetText()).build())
                     .queue();
-            return true;
         } else {
             registerReactionListener(Emojis.CHECKMARK, Emojis.X);
-            return true;
         }
+        return true;
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+    public boolean onReaction(GenericGuildMessageReactionEvent event) {
         for (int i = 0; i < 2; i++) {
             String str = StringUtil.getEmojiForBoolean(i == 1);
             if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), str)) {
@@ -73,7 +72,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
     }
 
     @Override
-    public EmbedBuilder draw() throws Throwable {
+    public EmbedBuilder draw() {
         if (!set) {
             String onOffText = StringUtil.getOnOffForBoolean(getLocale(), isActive());
             String status = TextManager.getString(getLocale(), TextManager.GENERAL, "function_status", onOffText);

@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "channelinfo",
         emoji = "\uD83D\uDCDD",
         executableWithoutArgs = true,
-        aliases = { "channelinfos", "channelstat", "channelstats" }
+        aliases = { "channelinfos", "channelstat", "channelstats", "channel" }
 )
 public class ChannelInfoCommand extends Command {
 

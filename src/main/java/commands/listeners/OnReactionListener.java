@@ -8,6 +8,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import core.MainLogger;
+import core.RestActionQueue;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
 import core.utils.JDAEmojiUtil;
@@ -30,7 +31,9 @@ public interface OnReactionListener {
                         (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)))
                 ).thenApply(messageId -> {
                     command.getTextChannel().ifPresent(channel -> {
-                        Arrays.stream(emojis).forEach(emoji -> channel.addReactionById(messageId, JDAEmojiUtil.emojiAsReactionTag(emoji)).queue());
+                        RestActionQueue restActionQueue = new RestActionQueue();
+                        Arrays.stream(emojis).forEach(emoji -> restActionQueue.attach(channel.addReactionById(messageId, JDAEmojiUtil.emojiAsReactionTag(emoji))));
+                        restActionQueue.getCurrentRestAction().queue();
                     });
                     return messageId;
                 })

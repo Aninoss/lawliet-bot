@@ -126,15 +126,15 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
             String id = "regular";
             String fieldTitle = Emojis.SPLATOON_SPLATFEST + getString("splatfest_battle", festTeams[0], festTeams[1]);
             String[] timeNames = getString("times").split("\n");
-            String fieldContent = "";
+            StringBuilder fieldContent = new StringBuilder();
             for (int j = 0; j < timeNames.length; j++) {
                 String[] stageNames = new String[] {
                         languageData.getJSONObject("stages").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("stage_a").getString("id")).getString("name"),
                         languageData.getJSONObject("stages").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("stage_b").getString("id")).getString("name"),
                         festMapName };
-                fieldContent += "• " + timeNames[j] + ": **" + stageNames[0] + "**, **" + stageNames[1] + "**, **" + stageNames[2] + "**\n";
+                fieldContent.append("• ").append(timeNames[j]).append(": **").append(stageNames[0]).append("**, **").append(stageNames[1]).append("**, **").append(stageNames[2]).append("**\n");
             }
-            eb.addField(fieldTitle, fieldContent, false);
+            eb.addField(fieldTitle, fieldContent.toString(), false);
         }
 
         InternetCache.setExpirationDate(endTime, urls);

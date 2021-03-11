@@ -5,11 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
-import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionListener;
-import commands.listeners.OnStaticReactionAddListener;
-import commands.listeners.OnTriggerListener;
-import commands.runnables.NavigationAbstract;
+import commands.listeners.*;
 import constants.LogStatus;
 import core.Bot;
 import core.TextManager;
@@ -86,7 +82,7 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
-    public synchronized CompletableFuture<Long> drawMessage(EmbedBuilder eb, String... emojis) {
+    public synchronized CompletableFuture<Long> drawMessage(EmbedBuilder eb) {
         EmbedUtil.addLog(eb, logStatus, log);
 
         CompletableFuture<Long> future = new CompletableFuture<>();
@@ -96,7 +92,6 @@ public abstract class Command implements OnTriggerListener {
                     channel.sendMessage(eb.build())
                             .queue(message -> {
                                 drawMessageId = message.getIdLong();
-                                Arrays.stream(emojis).forEach(emoji -> message.addReaction(JDAEmojiUtil.emojiAsReactionTag(emoji)).queue());
                                 future.complete(drawMessageId);
                             }, future::completeExceptionally);
                 } else {
@@ -189,8 +184,7 @@ public abstract class Command implements OnTriggerListener {
             return new Permission[] { Permission.ADMINISTRATOR };
         }
 
-        //TODO: Does that work?
-        if ((this instanceof OnReactionListener || this instanceof NavigationAbstract || this instanceof OnStaticReactionAddListener) &&
+        if ((this instanceof OnReactionListener || this instanceof OnStaticReactionAddListener || this instanceof OnStaticReactionRemoveListener) &&
                 Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_HISTORY)
         ) {
             permissions = Arrays.copyOf(permissions, permissions.length + 1);
@@ -220,8 +214,7 @@ public abstract class Command implements OnTriggerListener {
             return new Permission[] { Permission.ADMINISTRATOR };
         }
 
-        //TODO: Does that work?
-        if ((this instanceof OnReactionListener || this instanceof NavigationAbstract || this instanceof OnStaticReactionAddListener)) {
+        if (this instanceof OnReactionListener || this instanceof OnStaticReactionAddListener || this instanceof OnStaticReactionRemoveListener) {
             if (Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_HISTORY)) {
                 permissions = Arrays.copyOf(permissions, permissions.length + 1);
                 permissions[permissions.length - 1] = Permission.MESSAGE_HISTORY;

@@ -18,10 +18,7 @@ import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.Settings;
-import core.Bot;
-import core.EmbedFactory;
-import core.ShardManager;
-import core.TextManager;
+import core.*;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
 import core.schedule.MainScheduler;
@@ -252,7 +249,7 @@ public class CommandManager {
     private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             event.getMessage()
-                    .reply(TextManager.getString(locale, TextManager.GENERAL, "command_block", text, event.getMember().getAsMention()))
+                    .reply(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
                     .queue(message -> autoRemoveMessageAfterCountdown(event, message));
         }
     }
@@ -260,8 +257,7 @@ public class CommandManager {
     private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
-            event.getMessage().reply(event.getMessage().getMember().getAsMention())
-                    .embed(eb.build())
+            event.getMessage().reply(eb.build())
                     .queue(message -> autoRemoveMessageAfterCountdown(event, message));
         }
     }
@@ -302,12 +298,15 @@ public class CommandManager {
         }
 
         if (BotPermissionUtil.canRead(event.getChannel(), Permission.MESSAGE_ADD_REACTION)) {
+            RestActionQueue restActionQueue = new RestActionQueue();
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_EXT_EMOJI)) {
-                event.getMessage().addReaction(JDAEmojiUtil.emojiAsReactionTag(Emojis.NO)).queue();
+                restActionQueue.attach(event.getMessage().addReaction(JDAEmojiUtil.emojiAsReactionTag(Emojis.NO)));
             } else {
-                event.getMessage().addReaction(Emojis.X).queue();
+                restActionQueue.attach(event.getMessage().addReaction(Emojis.X));
             }
-            event.getMessage().addReaction("✍️").queue();
+            restActionQueue.attach(event.getMessage().addReaction("✍️"))
+                    .getCurrentRestAction()
+                    .queue();
         }
 
         if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR)) {

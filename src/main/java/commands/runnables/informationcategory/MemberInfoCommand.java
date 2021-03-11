@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "userinfo",
         emoji = "\uD83D\uDC81",
         executableWithoutArgs = true,
-        aliases = { "userinfos", "userstat", "userstats", "accountinfo", "whois" }
+        aliases = { "userinfos", "userstat", "userstats", "accountinfo", "whois", "memberinfo", "user", "member" }
 )
 public class MemberInfoCommand extends MemberAccountAbstract {
 

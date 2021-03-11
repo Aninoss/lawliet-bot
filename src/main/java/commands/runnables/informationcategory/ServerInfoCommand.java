@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "serverinfo",
         emoji = "\uD83D\uDC6A",
         executableWithoutArgs = true,
-        aliases = { "serverinfos", "serverstat", "serverstats" }
+        aliases = { "serverinfos", "serverstat", "serverstats", "guild", "server" }
 )
 public class ServerInfoCommand extends Command {
 

@@ -80,11 +80,10 @@ public class WhiteListCommand extends NavigationAbstract {
                         if (whiteListedChannels.size() > 0) {
                             whiteListedChannels.clear();
                             setLog(LogStatus.SUCCESS, getString("channelcleared"));
-                            return true;
                         } else {
                             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "element_start_remove_none_channel"));
-                            return true;
                         }
+                        return true;
                 }
                 return false;
 

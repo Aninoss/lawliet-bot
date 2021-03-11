@@ -92,8 +92,6 @@ public class AlertsCommand extends NavigationAbstract {
                             return false;
 
                         case 1:
-                            setState(DEFAULT_STATE);
-                            return true;
 
                         case 2:
                         case 3:

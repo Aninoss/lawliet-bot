@@ -13,6 +13,7 @@ import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.ExchangeRate;
+import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -52,7 +53,7 @@ public class SellCommand extends Command implements FisheryInterface, OnReaction
                             StringUtil.numToString(userBean.getFish()),
                             StringUtil.numToString(userBean.getCoins()),
                             StringUtil.numToString(ExchangeRate.getInstance().get(0)),
-                            getChangeEmoji()
+                            Fishery.getChangeEmoji()
                     )
             );
             registerReactionListener(Emojis.X);
@@ -87,21 +88,6 @@ public class SellCommand extends Command implements FisheryInterface, OnReaction
         deregisterMessageInputListener();
     }
 
-    private String getChangeEmoji() {
-        int rateNow = ExchangeRate.getInstance().get(0);
-        int rateBefore = ExchangeRate.getInstance().get(-1);
-
-        if (rateNow > rateBefore) {
-            return "\uD83D\uDD3A";
-        } else {
-            if (rateNow < rateBefore) {
-                return "\uD83D\uDD3B";
-            } else {
-                return "•";
-            }
-        }
-    }
-
     private boolean process(GuildMessageReceivedEvent event, String args) {
         long value = Math.min(MentionUtil.getAmountExt(args, userBean.getFish()), userBean.getFish());
 
@@ -129,7 +115,7 @@ public class SellCommand extends Command implements FisheryInterface, OnReaction
     }
 
     private void markNoInterest() {
-        eb = EmbedFactory.getEmbedDefault(this, getString("nointerest_description", StringUtil.numToString(ExchangeRate.getInstance().get(0)), getChangeEmoji()));
+        eb = EmbedFactory.getEmbedDefault(this, getString("nointerest_description", StringUtil.numToString(ExchangeRate.getInstance().get(0)), Fishery.getChangeEmoji()));
     }
 
 }

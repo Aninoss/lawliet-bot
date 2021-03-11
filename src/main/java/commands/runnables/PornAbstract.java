@@ -205,7 +205,7 @@ public abstract class PornAbstract extends Command {
         return TrackerResult.CONTINUE_AND_SAVE;
     }
 
-    protected CompletableFuture<Void> post(ArrayList<PornImage> pornImages, String search, TextChannel channel, boolean embed, int max) throws ExecutionException, InterruptedException {
+    protected CompletableFuture<Void> post(ArrayList<PornImage> pornImages, String search, TextChannel channel, boolean embed, int max) {
         return CompletableFuture.supplyAsync(() -> {
             if (embed) {
                 PornImage pornImage = pornImages.get(0);

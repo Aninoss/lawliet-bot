@@ -9,7 +9,7 @@ import core.MainLogger;
 public class ParallelInternet {
 
     private final HashMap<String, CompletableFuture<HttpResponse>> responseHashMap = new HashMap<>();
-    int size;
+    final int size;
 
     public ParallelInternet(String... urlArray) {
         size = urlArray.length;

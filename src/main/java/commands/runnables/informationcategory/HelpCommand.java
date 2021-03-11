@@ -41,7 +41,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class HelpCommand extends NavigationAbstract {
 
-    String[] LIST = new String[] {
+    private final String[] LIST = new String[] {
             Category.GIMMICKS,
             Category.AI_TOYS,
             Category.CONFIGURATION,
@@ -488,10 +488,10 @@ public class HelpCommand extends NavigationAbstract {
 
     private static class CommandIcon {
 
-        public static CommandIcon LOCKED = new CommandIcon(Emojis.COMMAND_ICON_LOCKED);
-        public static CommandIcon ALERTS = new CommandIcon(Emojis.COMMAND_ICON_ALERTS);
-        public static CommandIcon NSFW = new CommandIcon(Emojis.COMMAND_ICON_NSFW);
-        public static CommandIcon PATREON = new CommandIcon(Emojis.COMMAND_ICON_PATREON);
+        public static final CommandIcon LOCKED = new CommandIcon(Emojis.COMMAND_ICON_LOCKED);
+        public static final CommandIcon ALERTS = new CommandIcon(Emojis.COMMAND_ICON_ALERTS);
+        public static final CommandIcon NSFW = new CommandIcon(Emojis.COMMAND_ICON_NSFW);
+        public static final CommandIcon PATREON = new CommandIcon(Emojis.COMMAND_ICON_PATREON);
 
         private final String emojiTag;
 

@@ -34,7 +34,6 @@ public class CoinFlipCommand extends CasinoAbstract {
 
     @Override
     public String[] onGameStart(GuildMessageReceivedEvent event, String args) {
-        //TODO: Without "onlyNumberAsArgs"?
         int coinSideSelection = getCoinValue(args);
         if (coinSideSelection >= 0) selection[0] = coinSideSelection;
 

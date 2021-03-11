@@ -15,10 +15,7 @@ import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
 import constants.Response;
-import core.EmbedFactory;
-import core.PermissionCheckRuntime;
-import core.ShardManager;
-import core.TextManager;
+import core.*;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
@@ -392,9 +389,13 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 TextChannel textChannel = channel.get().get();
                 m = textChannel.sendMessage(getMessageEmbed(false).build()).complete();
                 if (BotPermissionUtil.canRead(textChannel, Permission.MESSAGE_ADD_REACTION)) {
+                    RestActionQueue restActionQueue = new RestActionQueue();
                     for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                        emojiConnection.addReaction(m);
+                        restActionQueue.attach(emojiConnection.addReaction(m));
                     }
+                    restActionQueue
+                            .getCurrentRestAction()
+                            .queue();
                 }
                 return true;
             } else {
@@ -572,11 +573,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         checkRolesWithLog(MentionUtil.getRoles(editMessage, embed.getFields().get(0).getValue()).getList());
         for (String line : embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
-            if (parts[0].startsWith("<")) {
-                emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
-            } else {
-                emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
-            }
+            emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
         }
     }
 

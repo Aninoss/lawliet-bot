@@ -41,7 +41,7 @@ public class SlotCommand extends CasinoAbstract {
     }
 
     @Override
-    public String[] onGameStart(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public String[] onGameStart(GuildMessageReceivedEvent event, String args) {
         double n = new Random().nextDouble();
 
         winLevel = 0;

@@ -47,6 +47,7 @@ public class QuoteCommand extends Command {
             }
         }
 
+        EmbedBuilder eb;
         if (args.length() > 0) {
             MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
             String newString = channelMention.getResultMessageString();
@@ -63,16 +64,15 @@ public class QuoteCommand extends Command {
                 }
             }
 
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
+            eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(getString("noresult_channel", newString, channel.getAsMention()));
-            event.getChannel().sendMessage(eb.build()).queue();
-            return false;
         } else {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("noarg", event.getMessage().getMember().getAsMention()));
-            event.getChannel().sendMessage(eb.build()).queue();
-            return false;
+            eb = EmbedFactory.getEmbedError(this, getString("noarg", event.getMessage().getMember().getAsMention()));
         }
+
+        event.getChannel().sendMessage(eb.build()).queue();
+        return false;
     }
 
 }

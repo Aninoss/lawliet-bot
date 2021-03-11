@@ -8,6 +8,7 @@ import core.TextManager;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.ExchangeRate;
+import modules.Fishery;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -49,29 +50,14 @@ public class ExchangeRateForecastCommand extends Command {
         return EmbedFactory.getEmbedDefault(this, getString(
                 "template",
                 StringUtil.numToString(ExchangeRate.getInstance().get(-1)),
-                getChangeEmoji(-1),
+                Fishery.getChangeEmoji(-1),
                 StringUtil.numToString(ExchangeRate.getInstance().get(0)),
-                getChangeEmoji(0),
+                Fishery.getChangeEmoji(0),
                 StringUtil.numToString(ExchangeRate.getInstance().get(1)),
-                getChangeEmoji(1),
+                Fishery.getChangeEmoji(1),
                 StringUtil.numToString(ExchangeRate.getInstance().get(2)),
-                getChangeEmoji(2)
+                Fishery.getChangeEmoji(2)
         ));
-    }
-
-    private String getChangeEmoji(int offset) {
-        int rateNow = ExchangeRate.getInstance().get(offset);
-        int rateBefore = ExchangeRate.getInstance().get(offset - 1);
-
-        if (rateNow > rateBefore) {
-            return "\uD83D\uDD3A";
-        } else {
-            if (rateNow < rateBefore) {
-                return "\uD83D\uDD3B";
-            } else {
-                return "•";
-            }
-        }
     }
 
 }

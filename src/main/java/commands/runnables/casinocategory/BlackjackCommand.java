@@ -140,15 +140,14 @@ public class BlackjackCommand extends CasinoAbstract {
                         }
                     });
                 });
-                return false;
             } else {
                 MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_cpu_overdrew", () -> {
                     win();
                     setLog(LogStatus.WIN, getString("toomany", 1));
                     drawMessage(draw());
                 });
-                return false;
             }
+            return false;
         }
 
         return true;

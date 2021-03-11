@@ -18,16 +18,7 @@ import modules.PostBundle;
 public class AnimeNewsDownloader {
 
     public static AnimeNewsPost getPost(Locale locale) throws InterruptedException, ExecutionException {
-        String downloadUrl;
-        if (StringUtil.getLanguage(locale) == Language.DE) {
-            downloadUrl = "https://www.animenachrichten.de/";
-        } else {
-            downloadUrl = "https://www.animenewsnetwork.com/news/";
-        }
-
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
-        if (httpResponse.getContent().isEmpty()) return null;
-        String dataString = httpResponse.getContent().get();
+        String dataString = getDataString(locale);
 
         if (StringUtil.getLanguage(locale) == Language.DE) {
             return getPostDE(getCurrentPostStringDE(dataString)[0]);
@@ -37,16 +28,7 @@ public class AnimeNewsDownloader {
     }
 
     public static PostBundle<AnimeNewsPost> getPostTracker(Locale locale, String newestTimeString) throws InterruptedException, ExecutionException {
-        String downloadUrl;
-        if (StringUtil.getLanguage(locale) == Language.DE) {
-            downloadUrl = "https://www.animenachrichten.de/";
-        } else {
-            downloadUrl = "https://www.animenewsnetwork.com/news/";
-        }
-
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
-        if (httpResponse.getContent().isEmpty()) return null;
-        String dataString = httpResponse.getContent().get();
+        String dataString = getDataString(locale);
 
         ArrayList<AnimeNewsPost> postList = new ArrayList<>();
         String[] postStrings;
@@ -142,6 +124,19 @@ public class AnimeNewsDownloader {
 
     private static String[] getCurrentPostStringEN(String str) {
         return StringUtil.extractGroups(str, "<div class=\"herald box news\"", "<div class=\"herald box news\"");
+    }
+
+    private static String getDataString(Locale locale) throws ExecutionException, InterruptedException {
+        String downloadUrl;
+        if (StringUtil.getLanguage(locale) == Language.DE) {
+            downloadUrl = "https://www.animenachrichten.de/";
+        } else {
+            downloadUrl = "https://www.animenewsnetwork.com/news/";
+        }
+
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
+        if (httpResponse.getContent().isEmpty()) return null;
+        return httpResponse.getContent().get();
     }
 
 }

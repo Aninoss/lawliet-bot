@@ -57,8 +57,8 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     channel.sendMessage(event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID ? "<@&762314049953988650>" : "")
                             .embed(generateEmbed(content, author, generateFooter(0, 0)).build())
                             .queue(message -> {
-                                message.addReaction(EMOJI_LIKE).queue();
-                                message.addReaction(EMOJI_DISLIKE).queue();
+                                message.addReaction(EMOJI_LIKE)
+                                        .queue(v -> message.addReaction(EMOJI_DISLIKE).queue());
 
                                 suggestionsBean.getSuggestionMessages().put(
                                         message.getIdLong(),

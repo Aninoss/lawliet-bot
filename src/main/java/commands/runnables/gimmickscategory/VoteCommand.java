@@ -11,6 +11,7 @@ import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.QuickUpdater;
+import core.RestActionQueue;
 import core.cache.VoteCache;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
@@ -61,10 +62,13 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMessage().getIdLong());
                 EmbedBuilder eb = getEmbed(voteInfo, true);
                 Message message = event.getChannel().sendMessage(eb.build()).complete();
+                RestActionQueue restActionQueue = new RestActionQueue();
                 for (int i = 0; i < answers.length; i++) {
-                    message.addReaction(Emojis.LETTERS[i]).queue();
+                    restActionQueue.attach(message.addReaction(Emojis.LETTERS[i]));
                 }
-                message.addReaction(EMOJI_CANCEL).queue();
+                restActionQueue.attach(message.addReaction(EMOJI_CANCEL))
+                        .getCurrentRestAction()
+                        .queue();
                 return true;
             }
         } else {

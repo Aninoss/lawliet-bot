@@ -44,7 +44,6 @@ public class VCTimeCommand extends Command implements OnReactionListener, OnMess
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         if (args.length() > 0) {
             drawMessage(mainExecution(event, args));
-            return true;
         } else {
             this.eb = EmbedFactory.getEmbedDefault(
                     this,
@@ -59,8 +58,8 @@ public class VCTimeCommand extends Command implements OnReactionListener, OnMess
 
             registerReactionListener(CLEAR_EMOJI, QUIT_EMOJI);
             registerMessageInputListener(false);
-            return true;
         }
+        return true;
     }
 
     private EmbedBuilder mainExecution(GuildMessageReceivedEvent event, String args) {
