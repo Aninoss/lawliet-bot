@@ -1,11 +1,10 @@
 package mysql.modules.gamestatistics;
 
-import core.Bot;
-import mysql.DBMapCache;
-import mysql.DBMain;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import core.Bot;
+import mysql.DBMain;
+import mysql.DBMapCache;
 
 public class DBGameStatistics extends DBMapCache<String, GameStatisticsBean> {
 

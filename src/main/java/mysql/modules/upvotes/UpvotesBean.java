@@ -1,11 +1,10 @@
 package mysql.modules.upvotes;
 
-import core.CustomObservableMap;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import core.CustomObservableMap;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class UpvotesBean {
 

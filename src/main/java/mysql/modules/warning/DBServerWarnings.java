@@ -1,13 +1,12 @@
 package mysql.modules.warning;
 
-import javafx.util.Pair;
-import mysql.DBMapCache;
-import mysql.DBDataLoad;
-import mysql.DBMain;
-
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Optional;
+import javafx.util.Pair;
+import mysql.DBDataLoad;
+import mysql.DBMain;
+import mysql.DBMapCache;
 
 public class DBServerWarnings extends DBMapCache<Pair<Long, Long>, ServerWarningsBean> {
 

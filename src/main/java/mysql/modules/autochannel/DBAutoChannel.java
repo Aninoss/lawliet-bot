@@ -1,14 +1,14 @@
 package mysql.modules.autochannel;
 
-import mysql.DBMapCache;
-import mysql.DBDataLoad;
-import mysql.DBKeySetLoad;
-import mysql.DBMain;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Optional;
+import mysql.DBDataLoad;
+import mysql.DBKeySetLoad;
+import mysql.DBMain;
+import mysql.DBMapCache;
 
 public class DBAutoChannel extends DBMapCache<Long, AutoChannelBean> {
 

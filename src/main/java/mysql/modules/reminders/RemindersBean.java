@@ -1,8 +1,8 @@
 package mysql.modules.reminders;
 
+import java.time.Instant;
 import core.assets.TextChannelAsset;
 import mysql.BeanWithGuild;
-import java.time.Instant;
 
 public class RemindersBean extends BeanWithGuild implements TextChannelAsset {
 

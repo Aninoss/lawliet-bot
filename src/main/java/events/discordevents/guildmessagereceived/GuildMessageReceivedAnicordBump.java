@@ -1,5 +1,8 @@
 package events.discordevents.guildmessagereceived;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import constants.AssetIds;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
@@ -8,9 +11,6 @@ import modules.BumpReminder;
 import mysql.modules.bump.DBBump;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 @DiscordEvent(priority = EventPriority.LOW, allowBots = true)
 public class GuildMessageReceivedAnicordBump extends GuildMessageReceivedAbstract {

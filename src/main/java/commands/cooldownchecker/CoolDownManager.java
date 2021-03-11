@@ -1,12 +1,11 @@
 package commands.cooldownchecker;
 
+import java.util.concurrent.TimeUnit;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import constants.Settings;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.concurrent.TimeUnit;
 
 public class CoolDownManager {
 

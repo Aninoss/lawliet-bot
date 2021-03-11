@@ -1,9 +1,9 @@
 package core;
 
+import java.time.Duration;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.api.requests.RestAction;
-import java.time.Duration;
 
 //TODO: Does it work?
 public class QuickUpdater {

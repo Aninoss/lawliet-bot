@@ -1,9 +1,8 @@
 package mysql.modules.moderation;
 
+import java.util.Optional;
 import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.entities.TextChannel;
-
-import java.util.Optional;
 
 public class ModerationBean extends BeanWithGuild {
 

@@ -1,10 +1,9 @@
 package mysql.modules.membercountdisplays;
 
+import java.util.HashMap;
 import core.CustomObservableMap;
 import mysql.BeanWithGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.HashMap;
 
 public class MemberCountBean extends BeanWithGuild {
 

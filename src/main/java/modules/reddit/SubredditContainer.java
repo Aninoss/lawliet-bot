@@ -1,11 +1,11 @@
 package modules.reddit;
 
+import java.time.Duration;
+import java.util.concurrent.ExecutionException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import java.time.Duration;
-import java.util.concurrent.ExecutionException;
 
 public class SubredditContainer {
 

@@ -1,14 +1,13 @@
 package commands.runningchecker;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import commands.Command;
-import core.cache.PatreonCache;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import commands.Command;
+import core.cache.PatreonCache;
 
 public class RunningCheckerManager {
 

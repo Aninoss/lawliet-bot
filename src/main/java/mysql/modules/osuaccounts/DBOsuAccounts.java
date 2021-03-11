@@ -1,10 +1,10 @@
 package mysql.modules.osuaccounts;
 
+import java.util.HashMap;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
-import java.util.HashMap;
 
 public class DBOsuAccounts extends DBSingleCache<CustomObservableMap<Long, OsuBeanBean>> {
 

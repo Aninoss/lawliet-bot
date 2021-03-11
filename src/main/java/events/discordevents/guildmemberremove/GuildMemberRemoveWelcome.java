@@ -1,5 +1,6 @@
 package events.discordevents.guildmemberremove;
 
+import java.util.Locale;
 import commands.runnables.utilitycategory.WelcomeCommand;
 import core.PermissionCheckRuntime;
 import core.utils.StringUtil;
@@ -13,7 +14,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
-import java.util.Locale;
 
 @DiscordEvent(allowBots = true)
 public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {

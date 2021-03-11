@@ -1,5 +1,12 @@
 package modules.animerelease;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import constants.Language;
 import core.internet.HttpResponse;
 import core.internet.InternetCache;
@@ -9,13 +16,6 @@ import modules.PostBundle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 public class AnimeReleaseDownloader {
 

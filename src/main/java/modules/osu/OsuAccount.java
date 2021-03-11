@@ -1,8 +1,7 @@
 package modules.osu;
 
-import com.vdurmont.emoji.EmojiParser;
-
 import java.util.Optional;
+import com.vdurmont.emoji.EmojiParser;
 
 public class OsuAccount {
 

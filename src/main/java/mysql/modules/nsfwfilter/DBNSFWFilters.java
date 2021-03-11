@@ -1,10 +1,9 @@
 package mysql.modules.nsfwfilter;
 
-import mysql.DBMapCache;
+import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-
-import java.util.ArrayList;
+import mysql.DBMapCache;
 
 public class DBNSFWFilters extends DBMapCache<Long, NSFWFiltersBean> {
 

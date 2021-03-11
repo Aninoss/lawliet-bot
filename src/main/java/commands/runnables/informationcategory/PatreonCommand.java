@@ -1,6 +1,9 @@
 package commands.runnables.informationcategory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Objects;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Emojis;

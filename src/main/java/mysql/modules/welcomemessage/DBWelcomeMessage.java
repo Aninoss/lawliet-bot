@@ -1,15 +1,14 @@
 package mysql.modules.welcomemessage;
 
-import constants.Category;
-import core.TextManager;
-import mysql.DBMapCache;
-import mysql.DBMain;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Locale;
+import constants.Category;
+import core.TextManager;
+import mysql.DBMain;
+import mysql.DBMapCache;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildBean;
 
 public class DBWelcomeMessage extends DBMapCache<Long, WelcomeMessageBean> {
 

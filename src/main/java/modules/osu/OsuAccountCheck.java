@@ -1,8 +1,8 @@
 package modules.osu;
 
+import java.util.Optional;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.RichPresence;
-import java.util.Optional;
 
 public class OsuAccountCheck {
 

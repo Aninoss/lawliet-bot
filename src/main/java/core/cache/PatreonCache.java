@@ -1,13 +1,12 @@
 package core.cache;
 
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 import core.Bot;
 import core.ShardManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import websockets.syncserver.SendEvent;
-
-import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
 public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
 

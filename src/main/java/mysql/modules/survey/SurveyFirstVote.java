@@ -1,8 +1,7 @@
 package mysql.modules.survey;
 
-import core.assets.UserAsset;
-
 import java.util.Locale;
+import core.assets.UserAsset;
 
 public class SurveyFirstVote implements UserAsset {
 

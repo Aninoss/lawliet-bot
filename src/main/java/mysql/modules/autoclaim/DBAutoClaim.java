@@ -1,10 +1,9 @@
 package mysql.modules.autoclaim;
 
+import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
-
-import java.util.ArrayList;
 
 public class DBAutoClaim extends DBSingleCache<AutoClaimBean> {
 

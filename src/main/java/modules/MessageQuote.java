@@ -1,5 +1,6 @@
 package modules;
 
+import java.util.Locale;
 import commands.Command;
 import commands.runnables.gimmickscategory.QuoteCommand;
 import constants.Category;
@@ -11,7 +12,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
-import java.util.Locale;
 
 public class MessageQuote {
 

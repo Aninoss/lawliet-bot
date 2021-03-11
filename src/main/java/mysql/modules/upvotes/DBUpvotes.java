@@ -1,10 +1,10 @@
 package mysql.modules.upvotes;
 
+import java.util.HashMap;
 import core.Bot;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
-import java.util.HashMap;
 
 public class DBUpvotes extends DBSingleCache<UpvotesBean> {
 

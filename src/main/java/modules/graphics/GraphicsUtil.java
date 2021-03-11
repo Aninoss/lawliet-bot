@@ -1,7 +1,5 @@
 package modules.graphics;
 
-import core.AttributedStringGenerator;
-
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
@@ -10,6 +8,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.text.AttributedCharacterIterator;
 import java.util.function.Consumer;
+import core.AttributedStringGenerator;
 
 public class GraphicsUtil {
 

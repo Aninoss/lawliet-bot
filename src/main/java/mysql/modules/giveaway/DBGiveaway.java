@@ -1,12 +1,11 @@
 package mysql.modules.giveaway;
 
+import java.util.HashMap;
 import core.CustomObservableMap;
 import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
-
-import java.util.HashMap;
 
 public class DBGiveaway extends DBSingleCache<CustomObservableMap<Long, GiveawayBean>> {
 

@@ -1,8 +1,7 @@
 package mysql;
 
-import core.assets.GuildAsset;
-
 import java.util.Observable;
+import core.assets.GuildAsset;
 
 public abstract class BeanWithGuild extends Observable implements GuildAsset {
 

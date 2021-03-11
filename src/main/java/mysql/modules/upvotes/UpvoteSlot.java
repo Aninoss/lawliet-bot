@@ -1,7 +1,7 @@
 package mysql.modules.upvotes;
 
-import core.assets.UserAsset;
 import java.time.Instant;
+import core.assets.UserAsset;
 
 public class UpvoteSlot implements UserAsset {
 

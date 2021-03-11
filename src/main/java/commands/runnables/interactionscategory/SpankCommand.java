@@ -1,9 +1,8 @@
 package commands.runnables.interactionscategory;
 
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.InteractionAbstract;
-
-import java.util.Locale;
 
 @CommandProperties(
     trigger = "spank",

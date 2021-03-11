@@ -1,5 +1,6 @@
 package events.discordevents.privatemessagereceived;
 
+import java.time.Duration;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.ExternalLinks;
@@ -10,7 +11,6 @@ import events.discordevents.eventtypeabstracts.PrivateMessageReceivedAbstract;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
-import java.time.Duration;
 
 @DiscordEvent
 public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbstract {

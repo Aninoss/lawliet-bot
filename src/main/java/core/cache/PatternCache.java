@@ -1,10 +1,9 @@
 package core.cache;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 public class PatternCache {
 

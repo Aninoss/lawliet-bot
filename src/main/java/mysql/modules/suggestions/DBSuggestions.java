@@ -1,15 +1,14 @@
 package mysql.modules.suggestions;
 
-import modules.suggestions.SuggestionMessage;
-import mysql.DBMapCache;
-import mysql.DBDataLoad;
-import mysql.DBMain;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Optional;
+import modules.suggestions.SuggestionMessage;
+import mysql.DBDataLoad;
+import mysql.DBMain;
+import mysql.DBMapCache;
 
 public class DBSuggestions extends DBMapCache<Long, SuggestionsBean> {
 

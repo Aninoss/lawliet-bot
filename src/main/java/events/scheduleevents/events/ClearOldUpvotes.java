@@ -1,7 +1,7 @@
 package events.scheduleevents.events;
 
-import events.scheduleevents.ScheduleEventDaily;
 import core.schedule.ScheduleInterface;
+import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.upvotes.DBUpvotes;
 
 @ScheduleEventDaily

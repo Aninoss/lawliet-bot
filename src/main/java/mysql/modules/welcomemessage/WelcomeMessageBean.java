@@ -1,14 +1,13 @@
 package mysql.modules.welcomemessage;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import core.utils.BotPermissionUtil;
 import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class WelcomeMessageBean extends BeanWithGuild {
 

@@ -2,8 +2,8 @@ package events.scheduleevents.events;
 
 import core.Bot;
 import core.ShardManager;
-import events.scheduleevents.ScheduleEventDaily;
 import core.schedule.ScheduleInterface;
+import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.botstats.DBBotStats;
 
 @ScheduleEventDaily

@@ -1,9 +1,8 @@
 package core.utils;
 
-import constants.Settings;
-
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+import constants.Settings;
 
 public final class NSFWUtil {
 

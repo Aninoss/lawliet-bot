@@ -1,8 +1,7 @@
 package core.assets;
 
-import net.dv8tion.jda.api.entities.Member;
-
 import java.util.Optional;
+import net.dv8tion.jda.api.entities.Member;
 
 public interface MemberAsset extends GuildAsset {
 

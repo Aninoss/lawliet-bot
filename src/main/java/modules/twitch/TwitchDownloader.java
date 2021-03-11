@@ -1,5 +1,8 @@
 package modules.twitch;
 
+import java.time.Duration;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -9,9 +12,6 @@ import core.utils.InternetUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.time.Duration;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 public class TwitchDownloader {
 

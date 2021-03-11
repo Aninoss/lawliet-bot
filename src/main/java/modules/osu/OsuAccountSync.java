@@ -1,11 +1,10 @@
 package modules.osu;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 public class OsuAccountSync {
 

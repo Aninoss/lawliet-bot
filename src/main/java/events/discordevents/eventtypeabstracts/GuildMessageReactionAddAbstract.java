@@ -1,8 +1,8 @@
 package events.discordevents.eventtypeabstracts;
 
+import java.util.ArrayList;
 import events.discordevents.DiscordEventAbstract;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
-import java.util.ArrayList;
 
 public abstract class GuildMessageReactionAddAbstract extends DiscordEventAbstract {
 

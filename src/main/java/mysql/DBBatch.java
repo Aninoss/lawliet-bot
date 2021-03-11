@@ -1,8 +1,8 @@
 package mysql;
 
-import mysql.interfaces.SQLConsumer;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import mysql.interfaces.SQLConsumer;
 
 public class DBBatch {
 

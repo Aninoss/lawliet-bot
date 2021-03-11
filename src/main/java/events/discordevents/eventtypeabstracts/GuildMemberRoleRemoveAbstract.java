@@ -1,8 +1,8 @@
 package events.discordevents.eventtypeabstracts;
 
+import java.util.ArrayList;
 import events.discordevents.DiscordEventAbstract;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
-import java.util.ArrayList;
 
 public abstract class GuildMemberRoleRemoveAbstract extends DiscordEventAbstract {
 

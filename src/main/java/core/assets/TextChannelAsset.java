@@ -1,8 +1,7 @@
 package core.assets;
 
-import net.dv8tion.jda.api.entities.TextChannel;
-
 import java.util.Optional;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public interface TextChannelAsset extends GuildAsset {
 

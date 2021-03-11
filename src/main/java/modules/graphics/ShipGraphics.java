@@ -1,16 +1,15 @@
 package modules.graphics;
 
-import core.AttributedStringGenerator;
-import core.ResourceHandler;
-import net.dv8tion.jda.api.entities.User;
-
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.text.AttributedCharacterIterator;
+import javax.imageio.ImageIO;
+import core.AttributedStringGenerator;
+import core.ResourceHandler;
+import net.dv8tion.jda.api.entities.User;
 
 public class ShipGraphics {
 

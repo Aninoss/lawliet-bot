@@ -1,9 +1,9 @@
 package mysql.modules.autoclaim;
 
+import java.util.ArrayList;
 import core.CustomObservableList;
 import core.cache.PatreonCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import java.util.ArrayList;
 
 public class AutoClaimBean {
 

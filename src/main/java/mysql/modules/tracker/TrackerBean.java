@@ -1,10 +1,9 @@
 package mysql.modules.tracker;
 
-import core.CustomObservableList;
-import org.checkerframework.checker.nullness.qual.NonNull;
-
 import java.util.ArrayList;
 import java.util.Observable;
+import core.CustomObservableList;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class TrackerBean extends Observable {
 

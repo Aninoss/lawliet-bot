@@ -1,8 +1,7 @@
 package core.assets;
 
-import net.dv8tion.jda.api.entities.Role;
-
 import java.util.Optional;
+import net.dv8tion.jda.api.entities.Role;
 
 public interface RoleAsset extends GuildAsset {
 

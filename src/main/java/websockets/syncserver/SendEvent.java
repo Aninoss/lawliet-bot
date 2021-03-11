@@ -1,14 +1,14 @@
 package websockets.syncserver;
 
-import core.Bot;
-import core.ShardManager;
-import core.cache.PatreonCache;
-import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import core.Bot;
+import core.ShardManager;
+import core.cache.PatreonCache;
+import org.json.JSONObject;
 
 public class SendEvent {
 

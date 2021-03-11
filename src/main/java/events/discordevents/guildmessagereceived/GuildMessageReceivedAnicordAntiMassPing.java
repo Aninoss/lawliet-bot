@@ -1,12 +1,12 @@
 package events.discordevents.guildmessagereceived;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import constants.AssetIds;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 @DiscordEvent(priority = EventPriority.HIGH, allowBannedUser = true)
 public class GuildMessageReceivedAnicordAntiMassPing extends GuildMessageReceivedAbstract {

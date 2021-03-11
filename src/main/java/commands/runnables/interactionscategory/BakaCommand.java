@@ -1,8 +1,8 @@
 package commands.runnables.interactionscategory;
-import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
 
 import java.util.Locale;
+import commands.listeners.CommandProperties;
+import commands.runnables.InteractionAbstract;
 
 @CommandProperties(
     trigger = "baka",

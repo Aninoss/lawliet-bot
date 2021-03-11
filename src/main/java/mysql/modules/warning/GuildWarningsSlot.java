@@ -1,10 +1,10 @@
 package mysql.modules.warning;
 
+import java.time.Instant;
+import java.util.Optional;
 import core.assets.MemberAsset;
 import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.entities.Member;
-import java.time.Instant;
-import java.util.Optional;
 
 public class GuildWarningsSlot extends BeanWithGuild implements MemberAsset {
 

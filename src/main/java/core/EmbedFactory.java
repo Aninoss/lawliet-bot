@@ -1,11 +1,10 @@
 package core;
 
+import java.awt.*;
+import java.util.Locale;
 import commands.Command;
 import core.utils.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-
-import java.awt.*;
-import java.util.Locale;
 
 public class EmbedFactory {
 

@@ -1,11 +1,10 @@
 package mysql.modules.commandmanagement;
 
+import java.util.ArrayList;
 import commands.Command;
 import core.CustomObservableList;
 import mysql.BeanWithGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.ArrayList;
 
 public class CommandManagementBean extends BeanWithGuild {
 

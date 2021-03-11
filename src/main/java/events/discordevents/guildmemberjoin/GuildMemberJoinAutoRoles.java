@@ -1,5 +1,8 @@
 package events.discordevents.guildmemberjoin;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
@@ -10,9 +13,6 @@ import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Locale;
 
 @DiscordEvent(allowBots = true)
 public class GuildMemberJoinAutoRoles extends GuildMemberJoinAbstract {

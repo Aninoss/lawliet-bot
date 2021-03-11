@@ -1,11 +1,11 @@
 package core;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 public class RandomPicker {
 

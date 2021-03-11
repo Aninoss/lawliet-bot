@@ -1,7 +1,7 @@
 package modules.textai;
 
-import core.utils.StringUtil;
 import java.util.*;
+import core.utils.StringUtil;
 
 public class TextAI {
 

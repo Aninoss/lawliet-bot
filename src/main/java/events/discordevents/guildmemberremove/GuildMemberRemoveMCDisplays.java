@@ -1,11 +1,11 @@
 package events.discordevents.guildmemberremove;
 
+import java.util.Locale;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRemoveAbstract;
 import modules.MemberCountDisplay;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
-import java.util.Locale;
 
 @DiscordEvent(allowBannedUser = true, allowBots = true)
 public class GuildMemberRemoveMCDisplays extends GuildMemberRemoveAbstract {

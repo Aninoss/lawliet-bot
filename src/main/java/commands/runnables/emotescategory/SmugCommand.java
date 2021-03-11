@@ -1,8 +1,8 @@
 package commands.runnables.emotescategory;
-import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
 
 import java.util.Locale;
+import commands.listeners.CommandProperties;
+import commands.runnables.EmoteAbstract;
 
 @CommandProperties(
         trigger = "smug",

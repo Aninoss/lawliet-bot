@@ -1,14 +1,14 @@
 package mysql.modules.warning;
 
-import core.CustomObservableList;
-import core.assets.MemberAsset;
-import mysql.BeanWithGuild;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import core.CustomObservableList;
+import core.assets.MemberAsset;
+import mysql.BeanWithGuild;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ServerWarningsBean extends BeanWithGuild implements MemberAsset {
 

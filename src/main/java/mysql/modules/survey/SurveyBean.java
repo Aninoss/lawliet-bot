@@ -1,17 +1,17 @@
 package mysql.modules.survey;
 
-import core.CustomObservableList;
-import core.CustomObservableMap;
-import core.FileManager;
-import core.ResourceHandler;
-import javafx.util.Pair;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+import core.CustomObservableList;
+import core.CustomObservableMap;
+import core.FileManager;
+import core.ResourceHandler;
+import javafx.util.Pair;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class SurveyBean extends Observable {
 

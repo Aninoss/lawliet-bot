@@ -1,10 +1,10 @@
 package core.assets;
 
+import java.util.Optional;
 import core.ShardManager;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.entities.Guild;
-import java.util.Optional;
 
 public interface GuildAsset {
 

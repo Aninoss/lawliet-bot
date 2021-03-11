@@ -1,10 +1,9 @@
 package mysql.modules.commandusages;
 
-import mysql.DBIntervalMapCache;
-import mysql.DBMain;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import mysql.DBIntervalMapCache;
+import mysql.DBMain;
 
 public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesBean> {
 

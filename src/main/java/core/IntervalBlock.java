@@ -1,9 +1,8 @@
 package core;
 
-import core.utils.TimeUtil;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import core.utils.TimeUtil;
 
 public class IntervalBlock {
 

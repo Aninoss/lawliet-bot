@@ -1,10 +1,9 @@
 package mysql.modules.autoquote;
 
-import mysql.DBMapCache;
-import mysql.DBMain;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import mysql.DBMain;
+import mysql.DBMapCache;
 
 public class DBAutoQuote extends DBMapCache<Long, AutoQuoteBean> {
 

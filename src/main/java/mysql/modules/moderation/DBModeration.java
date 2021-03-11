@@ -1,12 +1,11 @@
 package mysql.modules.moderation;
 
-import mysql.DBMapCache;
-import mysql.DBMain;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.Optional;
+import mysql.DBMain;
+import mysql.DBMapCache;
 
 public class DBModeration extends DBMapCache<Long, ModerationBean> {
 

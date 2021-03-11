@@ -1,11 +1,10 @@
 package events.scheduleevents.events;
 
+import java.time.temporal.ChronoUnit;
 import core.DiscordConnector;
 import core.ShardManager;
 import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventFixedRate;
-
-import java.time.temporal.ChronoUnit;
 
 @ScheduleEventFixedRate(rateValue = 10, rateUnit = ChronoUnit.MINUTES)
 public class UpdateBotActivity implements ScheduleInterface {

@@ -1,5 +1,8 @@
 package websockets.syncserver;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import commands.Command;
 import constants.AssetIds;
 import constants.Locales;
@@ -7,9 +10,6 @@ import core.ListGen;
 import core.TextManager;
 import net.dv8tion.jda.api.Permission;
 import org.json.JSONObject;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 
 public class SyncLocaleUtil {
 

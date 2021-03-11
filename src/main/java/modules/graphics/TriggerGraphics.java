@@ -1,16 +1,19 @@
 package modules.graphics;
 
-import core.ResourceHandler;
-import modules.GifSequenceWriter;
-import net.dv8tion.jda.api.entities.User;
-import javax.imageio.ImageIO;
-import javax.imageio.stream.FileCacheImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import javax.imageio.ImageIO;
+import javax.imageio.stream.FileCacheImageOutputStream;
+import core.ResourceHandler;
+import modules.GifSequenceWriter;
+import net.dv8tion.jda.api.entities.User;
 
 public class TriggerGraphics {
 

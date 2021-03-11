@@ -1,9 +1,8 @@
 package mysql.modules.fisheryusers;
 
+import java.time.Instant;
 import constants.Settings;
 import core.assets.MemberAsset;
-
-import java.time.Instant;
 
 public class FisheryHourlyIncomeBean implements MemberAsset {
 

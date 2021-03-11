@@ -1,10 +1,9 @@
 package mysql.modules.whitelistedchannels;
 
+import java.util.ArrayList;
 import core.CustomObservableList;
 import mysql.BeanWithGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.ArrayList;
 
 public class WhiteListedChannelsBean extends BeanWithGuild {
 

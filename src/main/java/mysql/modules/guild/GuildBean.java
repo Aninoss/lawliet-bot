@@ -1,10 +1,10 @@
 package mysql.modules.guild;
 
+import java.util.Locale;
+import java.util.Optional;
 import constants.FisheryStatus;
 import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.entities.TextChannel;
-import java.util.Locale;
-import java.util.Optional;
 
 public class GuildBean extends BeanWithGuild {
 

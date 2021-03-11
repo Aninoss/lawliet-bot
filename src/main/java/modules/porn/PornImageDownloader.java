@@ -1,5 +1,11 @@
 package modules.porn;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import core.internet.HttpResponse;
 import core.internet.InternetCache;
 import core.utils.InternetUtil;
@@ -9,13 +15,6 @@ import core.utils.TimeUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.Random;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class PornImageDownloader {
 

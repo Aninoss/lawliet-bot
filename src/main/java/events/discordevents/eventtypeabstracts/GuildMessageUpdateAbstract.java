@@ -1,10 +1,9 @@
 package events.discordevents.eventtypeabstracts;
 
+import java.util.ArrayList;
 import events.discordevents.DiscordEventAbstract;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
-
-import java.util.ArrayList;
 
 public abstract class GuildMessageUpdateAbstract extends DiscordEventAbstract {
 

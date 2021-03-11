@@ -1,11 +1,10 @@
 package mysql.modules.bump;
 
-import mysql.DBMain;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
+import mysql.DBMain;
 
 public class DBBump {
 

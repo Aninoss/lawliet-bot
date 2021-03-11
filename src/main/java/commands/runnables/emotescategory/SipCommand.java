@@ -1,9 +1,8 @@
 package commands.runnables.emotescategory;
 
+import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.EmoteAbstract;
-
-import java.util.Locale;
 
 @CommandProperties(
         trigger = "sip",

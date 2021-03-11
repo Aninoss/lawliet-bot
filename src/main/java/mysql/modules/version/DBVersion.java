@@ -1,9 +1,9 @@
 package mysql.modules.version;
 
+import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
-import java.util.ArrayList;
 
 public class DBVersion extends DBSingleCache<VersionBean> {
 

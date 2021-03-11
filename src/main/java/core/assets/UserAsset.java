@@ -1,9 +1,8 @@
 package core.assets;
 
+import java.util.Optional;
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.User;
-
-import java.util.Optional;
 
 public interface UserAsset {
 

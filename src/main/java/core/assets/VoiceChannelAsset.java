@@ -1,7 +1,7 @@
 package core.assets;
 
-import net.dv8tion.jda.api.entities.VoiceChannel;
 import java.util.Optional;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 
 public interface VoiceChannelAsset extends GuildAsset {
 
