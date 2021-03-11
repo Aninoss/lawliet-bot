@@ -13,7 +13,7 @@ import core.cache.ExternalEmojiCache;
 import core.cache.ExternalGuildNameCache;
 import core.cache.SingleCache;
 import core.schedule.MainScheduler;
-import core.utils.JDAUtil;
+import core.utils.JDAEmojiUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
@@ -304,8 +304,8 @@ public class ShardManager {
                 .orElseThrow();
     }
 
-    public boolean emoteIsKnown(String emoteTag) {
-        return getEmoteById(JDAUtil.extractIdFromEmote(emoteTag)).isPresent();
+    public boolean emoteIsKnown(String emoteMention) {
+        return getEmoteById(JDAEmojiUtil.extractIdFromEmoteMention(emoteMention)).isPresent();
     }
 
     public Optional<Emote> getLocalEmoteById(long emoteId) {
@@ -320,7 +320,7 @@ public class ShardManager {
     }
 
     public Optional<String> getEmoteById(long emojiId) {
-        Optional<String> emojiOptional = getLocalEmoteById(emojiId).map(JDAUtil::emoteToEmoji);
+        Optional<String> emojiOptional = getLocalEmoteById(emojiId).map(Emote::getAsMention);
         return emojiOptional.or(() -> ExternalEmojiCache.getInstance().getEmoteById(emojiId));
     }
 

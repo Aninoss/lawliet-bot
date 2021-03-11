@@ -5,9 +5,11 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionListener;
+import constants.Emojis;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
@@ -28,7 +30,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 public class VCTimeCommand extends Command implements OnReactionListener, OnMessageInputListener {
 
     private static final String CLEAR_EMOJI = "\uD83D\uDDD1️";
-    private static final String QUIT_EMOJI = "❌";
+    private static final String QUIT_EMOJI = Emojis.X;
 
     private GuildBean guildBean;
     private EmbedBuilder eb;
@@ -102,12 +104,12 @@ public class VCTimeCommand extends Command implements OnReactionListener, OnMess
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        if (event.getReactionEmote().getAsReactionCode().equals(CLEAR_EMOJI)) {
+        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), CLEAR_EMOJI)) {
             removeReactionListenerWithMessage();
             deregisterMessageInputListener();
             this.eb = markUnlimited();
             return true;
-        } else if (event.getReactionEmote().getAsReactionCode().equals(QUIT_EMOJI)) {
+        } else if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), QUIT_EMOJI)) {
             removeReactionListenerWithMessage();
             deregisterMessageInputListener();
             return true;

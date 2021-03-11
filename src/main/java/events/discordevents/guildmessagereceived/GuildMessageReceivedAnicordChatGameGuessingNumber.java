@@ -1,6 +1,7 @@
 package events.discordevents.guildmessagereceived;
 
 import constants.AssetIds;
+import constants.Emojis;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
@@ -27,7 +28,7 @@ public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMess
                     int tries = ChatGameGuessingNames.getInstance().getTries() + 1;
                     int res = ChatGameGuessingNames.getInstance().check(val);
                     if (res == 0) {
-                        event.getMessage().addReaction("✅").queue();
+                        event.getMessage().addReaction(Emojis.CHECKMARK).queue();
                         event.getMessage().reply(String.format("**%s** hat richtig geraten!\nDie Lösung war: `%s` (%d Versuche)", StringUtil.escapeMarkdown(event.getMember().getEffectiveName()), StringUtil.numToString(val), tries))
                                 .queue();
                     } else {

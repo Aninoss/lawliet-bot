@@ -297,7 +297,7 @@ public class MentionUtil {
 
         if (message != null) {
             for (Emote emote : message.getEmotes()) {
-                emojiList.add(JDAUtil.emoteToEmoji(emote));
+                emojiList.add(emote.getAsMention());
                 input = input.replace(emote.getAsMention(), "");
             }
         }

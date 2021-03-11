@@ -20,7 +20,7 @@ public interface OnTriggerListener {
 
     boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable;
 
-    default boolean processTrigger(GuildMessageReceivedEvent event, String args) {
+    default boolean processTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
         Command command = (Command) this;
         AtomicBoolean isProcessing = new AtomicBoolean(true);
         command.setAtomicAssets(event.getChannel(), event.getMember());

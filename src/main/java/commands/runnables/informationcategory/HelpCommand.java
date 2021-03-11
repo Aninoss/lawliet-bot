@@ -89,7 +89,7 @@ public class HelpCommand extends NavigationAbstract {
     @ControllerReaction(state = DEFAULT_STATE)
     public boolean onReaction(GenericGuildMessageReactionEvent event, int i) {
         for (EmojiConnection emojiConnection : emojiConnections) {
-            if (emojiConnection.isEmoji(event.getReactionEmote().getAsReactionCode()) || (i == -1 && emojiConnection instanceof BackEmojiConnection)) {
+            if (emojiConnection.isEmoji(event.getReactionEmote()) || (i == -1 && emojiConnection instanceof BackEmojiConnection)) {
                 searchTerm = emojiConnection.getConnection();
 
                 if (searchTerm.equals("quit")) {
@@ -172,7 +172,7 @@ public class HelpCommand extends NavigationAbstract {
                     addNotExecutable = "\n" + getString("command_notexecutable");
                 } else {
                     setOptions(getString("command_execute").split("\n"));
-                    emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[0], "exec:" + command.getClass().getName()));
+                    emojiConnections.add(new EmojiConnection(Emojis.LETTERS[0], "exec:" + command.getClass().getName()));
                 }
 
                 String permissionsList = new ListGen<Permission>().getList(
@@ -327,7 +327,7 @@ public class HelpCommand extends NavigationAbstract {
                     if (command instanceof OnTrackerRequestListener) includeAlerts = true;
                     if (command.getCommandProperties().nsfw()) includeNSFW = true;
 
-                    emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
+                    emojiConnections.add(new EmojiConnection(Emojis.LETTERS[i], command.getTrigger()));
                     i++;
                     eb.addField(
                             title.toString(),
@@ -372,7 +372,7 @@ public class HelpCommand extends NavigationAbstract {
                 if (command.getCommandProperties().nsfw()) includeNSFW = true;
                 if (command.getCommandProperties().patreonRequired()) includePatreon = true;
 
-                emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], command.getTrigger()));
+                emojiConnections.add(new EmojiConnection(Emojis.LETTERS[i], command.getTrigger()));
                 i++;
                 eb.addField(
                         title.toString(),
@@ -462,8 +462,8 @@ public class HelpCommand extends NavigationAbstract {
         int i = 0;
         for (String string : LIST) {
             if (!commandManagementBean.getSwitchedOffElements().contains(string) || BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR)) {
-                categoriesSB.append(LetterEmojis.LETTERS[i]).append(" → ").append(TextManager.getString(getLocale(), TextManager.COMMANDS, string)).append("\n");
-                emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], string));
+                categoriesSB.append(Emojis.LETTERS[i]).append(" → ").append(TextManager.getString(getLocale(), TextManager.COMMANDS, string)).append("\n");
+                emojiConnections.add(new EmojiConnection(Emojis.LETTERS[i], string));
                 i++;
             }
         }

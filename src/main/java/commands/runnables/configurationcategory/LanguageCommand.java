@@ -6,6 +6,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionListener;
 import constants.Locales;
 import core.EmbedFactory;
+import core.utils.JDAEmojiUtil;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -57,7 +58,7 @@ public class LanguageCommand extends Command implements OnReactionListener {
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
         for (int i = 0; i < LANGUAGE_EMOJIS.length; i++) {
-            if (event.getReactionEmote().getAsReactionCode().equals(LANGUAGE_EMOJIS[i])) {
+            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), LANGUAGE_EMOJIS[i])) {
                 removeReactionListener();
                 setLocale(new Locale(Locales.LIST[i]));
                 DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setLocale(getLocale());

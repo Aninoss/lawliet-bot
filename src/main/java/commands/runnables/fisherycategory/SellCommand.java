@@ -6,6 +6,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionListener;
 import commands.runnables.FisheryInterface;
+import constants.Emojis;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
@@ -54,7 +55,7 @@ public class SellCommand extends Command implements FisheryInterface, OnReaction
                             getChangeEmoji()
                     )
             );
-            registerReactionListener("❌");
+            registerReactionListener(Emojis.X);
             registerMessageInputListener(false);
             return true;
         }

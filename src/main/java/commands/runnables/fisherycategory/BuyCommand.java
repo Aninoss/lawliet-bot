@@ -241,7 +241,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                         price = calculateRolePrice(slot);
                         productDescription = getString("product_des_" + slot.getPowerUpId(), roles.get(slot.getLevel()).getAsMention());
                     }
-                    description.append(getString("product", LetterEmojis.LETTERS[i], FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()], getString("product_" + slot.getPowerUpId() + "_0"), String.valueOf(slot.getLevel()), StringUtil.numToString(price), productDescription));
+                    description.append(getString("product", Emojis.LETTERS[i], FisheryCategoryInterface.PRODUCT_EMOJIS[slot.getPowerUpId()], getString("product_" + slot.getPowerUpId() + "_0"), String.valueOf(slot.getLevel()), StringUtil.numToString(price), productDescription));
 
                     eb.addField(Emojis.EMPTY_EMOJI, description.toString(), false);
                     i++;

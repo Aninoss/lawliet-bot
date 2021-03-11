@@ -23,10 +23,7 @@ import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
 import core.emojiconnection.EmojiConnection;
-import core.utils.BotPermissionUtil;
-import core.utils.JDAUtil;
-import core.utils.MentionUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -177,7 +174,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     }
 
     private boolean processEmoji(String emoji) {
-        if (JDAUtil.emojiIsUnicode(emoji) || ShardManager.getInstance().emoteIsKnown(emoji)) {
+        if (JDAEmojiUtil.emojiIsUnicode(emoji) || ShardManager.getInstance().emoteIsKnown(emoji)) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                 if (emojiConnection.getEmojiTag().equals(emoji)) {
                     setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
@@ -356,7 +353,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         }
 
         event.getReaction().removeReaction(event.getUser()).queue();
-        return calculateEmoji(event.getReactionEmote().getAsReactionCode());
+        return calculateEmoji(JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
     }
 
     @ControllerReaction(state = REMOVE_SLOT)
@@ -409,17 +406,19 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                 boolean exist = false;
                 for (MessageReaction reaction : m.getReactions()) {
-                    if (emojiConnection.getEmojiTag().equals(reaction.getReactionEmote().getAsReactionCode())) {
+                    if (emojiConnection.isEmoji(reaction.getReactionEmote())) {
                         exist = true;
                         break;
                     }
                 }
-                if (!exist) emojiConnection.addReaction(m);
+                if (!exist) {
+                    emojiConnection.addReaction(m);
+                }
             }
             for (MessageReaction reaction : m.getReactions()) {
                 boolean exist = false;
                 for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                    if (emojiConnection.getEmojiTag().equals(reaction.getReactionEmote().getAsReactionCode())) {
+                    if (emojiConnection.isEmoji(reaction.getReactionEmote())) {
                         exist = true;
                         break;
                     }
@@ -431,7 +430,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     }
 
     private boolean calculateEmoji(String emoji) {
-        if (emoji == null || (!JDAUtil.emojiIsUnicode(emoji) && !ShardManager.getInstance().emoteIsKnown(emoji))) {
+        if (emoji == null || (!JDAEmojiUtil.emojiIsUnicode(emoji) && !ShardManager.getInstance().emoteIsKnown(emoji))) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
             return true;
         }
@@ -504,7 +503,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     public EmbedBuilder onDrawAddSlot() {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (roleTemp != null && emojiTemp != null) setOptions(new String[] { getString("state6_options") });
-        return EmbedFactory.getEmbedDefault(this, getString("state6_description", Optional.ofNullable(emojiTemp).flatMap(JDAUtil::emojiAsMention).orElse(notSet), Optional.ofNullable(roleTemp).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state6_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state6_description", Optional.ofNullable(emojiTemp).orElse(notSet), Optional.ofNullable(roleTemp).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state6_title"));
     }
 
     @Draw(state = REMOVE_SLOT)
@@ -574,7 +573,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         for (String line : embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
             if (parts[0].startsWith("<")) {
-                emojiConnections.add(new EmojiConnection(JDAUtil.emojiFromMention(parts[0]), parts[1]));
+                emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
             } else {
                 emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
             }
@@ -596,7 +595,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
         Member member = event.getMember();
 
-        if (event.getReactionEmote().getAsReactionCode().equals("⭐") &&
+        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), "⭐") &&
                 BotPermissionUtil.can(member, getCommandProperties().userGuildPermissions())
         ) {
             JDAUtil.sendPrivateMessage(
@@ -626,7 +625,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
 
     private boolean giveRole(GuildMessageReactionAddEvent event) {
         for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-            if (event.getReactionEmote().getAsReactionCode().equals(emojiConnection.getEmojiTag())) {
+            if (emojiConnection.isEmoji(event.getReactionEmote())) {
                 Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getGuild(), emojiConnection.getConnection());
                 if (rOpt.isEmpty()) {
                     return true;
@@ -667,7 +666,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         updateValuesFromMessage(message);
         if (removeRole) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                if (event.getReactionEmote().getAsReactionCode().equals(emojiConnection.getEmojiTag())) {
+                if (emojiConnection.isEmoji(event.getReactionEmote())) {
                     Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getGuild(), emojiConnection.getConnection());
                     if (rOpt.isEmpty()) return;
                     Role r = rOpt.get();

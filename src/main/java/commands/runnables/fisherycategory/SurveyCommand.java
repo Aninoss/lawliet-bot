@@ -11,18 +11,12 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.FisheryInterface;
-import constants.Emojis;
-import constants.LetterEmojis;
-import constants.LogStatus;
-import constants.TrackerResult;
+import constants.*;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.ShardManager;
 import core.TextManager;
-import core.utils.EmbedUtil;
-import core.utils.JDAUtil;
-import core.utils.StringUtil;
-import core.utils.TimeUtil;
+import core.utils.*;
 import javafx.util.Pair;
 import mysql.modules.survey.*;
 import mysql.modules.tracker.TrackerBeanSlot;
@@ -35,7 +29,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 @CommandProperties(
         trigger = "survey",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-        emoji = "✅",
+        emoji = Emojis.CHECKMARK,
         executableWithoutArgs = true
 )
 public class SurveyCommand extends Command implements FisheryInterface, OnStaticReactionAddListener, OnTrackerRequestListener {
@@ -60,12 +54,12 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         event.getReaction().removeReaction(event.getUser()).queue();
 
-        removeUserReactions(message, event.getReactionEmote().getAsReactionCode());
-        String emoji = event.getReactionEmote().getAsReactionCode();
+        removeUserReactions(message, JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
+        String emoji = JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote());
         for (byte i = 0; i < 2; i++) {
             int type = 0;
-            if (emoji.equals(LetterEmojis.LETTERS[i])) type = 1;
-            if (emoji.equals(LetterEmojis.RED_LETTERS[i])) type = 2;
+            if (emoji.equals(Emojis.LETTERS[i])) type = 1;
+            if (emoji.equals(Emojis.RED_LETTERS[i])) type = 2;
             if (emoji.equals(BELL_EMOJI)) type = 3;
 
             if (type > 0) {
@@ -107,11 +101,11 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     private void removeUserReactions(Message message, String addedEmoji) {
         for (MessageReaction reaction : message.getReactions()) {
-            String emoji = reaction.getReactionEmote().getAsReactionCode();
+            String emoji = JDAEmojiUtil.reactionEmoteAsMention(reaction.getReactionEmote());
             boolean correctEmoji = false;
             for (int i = 0; i < 2; i++) {
-                if (emoji.equals(LetterEmojis.LETTERS[i]) ||
-                        emoji.equals(LetterEmojis.RED_LETTERS[i]) ||
+                if (emoji.equals(Emojis.LETTERS[i]) ||
+                        emoji.equals(Emojis.RED_LETTERS[i]) ||
                         emoji.equals(BELL_EMOJI)
                 ) {
                     correctEmoji = true;
@@ -180,9 +174,9 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 if (i == 0) {
-                    message.addReaction(LetterEmojis.LETTERS[j]).complete();
+                    message.addReaction(Emojis.LETTERS[j]).complete();
                 } else {
-                    message.addReaction(LetterEmojis.RED_LETTERS[j]).complete();
+                    message.addReaction(Emojis.RED_LETTERS[j]).complete();
                 }
             }
         }
@@ -199,7 +193,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         StringBuilder answerString = new StringBuilder();
         for (int i = 0; i < 2; i++) {
-            answerString.append(LetterEmojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
+            answerString.append(Emojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
         }
         eb.addField(getString("results_answers"), answerString.toString(), false);
 
@@ -214,7 +208,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             resultString.append(
                     getString(
                             "results_template",
-                            LetterEmojis.LETTERS[i],
+                            Emojis.LETTERS[i],
                             StringUtil.getBar(firstVotesRelative[i], 12),
                             StringUtil.numToString(firstVotes[i]),
                             StringUtil.numToString(Math.round(firstVotesRelative[i] * 100))
@@ -250,8 +244,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         StringBuilder personalString = new StringBuilder();
         StringBuilder majorityString = new StringBuilder();
         for (int i = 0; i < 2; i++) {
-            personalString.append(LetterEmojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
-            majorityString.append(LetterEmojis.RED_LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
+            personalString.append(Emojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
+            majorityString.append(Emojis.RED_LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
         }
         eb.addField(surveyQuestion.getQuestion(), personalString.toString(), false);
         eb.addField(getString("majority"), majorityString.toString(), false);

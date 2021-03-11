@@ -1,7 +1,9 @@
 package core.emojiconnection;
 
-import constants.LetterEmojis;
+import constants.Emojis;
+import core.utils.JDAEmojiUtil;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class EmojiConnection {
@@ -15,11 +17,11 @@ public class EmojiConnection {
     }
 
     public void addReaction(Message message) {
-        message.addReaction(emoji).queue();
+        message.addReaction(JDAEmojiUtil.emojiAsReactionTag(emoji)).queue();
     }
 
-    public boolean isEmoji(String emoji) {
-        return this.emoji.equals(emoji);
+    public boolean isEmoji(MessageReaction.ReactionEmote reactionEmote) {
+        return this.emoji.equals(JDAEmojiUtil.reactionEmoteAsMention(reactionEmote));
     }
 
     public String getConnection() {
@@ -38,7 +40,7 @@ public class EmojiConnection {
                 array[i] = new BackEmojiConnection(channel, connections[i]);
                 withBackButton = false;
             } else {
-                array[i] = new EmojiConnection(LetterEmojis.LETTERS[index], connections[i]);
+                array[i] = new EmojiConnection(Emojis.LETTERS[index], connections[i]);
                 index++;
             }
         }

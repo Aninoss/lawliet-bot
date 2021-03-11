@@ -84,7 +84,7 @@ public class AlertsCommand extends NavigationAbstract {
     @Override
     public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
         for (EmojiConnection emojiConnection : emojiConnections) {
-            if (emojiConnection.isEmoji(event.getReactionEmote().getAsReactionCode()) || (i == -1 && emojiConnection instanceof BackEmojiConnection)) {
+            if (emojiConnection.isEmoji(event.getReactionEmote()) || (i == -1 && emojiConnection instanceof BackEmojiConnection)) {
                 if (emojiConnection.getConnection().equalsIgnoreCase("back")) {
                     switch (state) {
                         case 0:
@@ -253,8 +253,8 @@ public class AlertsCommand extends NavigationAbstract {
 
         emojiConnections = new ArrayList<>();
         emojiConnections.add(new BackEmojiConnection(getTextChannel().get(), "back"));
-        emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[0], "add"));
-        emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[1], "remove"));
+        emojiConnections.add(new EmojiConnection(Emojis.LETTERS[0], "add"));
+        emojiConnections.add(new EmojiConnection(Emojis.LETTERS[1], "remove"));
 
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
     }
@@ -300,7 +300,7 @@ public class AlertsCommand extends NavigationAbstract {
                     trigger,
                     StringUtil.escapeMarkdown(StringUtil.shortenString(trackerSlots.get(i).getCommandKey(), 200))
             );
-            emojiConnections.add(new EmojiConnection(LetterEmojis.LETTERS[i], String.valueOf(i)));
+            emojiConnections.add(new EmojiConnection(Emojis.LETTERS[i], String.valueOf(i)));
         }
 
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));

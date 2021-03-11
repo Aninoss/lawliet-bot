@@ -19,7 +19,7 @@ import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
-import core.utils.JDAUtil;
+import core.utils.JDAEmojiUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -59,20 +59,20 @@ public abstract class Command implements OnTriggerListener {
         if (getCommandProperties().withLoadingBar()) {
             addLoadingReactionInstantly(message, isProcessing);
         } else {
-            MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, getTrigger() + "_idle", () -> {
-                if (isProcessing.get()) {
-                    addLoadingReactionInstantly(message, isProcessing);
-                }
-            });
+            MainScheduler.getInstance().schedule(
+                    3, ChronoUnit.SECONDS,
+                    getTrigger() + "_idle",
+                    () -> addLoadingReactionInstantly(message, isProcessing)
+            );
         }
     }
 
     public void addLoadingReactionInstantly(Message message, AtomicBoolean isProcessing) {
         TextChannel channel = message.getTextChannel();
-        if (!loadingReactionSet && BotPermissionUtil.canRead(channel, Permission.MESSAGE_ADD_REACTION)) {
+        if (isProcessing.get() && !loadingReactionSet && BotPermissionUtil.canRead(channel, Permission.MESSAGE_ADD_REACTION)) {
             loadingReactionSet = true;
 
-            String reaction = JDAUtil.getLoadingReaction(message.getTextChannel());
+            String reaction = JDAEmojiUtil.getLoadingEmojiTag(message.getTextChannel());
             message.addReaction(reaction).queue();
             MainScheduler.getInstance().poll(100, getTrigger() + "_loading", () -> {
                 if (isProcessing.get()) {
@@ -96,7 +96,7 @@ public abstract class Command implements OnTriggerListener {
                     channel.sendMessage(eb.build())
                             .queue(message -> {
                                 drawMessageId = message.getIdLong();
-                                Arrays.stream(emojis).forEach(emoji -> message.addReaction(emoji).queue());
+                                Arrays.stream(emojis).forEach(emoji -> message.addReaction(JDAEmojiUtil.emojiAsReactionTag(emoji)).queue());
                                 future.complete(drawMessageId);
                             }, future::completeExceptionally);
                 } else {

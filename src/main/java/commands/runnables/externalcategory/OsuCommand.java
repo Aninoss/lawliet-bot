@@ -5,13 +5,14 @@ import java.util.Optional;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionListener;
 import commands.runnables.MemberAccountAbstract;
+import constants.Emojis;
 import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
-import core.utils.JDAUtil;
+import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import modules.osu.OsuAccount;
 import modules.osu.OsuAccountCheck;
@@ -40,7 +41,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
     private enum Status { DEFAULT, CONNECTING, ABORTED }
 
     private final static String EMOJI_CONNECT = "🔍";
-    private final static String EMOJI_CANCEL = "❌";
+    private final static String EMOJI_CANCEL = Emojis.X;
     private final static String GUEST = "Guest";
 
     private boolean memberIsAuthor;
@@ -109,7 +110,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        if (event.getReactionEmote().getAsReactionCode().equals(EMOJI_CONNECT) &&
+        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CONNECT) &&
                 status == Status.DEFAULT
         ) {
             this.status = Status.CONNECTING;
@@ -157,7 +158,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
                             });
                 }
             });
-        } else if (event.getReactionEmote().getAsReactionCode().equals(EMOJI_CANCEL) &&
+        } else if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
                 status == Status.CONNECTING
         ) {
             removeReactionListener();
@@ -173,7 +174,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
     public EmbedBuilder draw() {
         switch (status) {
             case CONNECTING:
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", JDAUtil.getLoadingReaction(getTextChannel().get())));
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", JDAEmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
                 setLog(null, getString("synch_abort", EMOJI_CANCEL));
                 return eb;
 

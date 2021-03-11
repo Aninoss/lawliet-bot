@@ -205,8 +205,8 @@ public final class StringUtil {
     }
 
     public static String getEmojiForBoolean(boolean bool) {
-        if (bool) return "✅";
-        return "❌";
+        if (bool) return Emojis.CHECKMARK;
+        return Emojis.X;
     }
 
     public static String getOnOffForBoolean(Locale locale, boolean bool) {

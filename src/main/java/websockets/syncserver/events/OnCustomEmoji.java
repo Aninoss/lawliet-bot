@@ -1,7 +1,7 @@
 package websockets.syncserver.events;
 
 import core.ShardManager;
-import core.utils.JDAUtil;
+import net.dv8tion.jda.api.entities.Emote;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;
@@ -15,7 +15,7 @@ public class OnCustomEmoji implements SyncServerFunction {
         JSONObject responseJson = new JSONObject();
 
         ShardManager.getInstance().getLocalEmoteById(emojiId)
-                .map(JDAUtil::emoteToEmoji)
+                .map(Emote::getAsMention)
                 .ifPresent(tag -> responseJson.put("tag", tag));
 
         return responseJson;

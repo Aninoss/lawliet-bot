@@ -11,11 +11,12 @@ public abstract class FisheryMemberAccountInterface extends MemberAccountAbstrac
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
-        return ((FisheryInterface) this).onTrigger(event, args);
+        return onFisheryTrigger(event, args);
     }
 
+    @Override
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
-        return ((MemberAccountAbstract) this).onTrigger(event, args);
+        return super.onTrigger(event, args);
     }
 
 }

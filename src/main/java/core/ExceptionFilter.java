@@ -11,6 +11,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
 
     private final String[] FILTERS = {
             "java.lang.InterruptedException",
+            "10008: Unknown Message"
     };
 
     public ExceptionFilter() {
@@ -36,7 +37,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
     }
 
     public boolean checkThrowable(final Throwable throwable) {
-        return Arrays.stream(FILTERS)
+        return !Bot.isProductionMode() || Arrays.stream(FILTERS)
                 .noneMatch(filter -> throwable.toString().contains(filter));
     }
 

@@ -14,6 +14,7 @@ import core.TextManager;
 import core.internet.HttpRequest;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
+import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -91,13 +92,13 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         setCompareKey("quiz_" + answers.length + "_" + difficulty);
-        return Arrays.copyOf(LetterEmojis.LETTERS, answers.length);
+        return Arrays.copyOf(Emojis.LETTERS, answers.length);
     }
 
     @Override
     public boolean onReactionCasino(GenericGuildMessageReactionEvent event) throws ExecutionException {
         for (int i = 0; i < answers.length; i++) {
-            if (event.getReactionEmote().getAsReactionCode().equalsIgnoreCase(LetterEmojis.LETTERS[i])) {
+            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.LETTERS[i])) {
                 onAnswerSelected(i);
                 return true;
             }
@@ -128,11 +129,11 @@ public class QuizCommand extends CasinoAbstract {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < answers.length; i++) {
             if (getStatus() != Status.ACTIVE && correctAnswer == i) {
-                sb.append("✅");
+                sb.append(Emojis.CHECKMARK);
             } else if (getStatus() != Status.ACTIVE && answerSelected == i) {
-                sb.append("❌");
+                sb.append(Emojis.X);
             } else {
-                sb.append(LetterEmojis.LETTERS[i]);
+                sb.append(Emojis.LETTERS[i]);
             }
             sb.append(" | ").append(answers[i]).append("\n");
         }

@@ -8,7 +8,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import constants.LetterEmojis;
+import constants.Emojis;
+import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
 import net.dv8tion.jda.api.entities.Message;
@@ -40,13 +41,13 @@ public class VoteCache {
         if (voteInfo != null) {
             int i = -1;
             for (int j = 0; j < voteInfo.getSize(); j++) {
-                if (emoji.equals(LetterEmojis.LETTERS[j])) {
+                if (emoji.equals(Emojis.LETTERS[j])) {
                     i = j;
                     break;
                 }
             }
 
-            if ((i < 0 && !emoji.equals("❌")) || !voteInfo.isActive()) {
+            if ((i < 0 && !emoji.equals(Emojis.X)) || !voteInfo.isActive()) {
                 return Optional.empty();
             }
 
@@ -84,7 +85,7 @@ public class VoteCache {
             HashSet<Long> voteUsers = new HashSet<>();
 
             for (MessageReaction reaction : message.getReactions()) {
-                if (reaction.getReactionEmote().getAsReactionCode().equals(LetterEmojis.LETTERS[i])) {
+                if (JDAEmojiUtil.reactionEmoteEqualsEmoji(reaction.getReactionEmote(), Emojis.LETTERS[i])) {
                     reaction.retrieveUsers().forEach(user -> {
                         if (!user.isBot()) {
                             voteUsers.add(user.getIdLong());

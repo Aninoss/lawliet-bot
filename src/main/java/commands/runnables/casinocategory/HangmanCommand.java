@@ -6,6 +6,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.CasinoAbstract;
 import constants.Category;
+import constants.Emojis;
 import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
@@ -50,7 +51,7 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
         progress = new boolean[answer.length()];
 
         registerMessageInputListener();
-        return new String[] { "❌" };
+        return new String[] { Emojis.X };
     }
 
     @Override

@@ -7,10 +7,12 @@ import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionListener;
+import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.Mention;
 import core.mention.MentionList;
+import core.utils.JDAEmojiUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Mod;
@@ -76,7 +78,7 @@ public class WarnCommand extends Command implements OnReactionListener {
 
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         if (userList.size() > 1 || moderationBean.isQuestion()) {
-            registerReactionListener(StringUtil.getEmojiForBoolean(true), StringUtil.getEmojiForBoolean(false));
+            registerReactionListener(Emojis.CHECKMARK, Emojis.X);
         } else {
             boolean success = execute(event.getChannel(), event.getMember());
             drawMessage(draw());
@@ -149,7 +151,7 @@ public class WarnCommand extends Command implements OnReactionListener {
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
         for (int i = 0; i < 2; i++) {
-            if (event.getReactionEmote().getAsReactionCode().equals(StringUtil.getEmojiForBoolean(i == 0))) {
+            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), StringUtil.getEmojiForBoolean(i == 0))) {
                 removeReactionListener();
                 if (i == 0) {
                     execute(event.getChannel(), event.getMember());

@@ -7,6 +7,7 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionListener;
+import constants.Emojis;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.MainLogger;
@@ -118,7 +119,7 @@ public class ReminderCommand extends Command implements OnReactionListener {
             return false;
         }
 
-        String CANCEL_EMOJI = "❌";
+        String CANCEL_EMOJI = Emojis.X;
         this.eb = EmbedFactory.getEmbedDefault(this, getString("template", CANCEL_EMOJI))
                 .addField(getString("channel"), channel.getAsMention(), true)
                 .addField(getString("timespan"), TimeUtil.getRemainingTimeString(getLocale(), minutes * 60 * 1000, false), true)

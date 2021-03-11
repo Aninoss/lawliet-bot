@@ -19,6 +19,7 @@ import core.TextManager;
 import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
+import core.utils.JDAEmojiUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -52,8 +53,9 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
     private NavigationHelper<AtomicTextChannel> channelNavigationHelper;
     private CustomObservableList<AtomicTextChannel> ignoredChannels;
 
-    public static final String treasureEmoji = "💰";
-    public static final String keyEmoji = "🔑";
+    public static final String EMOJI_TREASURE = "💰";
+    public static final String EMOJI_KEY = "🔑";
+
     private static final Cache<Long, Boolean> treasureBlockCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(1))
             .build();
@@ -181,7 +183,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
 
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
-        if (event.getReactionEmote().getAsReactionCode().equals(keyEmoji) &&
+        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_KEY) &&
                 !treasureBlockCache.asMap().containsKey(message.getIdLong())
         ) {
             treasureBlockCache.put(message.getIdLong(), true);
@@ -190,7 +192,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
             }
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
+                    .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
                     .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getMember().getAsMention()));
             message.editMessage(eb.build()).queue();
 
@@ -211,7 +213,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
                 }
 
                 EmbedBuilder eb2 = EmbedFactory.getEmbedDefault()
-                        .setTitle(FisheryCommand.treasureEmoji + " " + getString("treasure_title"))
+                        .setTitle(FisheryCommand.EMOJI_TREASURE + " " + getString("treasure_title"))
                         .setDescription(getString("treasure_opened_" + result, event.getMember().getAsMention(), StringUtil.numToString(won)))
                         .setImage(treasureImage)
                         .setFooter(getString("treasure_footer"));
@@ -240,7 +242,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
 
     @Override
     public String titleStartIndicator() {
-        return treasureEmoji;
+        return EMOJI_TREASURE;
     }
 
 }

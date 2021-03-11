@@ -9,6 +9,7 @@ import commands.runnables.utilitycategory.GiveawayCommand;
 import constants.Emojis;
 import core.*;
 import core.schedule.MainScheduler;
+import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayBean;
@@ -69,7 +70,7 @@ public class GiveawayScheduler {
         giveawayBean.retrieveMessage()
                 .thenAccept(message -> {
                     for (MessageReaction reaction : message.getReactions()) {
-                        if (reaction.getReactionEmote().getAsReactionCode().equals(giveawayBean.getEmoji())) {
+                        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(reaction.getReactionEmote(), giveawayBean.getEmoji())) {
                             reaction.retrieveUsers().queue(users ->
                                     processGiveaway(channel, guildBean, giveawayBean, message, new ArrayList<>(users))
                             );

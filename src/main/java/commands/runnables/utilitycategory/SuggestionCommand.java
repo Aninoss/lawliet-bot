@@ -13,7 +13,7 @@ import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.QuickUpdater;
 import core.RatelimitManager;
-import core.utils.JDAUtil;
+import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
 import mysql.modules.suggestions.DBSuggestions;
@@ -123,11 +123,11 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                 .retrieve(event.getGuild().getIdLong())
                 .getSuggestionMessages()
                 .computeIfPresent(message.getIdLong(), (messageId, suggestionMessage) -> {
-                    String emoji = event.getReactionEmote().getAsReactionCode();
+                    String emoji = JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote());
                     if (emoji.equals(EMOJI_LIKE) || emoji.equals(EMOJI_DISLIKE)) {
                         String footer = generateFooter(
-                                JDAUtil.getMessageReactionFromMessage(message, EMOJI_LIKE).map(r -> r.getCount() - 1).orElse(0),
-                                JDAUtil.getMessageReactionFromMessage(message, EMOJI_LIKE).map(r -> r.getCount() - 1).orElse(0)
+                                JDAEmojiUtil.getMessageReactionFromMessage(message, EMOJI_LIKE).map(r -> r.getCount() - 1).orElse(0),
+                                JDAEmojiUtil.getMessageReactionFromMessage(message, EMOJI_LIKE).map(r -> r.getCount() - 1).orElse(0)
                         );
 
                         String oldFooter = "";

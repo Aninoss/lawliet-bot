@@ -10,6 +10,7 @@ import commands.CommandListenerMeta;
 import core.MainLogger;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
+import core.utils.JDAEmojiUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
@@ -26,10 +27,10 @@ public interface OnReactionListener {
         return command.getMember().map(member ->
                 registerReactionListener(member.getIdLong(), event -> event.getUserIdLong() == member.getIdLong() &&
                         event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
-                        (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> emoji.equals(event.getReactionEmote().getAsReactionCode())))
+                        (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)))
                 ).thenApply(messageId -> {
                     command.getTextChannel().ifPresent(channel -> {
-                        Arrays.stream(emojis).forEach(emoji -> channel.addReactionById(messageId, emoji).queue());
+                        Arrays.stream(emojis).forEach(emoji -> channel.addReactionById(messageId, JDAEmojiUtil.emojiAsReactionTag(emoji)).queue());
                     });
                     return messageId;
                 })

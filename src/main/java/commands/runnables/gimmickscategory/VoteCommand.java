@@ -8,13 +8,13 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
 import constants.Emojis;
-import constants.LetterEmojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.QuickUpdater;
 import core.cache.VoteCache;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
+import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemove
 )
 public class VoteCommand extends Command implements OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
-    private final String EMOJI_CANCEL = "❌";
+    private final String EMOJI_CANCEL = Emojis.X;
 
     public VoteCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -62,7 +62,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 EmbedBuilder eb = getEmbed(voteInfo, true);
                 Message message = event.getChannel().sendMessage(eb.build()).complete();
                 for (int i = 0; i < answers.length; i++) {
-                    message.addReaction(LetterEmojis.LETTERS[i]).queue();
+                    message.addReaction(Emojis.LETTERS[i]).queue();
                 }
                 message.addReaction(EMOJI_CANCEL).queue();
                 return true;
@@ -79,8 +79,8 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
         StringBuilder resultsText = new StringBuilder();
 
         for (int i = 0; i < voteInfo.getSize(); i++) {
-            answerText.append(LetterEmojis.LETTERS[i]).append(" | ").append(voteInfo.getChoices(i)).append("\n");
-            resultsText.append(LetterEmojis.LETTERS[i]).append(" | ").append(StringUtil.getBar((double) voteInfo.getUserVotes(i) / voteInfo.getTotalVotes(), 12)).append(" 【 ").append(voteInfo.getUserVotes(i)).append(" • ").append((int) (voteInfo.getPercentage(i) * 100)).append("% 】").append("\n");
+            answerText.append(Emojis.LETTERS[i]).append(" | ").append(voteInfo.getChoices(i)).append("\n");
+            resultsText.append(Emojis.LETTERS[i]).append(" | ").append(StringUtil.getBar((double) voteInfo.getUserVotes(i) / voteInfo.getTotalVotes(), 12)).append(" 【 ").append(voteInfo.getUserVotes(i)).append(" • ").append((int) (voteInfo.getPercentage(i) * 100)).append("% 】").append("\n");
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("title") + (open ? Emojis.EMPTY_EMOJI : ""))
@@ -101,8 +101,8 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
         if (message.getEmbeds().size() == 0) return;
 
-        VoteCache.getInstance().get(message, event.getUserIdLong(), event.getReactionEmote().getAsReactionCode(), true).ifPresent(voteInfo -> {
-            if (event.getReactionEmote().getAsReactionCode().equals(EMOJI_CANCEL) &&
+        VoteCache.getInstance().get(message, event.getUserIdLong(), JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
+            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
                     voteInfo.getCreatorId().isPresent() &&
                     voteInfo.getCreatorId().get() == event.getUserIdLong() &&
                     message.getReactions().size() > 0
@@ -120,7 +120,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
             }
 
             if (voteInfo.getVotes(event.getUserIdLong()) > 1) {
-                message.removeReaction(event.getReactionEmote().getAsReactionCode(), event.getUser()).queue();
+                message.removeReaction(JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), event.getUser()).queue();
                 return;
             }
 
@@ -136,7 +136,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
     public void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) {
         if (message.getEmbeds().size() == 0) return;
 
-        VoteCache.getInstance().get(message, event.getUserIdLong(), event.getReactionEmote().getAsReactionCode(), false)
+        VoteCache.getInstance().get(message, event.getUserIdLong(), JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
                 .ifPresent(voteInfo -> {
                     if (voteInfo.getVotes(event.getUserIdLong()) == 0) {
                         QuickUpdater.getInstance().update(

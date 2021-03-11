@@ -362,7 +362,7 @@ public class GiveawayCommand extends NavigationAbstract {
             setState(CONFIGURE_MESSAGE);
         } else {
             event.getReaction().removeReaction(event.getUser()).queue();
-            processEmoji(event.getReactionEmote().getAsReactionCode());
+            processEmoji(JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
         }
 
         return true;
@@ -402,7 +402,7 @@ public class GiveawayCommand extends NavigationAbstract {
     }
 
     private boolean processEmoji(String emoji) {
-        if (JDAUtil.emojiIsUnicode(emoji) || ShardManager.getInstance().emoteIsKnown(emoji)) {
+        if (JDAEmojiUtil.emojiIsUnicode(emoji) || ShardManager.getInstance().emoteIsKnown(emoji)) {
             this.emoji = emoji;
             setLog(LogStatus.SUCCESS, getString("emojiset"));
             setState(CONFIGURE_MESSAGE);
@@ -447,7 +447,7 @@ public class GiveawayCommand extends NavigationAbstract {
                 .addField(getString("state3_mdescription"), StringUtil.escapeMarkdown(description.isEmpty() ? notSet : description), false)
                 .addField(getString("state3_mduration"), TimeUtil.getRemainingTimeString(getLocale(), durationMinutes * 60_000, false), true)
                 .addField(getString("state3_mwinners"), String.valueOf(amountOfWinners), true)
-                .addField(getString("state3_memoji"), JDAUtil.emojiAsMention(emoji).orElse(notSet), true)
+                .addField(getString("state3_memoji"), emoji, true)
                 .addField(getString("state3_mimage"), StringUtil.getEmojiForBoolean(imageLink != null), true);
     }
 
@@ -506,7 +506,7 @@ public class GiveawayCommand extends NavigationAbstract {
                 instant = Instant.now();
                 message = textChannel.sendMessage(getMessageEmbed().build()).complete();
                 if (BotPermissionUtil.canRead(textChannel, Permission.MESSAGE_ADD_REACTION)) {
-                    message.addReaction(emoji).queue();
+                    message.addReaction(JDAEmojiUtil.emojiAsReactionTag(emoji)).queue();
                 }
                 return Optional.of(message.getIdLong());
             } else {
@@ -538,11 +538,11 @@ public class GiveawayCommand extends NavigationAbstract {
                 .setTimestamp(startInstant.plus(durationMinutes, ChronoUnit.MINUTES));
 
         if (description.isEmpty()) {
-            eb.setDescription(getString("tutorial", amountOfWinners != 1, JDAUtil.emojiAsMention(emoji).orElse(notSet), String.valueOf(amountOfWinners)));
+            eb.setDescription(getString("tutorial", amountOfWinners != 1, emoji, String.valueOf(amountOfWinners)));
         } else {
             eb.addField(
                     Emojis.EMPTY_EMOJI,
-                    getString("tutorial", amountOfWinners != 1, JDAUtil.emojiAsMention(emoji).orElse(notSet), String.valueOf(amountOfWinners)),
+                    getString("tutorial", amountOfWinners != 1, emoji, String.valueOf(amountOfWinners)),
                     false
             );
         }

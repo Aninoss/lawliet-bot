@@ -13,6 +13,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
+import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -57,7 +58,7 @@ public class BlackjackCommand extends CasinoAbstract {
     @Override
     public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
         if (turnForPlayer) {
-            if (event.getReactionEmote().getAsReactionCode().equals(ACTION_EMOJIS[0])) {
+            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), ACTION_EMOJIS[0])) {
                 getCardsForPlayer(PlayerType.PLAYER).add(new GameCard());
                 setLog(LogStatus.SUCCESS, getString("getcard", 0));
 
@@ -70,7 +71,7 @@ public class BlackjackCommand extends CasinoAbstract {
                     });
                 }
                 return true;
-            } else if (event.getReactionEmote().getAsReactionCode().equals(ACTION_EMOJIS[1])) {
+            } else if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), ACTION_EMOJIS[1])) {
                 turnForPlayer = false;
                 removeReactionListener();
 

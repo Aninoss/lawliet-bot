@@ -7,6 +7,7 @@ import commands.runnables.CasinoAbstract;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -46,7 +47,7 @@ public class TowerCommand extends CasinoAbstract {
     @Override
     public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
         for (int i = 0; i < 2; i++) {
-            if (event.getReactionEmote().getAsReactionCode().equals(ACTION_EMOJIS[i])) {
+            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), ACTION_EMOJIS[i])) {
                 if (i == 0) {
                     if (towerMultiplier < 10.0) {
                         onRaise();

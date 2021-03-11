@@ -14,18 +14,12 @@ import commands.Command;
 import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionListener;
 import commands.listeners.OnTriggerListener;
-import constants.Emojis;
-import constants.LetterEmojis;
-import constants.LogStatus;
-import constants.Response;
+import constants.*;
 import core.ExceptionLogger;
 import core.MainLogger;
 import core.TextManager;
 import core.emojiconnection.EmojiConnection;
-import core.utils.BotPermissionUtil;
-import core.utils.EmbedUtil;
-import core.utils.ExceptionUtil;
-import core.utils.MentionUtil;
+import core.utils.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -172,13 +166,13 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     private int getIndex(GenericGuildMessageReactionEvent event) {
-        if (event.getReactionEmote().getAsReactionCode().equalsIgnoreCase(Emojis.BACK_EMOJI_UNICODE) ||
-                event.getReactionEmote().getAsReactionCode().equalsIgnoreCase(Emojis.BACK_EMOJI)
+        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.BACK_EMOJI_UNICODE) ||
+                JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.BACK_EMOJI)
         ) {
             return -1;
         } else {
             for (int i = 0; i < reactions; i++) {
-                if (event.getReactionEmote().getAsReactionCode().equals(LetterEmojis.LETTERS[i])) {
+                if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.LETTERS[i])) {
                     return i;
                 }
             }
@@ -254,12 +248,12 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             for (int i = -1; i < reactions; i++) {
                 if (i == -1) {
                     if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI)) {
-                        channel.addReactionById(messageId, Emojis.BACK_EMOJI).queue();
+                        channel.addReactionById(messageId, JDAEmojiUtil.emojiAsReactionTag(Emojis.BACK_EMOJI)).queue();
                     } else {
                         channel.addReactionById(messageId, Emojis.BACK_EMOJI_UNICODE).queue();
                     }
                 } else {
-                    channel.addReactionById(messageId, LetterEmojis.LETTERS[i]).queue();
+                    channel.addReactionById(messageId, Emojis.LETTERS[i]).queue();
                 }
             }
         }

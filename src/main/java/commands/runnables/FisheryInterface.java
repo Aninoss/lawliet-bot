@@ -14,6 +14,10 @@ public interface FisheryInterface extends OnTriggerListener {
 
     @Override
     default boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+        return onFisheryTrigger(event, args);
+    }
+
+    default boolean onFisheryTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
         Command command = (Command) this;
         FisheryStatus status = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {

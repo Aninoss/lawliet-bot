@@ -41,12 +41,12 @@ public class Fishery {
         GuildBean guildBean = DBGuild.getInstance().retrieve(channel.getGuild().getIdLong());
         Locale locale = guildBean.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(FisheryCommand.treasureEmoji + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title") + Emojis.EMPTY_EMOJI)
-                .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription", FisheryCommand.keyEmoji))
+                .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title") + Emojis.EMPTY_EMOJI)
+                .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription", FisheryCommand.EMOJI_KEY))
                 .setImage("https://cdn.discordapp.com/attachments/711665837114654781/711665915355201576/treasure_closed.png");
 
         channel.sendMessage(eb.build())
-                .flatMap(m -> m.addReaction(FisheryCommand.keyEmoji)).queue();
+                .flatMap(m -> m.addReaction(FisheryCommand.EMOJI_KEY)).queue();
     }
 
 }

@@ -7,10 +7,11 @@ import java.util.concurrent.CompletableFuture;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionListener;
+import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
-import core.utils.JDAUtil;
+import core.utils.JDAEmojiUtil;
 import core.utils.MentionUtil;
 import modules.RoleAssigner;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -31,7 +32,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class AssignRoleCommand extends Command implements OnReactionListener {
 
-    private static final String CANCEL_EMOJI = "❌";
+    private static final String CANCEL_EMOJI = Emojis.X;
 
     private CompletableFuture<Boolean> future = null;
     private AtomicRole atomicRole;
@@ -109,7 +110,10 @@ public class AssignRoleCommand extends Command implements OnReactionListener {
 
     @Override
     public EmbedBuilder draw() throws Throwable {
-        return EmbedFactory.getEmbedDefault(this, getString("loading", atomicRole.getAsMention(), JDAUtil.getLoadingReaction(getTextChannel().orElse(null)), CANCEL_EMOJI));
+        return EmbedFactory.getEmbedDefault(
+                this,
+                getString("loading", atomicRole.getAsMention(), JDAEmojiUtil.getLoadingEmojiMention(getTextChannel().orElse(null)), CANCEL_EMOJI)
+        );
     }
 
 }

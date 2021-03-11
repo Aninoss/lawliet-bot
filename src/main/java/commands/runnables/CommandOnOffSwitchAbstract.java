@@ -3,8 +3,10 @@ package commands.runnables;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.OnReactionListener;
+import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -50,7 +52,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
                     .queue();
             return true;
         } else {
-            registerReactionListener(StringUtil.getEmojiForBoolean(false), StringUtil.getEmojiForBoolean(true));
+            registerReactionListener(Emojis.CHECKMARK, Emojis.X);
             return true;
         }
     }
@@ -59,7 +61,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
         for (int i = 0; i < 2; i++) {
             String str = StringUtil.getEmojiForBoolean(i == 1);
-            if (event.getReactionEmote().getAsReactionCode().equals(str)) {
+            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), str)) {
                 removeReactionListener();
                 boolean active = i == 1;
                 setActive(active);

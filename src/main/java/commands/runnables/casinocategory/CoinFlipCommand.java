@@ -10,7 +10,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
-import core.utils.JDAUtil;
+import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -49,7 +49,7 @@ public class CoinFlipCommand extends CasinoAbstract {
     @Override
     public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
         for (int i = 0; i < 2; i++) {
-            if (event.getReactionEmote().getAsReactionCode().equals(EMOJIS[i])) {
+            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJIS[i])) {
                 selection[0] = i;
                 drawMessage(draw());
                 manageEnd();
@@ -103,7 +103,7 @@ public class CoinFlipCommand extends CasinoAbstract {
             case 1:
                 return EMOJIS[1];
             default:
-                return JDAUtil.getLoadingReaction(channel);
+                return JDAEmojiUtil.getLoadingEmojiMention(channel);
         }
     }
 

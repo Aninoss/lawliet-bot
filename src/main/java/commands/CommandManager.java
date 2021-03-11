@@ -303,9 +303,9 @@ public class CommandManager {
 
         if (BotPermissionUtil.canRead(event.getChannel(), Permission.MESSAGE_ADD_REACTION)) {
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_EXT_EMOJI)) {
-                event.getMessage().addReaction(Emojis.NO).queue();
+                event.getMessage().addReaction(JDAEmojiUtil.emojiAsReactionTag(Emojis.NO)).queue();
             } else {
-                event.getMessage().addReaction("❌").queue();
+                event.getMessage().addReaction(Emojis.X).queue();
             }
             event.getMessage().addReaction("✍️").queue();
         }
