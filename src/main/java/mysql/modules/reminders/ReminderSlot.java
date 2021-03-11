@@ -4,20 +4,19 @@ import java.time.Instant;
 import core.assets.TextChannelAsset;
 import mysql.BeanWithGuild;
 
-public class RemindersBean extends BeanWithGuild implements TextChannelAsset {
+public class ReminderSlot extends BeanWithGuild implements TextChannelAsset {
 
     private final int id;
     private final long channelId;
     private final Instant time;
     private final String message;
-    private boolean active = true;
     private final Runnable completedRunnable;
 
-    public RemindersBean(long serverId, int id, long channelId, Instant time, String message) {
+    public ReminderSlot(long serverId, int id, long channelId, Instant time, String message) {
         this(serverId, id, channelId, time, message, null);
     }
 
-    public RemindersBean(long serverId, int id, long channelId, Instant time, String message, Runnable completedRunnable) {
+    public ReminderSlot(long serverId, int id, long channelId, Instant time, String message, Runnable completedRunnable) {
         super(serverId);
         this.id = id;
         this.channelId = channelId;
@@ -43,16 +42,8 @@ public class RemindersBean extends BeanWithGuild implements TextChannelAsset {
         return message;
     }
 
-    public void stop() {
-        active = false;
-    }
-
     public Runnable getCompletedRunnable() {
         return completedRunnable;
-    }
-
-    public boolean isActive() {
-        return active;
     }
 
 }

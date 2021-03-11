@@ -1,20 +1,22 @@
 package mysql.modules.tracker;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import core.assets.TextChannelAsset;
 import mysql.BeanWithGuild;
 
-public class TrackerBeanSlot extends BeanWithGuild implements TextChannelAsset {
+public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
 
     private final long channelId;
     private Long messageId;
-    private final String commandTrigger, commandKey;
+    private final String commandTrigger;
+    private final String commandKey;
     private String args;
     private Instant nextRequest;
     private boolean active = true;
 
-    public TrackerBeanSlot(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args) {
+    public TrackerSlot(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args) {
         super(serverId);
         this.channelId = channelId;
         this.messageId = messageId;
@@ -52,9 +54,6 @@ public class TrackerBeanSlot extends BeanWithGuild implements TextChannelAsset {
         return nextRequest;
     }
 
-
-    /* Setters */
-
     public void setMessageId(Long messageId) {
         if (this.messageId == null || !this.messageId.equals(messageId)) {
             this.messageId = messageId;
@@ -73,12 +72,9 @@ public class TrackerBeanSlot extends BeanWithGuild implements TextChannelAsset {
         }
     }
 
-
-    /* Actions */
-
     public void delete() {
         stop();
-        DBTracker.getInstance().retrieve().getSlots().remove(this);
+        DBTracker.getInstance().retrieve(getGuildId()).remove(hashCode());
     }
 
     public void stop() {
@@ -92,6 +88,11 @@ public class TrackerBeanSlot extends BeanWithGuild implements TextChannelAsset {
     public void save() {
         setChanged();
         notifyObservers();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(channelId, commandTrigger, commandKey);
     }
 
 }

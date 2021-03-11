@@ -1,10 +1,7 @@
 package commands.runnables.utilitycategory;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandContainer;
@@ -12,7 +9,11 @@ import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.NavigationAbstract;
-import constants.*;
+import constants.Category;
+import constants.Emojis;
+import constants.LogStatus;
+import constants.Response;
+import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.ShardManager;
 import core.TextManager;
@@ -20,9 +21,9 @@ import core.cache.PatreonCache;
 import core.emojiconnection.BackEmojiConnection;
 import core.emojiconnection.EmojiConnection;
 import core.utils.StringUtil;
+import modules.schedulers.AlertScheduler;
 import mysql.modules.tracker.DBTracker;
-import mysql.modules.tracker.TrackerBean;
-import mysql.modules.tracker.TrackerBeanSlot;
+import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -51,7 +52,7 @@ public class AlertsCommand extends NavigationAbstract {
     private long serverId;
     private long channelId;
     private int patreonLevel;
-    private TrackerBean trackerBean;
+    private CustomObservableMap<Integer, TrackerSlot> alerts;
     private Command commandCache;
     private boolean cont = true;
     private boolean addNavigation = true;
@@ -64,7 +65,7 @@ public class AlertsCommand extends NavigationAbstract {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         serverId = event.getGuild().getIdLong();
         channelId = event.getChannel().getIdLong();
-        trackerBean = DBTracker.getInstance().retrieve();
+        alerts = DBTracker.getInstance().retrieve(event.getGuild().getIdLong());
         patreonLevel = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong());
         controll(args, true);
         if (addNavigation) {
@@ -204,7 +205,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     private Response processRemove(String arg) {
-        List<TrackerBeanSlot> trackerSlots = getTrackersInChannel();
+        List<TrackerSlot> trackerSlots = getTrackersInChannel();
 
         if (!StringUtil.stringIsInt(arg)) {
             return null;
@@ -215,7 +216,7 @@ public class AlertsCommand extends NavigationAbstract {
             return null;
         }
 
-        TrackerBeanSlot slotRemove = trackerSlots.get(index);
+        TrackerSlot slotRemove = trackerSlots.get(index);
         slotRemove.delete();
         setLog(LogStatus.SUCCESS, getString("state2_removed", slotRemove.getCommandTrigger()));
         if (getTrackersInChannel().size() == 0) {
@@ -288,7 +289,7 @@ public class AlertsCommand extends NavigationAbstract {
         emojiConnections = new ArrayList<>();
         emojiConnections.add(new BackEmojiConnection(getTextChannel().get(), "back"));
 
-        List<TrackerBeanSlot> trackerSlots = getTrackersInChannel();
+        List<TrackerSlot> trackerSlots = getTrackersInChannel();
         setOptions(new String[trackerSlots.size()]);
 
         for (int i = 0; i < getOptions().length; i++) {
@@ -317,7 +318,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     private void addTracker(Command command, String commandKey, boolean firstTime) {
-        TrackerBeanSlot slot = new TrackerBeanSlot(
+        TrackerSlot slot = new TrackerSlot(
                 serverId,
                 channelId,
                 command.getTrigger(),
@@ -326,7 +327,10 @@ public class AlertsCommand extends NavigationAbstract {
                 Instant.now(),
                 null
         );
-        trackerBean.getSlots().add(slot);
+
+        alerts.put(slot.hashCode(), slot);
+        AlertScheduler.getInstance().loadAlert(slot);
+
         if (firstTime) {
             commandCache = command;
             addNavigation = false;
@@ -350,7 +354,7 @@ public class AlertsCommand extends NavigationAbstract {
 
     private boolean enoughSpaceForNewTrackers() {
         if (getTrackersInChannel().size() < LIMIT_CHANNEL || patreonLevel >= 3) {
-            if (getTrackersInServer().size() < LIMIT_SERVER || patreonLevel >= 3) {
+            if (alerts.size() < LIMIT_SERVER || patreonLevel >= 3) {
                 return true;
             } else {
                 setLog(LogStatus.FAILURE, getString("toomuch_server", String.valueOf(LIMIT_SERVER)));
@@ -362,15 +366,9 @@ public class AlertsCommand extends NavigationAbstract {
         }
     }
 
-    private List<TrackerBeanSlot> getTrackersInChannel() {
-        return new ArrayList<>(trackerBean.getSlots()).stream()
+    private List<TrackerSlot> getTrackersInChannel() {
+        return alerts.values().stream()
                 .filter(slot -> slot != null && slot.getTextChannelId() == channelId)
-                .collect(Collectors.toList());
-    }
-
-    private List<TrackerBeanSlot> getTrackersInServer() {
-        return new ArrayList<>(trackerBean.getSlots()).stream()
-                .filter(slot -> slot.getGuildId() == serverId)
                 .collect(Collectors.toList());
     }
 

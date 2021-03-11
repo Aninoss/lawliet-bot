@@ -18,7 +18,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.ClearResults;
-import mysql.modules.tracker.TrackerBeanSlot;
+import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -122,7 +122,7 @@ public class FullClearCommand extends Command implements OnTrackerRequestListene
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
         TextChannel textChannel = slot.getTextChannel().get();
         if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), textChannel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
             Optional<Integer> hoursMin = extractHoursMin(textChannel, slot.getCommandKey());

@@ -13,7 +13,7 @@ import constants.TrackerResult;
 import core.*;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import mysql.modules.tracker.TrackerBeanSlot;
+import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -47,7 +47,7 @@ public class TopicCommand extends Command implements OnTrackerRequestListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
         final int MIN_MINUTES = 10;
         final int MAX_MINUTES = 10080;
         String key = slot.getCommandKey();

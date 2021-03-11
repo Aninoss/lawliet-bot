@@ -8,9 +8,9 @@ import java.util.Optional;
 import mysql.DBDataLoad;
 import mysql.DBKeySetLoad;
 import mysql.DBMain;
-import mysql.DBMapObserverCache;
+import mysql.DBObserverMapCache;
 
-public class DBAutoChannel extends DBMapObserverCache<Long, AutoChannelBean> {
+public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelBean> {
 
     private static final DBAutoChannel ourInstance = new DBAutoChannel();
 

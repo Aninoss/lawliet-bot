@@ -12,7 +12,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.ExchangeRate;
 import modules.Fishery;
-import mysql.modules.tracker.TrackerBeanSlot;
+import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -44,7 +44,7 @@ public class ExchangeRateCommand extends Command implements OnTrackerRequestList
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
         Message message = slot.getTextChannel().get().sendMessage(getEmbed().build()).complete();
         slot.setMessageId(message.getIdLong());
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));

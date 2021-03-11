@@ -16,7 +16,7 @@ import core.*;
 import core.utils.*;
 import javafx.util.Pair;
 import mysql.modules.survey.*;
-import mysql.modules.tracker.TrackerBeanSlot;
+import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -262,7 +262,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         if (slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get())) {
             return TrackerResult.CONTINUE;

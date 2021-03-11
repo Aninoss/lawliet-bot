@@ -5,9 +5,9 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBMapObserverCache;
+import mysql.DBObserverMapCache;
 
-public class DBBannedWords extends DBMapObserverCache<Long, BannedWordsBean> {
+public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsBean> {
 
     private static final DBBannedWords ourInstance = new DBBannedWords();
 

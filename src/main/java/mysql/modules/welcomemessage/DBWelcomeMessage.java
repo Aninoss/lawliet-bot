@@ -6,11 +6,11 @@ import java.util.Locale;
 import constants.Category;
 import core.TextManager;
 import mysql.DBMain;
-import mysql.DBMapObserverCache;
+import mysql.DBObserverMapCache;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
 
-public class DBWelcomeMessage extends DBMapObserverCache<Long, WelcomeMessageBean> {
+public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageBean> {
 
     private static final DBWelcomeMessage ourInstance = new DBWelcomeMessage();
 

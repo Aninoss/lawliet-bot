@@ -3,9 +3,9 @@ package mysql.modules.commandmanagement;
 import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBMapObserverCache;
+import mysql.DBObserverMapCache;
 
-public class DBCommandManagement extends DBMapObserverCache<Long, CommandManagementBean> {
+public class DBCommandManagement extends DBObserverMapCache<Long, CommandManagementBean> {
 
     private static final DBCommandManagement ourInstance = new DBCommandManagement();
 

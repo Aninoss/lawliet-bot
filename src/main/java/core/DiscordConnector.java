@@ -8,10 +8,10 @@ import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
 import modules.FisheryVCObserver;
 import modules.repair.MainRepair;
+import modules.schedulers.AlertScheduler;
 import modules.schedulers.GiveawayScheduler;
 import modules.schedulers.ReminderScheduler;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.tracker.DBTracker;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -93,8 +93,8 @@ public class DiscordConnector {
 
     private void onConnectionCompleted() {
         new ScheduleEventManager().start();
-        DBTracker.getInstance().start();
         if (Bot.isProductionMode() && Bot.isPublicVersion()) BumpReminder.getInstance().start();
+        AlertScheduler.getInstance().start();
         ReminderScheduler.getInstance().start();
         GiveawayScheduler.getInstance().start();
 

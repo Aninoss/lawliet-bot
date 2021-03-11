@@ -4,9 +4,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import core.Bot;
 import mysql.DBMain;
-import mysql.DBMapObserverCache;
+import mysql.DBObserverMapCache;
 
-public class DBGameStatistics extends DBMapObserverCache<String, GameStatisticsBean> {
+public class DBGameStatistics extends DBObserverMapCache<String, GameStatisticsBean> {
 
     private static final DBGameStatistics ourInstance = new DBGameStatistics();
 

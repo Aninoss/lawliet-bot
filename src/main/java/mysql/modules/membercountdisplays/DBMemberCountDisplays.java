@@ -3,9 +3,9 @@ package mysql.modules.membercountdisplays;
 import java.util.HashMap;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBMapObserverCache;
+import mysql.DBObserverMapCache;
 
-public class DBMemberCountDisplays extends DBMapObserverCache<Long, MemberCountBean> {
+public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountBean> {
 
     private static final DBMemberCountDisplays ourInstance = new DBMemberCountDisplays();
 

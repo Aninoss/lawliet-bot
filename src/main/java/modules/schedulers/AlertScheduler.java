@@ -1,8 +1,7 @@
-package core;
+package modules.schedulers;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -11,9 +10,13 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.utilitycategory.AlertsCommand;
+import core.CustomObservableMap;
+import core.MainLogger;
+import core.PermissionCheckRuntime;
+import core.ShardManager;
 import core.utils.TimeUtil;
-import mysql.modules.tracker.TrackerBean;
-import mysql.modules.tracker.TrackerBeanSlot;
+import mysql.modules.tracker.DBTracker;
+import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -29,26 +32,38 @@ public class AlertScheduler {
     }
 
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-    private boolean active = false;
 
-    public synchronized void start(TrackerBean trackerBean) {
-        if (active) return;
-        active = true;
+    private boolean started = false;
 
-        MainLogger.get().info("Starting {} alerts", trackerBean.getSlots().size());
-        new ArrayList<>(trackerBean.getSlots())
-                .forEach(this::registerAlert);
+    public void start() {
+        if (started) return;
+        started = true;
+
+        try {
+            DBTracker.getInstance().retrieveAll().forEach(this::loadAlert);
+        } catch (Throwable e) {
+            MainLogger.get().error("Could not start alerts", e);
+        }
     }
 
-    public void registerAlert(TrackerBeanSlot slot) {
+    public void loadAlert(TrackerSlot slot) {
+        loadAlert(slot.getGuildId(), slot.hashCode(), slot.getNextRequest());
+    }
+
+    public void loadAlert(long guildId, int hash, Instant due) {
+        long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), due);
         executorService.schedule(() -> {
-            if (slot.isActive() && ShardManager.getInstance().guildIsManaged(slot.getGuildId()) && manageAlert(slot)) {
-                registerAlert(slot);
+            CustomObservableMap<Integer, TrackerSlot> map = DBTracker.getInstance().retrieve(guildId);
+            if (map.containsKey(hash)) {
+                TrackerSlot slot = map.get(hash);
+                if (slot.isActive() && ShardManager.getInstance().guildIsManaged(slot.getGuildId()) && manageAlert(slot)) {
+                    loadAlert(slot);
+                }
             }
-        }, TimeUtil.getMillisBetweenInstants(Instant.now(), slot.getNextRequest()), TimeUnit.MILLISECONDS);
+        }, millis, TimeUnit.MILLISECONDS);
     }
 
-    private boolean manageAlert(TrackerBeanSlot slot) {
+    private boolean manageAlert(TrackerSlot slot) {
         Instant minInstant = Instant.now().plus(1, ChronoUnit.MINUTES);
 
         try {
@@ -71,7 +86,7 @@ public class AlertScheduler {
         return false;
     }
 
-    private void processAlert(TrackerBeanSlot slot) throws Throwable {
+    private void processAlert(TrackerSlot slot) throws Throwable {
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getGuildBean().getLocale(), slot.getGuildBean().getPrefix());
         if (commandOpt.isEmpty()) {
             MainLogger.get().error("Invalid command for alert: {}", slot.getCommandTrigger());

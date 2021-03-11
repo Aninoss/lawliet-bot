@@ -1,11 +1,11 @@
 package commands.listeners;
 
 import constants.TrackerResult;
-import mysql.modules.tracker.TrackerBeanSlot;
+import mysql.modules.tracker.TrackerSlot;
 
 public interface OnTrackerRequestListener {
 
-    TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable;
+    TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable;
 
     boolean trackerUsesKey();
 

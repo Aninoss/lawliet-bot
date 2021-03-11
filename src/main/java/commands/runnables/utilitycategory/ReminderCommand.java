@@ -10,7 +10,6 @@ import commands.listeners.OnReactionListener;
 import constants.Emojis;
 import core.CustomObservableMap;
 import core.EmbedFactory;
-import core.MainLogger;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.BotPermissionUtil;
@@ -19,7 +18,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.schedulers.ReminderScheduler;
 import mysql.modules.reminders.DBReminders;
-import mysql.modules.reminders.RemindersBean;
+import mysql.modules.reminders.ReminderSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -36,7 +35,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class ReminderCommand extends Command implements OnReactionListener {
 
-    private RemindersBean remindersBean = null;
+    private ReminderSlot remindersBean = null;
     private boolean active = true;
     private boolean canceled = false;
     private EmbedBuilder eb;
@@ -131,22 +130,23 @@ public class ReminderCommand extends Command implements OnReactionListener {
     }
 
     private void insertReminderBean(TextChannel channel, long minutes, String messageText) {
-        CustomObservableMap<Integer, RemindersBean> remindersBeans = DBReminders.getInstance().retrieve();
+        CustomObservableMap<Integer, ReminderSlot> remindersMap = DBReminders.getInstance()
+                .retrieve(channel.getGuild().getIdLong());
 
-        remindersBean = new RemindersBean(
+        remindersBean = new ReminderSlot(
                 channel.getGuild().getIdLong(),
-                generateNewId(remindersBeans),
+                generateNewId(remindersMap),
                 channel.getIdLong(),
                 Instant.now().plus(minutes, ChronoUnit.MINUTES),
                 messageText,
-                this::cancel
+                () -> cancel(channel.getGuild().getIdLong())
         );
 
-        remindersBeans.put(remindersBean.getId(), remindersBean);
+        remindersMap.put(remindersBean.getId(), remindersBean);
         ReminderScheduler.getInstance().loadReminderBean(remindersBean);
     }
 
-    private int generateNewId(CustomObservableMap<Integer, RemindersBean> remindersBeans) {
+    private int generateNewId(CustomObservableMap<Integer, ReminderSlot> remindersBeans) {
         int value = 0;
         while (remindersBeans.containsKey(value)) {
             value++;
@@ -154,22 +154,18 @@ public class ReminderCommand extends Command implements OnReactionListener {
         return value;
     }
 
-    private void cancel() {
+    private void cancel(long guildId) {
         if (active) {
             canceled = true;
-            remindersBean.stop();
             removeReactionListener();
-            try {
-                DBReminders.getInstance().retrieve().remove(remindersBean.getId(), remindersBean);
-            } catch (Throwable e) {
-                MainLogger.get().error("Could not load reminders", e);
-            }
+            DBReminders.getInstance().retrieve(guildId)
+                    .remove(remindersBean.getId(), remindersBean);
         }
     }
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) {
-        cancel();
+        cancel(event.getGuild().getIdLong());
         return true;
     }
 

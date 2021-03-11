@@ -15,7 +15,7 @@ import core.TextManager;
 import core.utils.BotUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import mysql.modules.tracker.TrackerBeanSlot;
+import mysql.modules.tracker.TrackerSlot;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionBean;
 import mysql.modules.version.VersionBeanSlot;
@@ -118,7 +118,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
         if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionBeanSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
 

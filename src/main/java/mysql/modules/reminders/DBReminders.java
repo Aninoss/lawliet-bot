@@ -1,13 +1,14 @@
 package mysql.modules.reminders;
 
 import java.util.HashMap;
+import java.util.List;
 import core.CustomObservableMap;
 import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBSingleCache;
+import mysql.DBMapCache;
 
-public class DBReminders extends DBSingleCache<CustomObservableMap<Integer, RemindersBean>> {
+public class DBReminders extends DBMapCache<Long, CustomObservableMap<Integer, ReminderSlot>> {
 
     private static final DBReminders ourInstance = new DBReminders();
 
@@ -19,19 +20,14 @@ public class DBReminders extends DBSingleCache<CustomObservableMap<Integer, Remi
     }
 
     @Override
-    protected CustomObservableMap<Integer, RemindersBean> loadBean() {
-        HashMap<Integer, RemindersBean> remindersMap = new DBDataLoad<RemindersBean>("Reminders", "id, serverId, channelId, time, message", "(serverId >> 22) % ? >= ? AND (serverId >> 22) % ? <= ?",
-                preparedStatement -> {
-                    preparedStatement.setInt(1, ShardManager.getInstance().getTotalShards());
-                    preparedStatement.setInt(2, ShardManager.getInstance().getShardIntervalMin());
-                    preparedStatement.setInt(3, ShardManager.getInstance().getTotalShards());
-                    preparedStatement.setInt(4, ShardManager.getInstance().getShardIntervalMax());
-                }
+    protected CustomObservableMap<Integer, ReminderSlot> load(Long guildId) throws Exception {
+        HashMap<Integer, ReminderSlot> remindersMap = new DBDataLoad<ReminderSlot>("Reminders", "id, serverId, channelId, time, message", "serverId = ?",
+                preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getHashMap(
-                RemindersBean::getId,
+                ReminderSlot::getId,
                 resultSet -> {
                     long serverId = resultSet.getLong(2);
-                    return new RemindersBean(
+                    return new ReminderSlot(
                             serverId,
                             resultSet.getInt(1),
                             resultSet.getLong(3),
@@ -41,14 +37,37 @@ public class DBReminders extends DBSingleCache<CustomObservableMap<Integer, Remi
                 }
         );
 
-        CustomObservableMap<Integer, RemindersBean> remindersBeans = new CustomObservableMap<>(remindersMap);
-        remindersBeans.addMapAddListener(this::addRemindersBean);
-        remindersBeans.addMapRemoveListener(this::removeRemindersBean);
+        CustomObservableMap<Integer, ReminderSlot> remindersBeans = new CustomObservableMap<>(remindersMap);
+        remindersBeans.addMapAddListener(this::addRemindersBean)
+                .addMapUpdateListener(this::addRemindersBean)
+                .addMapRemoveListener(this::removeRemindersBean);
 
         return remindersBeans;
     }
 
-    private void addRemindersBean(RemindersBean remindersBean) {
+    public List<ReminderSlot> retrieveAll() {
+        return new DBDataLoad<ReminderSlot>("Reminders", "id, serverId, channelId, time, message", "(serverId >> 22) % ? >= ? AND (serverId >> 22) % ? <= ?",
+                preparedStatement -> {
+                    preparedStatement.setInt(1, ShardManager.getInstance().getTotalShards());
+                    preparedStatement.setInt(2, ShardManager.getInstance().getShardIntervalMin());
+                    preparedStatement.setInt(3, ShardManager.getInstance().getTotalShards());
+                    preparedStatement.setInt(4, ShardManager.getInstance().getShardIntervalMax());
+                }
+        ).getArrayList(
+                resultSet -> {
+                    long serverId = resultSet.getLong(2);
+                    return new ReminderSlot(
+                            serverId,
+                            resultSet.getInt(1),
+                            resultSet.getLong(3),
+                            resultSet.getTimestamp(4).toInstant(),
+                            resultSet.getString(5)
+                    );
+                }
+        );
+    }
+
+    private void addRemindersBean(ReminderSlot remindersBean) {
         DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Reminders (id, serverId, channelId, time, message) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setInt(1, remindersBean.getId());
             preparedStatement.setLong(2, remindersBean.getGuildId());
@@ -58,7 +77,7 @@ public class DBReminders extends DBSingleCache<CustomObservableMap<Integer, Remi
         });
     }
 
-    private void removeRemindersBean(RemindersBean remindersBean) {
+    private void removeRemindersBean(ReminderSlot remindersBean) {
         DBMain.getInstance().asyncUpdate("DELETE FROM Reminders WHERE id = ?;", preparedStatement -> {
             preparedStatement.setInt(1, remindersBean.getId());
         });

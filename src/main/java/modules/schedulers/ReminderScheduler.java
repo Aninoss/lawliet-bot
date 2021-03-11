@@ -1,12 +1,15 @@
 package modules.schedulers;
 
+import java.time.Instant;
 import java.util.Optional;
 import commands.runnables.utilitycategory.ReminderCommand;
+import core.CustomObservableMap;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
+import core.ShardManager;
 import core.schedule.MainScheduler;
 import mysql.modules.reminders.DBReminders;
-import mysql.modules.reminders.RemindersBean;
+import mysql.modules.reminders.ReminderSlot;
 import net.dv8tion.jda.api.Permission;
 
 public class ReminderScheduler {
@@ -27,43 +30,46 @@ public class ReminderScheduler {
         started = true;
 
         try {
-            DBReminders.getInstance().retrieve().values().forEach(this::loadReminderBean);
+            DBReminders.getInstance().retrieveAll()
+                    .forEach(this::loadReminderBean);
         } catch (Throwable e) {
             MainLogger.get().error("Could not start reminder", e);
         }
     }
 
-    public void loadReminderBean(RemindersBean remindersBean) {
-        MainScheduler.getInstance().schedule(remindersBean.getTime(), "reminder", () -> onReminderDue(remindersBean));
+    public void loadReminderBean(ReminderSlot remindersBean) {
+        loadReminderBean(remindersBean.getGuildId(), remindersBean.getId(), remindersBean.getTime());
     }
 
-    private void onReminderDue(RemindersBean remindersBean) {
-        if (remindersBean.isActive()) {
-            remindersBean.stop();
+    public void loadReminderBean(long guildId, int reminderId, Instant due) {
+        MainScheduler.getInstance().schedule(due, "reminder_" + reminderId, () -> {
+            CustomObservableMap<Integer, ReminderSlot> map = DBReminders.getInstance().retrieve(guildId);
+            if (map.containsKey(reminderId) && ShardManager.getInstance().guildIsManaged(guildId)) {
+                onReminderDue(map.get(reminderId));
+            }
+        });
+    }
 
-            long channelId = remindersBean.getTextChannelId();
-            remindersBean.getGuild()
-                    .map(guild -> guild.getTextChannelById(channelId))
-                    .ifPresent(channel -> {
-                        if (PermissionCheckRuntime.getInstance().botHasPermission(
-                                remindersBean.getGuildBean().getLocale(),
-                                ReminderCommand.class,
-                                channel,
-                                Permission.MESSAGE_WRITE
-                        )) {
-                            channel.sendMessage(remindersBean.getMessage()).queue();
-                        }
-                    });
+    private void onReminderDue(ReminderSlot reminderSlot) {
+        DBReminders.getInstance().retrieve(reminderSlot.getGuildId())
+                .remove(reminderSlot.getId(), reminderSlot);
 
-            Optional.ofNullable(remindersBean.getCompletedRunnable())
-                    .ifPresent(Runnable::run);
-        }
+        long channelId = reminderSlot.getTextChannelId();
+        reminderSlot.getGuild()
+                .map(guild -> guild.getTextChannelById(channelId))
+                .ifPresent(channel -> {
+                    if (PermissionCheckRuntime.getInstance().botHasPermission(
+                            reminderSlot.getGuildBean().getLocale(),
+                            ReminderCommand.class,
+                            channel,
+                            Permission.MESSAGE_WRITE
+                    )) {
+                        channel.sendMessage(reminderSlot.getMessage()).queue();
+                    }
+                });
 
-        try {
-            DBReminders.getInstance().retrieve().remove(remindersBean.getId(), remindersBean);
-        } catch (Throwable e) {
-            MainLogger.get().error("Could not load reminders", e);
-        }
+        Optional.ofNullable(reminderSlot.getCompletedRunnable())
+                .ifPresent(Runnable::run);
     }
 
 }

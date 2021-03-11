@@ -3,9 +3,9 @@ package mysql.modules.nsfwfilter;
 import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBMapObserverCache;
+import mysql.DBObserverMapCache;
 
-public class DBNSFWFilters extends DBMapObserverCache<Long, NSFWFiltersBean> {
+public class DBNSFWFilters extends DBObserverMapCache<Long, NSFWFiltersBean> {
 
     private static final DBNSFWFilters ourInstance = new DBNSFWFilters();
 

@@ -56,7 +56,6 @@ public class GiveawayCommand extends NavigationAbstract {
 
     private CustomObservableMap<Long, GiveawaySlot> giveawayBeans = null;
 
-    private long serverId;
     private long messageId;
     private String title;
     private String description = "";
@@ -75,7 +74,6 @@ public class GiveawayCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        serverId = event.getGuild().getIdLong();
         giveawayBeans = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
         title = getString("title");
         registerNavigationListener(12);

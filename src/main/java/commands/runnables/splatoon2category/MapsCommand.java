@@ -16,7 +16,7 @@ import core.EmbedFactory;
 import core.internet.InternetCache;
 import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
-import mysql.modules.tracker.TrackerBeanSlot;
+import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -144,7 +144,7 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerBeanSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
         Message message = slot.getTextChannel().get().sendMessage(getEmbed().build()).complete();
         slot.setMessageId(message.getIdLong());
         slot.setNextRequest(trackingTime);

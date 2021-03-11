@@ -5,9 +5,9 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBMapObserverCache;
+import mysql.DBObserverMapCache;
 
-public class DBSPBlock extends DBMapObserverCache<Long, SPBlockBean> {
+public class DBSPBlock extends DBObserverMapCache<Long, SPBlockBean> {
 
     private static final DBSPBlock ourInstance = new DBSPBlock();
 

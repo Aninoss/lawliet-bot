@@ -17,9 +17,9 @@ import core.ResourceHandler;
 import core.ShardManager;
 import mysql.DBKeySetLoad;
 import mysql.DBMain;
-import mysql.DBMapObserverCache;
+import mysql.DBObserverMapCache;
 
-public class DBGuild extends DBMapObserverCache<Long, GuildBean> {
+public class DBGuild extends DBObserverMapCache<Long, GuildBean> {
 
     private static final DBGuild ourInstance = new DBGuild();
 

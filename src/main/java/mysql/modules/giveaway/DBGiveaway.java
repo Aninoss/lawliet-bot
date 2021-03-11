@@ -22,9 +22,7 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
     @Override
     protected CustomObservableMap<Long, GiveawaySlot> load(Long guildId) {
         HashMap<Long, GiveawaySlot> giveawaysMapRaw = new DBDataLoad<GiveawaySlot>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active", "serverId = ?",
-                preparedStatement -> {
-                    preparedStatement.setLong(1, guildId);
-                }
+                preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getHashMap(
                 GiveawaySlot::getMessageId,
                 resultSet -> new GiveawaySlot(
@@ -75,12 +73,6 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
         );
     }
 
-    private void removeGiveawaySlot(GiveawaySlot slot) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Giveaways WHERE messageId = ?;", preparedStatement -> {
-            preparedStatement.setLong(1, slot.getMessageId());
-        });
-    }
-
     private void addGiveawaySlot(GiveawaySlot slot) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO Giveaways (serverId, messageId, channelId, emoji, winners, start, durationMinutes, title, description, imageUrl, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getGuildId());
@@ -94,6 +86,12 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
             preparedStatement.setString(9, slot.getDescription());
             preparedStatement.setString(10, slot.getImageUrl().orElse(null));
             preparedStatement.setBoolean(11, slot.isActive());
+        });
+    }
+
+    private void removeGiveawaySlot(GiveawaySlot slot) {
+        DBMain.getInstance().asyncUpdate("DELETE FROM Giveaways WHERE messageId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, slot.getMessageId());
         });
     }
 

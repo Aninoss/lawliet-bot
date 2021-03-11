@@ -6,9 +6,9 @@ import java.util.Optional;
 import javafx.util.Pair;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBMapObserverCache;
+import mysql.DBObserverMapCache;
 
-public class DBServerWarnings extends DBMapObserverCache<Pair<Long, Long>, ServerWarningsBean> {
+public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, ServerWarningsBean> {
 
     private static final DBServerWarnings ourInstance = new DBServerWarnings();
 

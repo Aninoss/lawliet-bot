@@ -10,9 +10,9 @@ import java.util.Locale;
 import javafx.util.Pair;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBMapObserverCache;
+import mysql.DBObserverMapCache;
 
-public class DBSurvey extends DBMapObserverCache<Integer, SurveyBean> {
+public class DBSurvey extends DBObserverMapCache<Integer, SurveyBean> {
 
     private static final DBSurvey ourInstance = new DBSurvey();
 
