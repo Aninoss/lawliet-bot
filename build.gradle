@@ -11,6 +11,8 @@ ext {
 
 group = 'xyz.lawlietbot'
 version = 'latest'
+sourceCompatibility = 15
+targetCompatibility = 15
 
 repositories {
     mavenCentral()
