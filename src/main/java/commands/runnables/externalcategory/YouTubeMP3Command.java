@@ -11,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.ResourceHandler;
 import core.TextManager;
 import core.internet.HttpRequest;
@@ -113,19 +114,19 @@ public class YouTubeMP3Command extends Command {
     }
 
     private void handleFile(GuildMessageReceivedEvent event, Message message, AudioTrackInfo meta, File mp3File) {
-        JDAUtil.sendPrivateMessage(event.getMember(), getString("success_dm", StringUtil.escapeMarkdownInField(meta.title), StringUtil.escapeMarkdownInField(meta.author)))
-                .addFile(mp3File)
-                .queue(m -> {
-                    mp3File.delete();
-                    message.editMessage(EmbedFactory.getEmbedDefault(this, getString("success")).build()).queue();
-                }, e -> {
-                    mp3File.delete();
-                    message.editMessage(EmbedFactory.getEmbedError(
-                            this,
-                            TextManager.getString(getLocale(), TextManager.GENERAL, "no_dms"),
-                            TextManager.getString(getLocale(), TextManager.GENERAL, "error")
-                    ).build()).queue();
-                });
+        JDAUtil.sendPrivateMessage(event.getMember().getIdLong(), privateChannel -> {
+            return privateChannel.sendMessage(getString("success_dm", StringUtil.escapeMarkdownInField(meta.title), StringUtil.escapeMarkdownInField(meta.author)))
+                    .addFile(mp3File);
+        }).queue(m -> {
+            mp3File.delete();
+            message.editMessage(EmbedFactory.getEmbedDefault(this, getString("success")).build()).queue();
+        }, e -> {
+            MainLogger.get().error("Ytmp3 Error", e);
+            mp3File.delete();
+            message.editMessage(
+                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_dms"), TextManager.getString(getLocale(), TextManager.GENERAL, "error")).build()
+            ).queue();
+        });
     }
 
 }

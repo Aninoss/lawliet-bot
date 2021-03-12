@@ -1,5 +1,7 @@
 package mysql.modules.tracker;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -105,10 +107,16 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
     }
 
     public Optional<Long> sendMessage(MessageEmbed... embeds) {
+        if (embeds.length == 0) {
+            return Optional.empty();
+        }
         return processMessage(true, null, embeds);
     }
 
     public Optional<Long> editMessage(MessageEmbed... embeds) {
+        if (embeds.length == 0) {
+            return Optional.empty();
+        }
         return processMessage(false, null, embeds);
     }
 
@@ -127,7 +135,14 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                         }
                     }
                     if (webhooks.size() < 10) {
-                        Webhook webhook = channel.createWebhook(channel.getGuild().getSelfMember().getEffectiveName()).complete();
+                        Member self = channel.getGuild().getSelfMember();
+                        InputStream is = new URL(self.getUser().getEffectiveAvatarUrl()).openStream();
+
+                        Webhook webhook = channel.createWebhook(self.getEffectiveName())
+                                .setAvatar(Icon.from(is))
+                                .complete();
+
+                        is.close();
                         webhookUrl = webhook.getUrl();
                         return processMessageViaWebhook(newMessage, content, embeds);
                     } else {
@@ -180,10 +195,11 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                         return Optional.of(webhookClient.edit(messageId, content).get(10, TimeUnit.SECONDS).getId());
                     }
                 }
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            } catch (Throwable e) {
                 MainLogger.get().error("Could not send webhook message", e);
+                this.webhookClient = null;
                 this.webhookUrl = null;
-                return processMessageViaRest(newMessage, content, embeds);
+                return processMessage(newMessage, content, embeds);
             }
         } else {
             return Optional.empty();

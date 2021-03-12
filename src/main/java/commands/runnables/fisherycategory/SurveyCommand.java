@@ -280,8 +280,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             return TrackerResult.CONTINUE;
         }
 
-        channel.deleteMessageById(slot.getMessageId().get()).complete();
-
+        slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).queue());
         slot.setMessageId(sendMessages(channel, null, true, eb -> channel.sendMessage(eb).complete().getIdLong()));
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));

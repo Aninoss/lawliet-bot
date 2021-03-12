@@ -109,7 +109,7 @@ public final class TimeUtil {
         return month;
     }
 
-    public static Instant parseDateString2(String str) {
+    public static Instant parseDateStringRSS(String str) {
         String[] timeString = str.split(" ");
         int month = parseMonth(timeString[2]);
 
@@ -121,7 +121,8 @@ public final class TimeUtil {
                 .withMinute(Integer.parseInt(timeString[4].split(":")[1]))
                 .withSecond(Integer.parseInt(timeString[4].split(":")[2]));
 
-        return ldt1.atZone(ZoneOffset.UTC).toInstant();
+        int offset = Integer.parseInt(timeString[5]) / 100;
+        return ldt1.atZone(ZoneOffset.ofHours(offset)).toInstant();
     }
 
     public static Instant parseDateString3(String str) {

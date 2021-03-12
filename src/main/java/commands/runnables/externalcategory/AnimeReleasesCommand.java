@@ -2,9 +2,11 @@ package commands.runnables.externalcategory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
@@ -13,7 +15,7 @@ import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.PostBundle;
-import modules.animerelease.AnimeReleaseDownloader;
+import modules.animerelease.AnimeReleasesDownloader;
 import modules.animerelease.AnimeReleasePost;
 import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -35,7 +37,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         addLoadingReactionInstantly();
-        PostBundle<AnimeReleasePost> posts = AnimeReleaseDownloader.getPosts(getLocale(), null, args);
+        PostBundle<AnimeReleasePost> posts = AnimeReleasesDownloader.getPosts(getLocale(), null, args);
 
         if (posts.getPosts().size() > 0) {
             EmbedBuilder eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), getEmbed(posts.getPosts().get(0)), getPrefix(), getTrigger());
@@ -76,14 +78,15 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         boolean first = slot.getArgs().isEmpty();
-        PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());
+        PostBundle<AnimeReleasePost> postBundle = AnimeReleasesDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());
 
-        MessageEmbed[] embeds = (MessageEmbed[]) postBundle.getPosts().stream()
-                .sorted(Collections.reverseOrder())
+        ArrayList<MessageEmbed> embedList = postBundle.getPosts().stream()
                 .limit(5)
                 .map(post -> getEmbed(post).build())
-                .toArray();
+                .collect(Collectors.toCollection(ArrayList::new));
 
+        Collections.reverse(embedList);
+        MessageEmbed[] embeds = embedList.toArray(new MessageEmbed[0]);
         slot.sendMessage(embeds);
 
         if (first && postBundle.getPosts().size() == 0) {

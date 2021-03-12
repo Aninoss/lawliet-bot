@@ -3,11 +3,11 @@ package core.utils;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.CheckReturnValue;
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class JDAUtil {
 
@@ -26,37 +26,42 @@ public class JDAUtil {
     }
 
     @CheckReturnValue
-    public static MessageAction sendPrivateMessage(Member member, String content) {
+    public static RestAction<Message> sendPrivateMessage(Member member, String content) {
         return sendPrivateMessage(member.getIdLong(), content);
     }
 
     @CheckReturnValue
-    public static MessageAction sendPrivateMessage(User user, String content) {
+    public static RestAction<Message> sendPrivateMessage(User user, String content) {
         return sendPrivateMessage(user.getIdLong(), content);
     }
 
     @CheckReturnValue
-    public static MessageAction sendPrivateMessage(long userId, String content) {
-        return (MessageAction) ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
+    public static RestAction<Message> sendPrivateMessage(long userId, String content) {
+        return ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
                 channel -> channel.sendMessage(content)
         );
     }
 
     @CheckReturnValue
-    public static MessageAction sendPrivateMessage(Member member, MessageEmbed eb) {
+    public static RestAction<Message> sendPrivateMessage(Member member, MessageEmbed eb) {
         return sendPrivateMessage(member.getIdLong(), eb);
     }
 
     @CheckReturnValue
-    public static MessageAction sendPrivateMessage(User user, MessageEmbed eb) {
+    public static RestAction<Message> sendPrivateMessage(User user, MessageEmbed eb) {
         return sendPrivateMessage(user.getIdLong(), eb);
     }
 
     @CheckReturnValue
-    public static MessageAction sendPrivateMessage(long userId, MessageEmbed eb) {
-        return (MessageAction) ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
+    public static RestAction<Message> sendPrivateMessage(long userId, MessageEmbed eb) {
+        return ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
                 channel -> channel.sendMessage(eb)
         );
+    }
+
+    @CheckReturnValue
+    public static RestAction<Message> sendPrivateMessage(long userId, Function<? super PrivateChannel, ? extends RestAction<Message>> flatMap) {
+        return ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(flatMap);
     }
 
     @CheckReturnValue

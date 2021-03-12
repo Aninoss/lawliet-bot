@@ -41,8 +41,7 @@ public class AlertsCommand extends NavigationAbstract {
     private final int
             STATE_ADD = 1,
             STATE_REMOVE = 2,
-            STATE_KEY = 3,
-            STATE_SUCCESS = 4;
+            STATE_KEY = 3;
 
     private final int LIMIT_CHANNEL = 5;
     private final int LIMIT_SERVER = 20;
@@ -70,6 +69,9 @@ public class AlertsCommand extends NavigationAbstract {
         controll(args, true);
         if (addNavigation) {
             registerNavigationListener(12);
+        } else {
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("state3_added", commandCache.getTrigger()));
+            drawMessage(eb);
         }
         return true;
     }
@@ -312,11 +314,6 @@ public class AlertsCommand extends NavigationAbstract {
         return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), commandCache.getCategory(), commandCache.getTrigger() + "_trackerkey"), getString("state3_title"));
     }
 
-    @Draw(state = STATE_SUCCESS)
-    public EmbedBuilder onDrawSuccess() throws Throwable {
-        return EmbedFactory.getEmbedDefault(this, getString("state3_added", commandCache.getTrigger()));
-    }
-
     private void addTracker(Command command, String commandKey, boolean firstTime) {
         TrackerSlot slot = new TrackerSlot(
                 serverId,
@@ -335,7 +332,6 @@ public class AlertsCommand extends NavigationAbstract {
         if (firstTime) {
             commandCache = command;
             addNavigation = false;
-            setState(STATE_SUCCESS);
         } else {
             setState(STATE_ADD);
             setLog(LogStatus.SUCCESS, getString("state3_added", command.getTrigger()));

@@ -11,6 +11,7 @@ import com.google.common.net.UrlEscapers;
 import constants.AssetIds;
 import core.ExceptionLogger;
 import core.MainLogger;
+import core.internet.InternetCache;
 
 public final class InternetUtil {
 
@@ -73,6 +74,14 @@ public final class InternetUtil {
 
     public static String escapeForURL(String url) {
         return UrlEscapers.urlFragmentEscaper().escape(url);
+    }
+
+    public static CompletableFuture<String> retrieveThumbnailPreview(String url) {
+        return InternetCache.getData(url, 10 * 60)
+                .thenApply(data -> {
+                    String content = data.getContent().get();
+                    return StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\">")[0];
+                });
     }
 
 }

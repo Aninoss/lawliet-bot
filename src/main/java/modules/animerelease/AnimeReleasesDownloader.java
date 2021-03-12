@@ -17,7 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 
-public class AnimeReleaseDownloader {
+public class AnimeReleasesDownloader {
 
     public static PostBundle<AnimeReleasePost> getPosts(Locale locale, String newestPostId, String filterString) throws InterruptedException, ExecutionException {
         final List<String> filter = Arrays.stream(filterString.split(",")).map(String::trim).collect(Collectors.toList());
@@ -144,7 +144,7 @@ public class AnimeReleaseDownloader {
         if (data.has("media:thumbnail")) {
             thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
         }
-        Instant date = TimeUtil.parseDateString2(data.getString("crunchyroll:premiumPubDate"));
+        Instant date = TimeUtil.parseDateStringRSS(data.getString("crunchyroll:premiumPubDate"));
         String url = data.getString("link").replace("/de/", "/");
         int id = data.getInt("crunchyroll:mediaId");
 
