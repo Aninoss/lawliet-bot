@@ -2,11 +2,12 @@ package commands.runnables.externalcategory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
@@ -16,7 +17,7 @@ import modules.animerelease.AnimeReleaseDownloader;
 import modules.animerelease.AnimeReleasePost;
 import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
@@ -26,7 +27,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         executableWithoutArgs = true,
         aliases = { "animereleases", "animerelease" }
 )
-public class AnimeReleasesCommand extends Command implements OnTrackerRequestListener {
+public class AnimeReleasesCommand extends Command implements OnAlertListener {
 
     public AnimeReleasesCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -77,11 +78,13 @@ public class AnimeReleasesCommand extends Command implements OnTrackerRequestLis
         boolean first = slot.getArgs().isEmpty();
         PostBundle<AnimeReleasePost> postBundle = AnimeReleaseDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());
 
-        TextChannel channel = slot.getTextChannel().get();
-        for (int i = Math.min(4, postBundle.getPosts().size() - 1); i >= 0; i--) {
-            AnimeReleasePost post = postBundle.getPosts().get(i);
-            channel.sendMessage(getEmbed(post).build()).complete();
-        }
+        MessageEmbed[] embeds = (MessageEmbed[]) postBundle.getPosts().stream()
+                .sorted(Collections.reverseOrder())
+                .limit(5)
+                .map(post -> getEmbed(post).build())
+                .toArray();
+
+        slot.sendMessage(embeds);
 
         if (first && postBundle.getPosts().size() == 0) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)

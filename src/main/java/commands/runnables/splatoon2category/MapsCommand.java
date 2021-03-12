@@ -9,7 +9,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import constants.Emojis;
 import constants.TrackerResult;
 import core.EmbedFactory;
@@ -19,7 +19,6 @@ import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
 
@@ -30,7 +29,7 @@ import org.json.JSONObject;
         emoji = "\uD83D\uDDFA",
         executableWithoutArgs = true
 )
-public class MapsCommand extends Command implements OnTrackerRequestListener {
+public class MapsCommand extends Command implements OnAlertListener {
 
     private Instant trackingTime;
 
@@ -145,8 +144,7 @@ public class MapsCommand extends Command implements OnTrackerRequestListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
-        Message message = slot.getTextChannel().get().sendMessage(getEmbed().build()).complete();
-        slot.setMessageId(message.getIdLong());
+        slot.setMessageId(slot.sendMessage(getEmbed().build()).get());
         slot.setNextRequest(trackingTime);
 
         return TrackerResult.CONTINUE_AND_SAVE;

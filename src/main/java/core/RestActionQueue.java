@@ -4,9 +4,9 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 public class RestActionQueue {
 
-    private RestAction<Void> currentRestAction;
+    private RestAction<?> currentRestAction;
 
-    public RestActionQueue attach(RestAction<Void> restAction) {
+    public RestActionQueue attach(RestAction<?> restAction) {
         if (currentRestAction == null) {
             currentRestAction = restAction;
         } else {
@@ -15,7 +15,7 @@ public class RestActionQueue {
         return this;
     }
 
-    public RestAction<Void> getCurrentRestAction() {
+    public RestAction<?> getCurrentRestAction() {
         return currentRestAction;
     }
 

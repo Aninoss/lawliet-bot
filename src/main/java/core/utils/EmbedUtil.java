@@ -27,7 +27,7 @@ public class EmbedUtil {
 
     public static EmbedBuilder addTrackerNoteLog(Locale locale, Member member, EmbedBuilder eb, String prefix, String trigger) {
         if (BotPermissionUtil.can(member, Command.getCommandProperties(AlertsCommand.class).userGuildPermissions()) &&
-                DBTracker.getInstance().retrieve().getSlots().stream().noneMatch(s -> s.getGuildId() == member.getGuild().getIdLong() && s.getCommandTrigger().equals(trigger))
+                DBTracker.getInstance().retrieve(member.getGuild().getIdLong()).values().stream().noneMatch(s -> s.getCommandTrigger().equals(trigger))
         ) {
             addLog(eb, LogStatus.WARNING, TextManager.getString(locale, TextManager.GENERAL, "tracker", prefix, trigger));
         }

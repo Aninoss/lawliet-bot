@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import constants.AssetIds;
 import constants.TrackerResult;
 import core.EmbedFactory;
@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         executableWithoutArgs = true,
         aliases = { "changelog" }
 )
-public class NewCommand extends Command implements OnTrackerRequestListener {
+public class NewCommand extends Command implements OnAlertListener {
 
     VersionBean versionBean;
 
@@ -122,8 +122,7 @@ public class NewCommand extends Command implements OnTrackerRequestListener {
         if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionBeanSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
 
-            slot.getTextChannel().get().sendMessage(getVersionsEmbed(newestSlot).build())
-                    .complete();
+            slot.sendMessage(getVersionsEmbed(newestSlot).build());
 
             if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID) {
                 Role role = slot.getGuild().get().getRoleById(703879430799622155L);

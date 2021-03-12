@@ -9,6 +9,7 @@ import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import core.MainLogger;
 import core.RestActionQueue;
+import core.cache.MessageCache;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
 import core.utils.JDAEmojiUtil;
@@ -30,6 +31,7 @@ public interface OnReactionListener {
                         event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
                         (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)))
                 ).thenApply(messageId -> {
+                    MessageCache.getInstance().block(messageId);
                     command.getTextChannel().ifPresent(channel -> {
                         RestActionQueue restActionQueue = new RestActionQueue();
                         Arrays.stream(emojis).forEach(emoji -> restActionQueue.attach(channel.addReactionById(messageId, JDAEmojiUtil.emojiAsReactionTag(emoji))));

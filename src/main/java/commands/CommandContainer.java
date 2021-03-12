@@ -7,7 +7,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import commands.runnables.aitoyscategory.ColorCommand;
 import commands.runnables.aitoyscategory.DeepDreamCommand;
 import commands.runnables.aitoyscategory.ImitateCommand;
@@ -45,7 +45,7 @@ public class CommandContainer {
     private final HashMap<String, ArrayList<Class<? extends Command>>> commandCategoryMap = new HashMap<>();
     private final ArrayList<Class<? extends OnStaticReactionAddListener>> staticReactionAddCommands = new ArrayList<>();
     private final ArrayList<Class<? extends OnStaticReactionRemoveListener>> staticReactionRemoveCommands = new ArrayList<>();
-    private final ArrayList<Class<? extends OnTrackerRequestListener>> trackerCommands = new ArrayList<>();
+    private final ArrayList<Class<? extends OnAlertListener>> trackerCommands = new ArrayList<>();
 
     private final HashMap<Class<?>, Cache<Long, CommandListenerMeta<?>>> listenerMap = new HashMap<>();
 
@@ -265,8 +265,8 @@ public class CommandContainer {
             if (command instanceof OnStaticReactionRemoveListener) {
                 staticReactionRemoveCommands.add(((OnStaticReactionRemoveListener) command).getClass());
             }
-            if (command instanceof OnTrackerRequestListener) {
-                trackerCommands.add(((OnTrackerRequestListener) command).getClass());
+            if (command instanceof OnAlertListener) {
+                trackerCommands.add(((OnAlertListener) command).getClass());
             }
 
             if (command.canRunOnGuild(0L, 0L)) {
@@ -301,7 +301,7 @@ public class CommandContainer {
         return staticReactionRemoveCommands;
     }
 
-    public ArrayList<Class<? extends OnTrackerRequestListener>> getTrackerCommands() {
+    public ArrayList<Class<? extends OnAlertListener>> getTrackerCommands() {
         return trackerCommands;
     }
 

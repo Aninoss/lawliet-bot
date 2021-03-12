@@ -5,7 +5,7 @@ import java.util.Locale;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import constants.Category;
 import core.TextManager;
 import org.json.JSONArray;
@@ -48,7 +48,7 @@ public class OnCommandList implements SyncServerFunction {
             commandJSON.put("user_permissions", SyncLocaleUtil.getCommandPermissions(command));
             commandJSON.put("nsfw", command.getCommandProperties().nsfw());
             commandJSON.put("requires_user_permissions", command.isModCommand());
-            commandJSON.put("can_be_tracked", command instanceof OnTrackerRequestListener);
+            commandJSON.put("can_be_tracked", command instanceof OnAlertListener);
             commandJSON.put("patron_only", command.getCommandProperties().patreonRequired());
 
             categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);

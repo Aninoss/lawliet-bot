@@ -6,13 +6,19 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnAlertListener;
 import commands.listeners.OnStaticReactionAddListener;
-import commands.listeners.OnTrackerRequestListener;
 import commands.runnables.FisheryInterface;
-import constants.*;
-import core.*;
+import constants.Emojis;
+import constants.LogStatus;
+import constants.TrackerResult;
+import core.EmbedFactory;
+import core.PermissionCheckRuntime;
+import core.ShardManager;
+import core.TextManager;
 import core.utils.*;
 import javafx.util.Pair;
 import mysql.modules.survey.*;
@@ -29,7 +35,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
         emoji = Emojis.CHECKMARK,
         executableWithoutArgs = true
 )
-public class SurveyCommand extends Command implements FisheryInterface, OnStaticReactionAddListener, OnTrackerRequestListener {
+public class SurveyCommand extends Command implements FisheryInterface, OnStaticReactionAddListener, OnAlertListener {
 
     private static final String BELL_EMOJI = "🔔";
 
@@ -39,7 +45,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     @Override
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws IOException {
-        sendMessages(event.getChannel(), event.getMember(), false);
+        sendMessages(event.getChannel(), event.getMember(), false, eb -> event.getChannel().sendMessage(eb).complete().getIdLong());
         return true;
     }
 
@@ -154,32 +160,32 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
     }
 
-    private Message sendMessages(TextChannel channel, Member member, boolean tracker) throws IOException {
+    private long sendMessages(TextChannel channel, Member member, boolean tracker, Function<MessageEmbed, Long> messageFunction) throws IOException {
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         SurveyBean lastSurvey = DBSurvey.getInstance().retrieve(currentSurvey.getSurveyId() - 1);
 
         //Results Message
-        channel.sendMessage(getResultsEmbed(lastSurvey, member).build()).complete();
+        messageFunction.apply(getResultsEmbed(lastSurvey, member).build());
 
         //Survey Message
         EmbedBuilder eb = getSurveyEmbed(currentSurvey, tracker);
         if (!tracker) {
             EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
         }
-        Message message = channel.sendMessage(eb.build()).complete();
 
+        long messageId = messageFunction.apply(eb.build());
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 if (i == 0) {
-                    message.addReaction(Emojis.LETTERS[j]).complete();
+                    channel.addReactionById(messageId, Emojis.LETTERS[j]).complete();
                 } else {
-                    message.addReaction(Emojis.RED_LETTERS[j]).complete();
+                    channel.addReactionById(messageId, Emojis.RED_LETTERS[j]).complete();
                 }
             }
         }
-        message.addReaction(BELL_EMOJI).complete();
+        channel.addReactionById(messageId, BELL_EMOJI).complete();
 
-        return message;
+        return messageId;
     }
 
     private EmbedBuilder getResultsEmbed(SurveyBean lastSurvey, Member member) throws IOException {
@@ -263,6 +269,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     @Override
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
+        //TODO: save sent messages
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         if (slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get())) {
             return TrackerResult.CONTINUE;
@@ -275,7 +282,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         channel.deleteMessageById(slot.getMessageId().get()).complete();
 
-        slot.setMessageId(sendMessages(channel, null, true).getIdLong());
+        slot.setMessageId(sendMessages(channel, null, true, eb -> slot.sendMessage(eb).get()));
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 

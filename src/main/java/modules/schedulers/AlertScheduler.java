@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import commands.Command;
 import commands.CommandManager;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import commands.runnables.utilitycategory.AlertsCommand;
 import core.CustomObservableMap;
 import core.MainLogger;
@@ -94,7 +94,7 @@ public class AlertScheduler {
             return;
         }
 
-        OnTrackerRequestListener command = commandOpt.map(c -> (OnTrackerRequestListener) c).get();
+        OnAlertListener command = commandOpt.map(c -> (OnAlertListener) c).get();
         Optional<TextChannel> channelOpt = slot.getTextChannel();
         if (channelOpt.isPresent()) {
             if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {

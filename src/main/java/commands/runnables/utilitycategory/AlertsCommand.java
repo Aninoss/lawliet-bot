@@ -7,7 +7,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import commands.runnables.NavigationAbstract;
 import constants.Category;
 import constants.Emojis;
@@ -178,7 +178,7 @@ public class AlertsCommand extends NavigationAbstract {
         }
 
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(arg, getLocale(), getPrefix());
-        if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnTrackerRequestListener)) {
+        if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnAlertListener)) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));
             return null;
         }
@@ -194,7 +194,7 @@ public class AlertsCommand extends NavigationAbstract {
             return Response.FALSE;
         }
 
-        OnTrackerRequestListener trackerCommand = (OnTrackerRequestListener) command;
+        OnAlertListener trackerCommand = (OnAlertListener) command;
         if (trackerCommand.trackerUsesKey()) {
             commandCache = command;
             setState(STATE_KEY);
@@ -325,6 +325,7 @@ public class AlertsCommand extends NavigationAbstract {
                 null,
                 commandKey,
                 Instant.now(),
+                null,
                 null
         );
 

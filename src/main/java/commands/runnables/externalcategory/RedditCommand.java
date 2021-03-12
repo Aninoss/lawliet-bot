@@ -2,11 +2,12 @@ package commands.runnables.externalcategory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
@@ -18,6 +19,7 @@ import modules.reddit.RedditDownloader;
 import modules.reddit.RedditPost;
 import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -27,7 +29,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "\uD83E\uDD16",
         executableWithoutArgs = false
 )
-public class RedditCommand extends Command implements OnTrackerRequestListener {
+public class RedditCommand extends Command implements OnAlertListener {
 
     public RedditCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -111,10 +113,11 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
             boolean containsOnlyNsfw = true;
 
             if (postBundle != null) {
+                ArrayList<MessageEmbed> embedList = new ArrayList<>();
                 for (int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     RedditPost post = postBundle.getPosts().get(i);
                     if (!post.isNsfw() || channel.isNSFW()) {
-                        channel.sendMessage(getEmbed(post).build()).complete();
+                        embedList.add(getEmbed(post).build());
                         containsOnlyNsfw = false;
                         if (slot.getArgs().isEmpty()) {
                             break;
@@ -127,6 +130,11 @@ public class RedditCommand extends Command implements OnTrackerRequestListener {
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                     channel.sendMessage(eb.build()).complete();
                     return TrackerResult.STOP_AND_DELETE;
+                }
+
+                if (embedList.size() > 0) {
+                    MessageEmbed[] embedArray = embedList.toArray(new MessageEmbed[0]);
+                    slot.sendMessage(embedArray);
                 }
 
                 slot.setArgs(postBundle.getNewestPost());

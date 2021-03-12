@@ -10,7 +10,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import commands.runnables.NavigationAbstract;
 import commands.runnables.PornPredefinedAbstract;
 import commands.runnables.PornSearchAbstract;
@@ -324,7 +324,7 @@ public class HelpCommand extends NavigationAbstract {
                     title.append(generateCommandIcons(command, true, false));
 
                     if (command.isModCommand()) includeLocked = true;
-                    if (command instanceof OnTrackerRequestListener) includeAlerts = true;
+                    if (command instanceof OnAlertListener) includeAlerts = true;
                     if (command.getCommandProperties().nsfw()) includeNSFW = true;
 
                     emojiConnections.add(new EmojiConnection(Emojis.LETTERS[i], command.getTrigger()));
@@ -368,7 +368,7 @@ public class HelpCommand extends NavigationAbstract {
                 title.append(generateCommandIcons(command, true, true));
 
                 if (command.isModCommand()) includeLocked = true;
-                if (command instanceof OnTrackerRequestListener) includeAlerts = true;
+                if (command instanceof OnAlertListener) includeAlerts = true;
                 if (command.getCommandProperties().nsfw()) includeNSFW = true;
                 if (command.getCommandProperties().patreonRequired()) includePatreon = true;
 
@@ -426,7 +426,7 @@ public class HelpCommand extends NavigationAbstract {
         StringBuilder sb = new StringBuilder();
 
         if (command.isModCommand()) sb.append(CommandIcon.LOCKED);
-        if (command instanceof OnTrackerRequestListener) sb.append(CommandIcon.ALERTS);
+        if (command instanceof OnAlertListener) sb.append(CommandIcon.ALERTS);
         if (includeNsfw && command.getCommandProperties().nsfw()) sb.append(CommandIcon.NSFW);
         if (includePatreon && command.getCommandProperties().patreonRequired()) sb.append(CommandIcon.PATREON);
 

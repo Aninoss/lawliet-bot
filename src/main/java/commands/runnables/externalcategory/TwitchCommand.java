@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
@@ -18,7 +18,6 @@ import modules.twitch.TwitchStream;
 import modules.twitch.TwitchUser;
 import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -28,7 +27,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         executableWithoutArgs = false,
         withLoadingBar = true
 )
-public class TwitchCommand extends Command implements OnTrackerRequestListener {
+public class TwitchCommand extends Command implements OnAlertListener {
 
     private static final String TWITCH_ICON = "https://www.twitch.tv/favicon.ico";
 
@@ -106,14 +105,13 @@ public class TwitchCommand extends Command implements OnTrackerRequestListener {
         final EmbedBuilder eb = getEmbed(twitchStream);
 
         if (slot.getArgs().isEmpty()) {
-            channel.sendMessage(eb.build()).complete(); /* always post current twitch status at first run */
+            slot.sendMessage(eb.build()); /* always post current twitch status at first run */
         } else if (twitchStream.isLive()) {
             if (slot.getArgs().get().equals("false")) {
-                Message message = channel.sendMessage(eb.build()).complete(); /* post twitch status if live and not live before */
-                slot.setMessageId(message.getIdLong());
+                long messageId = slot.sendMessage(eb.build()).get(); /* post twitch status if live and not live before */
+                slot.setMessageId(messageId);
             } else {
-                slot.getTextChannel().get()
-                        .editMessageById(slot.getMessageId().get(), eb.build()).complete(); /* edit twitch status if live and live before */
+                slot.editMessage(eb.build()); /* edit twitch status if live and live before */
             }
         }
 

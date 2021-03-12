@@ -2,7 +2,7 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import commands.runnables.GelbooruAbstract;
 
 @CommandProperties(
@@ -13,7 +13,7 @@ import commands.runnables.GelbooruAbstract;
         requiresEmbeds = false,
         withLoadingBar = true
 )
-public class YuriCommand extends GelbooruAbstract implements OnTrackerRequestListener {
+public class YuriCommand extends GelbooruAbstract implements OnAlertListener {
 
     public YuriCommand(Locale locale, String prefix) {
         super(locale, prefix);

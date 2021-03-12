@@ -8,7 +8,7 @@ import java.util.Locale;
 import java.util.Optional;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
@@ -36,7 +36,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         maxCalculationTimeSec = 10 * 60,
         aliases = { "fclear", "allclear", "clearall" }
 )
-public class FullClearCommand extends Command implements OnTrackerRequestListener {
+public class FullClearCommand extends Command implements OnAlertListener {
 
     public FullClearCommand(Locale locale, String prefix) {
         super(locale, prefix);

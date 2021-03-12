@@ -1,10 +1,28 @@
 package mysql.modules.tracker;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+import club.minnced.discord.webhook.WebhookClientBuilder;
+import club.minnced.discord.webhook.external.JDAWebhookClient;
+import club.minnced.discord.webhook.send.WebhookEmbed;
+import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
+import core.MainLogger;
+import core.ShardManager;
 import core.assets.TextChannelAsset;
+import core.utils.BotPermissionUtil;
 import mysql.BeanWithGuild;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.Webhook;
 
 public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
 
@@ -14,9 +32,11 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
     private final String commandKey;
     private String args;
     private Instant nextRequest;
+    private String webhookUrl;
+    private JDAWebhookClient webhookClient;
     private boolean active = true;
 
-    public TrackerSlot(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args) {
+    public TrackerSlot(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args, String webhookUrl) {
         super(serverId);
         this.channelId = channelId;
         this.messageId = messageId;
@@ -24,6 +44,7 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
         this.commandKey = commandKey != null ? commandKey : "";
         this.args = args;
         this.nextRequest = nextRequest;
+        this.webhookUrl = webhookUrl;
     }
 
 
@@ -50,6 +71,10 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
         return Optional.ofNullable(args);
     }
 
+    public Optional<String> getWebhookUrl() {
+        return Optional.ofNullable(webhookUrl);
+    }
+
     public Instant getNextRequest() {
         return nextRequest;
     }
@@ -69,6 +94,123 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
     public void setNextRequest(Instant nextRequest) {
         if (this.nextRequest == null || !this.nextRequest.equals(nextRequest)) {
             this.nextRequest = nextRequest;
+        }
+    }
+
+    public Optional<Long> sendMessage(String content) {
+        return processMessage(true, content);
+    }
+
+    public Optional<Long> editMessage(String content) {
+        return processMessage(false, content);
+    }
+
+    public Optional<Long> sendMessage(MessageEmbed... embeds) {
+        return processMessage(true, null, embeds);
+    }
+
+    public Optional<Long> editMessage(MessageEmbed... embeds) {
+        return processMessage(false, null, embeds);
+    }
+
+    private Optional<Long> processMessage(boolean newMessage, String content, MessageEmbed... embeds) {
+        Optional<TextChannel> channelOpt = getTextChannel();
+        if (channelOpt.isPresent()) {
+            TextChannel channel = channelOpt.get();
+            if (webhookUrl == null && BotPermissionUtil.can(channel, Permission.MANAGE_WEBHOOKS)) {
+                try {
+                    List<Webhook> webhooks = channel.retrieveWebhooks().complete();
+                    for (Webhook webhook : webhooks) {
+                        Member webhookOwner = webhook.getOwner();
+                        if (webhookOwner != null && webhookOwner.getIdLong() == ShardManager.getInstance().getSelfId()) {
+                            webhookUrl = webhook.getUrl();
+                            return processMessageViaWebhook(newMessage, content, embeds);
+                        }
+                    }
+                    if (webhooks.size() < 10) {
+                        Webhook webhook = channel.createWebhook(channel.getGuild().getSelfMember().getEffectiveName()).complete();
+                        webhookUrl = webhook.getUrl();
+                        return processMessageViaWebhook(newMessage, content, embeds);
+                    } else {
+                        getTextChannel().map(textChannel -> processMessageViaRest(newMessage, content, embeds));
+                    }
+                } catch (Throwable e) {
+                    MainLogger.get().error("Could not process webhooks", e);
+                    getTextChannel().map(textChannel -> processMessageViaRest(newMessage, content, embeds));
+                }
+            }
+
+            if (webhookUrl != null) {
+                return processMessageViaWebhook(newMessage, content, embeds);
+            } else {
+                return processMessageViaRest(newMessage, content, embeds);
+            }
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<Long> processMessageViaWebhook(boolean newMessage, String content, MessageEmbed... embeds) {
+        Optional<TextChannel> channelOpt = getTextChannel();
+        if (channelOpt.isPresent()) {
+            if (webhookClient == null) {
+                webhookClient = new WebhookClientBuilder(webhookUrl)
+                        .setWait(true)
+                        .buildJDA();
+            }
+
+            List<WebhookEmbed> webhookEmbeds = Arrays.stream(embeds)
+                    .limit(10)
+                    .map(eb -> WebhookEmbedBuilder.fromJDA(eb).build())
+                    .collect(Collectors.toList());
+
+            try {
+                if (embeds.length > 0) {
+                    if (newMessage) {
+                        return Optional.of(webhookClient.send(webhookEmbeds).get(10, TimeUnit.SECONDS).getId());
+                    } else {
+                        return Optional.of(webhookClient.edit(messageId, webhookEmbeds).get(10, TimeUnit.SECONDS).getId());
+                    }
+                } else {
+                    if (newMessage) {
+                        return Optional.of(webhookClient.send(content).get(10, TimeUnit.SECONDS).getId());
+                    } else {
+                        return Optional.of(webhookClient.edit(messageId, content).get(10, TimeUnit.SECONDS).getId());
+                    }
+                }
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                MainLogger.get().error("Could not send webhook message", e);
+                this.webhookUrl = null;
+                return processMessageViaRest(newMessage, content, embeds);
+            }
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<Long> processMessageViaRest(boolean newMessage, String content, MessageEmbed... embeds) {
+        Optional<TextChannel> channelOpt = getTextChannel();
+        if (channelOpt.isPresent()) {
+            TextChannel channel = channelOpt.get();
+            if (embeds.length > 0) {
+                if (newMessage) {
+                    Long newMessageId = null;
+                    for (MessageEmbed embed : embeds) {
+                        newMessageId = channel.sendMessage(embed).complete().getIdLong();
+                    }
+                    return Optional.of(newMessageId);
+                } else {
+                    return Optional.of(channel.editMessageById(messageId, embeds[0]).complete().getIdLong());
+                }
+            } else {
+                if (newMessage) {
+                    return Optional.of(channel.sendMessage(content).complete().getIdLong());
+                } else {
+                    return Optional.of(channel.editMessageById(messageId, content).complete().getIdLong());
+                }
+            }
+        } else {
+            return Optional.empty();
         }
     }
 

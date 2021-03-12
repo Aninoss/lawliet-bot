@@ -1,6 +1,7 @@
 package core.cache;
 
 import java.time.Duration;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -22,7 +23,15 @@ public class MessageCache {
             .expireAfterAccess(Duration.ofHours(1))
             .build();
 
+    private final Cache<Long, Boolean> cacheMessageBlock = CacheBuilder.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(10))
+            .build();
+
     public synchronized CompletableFuture<Message> retrieveMessage(TextChannel channel, long messageId) {
+        if (cacheMessageBlock.asMap().containsKey(messageId)) {
+            return CompletableFuture.failedFuture(new NoSuchElementException("No such message"));
+        }
+
         if (cache.asMap().containsKey(messageId)) {
             return CompletableFuture.completedFuture(cache.getIfPresent(messageId));
         } else {
@@ -37,6 +46,12 @@ public class MessageCache {
     public synchronized void update(Message message) {
         if (cache.asMap().containsKey(message.getIdLong())) {
             cache.put(message.getIdLong(), message);
+        }
+    }
+
+    public synchronized void block(long messageId) {
+        if (!cacheMessageBlock.asMap().containsKey(messageId)) {
+            cacheMessageBlock.put(messageId, true);
         }
     }
 

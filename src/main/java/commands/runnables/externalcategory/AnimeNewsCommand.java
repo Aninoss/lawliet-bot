@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnTrackerRequestListener;
+import commands.listeners.OnAlertListener;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
@@ -15,7 +15,7 @@ import modules.animenews.AnimeNewsDownloader;
 import modules.animenews.AnimeNewsPost;
 import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "\uD83D\uDCF0",
         executableWithoutArgs = true
 )
-public class AnimeNewsCommand extends Command implements OnTrackerRequestListener {
+public class AnimeNewsCommand extends Command implements OnAlertListener {
 
     public AnimeNewsCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -60,11 +60,11 @@ public class AnimeNewsCommand extends Command implements OnTrackerRequestListene
             return TrackerResult.CONTINUE;
         }
 
-        TextChannel channel = slot.getTextChannel().get();
-        for (AnimeNewsPost post : postBundle.getPosts()) {
-            channel.sendMessage(getEmbed(post).build()).complete();
-        }
+        MessageEmbed[] embeds = (MessageEmbed[]) postBundle.getPosts().stream()
+                .map(post -> getEmbed(post).build())
+                .toArray();
 
+        slot.sendMessage(embeds);
         slot.setArgs(postBundle.getNewestPost());
         return TrackerResult.CONTINUE_AND_SAVE;
     }
