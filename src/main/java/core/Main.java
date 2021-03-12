@@ -2,6 +2,7 @@ package core;
 
 import java.io.File;
 import java.time.Instant;
+import core.emoji.EmojiTable;
 import core.utils.BotUtil;
 import mysql.DBMain;
 import mysql.modules.version.DBVersion;
@@ -19,6 +20,7 @@ public class Main {
             Console.getInstance().start();
             FontContainer.getInstance().init();
             DBMain.getInstance().connect();
+            EmojiTable.getInstance().load();
             if (Bot.isPublicVersion()) {
                 initializeUpdate();
             }

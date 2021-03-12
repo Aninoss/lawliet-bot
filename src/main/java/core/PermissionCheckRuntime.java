@@ -58,7 +58,7 @@ public class PermissionCheckRuntime {
         }
 
         if (canPostError(guild, Permission.getRaw(permissions)) && canContactOwner(guild)) {
-            String permissionsList = new ListGen<Permission>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, permission -> "**" + TextManager.getString(locale, TextManager.PERMISSIONS, permission.getName()) + "**");
+            String permissionsList = new ListGen<Permission>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, permission -> "**" + TextManager.getString(locale, TextManager.PERMISSIONS, permission.name()) + "**");
             EmbedBuilder eb = EmbedFactory.getEmbedError();
             eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
             eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime", channel != null, Command.getCommandProperties(c).trigger(), channel != null ? (channel.getType() == ChannelType.TEXT ? "#" : "") + StringUtil.escapeMarkdown(channel.getName()) : "", permissionsList));

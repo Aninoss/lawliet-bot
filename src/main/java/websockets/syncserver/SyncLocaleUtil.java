@@ -37,7 +37,7 @@ public class SyncLocaleUtil {
 
             String permissionsList = new ListGen<Permission>().getList(
                     permissionList, "", ListGen.SLOT_TYPE_NONE,
-                    permission -> TextManager.getString(locale, TextManager.PERMISSIONS, permission.getName())
+                    permission -> TextManager.getString(locale, TextManager.PERMISSIONS, permission.name())
             );
             jsonObject.put(locale.getDisplayName(), permissionsList);
         }

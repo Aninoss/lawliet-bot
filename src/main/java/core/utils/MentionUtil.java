@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import com.vdurmont.emoji.EmojiParser;
+import core.emoji.EmojiTable;
 import core.MainLogger;
 import core.ShardManager;
 import core.TextManager;
@@ -302,9 +302,9 @@ public class MentionUtil {
             }
         }
 
-        //TODO: fix
-        List<String> unicodeEmojis = EmojiParser.extractEmojis(input);
-        for (String unicodeEmoji : unicodeEmojis) {
+        Optional<String> unicodeEmojiOpt = EmojiTable.getInstance().extractFirstEmoji(input);
+        if (unicodeEmojiOpt.isPresent()) {
+            String unicodeEmoji = unicodeEmojiOpt.get();
             emojiList.add(unicodeEmoji);
             input = input.replace(unicodeEmoji, "");
         }

@@ -179,7 +179,7 @@ public class HelpCommand extends NavigationAbstract {
                         List.of(command.getUserPermissions()),
                         getLocale(),
                         ListGen.SLOT_TYPE_BULLET,
-                        permission -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, permission.getName())
+                        permission -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, permission.name())
                 );
 
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()

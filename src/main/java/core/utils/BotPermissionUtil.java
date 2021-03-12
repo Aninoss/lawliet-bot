@@ -29,9 +29,8 @@ public class BotPermissionUtil {
         permissions = Arrays.copyOf(permissions, permissions.length + 1);
         permissions[permissions.length - 1] = Permission.VIEW_CHANNEL;
 
-        Permission[] finalPermissions = permissions;
         return Arrays.stream(permissions)
-                .filter(permission -> !member.hasPermission(finalPermissions))
+                .filter(permission -> !member.hasPermission(permission))
                 .collect(Collectors.toList());
     }
 
@@ -39,9 +38,8 @@ public class BotPermissionUtil {
         permissions = Arrays.copyOf(permissions, permissions.length + 1);
         permissions[permissions.length - 1] = Permission.VIEW_CHANNEL;
 
-        Permission[] finalPermissions = permissions;
         return Arrays.stream(permissions)
-                .filter(permission -> !member.hasPermission(channel, finalPermissions))
+                .filter(permission -> !member.hasPermission(channel, permission))
                 .collect(Collectors.toList());
     }
 
@@ -55,7 +53,7 @@ public class BotPermissionUtil {
                 StringBuilder desc = new StringBuilder();
                 for (Permission permission : userPermissions) {
                     desc.append("• ");
-                    desc.append(TextManager.getString(locale, TextManager.PERMISSIONS, permission.getName()));
+                    desc.append(TextManager.getString(locale, TextManager.PERMISSIONS, permission.name()));
                     desc.append("\n");
                 }
                 eb.addField(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_you"), desc.toString(), false);
@@ -65,7 +63,7 @@ public class BotPermissionUtil {
                 StringBuilder desc = new StringBuilder();
                 for (Permission permission : botPermissions) {
                     desc.append("• ");
-                    desc.append(TextManager.getString(locale, TextManager.PERMISSIONS, permission.getName()));
+                    desc.append(TextManager.getString(locale, TextManager.PERMISSIONS, permission.name()));
                     desc.append("\n");
                 }
                 eb.addField(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_bot"), desc.toString(), false);

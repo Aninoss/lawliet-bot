@@ -75,7 +75,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
 
                 List<Permission> missingPermissions = BotPermissionUtil.getMissingPermissions(channel, event.getGuild().getSelfMember(), Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS, Permission.VOICE_CONNECT);
                 if (missingPermissions.size() > 0) {
-                    String permissionsList = new ListGen<Permission>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, permission -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, permission.getName()));
+                    String permissionsList = new ListGen<Permission>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, permission -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, permission.name()));
                     setLog(LogStatus.FAILURE, getString("missing_perms", permissionsList));
                     return Response.FALSE;
                 }
