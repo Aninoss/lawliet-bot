@@ -61,7 +61,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         userId = list.get(0).getIdLong();
         fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(userId);
 
-        args = userMentions.getResultMessageString();
+        args = userMentions.getFilteredArgs();
         if (args.length() > 0) {
             String typeString = args.split(" ")[0];
 

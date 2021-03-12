@@ -1,6 +1,8 @@
 package commands.listeners;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -88,7 +90,10 @@ public interface OnReactionListener {
         Command command = (Command) this;
         command.getDrawMessageId().ifPresent(messageId -> {
             command.getTextChannel().ifPresent(channel -> {
-                if (BotPermissionUtil.canRead(channel)) {
+                if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_MANAGE)) {
+                    Collection<String> messageIds = List.of(String.valueOf(messageId), command.getGuildMessageReceivedEvent().get().getMessageId());
+                    channel.deleteMessagesByIds(messageIds).queue();
+                } else if (BotPermissionUtil.canRead(channel)) {
                     channel.deleteMessageById(messageId).queue();
                 }
             });

@@ -45,7 +45,7 @@ public abstract class MemberAccountAbstract extends Command {
         }
 
         Member member = list.get(0);
-        EmbedBuilder eb = processMember(event, member, member.getIdLong() == event.getMember().getIdLong(), args);
+        EmbedBuilder eb = processMember(event, member, member.getIdLong() == event.getMember().getIdLong(), userMention.getFilteredArgs());
         if (eb != null) {
             if (!userMentioned) {
                 EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));

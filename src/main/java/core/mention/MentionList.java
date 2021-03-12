@@ -6,10 +6,10 @@ import java.util.List;
 public class MentionList<E> {
 
     private final List<E> list;
-    private final String resultMessageString;
+    private final String filteredArgs;
 
-    public MentionList(String resultMessageString, List<E> list) {
-        this.resultMessageString = resultMessageString;
+    public MentionList(String filteredArgs, List<E> list) {
+        this.filteredArgs = filteredArgs;
         this.list = Collections.unmodifiableList(list);
     }
 
@@ -17,8 +17,8 @@ public class MentionList<E> {
         return list;
     }
 
-    public String getResultMessageString() {
-        return resultMessageString.trim();
+    public String getFilteredArgs() {
+        return filteredArgs.trim();
     }
 
 }

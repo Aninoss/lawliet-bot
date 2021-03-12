@@ -45,7 +45,7 @@ public class GiveCommand extends Command implements FisheryInterface {
             return false;
         }
 
-        args = memberMentioned.getResultMessageString();
+        args = memberMentioned.getFilteredArgs();
 
         Member user0 = event.getMember();
         Member user1 = list.get(0);

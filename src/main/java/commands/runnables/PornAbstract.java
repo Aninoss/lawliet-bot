@@ -61,7 +61,7 @@ public abstract class PornAbstract extends Command {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords());
-        args = StringUtil.defuseMassPing(NSFWUtil.filterPornSearchKey(args, nsfwFilter)).replace("`", "");
+        args = NSFWUtil.filterPornSearchKey(args, nsfwFilter).replace("`", "");
 
         Pattern pattern = PatternCache.getInstance().generate("\\b[0-9]{1,6}\\b");
         Matcher m = pattern.matcher(args);
@@ -103,6 +103,7 @@ public abstract class PornAbstract extends Command {
 
         boolean first = true;
         ArrayList<String> usedResults = new ArrayList<>();
+        addLoadingReactionInstantly();
         do {
             ArrayList<PornImage> pornImages;
             try {

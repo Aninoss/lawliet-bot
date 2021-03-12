@@ -10,8 +10,7 @@ import commands.runnables.GelbooruAbstract;
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
-        requiresEmbeds = false,
-        withLoadingBar = true
+        requiresEmbeds = false
 )
 public class YaoiCommand extends GelbooruAbstract implements OnAlertListener {
 

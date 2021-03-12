@@ -11,7 +11,6 @@ import commands.runnables.GelbooruAbstract;
         nsfw = true,
         requiresEmbeds = false,
         patreonRequired = true,
-        withLoadingBar = true,
         aliases = { "hentaiblowjob", "hbj" }
 )
 public class HentaiBlowjobCommand extends GelbooruAbstract {

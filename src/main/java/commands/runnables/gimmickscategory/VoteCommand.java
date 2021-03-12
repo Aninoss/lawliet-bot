@@ -59,7 +59,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                     userVotes.add(new HashSet<>());
                 }
 
-                VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMessage().getIdLong());
+                VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMember().getIdLong());
                 EmbedBuilder eb = getEmbed(voteInfo, true);
                 Message message = event.getChannel().sendMessage(eb.build()).complete();
                 RestActionQueue restActionQueue = new RestActionQueue();
@@ -92,7 +92,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 .addField(getString("choices"), answerText.toString(), false)
                 .addField(getString("results") + " (" + voteInfo.getTotalVotes() + " " + getString("votes", voteInfo.getTotalVotes() != 1) + ")", resultsText.toString(), false);
 
-        if (voteInfo.getCreatorId().isPresent()) {
+        if (voteInfo.getCreatorId().isPresent() && voteInfo.isActive()) {
             eb.setFooter(getString("footer", String.valueOf(voteInfo.getCreatorId().get())));
         }
 
@@ -108,15 +108,14 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
         VoteCache.getInstance().get(message, event.getUserIdLong(), JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
             if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
                     voteInfo.getCreatorId().isPresent() &&
-                    voteInfo.getCreatorId().get() == event.getUserIdLong() &&
-                    message.getReactions().size() > 0
+                    voteInfo.getCreatorId().get() == event.getUserIdLong()
             ) {
+                voteInfo.stop();
                 QuickUpdater.getInstance().update(
                         getTrigger(),
                         message.getId(),
                         message.editMessage(getEmbed(voteInfo, false).build())
-                );
-                voteInfo.stop();
+                ).queue();
                 if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                     message.clearReactions().queue();
                 }
@@ -132,7 +131,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                     getTrigger(),
                     message.getId(),
                     message.editMessage(getEmbed(voteInfo, true).build())
-            );
+            ).queue();
         });
     }
 
@@ -147,7 +146,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                                 getTrigger(),
                                 message.getId(),
                                 message.editMessage(getEmbed(voteInfo, true).build())
-                        );
+                        ).queue();
                     }
                 });
     }

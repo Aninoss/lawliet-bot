@@ -28,7 +28,7 @@ public class CoolDownUserData {
     public synchronized boolean canPostCoolDownMessage() {
         if (canPostCoolDownMessage) {
             canPostCoolDownMessage = false;
-            MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "cool_down", () -> this.canPostCoolDownMessage = true);
+            MainScheduler.getInstance().schedule(15, ChronoUnit.SECONDS, "cool_down", () -> this.canPostCoolDownMessage = true);
             return true;
         }
 

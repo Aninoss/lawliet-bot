@@ -19,7 +19,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 @CommandProperties(
         trigger = "rainbow",
         botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
-        withLoadingBar = true,
         emoji = "\uD83C\uDF08",
         executableWithoutArgs = true,
         aliases = { "lgbt", "pride" }
@@ -35,10 +34,15 @@ public class RainbowCommand extends MemberAccountAbstract {
     @Override
     protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws IOException {
         long opacity = StringUtil.filterLongFromString(args);
-        if (opacity == -1) opacity = 50;
-        if (opacity < 0) opacity = 0;
-        if (opacity > 100) opacity = 100;
+        if (opacity == -1) {
+            opacity = 50;
+        } else {
+            setFound();
+            if (opacity < 0) opacity = 0;
+            if (opacity > 100) opacity = 100;
+        }
 
+        addLoadingReactionInstantly();
         inputStream = RainbowGraphics.createImageRainbow(member.getUser(), opacity);
         return EmbedFactory.getEmbedDefault(this, getString("template", member.getEffectiveName()))
                 .setImage("attachment://avatar.png");

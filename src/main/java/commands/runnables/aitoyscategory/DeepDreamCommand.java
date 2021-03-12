@@ -6,7 +6,6 @@ import commands.runnables.DeepAIAbstract;
 
 @CommandProperties(
         trigger = "deepdream",
-        withLoadingBar = true,
         emoji = "💤",
         executableWithoutArgs = true,
         patreonRequired = true,

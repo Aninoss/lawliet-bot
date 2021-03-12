@@ -64,7 +64,7 @@ public class NibbleCommand extends Command {
             return false;
         }
 
-        String text = userMention.getResultMessageString();
+        String text = userMention.getFilteredArgs();
         if (text.isEmpty()) text = getString("default");
 
         boolean chooseEarGif = text.toLowerCase().contains("ohr") || text.toLowerCase().contains("ear");

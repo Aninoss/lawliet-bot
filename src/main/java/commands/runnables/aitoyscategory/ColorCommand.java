@@ -6,7 +6,6 @@ import commands.runnables.DeepAIAbstract;
 
 @CommandProperties(
         trigger = "color",
-        withLoadingBar = true,
         emoji = "🎨",
         executableWithoutArgs = true,
         patreonRequired = true,

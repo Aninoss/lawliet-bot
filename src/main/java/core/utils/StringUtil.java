@@ -293,12 +293,6 @@ public final class StringUtil {
         return Jsoup.parse(str.replace("<br />", "\n")).text();
     }
 
-    public static String defuseMassPing(String str) {
-        return str.replace("@everyone", "@\u200Beveryone")
-                .replace("@here", "@\u200Bhere")
-                .replace("<@&", "<@\u200B&");
-    }
-
     public static String escapeMarkdown(String str) {
         return str.replace("\\", "\\\\")
                 .replace("*", "\\*")

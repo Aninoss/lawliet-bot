@@ -7,7 +7,6 @@ import commands.runnables.RedditAbstract;
 @CommandProperties(
         trigger = "meme",
         emoji = "\uD83D\uDDBC",
-        withLoadingBar = true,
         executableWithoutArgs = true,
         aliases = { "memes" }
 )

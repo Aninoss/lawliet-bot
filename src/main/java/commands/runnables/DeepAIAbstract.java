@@ -65,6 +65,7 @@ public abstract class DeepAIAbstract extends Command {
                 new HttpProperty("Content-Type", "application/x-www-form-urlencoded")
         };
 
+        addLoadingReactionInstantly();
         String data = HttpRequest.getData(getUrl(), query, properties).get().getContent().get();
         JSONObject jsonObject = new JSONObject(data);
         return jsonObject.getString("output_url");

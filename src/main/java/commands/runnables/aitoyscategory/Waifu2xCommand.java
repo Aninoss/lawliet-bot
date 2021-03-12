@@ -6,7 +6,6 @@ import commands.runnables.DeepAIAbstract;
 
 @CommandProperties(
         trigger = "waifu2x",
-        withLoadingBar = true,
         emoji = "\uD83D\uDCC8",
         executableWithoutArgs = true,
         patreonRequired = true,

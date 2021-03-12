@@ -36,6 +36,7 @@ public abstract class Command implements OnTriggerListener {
     private final JSONObject attachments = new JSONObject();
     private boolean loadingReactionSet = false;
     private final ArrayList<Runnable> completedListeners = new ArrayList<>();
+    private AtomicBoolean isProcessing;
     private AtomicGuild atomicGuild;
     private AtomicTextChannel atomicTextChannel;
     private AtomicMember atomicMember;
@@ -52,14 +53,17 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public void addLoadingReaction(Message message, AtomicBoolean isProcessing) {
-        if (getCommandProperties().withLoadingBar()) {
-            addLoadingReactionInstantly(message, isProcessing);
-        } else {
-            MainScheduler.getInstance().schedule(
-                    3, ChronoUnit.SECONDS,
-                    getTrigger() + "_idle",
-                    () -> addLoadingReactionInstantly(message, isProcessing)
-            );
+        this.isProcessing = isProcessing;
+        MainScheduler.getInstance().schedule(
+                3, ChronoUnit.SECONDS,
+                getTrigger() + "_idle",
+                () -> addLoadingReactionInstantly(message, isProcessing)
+        );
+    }
+
+    public void addLoadingReactionInstantly() {
+        if (isProcessing != null) {
+            addLoadingReactionInstantly(event.getMessage(), isProcessing);
         }
     }
 
@@ -174,7 +178,7 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public Permission[] getUserPermissions() {
-        List<Permission> permissionList = Arrays.asList(getCommandProperties().userGuildPermissions());
+        List<Permission> permissionList = new ArrayList<>(Arrays.asList(getCommandProperties().userGuildPermissions()));
         permissionList.addAll(Arrays.asList(getCommandProperties().userChannelPermissions()));
         return permissionList.toArray(new Permission[0]);
     }

@@ -25,7 +25,6 @@ import org.json.JSONObject;
 @CommandProperties(
         trigger = "maps",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-        withLoadingBar = true,
         emoji = "\uD83D\uDDFA",
         executableWithoutArgs = true
 )

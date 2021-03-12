@@ -22,7 +22,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 @CommandProperties(
         trigger = "ship",
         botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
-        withLoadingBar = true,
         emoji = "\uD83D\uDC6B",
         executableWithoutArgs = false
 )
@@ -61,6 +60,7 @@ public class ShipCommand extends Command {
         int n = RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), 7);
         if (event.getGuild().getIdLong() == 580048842020487180L) n = 7;
 
+        addLoadingReactionInstantly();
         InputStream is = ShipGraphics.createImageShip(list.get(0).getUser(), list.get(1).getUser(), n, percentage);
         if (is == null) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("noavatar")).build()).queue();

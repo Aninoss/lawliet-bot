@@ -22,7 +22,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "crunchyroll",
-        withLoadingBar = true,
         emoji = "\uD83D\uDCFA",
         executableWithoutArgs = true,
         aliases = { "animereleases", "animerelease" }
@@ -35,6 +34,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+        addLoadingReactionInstantly();
         PostBundle<AnimeReleasePost> posts = AnimeReleaseDownloader.getPosts(getLocale(), null, args);
 
         if (posts.getPosts().size() > 0) {
@@ -92,7 +92,9 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
             slot.getTextChannel().get().sendMessage(eb.build()).complete();
         }
 
-        if (postBundle.getNewestPost() != null) slot.setArgs(postBundle.getNewestPost());
+        if (postBundle.getNewestPost() != null) {
+            slot.setArgs(postBundle.getNewestPost());
+        }
         return TrackerResult.CONTINUE_AND_SAVE;
     }
 

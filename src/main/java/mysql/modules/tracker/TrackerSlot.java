@@ -5,12 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
+import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
-import club.minnced.discord.webhook.external.JDAWebhookClient;
+import club.minnced.discord.webhook.send.AllowedMentions;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import core.MainLogger;
@@ -18,13 +17,13 @@ import core.ShardManager;
 import core.assets.TextChannelAsset;
 import core.utils.BotPermissionUtil;
 import mysql.BeanWithGuild;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.entities.*;
 
 public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
+
+    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     private final long channelId;
     private Long messageId;
@@ -33,7 +32,7 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
     private String args;
     private Instant nextRequest;
     private String webhookUrl;
-    private JDAWebhookClient webhookClient;
+    private WebhookClient webhookClient;
     private boolean active = true;
 
     public TrackerSlot(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args, String webhookUrl) {
@@ -153,10 +152,13 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
     private Optional<Long> processMessageViaWebhook(boolean newMessage, String content, MessageEmbed... embeds) {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
+            //TODO: memory leak?
             if (webhookClient == null) {
                 webhookClient = new WebhookClientBuilder(webhookUrl)
                         .setWait(true)
-                        .buildJDA();
+                        .setExecutorService(executor)
+                        .setAllowedMentions(AllowedMentions.none())
+                        .build();
             }
 
             List<WebhookEmbed> webhookEmbeds = Arrays.stream(embeds)
@@ -203,10 +205,14 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                     return Optional.of(channel.editMessageById(messageId, embeds[0]).complete().getIdLong());
                 }
             } else {
+                Message message = new MessageBuilder()
+                        .setContent(content)
+                        .build();
+
                 if (newMessage) {
-                    return Optional.of(channel.sendMessage(content).complete().getIdLong());
+                    return Optional.of(channel.sendMessage(message).complete().getIdLong());
                 } else {
-                    return Optional.of(channel.editMessageById(messageId, content).complete().getIdLong());
+                    return Optional.of(channel.editMessageById(messageId, message).complete().getIdLong());
                 }
             }
         } else {

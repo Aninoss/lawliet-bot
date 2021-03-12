@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 @CommandProperties(
         trigger = "welcome",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-        userGuildPermissions = Permission.MANAGE_SERVER,
+        userGuildPermissions = { Permission.MANAGE_SERVER },
         emoji = "🙋",
         executableWithoutArgs = true
 )

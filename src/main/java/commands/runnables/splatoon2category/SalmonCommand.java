@@ -23,7 +23,6 @@ import org.json.JSONObject;
 @CommandProperties(
         trigger = "salmon",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-        withLoadingBar = true,
         emoji = "\uD83D\uDC1F",
         executableWithoutArgs = true
 )

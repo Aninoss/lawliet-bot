@@ -30,7 +30,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "fullclear",
         botChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
         userChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
-        withLoadingBar = true,
         emoji = "\uD83E\uDDF9",
         executableWithoutArgs = true,
         maxCalculationTimeSec = 10 * 60,
@@ -46,6 +45,7 @@ public class FullClearCommand extends Command implements OnAlertListener {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Optional<Integer> hoursMin = extractHoursMin(event.getChannel(), args);
         if (hoursMin.isPresent()) {
+            addLoadingReactionInstantly();
             ClearResults clearResults = fullClear(event.getChannel(), hoursMin.get(), event.getMessage().getIdLong());
 
             String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";

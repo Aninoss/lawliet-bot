@@ -11,7 +11,6 @@ import commands.runnables.RealbooruAbstract;
         nsfw = true,
         requiresEmbeds = false,
         patreonRequired = true,
-        withLoadingBar = true,
         aliases = { "ass", "r1ass" }
 )
 public class RealLifeAssCommand extends RealbooruAbstract {

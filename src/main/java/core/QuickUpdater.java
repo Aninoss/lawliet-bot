@@ -1,6 +1,8 @@
 package core;
 
 import java.time.Duration;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -21,6 +23,8 @@ public class QuickUpdater {
             .expireAfterWrite(Duration.ofMinutes(20))
             .build();
 
+    @Nonnull
+    @CheckReturnValue
     public synchronized <T> RestAction<T> update(String type, Object key, RestAction<T> restAction) {
         String stringKey = type + ":" + key;
         long id = System.nanoTime();

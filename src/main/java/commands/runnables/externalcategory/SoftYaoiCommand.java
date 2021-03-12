@@ -7,7 +7,6 @@ import commands.runnables.SafebooruAbstract;
 @CommandProperties(
         trigger = "softyaoi",
         emoji = "\uD83D\uDC6C",
-        withLoadingBar = true,
         executableWithoutArgs = true,
         aliases = { "safeyaoi", "sfwyaoi", "shounenai", "shounen-ai" }
 )

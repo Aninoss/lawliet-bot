@@ -71,6 +71,7 @@ public class ImitateCommand extends Command {
 
         if (wordMap.isEmpty()) {
             if (tempMessageCache.isEmpty()) {
+                addLoadingReactionInstantly();
                 fetchMessages(guild, member, tempMessageCache);
             }
 

@@ -49,7 +49,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
 
         if (text.length() > 0) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setAuthor(guild.getName(), "", guild.getIconUrl())
+                    .setAuthor(guild.getName(), null, guild.getIconUrl())
                     .setDescription(
                             Welcome.resolveVariables(
                                     welcomeMessageBean.getDmText(),
@@ -72,15 +72,13 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
             WelcomeGraphics.createImageWelcome(event.getMember(), welcomeMessageBean.getWelcomeTitle())
                     .thenAccept(image -> {
                         Member member = event.getMember();
-                        String content = StringUtil.defuseMassPing(
-                                Welcome.resolveVariables(
-                                        welcomeMessageBean.getWelcomeText(),
-                                        StringUtil.escapeMarkdown(guild.getName()),
-                                        event.getUser().getAsMention(),
-                                        StringUtil.escapeMarkdown(member.getEffectiveName()),
-                                        StringUtil.escapeMarkdown(event.getUser().getAsTag()),
-                                        StringUtil.numToString(guild.getMemberCount())
-                                )
+                        String content = Welcome.resolveVariables(
+                                welcomeMessageBean.getWelcomeText(),
+                                StringUtil.escapeMarkdown(guild.getName()),
+                                event.getUser().getAsMention(),
+                                StringUtil.escapeMarkdown(member.getEffectiveName()),
+                                StringUtil.escapeMarkdown(event.getUser().getAsTag()),
+                                StringUtil.numToString(guild.getMemberCount())
                         );
 
                         if (image != null) {

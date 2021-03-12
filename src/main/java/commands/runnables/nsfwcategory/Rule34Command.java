@@ -11,7 +11,6 @@ import commands.runnables.PornSearchAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        withLoadingBar = true,
         aliases = { "rule34", "34" }
 )
 public class Rule34Command extends PornSearchAbstract implements OnAlertListener {

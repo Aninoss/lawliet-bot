@@ -36,17 +36,31 @@ public class CommandManager {
     private final static int SEC_UNTIL_REMOVAL = 20;
 
     public static void manage(GuildMessageReceivedEvent event, Command command, String args, Instant startTime) {
+        if (checkCoolDown(event, command) &&
+                checkRunningCommands(event, command)
+        ) {
+            process(event, command, args, startTime);
+        }
+
+        command.getCompletedListeners().forEach(runnable -> {
+            try {
+                runnable.run();
+            } catch (Throwable e) {
+                MainLogger.get().error("Error on completed listener", e);
+            }
+        });
+    }
+
+    private static void process(GuildMessageReceivedEvent event, Command command, String args, Instant startTime) {
         if (botCanPost(event, command) &&
                 isWhiteListed(event, command) &&
-                checkCoolDown(event, command) &&
                 botCanUseEmbeds(event, command) &&
                 canRunOnServer(event, command) &&
                 isNSFWCompliant(event, command) &&
                 checkTurnedOn(event, command) &&
                 checkPermissions(event, command) &&
                 checkPatreon(event, command) &&
-                checkReleased(event, command) &&
-                checkRunningCommands(event, command)
+                checkReleased(event, command)
         ) {
             if (command.getCommandProperties().patreonRequired() &&
                     (Arrays.stream(command.getCommandProperties().userGuildPermissions()).anyMatch(p -> p == Permission.MANAGE_SERVER))
@@ -69,6 +83,8 @@ public class CommandManager {
             } catch (Throwable e) {
                 ExceptionUtil.handleCommandException(e, command, event.getChannel());
             }
+        } else if (command instanceof HelpCommand) {
+            //TODO: help send private dm
         }
     }
 
@@ -193,7 +209,7 @@ public class CommandManager {
                 command.getAdjustedBotGuildPermissions(),
                 command.getAdjustedBotChannelPermissions()
         );
-        if (errEmbed == null || command instanceof HelpCommand) {
+        if (errEmbed == null) {
             return true;
         }
 
@@ -264,8 +280,8 @@ public class CommandManager {
 
     private static void autoRemoveMessageAfterCountdown(GuildMessageReceivedEvent event, Message message) {
         MainScheduler.getInstance().schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, "command_manager_error_countdown", () -> {
-            if (BotPermissionUtil.can(event.getMember(), Permission.MESSAGE_MANAGE)) {
-                event.getChannel().deleteMessages(Arrays.asList(message, event.getMessage())).queue(); //audit lot?
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+                event.getChannel().deleteMessages(Arrays.asList(message, event.getMessage())).queue();
             } else {
                 message.delete().queue();
             }
@@ -273,7 +289,7 @@ public class CommandManager {
     }
 
     private static boolean isWhiteListed(GuildMessageReceivedEvent event, Command command) {
-        if (BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER) ||
+        if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
                 DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).isWhiteListed(event.getChannel().getIdLong())
         ) {
             return true;
@@ -293,7 +309,7 @@ public class CommandManager {
     }
 
     private static boolean botCanPost(GuildMessageReceivedEvent event, Command command) {
-        if (BotPermissionUtil.canWrite(event.getChannel()) || command instanceof HelpCommand) {
+        if (BotPermissionUtil.canWrite(event.getChannel())) {
             return true;
         }
 

@@ -50,14 +50,14 @@ public class QuoteCommand extends Command {
         EmbedBuilder eb;
         if (args.length() > 0) {
             MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
-            String newString = channelMention.getResultMessageString();
+            String newString = channelMention.getFilteredArgs();
             TextChannel channel = channelMention.getList().isEmpty() ? event.getChannel() : channelMention.getList().get(0);
 
             // id with channel
             if (StringUtil.stringIsLong(newString)) {
                 try {
                     Message message = MessageCache.getInstance().retrieveMessage(channel, Long.parseLong(newString)).get();
-                    MessageQuote.postQuote(getLocale(), channel, message, false);
+                    MessageQuote.postQuote(getLocale(), event.getChannel(), message, false);
                     return true;
                 } catch (ExecutionException | InterruptedException e) {
                     //Ignore

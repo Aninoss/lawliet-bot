@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 @CommandProperties(
         trigger = "trigger",
         botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
-        withLoadingBar = true,
         emoji = "\uD83D\uDCA2",
         executableWithoutArgs = true,
         aliases = { "triggered" }
@@ -31,7 +30,8 @@ public class TriggerCommand extends MemberAccountAbstract {
 
     @Override
     protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
-        inputStream = TriggerGraphics.createImageTriggered(event.getMember().getUser());
+        addLoadingReactionInstantly();
+        inputStream = TriggerGraphics.createImageTriggered(member.getUser());
         return EmbedFactory.getEmbedDefault(this, getString("template", member.getEffectiveName()))
                 .setImage("attachment://trigger.gif");
     }

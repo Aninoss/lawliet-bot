@@ -144,7 +144,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                                     message.editMessage(
                                             generateEmbed(suggestionMessage.getContent(), suggestionMessage.getAuthor(), footer).build()
                                     )
-                            );
+                            ).queue();
                         }
                     }
                     return suggestionMessage;

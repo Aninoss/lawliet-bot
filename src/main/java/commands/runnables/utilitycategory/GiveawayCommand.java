@@ -174,7 +174,7 @@ public class GiveawayCommand extends NavigationAbstract {
     }
 
     @ControllerMessage(state = UPDATE_IMAGE)
-    public Response onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws ExecutionException, InterruptedException, IOException {
+    public Response onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
             Optional<File> file = FileUtil.downloadMessageAttachment(attachments.get(0), String.format("temp/%d.png", System.nanoTime()));

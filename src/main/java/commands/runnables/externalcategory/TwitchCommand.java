@@ -24,8 +24,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 @CommandProperties(
         trigger = "twitch",
         emoji = "\uD83D\uDCF9",
-        executableWithoutArgs = false,
-        withLoadingBar = true
+        executableWithoutArgs = false
 )
 public class TwitchCommand extends Command implements OnAlertListener {
 
@@ -42,6 +41,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
             return false;
         }
 
+        addLoadingReactionInstantly();
         Optional<TwitchStream> streamOpt = TwitchDownloader.getInstance().getStream(args);
         if (streamOpt.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)

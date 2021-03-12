@@ -11,7 +11,6 @@ import commands.runnables.PornSearchAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        withLoadingBar = true,
         aliases = { "gel", "gbooru", "gelbooru" }
 )
 public class GelbooruCommand extends PornSearchAbstract implements OnAlertListener {

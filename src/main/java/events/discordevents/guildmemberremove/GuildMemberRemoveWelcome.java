@@ -29,15 +29,13 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
                 if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)) {
                     User user = event.getUser();
                     channel.sendMessage(
-                            StringUtil.defuseMassPing(
-                                    Welcome.resolveVariables(
-                                            welcomeMessageBean.getGoodbyeText(),
-                                            StringUtil.escapeMarkdown(guild.getName()),
-                                            user.getAsMention(),
-                                            StringUtil.escapeMarkdown(user.getName()),
-                                            StringUtil.escapeMarkdown(user.getAsTag()),
-                                            StringUtil.numToString(guild.getMemberCount())
-                                    )
+                            Welcome.resolveVariables(
+                                    welcomeMessageBean.getGoodbyeText(),
+                                    StringUtil.escapeMarkdown(guild.getName()),
+                                    user.getAsMention(),
+                                    StringUtil.escapeMarkdown(user.getName()),
+                                    StringUtil.escapeMarkdown(user.getAsTag()),
+                                    StringUtil.numToString(guild.getMemberCount())
                             )
                     ).queue();
                 }

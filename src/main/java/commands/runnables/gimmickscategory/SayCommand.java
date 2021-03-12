@@ -37,6 +37,7 @@ public class SayCommand extends Command {
                 .setFooter(getString("author", event.getMember().getUser().getAsTag()));
 
         if (attachments.size() > 0) {
+            addLoadingReactionInstantly();
             Message.Attachment attachment = attachments.get(0);
             String name = "image_main." + attachment.getFileExtension();
             attachmentMap.put(name, attachment.retrieveInputStream().get());

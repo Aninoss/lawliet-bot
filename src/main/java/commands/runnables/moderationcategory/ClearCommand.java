@@ -27,7 +27,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "clear",
         botChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
         userChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
-        withLoadingBar = true,
         emoji = "\uD83D\uDDD1\uFE0F",
         maxCalculationTimeSec = 10 * 60,
         executableWithoutArgs = false,
@@ -43,6 +42,7 @@ public class ClearCommand extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws InterruptedException {
         if (args.length() > 0 && StringUtil.stringIsLong(args) && Long.parseLong(args) >= 2 && Long.parseLong(args) <= 500) {
             boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) >= 3;
+            addLoadingReactionInstantly();
             ClearResults clearResults = clear(event.getChannel(), patreon, event.getMessage().getIdLong(), Integer.parseInt(args));
 
             String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";

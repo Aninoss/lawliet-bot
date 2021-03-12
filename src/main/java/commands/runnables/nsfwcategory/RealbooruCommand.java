@@ -10,7 +10,6 @@ import commands.runnables.PornSearchAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        withLoadingBar = true,
         aliases = { "rbooru", "realbooru", "rlbooru" }
 )
 public class RealbooruCommand extends PornSearchAbstract {

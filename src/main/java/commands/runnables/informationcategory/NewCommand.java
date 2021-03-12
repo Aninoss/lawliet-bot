@@ -1,9 +1,6 @@
 package commands.runnables.informationcategory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
@@ -127,6 +124,7 @@ public class NewCommand extends Command implements OnAlertListener {
             if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID) {
                 Role role = slot.getGuild().get().getRoleById(703879430799622155L);
                 slot.getTextChannel().get().sendMessage(role.getAsMention())
+                        .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
                         .flatMap(Message::delete).queue();
             }
 

@@ -60,7 +60,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             processDraw(event.getChannel());
         }
 
-        return null;
+        return response;
     }
 
     @Override
@@ -257,8 +257,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                     restActionQueue.attach(channel.addReactionById(messageId, Emojis.LETTERS[i]));
                 }
             }
-            restActionQueue.getCurrentRestAction()
-                    .queue();
+            restActionQueue.getCurrentRestAction().queue();
         }
     }
 

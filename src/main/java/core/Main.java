@@ -38,7 +38,7 @@ public class Main {
     }
 
     private static void createTempDir() {
-        File tempDir = new File("temp");
+        File tempDir = ResourceHandler.getFileResource("temp");
         if (!tempDir.exists() && !tempDir.mkdir()) {
             throw new RuntimeException("Could not create temp dir");
         }

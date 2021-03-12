@@ -27,6 +27,7 @@ public abstract class RedditAbstract extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws InterruptedException, ExecutionException, IOException {
         RedditPost post;
 
+        addLoadingReactionInstantly();
         int tries = 5;
         do {
             post = RedditDownloader.getImagePost(getLocale(), getSubreddit());

@@ -11,7 +11,6 @@ import commands.runnables.PornSearchAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        withLoadingBar = true,
         aliases = { "furrybooru", "yiff" }
 )
 public class FurryCommand extends PornSearchAbstract implements OnAlertListener {

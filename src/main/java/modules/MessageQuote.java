@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 public class MessageQuote {
 
     public static void postQuote(Locale locale, TextChannel channel, Message searchedMessage, boolean showAutoQuoteTurnOff) {
-        if (BotPermissionUtil.canWriteEmbed(channel)) {
+        if (!BotPermissionUtil.canWriteEmbed(channel)) {
             return;
         }
 
@@ -62,7 +62,7 @@ public class MessageQuote {
                                 "quote_sendby",
                                 StringUtil.escapeMarkdownInField(searchedMessage.getMember().getEffectiveName()), "#" + searchedMessage.getChannel().getName()
                         ),
-                        "",
+                        null,
                         searchedMessage.getAuthor().getEffectiveAvatarUrl()
                 );
 

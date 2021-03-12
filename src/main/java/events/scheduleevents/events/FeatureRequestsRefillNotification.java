@@ -1,6 +1,7 @@
 package events.scheduleevents.events;
 
 import java.util.Calendar;
+import java.util.Collections;
 import constants.AssetIds;
 import constants.ExternalLinks;
 import core.Bot;
@@ -24,6 +25,7 @@ public class FeatureRequestsRefillNotification implements ScheduleInterface {
 
                         Role role = channel.getGuild().getRoleById(703879430799622155L);
                         channel.sendMessage(role.getAsMention())
+                                .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
                                 .flatMap(Message::delete).queue();
                     });
         }

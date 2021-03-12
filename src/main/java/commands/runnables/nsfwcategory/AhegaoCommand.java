@@ -10,8 +10,7 @@ import commands.runnables.GelbooruAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        patreonRequired = true,
-        withLoadingBar = true
+        patreonRequired = true
 )
 public class AhegaoCommand extends GelbooruAbstract {
 

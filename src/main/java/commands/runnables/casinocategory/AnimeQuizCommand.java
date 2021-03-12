@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.Permission;
         trigger = "animequiz",
         emoji = "❔",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-        withLoadingBar = true,
         deleteOnTimeOut = true,
         executableWithoutArgs = true
 )

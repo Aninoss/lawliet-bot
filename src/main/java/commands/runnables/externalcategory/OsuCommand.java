@@ -32,7 +32,6 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         trigger = "osu",
         emoji = "✍️",
         executableWithoutArgs = true,
-        withLoadingBar = true,
         releaseDate = { 2020, 11, 28 },
         aliases = { "osu!" }
 )
@@ -65,6 +64,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
         setGameMode(args);
 
         if (osuMap.containsKey(member.getIdLong())) {
+            addLoadingReactionInstantly();
             Optional<OsuAccount> osuAccountOpt = OsuAccountDownloader.download(String.valueOf(osuMap.get(member.getIdLong()).getOsuId()), gameMode).get();
             if (osuAccountOpt.isPresent()) {
                 userExists = true;

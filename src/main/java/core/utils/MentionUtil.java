@@ -343,12 +343,12 @@ public class MentionUtil {
                 mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName()));
             }
         });
-        args = memberMention.getResultMessageString();
+        args = memberMention.getFilteredArgs();
 
         /* add role names */
         MentionList<Role> roleMention = MentionUtil.getRoles(message, args);
         roleMention.getList().forEach(role -> mentions.add(StringUtil.escapeMarkdown(role.getName())));
-        args = roleMention.getResultMessageString();
+        args = roleMention.getFilteredArgs();
 
         /* add everyone mention */
         if (message.mentionsEveryone() || args.contains("everyone") || args.contains("all") || args.contains("@here")) {

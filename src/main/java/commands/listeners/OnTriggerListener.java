@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import commands.Command;
 import commands.runnables.utilitycategory.TriggerDeleteCommand;
 import core.Bot;
-import core.MainLogger;
 import core.PermissionCheckRuntime;
 import core.cache.ServerPatreonBoostCache;
 import core.schedule.MainScheduler;
@@ -40,13 +39,6 @@ public interface OnTriggerListener {
             return false;
         } finally {
             isProcessing.set(false);
-            command.getCompletedListeners().forEach(runnable -> {
-                try {
-                    runnable.run();
-                } catch (Throwable e) {
-                    MainLogger.get().error("Error on completed listener", e);
-                }
-            });
         }
     }
 

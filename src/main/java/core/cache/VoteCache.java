@@ -15,6 +15,7 @@ import modules.VoteInfo;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.User;
 
 public class VoteCache {
 
@@ -47,7 +48,7 @@ public class VoteCache {
                 }
             }
 
-            if ((i < 0 && !emoji.equals(Emojis.X)) || !voteInfo.isActive()) {
+            if (!voteInfo.isActive() || i < 0 && !emoji.equals(Emojis.X)) {
                 return Optional.empty();
             }
 
@@ -86,7 +87,8 @@ public class VoteCache {
 
             for (MessageReaction reaction : message.getReactions()) {
                 if (JDAEmojiUtil.reactionEmoteEqualsEmoji(reaction.getReactionEmote(), Emojis.LETTERS[i])) {
-                    reaction.retrieveUsers().forEach(user -> {
+                    List<User> users = reaction.retrieveUsers().complete();
+                    users.forEach(user -> {
                         if (!user.isBot()) {
                             voteUsers.add(user.getIdLong());
                         }

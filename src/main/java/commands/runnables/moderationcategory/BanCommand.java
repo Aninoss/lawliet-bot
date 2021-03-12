@@ -34,10 +34,10 @@ public class BanCommand extends KickCommand {
                 .map(Member::getUser)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        MentionList<User> userMentionList = MentionUtil.getUsersFromString(memberMentionList.getResultMessageString()).get();
+        MentionList<User> userMentionList = MentionUtil.getUsersFromString(memberMentionList.getFilteredArgs()).get();
         userList.addAll(userMentionList.getList());
 
-        return new MentionList<>(userMentionList.getResultMessageString(), userList);
+        return new MentionList<>(userMentionList.getFilteredArgs(), userList);
     }
 
     @Override

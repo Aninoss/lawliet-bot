@@ -11,7 +11,6 @@ import commands.runnables.RealbooruAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         requiresEmbeds = false,
-        withLoadingBar = true,
         aliases = { "r1porn" }
 )
 public class RealLifePornCommand extends RealbooruAbstract implements OnAlertListener {

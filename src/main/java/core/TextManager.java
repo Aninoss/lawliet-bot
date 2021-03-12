@@ -22,7 +22,7 @@ public class TextManager {
     }
 
     public static String getString(Locale locale, String category, String key, int option, String... args) {
-        ResourceBundle texts = bundles.computeIfAbsent(category, k -> ResourceBundle.getBundle(category, locale, new UTF8Control()));
+        ResourceBundle texts = bundles.computeIfAbsent(category + "_" + locale.toString(), k -> ResourceBundle.getBundle(category, locale, new UTF8Control()));
 
         if (!texts.containsKey(key)) {
             MainLogger.get().error("Key " + key + " not found in " + category + " and thread " + Thread.currentThread().getName());

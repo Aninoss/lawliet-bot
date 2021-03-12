@@ -9,6 +9,7 @@ import core.utils.BotPermissionUtil;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
@@ -31,15 +32,16 @@ public class PrefixCommand extends Command {
                 DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setPrefix(args);
 
                 if (BotPermissionUtil.can(guild, Permission.NICKNAME_CHANGE)) {
-                    String nickname = event.getMember().getEffectiveName().trim();
+                    Member self = guild.getSelfMember();
+                    String nickname = self.getEffectiveName().trim();
                     String[] nicknameArray = nickname.split("\\[");
 
                     if (nicknameArray.length == 1) {
-                        guild.modifyNickname(event.getMember(), nickname + " [" + args + "]")
+                        guild.modifyNickname(self, nickname + " [" + args + "]")
                                 .reason(getCommandLanguage().getTitle())
                                 .queue();
                     } else if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
-                        guild.modifyNickname(event.getMember(), nicknameArray[0].trim() + " [" + args + "]")
+                        guild.modifyNickname(self, nicknameArray[0].trim() + " [" + args + "]")
                                 .reason(getCommandLanguage().getTitle())
                                 .queue();
                     }

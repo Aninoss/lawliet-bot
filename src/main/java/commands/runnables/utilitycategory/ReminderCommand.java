@@ -49,7 +49,7 @@ public class ReminderCommand extends Command implements OnReactionListener {
         long minutes = 0;
         StringBuilder text = new StringBuilder();
         MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
-        args = channelMention.getResultMessageString();
+        args = channelMention.getFilteredArgs();
 
         List<TextChannel> channels = channelMention.getList();
         if (channels.size() > 1) {

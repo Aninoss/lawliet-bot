@@ -15,8 +15,6 @@ public @interface CommandProperties {
 
     boolean nsfw() default false;
 
-    boolean withLoadingBar() default false;
-
     boolean executableWithoutArgs();
 
     boolean deleteOnTimeOut() default false;

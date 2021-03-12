@@ -25,7 +25,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "reddit",
-        withLoadingBar = true,
         emoji = "\uD83E\uDD16",
         executableWithoutArgs = false
 )
@@ -44,6 +43,7 @@ public class RedditCommand extends Command implements OnAlertListener {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build()).queue();
             return false;
         } else {
+            addLoadingReactionInstantly();
             RedditPost post;
             post = RedditDownloader.getPost(getLocale(), args);
 
@@ -70,7 +70,7 @@ public class RedditCommand extends Command implements OnAlertListener {
     private EmbedBuilder getEmbed(RedditPost post) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, post.getDescription())
                 .setTitle(post.getTitle())
-                .setAuthor(post.getAuthor(), "https://www.reddit.com/user/" + post.getAuthor(), "")
+                .setAuthor(post.getAuthor(), "https://www.reddit.com/user/" + post.getAuthor(), null)
                 .setTimestamp(post.getInstant());
 
         if (InternetUtil.stringHasURL(post.getThumbnail(), true)) {

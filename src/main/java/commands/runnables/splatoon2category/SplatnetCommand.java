@@ -23,7 +23,6 @@ import org.json.JSONObject;
 @CommandProperties(
         trigger = "splatnet",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-        withLoadingBar = true,
         emoji = "\uD83D\uDED2",
         executableWithoutArgs = true
 )

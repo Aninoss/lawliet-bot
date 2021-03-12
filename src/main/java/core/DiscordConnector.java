@@ -1,6 +1,6 @@
 package core;
 
-import java.util.concurrent.TimeUnit;
+import java.util.EnumSet;
 import javax.security.auth.login.LoginException;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
@@ -15,8 +15,9 @@ import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -55,7 +56,8 @@ public class DiscordConnector {
         FisheryVCObserver.getInstance().start();
 
         MainLogger.get().info("Bot is logging in...");
-        RestAction.setDefaultTimeout(5, TimeUnit.SECONDS);
+        EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
+        MessageAction.setDefaultMentions(EnumSet.complementOf(deny));
 
         for (int i = shardMin; i <= shardMax; i++) {
             try {

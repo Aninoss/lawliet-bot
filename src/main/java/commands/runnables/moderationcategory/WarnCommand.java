@@ -60,7 +60,7 @@ public class WarnCommand extends Command implements OnReactionListener {
                 .map(Member::getUser)
                 .collect(Collectors.toList());
 
-        return new MentionList<>(memberMentionList.getResultMessageString(), userList);
+        return new MentionList<>(memberMentionList.getFilteredArgs(), userList);
     }
 
     protected void process(Guild guild, User target, String reason) throws Throwable {
@@ -99,7 +99,7 @@ public class WarnCommand extends Command implements OnReactionListener {
             return false;
         }
 
-        reason = userMention.getResultMessageString().trim();
+        reason = userMention.getFilteredArgs().trim();
         reason = StringUtil.shortenString(reason, CHAR_LIMIT);
 
         return true;

@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "animenews",
-        withLoadingBar = true,
         emoji = "\uD83D\uDCF0",
         executableWithoutArgs = true
 )
@@ -32,6 +31,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+        addLoadingReactionInstantly();
         AnimeNewsPost post = AnimeNewsDownloader.getPost(getLocale());
         EmbedBuilder eb;
         if (post != null) {

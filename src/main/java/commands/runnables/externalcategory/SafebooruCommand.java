@@ -7,7 +7,6 @@ import commands.runnables.PornSearchAbstract;
 @CommandProperties(
         trigger = "safeb",
         emoji = "\uD83D\uDE07",
-        withLoadingBar = true,
         executableWithoutArgs = true,
         aliases = { "softb", "safebooru", "softbooru", "sbooru" }
 )

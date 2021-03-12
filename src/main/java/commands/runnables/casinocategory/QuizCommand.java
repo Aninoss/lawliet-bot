@@ -30,7 +30,6 @@ import org.json.JSONObject;
         trigger = "quiz",
         emoji = "❔",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-        withLoadingBar = true,
         deleteOnTimeOut = true,
         executableWithoutArgs = true
 )
@@ -56,6 +55,7 @@ public class QuizCommand extends CasinoAbstract {
     public String[] onGameStart(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         String dataString, diffString;
         JSONObject data;
+        addLoadingReactionInstantly();
         dataString = HttpRequest.getData(url).get().getContent().get();
         data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
         diffString = data.getString("difficulty");

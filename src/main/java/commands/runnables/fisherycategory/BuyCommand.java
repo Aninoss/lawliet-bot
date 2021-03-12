@@ -7,7 +7,10 @@ import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
-import constants.*;
+import constants.Emojis;
+import constants.FisheryCategoryInterface;
+import constants.LogStatus;
+import constants.Response;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
@@ -214,7 +217,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
             Optional<TextChannel> announcementChannelOpt = guildBean.getFisheryAnnouncementChannel();
             if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.MESSAGE_WRITE)) {
                 String announcementText = getString("newrole", member.getUser().getAsMention(), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));
-                announcementChannelOpt.get().sendMessage(StringUtil.defuseMassPing(announcementText)).queue();
+                announcementChannelOpt.get().sendMessage(announcementText).queue();
             }
         }
     }

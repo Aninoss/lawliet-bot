@@ -7,8 +7,10 @@ import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import constants.Response;
 import core.MainLogger;
+import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public interface OnMessageInputListener {
@@ -80,8 +82,14 @@ public interface OnMessageInputListener {
         try {
             Response response = onMessageInput(event, event.getMessage().getContentRaw());
             if (response != null) {
-                CommandContainer.getInstance().refreshListener(OnReactionListener.class, command);
-                CommandContainer.getInstance().refreshListener(OnMessageInputListener.class, command);
+                if (response == Response.TRUE) {
+                    CommandContainer.getInstance().refreshListener(OnReactionListener.class, command);
+                    CommandContainer.getInstance().refreshListener(OnMessageInputListener.class, command);
+                    if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+                        event.getMessage().delete().queue();
+                    }
+                }
+
                 EmbedBuilder eb = draw();
                 if (eb != null) {
                     ((Command) this).drawMessage(eb);
