@@ -1,13 +1,12 @@
 package core;
 
 import java.time.Duration;
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.api.requests.RestAction;
 
-//TODO: Does it work?
 public class QuickUpdater {
 
     private static final QuickUpdater ourInstance = new QuickUpdater();
@@ -19,23 +18,27 @@ public class QuickUpdater {
     private QuickUpdater() {
     }
 
-    private final Cache<String, Long> idCache = CacheBuilder.newBuilder()
+    private final Cache<String, CompletableFuture<?>> futureCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(20))
             .build();
 
-    @Nonnull
-    @CheckReturnValue
-    public synchronized <T> RestAction<T> update(String type, Object key, RestAction<T> restAction) {
+    public synchronized void update(String type, Object key, RestAction<?> restAction) {
         String stringKey = type + ":" + key;
-        long id = System.nanoTime();
 
-        restAction = restAction.addCheck(() -> {
-            Long idCheck = idCache.getIfPresent(stringKey);
-            return idCheck == null || idCheck == id;
-        });
+        CompletableFuture<?> oldFuture = futureCache.getIfPresent(stringKey);
+        if (oldFuture != null) {
+            oldFuture.cancel(true);
+        }
 
-        idCache.put(stringKey, id);
-        return restAction;
+        CompletableFuture<?> future = restAction.submit();
+        futureCache.put(stringKey, future);
+
+        future.exceptionally(e -> {
+            if (!(e instanceof CancellationException)) {
+                MainLogger.get().error("Exception in quick updater", e);
+            }
+            return null;
+        }).thenAccept(result -> futureCache.asMap().remove(stringKey, future));
     }
 
 }

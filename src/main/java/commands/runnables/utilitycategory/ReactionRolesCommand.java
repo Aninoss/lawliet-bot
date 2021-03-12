@@ -404,6 +404,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         } else {
             editMessage.editMessage(getMessageEmbed(false).build()).queue();
             m = editMessage;
+            RestActionQueue restActionQueue = new RestActionQueue();
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                 boolean exist = false;
                 for (MessageReaction reaction : m.getReactions()) {
@@ -413,7 +414,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                     }
                 }
                 if (!exist) {
-                    emojiConnection.addReaction(m);
+                    restActionQueue.attach(emojiConnection.addReaction(m));
                 }
             }
             for (MessageReaction reaction : m.getReactions()) {
@@ -424,7 +425,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                         break;
                     }
                 }
-                if (!exist) reaction.clearReactions().queue();
+                if (!exist) {
+                    restActionQueue.attach(reaction.clearReactions());
+                }
+            }
+            if (restActionQueue.isSet()) {
+                restActionQueue.getCurrentRestAction().queue();
             }
             return true;
         }
@@ -570,7 +576,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         }
 
         emojiConnections = new ArrayList<>();
-        checkRolesWithLog(MentionUtil.getRoles(editMessage, embed.getFields().get(0).getValue()).getList());
+        checkRolesWithLog(editMessage.getGuild(), MentionUtil.getRoles(editMessage, embed.getFields().get(0).getValue()).getList());
         for (String line : embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
             emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
@@ -580,7 +586,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     private boolean messageIsReactionMessage(Message message) {
         if (message.getAuthor().getIdLong() == ShardManager.getInstance().getSelfId() && message.getEmbeds().size() > 0) {
             MessageEmbed embed = message.getEmbeds().get(0);
-            if (embed.getTitle() != null && embed.getAuthor() != null) {
+            if (embed.getTitle() != null && embed.getAuthor() == null) {
                 String title = embed.getTitle();
                 return title.startsWith(getCommandProperties().emoji()) && title.endsWith(Emojis.EMPTY_EMOJI);
             }

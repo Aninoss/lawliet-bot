@@ -15,6 +15,10 @@ public class RestActionQueue {
         return this;
     }
 
+    public boolean isSet() {
+        return currentRestAction != null;
+    }
+
     public RestAction<?> getCurrentRestAction() {
         return currentRestAction;
     }

@@ -1,6 +1,7 @@
 package events.discordevents.guildmemberjoin;
 
 import java.util.Locale;
+import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
 import constants.FisheryStatus;
 import core.PermissionCheckRuntime;
@@ -25,7 +26,9 @@ public class GuildMemberJoinFisheryRoles extends GuildMemberJoinAbstract {
                 .getRoles()
                 .forEach(role -> {
                     if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) {
-                        event.getGuild().addRoleToMember(event.getMember(), role).queue();
+                        event.getGuild().addRoleToMember(event.getMember(), role)
+                                .reason(Command.getCommandLanguage(FisheryCommand.class, locale).getTitle())
+                                .queue();
                     }
                 });
 

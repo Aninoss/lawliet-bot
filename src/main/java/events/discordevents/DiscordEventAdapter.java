@@ -162,7 +162,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceMove(@NotNull GuildVoiceMoveEvent event) {
-        GuildVoiceMoveAbstract.onGuildVoiceMoveStatic(event, getListenerList(GuildVoiceLeaveAbstract.class));
+        GuildVoiceMoveAbstract.onGuildVoiceMoveStatic(event, getListenerList(GuildVoiceMoveAbstract.class));
     }
 
     @Override

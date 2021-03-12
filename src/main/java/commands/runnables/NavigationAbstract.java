@@ -57,7 +57,8 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
         Response response = controllerMessage(event, input, state);
         if (response != null) {
-            processDraw(event.getChannel());
+            processDraw(event.getChannel())
+                    .exceptionally(ExceptionLogger.get());
         }
 
         return response;
@@ -75,7 +76,8 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                 changed = controllerReaction(event, index, state);
             }
             if (changed) {
-                processDraw(event.getChannel());
+                processDraw(event.getChannel())
+                        .exceptionally(ExceptionLogger.get());
             }
         } catch (Throwable throwable) {
             ExceptionUtil.handleCommandException(throwable, this, event.getChannel());
@@ -295,16 +297,16 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return false;
     }
 
-    public boolean checkRolesWithLog(List<Role> roles) {
-        return checkRolesWithLog(null, roles);
+    public boolean checkRolesWithLog(Guild guild, List<Role> roles) {
+        return checkRolesWithLog(guild, null, roles);
     }
 
-    public boolean checkRolesWithLog(Member member, List<Role> roles) {
+    public boolean checkRolesWithLog(Guild guild, Member member, List<Role> roles) {
         if (roles.size() == 0) {
             return true;
         }
         if (member == null) {
-            member = roles.get(0).getGuild().getSelfMember();
+            member = guild.getSelfMember();
         }
 
         ArrayList<Role> unmanagableRoles = new ArrayList<>();
@@ -318,7 +320,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         if (unmanagableRoles.size() == 0) {
             ArrayList<Role> forbiddenRoles = new ArrayList<>();
             for (Role role : roles) {
-                if (!member.canInteract(role) || !BotPermissionUtil.can(member, Permission.MANAGE_ROLES)) {
+                if (role != null && (!member.canInteract(role) || !BotPermissionUtil.can(member, Permission.MANAGE_ROLES))) {
                     forbiddenRoles.add(role);
                 }
             }

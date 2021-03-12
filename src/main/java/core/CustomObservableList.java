@@ -80,8 +80,6 @@ public class CustomObservableList<T> extends ObservableListWrapper<T> implements
             U u = function.apply(t);
             if (u != null) {
                 listTemp.add(u);
-            } else {
-                remove(t);
             }
         }
 

@@ -115,15 +115,16 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                         getTrigger(),
                         message.getId(),
                         message.editMessage(getEmbed(voteInfo, false).build())
-                ).queue();
+                );
                 if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                     message.clearReactions().queue();
                 }
                 return;
             }
 
-            if (voteInfo.getVotes(event.getUserIdLong()) > 1) {
-                message.removeReaction(JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), event.getUser()).queue();
+            if (voteInfo.getVotes(event.getUserIdLong()) > 1 && BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+                message.removeReaction(JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), event.getUser())
+                        .queue();
                 return;
             }
 
@@ -131,7 +132,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                     getTrigger(),
                     message.getId(),
                     message.editMessage(getEmbed(voteInfo, true).build())
-            ).queue();
+            );
         });
     }
 
@@ -146,7 +147,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                                 getTrigger(),
                                 message.getId(),
                                 message.editMessage(getEmbed(voteInfo, true).build())
-                        ).queue();
+                        );
                     }
                 });
     }

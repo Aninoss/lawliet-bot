@@ -46,7 +46,6 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         memberCountBean = DBMemberCountDisplays.getInstance().retrieve(event.getGuild().getIdLong());
-        memberCountBean.getMemberCountBeanSlots().trim(vcId -> event.getGuild().getVoiceChannelById(vcId));
         registerNavigationListener(5);
         return true;
     }
@@ -158,11 +157,11 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                             );
                         }
 
-                        Member botMember = event.getGuild().getSelfMember();
-                        long permissionBotOverride = Permission.MANAGE_CHANNEL.getRawValue() | Permission.MANAGE_PERMISSIONS.getRawValue() | Permission.VOICE_CONNECT.getRawValue();
-                        PermissionOverride permissionBot = voiceChannel.getPermissionOverride(botMember);
+                        Member self = event.getGuild().getSelfMember();
+                        long permissionBotOverride = Permission.MANAGE_CHANNEL.getRawValue() | Permission.VOICE_CONNECT.getRawValue();
+                        PermissionOverride permissionBot = voiceChannel.getPermissionOverride(self);
                         manager = manager.putPermissionOverride(
-                                botMember,
+                                self,
                                 (permissionBot != null ? permissionBot.getAllowedRaw() : 0) | permissionBotOverride,
                                 permissionBot != null ? permissionBot.getDeniedRaw() & ~permissionBotOverride : 0
                         );
@@ -216,7 +215,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                                     if (bean.getVoiceChannel().isPresent()) {
                                         return getString("state0_displays", StringUtil.escapeMarkdown(bean.getVoiceChannel().get().getName()), StringUtil.escapeMarkdown(bean.getMask()));
                                     } else {
-                                        return getString("state0_displays", "???", StringUtil.escapeMarkdown(bean.getMask()));
+                                        return getString("state0_displays", TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(bean.getVoiceChannelId())), StringUtil.escapeMarkdown(bean.getMask()));
                                     }
                                 })), false);
 

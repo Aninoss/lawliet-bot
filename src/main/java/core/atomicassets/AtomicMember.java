@@ -62,9 +62,17 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
                 .collect(Collectors.toList());
     }
 
+    public static List<Member> to(List<AtomicMember> members) {
+        return members.stream()
+                .map(AtomicMember::get)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
     public static CustomObservableList<AtomicMember> transformIdList(Guild guild, CustomObservableList<Long> list) {
         return list.transform(
-                id -> Optional.ofNullable(guild.getMemberById(id)).map(AtomicMember::new).orElse(null),
+                id -> new AtomicMember(guild.getIdLong(), id),
                 atomic -> atomic.get().map(ISnowflake::getIdLong).orElse(null)
         );
     }

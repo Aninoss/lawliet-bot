@@ -37,7 +37,9 @@ public interface OnReactionListener {
                     command.getTextChannel().ifPresent(channel -> {
                         RestActionQueue restActionQueue = new RestActionQueue();
                         Arrays.stream(emojis).forEach(emoji -> restActionQueue.attach(channel.addReactionById(messageId, JDAEmojiUtil.emojiAsReactionTag(emoji))));
-                        restActionQueue.getCurrentRestAction().queue();
+                        if (restActionQueue.isSet()) {
+                            restActionQueue.getCurrentRestAction().queue();
+                        }
                     });
                     return messageId;
                 })

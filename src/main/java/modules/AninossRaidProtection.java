@@ -29,7 +29,7 @@ public class AninossRaidProtection {
         boolean ok = lastMember == null || lastInstant == null || lastInstant.plus(1, ChronoUnit.MINUTES).isBefore(Instant.now());
         if (!ok) {
             Optional.ofNullable(role.getGuild().getMemberById(lastMember.getId()))
-                    .ifPresent(m -> role.getGuild().removeRoleFromMember(m, role).queue());
+                    .ifPresent(m -> role.getGuild().removeRoleFromMember(m, role).reason("Raid Protection").queue());
         }
 
         lastMember = member;

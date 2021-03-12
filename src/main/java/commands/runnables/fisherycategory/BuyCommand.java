@@ -54,7 +54,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
         fisheryGuildBean = fisheryMemberBean.getFisheryServerBean();
 
-        checkRolesWithLog(null, fisheryGuildBean.getRoles());
+        checkRolesWithLog(event.getGuild(), null, fisheryGuildBean.getRoles());
         if (args.length() > 0) {
             String letters = StringUtil.filterLettersFromString(args).toLowerCase().replace(" ", "");
             long numbers = StringUtil.filterLongFromString(args);
@@ -197,18 +197,24 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
         if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) {
             Role role = roles.get(slot.getLevel() - 1);
-            role.getGuild().addRoleToMember(member, role).queue();
+            role.getGuild().addRoleToMember(member, role)
+                    .reason(getCommandLanguage().getTitle())
+                    .queue();
             if (slot.getLevel() > 1) {
                 if (guildBean.isFisherySingleRoles()) {
                     for (int j = slot.getLevel() - 2; j >= 0; j--) {
                         if (member.getRoles().contains(roles.get(j))) {
-                            member.getGuild().removeRoleFromMember(member, roles.get(j)).queue();
+                            member.getGuild().removeRoleFromMember(member, roles.get(j))
+                                    .reason(getCommandLanguage().getTitle())
+                                    .queue();
                         }
                     }
                 } else {
                     for (int j = slot.getLevel() - 2; j >= 0; j--) {
                         if (!member.getRoles().contains(roles.get(j))) {
-                            member.getGuild().addRoleToMember(member, roles.get(j)).queue();
+                            member.getGuild().addRoleToMember(member, roles.get(j))
+                                    .reason(getCommandLanguage().getTitle())
+                                    .queue();
                         }
                     }
                 }

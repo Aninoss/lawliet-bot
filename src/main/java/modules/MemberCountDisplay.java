@@ -39,6 +39,7 @@ public class MemberCountDisplay {
             display.getVoiceChannel().ifPresent(voiceChannel -> {
                 if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
                     String newVoiceName = generateNewVCName(guild, display.getMask());
+
                     if (!getCurrentVoiceName(voiceChannel).equals(newVoiceName)) {
                         rename(voiceChannel, newVoiceName);
                         voiceNameCache.put(voiceChannel.getIdLong(), newVoiceName);
@@ -63,7 +64,7 @@ public class MemberCountDisplay {
                 "member_count_displays",
                 voiceChannel.getId(),
                 restAction
-        ).queue();
+        );
     }
 
     public static String generateNewVCName(Guild guild, String name) {

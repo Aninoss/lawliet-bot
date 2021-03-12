@@ -1,11 +1,14 @@
 package modules;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import commands.Command;
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import core.PermissionCheckRuntime;
+import core.utils.BotPermissionUtil;
 import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
 import mysql.modules.guild.GuildBean;
@@ -112,10 +115,18 @@ public class AutoChannel {
     private static ChannelAction<VoiceChannel> addOriginalPermissions(VoiceChannel parentVoice, ChannelAction<VoiceChannel> channelAction) {
         for (PermissionOverride permissionOverride : parentVoice.getPermissionOverrides()) {
             if (permissionOverride.getPermissionHolder() != null) {
+                List<Permission> newAllowed = permissionOverride.getAllowed().stream()
+                        .filter(permission -> BotPermissionUtil.canInteract(parentVoice.getGuild(), permission))
+                        .collect(Collectors.toList());
+
+                List<Permission> newDenied = permissionOverride.getDenied().stream()
+                        .filter(permission -> BotPermissionUtil.canInteract(parentVoice.getGuild(), permission))
+                        .collect(Collectors.toList());
+
                 channelAction = channelAction.addPermissionOverride(
                         permissionOverride.getPermissionHolder(),
-                        permissionOverride.getAllowed(),
-                        permissionOverride.getDenied()
+                        newAllowed,
+                        newDenied
                 );
             }
         }

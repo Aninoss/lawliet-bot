@@ -277,6 +277,10 @@ public final class StringUtil {
         return numToString((long) n);
     }
 
+    public static String numToHex(long n) {
+        return String.format("%x", n).toUpperCase();
+    }
+
     public static Language getLanguage(Locale locale) {
         String language = locale.getLanguage().split("_")[0].toLowerCase();
         switch (language) {

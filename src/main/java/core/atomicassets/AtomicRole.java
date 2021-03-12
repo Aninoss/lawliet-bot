@@ -62,9 +62,17 @@ public class AtomicRole implements MentionableAtomicAsset<Role> {
                 .collect(Collectors.toList());
     }
 
+    public static List<Role> to(List<AtomicRole> roles) {
+        return roles.stream()
+                .map(AtomicRole::get)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
     public static CustomObservableList<AtomicRole> transformIdList(Guild guild, CustomObservableList<Long> list) {
         return list.transform(
-                id -> Optional.ofNullable(guild.getRoleById(id)).map(AtomicRole::new).orElse(null),
+                id -> new AtomicRole(guild.getIdLong(), id),
                 atomic -> atomic.get().map(ISnowflake::getIdLong).orElse(null)
         );
     }

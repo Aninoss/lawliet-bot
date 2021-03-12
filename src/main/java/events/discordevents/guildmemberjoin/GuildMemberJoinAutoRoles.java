@@ -3,6 +3,7 @@ package events.discordevents.guildmemberjoin;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import commands.Command;
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
@@ -29,7 +30,9 @@ public class GuildMemberJoinAutoRoles extends GuildMemberJoinAbstract {
                         (AninossRaidProtection.getInstance().check(event.getMember(), role) &&
                                 event.getUser().getTimeCreated().toInstant().plus(1, ChronoUnit.HOURS).isBefore(Instant.now()))
                 ) {
-                    event.getGuild().addRoleToMember(event.getMember(), role).queue();
+                    event.getGuild().addRoleToMember(event.getMember(), role)
+                            .reason(Command.getCommandLanguage(AutoRolesCommand.class, locale).getTitle())
+                            .queue();
                 }
             }
         }

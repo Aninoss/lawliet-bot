@@ -12,9 +12,7 @@ import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
 
 public class NavigationHelper<T> {
 
@@ -48,7 +46,7 @@ public class NavigationHelper<T> {
             command.setLog(LogStatus.FAILURE, TextManager.getNoResultsString(command.getLocale(), inputString));
             return Response.FALSE;
         } else {
-            if (type == Type.Role && !command.checkRolesWithLog(author, (List<Role>) newList)) {
+            if (type == Type.Role && !command.checkRolesWithLog(author.getGuild(), author, AtomicRole.to((List<AtomicRole>) newList))) {
                 return Response.FALSE;
             }
 
@@ -117,7 +115,7 @@ public class NavigationHelper<T> {
         if (type == Type.Unknown) {
             nameFunction = Object::toString;
         } else {
-            nameFunction = obj -> ((MentionableAtomicAsset<?>) obj).get().map(IMentionable::getAsMention).orElse("-");
+            nameFunction = obj -> ((MentionableAtomicAsset<?>) obj).getAsMention();
         }
 
         String[] strings = new String[srcList.size()];

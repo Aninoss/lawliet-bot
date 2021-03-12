@@ -62,9 +62,17 @@ public class AtomicTextChannel implements MentionableAtomicAsset<TextChannel> {
                 .collect(Collectors.toList());
     }
 
+    public static List<TextChannel> to(List<AtomicTextChannel> channels) {
+        return channels.stream()
+                .map(AtomicTextChannel::get)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
     public static CustomObservableList<AtomicTextChannel> transformIdList(Guild guild, CustomObservableList<Long> list) {
         return list.transform(
-                id -> Optional.ofNullable(guild.getTextChannelById(id)).map(AtomicTextChannel::new).orElse(null),
+                id -> new AtomicTextChannel(guild.getIdLong(), id),
                 atomic -> atomic.get().map(ISnowflake::getIdLong).orElse(null)
         );
     }

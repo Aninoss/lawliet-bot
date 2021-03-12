@@ -12,6 +12,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
+import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.gamestatistics.DBGameStatistics;
@@ -186,7 +187,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
 
     @Override
     public EmbedBuilder draw() {
-        EmbedBuilder eb = drawCasino(getMember().map(Member::getEffectiveName).orElse("-"), coinsInput);
+        EmbedBuilder eb = drawCasino(getMember().map(Member::getEffectiveName).orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()))), coinsInput);
         if (status != Status.ACTIVE && eb != null) {
             if (getLog() != null && getLog().length() > 0) {
                 EmbedUtil.addLog(eb, getLogStatus(), getLog());

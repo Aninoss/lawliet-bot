@@ -148,6 +148,14 @@ public class BotPermissionUtil {
         }
     }
 
+    public static boolean canInteract(Guild guild, Permission permission) {
+        if (permission == Permission.MANAGE_PERMISSIONS || permission == Permission.MANAGE_ROLES) {
+            return guild.getSelfMember().hasPermission(Permission.ADMINISTRATOR);
+        } else {
+            return guild.getSelfMember().hasPermission(permission);
+        }
+    }
+
     public static List<Role> getMemberRoles(Guild guild) {
         int min = (int) (guild.getMemberCount() * 0.75);
         return guild.getRoles().stream()

@@ -52,7 +52,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
 
-        checkRolesWithLog(fisheryGuildBean.getRoles());
+        checkRolesWithLog(event.getGuild(), fisheryGuildBean.getRoles());
         registerNavigationListener(12);
         return true;
     }
@@ -66,7 +66,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
-                    if (!checkRolesWithLog(event.getMember(), roleList)) {
+                    if (!checkRolesWithLog(event.getMember().getGuild(), event.getMember(), roleList)) {
                         return Response.FALSE;
                     }
 

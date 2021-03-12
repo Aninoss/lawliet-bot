@@ -55,9 +55,17 @@ public class AtomicVoiceChannel implements AtomicAsset<VoiceChannel> {
                 .collect(Collectors.toList());
     }
 
+    public static List<VoiceChannel> to(List<AtomicVoiceChannel> channels) {
+        return channels.stream()
+                .map(AtomicVoiceChannel::get)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
     public static CustomObservableList<AtomicVoiceChannel> transformIdList(Guild guild, CustomObservableList<Long> list) {
         return list.transform(
-                id -> Optional.ofNullable(guild.getVoiceChannelById(id)).map(AtomicVoiceChannel::new).orElse(null),
+                id -> new AtomicVoiceChannel(guild.getIdLong(), id),
                 atomic -> atomic.get().map(ISnowflake::getIdLong).orElse(null)
         );
     }

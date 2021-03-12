@@ -74,7 +74,7 @@ public class CustomObservableMap<T, U> extends ObservableMapWrapper<T, U> implem
     public <V> void trim(Function<T, V> function) {
         for (T key : new HashMap<>(this).keySet()) {
             V opt = function.apply(key);
-            if (opt != null) {
+            if (opt == null) {
                 remove(key);
             }
         }

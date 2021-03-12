@@ -82,7 +82,9 @@ public class RolesRepair {
                 .filter(role -> !member.getRoles().contains(role) && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role))
                 .forEach(role -> {
                     MainLogger.get().info("Giving role \"{}\" to user \"{}\" on server \"{}\"", role.getName(), member.getUser().getAsTag(), role.getGuild().getName());
-                    role.getGuild().addRoleToMember(member, role).reason(reason).queue();
+                    role.getGuild().addRoleToMember(member, role)
+                            .reason(reason)
+                            .queue();
                 });
     }
 

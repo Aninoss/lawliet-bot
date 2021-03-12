@@ -57,9 +57,17 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
                 .collect(Collectors.toList());
     }
 
+    public static List<User> to(List<AtomicUser> channels) {
+        return channels.stream()
+                .map(AtomicUser::get)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
     public static CustomObservableList<AtomicUser> transformIdList(CustomObservableList<Long> list) {
         return list.transform(
-                id -> ShardManager.getInstance().getCachedUserById(id).map(AtomicUser::new).orElse(null),
+                AtomicUser::new,
                 atomic -> atomic.get().map(ISnowflake::getIdLong).orElse(null)
         );
     }
