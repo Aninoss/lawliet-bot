@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import constants.Locales;
 import core.CustomObservableList;
 import core.ShardManager;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.User;
 
 public class AtomicUser implements MentionableAtomicAsset<User> {
@@ -68,7 +67,7 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
     public static CustomObservableList<AtomicUser> transformIdList(CustomObservableList<Long> list) {
         return list.transform(
                 AtomicUser::new,
-                atomic -> atomic.get().map(ISnowflake::getIdLong).orElse(null)
+                AtomicUser::getIdLong
         );
     }
 

@@ -9,7 +9,6 @@ import core.CustomObservableList;
 import core.ShardManager;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
 
 public class AtomicRole implements MentionableAtomicAsset<Role> {
@@ -73,7 +72,7 @@ public class AtomicRole implements MentionableAtomicAsset<Role> {
     public static CustomObservableList<AtomicRole> transformIdList(Guild guild, CustomObservableList<Long> list) {
         return list.transform(
                 id -> new AtomicRole(guild.getIdLong(), id),
-                atomic -> atomic.get().map(ISnowflake::getIdLong).orElse(null)
+                AtomicRole::getIdLong
         );
     }
 

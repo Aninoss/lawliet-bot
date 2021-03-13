@@ -55,7 +55,7 @@ public class WarnLogCommand extends MemberAccountAbstract {
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .setTitle("")
+                .setTitle(null)
                 .setAuthor(getString("author", getCommandProperties().emoji(), member.getEffectiveName()))
                 .setThumbnail(member.getUser().getEffectiveAvatarUrl());
         eb.addField(getString("latest"), latestWarningsString, false);

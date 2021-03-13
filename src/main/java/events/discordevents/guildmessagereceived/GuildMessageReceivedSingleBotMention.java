@@ -15,7 +15,6 @@ public class GuildMessageReceivedSingleBotMention extends GuildMessageReceivedAb
 
     @Override
     public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
-        //TODO: does it work?
         if (event.getMessage().getContentRaw().replace("@!", "@").trim().equalsIgnoreCase(ShardManager.getInstance().getSelf().getAsMention())) {
             GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
 

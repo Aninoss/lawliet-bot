@@ -11,7 +11,8 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
 
     private final String[] FILTERS = {
             "java.lang.InterruptedException",
-            "10008: Unknown Message"
+            "10008: Unknown Message",
+            "50007: Cannot send messages to this user"
     };
 
     public ExceptionFilter() {

@@ -63,7 +63,7 @@ public class Mod {
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
                         .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", target.getName()));
 
-                postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, moderationBean, target).thenRun(() -> {
+                postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                     guild.ban(target.getId(), 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).queue();
                 });
             } else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, guild, Permission.KICK_MEMBERS) && BotPermissionUtil.canInteract(guild, target)) {
@@ -71,7 +71,7 @@ public class Mod {
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
                         .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", target.getName()));
 
-                postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, moderationBean, target).thenRun(() -> {
+                postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                     guild.kick(target.getId(), TextManager.getString(locale, Category.MODERATION, "mod_autokick")).queue();
                 });
             }
@@ -87,30 +87,30 @@ public class Mod {
     }
 
     public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, Guild guild, List<Member> members) {
-        return postLogMembers(command, eb, DBModeration.getInstance().retrieve(guild.getIdLong()), members);
+        return postLogMembers(command, eb, guild, DBModeration.getInstance().retrieve(guild.getIdLong()), members);
     }
 
     public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, List<User> users) {
-        return postLogUsers(command, eb, DBModeration.getInstance().retrieve(guild.getIdLong()), users);
+        return postLogUsers(command, eb, guild, DBModeration.getInstance().retrieve(guild.getIdLong()), users);
     }
 
-    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, ModerationBean moderationBean, Member member) {
-        return postLogMembers(command, eb, moderationBean, Collections.singletonList(member));
+    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, Guild guild, ModerationBean moderationBean, Member member) {
+        return postLogMembers(command, eb, guild, moderationBean, Collections.singletonList(member));
     }
 
-    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, ModerationBean moderationBean, User user) {
-        return postLogUsers(command, eb, moderationBean, Collections.singletonList(user));
+    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationBean moderationBean, User user) {
+        return postLogUsers(command, eb, guild, moderationBean, Collections.singletonList(user));
     }
 
-    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, ModerationBean moderationBean, List<Member> members) {
-        return Mod.postLogUsers(command, eb, moderationBean, members.stream().map(Member::getUser).collect(Collectors.toList()));
+    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, Guild guild, ModerationBean moderationBean, List<Member> members) {
+        return Mod.postLogUsers(command, eb, guild, moderationBean, members.stream().map(Member::getUser).collect(Collectors.toList()));
     }
 
-    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, ModerationBean moderationBean, List<User> users) {
+    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationBean moderationBean, List<User> users) {
         eb.setFooter("");
         CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
             users.forEach(user -> {
-                if (!user.isBot()) {
+                if (!user.isBot() && guild.isMember(user)) {
                     try {
                         JDAUtil.sendPrivateMessage(user, eb.build()).complete();
                     } catch (Throwable e) {

@@ -69,7 +69,7 @@ public class InviteFilter extends AutoModAbstract {
     protected boolean checkCondition(Message message) {
         if (spBlockBean.isActive() &&
                 !spBlockBean.getIgnoredUserIds().contains(message.getAuthor().getIdLong()) &&
-                !spBlockBean.getIgnoredChannelIds().contains(message.getAuthor().getIdLong()) &&
+                !spBlockBean.getIgnoredChannelIds().contains(message.getTextChannel().getIdLong()) &&
                 !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR)
         ) {
             List<String> inviteLinks = message.getInvites();

@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.entities.*;
 
 public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
 
-    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
 
     private final long channelId;
     private Long messageId;
@@ -167,7 +167,6 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
     private Optional<Long> processMessageViaWebhook(boolean newMessage, String content, MessageEmbed... embeds) {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
-            //TODO: memory leak?
             if (webhookClient == null) {
                 webhookClient = new WebhookClientBuilder(webhookUrl)
                         .setWait(true)

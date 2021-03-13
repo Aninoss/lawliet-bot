@@ -67,7 +67,9 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                                         event.getGuild().getIdLong(),
                                         message.getIdLong(),
                                         content,
-                                        author
+                                        author,
+                                        0,
+                                        0
                                 )
                         );
                     });

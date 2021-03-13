@@ -168,7 +168,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
 
                         try {
                             manager.complete();
-                            memberCountBean.getMemberCountBeanSlots().put(currentVC.getId(), new MemberCountDisplaySlot(event.getGuild().getIdLong(), currentVC.getId(), currentName));
+                            memberCountBean.getMemberCountBeanSlots().put(currentVC.getIdLong(), new MemberCountDisplaySlot(event.getGuild().getIdLong(), currentVC.getIdLong(), currentName));
                             MemberCountDisplay.getInstance().manage(getLocale(), event.getGuild());
 
                             setLog(LogStatus.SUCCESS, getString("displayadd"));
@@ -191,9 +191,10 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                     return true;
                 } else if (i < memberCountBean.getMemberCountBeanSlots().size()) {
                     memberCountBean.getMemberCountBeanSlots().remove(new ArrayList<>(memberCountBean.getMemberCountBeanSlots().keySet()).get(i));
-
                     setLog(LogStatus.SUCCESS, getString("displayremove"));
-                    setState(0);
+                    if (memberCountBean.getMemberCountBeanSlots().size() == 0) {
+                        setState(0);
+                    }
                     return true;
                 }
 

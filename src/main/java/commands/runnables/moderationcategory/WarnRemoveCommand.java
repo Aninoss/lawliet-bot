@@ -40,12 +40,14 @@ public class WarnRemoveCommand extends WarnCommand {
         for (String part : args.split(" ")) {
             if (StringUtil.stringIsLong(part)) {
                 long value = Math.min(Long.parseLong(part), MAX);
-                if (value > 0) {
+                if (value > 0 && value < MAX) {
+                    args = args.replaceAll("(^| )" + part + "($| )", " ").trim();
                     n = (int) value;
                     break;
                 }
             } else if (part.equalsIgnoreCase("all")) {
                 n = MAX;
+                args = args.replace("all", "");
                 break;
             }
         }

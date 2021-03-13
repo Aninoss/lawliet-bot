@@ -18,7 +18,7 @@ public class AtomicGuild implements AtomicAsset<Guild> {
     }
 
     @Override
-    public long getId() {
+    public long getIdLong() {
         return guildId;
     }
 

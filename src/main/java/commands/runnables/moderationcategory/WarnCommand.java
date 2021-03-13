@@ -121,7 +121,7 @@ public class WarnCommand extends Command implements OnReactionListener {
             actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
         }
 
-        Mod.postLogUsers(this, actionEmbed, moderationBean, userList).join();
+        Mod.postLogUsers(this, actionEmbed, channel.getGuild(), moderationBean, userList).join();
         for (User user : userList) {
             if (sendWarning) {
                 Mod.insertWarning(getLocale(), channel.getGuild(), user, executor, reason, autoActions);

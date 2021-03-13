@@ -313,7 +313,7 @@ public abstract class Command implements OnTriggerListener {
 
     public Optional<Long> getGuildId() {
         return Optional.ofNullable(atomicGuild)
-                .map(AtomicGuild::getId);
+                .map(AtomicGuild::getIdLong);
     }
 
     public Optional<Long> getTextChannelId() {

@@ -94,7 +94,7 @@ public class SyncManager {
     }
 
     private void startConnectionChecker() {
-        MainScheduler.getInstance().poll(10, ChronoUnit.SECONDS, "sync_connection_checker", () -> {
+        MainScheduler.getInstance().poll(5, ChronoUnit.SECONDS, "sync_connection_checker", () -> {
             if (client.isConnected()) {
                 errors = 0;
             } else {
@@ -103,7 +103,6 @@ public class SyncManager {
                     client.reconnect();
                 } else if (errors >= 6) {
                     MainLogger.get().error("EXIT - No connection with sync server");
-                    //System.exit(1); TODO: DEBUG
                     return false;
                 }
             }

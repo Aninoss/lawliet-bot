@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 
 public interface AtomicAsset<T extends ISnowflake> {
 
-    long getId();
+    long getIdLong();
 
     Optional<T> get();
 

@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
 public class AtomicVoiceChannel implements AtomicAsset<VoiceChannel> {
@@ -26,7 +25,7 @@ public class AtomicVoiceChannel implements AtomicAsset<VoiceChannel> {
     }
 
     @Override
-    public long getId() {
+    public long getIdLong() {
         return channelId;
     }
 
@@ -66,7 +65,7 @@ public class AtomicVoiceChannel implements AtomicAsset<VoiceChannel> {
     public static CustomObservableList<AtomicVoiceChannel> transformIdList(Guild guild, CustomObservableList<Long> list) {
         return list.transform(
                 id -> new AtomicVoiceChannel(guild.getIdLong(), id),
-                atomic -> atomic.get().map(ISnowflake::getIdLong).orElse(null)
+                AtomicVoiceChannel::getIdLong
         );
     }
 

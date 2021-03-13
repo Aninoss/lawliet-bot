@@ -378,19 +378,17 @@ public class MentionUtil {
     }
 
     public static Mention getMentionedStringOfDiscriminatedMembers(Locale locale, List<Member> memberList) {
-        final ArrayList<String> mentions = new ArrayList<>();
-
-        /* add usernames */
-        memberList.forEach(member -> mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName())));
-
-        return getMentionStringOfMentions(mentions, locale, null, false, false);
+        return getMentionedStringOfDiscriminatedUsers(
+                locale,
+                memberList.stream().map(Member::getUser).collect(Collectors.toList())
+        );
     }
 
     public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, List<User> userList) {
         final ArrayList<String> mentions = new ArrayList<>();
 
         /* add usernames */
-        userList.forEach(user -> mentions.add(StringUtil.escapeMarkdown(user.getName())));
+        userList.forEach(user -> mentions.add(StringUtil.escapeMarkdown(user.getAsTag())));
 
         return getMentionStringOfMentions(mentions, locale, null, false, false);
     }
