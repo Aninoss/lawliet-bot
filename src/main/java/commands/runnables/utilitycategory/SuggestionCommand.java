@@ -21,12 +21,12 @@ import mysql.modules.suggestions.SuggestionsBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 @CommandProperties(
         trigger = "suggestion",
@@ -35,9 +35,6 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemove
         aliases = { "sugg" }
 )
 public class SuggestionCommand extends Command implements OnStaticReactionAddListener, OnStaticReactionRemoveListener {
-
-    private static final String EMOJI_LIKE = "👍";
-    private static final String EMOJI_DISLIKE = "👎";
 
     public SuggestionCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -54,22 +51,26 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     String author = event.getMessage().getMember().getUser().getAsTag();
                     String content = StringUtil.shortenString(args, 1024);
 
-                    channel.sendMessage(event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID ? "<@&762314049953988650>" : "")
-                            .embed(generateEmbed(content, author, generateFooter(0, 0)).build())
-                            .queue(message -> {
-                                message.addReaction(EMOJI_LIKE)
-                                        .queue(v -> message.addReaction(EMOJI_DISLIKE).queue());
+                    MessageAction messageAction = channel.sendMessage(generateEmbed(content, author, generateFooter(0, 0)).build());
+                    if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID) {
+                        messageAction = messageAction.content("<@&762314049953988650>")
+                                .allowedMentions(null);
+                    }
 
-                                suggestionsBean.getSuggestionMessages().put(
+                    messageAction.queue(message -> {
+                        message.addReaction(Emojis.LIKE)
+                                .queue(v -> message.addReaction(Emojis.DISLIKE).queue());
+
+                        suggestionsBean.getSuggestionMessages().put(
+                                message.getIdLong(),
+                                new SuggestionMessage(
+                                        event.getGuild().getIdLong(),
                                         message.getIdLong(),
-                                        new SuggestionMessage(
-                                                event.getGuild().getIdLong(),
-                                                message.getIdLong(),
-                                                content,
-                                                author
-                                        )
-                                );
-                            });
+                                        content,
+                                        author
+                                )
+                        );
+                    });
 
                     event.getChannel().sendMessage(
                             EmbedFactory.getEmbedDefault(this, getString("success")).build()
@@ -105,47 +106,44 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
         dislikes = Math.max(0, dislikes);
 
         String ratio = (likes + dislikes > 0) ? StringUtil.numToString((int) Math.round((double) likes / (likes + dislikes) * 100)) : "-";
-        return getString("message_footer", StringUtil.numToString(likes), StringUtil.numToString(dislikes), ratio, EMOJI_LIKE, EMOJI_DISLIKE);
+        return getString("message_footer", StringUtil.numToString(likes), StringUtil.numToString(dislikes), ratio, Emojis.LIKE, Emojis.DISLIKE);
     }
 
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
-        onReactionStatic(message, event);
+        onReactionStatic(message, event, true);
     }
 
     @Override
     public void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) {
-        onReactionStatic(message, event);
+        onReactionStatic(message, event, false);
     }
 
-    private void onReactionStatic(Message message, GenericGuildMessageReactionEvent event) {
+    private void onReactionStatic(Message message, GenericGuildMessageReactionEvent event, boolean add) {
         DBSuggestions.getInstance()
                 .retrieve(event.getGuild().getIdLong())
                 .getSuggestionMessages()
-                .computeIfPresent(message.getIdLong(), (messageId, suggestionMessage) -> {
+                .computeIfPresent(event.getMessageIdLong(), (messageId, suggestionMessage) -> {
                     String emoji = JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote());
-                    if (emoji.equals(EMOJI_LIKE) || emoji.equals(EMOJI_DISLIKE)) {
+                    if (emoji.equals(Emojis.LIKE) || emoji.equals(Emojis.DISLIKE)) {
+                        if (emoji.equals(Emojis.LIKE)) {
+                            suggestionMessage.updateUpvotes(add ? 1 : -1);
+                        } else {
+                            suggestionMessage.updateDownvotes(add ? 1 : -1);
+                        }
+
+                        suggestionMessage.loadVoteValuesifAbsent(event.getChannel());
                         String footer = generateFooter(
-                                JDAEmojiUtil.getMessageReactionFromMessage(message, EMOJI_LIKE).map(r -> r.getCount() - 1).orElse(0),
-                                JDAEmojiUtil.getMessageReactionFromMessage(message, EMOJI_LIKE).map(r -> r.getCount() - 1).orElse(0)
+                                suggestionMessage.getUpvotes(),
+                                suggestionMessage.getDownvotes()
                         );
 
-                        String oldFooter = "";
-                        if (message.getEmbeds().size() > 0) {
-                            oldFooter = Optional.ofNullable(message.getEmbeds().get(0).getFooter())
-                                    .map(MessageEmbed.Footer::getText)
-                                    .orElse("");
-                        }
-
-                        if (!footer.equals(oldFooter)) {
-                            QuickUpdater.getInstance().update(
-                                    "suggestion",
-                                    messageId,
-                                    message.editMessage(
-                                            generateEmbed(suggestionMessage.getContent(), suggestionMessage.getAuthor(), footer).build()
-                                    )
-                            );
-                        }
+                        QuickUpdater.getInstance().update(
+                                "suggestion",
+                                messageId,
+                                event.getChannel()
+                                        .editMessageById(messageId, generateEmbed(suggestionMessage.getContent(), suggestionMessage.getAuthor(), footer).build())
+                        );
                     }
                     return suggestionMessage;
                 });

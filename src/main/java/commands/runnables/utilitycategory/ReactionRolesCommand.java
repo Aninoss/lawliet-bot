@@ -349,7 +349,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             return true;
         }
 
-        event.getReaction().removeReaction(event.getUser()).queue();
+        if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+            event.getReaction().removeReaction(event.getUser()).queue();
+        }
         return calculateEmoji(JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
     }
 

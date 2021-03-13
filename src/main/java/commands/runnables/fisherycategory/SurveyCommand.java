@@ -269,7 +269,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     @Override
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
-        //TODO: save sent messages
+        //TODO: save sent messages for new static listeners
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         if (slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get())) {
             return TrackerResult.CONTINUE;

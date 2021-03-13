@@ -82,7 +82,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         } catch (Throwable throwable) {
             ExceptionUtil.handleCommandException(throwable, this, event.getChannel());
         }
-        return false;
+        return changed;
     }
 
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws Throwable {
@@ -241,7 +241,6 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             }
         }
 
-        //TODO: Add support for dm navigation
         return drawMessage(eb);
     }
 

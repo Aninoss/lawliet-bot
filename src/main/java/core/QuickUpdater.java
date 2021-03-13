@@ -3,6 +3,7 @@ package core;
 import java.time.Duration;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -30,7 +31,7 @@ public class QuickUpdater {
             oldFuture.cancel(true);
         }
 
-        CompletableFuture<?> future = restAction.submit();
+        CompletableFuture<?> future = restAction.submitAfter(500, TimeUnit.MILLISECONDS);
         futureCache.put(stringKey, future);
 
         future.exceptionally(e -> {

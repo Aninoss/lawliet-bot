@@ -82,6 +82,8 @@ public class CommandManager {
                 }
             } catch (Throwable e) {
                 ExceptionUtil.handleCommandException(e, command, event.getChannel());
+            } finally {
+                CommandContainer.getInstance().cleanUp();
             }
         } else if (command instanceof HelpCommand) {
             //TODO: help send private dm
@@ -354,7 +356,6 @@ public class CommandManager {
     }
 
     private static void cleanPreviousListeners(Command command, Member member, Class<?> clazz) {
-        //TODO: check if it works
         if (clazz.isInstance(command)) {
             ArrayList<CommandListenerMeta<?>> metaList = CommandContainer.getInstance().getListeners(clazz).stream()
                     .filter(meta -> meta.getAuthorId() == member.getIdLong())

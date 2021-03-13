@@ -64,7 +64,9 @@ public class ReminderScheduler {
                             channel,
                             Permission.MESSAGE_WRITE
                     )) {
-                        channel.sendMessage(reminderSlot.getMessage()).queue();
+                        channel.sendMessage(reminderSlot.getMessage())
+                                .allowedMentions(null)
+                                .queue();
                     }
                 });
 

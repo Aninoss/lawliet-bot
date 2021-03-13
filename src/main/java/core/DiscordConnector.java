@@ -33,8 +33,7 @@ public class DiscordConnector {
 
     private boolean started = false;
 
-    //TODO: Add SessionController for global rate limits
-    private final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
+     private final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
             .setSessionController(CustomSessionController.getInstance())
             .setMemberCachePolicy(MemberCachePolicy.ALL)
             .setChunkingFilter(ChunkingFilter.ALL)

@@ -1,5 +1,6 @@
 package core.utils;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,14 +19,38 @@ public final class InternetUtil {
     private InternetUtil() {
     }
 
+    public static CompletableFuture<String> getURLFromFile(File file) throws ExecutionException, InterruptedException {
+        return getURLFromFile(file, 0);
+    }
+
     //TODO: switching to cdn
+    public static CompletableFuture<String> getURLFromFile(File file, int deleteAfterSeconds) throws ExecutionException, InterruptedException {
+        return JDAUtil.sendPrivateFile(AssetIds.CACHE_USER_ID, file)
+                .submit()
+                .exceptionally(ExceptionLogger.get())
+                .thenApply(m -> {
+                    String url = m.getAttachments().get(0).getUrl();
+                    if (deleteAfterSeconds > 0) {
+                        m.delete().queueAfter(deleteAfterSeconds, TimeUnit.SECONDS);
+                    }
+                    return url;
+                });
+    }
+
     public static CompletableFuture<String> getURLFromInputStream(InputStream inputStream, String filename) throws ExecutionException, InterruptedException {
+        return getURLFromInputStream(inputStream, filename, 0);
+    }
+
+    //TODO: switching to cdn
+    public static CompletableFuture<String> getURLFromInputStream(InputStream inputStream, String filename, int deleteAfterSeconds) throws ExecutionException, InterruptedException {
         return JDAUtil.sendPrivateFile(AssetIds.CACHE_USER_ID, inputStream, filename)
                 .submit()
                 .exceptionally(ExceptionLogger.get())
                 .thenApply(m -> {
                     String url = m.getAttachments().get(0).getUrl();
-                    m.delete().queueAfter(10, TimeUnit.SECONDS);
+                    if (deleteAfterSeconds > 0) {
+                        m.delete().queueAfter(deleteAfterSeconds, TimeUnit.SECONDS);
+                    }
                     return url;
                 });
     }
@@ -59,6 +84,14 @@ public final class InternetUtil {
         return false;
     }
 
+    public static CompletableFuture<String> retrieveThumbnailPreview(String url) {
+        return InternetCache.getData(url, 10 * 60)
+                .thenApply(data -> {
+                    String content = data.getContent().get();
+                    return StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\">")[0];
+                });
+    }
+
     public static boolean checkConnection() {
         try {
             URL url = new URL("https://www.google.com/");
@@ -74,14 +107,6 @@ public final class InternetUtil {
 
     public static String escapeForURL(String url) {
         return UrlEscapers.urlFragmentEscaper().escape(url);
-    }
-
-    public static CompletableFuture<String> retrieveThumbnailPreview(String url) {
-        return InternetCache.getData(url, 10 * 60)
-                .thenApply(data -> {
-                    String content = data.getContent().get();
-                    return StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\">")[0];
-                });
     }
 
 }

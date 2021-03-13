@@ -354,6 +354,10 @@ public class CommandContainer {
         return Optional.ofNullable(listenerMap.get(clazz).getIfPresent(command.getId()));
     }
 
+    public synchronized void cleanUp() {
+        listenerMap.values().forEach(Cache::cleanUp);
+    }
+
     public synchronized void refreshListener(Class<?> clazz, Command command) {
         if (listenerMap.containsKey(clazz)) {
             Cache<Long, CommandListenerMeta<?>> cache = listenerMap.get(clazz);

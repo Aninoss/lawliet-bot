@@ -180,6 +180,7 @@ public class ReminderCommand extends Command implements OnReactionListener {
 
     @Override
     public void onReactionTimeOut() {
+        removeReactionListener();
         active = false;
     }
 

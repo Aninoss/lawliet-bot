@@ -197,8 +197,8 @@ public class GiveawayCommand extends NavigationAbstract {
             imageMessage = null;
         }
 
-        //TODO: don't fetch
-        JDAUtil.sendPrivateFile(AssetIds.CACHE_USER_ID, file)
+        //TODO: use cdn instead
+        imageMessage = JDAUtil.sendPrivateFile(AssetIds.CACHE_USER_ID, file)
                 .complete();
         return imageMessage.getAttachments().get(0).getUrl();
     }
@@ -339,11 +339,11 @@ public class GiveawayCommand extends NavigationAbstract {
                             imageLink,
                             true
                     );
-                    GiveawaySlot oldGiveaway = giveawayBeans.get(giveawaySlot.getMessageId());
-                    if (oldGiveaway != null) oldGiveaway.stop();
+                    if (!giveawayBeans.containsKey(giveawaySlot.getMessageId())) {
+                        GiveawayScheduler.getInstance().loadGiveawayBean(giveawaySlot);
+                    }
 
                     giveawayBeans.put(giveawaySlot.getMessageId(), giveawaySlot);
-                    GiveawayScheduler.getInstance().loadGiveawayBean(giveawaySlot);
                 } else {
                     setLog(LogStatus.FAILURE, getString("error"));
                 }
@@ -492,7 +492,7 @@ public class GiveawayCommand extends NavigationAbstract {
 
     private List<GiveawaySlot> getActiveGiveawaySlots() {
         return giveawayBeans.values().stream()
-                .filter(GiveawaySlot::isActive)
+                .filter(g -> g.isActive() && g.getEnd().isAfter(Instant.now()))
                 .collect(Collectors.toList());
     }
 

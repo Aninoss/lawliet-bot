@@ -4,6 +4,8 @@ public interface Emojis {
 
     String CHECKMARK = "✅";
     String X = "❌";
+    String LIKE = "👍";
+    String DISLIKE = "👎";
     String[] LETTERS = { "🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴", "🇵", "🇶", "🇷", "🇸" };
     String[] RED_LETTERS = { "🅰", "🅱" };
 

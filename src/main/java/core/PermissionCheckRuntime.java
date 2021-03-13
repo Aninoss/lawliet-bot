@@ -106,7 +106,7 @@ public class PermissionCheckRuntime {
     }
 
     private boolean canPostError(Guild guild, long permissionsRaw) {
-        return errorCache.asMap().containsKey(new Pair<>(guild.getIdLong(), permissionsRaw));
+        return !errorCache.asMap().containsKey(new Pair<>(guild.getIdLong(), permissionsRaw));
     }
 
     private void setErrorInstant(Guild guild, long permissionsRaw) {

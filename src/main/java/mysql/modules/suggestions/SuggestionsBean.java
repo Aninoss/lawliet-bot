@@ -21,9 +21,6 @@ public class SuggestionsBean extends BeanWithGuild {
         this.channelId = channelId;
     }
 
-
-    /* Getters */
-
     public boolean isActive() {
         return active;
     }
@@ -39,9 +36,6 @@ public class SuggestionsBean extends BeanWithGuild {
     public Optional<TextChannel> getTextChannel() {
         return getGuild().map(guild -> guild.getTextChannelById(channelId != null ? channelId : 0L));
     }
-
-
-    /* Setters */
 
     public void toggleActive() {
         this.active = !this.active;

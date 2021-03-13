@@ -280,7 +280,8 @@ public class WelcomeCommand extends NavigationAbstract {
 
         eb.setImage(InternetUtil.getURLFromInputStream(
                 WelcomeGraphics.createImageWelcome(member, welcomeMessageBean.getWelcomeTitle()).get(),
-                "welcome.png"
+                "welcome.png",
+                10
         ).get());
 
         return eb;

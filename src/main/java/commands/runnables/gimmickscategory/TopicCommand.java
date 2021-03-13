@@ -61,8 +61,8 @@ public class TopicCommand extends Command implements OnAlertListener {
             return TrackerResult.STOP_AND_DELETE;
         }
 
-        slot.sendMessage(getEmbed(slot.getTextChannel().get()).build());
         slot.setNextRequest(Instant.now().plus(minutes, ChronoUnit.MINUTES));
+        slot.setNextRequest(Instant.now().plus(20, ChronoUnit.SECONDS));
 
         return TrackerResult.CONTINUE_AND_SAVE;
     }

@@ -12,10 +12,7 @@ import constants.Emojis;
 import core.utils.JDAEmojiUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.MessageReaction;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 
 public class VoteCache {
 
@@ -29,15 +26,15 @@ public class VoteCache {
     }
 
     private final Cache<Long, VoteInfo> voteCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(10))
+            .expireAfterAccess(Duration.ofMinutes(30))
             .build();
 
     public void put(long messageId, VoteInfo voteInfo) {
         voteCache.put(messageId, voteInfo);
     }
 
-    public Optional<VoteInfo> get(Message message, long userId, String emoji, boolean add) {
-        VoteInfo voteInfo = voteCache.getIfPresent(message.getIdLong());
+    public Optional<VoteInfo> get(TextChannel channel, long messageId, long userId, String emoji, boolean add) {
+        VoteInfo voteInfo = voteCache.getIfPresent(messageId);
 
         if (voteInfo != null) {
             int i = -1;
@@ -60,6 +57,7 @@ public class VoteCache {
                 }
             }
         } else {
+            Message message = channel.retrieveMessageById(messageId).complete();
             voteInfo = extractVoteInfoFromMessage(message);
             voteCache.put(message.getIdLong(), voteInfo);
         }
