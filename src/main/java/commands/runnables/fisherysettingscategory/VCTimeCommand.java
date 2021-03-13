@@ -95,7 +95,7 @@ public class VCTimeCommand extends Command implements OnReactionListener, OnMess
 
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
-        removeReactionListenerWithMessage();
+        removeReactionListener();
         deregisterMessageInputListener();
         this.eb = mainExecution(event, input);
         return Response.TRUE;
@@ -104,7 +104,7 @@ public class VCTimeCommand extends Command implements OnReactionListener, OnMess
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
         if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), CLEAR_EMOJI)) {
-            removeReactionListenerWithMessage();
+            removeReactionListener();
             deregisterMessageInputListener();
             this.eb = markUnlimited();
             return true;

@@ -72,7 +72,12 @@ public class HelpCommand extends NavigationAbstract {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         searchTerm = args;
         commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener(LIST.length);
+        EmbedBuilder commandEmbed = checkCommand(event.getChannel(), args);
+        if (commandEmbed == null) {
+            registerNavigationListener(LIST.length);
+        } else {
+            drawMessage(commandEmbed);
+        }
         return true;
     }
 

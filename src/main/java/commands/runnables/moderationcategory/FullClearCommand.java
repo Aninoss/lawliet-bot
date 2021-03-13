@@ -90,30 +90,31 @@ public class FullClearCommand extends Command implements OnAlertListener {
 
         MessageHistory messageHistory = channel.getHistory();
         do {
-            //Check for message date and therefore permissions
-            List<Message> messageSet = messageHistory.retrievePast(100).complete();
-            if (messageSet.isEmpty()) {
+            /* Check for message date and therefore permissions */
+            List<Message> messageList = messageHistory.retrievePast(100).complete();
+            if (messageList.isEmpty()) {
                 break;
             }
 
             ArrayList<Message> messagesDelete = new ArrayList<>();
-            for (Message message : messageSet) {
-                if (!message.getTimeCreated().toInstant().isAfter(Instant.now().minus(14, ChronoUnit.DAYS))) {
+            for (Message message : messageList) {
+                if (message.getTimeCreated().toInstant().isBefore(Instant.now().minus(14, ChronoUnit.DAYS))) {
                     tooOld = true;
                     break;
-                } else if (!message.isPinned() && message.getIdLong() != messageIdIgnore) {
-                    if (!message.getTimeCreated().toInstant().isAfter(Instant.now().minus(hours, ChronoUnit.HOURS))) {
+                } else if (!message.isPinned() &&
+                        message.getIdLong() != messageIdIgnore &&
+                        message.getTimeCreated().toInstant().isBefore(Instant.now().minus(hours, ChronoUnit.HOURS))
+                ) {
                         messagesDelete.add(message);
                         deleted++;
-                    }
                 }
+            }
 
-                if (messagesDelete.size() >= 1) {
-                    if (messagesDelete.size() == 1) {
-                        messagesDelete.get(0).delete().complete();
-                    } else {
-                        channel.deleteMessages(messagesDelete).complete();
-                    }
+            if (messagesDelete.size() >= 1) {
+                if (messagesDelete.size() == 1) {
+                    messagesDelete.get(0).delete().complete();
+                } else {
+                    channel.deleteMessages(messagesDelete).complete();
                 }
             }
         } while (!tooOld);

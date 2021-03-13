@@ -93,7 +93,6 @@ public class ClearCommand extends Command {
                 }
             }
 
-            messageIdIgnore = 0;
             if (messagesDelete.size() >= 1) {
                 if (messagesDelete.size() == 1) {
                     messagesDelete.get(0).delete().complete();
@@ -111,7 +110,7 @@ public class ClearCommand extends Command {
             }
 
             for (Message message : messageList) {
-                if (!message.isPinned()) {
+                if (!message.isPinned() && message.getIdLong() != messageIdIgnore) {
                     message.delete().complete();
                     deleted++;
                     count--;

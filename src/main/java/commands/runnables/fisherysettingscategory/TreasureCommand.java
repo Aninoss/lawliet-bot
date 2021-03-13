@@ -6,9 +6,13 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import core.EmbedFactory;
 import core.TextManager;
+import core.mention.MentionList;
+import core.utils.BotPermissionUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Fishery;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
@@ -27,6 +31,20 @@ public class TreasureCommand extends Command implements FisheryInterface {
 
     @Override
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
+        TextChannel channel = event.getChannel();
+        MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
+        if (channelMention.getList().size() > 0) {
+            channel = channelMention.getList().get(0);
+            args = channelMention.getFilteredArgs().trim();
+            if (!BotPermissionUtil.canWriteEmbed(channel)) {
+                String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
+                event.getChannel().sendMessage(
+                        EmbedFactory.getEmbedError(this, error).build()
+                ).queue();
+                return false;
+            }
+        }
+
         int amount = 1;
         if (args.length() > 0) {
             if (StringUtil.stringIsInt(args)) {
@@ -50,7 +68,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
         }
 
         for (int i = 0; i < amount; i++) {
-            Fishery.spawnTreasureChest(event.getChannel());
+            Fishery.spawnTreasureChest(channel);
         }
         return true;
     }
