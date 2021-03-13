@@ -35,6 +35,7 @@ public class DiscordConnector {
 
     //TODO: Add SessionController for global rate limits
     private final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
+            .setSessionController(CustomSessionController.getInstance())
             .setMemberCachePolicy(MemberCachePolicy.ALL)
             .setChunkingFilter(ChunkingFilter.ALL)
             .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
@@ -59,12 +60,12 @@ public class DiscordConnector {
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageAction.setDefaultMentions(EnumSet.complementOf(deny));
 
+        CustomSessionController.getInstance().setConcurrency(Integer.parseInt(System.getenv("CONCURRENCY")));
         for (int i = shardMin; i <= shardMax; i++) {
             try {
-                jdaBuilder.useSharding(i, totalShards)
-                        .build();
+                jdaBuilder.useSharding(i, totalShards).build();
             } catch (LoginException e) {
-                MainLogger.get().error("EXIT - Login exception", e);
+                MainLogger.get().error("EXIT - Invalid token", e);
                 System.exit(1);
             }
         }
@@ -77,7 +78,7 @@ public class DiscordConnector {
             jdaBuilder.useSharding(shardId, ShardManager.getInstance().getTotalShards())
                     .build();
         } catch (LoginException e) {
-            MainLogger.get().error("EXIT - Login exception", e);
+            MainLogger.get().error("EXIT - Invalid token", e);
             System.exit(1);
         }
     }
