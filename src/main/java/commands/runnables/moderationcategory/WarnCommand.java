@@ -43,24 +43,33 @@ public class WarnCommand extends Command implements OnReactionListener {
     private final ArrayList<User> usersErrorList = new ArrayList<>();
     private final boolean sendWarning;
     private final boolean autoActions;
+    private final boolean includeNotInGuild;
 
     public WarnCommand(Locale locale, String prefix) {
-        this(locale, prefix, true, true);
+        this(locale, prefix, true, true, true);
     }
 
-    public WarnCommand(Locale locale, String prefix, boolean sendWarning, boolean autoActions) {
+    public WarnCommand(Locale locale, String prefix, boolean sendWarning, boolean autoActions, boolean includeNotInGuild) {
         super(locale, prefix);
         this.sendWarning = sendWarning;
         this.autoActions = autoActions;
+        this.includeNotInGuild = includeNotInGuild;
     }
 
     protected MentionList<User> getUserList(Message message, String args) throws Throwable {
         MentionList<Member> memberMentionList = MentionUtil.getMembers(message, args);
-        List<User> userList = memberMentionList.getList().stream()
+        ArrayList<User> userList = memberMentionList.getList().stream()
                 .map(Member::getUser)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
 
-        return new MentionList<>(memberMentionList.getFilteredArgs(), userList);
+        if (includeNotInGuild) {
+            MentionList<User> userMentionList = MentionUtil.getUsersFromString(memberMentionList.getFilteredArgs()).get();
+            userList.addAll(userMentionList.getList());
+
+            return new MentionList<>(userMentionList.getFilteredArgs(), userList);
+        } else {
+            return new MentionList<>(memberMentionList.getFilteredArgs(), userList);
+        }
     }
 
     protected void process(Guild guild, User target, String reason) throws Throwable {

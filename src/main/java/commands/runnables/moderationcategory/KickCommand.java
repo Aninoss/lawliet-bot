@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.entities.User;
 public class KickCommand extends WarnCommand {
 
     public KickCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, false);
+        super(locale, prefix, true, false, false);
     }
 
     @Override

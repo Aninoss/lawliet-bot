@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
 import core.mention.MentionList;
+import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -21,10 +22,10 @@ import net.dv8tion.jda.api.entities.User;
         executableWithoutArgs = false
 )
 //TODO: can now ban with id?
-public class BanCommand extends KickCommand {
+public class BanCommand extends WarnCommand {
 
     public BanCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, true, true, true);
     }
 
     @Override
@@ -48,6 +49,11 @@ public class BanCommand extends KickCommand {
                     guild.ban(target.getId(), 1).queue();
                     return  null;
                 });
+    }
+
+    @Override
+    protected boolean canProcess(Member executor, User target) {
+        return BotPermissionUtil.canInteract(executor.getGuild(), target);
     }
 
 }

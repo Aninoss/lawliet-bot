@@ -58,18 +58,28 @@ public class Mod {
             boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? serverWarningsBean.getAmountLatest(autoKickDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoKick();
             boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? serverWarningsBean.getAmountLatest(autoBanDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoBan();
 
-            if (autoBan && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, guild, Permission.BAN_MEMBERS) && BotPermissionUtil.canInteract(guild, target)) {
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", target.getName()));
+            if (autoBan &&
+                    PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, guild, Permission.BAN_MEMBERS) &&
+                    BotPermissionUtil.canInteract(guild, target)
+            ) {
+                guild.retrieveBanList().queue(banList -> {
+                    if (banList.stream().noneMatch(ban -> ban.getUser().getIdLong() == target.getIdLong())) {
+                        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                                .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
+                                .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", target.getAsTag()));
 
-                postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
-                    guild.ban(target.getId(), 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).queue();
+                        postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
+                            guild.ban(target.getId(), 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).queue();
+                        });
+                    }
                 });
-            } else if (autoKick && PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, guild, Permission.KICK_MEMBERS) && BotPermissionUtil.canInteract(guild, target)) {
+            } else if (autoKick &&
+                    PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, guild, Permission.KICK_MEMBERS) &&
+                    BotPermissionUtil.canInteract(guild, target) && guild.isMember(target)
+            ) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", target.getName()));
+                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", target.getAsTag()));
 
                 postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                     guild.kick(target.getId(), TextManager.getString(locale, Category.MODERATION, "mod_autokick")).queue();
