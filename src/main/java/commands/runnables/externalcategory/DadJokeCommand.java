@@ -37,7 +37,11 @@ public class DadJokeCommand extends Command {
             int n = RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), jokeList.size());
             joke = jokeList.get(n);
         } else {
-            joke = new JSONObject(HttpRequest.getData("https://icanhazdadjoke.com/slack").get().getContent().get()).getJSONArray("attachments").getJSONObject(0).getString("text");
+            addLoadingReactionInstantly();
+            joke = new JSONObject(HttpRequest.getData("https://icanhazdadjoke.com/slack").get().getContent().get())
+                    .getJSONArray("attachments")
+                    .getJSONObject(0)
+                    .getString("text");
         }
 
         event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, joke).build()).queue();

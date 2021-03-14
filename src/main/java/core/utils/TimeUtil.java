@@ -121,16 +121,11 @@ public final class TimeUtil {
                 .withMinute(Integer.parseInt(timeString[4].split(":")[1]))
                 .withSecond(Integer.parseInt(timeString[4].split(":")[2]));
 
-        int offset = Integer.parseInt(timeString[5]) / 100;
+        int offset = 0;
+        if (StringUtil.stringIsInt(timeString[5])) {
+            offset = Integer.parseInt(timeString[5]) / 100;
+        }
         return ldt1.atZone(ZoneOffset.ofHours(offset)).toInstant();
-    }
-
-    public static Instant parseDateString3(String str) {
-        String timeContent = str.split("\\+")[0];
-        int timeOffset = Integer.parseInt(str.split("\\+")[1].split(":")[0]);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss").withZone(ZoneOffset.ofHours(timeOffset));
-        return formatter.parse(timeContent, Instant::from);
     }
 
     public static boolean instantHasHour(Instant instant, int hour) {
