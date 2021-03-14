@@ -195,10 +195,19 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                     }
                 }
             } catch (Throwable e) {
-                MainLogger.get().error("Could not send webhook message", e);
-                this.webhookClient = null;
-                this.webhookUrl = null;
-                return processMessage(newMessage, content, embeds);
+                if (newMessage) {
+                    MainLogger.get().error("Could not send webhook message", e);
+                    this.webhookClient = null;
+                    this.webhookUrl = null;
+                    return processMessageViaRest(newMessage, content, embeds);
+                } else {
+                    MainLogger.get().error("Could not edit webhook message", e);
+                    return processMessageViaWebhook(true, content, embeds)
+                            .map(messageId -> {
+                                this.messageId = messageId;
+                                return messageId;
+                            });
+                }
             }
         } else {
             return Optional.empty();
@@ -227,7 +236,16 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                 if (newMessage) {
                     return Optional.of(channel.sendMessage(message).complete().getIdLong());
                 } else {
-                    return Optional.of(channel.editMessageById(messageId, message).complete().getIdLong());
+                    try {
+                        return Optional.of(channel.editMessageById(messageId, message).complete().getIdLong());
+                    } catch (Throwable e) {
+                        MainLogger.get().error("Could not edit rest message", e);
+                        return processMessageViaRest(true, content, embeds)
+                                .map(messageId -> {
+                                    this.messageId = messageId;
+                                    return messageId;
+                                });
+                    }
                 }
             }
         } else {

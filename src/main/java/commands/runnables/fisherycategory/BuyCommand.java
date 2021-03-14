@@ -234,9 +234,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
         switch (state) {
             case 0:
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
-                eb.addField(getString("beginning_title"), getString("beginning"), false);
-
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("beginning"));
                 StringBuilder description;
                 int i = 0;
 

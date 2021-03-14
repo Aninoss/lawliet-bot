@@ -13,7 +13,7 @@ import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.QuickUpdater;
 import core.RatelimitManager;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
 import mysql.modules.suggestions.DBSuggestions;
@@ -126,7 +126,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                 .retrieve(event.getGuild().getIdLong())
                 .getSuggestionMessages()
                 .computeIfPresent(event.getMessageIdLong(), (messageId, suggestionMessage) -> {
-                    String emoji = JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote());
+                    String emoji = EmojiUtil.reactionEmoteAsMention(event.getReactionEmote());
                     if (emoji.equals(Emojis.LIKE) || emoji.equals(Emojis.DISLIKE)) {
                         if (emoji.equals(Emojis.LIKE)) {
                             suggestionMessage.updateUpvotes(add ? 1 : -1);

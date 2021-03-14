@@ -6,7 +6,7 @@ import commands.listeners.OnReactionListener;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -60,8 +60,8 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
     public boolean onReaction(GenericGuildMessageReactionEvent event) {
         for (int i = 0; i < 2; i++) {
             String str = StringUtil.getEmojiForBoolean(i == 1);
-            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), str)) {
-                removeReactionListener();
+            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), str)) {
+                deregisterListenersWithReactions();
                 boolean active = i == 1;
                 setActive(active);
                 set = true;

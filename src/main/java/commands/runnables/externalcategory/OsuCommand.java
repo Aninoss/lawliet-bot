@@ -12,7 +12,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.osu.OsuAccount;
 import modules.osu.OsuAccountCheck;
@@ -110,7 +110,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CONNECT) &&
+        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CONNECT) &&
                 status == Status.DEFAULT
         ) {
             this.status = Status.CONNECTING;
@@ -125,7 +125,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
             if (osuUsernameOpt.isPresent()) {
                 String osuUsername = osuUsernameOpt.get();
                 if (!osuUsername.equals(GUEST)) {
-                    removeReactionListener();
+                    deregisterListenersWithReactions();
                     Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode).get();
                     this.osuName = osuUsername;
                     this.osuAccount = osuAccountOptional.orElse(null);
@@ -145,7 +145,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
 
             OsuAccountSync.getInstance().add(event.getUserIdLong(), osuUsername -> {
                 if (!osuUsername.equals(GUEST)) {
-                    removeReactionListener();
+                    deregisterListenersWithReactions();
                     OsuAccountSync.getInstance().remove(event.getUserIdLong());
                     OsuAccountDownloader.download(osuUsername, gameMode)
                             .thenAccept(osuAccountOptional -> {
@@ -158,10 +158,11 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
                             });
                 }
             });
-        } else if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
+            return true;
+        } else if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
                 status == Status.CONNECTING
         ) {
-            removeReactionListener();
+            deregisterListenersWithReactions();
             OsuAccountSync.getInstance().remove(event.getUserIdLong());
             this.osuAccount = null;
             this.status = Status.ABORTED;
@@ -174,7 +175,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
     public EmbedBuilder draw() {
         switch (status) {
             case CONNECTING:
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", JDAEmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
                 setLog(null, getString("synch_abort", EMOJI_CANCEL));
                 return eb;
 

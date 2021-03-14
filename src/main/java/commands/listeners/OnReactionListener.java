@@ -14,7 +14,7 @@ import core.RestActionQueue;
 import core.cache.MessageCache;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
@@ -31,12 +31,12 @@ public interface OnReactionListener {
         return command.getMember().map(member ->
                 registerReactionListener(member.getIdLong(), event -> event.getUserIdLong() == member.getIdLong() &&
                         event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
-                        (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)))
+                        (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)))
                 ).thenApply(messageId -> {
                     MessageCache.getInstance().block(messageId);
                     command.getTextChannel().ifPresent(channel -> {
                         RestActionQueue restActionQueue = new RestActionQueue();
-                        Arrays.stream(emojis).forEach(emoji -> restActionQueue.attach(channel.addReactionById(messageId, JDAEmojiUtil.emojiAsReactionTag(emoji))));
+                        Arrays.stream(emojis).forEach(emoji -> restActionQueue.attach(channel.addReactionById(messageId, EmojiUtil.emojiAsReactionTag(emoji))));
                         if (restActionQueue.isSet()) {
                             restActionQueue.getCurrentRestAction().queue();
                         }
@@ -51,8 +51,8 @@ public interface OnReactionListener {
 
         Runnable onTimeOut = () -> {
             try {
-                CommandContainer.getInstance().deregisterListener(OnMessageInputListener.class, command);
-                onReactionTimeOut();
+                command.deregisterListeners();
+                command.onListenerTimeOutSuper();
             } catch (Throwable throwable) {
                 MainLogger.get().error("Exception on time out", throwable);
             }
@@ -88,7 +88,7 @@ public interface OnReactionListener {
         return CompletableFuture.failedFuture(new NoSuchElementException("No message sent"));
     }
 
-    default void removeReactionListenerWithMessage() {
+    default void deregisterListenersWithMessage() {
         Command command = (Command) this;
         command.getDrawMessageId().ifPresent(messageId -> {
             command.getTextChannel().ifPresent(channel -> {
@@ -100,10 +100,10 @@ public interface OnReactionListener {
                 }
             });
         });
-        deregisterReactionListener();
+        command.deregisterListeners();
     }
 
-    default CompletableFuture<Void> removeReactionListener() {
+    default CompletableFuture<Void> deregisterListenersWithReactions() {
         CompletableFuture<Void> future = new CompletableFuture<>();
         Command command = (Command) this;
         command.getDrawMessageId().ifPresentOrElse(messageId -> {
@@ -116,12 +116,8 @@ public interface OnReactionListener {
                 }
             }, () -> future.completeExceptionally(new NoSuchElementException("No such text channel")));
         }, () -> future.completeExceptionally(new NoSuchElementException("No such draw message id")));
-        deregisterReactionListener();
+        command.deregisterListeners();
         return future;
-    }
-
-    default void deregisterReactionListener() {
-        CommandContainer.getInstance().deregisterListener(OnReactionListener.class, (Command) this);
     }
 
     default void processReaction(GenericGuildMessageReactionEvent event) {
@@ -139,9 +135,6 @@ public interface OnReactionListener {
         } catch (Throwable e) {
             ExceptionUtil.handleCommandException(e, command, event.getChannel());
         }
-    }
-
-    default void onReactionTimeOut() throws Throwable {
     }
 
     default void onReactionOverridden() throws Throwable {

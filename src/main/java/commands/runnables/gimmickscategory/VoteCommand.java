@@ -15,7 +15,7 @@ import core.RestActionQueue;
 import core.cache.VoteCache;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -105,8 +105,8 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
-        VoteCache.getInstance().get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
-            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
+        VoteCache.getInstance().get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
+            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
                     voteInfo.getCreatorId().isPresent() &&
                     voteInfo.getCreatorId().get() == event.getUserIdLong()
             ) {
@@ -124,7 +124,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
             if (voteInfo.getVotes(event.getUserIdLong()) > 1 && BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                 event.getChannel()
-                        .removeReactionById(event.getMessageIdLong(), JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), event.getUser())
+                        .removeReactionById(event.getMessageIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), event.getUser())
                         .queue();
                 return;
             }
@@ -139,7 +139,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) {
-        VoteCache.getInstance().get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
+        VoteCache.getInstance().get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
                 .ifPresent(voteInfo -> {
                     if (voteInfo.getVotes(event.getUserIdLong()) == 0) {
                         QuickUpdater.getInstance().update(

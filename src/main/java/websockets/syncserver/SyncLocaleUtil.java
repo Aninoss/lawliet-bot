@@ -1,7 +1,7 @@
 package websockets.syncserver;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import commands.Command;
 import constants.AssetIds;
@@ -32,7 +32,7 @@ public class SyncLocaleUtil {
 
         for (String localeString : Locales.LIST) {
             Locale locale = new Locale(localeString);
-            List<Permission> permissionList = Arrays.asList(command.getCommandProperties().userGuildPermissions());
+            ArrayList<Permission> permissionList = new ArrayList<>(Arrays.asList(command.getCommandProperties().userGuildPermissions()));
             permissionList.addAll(Arrays.asList(command.getCommandProperties().userChannelPermissions()));
 
             String permissionsList = new ListGen<Permission>().getList(

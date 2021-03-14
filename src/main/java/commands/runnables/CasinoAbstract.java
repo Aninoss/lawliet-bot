@@ -1,16 +1,19 @@
 package commands.runnables;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 import commands.Command;
+import commands.CommandContainer;
 import commands.CommandManager;
+import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionListener;
-import constants.Category;
-import constants.FisheryStatus;
-import constants.LogStatus;
+import constants.*;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
+import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -23,9 +26,9 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
-public abstract class CasinoAbstract extends Command implements OnReactionListener {
+public abstract class CasinoAbstract extends Command implements OnReactionListener, OnMessageInputListener {
 
-    public enum Status { ACTIVE, WON, LOST, DRAW, ABORT }
+    public enum Status { ACTIVE, WON, LOST, DRAW, CANCELED }
 
     private final double BONUS_MULTIPLICATOR = 1;
     private final String RETRY_EMOJI = "\uD83D\uDD01";
@@ -36,6 +39,8 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
     private Status status = Status.ACTIVE;
     private final boolean useCalculatedMultiplicator;
     private final boolean allowBet;
+    private boolean canBeCanceled = false;
+    private boolean retryRequestAdded = false;
 
     public CasinoAbstract(Locale locale, String prefix, boolean allowBet, boolean useCalculatedMultiplicator) {
         super(locale, prefix);
@@ -45,6 +50,10 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
     }
 
     public abstract String[] onGameStart(GuildMessageReceivedEvent event, String args) throws Throwable;
+
+    public abstract boolean onReactionCasino(GenericGuildMessageReactionEvent event) throws Throwable;
+
+    public abstract EmbedBuilder drawCasino(String playerName, long coinsInput);
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
@@ -56,10 +65,14 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
             if (emojis == null) {
                 return false;
             }
+            if (Arrays.asList(emojis).contains(Emojis.X)) {
+                canBeCanceled = true;
+            }
 
             if (!allowBet) {
                 coinsInput = 0;
                 registerReactionListener(emojis);
+                registerMessageInputListener(false);
                 return true;
             }
 
@@ -67,6 +80,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
             if (status != FisheryStatus.ACTIVE) {
                 coinsInput = 0;
                 registerReactionListener(emojis);
+                registerMessageInputListener(false);
                 return true;
             }
 
@@ -77,6 +91,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
                 coinsInput = (long) Math.ceil(coins * 0.1);
                 memberBean.addHiddenCoins(coinsInput);
                 registerReactionListener(emojis);
+                registerMessageInputListener(false);
                 return true;
             }
 
@@ -84,6 +99,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
                 coinsInput = value;
                 memberBean.addHiddenCoins(coinsInput);
                 registerReactionListener(emojis);
+                registerMessageInputListener(false);
                 return true;
             } else {
                 event.getChannel()
@@ -106,18 +122,30 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
     }
 
     protected void endGame() {
+        endGame(true);
+    }
+
+    protected void endGame(boolean requestRetry) {
         getGuild().ifPresent(guild -> {
             status = Status.DRAW;
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.CASINO, "casino_draw"));
             DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get()).addHiddenCoins(-coinsInput);
-            removeReactionListener()
-                    .thenRun(() -> registerReactionListener(RETRY_EMOJI));
+            deregisterListeners();
+            CompletableFuture<Void> future = deregisterListenersWithReactions();
+            if (requestRetry) {
+                retryRequestAdded = true;
+                future.thenRun(() -> registerReactionListener(RETRY_EMOJI));
+            }
         });
     }
 
     protected void lose() {
+        lose(true);
+    }
+
+    protected void lose(boolean requestRetry) {
         getGuild().ifPresent(guild -> {
-            endGame();
+            endGame(requestRetry);
             status = Status.LOST;
             setLog(LogStatus.LOSE, TextManager.getString(getLocale(), Category.CASINO, "casino_lose"));
             if (coinsInput > 0 && useCalculatedMultiplicator) {
@@ -131,9 +159,13 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
         });
     }
 
-    protected void abort() {
-        lose();
-        status = Status.ABORT;
+    protected void cancel(boolean loseBet, boolean requestRetry) {
+        if (loseBet) {
+            lose(requestRetry);
+        } else {
+            endGame(requestRetry);
+        }
+        status = Status.CANCELED;
         setLog(LogStatus.LOSE, TextManager.getString(getLocale(), Category.CASINO, "casino_abort"));
     }
 
@@ -168,14 +200,31 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
         });
     }
 
-    public abstract boolean onReactionCasino(GenericGuildMessageReactionEvent event) throws Throwable;
+    protected void disableCanceling() {
+        if (canBeCanceled) {
+            if (CommandContainer.getInstance().getListener(OnReactionListener.class, this).isPresent()) {
+                getTextChannel().ifPresent(channel -> channel.removeReactionById(getDrawMessageId().get(), Emojis.X).queue());
+            }
+            canBeCanceled = false;
+        }
+    }
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
         if (status == Status.ACTIVE) {
-            return onReactionCasino(event);
+            if (canBeCanceled && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.X)) {
+                canBeCanceled = false;
+                cancel(false, true);
+                return true;
+            } else {
+                boolean success = onReactionCasino(event);
+                if (success) {
+                    disableCanceling();
+                }
+                return success;
+            }
         } else {
-            removeReactionListenerWithMessage();
+            deregisterListeners();
 
             Command command = CommandManager.createCommandByClass(this.getClass(), getLocale(), getPrefix());
             getGuildMessageReceivedEvent().ifPresent(e -> CommandManager.manage(e, command, String.valueOf(coinsInput), Instant.now()));
@@ -183,25 +232,37 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
         }
     }
 
-    public abstract EmbedBuilder drawCasino(String playerName, long coinsInput);
+    public Response onMessageInputCasino(GuildMessageReceivedEvent event, String input) throws Throwable {
+        return null;
+    }
+
+    @Override
+    public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
+        Response response = onMessageInputCasino(event, input);
+        if (response != null) {
+            disableCanceling();
+        }
+        return response;
+    }
 
     @Override
     public EmbedBuilder draw() {
         EmbedBuilder eb = drawCasino(getMember().map(Member::getEffectiveName).orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()))), coinsInput);
-        if (status != Status.ACTIVE && eb != null) {
+        if (eb != null && retryRequestAdded) {
             if (getLog() != null && getLog().length() > 0) {
                 EmbedUtil.addLog(eb, getLogStatus(), getLog());
             }
 
-            setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_retry", RETRY_EMOJI));
+            eb.addField(Emojis.EMPTY_EMOJI, TextManager.getString(getLocale(), Category.CASINO, "casino_retry", RETRY_EMOJI), false);
+            setLog(null, null);
         }
         return eb;
     }
 
     @Override
-    public void onReactionTimeOut() {
+    public void onListenerTimeOut() {
         if (status == Status.ACTIVE) {
-            abort();
+            cancel(true, false);
             EmbedBuilder eb = draw();
             if (eb != null) {
                 drawMessage(eb);

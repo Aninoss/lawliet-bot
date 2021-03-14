@@ -3,10 +3,8 @@ package commands.runnables.casinocategory;
 import java.io.IOException;
 import java.util.*;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnMessageInputListener;
 import commands.runnables.CasinoAbstract;
 import constants.Category;
-import constants.Emojis;
 import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
@@ -27,7 +25,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         executableWithoutArgs = true,
         aliases = { "hm" }
 )
-public class HangmanCommand extends CasinoAbstract implements OnMessageInputListener {
+public class HangmanCommand extends CasinoAbstract {
 
     private final int MAX_HEALTH = 6;
 
@@ -48,14 +46,12 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
         List<String> wordList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/hangman_" + getLocale().getDisplayName() + ".txt"));
         answer = wordList.get(r.nextInt(wordList.size()));
         progress = new boolean[answer.length()];
-
-        registerMessageInputListener();
-        return new String[] { Emojis.X };
+        return new String[] { "🛑" };
     }
 
     @Override
     public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
-        abort();
+        cancel(true, true);
         return true;
     }
 
@@ -116,29 +112,25 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
     }
 
     @Override
-    public Response onMessageInput(GuildMessageReceivedEvent event, String input) {
+    public Response onMessageInputCasino(GuildMessageReceivedEvent event, String input) {
         input = input.toUpperCase();
 
         if (input.length() != 1) {
-            if (!stringCouldMatch(input)) //if input can't be right return
-            {
+            if (!stringCouldMatch(input)) { //if input can't be right return
                 return null;
             }
 
-            event.getMessage().delete().queue();
             used.add(input);
             if (answer.equals(input)) { //if input is right win game
                 Arrays.fill(progress, true);
                 onRight(input);
-                return Response.TRUE;
             } else { //input is wrong
                 onWrong(input);
-                return Response.FALSE;
             }
+            return Response.TRUE;
         }
 
         char inputChar = input.charAt(0);
-
         if (!Character.isLetter(inputChar)) {
             return null;
         }
@@ -158,18 +150,15 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
             } else {
                 onRight(String.valueOf(inputChar));
             }
-            event.getMessage().delete().queue();
-            return successful ? Response.TRUE : Response.FALSE;
         } else {
             setLog(LogStatus.FAILURE, getString("used", input));
         }
-
-        event.getMessage().delete().queue();
-        return Response.FALSE;
+        return Response.TRUE;
     }
 
     private void onWrong(String input) {
         health--;
+        wrongAnswer = true;
 
         if (health > 0) {
             setLog(LogStatus.FAILURE, getString("wrong", input));
@@ -190,7 +179,6 @@ public class HangmanCommand extends CasinoAbstract implements OnMessageInputList
         if (!finished) {
             setLog(LogStatus.SUCCESS, getString("right", input));
         } else {
-            setLog(LogStatus.WIN, TextManager.getString(getLocale(), TextManager.GENERAL, "won"));
             win((double) health / (double) MAX_HEALTH);
         }
     }

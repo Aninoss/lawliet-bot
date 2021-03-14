@@ -17,7 +17,7 @@ import core.TextManager;
 import core.internet.HttpRequest;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -61,17 +61,9 @@ public class QuizCommand extends CasinoAbstract {
         diffString = data.getString("difficulty");
 
         switch (diffString) {
-            case "easy":
-                difficulty = 0;
-                break;
-
-            case "medium":
-                difficulty = 1;
-                break;
-
-            case "hard":
-                difficulty = 2;
-                break;
+            case "easy" -> difficulty = 0;
+            case "medium" -> difficulty = 1;
+            case "hard" -> difficulty = 2;
         }
 
         question = StringUtil.decryptString(data.getString("question"));
@@ -95,13 +87,14 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         setCompareKey("quiz_" + answers.length + "_" + difficulty);
+        MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "quiz_timeup", this::onTimeUp);
         return Arrays.copyOf(Emojis.LETTERS, answers.length);
     }
 
     @Override
-    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) throws ExecutionException {
+    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
         for (int i = 0; i < answers.length; i++) {
-            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.LETTERS[i])) {
+            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.LETTERS[i])) {
                 onAnswerSelected(i);
                 return true;
             }
@@ -147,6 +140,7 @@ public class QuizCommand extends CasinoAbstract {
     private void onTimeUp() {
         if (getStatus() == Status.ACTIVE) {
             onAnswerSelected(-1);
+            drawMessage(draw());
         }
     }
 
@@ -160,7 +154,7 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         answerSelected = selected;
-        MainScheduler.getInstance().schedule(Settings.TIME_OUT_MINUTES, ChronoUnit.MINUTES, "quiz_remove", this::removeReactionListenerWithMessage);
+        MainScheduler.getInstance().schedule(Settings.TIME_OUT_MINUTES, ChronoUnit.MINUTES, "quiz_remove", this::deregisterListenersWithMessage);
     }
 
 }

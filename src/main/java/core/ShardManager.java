@@ -13,10 +13,11 @@ import core.cache.ExternalEmojiCache;
 import core.cache.ExternalGuildNameCache;
 import core.cache.SingleCache;
 import core.schedule.MainScheduler;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -295,17 +296,19 @@ public class ShardManager {
     }
 
     public long getSelfId() {
-        return getSelf().getIdLong();
+        return Optional.ofNullable(getSelf())
+                .map(ISnowflake::getIdLong)
+                .orElse(0L);
     }
 
     public User getSelf() {
         return getAnyJDA()
                 .map(JDA::getSelfUser)
-                .orElseThrow();
+                .orElse(null);
     }
 
     public boolean emoteIsKnown(String emoteMention) {
-        return getEmoteById(JDAEmojiUtil.extractIdFromEmoteMention(emoteMention)).isPresent();
+        return getEmoteById(EmojiUtil.extractIdFromEmoteMention(emoteMention)).isPresent();
     }
 
     public Optional<Emote> getLocalEmoteById(long emoteId) {

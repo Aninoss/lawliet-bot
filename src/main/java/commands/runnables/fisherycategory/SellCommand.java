@@ -64,15 +64,13 @@ public class SellCommand extends Command implements FisheryInterface, OnReaction
 
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
-        removeReactionListener();
-        deregisterMessageInputListener();
+        deregisterListenersWithReactions();
         return process(event, input) ? Response.TRUE : Response.FALSE;
     }
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        removeReactionListener();
-        deregisterMessageInputListener();
+        deregisterListenersWithReactions();
         markNoInterest();
         return true;
     }
@@ -84,8 +82,7 @@ public class SellCommand extends Command implements FisheryInterface, OnReaction
 
     @Override
     public void onMessageInputOverridden() throws Throwable {
-        removeReactionListener();
-        deregisterMessageInputListener();
+        deregisterListenersWithReactions();
     }
 
     private boolean process(GuildMessageReceivedEvent event, String args) {

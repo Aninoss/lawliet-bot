@@ -318,7 +318,7 @@ public class CommandManager {
         if (BotPermissionUtil.canRead(event.getChannel(), Permission.MESSAGE_ADD_REACTION)) {
             RestActionQueue restActionQueue = new RestActionQueue();
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_EXT_EMOJI)) {
-                restActionQueue.attach(event.getMessage().addReaction(JDAEmojiUtil.emojiAsReactionTag(Emojis.NO)));
+                restActionQueue.attach(event.getMessage().addReaction(EmojiUtil.emojiAsReactionTag(Emojis.NO)));
             } else {
                 restActionQueue.attach(event.getMessage().addReaction(Emojis.X));
             }

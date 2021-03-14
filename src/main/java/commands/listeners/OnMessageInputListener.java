@@ -37,8 +37,8 @@ public interface OnMessageInputListener {
 
         Runnable onTimeOut = () -> {
             try {
-                CommandContainer.getInstance().deregisterListener(OnReactionListener.class, command);
-                onMessageInputTimeOut();
+                command.deregisterListeners();
+                command.onListenerTimeOutSuper();
             } catch (Throwable throwable) {
                 MainLogger.get().error("Exception on time out", throwable);
             }
@@ -70,10 +70,6 @@ public interface OnMessageInputListener {
         }
     }
 
-    default void deregisterMessageInputListener() {
-        CommandContainer.getInstance().deregisterListener(OnMessageInputListener.class, (Command) this);
-    }
-
     default Response processMessageInput(GuildMessageReceivedEvent event) {
         Command command = (Command) this;
         AtomicBoolean isProcessing = new AtomicBoolean(true);
@@ -102,9 +98,6 @@ public interface OnMessageInputListener {
         } finally {
             isProcessing.set(false);
         }
-    }
-
-    default void onMessageInputTimeOut() throws Throwable {
     }
 
     default void onMessageInputOverridden() throws Throwable {

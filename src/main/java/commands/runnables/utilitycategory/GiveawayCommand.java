@@ -360,7 +360,7 @@ public class GiveawayCommand extends NavigationAbstract {
             setState(CONFIGURE_MESSAGE);
         } else {
             event.getReaction().removeReaction(event.getUser()).queue();
-            processEmoji(JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
+            processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
         }
 
         return true;
@@ -400,7 +400,7 @@ public class GiveawayCommand extends NavigationAbstract {
     }
 
     private boolean processEmoji(String emoji) {
-        if (JDAEmojiUtil.emojiIsUnicode(emoji) || ShardManager.getInstance().emoteIsKnown(emoji)) {
+        if (EmojiUtil.emojiIsUnicode(emoji) || ShardManager.getInstance().emoteIsKnown(emoji)) {
             this.emoji = emoji;
             setLog(LogStatus.SUCCESS, getString("emojiset"));
             setState(CONFIGURE_MESSAGE);
@@ -504,7 +504,7 @@ public class GiveawayCommand extends NavigationAbstract {
                 instant = Instant.now();
                 message = textChannel.sendMessage(getMessageEmbed().build()).complete();
                 if (BotPermissionUtil.canRead(textChannel, Permission.MESSAGE_ADD_REACTION)) {
-                    message.addReaction(JDAEmojiUtil.emojiAsReactionTag(emoji)).queue();
+                    message.addReaction(EmojiUtil.emojiAsReactionTag(emoji)).queue();
                 }
                 return Optional.of(message.getIdLong());
             } else {

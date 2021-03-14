@@ -10,7 +10,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class CoinFlipCommand extends CasinoAbstract {
 
-    private final String[] EMOJIS = { "🇭", "🇹" };
+    private final String[] EMOJIS = { "🇭", "🇹", Emojis.X };
     private final int[] selection = { -1, -1 };
 
     public CoinFlipCommand(Locale locale, String prefix) {
@@ -48,9 +48,8 @@ public class CoinFlipCommand extends CasinoAbstract {
     @Override
     public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
         for (int i = 0; i < 2; i++) {
-            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJIS[i])) {
+            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJIS[i])) {
                 selection[0] = i;
-                drawMessage(draw());
                 manageEnd();
                 return true;
             }
@@ -96,19 +95,16 @@ public class CoinFlipCommand extends CasinoAbstract {
             return Emojis.COUNTDOWN_3;
         }
 
-        switch (selection[pos]) {
-            case 0:
-                return EMOJIS[0];
-            case 1:
-                return EMOJIS[1];
-            default:
-                return JDAEmojiUtil.getLoadingEmojiMention(channel);
-        }
+        return switch (selection[pos]) {
+            case 0 -> EMOJIS[0];
+            case 1 -> EMOJIS[1];
+            default -> EmojiUtil.getLoadingEmojiMention(channel);
+        };
     }
 
     private void manageEnd() {
         if (selection[0] == -1) return;
-        removeReactionListener();
+        deregisterListenersWithReactions();
 
         MainScheduler.getInstance().schedule(3000, "coinflip_cputhrow", () -> {
             selection[1] = new Random().nextInt(2);

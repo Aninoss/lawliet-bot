@@ -11,7 +11,7 @@ import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import modules.RoleAssigner;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -93,7 +93,7 @@ public class AssignRoleCommand extends Command implements OnReactionListener {
     }
 
     private void onAssignmentFinished(boolean success) {
-        removeReactionListener();
+        deregisterListenersWithReactions();
         if (success) {
             drawMessage(EmbedFactory.getEmbedDefault(this, getString("success_desc", atomicRole.getAsMention())));
         } else {
@@ -103,7 +103,7 @@ public class AssignRoleCommand extends Command implements OnReactionListener {
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        removeReactionListener();
+        deregisterListenersWithReactions();
         RoleAssigner.getInstance().cancel(event.getGuild().getIdLong());
         return false;
     }
@@ -112,7 +112,7 @@ public class AssignRoleCommand extends Command implements OnReactionListener {
     public EmbedBuilder draw() throws Throwable {
         return EmbedFactory.getEmbedDefault(
                 this,
-                getString("loading", atomicRole.getAsMention(), JDAEmojiUtil.getLoadingEmojiMention(getTextChannel().orElse(null)), CANCEL_EMOJI)
+                getString("loading", atomicRole.getAsMention(), EmojiUtil.getLoadingEmojiMention(getTextChannel().orElse(null)), CANCEL_EMOJI)
         );
     }
 

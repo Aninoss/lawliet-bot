@@ -15,7 +15,7 @@ import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -44,6 +44,7 @@ public abstract class Command implements OnTriggerListener {
     private LogStatus logStatus = null;
     private String log = "";
     private GuildMessageReceivedEvent event = null;
+    private boolean canHaveTimeOut = true;
 
     public Command(Locale locale, String prefix) {
         this.locale = locale;
@@ -72,7 +73,7 @@ public abstract class Command implements OnTriggerListener {
         if (isProcessing.get() && !loadingReactionSet && BotPermissionUtil.canRead(channel, Permission.MESSAGE_ADD_REACTION)) {
             loadingReactionSet = true;
 
-            String reaction = JDAEmojiUtil.getLoadingEmojiTag(message.getTextChannel());
+            String reaction = EmojiUtil.getLoadingEmojiTag(message.getTextChannel());
             message.addReaction(reaction).queue();
             MainScheduler.getInstance().poll(100, getTrigger() + "_loading", () -> {
                 if (isProcessing.get()) {
@@ -139,6 +140,21 @@ public abstract class Command implements OnTriggerListener {
     public void resetLog() {
         this.log = "";
         this.logStatus = null;
+    }
+
+    public void deregisterListeners() {
+        CommandContainer.getInstance().deregisterListener(OnReactionListener.class, this);
+        CommandContainer.getInstance().deregisterListener(OnMessageInputListener.class, this);
+    }
+
+    public synchronized void onListenerTimeOutSuper() throws Throwable {
+        if (canHaveTimeOut) {
+            canHaveTimeOut = false;
+            onListenerTimeOut();
+        }
+    }
+
+    protected void onListenerTimeOut() throws Throwable {
     }
 
     public String getString(String key, String... args) {

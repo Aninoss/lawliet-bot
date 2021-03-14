@@ -54,7 +54,7 @@ public class SlotCommand extends CasinoAbstract {
         }
 
         setFruits();
-        return new String[] { ALL_EMOJI };
+        return new String[] { ALL_EMOJI, Emojis.X };
     }
 
     private void setFruits() {
@@ -121,7 +121,7 @@ public class SlotCommand extends CasinoAbstract {
 
     @Override
     public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
-        removeReactionListener();
+        deregisterListenersWithReactions();
 
         MainScheduler.getInstance().schedule(1000, "slot_0", () -> unlockFruit(0));
         MainScheduler.getInstance().schedule(2000, "slot_1", () -> unlockFruit(1));
@@ -184,7 +184,7 @@ public class SlotCommand extends CasinoAbstract {
     private void manageEnd() {
         if (progress < 3) return;
 
-        removeReactionListener();
+        deregisterListenersWithReactions();
         if (winLevel == 0) {
             lose();
             setLog(LogStatus.LOSE, getString("end", 0));

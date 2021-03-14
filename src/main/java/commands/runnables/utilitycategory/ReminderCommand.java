@@ -157,7 +157,7 @@ public class ReminderCommand extends Command implements OnReactionListener {
     private void cancel(long guildId) {
         if (active) {
             canceled = true;
-            removeReactionListener();
+            deregisterListenersWithReactions();
             DBReminders.getInstance().retrieve(guildId)
                     .remove(remindersBean.getId(), remindersBean);
         }
@@ -179,8 +179,8 @@ public class ReminderCommand extends Command implements OnReactionListener {
     }
 
     @Override
-    public void onReactionTimeOut() {
-        removeReactionListener();
+    public void onListenerTimeOut() {
+        deregisterListenersWithReactions();
         active = false;
     }
 

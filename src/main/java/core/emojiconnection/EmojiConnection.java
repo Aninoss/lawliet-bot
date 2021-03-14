@@ -3,7 +3,7 @@ package core.emojiconnection;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import constants.Emojis;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -22,11 +22,11 @@ public class EmojiConnection {
     @Nonnull
     @CheckReturnValue
     public RestAction<Void> addReaction(Message message) {
-        return message.addReaction(JDAEmojiUtil.emojiAsReactionTag(emoji));
+        return message.addReaction(EmojiUtil.emojiAsReactionTag(emoji));
     }
 
     public boolean isEmoji(MessageReaction.ReactionEmote reactionEmote) {
-        return this.emoji.equals(JDAEmojiUtil.reactionEmoteAsMention(reactionEmote));
+        return this.emoji.equals(EmojiUtil.reactionEmoteAsMention(reactionEmote));
     }
 
     public String getConnection() {

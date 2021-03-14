@@ -48,7 +48,7 @@ public class ImitateCommand extends Command {
 
         String search = member != null ? member.getUser().getAsTag() : "**" + StringUtil.escapeMarkdown(event.getGuild().getName()) + "**";
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("wait", search, JDAEmojiUtil.getLoadingEmojiMention(event.getChannel())));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("wait", search, EmojiUtil.getLoadingEmojiMention(event.getChannel())));
         drawMessage(eb).get();
 
         eb = getEmbed(event.getGuild(), member, 2, tempMessageCache);

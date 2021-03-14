@@ -12,7 +12,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.mention.Mention;
 import core.mention.MentionList;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Mod;
@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 
 @CommandProperties(
         trigger = "warn",
-        userGuildPermissions = Permission.BAN_MEMBERS,
+        userGuildPermissions = Permission.KICK_MEMBERS,
         emoji = "\uD83D\uDEA8",
         executableWithoutArgs = false
 )
@@ -160,8 +160,8 @@ public class WarnCommand extends Command implements OnReactionListener {
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
         for (int i = 0; i < 2; i++) {
-            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), StringUtil.getEmojiForBoolean(i == 0))) {
-                removeReactionListener();
+            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), StringUtil.getEmojiForBoolean(i == 0))) {
+                deregisterListenersWithReactions();
                 if (i == 0) {
                     execute(event.getChannel(), event.getMember());
                 } else {

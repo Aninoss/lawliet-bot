@@ -13,7 +13,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -47,7 +47,7 @@ public class BlackjackCommand extends CasinoAbstract {
     public String[] onGameStart(GuildMessageReceivedEvent event, String args) {
         for (PlayerType value : PlayerType.values()) {
             ArrayList<GameCard> cards = getCardsForPlayer(value);
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 2 - value.ordinal(); i++) {
                 cards.add(new GameCard());
             }
         }
@@ -58,8 +58,9 @@ public class BlackjackCommand extends CasinoAbstract {
     @Override
     public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
         if (turnForPlayer) {
-            if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), ACTION_EMOJIS[0])) {
+            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), ACTION_EMOJIS[0])) {
                 getCardsForPlayer(PlayerType.PLAYER).add(new GameCard());
+                cardRecentDrawn = PlayerType.PLAYER;
                 setLog(LogStatus.SUCCESS, getString("getcard", 0));
 
                 if (getCardsValue(PlayerType.PLAYER) > 21) {
@@ -71,12 +72,11 @@ public class BlackjackCommand extends CasinoAbstract {
                     });
                 }
                 return true;
-            } else if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), ACTION_EMOJIS[1])) {
+            } else if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), ACTION_EMOJIS[1])) {
                 turnForPlayer = false;
-                removeReactionListener();
+                deregisterListenersWithReactions();
 
                 setLog(LogStatus.SUCCESS, getString("stopcard", 0));
-                drawMessage(draw());
                 onCPUTurn();
                 return true;
             }
@@ -91,6 +91,7 @@ public class BlackjackCommand extends CasinoAbstract {
     private boolean onCPUTurnStep() {
         getCardsForPlayer(PlayerType.DEALER).add(new GameCard());
         setLog(LogStatus.SUCCESS, getString("getcard", 1));
+        cardRecentDrawn = PlayerType.DEALER;
         drawMessage(draw());
 
         int cardsValue = getCardsValue(PlayerType.DEALER);
@@ -157,12 +158,12 @@ public class BlackjackCommand extends CasinoAbstract {
     public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .addField(
-                        getString("cards", false, String.valueOf(getCardsValue(PlayerType.PLAYER)), playerName),
+                        getString("cards", false, getCardsValueString(PlayerType.PLAYER), playerName),
                         getCardsString(PlayerType.PLAYER, cardRecentDrawn == PlayerType.PLAYER),
                         true
                 )
                 .addField(
-                        getString("cards", true, String.valueOf(getCardsValue(PlayerType.DEALER))),
+                        getString("cards", true, getCardsValueString(PlayerType.DEALER)),
                         getCardsString(PlayerType.DEALER, cardRecentDrawn == PlayerType.DEALER),
                         true
                 );
@@ -194,6 +195,19 @@ public class BlackjackCommand extends CasinoAbstract {
         }
         sb.append(Emojis.EMPTY_EMOJI);
         return sb.toString();
+    }
+
+    private String getCardsValueString(PlayerType playerType) {
+        int value = getCardsValue(playerType);
+        if (getCardsForPlayer(playerType).size() == 2 && value == 21) {
+            return getCommandLanguage().getTitle();
+        } else {
+            if (value <= 21) {
+                return String.valueOf(value);
+            } else {
+                return ">21";
+            }
+        }
     }
 
     private int getCardsValue(PlayerType playerType) {

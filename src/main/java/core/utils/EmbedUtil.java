@@ -2,6 +2,7 @@ package core.utils;
 
 import java.time.Instant;
 import java.util.Locale;
+import java.util.Optional;
 import commands.Command;
 import commands.runnables.utilitycategory.AlertsCommand;
 import constants.Emojis;
@@ -82,7 +83,13 @@ public class EmbedUtil {
     }
 
     public static EmbedBuilder setFooter(EmbedBuilder eb, Command command) {
-        command.getMember().ifPresent(member -> eb.setFooter(member.getUser().getAsTag()));
+        Optional<Member> memberOpt = command.getMember();
+        if (memberOpt.isPresent()) {
+            eb.setFooter(memberOpt.get().getUser().getAsTag());
+        } else {
+            eb.setFooter(null);
+        }
+
         return eb;
     }
 
@@ -91,8 +98,12 @@ public class EmbedUtil {
             return setFooter(eb, command);
         }
 
-        command.getMember().ifPresent(member -> eb.setFooter(member.getUser().getAsTag() + "｜" + footer));
-
+        Optional<Member> memberOpt = command.getMember();
+        if (memberOpt.isPresent()) {
+            eb = eb.setFooter(memberOpt.get().getUser().getAsTag() + "｜" + footer);
+        } else {
+            eb.setFooter(footer);
+        }
         return eb;
     }
 

@@ -9,7 +9,7 @@ import constants.Emojis;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
@@ -95,22 +95,19 @@ public class VCTimeCommand extends Command implements OnReactionListener, OnMess
 
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
-        removeReactionListener();
-        deregisterMessageInputListener();
+        deregisterListenersWithReactions();
         this.eb = mainExecution(event, input);
         return Response.TRUE;
     }
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), CLEAR_EMOJI)) {
-            removeReactionListener();
-            deregisterMessageInputListener();
+        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), CLEAR_EMOJI)) {
+            deregisterListenersWithReactions();
             this.eb = markUnlimited();
             return true;
-        } else if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), QUIT_EMOJI)) {
-            removeReactionListenerWithMessage();
-            deregisterMessageInputListener();
+        } else if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), QUIT_EMOJI)) {
+            deregisterListenersWithMessage();
             return true;
         }
         return false;

@@ -169,13 +169,13 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     private int getIndex(GenericGuildMessageReactionEvent event) {
-        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.BACK_EMOJI_UNICODE) ||
-                JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.BACK_EMOJI)
+        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.BACK_EMOJI_UNICODE) ||
+                EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.BACK_EMOJI)
         ) {
             return -1;
         } else {
             for (int i = 0; i < reactions; i++) {
-                if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.LETTERS[i])) {
+                if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.LETTERS[i])) {
                     return i;
                 }
             }
@@ -250,7 +250,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             for (int i = -1; i < reactions; i++) {
                 if (i == -1) {
                     if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI)) {
-                        restActionQueue.attach(channel.addReactionById(messageId, JDAEmojiUtil.emojiAsReactionTag(Emojis.BACK_EMOJI)));
+                        restActionQueue.attach(channel.addReactionById(messageId, EmojiUtil.emojiAsReactionTag(Emojis.BACK_EMOJI)));
                     } else {
                         restActionQueue.attach(channel.addReactionById(messageId, Emojis.BACK_EMOJI_UNICODE));
                     }
@@ -263,13 +263,11 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public void removeNavigation() {
-        removeReactionListener();
-        deregisterMessageInputListener();
+        deregisterListenersWithReactions();
     }
 
     public void removeNavigationWithMessage() {
-        removeReactionListenerWithMessage();
-        deregisterMessageInputListener();
+        deregisterListenersWithMessage();
     }
 
     public boolean checkWriteInChannelWithLog(TextChannel channel) {
@@ -360,19 +358,6 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
     public int getPage() {
         return page;
-    }
-
-    public void onNavigationTimeOut() throws Throwable {
-    }
-
-    @Override
-    public void onMessageInputTimeOut() throws Throwable {
-        onNavigationTimeOut();
-    }
-
-    @Override
-    public void onReactionTimeOut() throws Throwable {
-        onNavigationTimeOut();
     }
 
     @Retention(RetentionPolicy.RUNTIME)

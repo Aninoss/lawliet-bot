@@ -6,7 +6,7 @@ import commands.listeners.OnReactionListener;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -39,11 +39,11 @@ public abstract class ListAbstract extends Command implements OnReactionListener
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) {
-        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), SCROLL_EMOJIS[0])) {
+        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), SCROLL_EMOJIS[0])) {
             page--;
             if (page < 0) page = getPageSize() - 1;
             return true;
-        } else if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), SCROLL_EMOJIS[1])) {
+        } else if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), SCROLL_EMOJIS[1])) {
             page++;
             if (page > getPageSize() - 1) page = 0;
             return true;

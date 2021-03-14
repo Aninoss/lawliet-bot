@@ -171,7 +171,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     }
 
     private boolean processEmoji(String emoji) {
-        if (JDAEmojiUtil.emojiIsUnicode(emoji) || ShardManager.getInstance().emoteIsKnown(emoji)) {
+        if (EmojiUtil.emojiIsUnicode(emoji) || ShardManager.getInstance().emoteIsKnown(emoji)) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                 if (emojiConnection.getEmojiTag().equals(emoji)) {
                     setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
@@ -352,7 +352,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
             event.getReaction().removeReaction(event.getUser()).queue();
         }
-        return calculateEmoji(JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
+        return calculateEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
     }
 
     @ControllerReaction(state = REMOVE_SLOT)
@@ -439,7 +439,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     }
 
     private boolean calculateEmoji(String emoji) {
-        if (emoji == null || (!JDAEmojiUtil.emojiIsUnicode(emoji) && !ShardManager.getInstance().emoteIsKnown(emoji))) {
+        if (emoji == null || (!EmojiUtil.emojiIsUnicode(emoji) && !ShardManager.getInstance().emoteIsKnown(emoji))) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
             return true;
         }
@@ -600,7 +600,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
         Member member = event.getMember();
 
-        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), "⭐") &&
+        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), "⭐") &&
                 BotPermissionUtil.can(member, getCommandProperties().userGuildPermissions())
         ) {
             JDAUtil.sendPrivateMessage(

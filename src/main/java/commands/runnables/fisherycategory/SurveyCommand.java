@@ -57,8 +57,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         event.getReaction().removeReaction(event.getUser()).queue();
 
-        removeUserReactions(message, JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
-        String emoji = JDAEmojiUtil.reactionEmoteAsMention(event.getReactionEmote());
+        removeUserReactions(message, EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
+        String emoji = EmojiUtil.reactionEmoteAsMention(event.getReactionEmote());
         for (byte i = 0; i < 2; i++) {
             int type = 0;
             if (emoji.equals(Emojis.LETTERS[i])) type = 1;
@@ -104,7 +104,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     private void removeUserReactions(Message message, String addedEmoji) {
         for (MessageReaction reaction : message.getReactions()) {
-            String emoji = JDAEmojiUtil.reactionEmoteAsMention(reaction.getReactionEmote());
+            String emoji = EmojiUtil.reactionEmoteAsMention(reaction.getReactionEmote());
             boolean correctEmoji = false;
             for (int i = 0; i < 2; i++) {
                 if (emoji.equals(Emojis.LETTERS[i]) ||

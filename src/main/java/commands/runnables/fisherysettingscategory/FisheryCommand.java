@@ -19,7 +19,7 @@ import core.TextManager;
 import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -182,7 +182,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
 
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
-        if (JDAEmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_KEY) &&
+        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_KEY) &&
                 !treasureBlockCache.asMap().containsKey(message.getIdLong())
         ) {
             treasureBlockCache.put(message.getIdLong(), true);

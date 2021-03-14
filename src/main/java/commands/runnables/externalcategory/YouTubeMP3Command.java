@@ -16,7 +16,7 @@ import core.ResourceHandler;
 import core.TextManager;
 import core.internet.HttpRequest;
 import core.internet.HttpResponse;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.YouTubeMeta;
@@ -72,7 +72,7 @@ public class YouTubeMP3Command extends Command {
                         getString(
                                 "loading",
                                 StringUtil.escapeMarkdownInField(meta.title),
-                                JDAEmojiUtil.getLoadingEmojiMention(event.getChannel())
+                                EmojiUtil.getLoadingEmojiMention(event.getChannel())
                         )
                 ).build()
         ).complete();

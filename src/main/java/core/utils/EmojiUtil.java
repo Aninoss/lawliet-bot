@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-public class JDAEmojiUtil {
+public class EmojiUtil {
 
     public static boolean emojiIsUnicode(String emoji) {
         return !emoji.contains(":");
@@ -52,7 +52,7 @@ public class JDAEmojiUtil {
 
     public static String getLoadingEmojiTag(TextChannel channel) {
         if (channel != null && BotPermissionUtil.canRead(channel, Permission.MESSAGE_EXT_EMOJI)) {
-            return JDAEmojiUtil.emojiAsReactionTag(Emojis.LOADING);
+            return EmojiUtil.emojiAsReactionTag(Emojis.LOADING);
         } else {
             return "⏳";
         }

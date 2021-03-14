@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.Emojis;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
 import net.dv8tion.jda.api.entities.*;
@@ -84,7 +84,7 @@ public class VoteCache {
             HashSet<Long> voteUsers = new HashSet<>();
 
             for (MessageReaction reaction : message.getReactions()) {
-                if (JDAEmojiUtil.reactionEmoteEqualsEmoji(reaction.getReactionEmote(), Emojis.LETTERS[i])) {
+                if (EmojiUtil.reactionEmoteEqualsEmoji(reaction.getReactionEmote(), Emojis.LETTERS[i])) {
                     List<User> users = reaction.retrieveUsers().complete();
                     users.forEach(user -> {
                         if (!user.isBot()) {

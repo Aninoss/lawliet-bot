@@ -2,7 +2,7 @@ package modules.suggestions;
 
 import constants.Emojis;
 import core.assets.GuildAsset;
-import core.utils.JDAEmojiUtil;
+import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -70,8 +70,8 @@ public class SuggestionMessage implements GuildAsset {
         if (!loaded) {
             loaded = true;
             Message message = channel.retrieveMessageById(messageId).complete();
-            upvotes = JDAEmojiUtil.getMessageReactionFromMessage(message, Emojis.LIKE).map(r -> r.getCount() - 1).orElse(0);
-            downvotes = JDAEmojiUtil.getMessageReactionFromMessage(message, Emojis.DISLIKE).map(r -> r.getCount() - 1).orElse(0);
+            upvotes = EmojiUtil.getMessageReactionFromMessage(message, Emojis.LIKE).map(r -> r.getCount() - 1).orElse(0);
+            downvotes = EmojiUtil.getMessageReactionFromMessage(message, Emojis.DISLIKE).map(r -> r.getCount() - 1).orElse(0);
         }
     }
 
