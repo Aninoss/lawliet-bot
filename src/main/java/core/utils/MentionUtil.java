@@ -56,6 +56,10 @@ public class MentionUtil {
         );
     }
 
+    public static MentionList<User> getUsers(Message message, String input) {
+        return getUsers(message, input, message.getGuild().getMembers().stream().map(Member::getUser).collect(Collectors.toList()));
+    }
+
     public static MentionList<User> getUsers(Message message, String input, List<User> users) {
         ArrayList<User> list = message.getMentionedMembers().stream().map(Member::getUser).collect(Collectors.toCollection(ArrayList::new));
         if (!input.contains(ShardManager.getInstance().getSelfIdString())) {
@@ -87,6 +91,11 @@ public class MentionUtil {
             ArrayList<User> userList = new ArrayList<>();
 
             for (String segment : input.split(" ")) {
+                Matcher matcher = Message.MentionType.USER.getPattern().matcher(segment);
+                if (matcher.matches()) {
+                    segment = matcher.group(1);
+                }
+
                 if (StringUtil.stringIsLong(segment)) {
                     long userId = Long.parseUnsignedLong(segment);
                     if (NumberUtil.countDigits(userId) >= 17) {

@@ -24,7 +24,7 @@ public class MessageCache {
             .build();
 
     private final Cache<Long, Boolean> cacheMessageBlock = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(10))
+            .expireAfterAccess(Duration.ofMinutes(5))
             .build();
 
     public synchronized CompletableFuture<Message> retrieveMessage(TextChannel channel, long messageId) {

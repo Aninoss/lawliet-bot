@@ -19,6 +19,7 @@ import mysql.modules.warning.ServerWarningsBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
@@ -30,12 +31,13 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 public class WarnLogCommand extends MemberAccountAbstract {
 
     public WarnLogCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, true);
     }
 
     @Override
-    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) {
-        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(event.getGuild().getIdLong(), member.getIdLong()));
+    protected EmbedBuilder processUser(GuildMessageReceivedEvent event, User user, boolean userIsAuthor, String args) {
+        Member member = event.getGuild().getMemberById(user.getIdLong());
+        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(event.getGuild().getIdLong(), user.getIdLong()));
 
         StringBuilder latestWarnings = new StringBuilder();
 
@@ -56,8 +58,8 @@ public class WarnLogCommand extends MemberAccountAbstract {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setTitle(null)
-                .setAuthor(getString("author", getCommandProperties().emoji(), member.getEffectiveName()))
-                .setThumbnail(member.getUser().getEffectiveAvatarUrl());
+                .setAuthor(getString("author", getCommandProperties().emoji(), member != null ? member.getEffectiveName() : user.getName()))
+                .setThumbnail(user.getEffectiveAvatarUrl());
         eb.addField(getString("latest"), latestWarningsString, false);
         eb.addField(getString("amount"), getString(
                 "amount_template",
