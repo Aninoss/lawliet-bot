@@ -3,8 +3,8 @@ package commands.runnables.informationcategory;
 import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
+import constants.AssetIds;
 import core.EmbedFactory;
-import core.ShardManager;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -30,7 +30,7 @@ public class MemberInfoCommand extends MemberAccountAbstract {
         if (!member.getUser().isBot()) {
             typeN = 1;
             if (event.getGuild().getOwnerIdLong() == member.getIdLong()) typeN = 2;
-            if (member.getIdLong() == ShardManager.getInstance().getOwnerId()) typeN = 3;
+            if (member.getIdLong() == AssetIds.OWNER_USER_ID) typeN = 3;
         }
 
         String[] argsArray = {

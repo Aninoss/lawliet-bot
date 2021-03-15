@@ -25,7 +25,7 @@ public class SurveyResults implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Bot.isProductionMode()) {
+        if (Program.isProductionMode()) {
             SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
             LocalDate today = LocalDate.now();
             if (!today.isBefore(surveyBean.getNextDate()) && ShardManager.getInstance().isEverythingConnected()) {
@@ -64,7 +64,7 @@ public class SurveyResults implements ScheduleInterface {
         }
 
         MainLogger.get().info("Survey giving out prices for {} users", secondVotesMap.keySet().size());
-        ArrayList<Long> notificationUsers = Bot.getClusterId() == 1 ? new ArrayList<>(lastSurvey.getNotificationUserIds()) : new ArrayList<>();
+        ArrayList<Long> notificationUsers = Program.getClusterId() == 1 ? new ArrayList<>(lastSurvey.getNotificationUserIds()) : new ArrayList<>();
         for (long userId : secondVotesMap.keySet()) {
             try {
                 ShardManager.getInstance().getCachedUserById(userId).ifPresent(user -> {

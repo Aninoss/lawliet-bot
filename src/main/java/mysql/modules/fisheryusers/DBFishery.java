@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
 import constants.FisheryStatus;
-import core.Bot;
+import core.Program;
 import core.MainLogger;
 import mysql.DBBatch;
 import mysql.DBDataLoad;
@@ -28,7 +28,7 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
     }
 
     private DBFishery() {
-        super(Bot.isProductionMode() ? 10 : 1);
+        super(Program.isProductionMode() ? 10 : 1);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
                 hourlyBatch.execute();
                 powerUpBatch.execute();
 
-                if (Bot.isRunning()) {
+                if (Program.isRunning()) {
                     Thread.sleep(100);
                 }
             }

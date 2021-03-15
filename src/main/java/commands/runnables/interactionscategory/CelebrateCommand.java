@@ -40,7 +40,7 @@ public class CelebrateCommand extends Command {
         if (mention.getMentionText().isEmpty()) {
             mentionBlank(event, args, member0);
         } else {
-            mentionUsed(event, mention.getFilteredOriginalText().orElse(""), member0, mention.getMentionText());
+            mentionUsed(event, mention.getFilteredArgs().orElse(""), member0, mention.getMentionText());
         }
 
         return true;

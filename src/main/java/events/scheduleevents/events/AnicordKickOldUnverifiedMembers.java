@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 import constants.AssetIds;
-import core.Bot;
+import core.Program;
 import core.MainLogger;
 import core.ShardManager;
 import core.schedule.ScheduleInterface;
@@ -16,7 +16,7 @@ public class AnicordKickOldUnverifiedMembers implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Bot.isProductionMode() && Bot.isPublicVersion()) {
+        if (Program.isProductionMode() && Program.isPublicVersion()) {
             ShardManager.getInstance().getLocalGuildById(AssetIds.ANICORD_SERVER_ID).ifPresent(guild -> {
                 Role memberRole = guild.getRoleById(462410205288726531L);
                 AtomicInteger counter = new AtomicInteger(0);

@@ -25,7 +25,7 @@ public class CustomSessionController extends ConcurrentSessionController {
 
     @Override
     public void setGlobalRatelimit(long ratelimit) {
-        if (Bot.isProductionMode()) {
+        if (Program.isProductionMode()) {
             SendEvent.sendRequestSyncedRatelimit(ratelimit).exceptionally(ExceptionLogger.get());
         }
         loadGlobalRatelimit(ratelimit);

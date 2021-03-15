@@ -67,7 +67,7 @@ public class FisheryVCObserver {
         for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {
             try {
                 List<Member> validMembers = getValidVCMembers(voiceChannel);
-                if (validMembers.size() > (Bot.isProductionMode() ? 1 : 0) &&
+                if (validMembers.size() > (Program.isProductionMode() ? 1 : 0) &&
                         (guild.getAfkChannel() != null || voiceChannel.getIdLong() != guild.getAfkChannel().getIdLong())
                 ) {
                     validMembers.forEach(member -> {

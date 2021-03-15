@@ -1,7 +1,7 @@
 package events.scheduleevents.events;
 
 import java.time.temporal.ChronoUnit;
-import core.Bot;
+import core.Program;
 import core.ShardManager;
 import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventFixedRate;
@@ -12,7 +12,7 @@ public class SendBotGuildCount implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Bot.isProductionMode() && Bot.isPublicVersion() && Bot.getClusterId() == 1) {
+        if (Program.isProductionMode() && Program.isPublicVersion() && Program.getClusterId() == 1) {
             ShardManager.getInstance().getGlobalGuildSize().ifPresent(totalServers -> {
                 TopGG.getInstance().updateServerCount(totalServers);
                 Botsfordiscord.updateServerCount(totalServers);

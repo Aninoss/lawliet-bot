@@ -14,24 +14,24 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            Bot.init();
+            Program.init();
             createTempDir();
 
             Console.getInstance().start();
             FontContainer.getInstance().init();
             DBMain.getInstance().connect();
             EmojiTable.getInstance().load();
-            if (Bot.isPublicVersion()) {
+            if (Program.isPublicVersion()) {
                 initializeUpdate();
             }
 
             MainLogger.get().info("Waiting for sync server");
             SyncManager.getInstance().start();
 
-            if (!Bot.isProductionMode()) {
+            if (!Program.isProductionMode()) {
                 DiscordConnector.getInstance().connect(0, 0, 1);
             } else {
-                Runtime.getRuntime().addShutdownHook(new CustomThread(Bot::onStop, "shutdown_botstop"));
+                Runtime.getRuntime().addShutdownHook(new CustomThread(Program::onStop, "shutdown_botstop"));
             }
         } catch (Throwable e) {
             MainLogger.get().error("EXIT - Error on startup", e);

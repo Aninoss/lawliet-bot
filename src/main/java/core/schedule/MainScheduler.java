@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import core.Bot;
+import core.Program;
 import core.MainLogger;
 import core.utils.ExceptionUtil;
 import core.utils.TimeUtil;
@@ -33,7 +33,7 @@ public class MainScheduler {
             .build();
 
     public void schedule(long millis, String name, Runnable listener) {
-        if (Bot.isRunning()) {
+        if (Program.isRunning()) {
             ScheduleSlot slot = new ScheduleSlot(name);
             schedulers.schedule(() -> {
                 try {
@@ -62,13 +62,13 @@ public class MainScheduler {
     Keeps polling in the specified time interval as long as the listener returns true
      */
     public void poll(long millis, String name, Supplier<Boolean> listener) {
-        if (Bot.isRunning()) {
+        if (Program.isRunning()) {
             ScheduleSlot slot = new ScheduleSlot(name);
             pollers.schedule(() -> {
                 try {
                     slotCache.put(slot.getId(), slot);
                     monitorTimeOuts(slot);
-                    if (Bot.isRunning() && listener.get()) {
+                    if (Program.isRunning() && listener.get()) {
                         poll(millis, name, listener);
                     }
                 } catch (Throwable e) {

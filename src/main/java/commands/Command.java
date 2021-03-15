@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import commands.listeners.*;
 import constants.LogStatus;
-import core.Bot;
+import core.Program;
 import core.TextManager;
 import core.atomicassets.AtomicGuild;
 import core.atomicassets.AtomicMember;
@@ -254,7 +254,7 @@ public abstract class Command implements OnTriggerListener {
 
         return ((allowedServerIds.length == 0) || Arrays.stream(allowedServerIds).anyMatch(checkServerId -> checkServerId == guildId)) &&
                 ((allowedUserIds.length == 0) || Arrays.stream(allowedUserIds).anyMatch(checkUserId -> checkUserId == userId)) &&
-                (!commandProperties.onlyPublicVersion() || Bot.isPublicVersion());
+                (!commandProperties.onlyPublicVersion() || Program.isPublicVersion());
     }
 
     public Optional<LocalDate> getReleaseDate() {

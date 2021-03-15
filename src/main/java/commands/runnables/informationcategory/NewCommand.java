@@ -119,7 +119,7 @@ public class NewCommand extends Command implements OnAlertListener {
         if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionBeanSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
 
-            slot.sendMessage(getVersionsEmbed(newestSlot).build());
+            slot.sendMessage(getVersionsEmbed(newestSlot).build()); //TODO: crosspost
 
             if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID) {
                 Role role = slot.getGuild().get().getRoleById(703879430799622155L);

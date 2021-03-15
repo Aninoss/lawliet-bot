@@ -4,7 +4,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import commands.Command;
 import commands.runnables.utilitycategory.TriggerDeleteCommand;
-import core.Bot;
+import core.Program;
 import core.PermissionCheckRuntime;
 import core.cache.ServerPatreonBoostCache;
 import core.schedule.MainScheduler;
@@ -25,7 +25,7 @@ public interface OnTriggerListener {
         command.setAtomicAssets(event.getChannel(), event.getMember());
         command.setGuildMessageReceivedEvent(event);
 
-        if (Bot.isPublicVersion()) {
+        if (Program.isPublicVersion()) {
             DBCommandUsages.getInstance().retrieve(command.getTrigger()).increase();
         }
 

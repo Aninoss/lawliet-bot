@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import core.Bot;
+import core.Program;
 import core.ShardManager;
 import core.cache.PatreonCache;
 import org.json.JSONObject;
@@ -17,7 +17,7 @@ public class SendEvent {
 
     public static CompletableFuture<JSONObject> sendFullyConnected() {
         CompletableFuture<JSONObject> future = SyncManager.getInstance().getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
-        if (Bot.isProductionMode()) {
+        if (Program.isProductionMode()) {
             return future;
         } else {
             return CompletableFuture.completedFuture(new JSONObject());
@@ -25,7 +25,7 @@ public class SendEvent {
     }
 
     public static CompletableFuture<Optional<Long>> sendRequestGlobalGuildSize(long localServerSize) {
-        if (!Bot.isProductionMode()) {
+        if (!Program.isProductionMode()) {
             return CompletableFuture.completedFuture(ShardManager.getInstance().getLocalGuildSize());
         }
 

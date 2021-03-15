@@ -8,6 +8,7 @@ import commands.runnables.SafebooruAbstract;
         trigger = "softyuri",
         emoji = "\uD83D\uDC6D",
         executableWithoutArgs = true,
+        requiresEmbeds = false,
         aliases = { "safeyuri", "sfwyuri", "shoujoai", "shoujo-ai" }
 )
 public class SoftYuriCommand extends SafebooruAbstract {

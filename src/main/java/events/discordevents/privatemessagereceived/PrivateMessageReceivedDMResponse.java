@@ -4,7 +4,7 @@ import java.time.Duration;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.ExternalLinks;
-import core.Bot;
+import core.Program;
 import core.EmbedFactory;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.PrivateMessageReceivedAbstract;
@@ -22,10 +22,10 @@ public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbst
     @Override
     public boolean onPrivateMessageReceived(PrivateMessageReceivedEvent event) throws Throwable {
         User user = event.getAuthor();
-        if (Bot.getClusterId() == 1 && !usersDmNotified.asMap().containsKey(user.getIdLong())) {
+        if (Program.getClusterId() == 1 && !usersDmNotified.asMap().containsKey(user.getIdLong())) {
             usersDmNotified.put(user.getIdLong(), true);
             EmbedBuilder eb;
-            if (Bot.isPublicVersion()) {
+            if (Program.isPublicVersion()) {
                 eb = EmbedFactory.getEmbedError()
                         .setTitle("❌ Not Supported")
                         .setDescription(String.format("Commands via dm are not supported, you need to [invite](%s) Lawliet into a server!", ExternalLinks.BOT_INVITE_URL));

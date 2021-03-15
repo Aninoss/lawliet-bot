@@ -1,7 +1,7 @@
 package events.discordevents.guildleave;
 
+import constants.AssetIds;
 import core.MainLogger;
-import core.ShardManager;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -15,7 +15,7 @@ public class GuildLeaveNotifyBotOwner extends GuildLeaveAbstract {
     public boolean onGuildLeave(GuildLeaveEvent event) throws Throwable {
         if (event.getGuild().getMemberCount() >= 5000) {
             JDAUtil.sendPrivateMessage(
-                    ShardManager.getInstance().getOwnerId(),
+                    AssetIds.OWNER_USER_ID,
                     "**---** " + StringUtil.escapeMarkdown(event.getGuild().getName()) + " (" + event.getGuild().getMemberCount() + ")"
             ).queue();
         }

@@ -6,7 +6,7 @@ import core.ShardManager;
 import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventFixedRate;
 
-@ScheduleEventFixedRate(rateValue = 10, rateUnit = ChronoUnit.MINUTES)
+@ScheduleEventFixedRate(rateValue = 15, rateUnit = ChronoUnit.MINUTES)
 public class UpdateBotActivity implements ScheduleInterface {
 
     @Override

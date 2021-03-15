@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import constants.AssetIds;
 import core.EmbedFactory;
 import core.RandomPicker;
-import core.ShardManager;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
@@ -57,7 +57,7 @@ public class NibbleCommand extends Command {
 
         if (user0.getIdLong() != 397209883793162240L &&
                 user1.getIdLong() != 397209883793162240L &&
-                ShardManager.getInstance().getOwnerId() != user0.getIdLong()
+                AssetIds.OWNER_USER_ID != user0.getIdLong()
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_user"));
             event.getChannel().sendMessage(eb.build()).queue();

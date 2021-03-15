@@ -3,7 +3,6 @@ package events.discordevents.guildmemberroleremove;
 import constants.AssetIds;
 import constants.Settings;
 import core.MainLogger;
-import core.ShardManager;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -20,7 +19,7 @@ public class GuildMemberRoleRemovePatreonRole extends GuildMemberRoleRemoveAbstr
                 if (event.getRoles().get(0).getIdLong() == roleId) {
                     MainLogger.get().info("PATREON LEFT {} ({})", event.getUser().getAsTag(), event.getUser().getId());
                     JDAUtil.sendPrivateMessage(
-                            ShardManager.getInstance().getOwnerId(),
+                            AssetIds.OWNER_USER_ID,
                             "PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getAsTag())
                     ).queue();
                     break;

@@ -7,15 +7,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.AllowedMentions;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
+import constants.AssetIds;
 import core.MainLogger;
-import core.ShardManager;
 import core.assets.TextChannelAsset;
 import core.utils.BotPermissionUtil;
 import mysql.BeanWithGuild;
@@ -129,7 +131,7 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                     List<Webhook> webhooks = channel.retrieveWebhooks().complete();
                     for (Webhook webhook : webhooks) {
                         Member webhookOwner = webhook.getOwner();
-                        if (webhookOwner != null && webhookOwner.getIdLong() == ShardManager.getInstance().getSelfId()) {
+                        if (webhookOwner != null && webhookOwner.getIdLong() == AssetIds.LAWLIET_USER_ID) {
                             webhookUrl = webhook.getUrl();
                             return processMessageViaWebhook(newMessage, content, embeds);
                         }

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import constants.AssetIds;
 import core.EmbedFactory;
 import core.RandomPicker;
-import core.ShardManager;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
@@ -59,7 +59,7 @@ public class RosesCommand extends Command {
 
         if (user0.getIdLong() != SEELE_USER_ID &&
                 user1.getIdLong() != SEELE_USER_ID &&
-                ShardManager.getInstance().getOwnerId() != user0.getIdLong()
+                AssetIds.OWNER_USER_ID != user0.getIdLong()
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_user"));
             event.getChannel().sendMessage(eb.build()).queue();

@@ -3,7 +3,7 @@ package core.emoji;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
-import core.Bot;
+import core.Program;
 import core.GlobalThreadPool;
 import core.MainLogger;
 
@@ -21,7 +21,7 @@ public class EmojiTable {
     }
 
     public void load() throws IOException {
-        if (Bot.isProductionMode()) {
+        if (Program.isProductionMode()) {
             GlobalThreadPool.getExecutorService().submit(() -> {
                 try {
                     EmojiUnicodePointAndValueMaker emojiUnicodePointAndValueMaker = new EmojiUnicodePointAndValueMaker();

@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
-import core.Bot;
+import core.Program;
 import core.ExceptionLogger;
 import core.MainLogger;
 import core.ShardManager;
@@ -30,7 +30,7 @@ public class SyncManager {
             client = new WebSocketJsonClient(
                     System.getenv("SYNC_HOST"),
                     Integer.parseInt(System.getenv("SYNC_PORT")),
-                    "cluster_" + Bot.getClusterId(),
+                    "cluster_" + Program.getClusterId(),
                     System.getenv("SYNC_AUTH"),
                     getSocketClientHeaders()
             );
@@ -61,7 +61,7 @@ public class SyncManager {
         }
         started = true;
 
-        if (Bot.isProductionMode()) {
+        if (Program.isProductionMode()) {
             startConnectionChecker();
         }
         this.client.connect();

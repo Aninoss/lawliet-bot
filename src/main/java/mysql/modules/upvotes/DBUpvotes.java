@@ -1,7 +1,7 @@
 package mysql.modules.upvotes;
 
 import java.util.HashMap;
-import core.Bot;
+import core.Program;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
@@ -35,7 +35,7 @@ public class DBUpvotes extends DBSingleCache<UpvotesBean> {
     }
 
     private void addUpvote(UpvoteSlot upvoteSlot) {
-        if (Bot.getClusterId() == 1) {
+        if (Program.getClusterId() == 1) {
             DBMain.getInstance().asyncUpdate("REPLACE INTO Upvotes (userId, lastDate) VALUES (?,?);", preparedStatement -> {
                 preparedStatement.setLong(1, upvoteSlot.getUserId());
                 preparedStatement.setString(2, DBMain.instantToDateTimeString(upvoteSlot.getLastUpdate()));

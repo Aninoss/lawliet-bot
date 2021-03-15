@@ -3,7 +3,7 @@ package core;
 import java.time.Instant;
 import core.utils.BotUtil;
 
-public class Bot {
+public class Program {
 
     private static boolean stopped = false;
     private final static Instant startTime = Instant.now();

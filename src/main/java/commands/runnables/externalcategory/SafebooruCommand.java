@@ -8,6 +8,7 @@ import commands.runnables.PornSearchAbstract;
         trigger = "safeb",
         emoji = "\uD83D\uDE07",
         executableWithoutArgs = true,
+        requiresEmbeds = false,
         aliases = { "softb", "safebooru", "softbooru", "sbooru" }
 )
 public class SafebooruCommand extends PornSearchAbstract {

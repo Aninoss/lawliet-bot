@@ -15,7 +15,7 @@ import commands.runnables.NavigationAbstract;
 import commands.runnables.PornPredefinedAbstract;
 import commands.runnables.PornSearchAbstract;
 import constants.*;
-import core.Bot;
+import core.Program;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
@@ -36,7 +36,6 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         trigger = "help",
         emoji = "❕",
         executableWithoutArgs = true,
-        requiresEmbeds = false,
         aliases = { "commands" }
 )
 public class HelpCommand extends NavigationAbstract {
@@ -476,7 +475,7 @@ public class HelpCommand extends NavigationAbstract {
         categoriesSB.append("\n").append(getString("sp")).append("\n").append(Emojis.EMPTY_EMOJI);
         eb.setDescription(categoriesSB.toString());
 
-        if (Bot.isPublicVersion()) {
+        if (Program.isPublicVersion()) {
             eb.addField(getString("links_title"), getString(
                     "links_content",
                     ExternalLinks.LAWLIET_WEBSITE,

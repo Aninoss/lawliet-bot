@@ -21,7 +21,7 @@ public class GuildMemberJoinPatreon extends GuildMemberJoinAbstract {
                 if (event.getMember().getRoles().stream().anyMatch(role -> role.getIdLong() == roleId)) {
                     MainLogger.get().info("NEW PATREON {} ({})", event.getUser().getAsTag(), event.getUser().getId());
                     JDAUtil.sendPrivateMessage(
-                            ShardManager.getInstance().getOwnerId(),
+                            AssetIds.OWNER_USER_ID,
                             "NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getAsTag())
                     ).queue();
                     PatreonCache.getInstance().requestUpdate();

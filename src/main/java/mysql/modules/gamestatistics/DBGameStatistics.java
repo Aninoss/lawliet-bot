@@ -2,7 +2,7 @@ package mysql.modules.gamestatistics;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import core.Bot;
+import core.Program;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
@@ -37,7 +37,7 @@ public class DBGameStatistics extends DBObserverMapCache<String, GameStatisticsB
 
     @Override
     protected void save(GameStatisticsBean gameStatisticsBean) {
-        if (Bot.isPublicVersion()) {
+        if (Program.isPublicVersion()) {
             DBMain.getInstance().asyncUpdate("REPLACE INTO GameStatistics (game, won, value) VALUES (?, ?, ?), (?, ?, ?);", preparedStatement -> {
                 preparedStatement.setString(1, gameStatisticsBean.getCommand());
                 preparedStatement.setBoolean(2, false);

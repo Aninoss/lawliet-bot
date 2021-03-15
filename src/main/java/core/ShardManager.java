@@ -17,7 +17,6 @@ import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -33,7 +32,7 @@ public class ShardManager {
     }
 
     private ShardManager() {
-        if (Bot.isProductionMode()) {
+        if (Program.isProductionMode()) {
             startJDAPoller();
         }
     }
@@ -61,14 +60,13 @@ public class ShardManager {
     private int shardIntervalMax = 0;
     private int totalShards = 0;
     private boolean ready = false;
-    private long ownerId = 0;
 
     public void init(int shardIntervalMin, int shardIntervalMax, int totalShards) {
         this.shardIntervalMin = shardIntervalMin;
         this.shardIntervalMax = shardIntervalMax;
         this.totalShards = totalShards;
 
-        if (Bot.isProductionMode()) {
+        if (Program.isProductionMode()) {
             MainScheduler.getInstance().schedule(5, ChronoUnit.MINUTES, "bootup_check", () -> {
                 if (!ready) {
                     MainLogger.get().error("EXIT - Could not boot up");
@@ -87,12 +85,6 @@ public class ShardManager {
     }
 
     public void addJDA(JDA jda) {
-        if (ownerId == 0) {
-            jda.retrieveApplicationInfo().queue(applicationInfo -> {
-                ownerId = applicationInfo.getOwner().getIdLong();
-                fetchUserById(AssetIds.CACHE_USER_ID);
-            });
-        }
         jdaMap.put(jda.getShardInfo().getShardId(), new JDAExtended(jda));
     }
 
@@ -283,22 +275,12 @@ public class ShardManager {
         return future;
     }
 
-    public long getOwnerId() {
-        return ownerId;
-    }
-
     public CompletableFuture<User> fetchOwner() {
-        return fetchUserById(getOwnerId());
+        return fetchUserById(AssetIds.OWNER_USER_ID);
     }
 
     public CompletableFuture<User> fetchCacheUser() {
         return fetchUserById(AssetIds.CACHE_USER_ID);
-    }
-
-    public long getSelfId() {
-        return Optional.ofNullable(getSelf())
-                .map(ISnowflake::getIdLong)
-                .orElse(0L);
     }
 
     public User getSelf() {

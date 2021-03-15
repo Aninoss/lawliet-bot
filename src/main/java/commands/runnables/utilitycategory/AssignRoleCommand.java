@@ -58,7 +58,7 @@ public class AssignRoleCommand extends Command implements OnReactionListener {
         /* check for missing role manage permissions bot */
         if (!event.getGuild().getSelfMember().canInteract(role)) {
             event.getChannel().sendMessage(
-                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", role.getAsMention())).build()
+                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, role.getAsMention())).build()
             ).queue();
             return false;
         }
@@ -66,7 +66,7 @@ public class AssignRoleCommand extends Command implements OnReactionListener {
         /* check for missing role manage permissions user */
         if (!event.getMember().canInteract(role)) {
             event.getChannel().sendMessage(
-                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", role.getAsMention())).build()
+                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", false, role.getAsMention())).build()
             ).queue();
             return false;
         }

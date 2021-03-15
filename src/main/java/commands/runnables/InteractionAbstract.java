@@ -42,7 +42,7 @@ public abstract class InteractionAbstract extends Command {
 
         String quote = "";
         if (mentionPresent) {
-            args = mention.getFilteredOriginalText().get();
+            args = mention.getFilteredArgs().get();
         }
         if (args.length() > 0) {
             quote = "\n\n> " + args.replace("\n", "\n> ");

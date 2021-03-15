@@ -1,10 +1,8 @@
 package core;
 
-import java.lang.management.ManagementFactory;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
-import com.sun.management.OperatingSystemMXBean;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
 import constants.Locales;
@@ -91,7 +89,7 @@ public class Console {
     private void onRepair(String[] args) {
         int minutes = Integer.parseInt(args[1]);
         ShardManager.getInstance().getConnectedLocalJDAs().forEach(jda -> MainRepair.start(jda, minutes));
-        MainLogger.get().info("Repairing cluster {} with {} minutes", Bot.getClusterId(), minutes);
+        MainLogger.get().info("Repairing cluster {} with {} minutes", Program.getClusterId(), minutes);
     }
 
     private void onSendChannel(String[] args) {
@@ -129,7 +127,7 @@ public class Console {
     }
 
     private void onInternetConnection(String[] args) {
-        MainLogger.get().info("Internet connection (Cluster {}): {}", Bot.getClusterId(), InternetUtil.checkConnection());
+        MainLogger.get().info("Internet connection (Cluster {}): {}", Program.getClusterId(), InternetUtil.checkConnection());
     }
 
     private void onPatreon(String[] args) {
@@ -160,7 +158,7 @@ public class Console {
                 guild.getName(),
                 guild.getId(),
                 guild.getJDA().getShardInfo().getShardId(),
-                Bot.getClusterId(),
+                Program.getClusterId(),
                 guild.getMemberCount() - bots,
                 bots
         );
@@ -260,7 +258,7 @@ public class Console {
         for (Thread t : Thread.getAllStackTraces().keySet()) {
             if (args.length < 2 || t.getName().matches(args[1])) {
                 Exception e = ExceptionUtil.generateForStack(t);
-                MainLogger.get().error("\n--- {} - {} ---", Bot.getClusterId(), t.getName(), e);
+                MainLogger.get().error("\n--- {} - {} ---", Program.getClusterId(), t.getName(), e);
             }
         }
     }
@@ -275,7 +273,7 @@ public class Console {
             }
         }
 
-        MainLogger.get().info("{} thread/s interrupted in cluster {}", stopped, Bot.getClusterId());
+        MainLogger.get().info("{} thread/s interrupted in cluster {}", stopped, Program.getClusterId());
     }
 
     private void onThreads(String[] args) {
@@ -290,7 +288,7 @@ public class Console {
         String str = sb.toString();
         if (str.length() >= 2) str = str.substring(0, str.length() - 2);
 
-        MainLogger.get().info("\n--- THREADS FOR CLUSTER {} ({}) ---\n{}\n", Bot.getClusterId(), Thread.getAllStackTraces().size(), str);
+        MainLogger.get().info("\n--- THREADS FOR CLUSTER {} ({}) ---\n{}\n", Program.getClusterId(), Thread.getAllStackTraces().size(), str);
     }
 
     private void onMySQLConnect(String[] args) {
@@ -311,7 +309,7 @@ public class Console {
     }
 
     private void onShards(String[] args) {
-        MainLogger.get().info("Cluster: {} - Shards: {} / {}", Bot.getClusterId(), ShardManager.getInstance().getConnectedLocalJDAs().size(), ShardManager.getInstance().getLocalShards());
+        MainLogger.get().info("Cluster: {} - Shards: {} / {}", Program.getClusterId(), ShardManager.getInstance().getConnectedLocalJDAs().size(), ShardManager.getInstance().getLocalShards());
         for (int i = ShardManager.getInstance().getShardIntervalMin(); i <= ShardManager.getInstance().getShardIntervalMax(); i++) {
             if (ShardManager.getInstance().getJDA(i).isEmpty()) {
                 MainLogger.get().info("Shard {} is unavailable!", i);
@@ -320,7 +318,7 @@ public class Console {
     }
 
     private void onUptime(String[] args) {
-        MainLogger.get().info("Uptime cluster {}: {}", Bot.getClusterId(), TimeUtil.getRemainingTimeString(new Locale(Locales.EN), Bot.getStartTime(), Instant.now(), false));
+        MainLogger.get().info("Uptime cluster {}: {}", Program.getClusterId(), TimeUtil.getRemainingTimeString(new Locale(Locales.EN), Program.getStartTime(), Instant.now(), false));
     }
 
     private void onStats(String[] args) {
@@ -332,7 +330,7 @@ public class Console {
     }
 
     private void onQuit(String[] args) {
-        MainLogger.get().info("EXIT - Stopping cluster {}", Bot.getClusterId());
+        MainLogger.get().info("EXIT - Stopping cluster {}", Program.getClusterId());
         System.exit(0);
     }
 
@@ -375,7 +373,7 @@ public class Console {
         StringBuilder sb = new StringBuilder();
         double memoryTotal = Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0);
         double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
-        sb.append(String.format("Memory of Cluster %d: ", Bot.getClusterId()))
+        sb.append(String.format("Memory of Cluster %d: ", Program.getClusterId()))
                 .append(String.format("%1$.2f", memoryUsed))
                 .append(" / ")
                 .append(String.format("%1$.2f", memoryTotal))
@@ -385,45 +383,35 @@ public class Console {
     }
 
     public String getStats() {
-        StringBuilder sb = new StringBuilder(String.format("\n--- STATS CLUSTER %d ---\n", Bot.getClusterId()));
+        String header = String.format("--- STATS CLUSTER %d ---", Program.getClusterId());
+        StringBuilder sb = new StringBuilder("\n" + header + "\n");
 
-        //Memory
+        // heap memory
         double memoryTotal = Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0);
         double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
-        sb.append("Memory: ")
+        sb.append("Heap Memory Memory: ")
                 .append(String.format("%1$.2f", memoryUsed))
                 .append(" / ")
                 .append(String.format("%1$.2f", memoryTotal))
                 .append(" MB\n");
 
-        //Threads
+        // threads
         sb.append("Threads: ")
                 .append(Thread.getAllStackTraces().keySet().size())
                 .append("\n");
 
-        //Activities
-        sb.append("Activities: ")
+        // active listeners
+        sb.append("Active Listeners: ")
                 .append(CommandContainer.getInstance().getListenerSize())
                 .append("\n");
 
-        //Running Commands
+        // running commands
         sb.append("Running Commands: ")
                 .append(RunningCheckerManager.getInstance().getRunningCommandsMap().size())
                 .append("\n");
 
-        //CPU Usage
-        OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
-        double cpuJvm = osBean.getProcessCpuLoad();
-        double cpuTotal = osBean.getSystemCpuLoad();
-
-        sb.append("CPU JVM: ")
-                .append(Math.floor(cpuJvm * 1000) / 10)
-                .append("%\n");
-
-        sb.append("CPU Total: ")
-                .append(Math.floor(cpuTotal * 1000) / 10)
-                .append("%\n");
-
+        sb.append("-".repeat(header.length()))
+                .append("\n");
         return sb.toString();
     }
 

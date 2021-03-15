@@ -4,12 +4,12 @@ import java.util.Optional;
 
 public class Mention {
 
-    private final String filteredOriginalText, mentionText;
+    private final String filteredArgs, mentionText;
     private final boolean multiple, containedBlockedUser;
 
-    public Mention(String mentionText, String filteredOriginalText, boolean multiple, boolean containedBlockedUser) {
+    public Mention(String mentionText, String filteredArgs, boolean multiple, boolean containedBlockedUser) {
         this.mentionText = mentionText;
-        this.filteredOriginalText = filteredOriginalText;
+        this.filteredArgs = filteredArgs;
         this.multiple = multiple;
         this.containedBlockedUser = containedBlockedUser;
     }
@@ -18,8 +18,8 @@ public class Mention {
         return mentionText;
     }
 
-    public Optional<String> getFilteredOriginalText() {
-        return Optional.ofNullable(filteredOriginalText);
+    public Optional<String> getFilteredArgs() {
+        return Optional.ofNullable(filteredArgs).map(String::trim);
     }
 
     public boolean isMultiple() {

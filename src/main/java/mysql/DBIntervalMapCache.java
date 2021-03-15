@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.function.Predicate;
-import core.Bot;
+import core.Program;
 import core.CustomThread;
 import core.IntervalBlock;
 import core.MainLogger;
@@ -24,7 +24,7 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
         }, "shutdown_intervalsave"));
 
         Thread t = new CustomThread(() -> {
-            IntervalBlock intervalBlock = new IntervalBlock(Bot.isProductionMode() ? minutes : 1, ChronoUnit.MINUTES);
+            IntervalBlock intervalBlock = new IntervalBlock(Program.isProductionMode() ? minutes : 1, ChronoUnit.MINUTES);
             while (intervalBlock.block()) {
                 if (changed.size() > 0) {
                     intervalSave();

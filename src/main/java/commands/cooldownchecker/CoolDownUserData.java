@@ -2,7 +2,6 @@ package commands.cooldownchecker;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Optional;
 import constants.Settings;
@@ -18,6 +17,7 @@ public class CoolDownUserData {
 
         if (commandInstants.size() >= Settings.COOLDOWN_MAX_ALLOWED) {
             Duration duration = Duration.between(Instant.now(), commandInstants.get(0));
+            MainScheduler.getInstance().schedule(commandInstants.get(0), "cool_down_post", () -> this.canPostCoolDownMessage = true);
             return Optional.of((int) (duration.getSeconds() + 1));
         }
 
@@ -28,7 +28,6 @@ public class CoolDownUserData {
     public synchronized boolean canPostCoolDownMessage() {
         if (canPostCoolDownMessage) {
             canPostCoolDownMessage = false;
-            MainScheduler.getInstance().schedule(15, ChronoUnit.SECONDS, "cool_down", () -> this.canPostCoolDownMessage = true);
             return true;
         }
 

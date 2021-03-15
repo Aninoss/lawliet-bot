@@ -38,7 +38,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
     }
 
     public boolean checkThrowable(final Throwable throwable) {
-        return !Bot.isProductionMode() || Arrays.stream(FILTERS)
+        return !Program.isProductionMode() || Arrays.stream(FILTERS)
                 .noneMatch(filter -> throwable.toString().contains(filter));
     }
 

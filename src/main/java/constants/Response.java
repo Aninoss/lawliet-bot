@@ -2,8 +2,6 @@ package constants;
 
 public enum Response {
 
-    TRUE,
-    FALSE,
-    ERROR
+    TRUE, FALSE, ERROR
 
 }

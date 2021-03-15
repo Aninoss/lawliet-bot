@@ -77,7 +77,7 @@ public class CommandManager {
                 }
 
                 command.processTrigger(event, args);
-                if (Bot.isPublicVersion()) {
+                if (Program.isPublicVersion()) {
                     maybeSendInvite(event, command.getLocale());
                 }
             } catch (Throwable e) {
@@ -87,6 +87,7 @@ public class CommandManager {
             }
         } else if (command instanceof HelpCommand) {
             //TODO: help send private dm
+            System.out.println("HELP");
         }
     }
 
@@ -265,7 +266,7 @@ public class CommandManager {
     }
 
     private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text) {
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+        if (BotPermissionUtil.canWrite(event.getChannel())) {
             event.getMessage()
                     .reply(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
                     .queue(message -> autoRemoveMessageAfterCountdown(event, message));
@@ -317,11 +318,7 @@ public class CommandManager {
 
         if (BotPermissionUtil.canRead(event.getChannel(), Permission.MESSAGE_ADD_REACTION)) {
             RestActionQueue restActionQueue = new RestActionQueue();
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_EXT_EMOJI)) {
-                restActionQueue.attach(event.getMessage().addReaction(EmojiUtil.emojiAsReactionTag(Emojis.NO)));
-            } else {
-                restActionQueue.attach(event.getMessage().addReaction(Emojis.X));
-            }
+            restActionQueue.attach(event.getMessage().addReaction(Emojis.X));
             restActionQueue.attach(event.getMessage().addReaction("✍️"))
                     .getCurrentRestAction()
                     .queue();

@@ -2,8 +2,8 @@ package core.cache;
 
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
-import core.Bot;
-import core.ShardManager;
+import constants.AssetIds;
+import core.Program;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import websockets.syncserver.SendEvent;
@@ -20,11 +20,11 @@ public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
     }
 
     public int getUserTier(long userId) {
-        if (userId == ShardManager.getInstance().getOwnerId()) {
+        if (userId == AssetIds.OWNER_USER_ID) {
             return 6;
         }
 
-        if (!Bot.isProductionMode()) {
+        if (!Program.isProductionMode()) {
             return 0;
         }
 

@@ -5,9 +5,9 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.OnStaticReactionAddListener;
+import constants.AssetIds;
 import constants.Emojis;
 import core.MainLogger;
-import core.ShardManager;
 import core.cache.MessageCache;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageReactionAddAbstract;
@@ -30,7 +30,7 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
             return true;
         }
 
-        if (message.getAuthor().getIdLong() == ShardManager.getInstance().getSelfId() &&
+        if (message.getAuthor().getIdLong() == AssetIds.LAWLIET_USER_ID &&
                 message.getEmbeds().size() > 0
         ) {
             GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());

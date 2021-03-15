@@ -1,6 +1,6 @@
 package events.scheduleevents.events;
 
-import core.Bot;
+import core.Program;
 import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.botstats.DBBotStats;
@@ -10,7 +10,7 @@ public class SaveBotStatsUpvotes implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Bot.isProductionMode() && Bot.isPublicVersion() && Bot.getClusterId() == 1) {
+        if (Program.isProductionMode() && Program.isPublicVersion() && Program.getClusterId() == 1) {
             DBBotStats.saveStatsUpvotes();
         }
     }
