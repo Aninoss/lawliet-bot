@@ -28,7 +28,7 @@ public class AnicordKickOldUnverifiedMembers implements ScheduleInterface {
                     ) {
                         MainLogger.get().info("Kicked Unverified Member: " + member.getUser().getAsTag());
                         counter.incrementAndGet();
-                        guild.kick(member).reason("Unverified").queue();
+                        //guild.kick(member).reason("Unverified").queue(); TODO: activate
                     }
                 });
                 MainLogger.get().info("Removed Members: " + counter.get());

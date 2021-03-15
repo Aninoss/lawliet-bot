@@ -1,7 +1,7 @@
 package websockets;
 
 import java.util.concurrent.ExecutionException;
-import constants.AssetIds;
+import core.ShardManager;
 import org.discordbots.api.client.DiscordBotListAPI;
 
 public class TopGG {
@@ -16,7 +16,7 @@ public class TopGG {
     private TopGG() {
         dblApi = new DiscordBotListAPI.Builder()
                 .token(System.getenv("TOPGG_TOKEN"))
-                .botId(String.valueOf(AssetIds.LAWLIET_USER_ID))
+                .botId(String.valueOf(ShardManager.getInstance().getSelfId()))
                 .build();
     }
 
@@ -25,11 +25,11 @@ public class TopGG {
     }
 
     public int getTotalUpvotes() throws ExecutionException, InterruptedException {
-        return dblApi.getBot(String.valueOf(AssetIds.LAWLIET_USER_ID)).toCompletableFuture().get().getPoints();
+        return dblApi.getBot(String.valueOf(ShardManager.getInstance().getSelfId())).toCompletableFuture().get().getPoints();
     }
 
     public int getMonthlyUpvotes() throws ExecutionException, InterruptedException {
-        return dblApi.getBot(String.valueOf(AssetIds.LAWLIET_USER_ID)).toCompletableFuture().get().getMonthlyPoints();
+        return dblApi.getBot(String.valueOf(ShardManager.getInstance().getSelfId())).toCompletableFuture().get().getMonthlyPoints();
     }
 
 }

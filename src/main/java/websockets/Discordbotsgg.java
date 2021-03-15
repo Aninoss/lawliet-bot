@@ -1,7 +1,7 @@
 package websockets;
 
-import constants.AssetIds;
 import core.ExceptionLogger;
+import core.ShardManager;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import org.json.JSONObject;
@@ -15,7 +15,7 @@ public class Discordbotsgg {
                 new HttpProperty("Content-Type", "application/json"),
                 new HttpProperty("Authorization", System.getenv("DISCORDBOTSGG_TOKEN"))
         };
-        HttpRequest.getData(String.format("https://discord.bots.gg/api/v1/bots/%d/stats", AssetIds.LAWLIET_USER_ID), jsonObject.toString(), properties)
+        HttpRequest.getData(String.format("https://discord.bots.gg/api/v1/bots/%d/stats", ShardManager.getInstance().getSelfId()), jsonObject.toString(), properties)
                 .exceptionally(ExceptionLogger.get());
     }
 

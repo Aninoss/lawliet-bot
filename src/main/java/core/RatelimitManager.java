@@ -10,26 +10,15 @@ import core.utils.TimeUtil;
 
 public class RatelimitManager {
 
-    private static final RatelimitManager ourInstance = new RatelimitManager();
-
-    public static RatelimitManager getInstance() {
-        return ourInstance;
-    }
-
-    private RatelimitManager() {
-    }
-
-    private final Cache<String, ArrayList<Instant>> eventCache = CacheBuilder.newBuilder()
+    private final Cache<Long, ArrayList<Instant>> eventCache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(10))
             .build();
 
     /*
     @return the remaining amount of seconds
      */
-    public synchronized Optional<Integer> checkAndSet(String type, Object key, int cap, Duration duration) {
-        String stringKey = type + ":" + key;
-
-        ArrayList<Instant> events = eventCache.asMap().computeIfAbsent(stringKey, k -> new ArrayList<>());
+    public synchronized Optional<Integer> checkAndSet(long key, int cap, Duration duration) {
+        ArrayList<Instant> events = eventCache.asMap().computeIfAbsent(key, k -> new ArrayList<>());
         if (events.size() >= cap) {
             Instant firstOccurence = events.get(0);
             long millisAgo = TimeUtil.getMillisBetweenInstants(firstOccurence, Instant.now());

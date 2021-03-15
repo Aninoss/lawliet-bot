@@ -92,7 +92,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 Long value;
                 AtomicLong valueOld = new AtomicLong();
                 if ((value = updateValues(type, amountString, valueOld)) != null) {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", type, MentionUtil.getUserMentionTag(userId), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value))).build())
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", type, MentionUtil.getUserAsMention(userId), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value))).build())
                             .queue();
                     return true;
                 } else {
@@ -117,7 +117,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 return Response.FALSE;
             }
 
-            setLog(LogStatus.SUCCESS, getString("set_log", state - 1, getMember().map(Member::getEffectiveName).orElse(MentionUtil.getUserMentionTag(userId)), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value)).replace("*", ""));
+            setLog(LogStatus.SUCCESS, getString("set_log", state - 1, getMember().map(Member::getEffectiveName).orElse(MentionUtil.getUserAsMention(userId)), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value)).replace("*", ""));
             setState(0);
 
             return Response.TRUE;
@@ -235,7 +235,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                     ).split("\n")
             );
 
-            String desc = getString("state0_description", MentionUtil.getUserMentionTag(userId));
+            String desc = getString("state0_description", MentionUtil.getUserAsMention(userId));
             return EmbedFactory.getEmbedDefault(this, desc);
         } else {
             return EmbedFactory.getEmbedDefault(

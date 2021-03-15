@@ -11,7 +11,7 @@ public abstract class SingleCache<T> {
     private T value = null;
 
     public synchronized T get() {
-        if (nextReset == null || Instant.now().isAfter(nextReset)) {
+        if (value == null || nextReset == null || Instant.now().isAfter(nextReset)) {
             return fetch();
         }
 

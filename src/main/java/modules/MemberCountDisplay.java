@@ -26,6 +26,7 @@ public class MemberCountDisplay {
         return ourInstance;
     }
 
+    private final QuickUpdater quickUpdater = new QuickUpdater();
     private final Cache<Long, String> voiceNameCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(20))
             .build();
@@ -60,9 +61,8 @@ public class MemberCountDisplay {
         RestAction<Void> restAction = voiceChannel.getManager()
                 .setName(newVCName);
 
-        QuickUpdater.getInstance().update(
-                "member_count_displays",
-                voiceChannel.getId(),
+        quickUpdater.update(
+                voiceChannel.getIdLong(),
                 restAction
         );
     }

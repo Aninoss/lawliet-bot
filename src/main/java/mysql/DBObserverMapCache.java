@@ -7,6 +7,9 @@ public abstract class DBObserverMapCache<T, U extends Observable> extends DBMapC
 
     private final DBObserverMapCache<T, U> instance = this;
 
+    protected DBObserverMapCache() {
+    }
+
     @Override
     protected U process(T t) throws Exception {
         U u = DBObserverMapCache.this.load(t);

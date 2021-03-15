@@ -11,6 +11,8 @@ public abstract class DBSingleCache<T> extends DBCache {
     private T o = null;
     private Instant nextUpdate = null;
 
+    protected abstract T loadBean() throws Exception;
+
     public synchronized T retrieve() {
         if (o == null) {
             try {
@@ -44,15 +46,17 @@ public abstract class DBSingleCache<T> extends DBCache {
         return o != null;
     }
 
+    public Integer getExpirationTimeMinutes() {
+        return null;
+    }
+
     @Override
     public void clear() {
         o = null;
     }
 
-    public Integer getExpirationTimeMinutes() {
-        return null;
+    @Override
+    public void invalidateGuildId(long guildId) {
     }
-
-    protected abstract T loadBean() throws Exception;
 
 }

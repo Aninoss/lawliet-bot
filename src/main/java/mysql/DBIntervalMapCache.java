@@ -15,8 +15,6 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
     private ArrayList<U> changed = new ArrayList<>();
 
     protected DBIntervalMapCache(int minutes) {
-        super();
-
         Runtime.getRuntime().addShutdownHook(new CustomThread(() -> {
             if (changed.size() > 0) {
                 intervalSave();

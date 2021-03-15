@@ -40,6 +40,11 @@ public class ShardManager {
     private final JDABlocker JDABlocker = new JDABlocker();
     private final HashMap<Integer, JDAExtended> jdaMap = new HashMap<>();
     private final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
+    private int shardIntervalMin = 0;
+    private int shardIntervalMax = 0;
+    private int totalShards = 0;
+    private boolean ready = false;
+    private long selfId = 0;
 
     private final Cache<Long, User> userCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(5))
@@ -56,11 +61,6 @@ public class ShardManager {
         }
     };
 
-    private int shardIntervalMin = 0;
-    private int shardIntervalMax = 0;
-    private int totalShards = 0;
-    private boolean ready = false;
-
     public void init(int shardIntervalMin, int shardIntervalMax, int totalShards) {
         this.shardIntervalMin = shardIntervalMin;
         this.shardIntervalMax = shardIntervalMax;
@@ -73,6 +73,12 @@ public class ShardManager {
                     System.exit(1);
                 }
             });
+        }
+    }
+
+    public synchronized void initAssetIds(JDA jda) {
+        if (selfId == 0) {
+            selfId = jda.getSelfUser().getIdLong();
         }
     }
 
@@ -287,6 +293,14 @@ public class ShardManager {
         return getAnyJDA()
                 .map(JDA::getSelfUser)
                 .orElse(null);
+    }
+
+    public long getSelfId() {
+        return selfId;
+    }
+
+    public String getSelfIdString() {
+        return String.valueOf(selfId);
     }
 
     public boolean emoteIsKnown(String emoteMention) {

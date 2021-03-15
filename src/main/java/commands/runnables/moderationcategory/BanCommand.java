@@ -21,7 +21,6 @@ import net.dv8tion.jda.api.entities.User;
         emoji = "\uD83D\uDEAB",
         executableWithoutArgs = false
 )
-//TODO: can now ban with id?
 public class BanCommand extends WarnCommand {
 
     public BanCommand(Locale locale, String prefix) {

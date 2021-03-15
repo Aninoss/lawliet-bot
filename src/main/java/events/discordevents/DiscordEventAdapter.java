@@ -7,6 +7,7 @@ import java.util.Set;
 import core.DiscordConnector;
 import core.GlobalThreadPool;
 import core.MainLogger;
+import core.ShardManager;
 import core.cache.MessageCache;
 import events.discordevents.eventtypeabstracts.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -14,6 +15,7 @@ import net.dv8tion.jda.api.events.channel.voice.VoiceChannelDeleteEvent;
 import net.dv8tion.jda.api.events.channel.voice.update.VoiceChannelUpdateUserLimitEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
@@ -69,6 +71,11 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     private ArrayList<DiscordEventAbstract> getListenerList(Class<? extends DiscordEventAbstract> clazz) {
         return listenerMap.computeIfAbsent(clazz, k -> new ArrayList<>());
+    }
+
+    @Override
+    public void onGuildReady(@NotNull GuildReadyEvent event) {
+        ShardManager.getInstance().initAssetIds(event.getJDA());
     }
 
     @Override

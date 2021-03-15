@@ -33,6 +33,8 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemove
 )
 public class VoteCommand extends Command implements OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
+    private static final QuickUpdater quickUpdater = new QuickUpdater();
+
     private final String EMOJI_CANCEL = Emojis.X;
 
     public VoteCommand(Locale locale, String prefix) {
@@ -111,8 +113,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                     voteInfo.getCreatorId().get() == event.getUserIdLong()
             ) {
                 voteInfo.stop();
-                QuickUpdater.getInstance().update(
-                        getTrigger(),
+                quickUpdater.update(
                         event.getMessageIdLong(),
                         event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, false).build())
                 );
@@ -129,8 +130,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 return;
             }
 
-            QuickUpdater.getInstance().update(
-                    getTrigger(),
+            quickUpdater.update(
                     event.getMessageIdLong(),
                     event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
             );
@@ -142,8 +142,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
         VoteCache.getInstance().get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
                 .ifPresent(voteInfo -> {
                     if (voteInfo.getVotes(event.getUserIdLong()) == 0) {
-                        QuickUpdater.getInstance().update(
-                                getTrigger(),
+                        quickUpdater.update(
                                 event.getMessageIdLong(),
                                 event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
                         );

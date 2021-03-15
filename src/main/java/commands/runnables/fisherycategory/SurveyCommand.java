@@ -12,7 +12,6 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.FisheryInterface;
-import constants.AssetIds;
 import constants.Emojis;
 import constants.LogStatus;
 import constants.TrackerResult;
@@ -119,7 +118,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
             if (correctEmoji && reaction.getCount() > (addedEmoji.equals(emoji) ? 2 : 1)) {
                 for (User user : reaction.retrieveUsers()) {
-                    if (user.getIdLong() != AssetIds.LAWLIET_USER_ID) {
+                    if (user.getIdLong() != ShardManager.getInstance().getSelfId()) {
                         reaction.removeReaction(user).queue();
                     }
                 }

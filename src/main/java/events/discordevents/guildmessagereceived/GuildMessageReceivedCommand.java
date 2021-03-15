@@ -9,7 +9,6 @@ import commands.CommandListenerMeta;
 import commands.CommandManager;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.informationcategory.HelpCommand;
-import constants.AssetIds;
 import constants.Response;
 import core.MainLogger;
 import core.ShardManager;
@@ -42,7 +41,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
         String[] prefixes = {
                 prefix,
                 ShardManager.getInstance().getSelf().getAsMention(),
-                "<@!" + AssetIds.LAWLIET_USER_ID + ">"
+                MentionUtil.getUserAsMention(ShardManager.getInstance().getSelfId())
         };
 
         int prefixFound = -1;

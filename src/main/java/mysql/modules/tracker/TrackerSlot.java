@@ -16,8 +16,8 @@ import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.AllowedMentions;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
-import constants.AssetIds;
 import core.MainLogger;
+import core.ShardManager;
 import core.assets.TextChannelAsset;
 import core.utils.BotPermissionUtil;
 import mysql.BeanWithGuild;
@@ -131,7 +131,7 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                     List<Webhook> webhooks = channel.retrieveWebhooks().complete();
                     for (Webhook webhook : webhooks) {
                         Member webhookOwner = webhook.getOwner();
-                        if (webhookOwner != null && webhookOwner.getIdLong() == AssetIds.LAWLIET_USER_ID) {
+                        if (webhookOwner != null && webhookOwner.getIdLong() == ShardManager.getInstance().getSelfId()) {
                             webhookUrl = webhook.getUrl();
                             return processMessageViaWebhook(newMessage, content, embeds);
                         }

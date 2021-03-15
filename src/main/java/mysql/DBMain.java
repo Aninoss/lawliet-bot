@@ -49,7 +49,13 @@ public class DBMain implements DriverAction {
     }
 
     public void addDBCached(DBCache dbCache) {
-        if (!caches.contains(dbCache)) caches.add(dbCache);
+        if (!caches.contains(dbCache)) {
+            caches.add(dbCache);
+        }
+    }
+
+    public void invalidateGuildId(long guildId) {
+        caches.forEach(c -> c.invalidateGuildId(guildId));
     }
 
     public static String instantToDateTimeString(Instant instant) {

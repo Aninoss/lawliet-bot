@@ -12,7 +12,6 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
 import commands.runnables.NavigationAbstract;
-import constants.AssetIds;
 import constants.Emojis;
 import constants.LogStatus;
 import constants.Response;
@@ -587,7 +586,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     }
 
     private boolean messageIsReactionMessage(Message message) {
-        if (message.getAuthor().getIdLong() == AssetIds.LAWLIET_USER_ID && message.getEmbeds().size() > 0) {
+        if (message.getAuthor().getIdLong() == ShardManager.getInstance().getSelfId() && message.getEmbeds().size() > 0) {
             MessageEmbed embed = message.getEmbeds().get(0);
             if (embed.getTitle() != null && embed.getAuthor() == null) {
                 String title = embed.getTitle();

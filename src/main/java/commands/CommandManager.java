@@ -34,6 +34,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 public class CommandManager {
 
     private final static int SEC_UNTIL_REMOVAL = 20;
+    private final static Random random = new Random();
 
     public static void manage(GuildMessageReceivedEvent event, Command command, String args, Instant startTime) {
         if (checkCoolDown(event, command) &&
@@ -76,23 +77,20 @@ public class CommandManager {
                     command.getAttachments().put("starting_time", startTime);
                 }
 
-                command.processTrigger(event, args);
-                if (Program.isPublicVersion()) {
-                    maybeSendInvite(event, command.getLocale());
+                boolean success = command.processTrigger(event, args);
+                if (success && Program.isPublicVersion()) {
+                    maybeSendBotInvite(event, command.getLocale());
                 }
             } catch (Throwable e) {
                 ExceptionUtil.handleCommandException(e, command, event.getChannel());
             } finally {
                 CommandContainer.getInstance().cleanUp();
             }
-        } else if (command instanceof HelpCommand) {
-            //TODO: help send private dm
-            System.out.println("HELP");
         }
     }
 
-    private static void maybeSendInvite(GuildMessageReceivedEvent event, Locale locale) {
-        if (new Random().nextInt(200) == 0 &&
+    private static void maybeSendBotInvite(GuildMessageReceivedEvent event, Locale locale) {
+        if (random.nextInt(190) == 0 &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER) &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MESSAGE_MANAGE) &&
                 BotPermissionUtil.canWriteEmbed(event.getChannel())
@@ -252,6 +250,7 @@ public class CommandManager {
         }
 
         sendErrorNoEmbed(event, command.getLocale(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_embed"));
+        sendHelpDm(event.getMember(), command);
         return false;
     }
 
@@ -324,13 +323,26 @@ public class CommandManager {
                     .queue();
         }
 
-        if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR)) {
-            JDAUtil.sendPrivateMessage(
-                    event.getMember(),
-                    TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", StringUtil.escapeMarkdown(event.getChannel().getName()))
-            ).queue();
+        if (!sendHelpDm(event.getMember(), command)) {
+            if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR)) {
+                JDAUtil.sendPrivateMessage(
+                        event.getMember(),
+                        TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", StringUtil.escapeMarkdown(event.getChannel().getName()))
+                ).queue();
+            }
         }
 
+        return false;
+    }
+
+    private static boolean sendHelpDm(Member member, Command command) {
+        if (command instanceof HelpCommand) {
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, command.getString("dm", ExternalLinks.COMMANDS_WEBSITE))
+                    .setTitle(null);
+            EmbedUtil.setMemberAuthor(eb, member.getGuild().getSelfMember());
+            JDAUtil.sendPrivateMessage(member, eb.build()).queue();
+            return true;
+        }
         return false;
     }
 

@@ -36,6 +36,9 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 )
 public class SuggestionCommand extends Command implements OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
+    private static final RatelimitManager ratelimitManager = new RatelimitManager();
+    private static final QuickUpdater quickUpdater = new QuickUpdater();
+
     public SuggestionCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
@@ -46,7 +49,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
         if (suggestionsBean.isActive()) {
             Optional<TextChannel> channelOpt = suggestionsBean.getTextChannel();
             if (channelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.MESSAGE_WRITE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION)) {
-                if (RatelimitManager.getInstance().checkAndSet("suggestion", event.getMember().getIdLong(), 1, Duration.ofMinutes(1)).isEmpty()) {
+                if (ratelimitManager.checkAndSet(event.getMember().getIdLong(), 1, Duration.ofMinutes(1)).isEmpty()) {
                     TextChannel channel = channelOpt.get();
                     String author = event.getMessage().getMember().getUser().getAsTag();
                     String content = StringUtil.shortenString(args, 1024);
@@ -140,8 +143,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                                 suggestionMessage.getDownvotes()
                         );
 
-                        QuickUpdater.getInstance().update(
-                                "suggestion",
+                        quickUpdater.update(
                                 messageId,
                                 event.getChannel()
                                         .editMessageById(messageId, generateEmbed(suggestionMessage.getContent(), suggestionMessage.getAuthor(), footer).build())

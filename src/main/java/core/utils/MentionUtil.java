@@ -30,7 +30,7 @@ public class MentionUtil {
 
     public static MentionList<Member> getMembers(Message message, String input, List<Member> members) {
         ArrayList<Member> list = new ArrayList<>(message.getMentionedMembers());
-        if (!input.contains(ShardManager.getInstance().getSelf().getId())) {
+        if (!input.contains(ShardManager.getInstance().getSelfIdString())) {
             list.remove(message.getGuild().getSelfMember());
         }
         list.removeIf(member -> !members.contains(member));
@@ -38,7 +38,7 @@ public class MentionUtil {
         for (Member member : list) {
             input = input
                     .replace(member.getAsMention(), "")
-                    .replace(getUserMentionTag(member.getIdLong()), "");
+                    .replace(getUserAsMention(member.getIdLong()), "");
         }
 
         return generateMentionList(
@@ -58,7 +58,7 @@ public class MentionUtil {
 
     public static MentionList<User> getUsers(Message message, String input, List<User> users) {
         ArrayList<User> list = message.getMentionedMembers().stream().map(Member::getUser).collect(Collectors.toCollection(ArrayList::new));
-        if (!input.contains(ShardManager.getInstance().getSelf().getId())) {
+        if (!input.contains(ShardManager.getInstance().getSelfIdString())) {
             list.remove(message.getGuild().getSelfMember().getUser());
         }
         list.removeIf(user -> !users.contains(user));
@@ -66,7 +66,7 @@ public class MentionUtil {
         for (User user : list) {
             input = input
                     .replace(user.getAsMention(), "")
-                    .replace(getUserMentionTag(user.getIdLong()), "");
+                    .replace(getUserAsMention(user.getIdLong()), "");
         }
 
         return generateMentionList(
@@ -508,7 +508,7 @@ public class MentionUtil {
         return str;
     }
 
-    public static String getUserMentionTag(long id) {
+    public static String getUserAsMention(long id) {
         return "<@!" + id + ">";
     }
 

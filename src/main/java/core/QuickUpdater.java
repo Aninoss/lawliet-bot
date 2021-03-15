@@ -10,36 +10,25 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 public class QuickUpdater {
 
-    private static final QuickUpdater ourInstance = new QuickUpdater();
-
-    public static QuickUpdater getInstance() {
-        return ourInstance;
-    }
-
-    private QuickUpdater() {
-    }
-
-    private final Cache<String, CompletableFuture<?>> futureCache = CacheBuilder.newBuilder()
+    private final Cache<Long, CompletableFuture<?>> futureCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(20))
             .build();
 
-    public synchronized void update(String type, Object key, RestAction<?> restAction) {
-        String stringKey = type + ":" + key;
-
-        CompletableFuture<?> oldFuture = futureCache.getIfPresent(stringKey);
+    public synchronized void update(long key, RestAction<?> restAction) {
+        CompletableFuture<?> oldFuture = futureCache.getIfPresent(key);
         if (oldFuture != null) {
             oldFuture.cancel(true);
         }
 
         CompletableFuture<?> future = restAction.submitAfter(500, TimeUnit.MILLISECONDS);
-        futureCache.put(stringKey, future);
+        futureCache.put(key, future);
 
         future.exceptionally(e -> {
             if (!(e instanceof CancellationException)) {
                 MainLogger.get().error("Exception in quick updater", e);
             }
             return null;
-        }).thenAccept(result -> futureCache.asMap().remove(stringKey, future));
+        }).thenAccept(result -> futureCache.asMap().remove(key, future));
     }
 
 }

@@ -1,7 +1,6 @@
 package events.discordevents;
 
 import java.util.ArrayList;
-import constants.AssetIds;
 import core.MainLogger;
 import core.ShardManager;
 import mysql.modules.bannedusers.DBBannedUsers;
@@ -36,7 +35,7 @@ public abstract class DiscordEventAbstract {
     }
 
     protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, long guildId, EventExecution function) {
-        if ((user != null && user.getIdLong() == AssetIds.LAWLIET_USER_ID) ||
+        if ((user != null && user.getIdLong() == ShardManager.getInstance().getSelfId()) ||
                 !ShardManager.getInstance().getJDABlocker().guildIsAvailable(guildId)
         ) {
             return;

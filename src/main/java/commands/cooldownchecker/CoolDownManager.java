@@ -23,7 +23,7 @@ public class CoolDownManager {
             .build(new CacheLoader<>() {
                 @Override
                 public CoolDownUserData load(@NonNull Long userId) {
-                    return new CoolDownUserData();
+                    return new CoolDownUserData(userId);
                 }
             });
 

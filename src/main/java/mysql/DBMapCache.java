@@ -16,10 +16,6 @@ public abstract class DBMapCache<T, U> extends DBCache {
                 .expireAfterAccess(Duration.ofMinutes(10));
     }
 
-    protected U process(T t) throws Exception {
-        return DBMapCache.this.load(t);
-    }
-
     protected DBMapCache() {
         cache = getCacheBuilder().build(
                 new CacheLoader<>() {
@@ -32,6 +28,10 @@ public abstract class DBMapCache<T, U> extends DBCache {
     }
 
     protected abstract U load(T t) throws Exception;
+
+    protected U process(T t) throws Exception {
+        return DBMapCache.this.load(t);
+    }
 
     public U retrieve(T t) {
         try {
@@ -48,6 +48,14 @@ public abstract class DBMapCache<T, U> extends DBCache {
     @Override
     public void clear() {
         cache.invalidateAll();
+    }
+
+    @SuppressWarnings("SuspiciousMethodCalls")
+    @Override
+    public void invalidateGuildId(long guildId) {
+        if (cache.asMap().keySet().stream().findFirst().map(key -> key instanceof Long).orElse(false)) {
+            cache.invalidate(guildId);
+        }
     }
 
 }

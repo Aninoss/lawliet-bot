@@ -7,6 +7,7 @@ public interface ExternalLinks {
     String SERVER_INVITE_URL = "https://discord.gg/F4FcAbQ";
     String UPVOTE_URL = "https://top.gg/bot/368521195940741122/vote";
     String LAWLIET_WEBSITE = "https://lawlietbot.xyz/";
+    String COMMANDS_WEBSITE = "https://lawlietbot.xyz/commands";
     String PATREON_PAGE = "https://www.patreon.com/lawlietbot";
     String FEATURE_REQUESTS_WEBSITE = "https://lawlietbot.xyz/featurerequests";
     String FAQ_WEBSITE = "https://lawlietbot.xyz/faq";

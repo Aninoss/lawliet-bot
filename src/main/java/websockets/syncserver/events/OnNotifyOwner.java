@@ -15,24 +15,12 @@ public class OnNotifyOwner implements SyncServerFunction {
         long userId = jsonObject.getLong("user_id");
         EmbedBuilder eb = EmbedFactory.getEmbedDefault();
 
-        if (jsonObject.has("title")) {
-            eb.setTitle(jsonObject.getString("title"));
-        }
-        if (jsonObject.has("description")) {
-            eb.setDescription(jsonObject.getString("description"));
-        }
-        if (jsonObject.has("author")) {
-            eb.setAuthor(jsonObject.getString("author"));
-        }
-        if (jsonObject.has("thumbnail")) {
-            eb.setThumbnail(jsonObject.getString("thumbnail"));
-        }
-        if (jsonObject.has("image")) {
-            eb.setImage(jsonObject.getString("image"));
-        }
-        if (jsonObject.has("footer")) {
-            eb.setFooter(jsonObject.getString("footer"));
-        }
+        if (jsonObject.has("title")) eb.setTitle(jsonObject.getString("title"));
+        if (jsonObject.has("description")) eb.setDescription(jsonObject.getString("description"));
+        if (jsonObject.has("author")) eb.setAuthor(jsonObject.getString("author"));
+        if (jsonObject.has("thumbnail")) eb.setThumbnail(jsonObject.getString("thumbnail"));
+        if (jsonObject.has("image")) eb.setImage(jsonObject.getString("image"));
+        if (jsonObject.has("footer")) eb.setFooter(jsonObject.getString("footer"));
 
         JDAUtil.sendPrivateMessage(userId, eb.build()).queue();
         return null;

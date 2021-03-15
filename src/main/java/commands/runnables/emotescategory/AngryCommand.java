@@ -64,7 +64,8 @@ public class AngryCommand extends EmoteAbstract {
                 "https://media.discordapp.net/attachments/736258706383175720/736259035447296100/angry.gif",
                 "https://media.discordapp.net/attachments/736258706383175720/745278166981017620/angry.gif",
                 "https://media.discordapp.net/attachments/736258706383175720/772196563313360896/angry.gif",
-                "https://media.discordapp.net/attachments/736258706383175720/772196703045550125/angry.gif"
+                "https://media.discordapp.net/attachments/736258706383175720/772196703045550125/angry.gif",
+                "https://media.discordapp.net/attachments/736258706383175720/821077468382232606/angry.gif"
         };
     }
 

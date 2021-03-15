@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import com.google.common.cache.Cache;
@@ -15,7 +14,6 @@ import constants.FisheryStatus;
 import constants.Locales;
 import core.ResourceHandler;
 import core.ShardManager;
-import mysql.DBKeySetLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
@@ -166,20 +164,15 @@ public class DBGuild extends DBObserverMapCache<Long, GuildBean> {
         });
     }
 
-    public void remove(long serverId) {
-        removedServerIds.put(serverId, true);
-        DBMain.getInstance().asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, serverId));
-        getCache().invalidate(serverId);
+    public void remove(long guildId) {
+        removedServerIds.put(guildId, true);
+        DBMain.getInstance().asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, guildId));
+        DBMain.getInstance().invalidateGuildId(guildId);
 
-        File welcomeBackgroundFile = ResourceHandler.getFileResource(String.format("data/welcome_backgrounds/%d.png", serverId));
+        File welcomeBackgroundFile = ResourceHandler.getFileResource(String.format("data/welcome_backgrounds/%d.png", guildId));
         if (welcomeBackgroundFile.exists()) {
             welcomeBackgroundFile.delete();
         }
-    }
-
-    public ArrayList<Long> getAllServerIds() throws SQLException {
-        return new DBKeySetLoad<Long>("DServers", "serverId")
-                .get(resultSet -> resultSet.getLong(1));
     }
 
 }

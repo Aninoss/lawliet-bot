@@ -26,7 +26,8 @@ public class ShrugCommand extends EmoteAbstract {
                 "https://media.discordapp.net/attachments/743231747415867483/743232253194141776/shrug.gif",
                 "https://media.discordapp.net/attachments/743231747415867483/743232278288924752/shrug.gif",
                 "https://media.discordapp.net/attachments/743231747415867483/743232310358573146/shrug.gif",
-                "https://media.discordapp.net/attachments/743231747415867483/743232541858725898/shrug.gif"
+                "https://media.discordapp.net/attachments/743231747415867483/743232541858725898/shrug.gif",
+                "https://media.discordapp.net/attachments/743231747415867483/821077491603079198/shrug.gif"
         };
     }
 
