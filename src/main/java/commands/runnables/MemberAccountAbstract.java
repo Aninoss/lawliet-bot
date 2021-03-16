@@ -56,7 +56,7 @@ public abstract class MemberAccountAbstract extends Command {
                 user = userMention.getList().get(0);
                 userMentioned = true;
             } else if (args.length() > 0) {
-                userMention = MentionUtil.getUsersFromString(args).get();
+                userMention = MentionUtil.getUsersFromString(args, true).get();
                 if (userMention.getList().size() > 0) {
                     user = userMention.getList().get(0);
                     userMentioned = true;

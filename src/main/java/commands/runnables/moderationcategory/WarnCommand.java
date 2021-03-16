@@ -63,7 +63,7 @@ public class WarnCommand extends Command implements OnReactionListener {
                 .collect(Collectors.toCollection(ArrayList::new));
 
         if (includeNotInGuild) {
-            MentionList<User> userMentionList = MentionUtil.getUsersFromString(memberMentionList.getFilteredArgs()).get();
+            MentionList<User> userMentionList = MentionUtil.getUsersFromString(memberMentionList.getFilteredArgs(), false).get();
             userList.addAll(userMentionList.getList());
 
             return new MentionList<>(userMentionList.getFilteredArgs(), userList);

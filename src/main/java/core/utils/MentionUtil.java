@@ -85,10 +85,11 @@ public class MentionUtil {
         );
     }
 
-    public static CompletableFuture<MentionList<User>> getUsersFromString(String input) {
+    public static CompletableFuture<MentionList<User>> getUsersFromString(String input, boolean onlyOne) {
         return CompletableFuture.supplyAsync(() -> {
             String newInput = input;
             ArrayList<User> userList = new ArrayList<>();
+            ArrayList<Long> usedIds = new ArrayList<>();
 
             for (String segment : input.split(" ")) {
                 Matcher matcher = Message.MentionType.USER.getPattern().matcher(segment);
@@ -98,15 +99,25 @@ public class MentionUtil {
 
                 if (StringUtil.stringIsLong(segment)) {
                     long userId = Long.parseUnsignedLong(segment);
-                    if (NumberUtil.countDigits(userId) >= 17) {
-                        try {
-                            User user = ShardManager.getInstance().fetchUserById(userId).get();
-                            if (!userList.contains(user)) {
-                                userList.add(user);
-                                newInput = newInput.replace(segment, "");
+                    if (!usedIds.contains(userId)) {
+                        usedIds.add(userId);
+                        if (NumberUtil.countDigits(userId) >= 17) {
+                            try {
+                                User user = ShardManager.getInstance().fetchUserById(userId).get();
+                                if (!userList.contains(user)) {
+                                    userList.add(user);
+                                    newInput = newInput.replace(segment, "");
+                                    if (onlyOne) {
+                                        break;
+                                    }
+                                }
+                            } catch (InterruptedException | ExecutionException e) {
+                                //Ignore
                             }
-                        } catch (InterruptedException | ExecutionException e) {
-                            //Ignore
+                        }
+
+                        if (usedIds.size() >= 10) {
+                            break;
                         }
                     }
                 }
