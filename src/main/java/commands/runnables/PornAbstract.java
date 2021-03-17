@@ -276,7 +276,9 @@ public abstract class PornAbstract extends Command {
                     pornImageOpt.ifPresent(pornImages::add);
                 }
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                if (!e.toString().contains("java.util.NoSuchElementException")) {
+                if (!e.toString().contains("java.util.NoSuchElementException") &&
+                        e.toString().contains("must start with '[' at 0")
+                ) {
                     MainLogger.get().error("Error while downloading porn", e);
                 }
             }

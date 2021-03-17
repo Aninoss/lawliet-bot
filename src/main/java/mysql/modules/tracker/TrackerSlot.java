@@ -38,6 +38,7 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
     private String webhookUrl;
     private WebhookClient webhookClient;
     private boolean active = true;
+    private boolean preferWebhook = true;
 
     public TrackerSlot(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args, String webhookUrl) {
         super(serverId);
@@ -126,7 +127,7 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
             TextChannel channel = channelOpt.get();
-            if (webhookUrl == null && BotPermissionUtil.can(channel, Permission.MANAGE_WEBHOOKS)) {
+            if (preferWebhook && webhookUrl == null && BotPermissionUtil.can(channel, Permission.MANAGE_WEBHOOKS)) {
                 try {
                     List<Webhook> webhooks = channel.retrieveWebhooks().complete();
                     for (Webhook webhook : webhooks) {
@@ -153,6 +154,7 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                         webhookUrl = webhook.getUrl();
                         return processMessageViaWebhook(newMessage, content, embeds);
                     } else {
+                        preferWebhook = false;
                         getTextChannel().map(textChannel -> processMessageViaRest(newMessage, content, embeds));
                     }
                 } catch (Throwable e) {
