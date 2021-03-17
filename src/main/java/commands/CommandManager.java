@@ -265,7 +265,7 @@ public class CommandManager {
     }
 
     private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text) {
-        if (BotPermissionUtil.canWrite(event.getChannel())) {
+        if (BotPermissionUtil.canWrite(event.getChannel(), Permission.MESSAGE_HISTORY)) {
             event.getMessage()
                     .reply(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
                     .queue(message -> autoRemoveMessageAfterCountdown(event, message));
@@ -273,7 +273,7 @@ public class CommandManager {
     }
 
     private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb) {
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel(), Permission.MESSAGE_HISTORY)) {
             eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
             event.getMessage().reply(eb.build())
                     .queue(message -> autoRemoveMessageAfterCountdown(event, message));

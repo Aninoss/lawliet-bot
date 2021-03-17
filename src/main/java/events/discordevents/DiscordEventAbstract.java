@@ -26,8 +26,8 @@ public abstract class DiscordEventAbstract {
         return discordEvent.allowBots();
     }
 
-    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, long serverId, EventExecution function) {
-        execute(listenerList, null, serverId, function);
+    protected static void execute(ArrayList<DiscordEventAbstract> listenerList, long guildId, EventExecution function) {
+        execute(listenerList, null, guildId, function);
     }
 
     protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, EventExecution function) {
@@ -36,7 +36,8 @@ public abstract class DiscordEventAbstract {
 
     protected static void execute(ArrayList<DiscordEventAbstract> listenerList, User user, long guildId, EventExecution function) {
         if ((user != null && user.getIdLong() == ShardManager.getInstance().getSelfId()) ||
-                !ShardManager.getInstance().getJDABlocker().guildIsAvailable(guildId)
+                !ShardManager.getInstance().getJDABlocker().guildIsAvailable(guildId) ||
+                (guildId != 0 && ShardManager.getInstance().getLocalGuildById(guildId).isEmpty())
         ) {
             return;
         }

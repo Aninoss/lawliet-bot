@@ -10,9 +10,9 @@ import ch.qos.logback.core.spi.FilterReply;
 public class ExceptionFilter extends Filter<ILoggingEvent> {
 
     private final String[] FILTERS = {
-            "java.lang.InterruptedException",
-            "10008: Unknown Message",
-            "50007: Cannot send messages to this user"
+            "10008",    /* Unknown message */
+            "50007",    /* Cannot send messages to this user */
+            "The Requester has been stopped! No new requests can be requested!"
     };
 
     public ExceptionFilter() {
@@ -30,16 +30,15 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
         }
 
         final ThrowableProxy throwableProxyImpl = (ThrowableProxy) throwableProxy;
-        if (!checkThrowable(throwableProxyImpl.getThrowable())) {
+        if (!shouldBeVisible(throwableProxyImpl.getThrowable().toString()) || !shouldBeVisible(event.getFormattedMessage())) {
             return FilterReply.DENY;
         }
 
         return FilterReply.NEUTRAL;
     }
 
-    public boolean checkThrowable(final Throwable throwable) {
-        return !Program.isProductionMode() || Arrays.stream(FILTERS)
-                .noneMatch(filter -> throwable.toString().contains(filter));
+    public boolean shouldBeVisible(String message) {
+        return !Program.isProductionMode() || Arrays.stream(FILTERS).noneMatch(message::contains);
     }
 
 }

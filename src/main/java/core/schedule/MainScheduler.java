@@ -24,8 +24,8 @@ public class MainScheduler {
         return ourInstance;
     }
 
-    private final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(3);
-    private final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(2);
+    private final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(8);
+    private final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(3);
     private final Timer timeOutObserver = new Timer();
 
     private final Cache<Long, ScheduleSlot> slotCache = CacheBuilder.newBuilder()

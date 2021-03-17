@@ -43,10 +43,8 @@ public class MessageCache {
         }
     }
 
-    public synchronized void update(Message message) {
-        if (cache.asMap().containsKey(message.getIdLong())) {
-            cache.put(message.getIdLong(), message);
-        }
+    public synchronized void put(Message message) {
+        cache.put(message.getIdLong(), message);
     }
 
     public synchronized void block(long messageId) {

@@ -43,14 +43,15 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
     protected void registerNavigationListener(int reactions) {
         this.reactions = reactions;
-        TextChannel channel = getTextChannel().get();
-        processDraw(channel)
-                .exceptionally(ExceptionLogger.get())
-                .thenAccept(messageId -> {
-                    addNavigationEmojis(channel, messageId);
-                    registerReactionListener();
-                    registerMessageInputListener(false);
-                });
+        getTextChannel().ifPresent(channel -> {
+            processDraw(channel)
+                    .exceptionally(ExceptionLogger.get())
+                    .thenAccept(messageId -> {
+                        addNavigationEmojis(channel, messageId);
+                        registerReactionListener();
+                        registerMessageInputListener(false);
+                    });
+        });
     }
 
     @Override

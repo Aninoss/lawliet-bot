@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
-import core.DiscordConnector;
-import core.GlobalThreadPool;
-import core.MainLogger;
-import core.ShardManager;
+import core.*;
 import core.cache.MessageCache;
 import events.discordevents.eventtypeabstracts.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -24,6 +21,7 @@ import net.dv8tion.jda.api.events.guild.update.GuildUpdateBoostCountEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.api.events.http.HttpRequestEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
@@ -85,6 +83,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
+        MessageCache.getInstance().put(event.getMessage());
         GlobalThreadPool.getExecutorService()
                 .submit(() -> GuildMessageReceivedAbstract.onGuildMessageReceivedStatic(event, getListenerList(GuildMessageReceivedAbstract.class)));
     }
@@ -96,7 +95,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onGuildMessageUpdate(@NotNull GuildMessageUpdateEvent event) {
-        MessageCache.getInstance().update(event.getMessage());
+        MessageCache.getInstance().put(event.getMessage());
         GlobalThreadPool.getExecutorService()
                 .submit(() -> GuildMessageUpdateAbstract.onGuildMessageUpdateStatic(event, getListenerList(GuildMessageUpdateAbstract.class)));
     }
@@ -177,5 +176,14 @@ public class DiscordEventAdapter extends ListenerAdapter {
     public void onUserActivityStart(@NotNull UserActivityStartEvent event) {
         UserActivityStartAbstract.onUserActivityStartStatic(event, getListenerList(UserActivityStartAbstract.class));
     }
+
+    @Override
+    public void onHttpRequest(@NotNull HttpRequestEvent event) {
+        RequestRouteLogger.getInstance().logRoute(event.getRoute().getBaseRoute().getRoute(), event.isRateLimit());
+    }
+
+
+
+
 
 }

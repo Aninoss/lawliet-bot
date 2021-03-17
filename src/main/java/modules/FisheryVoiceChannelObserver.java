@@ -17,15 +17,15 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
-public class FisheryVCObserver {
+public class FisheryVoiceChannelObserver {
 
-    private static final FisheryVCObserver ourInstance = new FisheryVCObserver();
+    private static final FisheryVoiceChannelObserver ourInstance = new FisheryVoiceChannelObserver();
 
-    public static FisheryVCObserver getInstance() {
+    public static FisheryVoiceChannelObserver getInstance() {
         return ourInstance;
     }
 
-    private FisheryVCObserver() {
+    private FisheryVoiceChannelObserver() {
     }
 
     private final int VC_CHECK_INTERVAL_MIN = 1;
@@ -67,8 +67,9 @@ public class FisheryVCObserver {
         for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {
             try {
                 List<Member> validMembers = getValidVCMembers(voiceChannel);
+                VoiceChannel afkVoice = guild.getAfkChannel();
                 if (validMembers.size() > (Program.isProductionMode() ? 1 : 0) &&
-                        (guild.getAfkChannel() != null || voiceChannel.getIdLong() != guild.getAfkChannel().getIdLong())
+                        (afkVoice == null || voiceChannel.getIdLong() != afkVoice.getIdLong())
                 ) {
                     validMembers.forEach(member -> {
                         try {

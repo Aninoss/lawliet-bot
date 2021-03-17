@@ -63,11 +63,11 @@ public class SendEvent {
         );
     }
 
-    public static CompletableFuture<Void> sendRequestSyncedRatelimit(long ratelimit) {
+    public static CompletableFuture<Long> sendRequestSyncedRatelimit() {
         return process(
                 "SYNCED_RATELIMIT",
-                Map.of("ratelimit", ratelimit),
-                responseJson -> null
+                Map.of(),
+                responseJson -> responseJson.getLong("waiting_time_nanos")
         );
     }
 

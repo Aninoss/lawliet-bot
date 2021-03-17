@@ -14,13 +14,9 @@ public class ExceptionUtil {
     public static void handleCommandException(Throwable throwable, Command command, TextChannel channel) {
         Locale locale = command.getLocale();
         boolean postErrorMessage = true;
-        boolean submitToDeveloper = new ExceptionFilter().checkThrowable(throwable);
+        boolean submitToDeveloper = new ExceptionFilter().shouldBeVisible(throwable.toString());
 
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        throwable.printStackTrace(pw);
-        String stacktrace = sw.toString();
-
+        String stacktrace = exceptionToString(throwable);
         String errorCause = stacktrace.split("\n")[0];
         String errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_desc");
 
@@ -36,13 +32,6 @@ public class ExceptionUtil {
             postErrorMessage = false;
         } else if (errorCause.contains("Read timed out")) {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
-        }
-
-        pw.close();
-        try {
-            sw.close();
-        } catch (IOException e) {
-            MainLogger.get().error("Could not close String Writer", e);
         }
 
         String transmitStackTrace = StringUtil.shortenString(stacktrace, 1000);
@@ -68,6 +57,22 @@ public class ExceptionUtil {
                 ).queue();
             }
         }
+    }
+
+    public static String exceptionToString(Throwable throwable) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        throwable.printStackTrace(pw);
+        String stacktrace = sw.toString();
+
+        pw.close();
+        try {
+            sw.close();
+        } catch (IOException e) {
+            MainLogger.get().error("Could not close String Writer", e);
+        }
+
+        return stacktrace;
     }
 
     public static boolean exceptionIsClass(Throwable throwable, Class<?> c) {

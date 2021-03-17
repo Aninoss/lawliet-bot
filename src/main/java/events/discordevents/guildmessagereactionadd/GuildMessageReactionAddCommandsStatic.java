@@ -9,10 +9,12 @@ import constants.Emojis;
 import core.MainLogger;
 import core.ShardManager;
 import core.cache.MessageCache;
+import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageReactionAddAbstract;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
@@ -22,6 +24,10 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
 
     @Override
     public boolean onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) {
+        if (!BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
+            return true;
+        }
+
         Message message;
         try {
             message = MessageCache.getInstance().retrieveMessage(event.getChannel(), event.getMessageIdLong()).get();

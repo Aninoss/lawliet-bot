@@ -6,7 +6,7 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
-import modules.FisheryVCObserver;
+import modules.FisheryVoiceChannelObserver;
 import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
 import modules.schedulers.GiveawayScheduler;
@@ -19,8 +19,11 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.dv8tion.jda.internal.utils.IOUtil;
+import okhttp3.Interceptor;
 import websockets.syncserver.SyncManager;
 
 public class DiscordConnector {
@@ -32,18 +35,31 @@ public class DiscordConnector {
     }
 
     private boolean started = false;
+    private final CustomLocalRatelimiter customLocalRatelimiter = new CustomLocalRatelimiter(21_000_000);
+    private final ConcurrentSessionController concurrentSessionController = new ConcurrentSessionController();
 
-     private final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
-            .setSessionController(CustomSessionController.getInstance())
+    private final Interceptor interceptor = chain -> {
+        try {
+            customLocalRatelimiter.requestQuota();
+        } catch (InterruptedException e) {
+            MainLogger.get().error("Interrupted", e);
+        }
+        return chain.proceed(chain.request());
+    };
+
+    private final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
+            .setSessionController(concurrentSessionController)
             .setMemberCachePolicy(MemberCachePolicy.ALL)
             .setChunkingFilter(ChunkingFilter.ALL)
             .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
             .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)
             .setActivity(Activity.watching(getActivityText()))
+            .setHttpClientBuilder(IOUtil.newHttpClientBuilder().addInterceptor(interceptor))
             .addEventListeners(new DiscordEventAdapter());
 
     private DiscordConnector() {
+        concurrentSessionController.setConcurrency(Integer.parseInt(System.getenv("CONCURRENCY")));
         ShardManager.getInstance().addShardDisconnectConsumer(this::reconnectApi);
     }
 
@@ -53,21 +69,23 @@ public class DiscordConnector {
 
         ShardManager.getInstance().init(shardMin, shardMax, totalShards);
         DBFishery.getInstance().cleanUp();
-        FisheryVCObserver.getInstance().start();
+        FisheryVoiceChannelObserver.getInstance().start();
 
         MainLogger.get().info("Bot is logging in...");
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageAction.setDefaultMentions(EnumSet.complementOf(deny));
 
-        CustomSessionController.getInstance().setConcurrency(Integer.parseInt(System.getenv("CONCURRENCY")));
-        for (int i = shardMin; i <= shardMax; i++) {
-            try {
-                jdaBuilder.useSharding(i, totalShards).build();
-            } catch (LoginException e) {
-                MainLogger.get().error("EXIT - Invalid token", e);
-                System.exit(1);
+        new CustomThread(() -> {
+            for (int i = shardMin; i <= shardMax; i++) {
+                try {
+                    jdaBuilder.useSharding(i, totalShards)
+                            .build();
+                } catch (LoginException e) {
+                    MainLogger.get().error("EXIT - Invalid token", e);
+                    System.exit(1);
+                }
             }
-        }
+        }, "startup").start();
     }
 
     public void reconnectApi(int shardId) {

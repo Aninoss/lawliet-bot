@@ -60,7 +60,7 @@ public class MessageQuote {
                                 locale,
                                 Category.GIMMICKS,
                                 "quote_sendby",
-                                StringUtil.escapeMarkdownInField(searchedMessage.getMember().getEffectiveName()), "#" + searchedMessage.getChannel().getName()
+                                StringUtil.escapeMarkdownInField(searchedMessage.getAuthor().getAsTag()), "#" + searchedMessage.getChannel().getName()
                         ),
                         null,
                         searchedMessage.getAuthor().getEffectiveAvatarUrl()

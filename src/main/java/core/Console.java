@@ -12,7 +12,7 @@ import core.utils.InternetUtil;
 import core.utils.JDAUtil;
 import core.utils.TimeUtil;
 import events.scheduleevents.events.SurveyResults;
-import modules.FisheryVCObserver;
+import modules.FisheryVoiceChannelObserver;
 import modules.repair.MainRepair;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
@@ -46,6 +46,7 @@ public class Console {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
+        tasks.put("routes", this::onRoutes);
         tasks.put("patreon_fetch", this::onPatreonFetch);
         tasks.put("survey", this::onSurvey);
         tasks.put("repair", this::onRepair);
@@ -76,6 +77,18 @@ public class Console {
         tasks.put("internet", this::onInternetConnection);
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_channel", this::onSendChannel);
+    }
+
+    private void onRoutes(String[] args) {
+        int limit = 999;
+        if (args.length > 1) {
+            limit = Integer.parseInt(args[1]);
+        }
+
+        RequestRouteLogger.getInstance().getRoutes()
+                .stream()
+                .limit(limit)
+                .forEach(entry -> MainLogger.get().info("\"{}\": {} requests - {} rate limit", entry.getRoute(), entry.getRequests(), entry.getRequestsRateLimit()));
     }
 
     private void onPatreonFetch(String[] args) {
@@ -175,7 +188,7 @@ public class Console {
         long serverId = Long.parseLong(args[1]);
         ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(guild -> {
             HashSet<Member> members = new HashSet<>();
-            guild.getVoiceChannels().forEach(vc -> members.addAll(FisheryVCObserver.getValidVCMembers(vc)));
+            guild.getVoiceChannels().forEach(vc -> members.addAll(FisheryVoiceChannelObserver.getValidVCMembers(vc)));
 
             String title = String.format("### VALID VC MEMBERS OF %s ###", guild.getName());
             System.out.println(title);

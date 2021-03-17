@@ -140,7 +140,12 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                         Member self = channel.getGuild().getSelfMember();
                         InputStream is = new URL(self.getUser().getEffectiveAvatarUrl()).openStream();
 
-                        Webhook webhook = channel.createWebhook(self.getEffectiveName())
+                        String name = self.getEffectiveName();
+                        if (name.length() < 2 || name.length() > 100) {
+                            name = self.getUser().getName();
+                        }
+
+                        Webhook webhook = channel.createWebhook(name)
                                 .setAvatar(Icon.from(is))
                                 .complete();
 
