@@ -10,6 +10,7 @@ import ch.qos.logback.core.spi.FilterReply;
 public class ExceptionFilter extends Filter<ILoggingEvent> {
 
     private final String[] FILTERS = {
+            "10003",    /* Unknown channel */
             "10008",    /* Unknown message */
             "50001",    /* Missing access */
             "50007",    /* Cannot send messages to this user */

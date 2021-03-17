@@ -45,7 +45,7 @@ public class AutoChannelRepair {
         Locale locale = autoChannelBean.getGuildBean().getLocale();
         autoChannelBean.getChildChannelIds().transform(guild::getVoiceChannelById, ISnowflake::getIdLong).stream()
                 .filter(vc -> vc.getMembers().isEmpty() && PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getGuildBean().getLocale(), AutoChannelCommand.class, vc, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT))
-                .forEach(vc -> vc.delete().reason(Command.getCommandLanguage(AutoChannelCommand.class, locale).getTitle()).submit());
+                .forEach(vc -> vc.delete().reason(Command.getCommandLanguage(AutoChannelCommand.class, locale).getTitle()).queue());
     }
 
 }

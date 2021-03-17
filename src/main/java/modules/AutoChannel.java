@@ -70,7 +70,7 @@ public class AutoChannel {
             if (voiceChannel.getIdLong() == childChannelId) {
                 if (PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getGuildBean().getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
                     if (voiceChannel.getMembers().size() == 0) {
-                        voiceChannel.delete().submit();
+                        voiceChannel.delete().queue();
                     }
                 }
                 break;
