@@ -35,7 +35,7 @@ public class DiscordConnector {
     }
 
     private boolean started = false;
-    private final CustomLocalRatelimiter customLocalRatelimiter = new CustomLocalRatelimiter(21_000_000);
+    private final CustomLocalRatelimiter customLocalRatelimiter = new CustomLocalRatelimiter(21);
     private final ConcurrentSessionController concurrentSessionController = new ConcurrentSessionController();
 
     private final Interceptor interceptor = chain -> {

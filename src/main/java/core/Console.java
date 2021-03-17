@@ -88,7 +88,7 @@ public class Console {
         RequestRouteLogger.getInstance().getRoutes()
                 .stream()
                 .limit(limit)
-                .forEach(entry -> MainLogger.get().info("\"{}\": {} requests - {} rate limit", entry.getRoute(), entry.getRequests(), entry.getRequestsRateLimit()));
+                .forEach(entry -> MainLogger.get().info("\"{}\": {} requests", entry.getRoute(), entry.getRequests()));
     }
 
     private void onPatreonFetch(String[] args) {

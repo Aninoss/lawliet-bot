@@ -9,8 +9,8 @@ public class CustomLocalRatelimiter {
 
     private final long nanos;
 
-    public CustomLocalRatelimiter(long nanos) {
-        this.nanos = nanos;
+    public CustomLocalRatelimiter(double millis) {
+        this.nanos = Math.round(millis * 1_000_000);
     }
 
     public synchronized void requestQuota() throws InterruptedException {
