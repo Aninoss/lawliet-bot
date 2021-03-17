@@ -38,7 +38,7 @@ public class AutoChannel {
         if (autoChannelBean.isActive() && voiceChannel.getIdLong() == autoChannelBean.getParentChannelId().orElse(0L)) {
             GuildBean guildBean = autoChannelBean.getGuildBean();
             if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, guild, Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT) &&
-                    (voiceChannel.getParent() != null || PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParent(), Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT))
+                    (voiceChannel.getParent() == null || PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParent(), Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT))
             ) {
                 int n = 1;
                 for (int i = 0; i < 50; i++) {

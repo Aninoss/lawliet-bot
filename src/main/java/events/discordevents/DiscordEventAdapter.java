@@ -179,7 +179,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onHttpRequest(@NotNull HttpRequestEvent event) {
-        RequestRouteLogger.getInstance().logRoute(event.getRoute().getBaseRoute().getRoute(), event.isRateLimit());
+        String route = event.getRoute().getMethod().toString() + " " + event.getRoute().getBaseRoute().getRoute();
+        RequestRouteLogger.getInstance().logRoute(route, event.isRateLimit());
     }
 
 
