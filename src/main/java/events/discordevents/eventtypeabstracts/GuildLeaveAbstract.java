@@ -9,7 +9,7 @@ public abstract class GuildLeaveAbstract extends DiscordEventAbstract {
     public abstract boolean onGuildLeave(GuildLeaveEvent event) throws Throwable;
 
     public static void onGuildLeaveStatic(GuildLeaveEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        execute(listenerList, event.getGuild().getIdLong(),
+        execute(listenerList, 0L,
                 listener -> ((GuildLeaveAbstract) listener).onGuildLeave(event)
         );
     }
