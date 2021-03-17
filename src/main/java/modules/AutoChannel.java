@@ -1,6 +1,7 @@
 package modules;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -100,7 +101,8 @@ public class AutoChannel {
         } else {
             channelAction = parentVoice.getGuild().createVoiceChannel(getNewVoiceName(autoChannelBean, parentVoice, member, n));
         }
-        channelAction = channelAction.setBitrate(parentVoice.getBitrate())
+        channelAction = channelAction.clearPermissionOverrides()
+                .setBitrate(parentVoice.getBitrate())
                 .setUserlimit(parentVoice.getUserLimit());
 
         if (autoChannelBean.isLocked()) {
@@ -134,9 +136,22 @@ public class AutoChannel {
     }
 
     private static ChannelAction<VoiceChannel> addBotPermissions(VoiceChannel parentVoice, ChannelAction<VoiceChannel> channelAction) {
+        long allowRaw = 0L;
+        long denyRaw = 0L;
+
         PermissionOverride botPermission = parentVoice.getPermissionOverride(parentVoice.getGuild().getSelfMember());
-        long allowRaw = botPermission != null ? botPermission.getAllowedRaw() : 0L;
-        long denyRaw = botPermission != null ? botPermission.getDeniedRaw() : 0L;
+        if (botPermission != null) {
+            Collection<Permission> allow = botPermission.getAllowed().stream()
+                    .filter(permission -> BotPermissionUtil.canInteract(parentVoice.getGuild(), permission))
+                    .collect(Collectors.toList());
+
+            Collection<Permission> deny = botPermission.getDenied().stream()
+                    .filter(permission -> BotPermissionUtil.canInteract(parentVoice.getGuild(), permission))
+                    .collect(Collectors.toList());
+
+            allowRaw = Permission.getRaw(allow);
+            denyRaw = Permission.getRaw(deny);
+        }
 
         return channelAction.addPermissionOverride(
                 parentVoice.getGuild().getSelfMember(),

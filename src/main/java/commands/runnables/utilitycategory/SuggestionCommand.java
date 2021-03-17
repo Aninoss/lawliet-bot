@@ -54,7 +54,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     String author = event.getMessage().getMember().getUser().getAsTag();
                     String content = StringUtil.shortenString(args, 1024);
 
-                    MessageAction messageAction = channel.sendMessage(generateEmbed(content, author, generateFooter(0, 0)).build());
+                    MessageAction messageAction = channel.sendMessage(generateEmbed(content, StringUtil.escapeMarkdown(author), generateFooter(0, 0)).build());
                     if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID) {
                         messageAction = messageAction.content("<@&762314049953988650>")
                                 .allowedMentions(null);
@@ -146,7 +146,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                         quickUpdater.update(
                                 messageId,
                                 event.getChannel()
-                                        .editMessageById(messageId, generateEmbed(suggestionMessage.getContent(), suggestionMessage.getAuthor(), footer).build())
+                                        .editMessageById(messageId, generateEmbed(suggestionMessage.getContent(), StringUtil.escapeMarkdown(suggestionMessage.getAuthor()), footer).build())
                         );
                     }
                     return suggestionMessage;

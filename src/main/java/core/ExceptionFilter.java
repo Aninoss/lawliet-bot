@@ -11,8 +11,11 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
 
     private final String[] FILTERS = {
             "10008",    /* Unknown message */
+            "50001",    /* Missing access */
             "50007",    /* Cannot send messages to this user */
-            "The Requester has been stopped! No new requests can be requested!"
+            "90001",    /* Reaction blocked */
+            "The Requester has been stopped! No new requests can be requested!",
+            "Timeout"
     };
 
     public ExceptionFilter() {
@@ -38,7 +41,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
     }
 
     public boolean shouldBeVisible(String message) {
-        return !Program.isProductionMode() || Arrays.stream(FILTERS).noneMatch(message::contains);
+        return !Program.isProductionMode() || Arrays.stream(FILTERS).noneMatch(filter -> message.toLowerCase().contains(filter.toLowerCase()));
     }
 
 }

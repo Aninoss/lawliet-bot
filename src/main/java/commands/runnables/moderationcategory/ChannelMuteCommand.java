@@ -60,7 +60,7 @@ public class ChannelMuteCommand extends Command {
                 getAdjustedUserGuildPermissions(),
                 getAdjustedUserChannelPermissions(),
                 getAdjustedBotGuildPermissions(),
-                getAdjustedBotChannelPermissions()
+                new Permission[] { Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS }
         );
         if (errorEmbed != null) {
             message.getChannel().sendMessage(errorEmbed.build()).queue();

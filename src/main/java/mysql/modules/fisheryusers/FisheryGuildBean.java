@@ -14,7 +14,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 public class FisheryGuildBean extends BeanWithGuild {
 
     private final CustomObservableMap<Long, FisheryMemberBean> users;
-    private final CustomObservableList<Long> ignoredChannelIds, roleIds;
+    private final CustomObservableList<Long> ignoredChannelIds;
+    private final CustomObservableList<Long> roleIds;
 
     public FisheryGuildBean(long serverId, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds, @NonNull HashMap<Long, FisheryMemberBean> users) {
         super(serverId);

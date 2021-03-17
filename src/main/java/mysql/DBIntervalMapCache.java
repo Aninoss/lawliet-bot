@@ -32,7 +32,7 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
         t.start();
     }
 
-    private synchronized void intervalSave() {
+    private void intervalSave() {
         ArrayList<U> tempList = new ArrayList<>(changed);
         changed = new ArrayList<>();
         tempList.stream()

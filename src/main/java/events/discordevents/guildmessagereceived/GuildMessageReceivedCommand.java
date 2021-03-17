@@ -103,14 +103,13 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
     private void checkAutoQuote(GuildMessageReceivedEvent event) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-            Locale locale = guildBean.getLocale();
             MentionUtil.getMessageWithLinks(event.getMessage(), event.getMessage().getContentRaw()).thenAccept(mentionMessages -> {
                 List<Message> messages = mentionMessages.getList();
                 if (messages.size() > 0 && DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive()) {
                     try {
                         for (int i = 0; i < Math.min(3, messages.size()); i++) {
                             Message message = messages.get(i);
-                            MessageQuote.postQuote(locale, event.getChannel(), message, true);
+                            MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getChannel(), message, true);
                         }
                     } catch (Throwable throwable) {
                         MainLogger.get().error("Exception in Auto Quote", throwable);

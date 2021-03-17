@@ -45,6 +45,7 @@ public class ShardManager {
     private int totalShards = 0;
     private boolean ready = false;
     private long selfId = 0;
+    private int globalErrors = 0;
 
     private final Cache<Long, User> userCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(5))
@@ -68,13 +69,24 @@ public class ShardManager {
 
         //TODO: update
         if (Program.isProductionMode()) {
-            MainScheduler.getInstance().schedule(5, ChronoUnit.MINUTES, "bootup_check", () -> {
+            MainScheduler.getInstance().schedule(3, ChronoUnit.MINUTES, "bootup_check", () -> {
                 if (!ready) {
                     MainLogger.get().error("EXIT - Could not boot up");
                     System.exit(1);
                 }
             });
         }
+    }
+
+    public void increaseGlobalErrorCounter() {
+        if (++globalErrors >= totalShards) {
+            MainLogger.get().error("EXIT - Too many shard errors!");
+            System.exit(1);
+        }
+    }
+
+    public void resetGlobalErrorCounter() {
+        globalErrors = 0;
     }
 
     public synchronized void initAssetIds(JDA jda) {
@@ -347,11 +359,13 @@ public class ShardManager {
 
         public void checkConnection() {
             if (alive) {
+                ShardManager.getInstance().resetGlobalErrorCounter();
                 errors = 0;
                 alive = false;
             } else {
                 MainLogger.get().debug("No data from shard {}", jda.getShardInfo().getShardId());
-                if (++errors >= 6) { /* reconnect after 60 seconds */
+                if (++errors >= 3) {    /* reconnect after 30 seconds */
+                    ShardManager.getInstance().increaseGlobalErrorCounter();
                     MainLogger.get().warn("Shard {} temporarily offline", jda.getShardInfo().getShardId());
                     ShardManager.getInstance().reconnectShard(jda.getShardInfo().getShardId());
                 }

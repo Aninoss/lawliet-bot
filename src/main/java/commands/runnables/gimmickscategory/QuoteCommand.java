@@ -41,7 +41,7 @@ public class QuoteCommand extends Command {
         if (directMessage.size() > 0) {
             for (Message message : directMessage) {
                 if (BotPermissionUtil.canRead(message.getTextChannel())) {
-                    MessageQuote.postQuote(getLocale(), event.getChannel(), message, false);
+                    MessageQuote.postQuote(getPrefix(), getLocale(), event.getChannel(), message, false);
                     return true;
                 }
             }
@@ -57,7 +57,7 @@ public class QuoteCommand extends Command {
             if (StringUtil.stringIsLong(newString)) {
                 try {
                     Message message = MessageCache.getInstance().retrieveMessage(channel, Long.parseLong(newString)).get();
-                    MessageQuote.postQuote(getLocale(), event.getChannel(), message, false);
+                    MessageQuote.postQuote(getPrefix(), getLocale(), event.getChannel(), message, false);
                     return true;
                 } catch (ExecutionException | InterruptedException e) {
                     //Ignore

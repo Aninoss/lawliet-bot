@@ -283,12 +283,22 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     private List<FisheryMemberPowerUpBean> getUpgradablePowerUpBeans() {
         List<Role> roles = fisheryGuildBean.getRoles();
         return fisheryMemberBean.getPowerUpMap().values().stream()
-                .filter(slot -> (slot.getPowerUpId() != FisheryCategoryInterface.ROLE ||
-                        (slot.getLevel() < fisheryGuildBean.getRoleIds().size() &&
-                                BotPermissionUtil.can(getGuild().get(), Permission.MANAGE_ROLES) &&
-                                getGuild().get().getSelfMember().canInteract(roles.get(slot.getLevel())))) &&
-                        (slot.getPowerUpId() != FisheryCategoryInterface.PER_TREASURE || guildBean.isFisheryTreasureChests())
-                ).collect(Collectors.toList());
+                .filter(slot -> slotIsValid(roles, slot))
+                .collect(Collectors.toList());
+    }
+
+    private boolean slotIsValid(List<Role> roles, FisheryMemberPowerUpBean slot) {
+        if (slot.getPowerUpId() == FisheryCategoryInterface.ROLE) {
+            return slot.getLevel() < roles.size() &&
+                    BotPermissionUtil.can(getGuild().get(), Permission.MANAGE_ROLES) &&
+                    getGuild().get().getSelfMember().canInteract(roles.get(slot.getLevel()));
+        }
+
+        if (slot.getPowerUpId() == FisheryCategoryInterface.PER_TREASURE) {
+            return guildBean.isFisheryTreasureChests();
+        }
+
+        return true;
     }
 
     private long calculateRolePrice(FisheryMemberPowerUpBean slot) {

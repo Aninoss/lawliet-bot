@@ -26,9 +26,6 @@ public class BotPermissionUtil {
     }
 
     public static List<Permission> getMissingPermissions(Member member, Permission... permissions) {
-        permissions = Arrays.copyOf(permissions, permissions.length + 1);
-        permissions[permissions.length - 1] = Permission.VIEW_CHANNEL;
-
         return Arrays.stream(permissions)
                 .filter(permission -> !member.hasPermission(permission))
                 .collect(Collectors.toList());
