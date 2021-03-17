@@ -161,7 +161,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         List<Role> roles = fisheryGuildBean.getRoles();
 
         boolean canUseTreasureChests = guildBean.isFisheryTreasureChests();
-        boolean canUseRoles = fisheryMemberBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel() < fisheryGuildBean.getRoleIds().size() &&
+        boolean canUseRoles = fisheryMemberBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel() < roles.size() &&
                 BotPermissionUtil.can(member.getGuild(), Permission.MANAGE_ROLES) &&
                 member.canInteract(roles.get(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel()));
 
