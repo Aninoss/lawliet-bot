@@ -24,7 +24,6 @@ public class CoolDownUserData {
         clean();
 
         if (commandInstants.size() >= Settings.COOLDOWN_MAX_ALLOWED) {
-            MainLogger.get().warn("{} ({}) has hit a cool down", ShardManager.getInstance().getCachedUserById(userId).map(User::getAsTag).orElse("???"), userId);
             Duration duration = Duration.between(Instant.now(), commandInstants.get(0));
             MainScheduler.getInstance().schedule(commandInstants.get(0), "cool_down_post", () -> this.canPostCoolDownMessage = true);
             return Optional.of((int) (duration.getSeconds() + 1));
@@ -36,6 +35,7 @@ public class CoolDownUserData {
 
     public synchronized boolean canPostCoolDownMessage() {
         if (canPostCoolDownMessage) {
+            MainLogger.get().warn("{} ({}) has hit a cool down", ShardManager.getInstance().getCachedUserById(userId).map(User::getAsTag).orElse("???"), userId);
             canPostCoolDownMessage = false;
             return true;
         }
