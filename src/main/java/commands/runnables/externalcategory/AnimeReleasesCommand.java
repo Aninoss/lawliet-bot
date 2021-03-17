@@ -13,10 +13,11 @@ import commands.listeners.OnAlertListener;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
+import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import modules.PostBundle;
-import modules.animerelease.AnimeReleasesDownloader;
 import modules.animerelease.AnimeReleasePost;
+import modules.animerelease.AnimeReleasesDownloader;
 import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -55,7 +56,6 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setAuthor(post.getAnime(), post.getUrl(), "https://cdn.discordapp.com/attachments/499629904380297226/782242962201116723/crunchyroll_favicon.png")
                 .setDescription(post.getDescription())
-                .setImage(post.getThumbnail())
                 .setTimestamp(post.getInstant());
         EmbedUtil.setFooter(eb, this);
 
@@ -69,6 +69,10 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
             if (post.getEpisodeTitle().isPresent()) {
                 eb.setTitle(post.getEpisodeTitle().get(), post.getUrl());
             }
+        }
+
+        if (InternetUtil.stringHasURL(post.getThumbnail(), true)) {
+            eb.setImage(post.getThumbnail());
         }
 
         return eb;

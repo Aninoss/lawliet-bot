@@ -57,18 +57,22 @@ public class WarnCommand extends Command implements OnReactionListener {
     }
 
     protected MentionList<User> getUserList(Message message, String args) throws Throwable {
-        MentionList<Member> memberMentionList = MentionUtil.getMembers(message, args);
-        ArrayList<User> userList = memberMentionList.getList().stream()
+        MentionList<Member> memberMention = MentionUtil.getMembers(message, args);
+        ArrayList<User> userList = memberMention.getList().stream()
                 .map(Member::getUser)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         if (includeNotInGuild) {
-            MentionList<User> userMentionList = MentionUtil.getUsersFromString(memberMentionList.getFilteredArgs(), false).get();
-            userList.addAll(userMentionList.getList());
+            MentionList<User> userMention = MentionUtil.getUsersFromString(memberMention.getFilteredArgs(), false).get();
+            userMention.getList().forEach(user -> {
+                if (!userList.contains(user)) {
+                    userList.add(user);
+                }
+            });
 
-            return new MentionList<>(userMentionList.getFilteredArgs(), userList);
+            return new MentionList<>(userMention.getFilteredArgs(), userList);
         } else {
-            return new MentionList<>(memberMentionList.getFilteredArgs(), userList);
+            return new MentionList<>(memberMention.getFilteredArgs(), userList);
         }
     }
 

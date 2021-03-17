@@ -40,8 +40,8 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
         String[] prefixes = {
                 prefix,
-                ShardManager.getInstance().getSelf().getAsMention(),
-                MentionUtil.getUserAsMention(ShardManager.getInstance().getSelfId())
+                MentionUtil.getUserAsMention(ShardManager.getInstance().getSelfId(), true),
+                MentionUtil.getUserAsMention(ShardManager.getInstance().getSelfId(), false)
         };
 
         int prefixFound = -1;

@@ -37,8 +37,8 @@ public class MentionUtil {
 
         for (Member member : list) {
             input = input
-                    .replace(member.getAsMention(), "")
-                    .replace(getUserAsMention(member.getIdLong()), "");
+                    .replace(getUserAsMention(member.getIdLong(), true), "")
+                    .replace(getUserAsMention(member.getIdLong(), false), "");
         }
 
         return generateMentionList(
@@ -69,8 +69,8 @@ public class MentionUtil {
 
         for (User user : list) {
             input = input
-                    .replace(user.getAsMention(), "")
-                    .replace(getUserAsMention(user.getIdLong()), "");
+                    .replace(getUserAsMention(user.getIdLong(), false), "")
+                    .replace(getUserAsMention(user.getIdLong(), true), "");
         }
 
         return generateMentionList(
@@ -92,13 +92,15 @@ public class MentionUtil {
             ArrayList<Long> usedIds = new ArrayList<>();
 
             for (String segment : input.split(" ")) {
+                String idString = segment;
+
                 Matcher matcher = Message.MentionType.USER.getPattern().matcher(segment);
                 if (matcher.matches()) {
-                    segment = matcher.group(1);
+                    idString = matcher.group(1);
                 }
 
-                if (StringUtil.stringIsLong(segment)) {
-                    long userId = Long.parseUnsignedLong(segment);
+                if (StringUtil.stringIsLong(idString)) {
+                    long userId = Long.parseUnsignedLong(idString);
                     if (!usedIds.contains(userId)) {
                         usedIds.add(userId);
                         if (NumberUtil.countDigits(userId) >= 17) {
@@ -528,8 +530,12 @@ public class MentionUtil {
         return str;
     }
 
-    public static String getUserAsMention(long id) {
-        return "<@!" + id + ">";
+    public static String getUserAsMention(long id, boolean withExclamationMark) {
+        if (withExclamationMark) {
+            return "<@!" + id + ">";
+        } else {
+            return "<@" + id + ">";
+        }
     }
 
 
