@@ -160,10 +160,8 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     private synchronized boolean buy(int i, Member member, boolean transferableSlots) {
         List<Role> roles = fisheryGuildBean.getRoles();
 
-        boolean canUseTreasureChests = guildBean.isFisheryTreasureChests();
-        boolean canUseRoles = fisheryMemberBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel() < roles.size() &&
-                BotPermissionUtil.can(member.getGuild(), Permission.MANAGE_ROLES) &&
-                member.canInteract(roles.get(fisheryMemberBean.getPowerUp(FisheryCategoryInterface.ROLE).getLevel()));
+        boolean canUseTreasureChests = slotIsValid(roles, fisheryMemberBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE));;
+        boolean canUseRoles = slotIsValid(roles, fisheryMemberBean.getPowerUp(FisheryCategoryInterface.ROLE));;
 
         if (transferableSlots) {
             if (i >= FisheryCategoryInterface.PER_TREASURE && !canUseTreasureChests) i++;
