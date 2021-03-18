@@ -90,7 +90,7 @@ public class CommandManager {
     }
 
     private static void maybeSendBotInvite(GuildMessageReceivedEvent event, Locale locale) {
-        if (random.nextInt(190) == 0 &&
+        if (random.nextInt(180) == 0 &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER) &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MESSAGE_MANAGE) &&
                 BotPermissionUtil.canWriteEmbed(event.getChannel())

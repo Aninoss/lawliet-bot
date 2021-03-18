@@ -419,16 +419,18 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                     restActionQueue.attach(emojiConnection.addReaction(m));
                 }
             }
-            for (MessageReaction reaction : m.getReactions()) {
-                boolean exist = false;
-                for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                    if (emojiConnection.isEmoji(reaction.getReactionEmote())) {
-                        exist = true;
-                        break;
+            if (BotPermissionUtil.can(m.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+                for (MessageReaction reaction : m.getReactions()) {
+                    boolean exist = false;
+                    for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
+                        if (emojiConnection.isEmoji(reaction.getReactionEmote())) {
+                            exist = true;
+                            break;
+                        }
                     }
-                }
-                if (!exist) {
-                    restActionQueue.attach(reaction.clearReactions());
+                    if (!exist) {
+                        restActionQueue.attach(reaction.clearReactions());
+                    }
                 }
             }
             if (restActionQueue.isSet()) {

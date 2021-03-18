@@ -67,7 +67,6 @@ public class ShardManager {
         this.shardIntervalMax = shardIntervalMax;
         this.totalShards = totalShards;
 
-        //TODO: update
         if (Program.isProductionMode()) {
             MainScheduler.getInstance().schedule(3, ChronoUnit.MINUTES, "bootup_check", () -> {
                 if (!ready) {

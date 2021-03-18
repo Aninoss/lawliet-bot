@@ -118,10 +118,13 @@ public class NewCommand extends Command implements OnAlertListener {
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
         if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionBeanSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
-
-            slot.sendMessage(getVersionsEmbed(newestSlot).build()); //TODO: crosspost
+            long messageId = slot.sendMessage(getVersionsEmbed(newestSlot).build()).orElse(0L);
 
             if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID) {
+                if (messageId != 0) {
+                    slot.getTextChannel().get().crosspostMessageById(messageId).queue();
+                }
+
                 Role role = slot.getGuild().get().getRoleById(703879430799622155L);
                 slot.getTextChannel().get().sendMessage(role.getAsMention())
                         .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
