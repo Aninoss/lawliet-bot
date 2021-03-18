@@ -1,12 +1,14 @@
 package modules;
 
 import java.time.Instant;
+import java.util.Collections;
 import constants.AssetIds;
 import core.MainLogger;
 import core.ShardManager;
 import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
 import mysql.modules.bump.DBBump;
+import net.dv8tion.jda.api.entities.Message;
 
 public class BumpReminder {
 
@@ -46,7 +48,9 @@ public class BumpReminder {
             ShardManager.getInstance().getLocalGuildById(ANINOSS_SERVER_ID)
                     .map(guild -> guild.getTextChannelById(BUMP_CHANNEL_ID))
                     .ifPresent(channel -> {
-                        channel.sendMessage("<@&755828541886693398> Der Server ist wieder bereit fürs Bumpen! Schreibt `!d bump`").queue();
+                        channel.sendMessage("<@&755828541886693398> Der Server ist wieder bereit fürs Bumpen! Schreibt `!d bump`")
+                                .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
+                                .queue();
                         countdownRunning = false;
                     });
         });

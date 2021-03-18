@@ -1,5 +1,6 @@
 package core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,7 +18,7 @@ public class RequestRouteLogger {
     private RequestRouteLogger() {
     }
 
-    public synchronized void logRoute(String path, boolean ratelimit) {
+    public void logRoute(String path, boolean ratelimit) {
         RequestMeta requestMeta = routeMap.computeIfAbsent(path, k -> new RequestMeta(path));
         requestMeta.requests++;
         if (ratelimit) {
@@ -26,8 +27,8 @@ public class RequestRouteLogger {
         routeMap.put(path, requestMeta);
     }
 
-    public synchronized List<RequestMeta> getRoutes() {
-        return routeMap.values().stream()
+    public List<RequestMeta> getRoutes() {
+        return new ArrayList<>(routeMap.values()).stream()
                 .sorted((e0, e1) -> Long.compare(e1.requests, e0.requests))
                 .collect(Collectors.toList());
     }

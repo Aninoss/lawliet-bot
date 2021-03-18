@@ -2,6 +2,7 @@ package events.discordevents.guildjoin;
 
 import constants.ExternalLinks;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.ShardManager;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
@@ -30,7 +31,8 @@ public class GuildJoinPostWelcomeMessage extends GuildJoinAbstract {
 
         EmbedUtil.setMemberAuthor(eb, channel.getGuild().getSelfMember());
         if (BotPermissionUtil.canWriteEmbed(channel)) {
-            channel.sendMessage(eb.build()).queue();
+            channel.sendMessage(eb.build()).submit()
+                    .exceptionally(ExceptionLogger.get("50013"));
         }
     }
 

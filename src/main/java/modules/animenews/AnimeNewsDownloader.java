@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import constants.Language;
+import core.MainLogger;
 import core.internet.HttpResponse;
 import core.internet.InternetCache;
 import core.utils.InternetUtil;
@@ -52,11 +53,18 @@ public class AnimeNewsDownloader {
                 .getJSONArray("item");
     }
 
-    private static AnimeNewsArticle extractPostEn(JSONObject jsonPost) throws ExecutionException, InterruptedException {
+    private static AnimeNewsArticle extractPostEn(JSONObject jsonPost) {
+        String thumbnailUrl = null;
+        try {
+            thumbnailUrl = InternetUtil.retrieveThumbnailPreview(jsonPost.getString("link")).get();
+        } catch (InterruptedException | ExecutionException e) {
+            MainLogger.get().error("Could not retrieve thumbnail for anime news", e);
+        }
+
         return new AnimeNewsArticle(
                 StringUtil.shortenString(StringEscapeUtils.unescapeHtml4(jsonPost.getString("title")), 256),
                 StringEscapeUtils.unescapeHtml4(jsonPost.getString("description")),
-                InternetUtil.retrieveThumbnailPreview(jsonPost.getString("link")).get(),
+                thumbnailUrl,
                 jsonPost.getString("link"),
                 TimeUtil.parseDateStringRSS(jsonPost.getString("pubDate"))
         );

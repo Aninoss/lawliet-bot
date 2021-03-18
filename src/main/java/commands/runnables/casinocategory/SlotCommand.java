@@ -28,7 +28,7 @@ public class SlotCommand extends CasinoAbstract {
 
     private final String[] FRUITS_CONTAINER = { "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🍎", "🍐", "🍑", "🍒", "🍓", "🆒" };
     private final double[] WIN_POSSIBILITIES = { 10, 20, 100, 200 };
-    private final double[] WIN_AMOUNT_ADJUSTMENT = { 1.3, 1.1, 0.9, 0.7 };
+    private final double[] WIN_AMOUNT_ADJUSTMENT = { 1.4, 1.15, 0.85, 0.6 };
     private final String ALL_EMOJI = Emojis.CHECKMARK;
 
     private int winLevel;
