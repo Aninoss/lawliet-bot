@@ -101,6 +101,7 @@ public class SurveyResults implements ScheduleInterface {
                 .forEach(secondVote -> {
                     FisheryMemberBean userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getMemberBean(user.getIdLong());
                     long price = userBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect();
+                    MainLogger.get().info("Survey: Giving {} coins to {} ({})", price, user, user.getIdLong());
                     userBean.changeValues(0, price);
                 });
     }
