@@ -184,8 +184,7 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public Permission[] getAdjustedUserGuildPermissions() {
-        Permission[] permissions = commandProperties.userGuildPermissions();
-        return processUserPermissions(permissions);
+        return commandProperties.userGuildPermissions();
     }
 
     public Permission[] getAdjustedUserChannelPermissions() {
@@ -220,8 +219,7 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public Permission[] getAdjustedBotGuildPermissions() {
-        Permission[] permissions = commandProperties.botGuildPermissions();
-        return processBotPermissions(permissions);
+        return commandProperties.botGuildPermissions();
     }
 
     public Permission[] getAdjustedBotChannelPermissions() {

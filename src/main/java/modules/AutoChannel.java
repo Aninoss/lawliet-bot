@@ -37,8 +37,9 @@ public class AutoChannel {
         AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
         if (autoChannelBean.isActive() && voiceChannel.getIdLong() == autoChannelBean.getParentChannelId().orElse(0L)) {
             GuildBean guildBean = autoChannelBean.getGuildBean();
-            if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, guild, Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT) &&
-                    (voiceChannel.getParent() == null || PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParent(), Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT))
+            if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, guild, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT) &&
+                    (voiceChannel.getParent() == null || PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParent(), Permission.MANAGE_CHANNEL)) &&
+                    PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
             ) {
                 int n = 1;
                 for (int i = 0; i < 50; i++) {
@@ -155,8 +156,8 @@ public class AutoChannel {
 
         return channelAction.addPermissionOverride(
                 parentVoice.getGuild().getSelfMember(),
-                allowRaw | Permission.MANAGE_CHANNEL.getRawValue() | Permission.VOICE_CONNECT.getRawValue(),
-                denyRaw & ~Permission.MANAGE_CHANNEL.getRawValue() & ~Permission.VOICE_CONNECT.getRawValue()
+                allowRaw | Permission.VIEW_CHANNEL.getRawValue() | Permission.MANAGE_CHANNEL.getRawValue() | Permission.VOICE_CONNECT.getRawValue(),
+                denyRaw & Permission.VIEW_CHANNEL.getRawValue() & ~Permission.MANAGE_CHANNEL.getRawValue() & ~Permission.VOICE_CONNECT.getRawValue()
         );
     }
 

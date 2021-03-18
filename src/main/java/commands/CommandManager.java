@@ -265,18 +265,31 @@ public class CommandManager {
     }
 
     private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text) {
-        if (BotPermissionUtil.canWrite(event.getChannel(), Permission.MESSAGE_HISTORY)) {
-            event.getMessage()
-                    .reply(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
-                    .queue(message -> autoRemoveMessageAfterCountdown(event, message));
+        if (BotPermissionUtil.canWrite(event.getChannel())) {
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
+                event.getMessage()
+                        .reply(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
+                        .queue(message -> autoRemoveMessageAfterCountdown(event, message));
+            } else {
+                event.getChannel()
+                        .sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
+                        .queue(message -> autoRemoveMessageAfterCountdown(event, message));
+            }
         }
     }
 
     private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb) {
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel(), Permission.MESSAGE_HISTORY)) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
-            event.getMessage().reply(eb.build())
-                    .queue(message -> autoRemoveMessageAfterCountdown(event, message));
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
+                event.getMessage()
+                        .reply(eb.build())
+                        .queue(message -> autoRemoveMessageAfterCountdown(event, message));
+            } else {
+                event.getChannel()
+                        .sendMessage(eb.build())
+                        .queue(message -> autoRemoveMessageAfterCountdown(event, message));
+            }
         }
     }
 

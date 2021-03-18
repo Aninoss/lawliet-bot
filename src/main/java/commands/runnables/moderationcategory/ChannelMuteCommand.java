@@ -53,12 +53,9 @@ public class ChannelMuteCommand extends Command {
             channel = channelList.get(0);
         }
 
-        EmbedBuilder errorEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+        EmbedBuilder errorEmbed = BotPermissionUtil.getBotPermissionMissingEmbed(
                 getLocale(),
                 channel,
-                event.getMember(),
-                getAdjustedUserGuildPermissions(),
-                getAdjustedUserChannelPermissions(),
                 getAdjustedBotGuildPermissions(),
                 new Permission[] { Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS }
         );

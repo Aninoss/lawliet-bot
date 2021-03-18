@@ -25,6 +25,29 @@ public class BotPermissionUtil {
         return getUserPermissionMissingEmbed(locale, userPermission, botPermission);
     }
 
+    public static String getBotPermissionsMissingText(Locale locale, GuildChannel channel, Permission... permissions) {
+        List<Permission> missing = getMissingPermissions(channel, channel.getGuild().getSelfMember(), permissions);
+        if (missing.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder sb = new StringBuilder(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_bot"))
+                .append(" ");
+
+        for (int i = 0; i < missing.size(); i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(TextManager.getString(locale, TextManager.PERMISSIONS, missing.get(i).name()));
+        }
+
+        return sb.toString();
+    }
+
+    public static EmbedBuilder getBotPermissionMissingEmbed(Locale locale, GuildChannel channel, Permission[] botGuildPermissions, Permission[] botChannelPermissions) {
+        List<Permission> botPermission = new ArrayList<>(getMissingPermissions(channel.getGuild().getSelfMember(), botGuildPermissions));
+        botPermission.addAll(getMissingPermissions(channel, channel.getGuild().getSelfMember(), botChannelPermissions));
+        return getUserPermissionMissingEmbed(locale, new ArrayList<>(), botPermission);
+    }
+
     public static List<Permission> getMissingPermissions(Member member, Permission... permissions) {
         return Arrays.stream(permissions)
                 .filter(permission -> !member.hasPermission(permission))

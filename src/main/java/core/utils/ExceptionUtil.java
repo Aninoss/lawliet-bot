@@ -26,7 +26,7 @@ public class ExceptionUtil {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error500_alt");
         } else if (errorCause.contains("java.net.SocketTimeoutException")) {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
-        } else if (errorCause.contains("50013: Missing Permissions")) {
+        } else if (errorCause.contains("50013") || errorCause.contains("PermissionException")) {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "missing_permissions");
         } else if (throwable instanceof InterruptedException) {
             postErrorMessage = false;

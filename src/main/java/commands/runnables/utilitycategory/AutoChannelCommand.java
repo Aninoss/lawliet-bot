@@ -8,6 +8,7 @@ import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.AutoChannel;
@@ -15,6 +16,7 @@ import mysql.modules.autochannel.AutoChannelBean;
 import mysql.modules.autochannel.DBAutoChannel;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -22,8 +24,8 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 
 @CommandProperties(
         trigger = "autochannel",
-        botGuildPermissions = { Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT },
-        userGuildPermissions = { Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS, Permission.VOICE_CONNECT },
+        botGuildPermissions = { Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT },
+        userGuildPermissions = { Permission.MANAGE_CHANNEL },
         emoji = "🔊",
         executableWithoutArgs = true,
         aliases = { "tempchannel" }
@@ -52,7 +54,23 @@ public class AutoChannelCommand extends NavigationAbstract {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
-                    autoChannelBean.setParentChannelId(channelList.get(0).getIdLong());
+                    VoiceChannel voiceChannel = channelList.get(0);
+                    String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), voiceChannel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS);
+                    if (channelMissingPerms != null) {
+                        setLog(LogStatus.FAILURE, channelMissingPerms);
+                        return Response.FALSE;
+                    }
+
+                    Category parent = voiceChannel.getParent();
+                    if (parent != null) {
+                        String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL);
+                        if (categoryMissingPerms != null) {
+                            setLog(LogStatus.FAILURE, categoryMissingPerms);
+                            return Response.FALSE;
+                        }
+                    }
+
+                    autoChannelBean.setParentChannelId(voiceChannel.getIdLong());
                     setLog(LogStatus.SUCCESS, getString("channelset"));
                     setState(0);
                     return Response.TRUE;
