@@ -4,6 +4,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import commands.Command;
 import commands.runnables.utilitycategory.TriggerDeleteCommand;
+import core.MainLogger;
 import core.Program;
 import core.PermissionCheckRuntime;
 import core.cache.ServerPatreonBoostCache;
@@ -47,6 +48,8 @@ public interface OnTriggerListener {
         Thread commandThread = Thread.currentThread();
         MainScheduler.getInstance().schedule(command.getCommandProperties().maxCalculationTimeSec(), ChronoUnit.SECONDS, "command_timeout", () -> {
             if (!command.getCommandProperties().turnOffTimeout() && isProcessing.get()) {
+                Exception e = ExceptionUtil.generateForStack(commandThread);
+                MainLogger.get().error("Command \"{}\" stuck", command.getTrigger(), e);
                 commandThread.interrupt();
             }
         });
