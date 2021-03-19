@@ -390,7 +390,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             if (checkWriteInChannelWithLog(channel.get().orElse(null))) {
                 TextChannel textChannel = channel.get().get();
                 m = textChannel.sendMessage(getMessageEmbed(false).build()).complete();
-                if (BotPermissionUtil.canRead(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
+                if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
                     RestActionQueue restActionQueue = new RestActionQueue();
                     for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                         restActionQueue.attach(emojiConnection.addReaction(m));

@@ -36,13 +36,14 @@ public class TreasureCommand extends Command implements FisheryInterface {
         if (channelMention.getList().size() > 0) {
             channel = channelMention.getList().get(0);
             args = channelMention.getFilteredArgs().trim();
-            if (!BotPermissionUtil.canWriteEmbed(channel)) {
-                String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
-                event.getChannel().sendMessage(
-                        EmbedFactory.getEmbedError(this, error).build()
-                ).queue();
-                return false;
-            }
+        }
+
+        if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
+            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
+            event.getChannel().sendMessage(
+                    EmbedFactory.getEmbedError(this, error).build()
+            ).queue();
+            return false;
         }
 
         int amount = 1;

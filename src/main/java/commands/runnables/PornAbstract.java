@@ -277,7 +277,7 @@ public abstract class PornAbstract extends Command {
                 }
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 if (!e.toString().contains("java.util.NoSuchElementException") &&
-                        e.toString().contains("must start with '[' at 0")
+                        !e.toString().contains("must start with '[' at 0")
                 ) {
                     MainLogger.get().error("Error while downloading porn", e);
                 }

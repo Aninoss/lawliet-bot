@@ -246,7 +246,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     private void addNavigationEmojis(TextChannel channel, long messageId) {
-        if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_ADD_REACTION)) {
+        if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION)) {
             RestActionQueue restActionQueue = new RestActionQueue();
             for (int i = -1; i < reactions; i++) {
                 if (i == -1) {

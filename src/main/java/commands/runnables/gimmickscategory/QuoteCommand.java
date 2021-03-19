@@ -40,7 +40,7 @@ public class QuoteCommand extends Command {
         // message link
         if (directMessage.size() > 0) {
             for (Message message : directMessage) {
-                if (BotPermissionUtil.canRead(message.getTextChannel())) {
+                if (BotPermissionUtil.canReadHistory(message.getTextChannel())) {
                     MessageQuote.postQuote(getPrefix(), getLocale(), event.getChannel(), message, false);
                     return true;
                 }

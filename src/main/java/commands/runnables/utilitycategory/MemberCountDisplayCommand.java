@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.managers.ChannelManager;
 @CommandProperties(
         trigger = "mcdisplays",
         userGuildPermissions = Permission.MANAGE_SERVER,
+        botGuildPermissions = Permission.VOICE_CONNECT,
         emoji = "️🧮️",
         executableWithoutArgs = true,
         aliases = { "membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays", "mcdisplay" }

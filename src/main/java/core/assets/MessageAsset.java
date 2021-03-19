@@ -11,7 +11,7 @@ public interface MessageAsset extends TextChannelAsset {
 
     default CompletableFuture<Message> retrieveMessage() {
         return getTextChannel().map(channel -> {
-            if (BotPermissionUtil.canRead(channel)) {
+            if (BotPermissionUtil.canReadHistory(channel)) {
                 return channel.retrieveMessageById(getMessageId()).submit();
             } else {
                 return null;

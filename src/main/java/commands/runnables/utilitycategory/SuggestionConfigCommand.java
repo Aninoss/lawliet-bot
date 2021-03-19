@@ -52,7 +52,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
                 return Response.FALSE;
             } else {
                 TextChannel channel = channelList.get(0);
-                if (BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION)) {
+                if (BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
                     suggestionsBean.setChannelId(channelList.get(0).getIdLong());
                     setLog(LogStatus.SUCCESS, getString("channelset"));
                     setState(0);

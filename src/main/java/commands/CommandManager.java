@@ -328,7 +328,7 @@ public class CommandManager {
             return true;
         }
 
-        if (BotPermissionUtil.canRead(event.getChannel(), Permission.MESSAGE_ADD_REACTION)) {
+        if (BotPermissionUtil.canReadHistory(event.getChannel(), Permission.MESSAGE_ADD_REACTION)) {
             RestActionQueue restActionQueue = new RestActionQueue();
             restActionQueue.attach(event.getMessage().addReaction(Emojis.X));
             restActionQueue.attach(event.getMessage().addReaction("✍️"))

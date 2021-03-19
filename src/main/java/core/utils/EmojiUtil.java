@@ -43,7 +43,7 @@ public class EmojiUtil {
     }
 
     public static String getLoadingEmojiMention(TextChannel channel) {
-        if (channel != null && BotPermissionUtil.canRead(channel, Permission.MESSAGE_EXT_EMOJI)) {
+        if (channel != null && BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_EXT_EMOJI)) {
             return Emojis.LOADING;
         } else {
             return "⏳";
@@ -51,7 +51,7 @@ public class EmojiUtil {
     }
 
     public static String getLoadingEmojiTag(TextChannel channel) {
-        if (channel != null && BotPermissionUtil.canRead(channel, Permission.MESSAGE_EXT_EMOJI)) {
+        if (channel != null && BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_EXT_EMOJI)) {
             return EmojiUtil.emojiAsReactionTag(Emojis.LOADING);
         } else {
             return "⏳";

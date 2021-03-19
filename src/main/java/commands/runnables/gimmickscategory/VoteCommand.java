@@ -113,10 +113,12 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                     voteInfo.getCreatorId().get() == event.getUserIdLong()
             ) {
                 voteInfo.stop();
-                quickUpdater.update(
-                        event.getMessageIdLong(),
-                        event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, false).build())
-                );
+                if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                    quickUpdater.update(
+                            event.getMessageIdLong(),
+                            event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, false).build())
+                    );
+                }
                 if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                     event.getChannel().clearReactionsById(event.getMessageIdLong()).queue();
                 }
@@ -130,10 +132,12 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 return;
             }
 
-            quickUpdater.update(
-                    event.getMessageIdLong(),
-                    event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
-            );
+            if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                quickUpdater.update(
+                        event.getMessageIdLong(),
+                        event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
+                );
+            }
         });
     }
 
@@ -142,10 +146,12 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
         VoteCache.getInstance().get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
                 .ifPresent(voteInfo -> {
                     if (voteInfo.getVotes(event.getUserIdLong()) == 0) {
-                        quickUpdater.update(
-                                event.getMessageIdLong(),
-                                event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
-                        );
+                        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                            quickUpdater.update(
+                                    event.getMessageIdLong(),
+                                    event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
+                            );
+                        }
                     }
                 });
     }

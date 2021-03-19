@@ -70,7 +70,7 @@ public abstract class Command implements OnTriggerListener {
 
     public void addLoadingReactionInstantly(Message message, AtomicBoolean isProcessing) {
         TextChannel channel = message.getTextChannel();
-        if (isProcessing.get() && !loadingReactionSet && BotPermissionUtil.canRead(channel, Permission.MESSAGE_ADD_REACTION)) {
+        if (isProcessing.get() && !loadingReactionSet && BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION)) {
             loadingReactionSet = true;
 
             String reaction = EmojiUtil.getLoadingEmojiTag(message.getTextChannel());

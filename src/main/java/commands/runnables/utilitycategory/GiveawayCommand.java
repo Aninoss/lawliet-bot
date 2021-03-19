@@ -503,7 +503,7 @@ public class GiveawayCommand extends NavigationAbstract {
             if (!editMode) {
                 instant = Instant.now();
                 message = textChannel.sendMessage(getMessageEmbed().build()).complete();
-                if (BotPermissionUtil.canRead(textChannel, Permission.MESSAGE_ADD_REACTION)) {
+                if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_ADD_REACTION)) {
                     message.addReaction(EmojiUtil.emojiAsReactionTag(emoji)).queue();
                 }
                 return Optional.of(message.getIdLong());

@@ -92,10 +92,10 @@ public interface OnReactionListener {
         Command command = (Command) this;
         command.getDrawMessageId().ifPresent(messageId -> {
             command.getTextChannel().ifPresent(channel -> {
-                if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_MANAGE)) {
+                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE)) {
                     Collection<String> messageIds = List.of(String.valueOf(messageId), command.getGuildMessageReceivedEvent().get().getMessageId());
                     channel.deleteMessagesByIds(messageIds).queue();
-                } else if (BotPermissionUtil.canRead(channel)) {
+                } else if (BotPermissionUtil.canReadHistory(channel)) {
                     channel.deleteMessageById(messageId).queue();
                 }
             });
@@ -108,7 +108,7 @@ public interface OnReactionListener {
         Command command = (Command) this;
         command.getDrawMessageId().ifPresentOrElse(messageId -> {
             command.getTextChannel().ifPresentOrElse(channel -> {
-                if (BotPermissionUtil.canRead(channel, Permission.MESSAGE_MANAGE)) {
+                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE)) {
                     channel.clearReactionsById(messageId)
                             .queue(v -> future.complete(null), future::completeExceptionally);
                 } else {

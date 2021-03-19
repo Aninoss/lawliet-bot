@@ -114,7 +114,7 @@ public class ImitateCommand extends Command {
 
         ArrayList<TextChannel> channels = guild.getTextChannels().stream()
                 .filter(channel -> !channel.isNSFW() &&
-                        BotPermissionUtil.canRead(channel) &&
+                        BotPermissionUtil.canReadHistory(channel) &&
                         (member == null || BotPermissionUtil.canWrite(member, channel)) &&
                         BotPermissionUtil.channelIsPublic(channel)
                 ).limit(REQUESTS)

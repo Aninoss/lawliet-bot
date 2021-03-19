@@ -135,7 +135,7 @@ public class BotPermissionUtil {
                         .allMatch(permission -> member.hasPermission(channel, permissions));
     }
 
-    public static boolean canRead(TextChannel channel, Permission... permissions) {
+    public static boolean canReadHistory(TextChannel channel, Permission... permissions) {
         return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_HISTORY) &&
                 can(channel, permissions);
     }
