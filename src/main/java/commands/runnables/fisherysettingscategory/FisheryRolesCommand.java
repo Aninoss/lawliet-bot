@@ -128,7 +128,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         setState(0);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number2", "0", StringUtil.numToString(Settings.FISHERY_MAX)));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "0", StringUtil.numToString(Settings.FISHERY_MAX)));
                         return Response.FALSE;
                     }
                 } else {

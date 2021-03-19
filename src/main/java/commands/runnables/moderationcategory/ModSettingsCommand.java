@@ -72,7 +72,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         setState(4);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small2", "1"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
                         return Response.FALSE;
                     }
                 } else {
@@ -88,7 +88,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         setState(5);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small2", "1"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
                         return Response.FALSE;
                     }
                 } else {
@@ -105,7 +105,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         setState(0);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small2", "1"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
                         return Response.FALSE;
                     }
                 } else {
@@ -122,7 +122,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         setState(0);
                         return Response.TRUE;
                     } else {
-                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small2", "1"));
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
                         return Response.FALSE;
                     }
                 } else {

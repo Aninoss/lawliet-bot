@@ -66,7 +66,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                 if (numbers >= 1 && numbers <= 100) {
                     amount = numbers;
                 } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number2", "1", "100"));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "100"));
                     registerNavigationListener(getUpgradablePowerUpBeans().size());
                     return true;
                 }

@@ -156,7 +156,7 @@ public class GiveawayCommand extends NavigationAbstract {
             setState(CONFIGURE_MESSAGE);
             return Response.TRUE;
         } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number2", String.valueOf(MIN), String.valueOf(MAX)));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", String.valueOf(MIN), String.valueOf(MAX)));
             return Response.FALSE;
         }
     }
