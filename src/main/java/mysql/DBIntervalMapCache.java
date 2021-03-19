@@ -2,6 +2,7 @@ package mysql;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.function.Predicate;
@@ -12,7 +13,7 @@ import core.MainLogger;
 
 public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObserverMapCache<T, U> implements Observer {
 
-    private ArrayList<U> changed = new ArrayList<>();
+    private LinkedList<U> changed = new LinkedList<>();
 
     protected DBIntervalMapCache(int minutes) {
         Runtime.getRuntime().addShutdownHook(new CustomThread(() -> {
@@ -34,7 +35,7 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
 
     private void intervalSave() {
         ArrayList<U> tempList = new ArrayList<>(changed);
-        changed = new ArrayList<>();
+        changed = new LinkedList<>();
         tempList.stream()
                 .filter(value -> !(value instanceof BeanWithGuild) || ((BeanWithGuild) value).getGuildBean().isSaved())
                 .forEach(value -> {
