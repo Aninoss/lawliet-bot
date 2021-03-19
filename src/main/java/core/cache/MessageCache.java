@@ -44,7 +44,9 @@ public class MessageCache {
     }
 
     public synchronized void put(Message message) {
-        cache.put(message.getIdLong(), message);
+        if (cache.asMap().containsKey(message.getIdLong())) {
+            cache.put(message.getIdLong(), message);
+        }
     }
 
     public synchronized void block(long messageId) {

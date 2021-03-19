@@ -84,7 +84,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
-        MessageCache.getInstance().put(event.getMessage());
         GlobalThreadPool.getExecutorService()
                 .submit(() -> GuildMessageReceivedAbstract.onGuildMessageReceivedStatic(event, getListenerList(GuildMessageReceivedAbstract.class)));
     }
