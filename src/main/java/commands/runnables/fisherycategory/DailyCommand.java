@@ -8,7 +8,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
-import constants.FisheryCategoryInterface;
+import constants.FisheryGear;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83D\uDDD3",
         executableWithoutArgs = true,
-        aliases = { "d" }
+        aliases = { "d", "day" }
 )
 public class DailyCommand extends Command implements FisheryInterface {
 
@@ -39,7 +39,7 @@ public class DailyCommand extends Command implements FisheryInterface {
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
         FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
         if (!userBean.getDailyReceived().equals(LocalDate.now())) {
-            long fishes = userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect();
+            long fish = userBean.getMemberGear(FisheryGear.DAILY).getEffect();
             boolean breakStreak = userBean.getDailyStreak() != 0 && !userBean.getDailyReceived().plus(1, ChronoUnit.DAYS).equals(LocalDate.now());
             userBean.updateDailyReceived();
 
@@ -48,14 +48,14 @@ public class DailyCommand extends Command implements FisheryInterface {
             long dailyStreakNow = breakStreak ? 1 : userBean.getDailyStreak() + 1;
 
             if (dailyStreakNow >= 5) {
-                bonusCombo = (int) Math.round(fishes * 0.25);
+                bonusCombo = (int) Math.round(fish * 0.25);
             }
 
             if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) > 1) {
-                bonusDonation = (int) Math.round((fishes + bonusCombo) * 0.5);
+                bonusDonation = (int) Math.round((fish + bonusCombo) * 0.5);
             }
 
-            StringBuilder sb = new StringBuilder(getString("point_default", StringUtil.numToString(fishes)));
+            StringBuilder sb = new StringBuilder(getString("point_default", StringUtil.numToString(fish)));
             if (bonusCombo > 0) {
                 sb.append("\n").append(getString("point_combo", StringUtil.numToString(bonusCombo)));
             }
@@ -68,7 +68,7 @@ public class DailyCommand extends Command implements FisheryInterface {
             if (breakStreak) EmbedUtil.addLog(eb, LogStatus.LOSE, getString("combobreak"));
 
             event.getChannel().sendMessage(eb.build()).queue();
-            event.getChannel().sendMessage(userBean.changeValuesEmbed(fishes + bonusCombo + bonusDonation, 0, dailyStreakNow).build()).queue();
+            event.getChannel().sendMessage(userBean.changeValuesEmbed(fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build()).queue();
 
             return true;
         } else {

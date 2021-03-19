@@ -17,4 +17,16 @@ public final class RandomUtil {
         return sb.toString();
     }
 
+    public static int pickWithProbabilities(double... probabilities) {
+        double value = new Random().nextDouble();
+        for (int i = 0; i < probabilities.length; i++) {
+            value -= probabilities[i];
+            if (value < 0) {
+                return i;
+            }
+        }
+
+        return probabilities.length;
+    }
+
 }

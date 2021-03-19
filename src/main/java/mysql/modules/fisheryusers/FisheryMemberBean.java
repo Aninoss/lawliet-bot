@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import constants.CodeBlockColor;
-import constants.FisheryCategoryInterface;
+import constants.FisheryGear;
 import constants.LogStatus;
 import constants.Settings;
 import core.CustomObservableList;
@@ -20,7 +20,10 @@ import core.TextManager;
 import core.assets.MemberAsset;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
-import core.utils.*;
+import core.utils.BotPermissionUtil;
+import core.utils.EmbedUtil;
+import core.utils.StringUtil;
+import core.utils.TimeUtil;
 import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -32,7 +35,7 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
     private final long memberId;
     private FisheryGuildBean fisheryGuildBean = null;
     private final HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap;
-    private final HashMap<Integer, FisheryMemberPowerUpBean> powerUpMap;
+    private final HashMap<Integer, FisheryMemberGearBean> gearMap;
     private long fish;
     private long coins;
     private long dailyStreak;
@@ -53,8 +56,9 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
     private Long coinsGivenMax = null;
     private String lastContent = null;
     private LocalDate dailyValuesUpdated;
+    private Instant nextWork;
 
-    FisheryMemberBean(long guildId, long memberId, long fish, long coins, LocalDate dailyReceived, long dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryMemberPowerUpBean> powerUpMap) {
+    FisheryMemberBean(long guildId, long memberId, long fish, long coins, LocalDate dailyReceived, long dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, Instant nextWork, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryMemberGearBean> gearMap) {
         super(guildId);
         this.memberId = memberId;
         this.fish = fish;
@@ -66,16 +70,17 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         this.fisheryHourlyIncomeMap = fisheryHourlyIncomeMap;
         this.vcMinutes = vcMinutes;
         this.coinsGiven = coinsGiven;
-        this.powerUpMap = powerUpMap;
+        this.gearMap = gearMap;
         this.dailyValuesUpdated = dailyValuesUpdated;
+        this.nextWork = nextWork;
 
-        for (int i = 0; i < 6; i++) {
-            this.powerUpMap.putIfAbsent(i, new FisheryMemberPowerUpBean(guildId, memberId, i, 0));
+        for (int i = 0; i < FisheryGear.values().length; i++) {
+            this.gearMap.putIfAbsent(i, new FisheryMemberGearBean(guildId, memberId, FisheryGear.values()[i], 0));
         }
     }
 
-    public FisheryMemberBean(long serverId, long memberId, FisheryGuildBean fisheryGuildBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryMemberPowerUpBean> powerUpMap) {
-        this(serverId, memberId, fish, coins, dailyReceived, dailyStreak, reminderSent, upvoteStack, dailyValuesUpdated, vcMinutes, coinsGiven, fisheryHourlyIncomeMap, powerUpMap);
+    public FisheryMemberBean(long serverId, long memberId, FisheryGuildBean fisheryGuildBean, long fish, long coins, LocalDate dailyReceived, int dailyStreak, boolean reminderSent, int upvoteStack, LocalDate dailyValuesUpdated, int vcMinutes, long coinsGiven, Instant nextWork, HashMap<Instant, FisheryHourlyIncomeBean> fisheryHourlyIncomeMap, HashMap<Integer, FisheryMemberGearBean> gearMap) {
+        this(serverId, memberId, fish, coins, dailyReceived, dailyStreak, reminderSent, upvoteStack, dailyValuesUpdated, vcMinutes, coinsGiven, nextWork, fisheryHourlyIncomeMap, gearMap);
         setFisheryServerBean(fisheryGuildBean);
     }
 
@@ -88,11 +93,11 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         CustomObservableList<Role> allRoles = fisheryGuildBean.getRoles();
 
         ArrayList<Role> userRoles = new ArrayList<>();
-        int level = getPowerUp(FisheryCategoryInterface.ROLE).getLevel();
+        int level = getMemberGear(FisheryGear.ROLE).getLevel();
 
         if (level > allRoles.size()) {
             level = allRoles.size();
-            setLevel(FisheryCategoryInterface.ROLE, level);
+            setLevel(FisheryGear.ROLE, level);
         }
 
         if (level > 0) {
@@ -118,12 +123,12 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         return fisheryGuildBean;
     }
 
-    public HashMap<Integer, FisheryMemberPowerUpBean> getPowerUpMap() {
-        return powerUpMap;
+    public HashMap<Integer, FisheryMemberGearBean> getGearMap() {
+        return gearMap;
     }
 
-    public FisheryMemberPowerUpBean getPowerUp(int powerUpId) {
-        return powerUpMap.computeIfAbsent(powerUpId, k -> new FisheryMemberPowerUpBean(getGuildId(), memberId, powerUpId, 0));
+    public FisheryMemberGearBean getMemberGear(FisheryGear fisheryGear) {
+        return gearMap.computeIfAbsent(fisheryGear.ordinal(), k -> new FisheryMemberGearBean(getGuildId(), memberId, fisheryGear, 0));
     }
 
     public List<FisheryHourlyIncomeBean> getAllFishHourlyIncomeChanged() {
@@ -164,8 +169,8 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
 
     public long getTotalProgressIndex() {
         long sum = 0;
-        for (int i = 0; i <= FisheryCategoryInterface.MAX; i++) {
-            sum += FisheryMemberPowerUpBean.getValue(powerUpMap.get(i).getLevel());
+        for (FisheryGear gear : FisheryGear.values()) {
+            sum += FisheryMemberGearBean.getValue(getMemberGear(gear).getLevel());
         }
         return sum;
     }
@@ -174,8 +179,8 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         cleanDailyValues();
         if (coinsGivenMax == null) {
             long sum = 0;
-            for (int i = 0; i <= FisheryCategoryInterface.MAX; i++) {
-                sum += 15000L * FisheryMemberPowerUpBean.getValue(powerUpMap.get(i).getLevel());
+            for (FisheryGear gear : FisheryGear.values()) {
+                sum += 15000L * FisheryMemberGearBean.getValue(getMemberGear(gear).getLevel());
                 if (sum >= Settings.FISHERY_MAX) {
                     return Settings.FISHERY_MAX;
                 }
@@ -286,6 +291,29 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         }
     }
 
+    public Instant getNextWork() {
+        return nextWork;
+    }
+
+    public Optional<Instant> checkNextWork() {
+        boolean canWork = Instant.now().isAfter(nextWork);
+        if (canWork) {
+            nextWork = Instant.now().plus(4, ChronoUnit.HOURS);
+            return Optional.empty();
+        } else {
+            return Optional.of(nextWork);
+        }
+    }
+
+    public void setWorkDone() {
+        nextWork = Instant.now().plus(4, ChronoUnit.HOURS);
+        setChanged();
+    }
+
+    public void setWorkCanceled() {
+        nextWork = Instant.now();
+    }
+
     void setFisheryServerBean(FisheryGuildBean fisheryGuildBean) {
         if (this.fisheryGuildBean == null) {
             this.fisheryGuildBean = fisheryGuildBean;
@@ -315,7 +343,7 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
             int currentMessagePeriod = (Calendar.getInstance().get(Calendar.SECOND) + Calendar.getInstance().get(Calendar.MINUTE) * 60) / 20;
             if (currentMessagePeriod != lastMessagePeriod) {
                 lastMessagePeriod = currentMessagePeriod;
-                long effect = getPowerUp(FisheryCategoryInterface.PER_MESSAGE).getEffect();
+                long effect = getMemberGear(FisheryGear.MESSAGE).getEffect();
 
                 fish += effect;
                 if (effect > 0) {
@@ -362,7 +390,7 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
             }
 
             if (minutes > 0) {
-                long effect = getPowerUp(FisheryCategoryInterface.PER_VC).getEffect() * minutes;
+                long effect = getMemberGear(FisheryGear.VOICE).getEffect() * minutes;
 
                 fish += effect;
                 if (effect > 0) {
@@ -552,13 +580,13 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         } else if (coinsGiven < 0) coinsGiven = 0;
     }
 
-    public void levelUp(int powerUpId) {
-        getPowerUp(powerUpId).setLevel(getPowerUp(powerUpId).getLevel() + 1);
+    public void levelUp(FisheryGear gear) {
+        getMemberGear(gear).setLevel(getMemberGear(gear).getLevel() + 1);
         setChanged();
     }
 
-    public void setLevel(int powerUpId, int level) {
-        getPowerUp(powerUpId).setLevel(level);
+    public void setLevel(FisheryGear gear, int level) {
+        getMemberGear(gear).setLevel(level);
         setChanged();
     }
 

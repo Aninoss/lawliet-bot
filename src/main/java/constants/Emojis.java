@@ -19,7 +19,7 @@ public interface Emojis {
     String COINS = "<a:coin:512684910620835841>";
     String GROWTH = "<:growth:556164492678004741>";
     String DAILY_STREAK = "🔥";
-    String SPACEHOLDER = "<:spaceholder:417016019622559755>";
+    String SPACEHOLDER = "<:_:417016019622559755>";
 
     String COUNTDOWN_10 = "<a:countdown_10:729371766119727124>";
     String COUNTDOWN_3 = "<a:countdown_3:799006900753530880>";

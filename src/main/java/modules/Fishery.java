@@ -6,7 +6,7 @@ import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
 import constants.Category;
 import constants.Emojis;
-import constants.FisheryCategoryInterface;
+import constants.FisheryGear;
 import constants.FisheryStatus;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
@@ -59,7 +59,7 @@ public class Fishery {
     }
 
     public static long getClaimValue(FisheryMemberBean userBean) {
-        return Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_DAY).getEffect() * 0.25);
+        return Math.round(userBean.getMemberGear(FisheryGear.DAILY).getEffect() * 0.25);
     }
 
     public static void spawnTreasureChest(TextChannel channel) {

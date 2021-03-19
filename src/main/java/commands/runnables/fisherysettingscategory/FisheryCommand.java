@@ -202,7 +202,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
                 int resultInt = r.nextInt(2);
                 String result = winLose[resultInt];
 
-                long won = Math.round(userBean.getPowerUp(FisheryCategoryInterface.PER_TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
+                long won = Math.round(userBean.getMemberGear(FisheryGear.TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
 
                 String treasureImage;
                 if (resultInt == 0) {

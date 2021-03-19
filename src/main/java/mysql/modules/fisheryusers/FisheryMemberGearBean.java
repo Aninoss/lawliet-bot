@@ -1,29 +1,23 @@
 package mysql.modules.fisheryusers;
 
-import constants.FisheryCategoryInterface;
+import constants.FisheryGear;
 import core.assets.MemberAsset;
 import core.utils.NumberUtil;
 
-public class FisheryMemberPowerUpBean implements MemberAsset {
+public class FisheryMemberGearBean implements MemberAsset {
 
     private final long guildId;
     private final long memberId;
-    private final int powerUpId;
+    private final FisheryGear gear;
     private int level;
-    private final long startPrice, effect;
     private boolean changed = false;
 
-    public FisheryMemberPowerUpBean(long guildId, long memberId, int powerUpId, int level) {
+    public FisheryMemberGearBean(long guildId, long memberId, FisheryGear gear, int level) {
         this.guildId = guildId;
         this.memberId = memberId;
-        this.powerUpId = powerUpId;
+        this.gear = gear;
         this.level = level;
-        this.startPrice = FisheryCategoryInterface.START_PRICE[powerUpId];
-        this.effect = FisheryCategoryInterface.EFFECT[powerUpId];
     }
-
-
-    /* Getters */
 
     @Override
     public long getGuildId() {
@@ -35,8 +29,8 @@ public class FisheryMemberPowerUpBean implements MemberAsset {
         return memberId;
     }
 
-    public int getPowerUpId() {
-        return powerUpId;
+    public FisheryGear getGear() {
+        return gear;
     }
 
     public int getLevel() {
@@ -49,9 +43,6 @@ public class FisheryMemberPowerUpBean implements MemberAsset {
         return changedTemp;
     }
 
-
-    /* Setters */
-
     void setLevel(int level) {
         this.level = level;
         changed = true;
@@ -61,19 +52,16 @@ public class FisheryMemberPowerUpBean implements MemberAsset {
         changed = true;
     }
 
-
-    /* Tools */
-
     public long getPrice() {
-        return NumberUtil.flattenLong(Math.round(Math.pow(getValue(level), 1.02) * startPrice), 4);
+        return NumberUtil.flattenLong(Math.round(Math.pow(getValue(level), 1.02) * gear.getStartPrice()), 4);
     }
 
     public long getEffect() {
-        return getValue(level) * effect;
+        return getValue(level) * gear.getEffect();
     }
 
     public long getDeltaEffect() {
-        return (getValue(level + 1) - getValue(level)) * effect;
+        return (getValue(level + 1) - getValue(level)) * gear.getEffect();
     }
 
     public static long getValue(long level) {

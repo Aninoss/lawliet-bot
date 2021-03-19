@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 @CommandProperties(
         trigger = "pokemon",
         emoji = "\uD83C\uDDF5",
-        exclusiveUsers = { 397209883793162240L, 381156056660967426L },
+        exclusiveUsers = { 397209883793162240L, 381156056660967426L, 272037078919938058L },
         executableWithoutArgs = false
 )
 public class PokemonCommand extends Command {
@@ -52,7 +52,7 @@ public class PokemonCommand extends Command {
         }
         String desc = StringUtil.extractGroups(content, "<meta property=\"og:description\" content=\"", "\"/>")[0];
 
-        String thumbnail = "";
+        String thumbnail = null;
         if (content.contains("<meta property=\"og:image\" content=\"")) {
             thumbnail = StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\"/>")[0];
         }

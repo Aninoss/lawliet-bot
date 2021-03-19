@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import constants.Category;
-import constants.FisheryCategoryInterface;
+import constants.FisheryGear;
 import constants.FisheryStatus;
 import core.*;
 import core.schedule.ScheduleInterface;
@@ -100,7 +100,7 @@ public class SurveyResults implements ScheduleInterface {
                 .filter(secondVote -> won == 2 || secondVote.getVote() == won)
                 .forEach(secondVote -> {
                     FisheryMemberBean userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getMemberBean(user.getIdLong());
-                    long price = userBean.getPowerUp(FisheryCategoryInterface.PER_SURVEY).getEffect();
+                    long price = userBean.getMemberGear(FisheryGear.SURVEY).getEffect();
                     MainLogger.get().info("Survey: Giving {} coins to {} ({})", price, user, user.getIdLong());
                     userBean.changeValues(0, price);
                 });

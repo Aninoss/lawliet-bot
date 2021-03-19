@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.23, for Linux (x86_64)
 --
 -- Host: localhost    Database: Lawliet
 -- ------------------------------------------------------
--- Server version	8.0.22
+-- Server version	8.0.23
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -363,7 +363,7 @@ CREATE TABLE `FeatureRequestBoosts` (
   `boostUserId` bigint unsigned NOT NULL,
   PRIMARY KEY (`id`,`boostDatetime`,`boostUserId`),
   CONSTRAINT `FeatureRequestsBase` FOREIGN KEY (`id`) REFERENCES `FeatureRequests` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=155 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=212 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -382,7 +382,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=163 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=225 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -623,6 +623,7 @@ CREATE TABLE `PowerPlantUsers` (
   `dailyValuesUpdated` date NOT NULL DEFAULT '1000-01-01',
   `dailyVCMinutes` int unsigned NOT NULL DEFAULT '0',
   `dailyReceivedCoins` bigint unsigned NOT NULL DEFAULT '0',
+  `nextWork` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`serverId`,`userId`),
   KEY `PowerPlantUsersUserBase` (`userId`),
   KEY `serverId` (`serverId`),
@@ -996,6 +997,7 @@ CREATE TABLE `Tracking` (
   `commandKey` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
   `time` timestamp NOT NULL,
   `arg` mediumtext,
+  `webhookUrl` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`serverId`,`channelId`,`command`,`commandKey`) USING BTREE,
   CONSTRAINT `trackerServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -1177,7 +1179,7 @@ USE `Lawliet`;
 /*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `MostPopularFisheryPowerUps` AS select `PowerPlantUserPowerUp`.`categoryId` AS `categoryId`,sum(`PowerPlantUserPowerUp`.`level`) AS `SUM(LEVEL)` from `PowerPlantUserPowerUp` group by `PowerPlantUserPowerUp`.`categoryId` */;
+/*!50001 VIEW `MostPopularFisheryPowerUps` AS select `PowerPlantUserPowerUp`.`categoryId` AS `categoryId`,sum(`PowerPlantUserPowerUp`.`level`) AS `SUM(LEVEL)` from `PowerPlantUserPowerUp` where (`PowerPlantUserPowerUp`.`level` <= 100) group by `PowerPlantUserPowerUp`.`categoryId` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -1299,4 +1301,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-09 16:39:37
+-- Dump completed on 2021-03-19 19:14:40

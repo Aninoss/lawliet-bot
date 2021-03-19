@@ -1,5 +1,6 @@
 package mysql.modules.fisheryusers;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -63,6 +64,7 @@ public class FisheryGuildBean extends BeanWithGuild {
                 LocalDate.now(),
                 0,
                 0L,
+                Instant.now(),
                 new HashMap<>(),
                 new HashMap<>()
         ));
