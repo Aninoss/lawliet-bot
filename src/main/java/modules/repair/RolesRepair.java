@@ -67,7 +67,7 @@ public class RolesRepair {
         if (autoRolesBean.getRoleIds().size() > 0) {
             List<Role> roles = autoRolesBean.getRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
             guild.getMembers().stream()
-                    .filter(member -> userJoinedRecently(member, minutes))
+                    .filter(member -> userJoinedRecently(member, minutes) && !member.isPending())
                     .forEach(member -> checkRoles(
                             locale,
                             Command.getCommandLanguage(AutoRolesCommand.class, locale).getTitle(),

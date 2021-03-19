@@ -2,20 +2,45 @@ package modules;
 
 import java.util.List;
 import java.util.Locale;
+import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
 import constants.Category;
 import constants.Emojis;
 import constants.FisheryCategoryInterface;
+import constants.FisheryStatus;
 import core.EmbedFactory;
+import core.PermissionCheckRuntime;
 import core.TextManager;
+import mysql.modules.fisheryusers.DBFishery;
+import mysql.modules.fisheryusers.FisheryGuildBean;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class Fishery {
+
+    public static void giveRoles(Member member) {
+        Guild guild = member.getGuild();
+        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
+        Locale locale = fisheryGuildBean.getGuildBean().getLocale();
+        if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED) {
+            return;
+        }
+
+        fisheryGuildBean.getMemberBean(member.getIdLong())
+                .getRoles()
+                .forEach(role -> {
+                    if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) {
+                        guild.addRoleToMember(member, role)
+                                .reason(Command.getCommandLanguage(FisheryCommand.class, locale).getTitle())
+                                .queue();
+                    }
+                });
+    }
 
     public static long getFisheryRolePrice(Guild guild, List<Long> roleIds, int n) {
         GuildBean guildBean = DBGuild.getInstance().retrieve(guild.getIdLong());
