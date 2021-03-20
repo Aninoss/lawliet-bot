@@ -9,6 +9,7 @@ import commands.runnables.GelbooruAbstract;
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
+        maxCalculationTimeSec = 3 * 60,
         requiresEmbeds = false
 )
 public class FutaCommand extends GelbooruAbstract {

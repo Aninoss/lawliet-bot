@@ -10,6 +10,7 @@ import commands.runnables.PornSearchAbstract;
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
+        maxCalculationTimeSec = 3 * 60,
         requiresEmbeds = false,
         aliases = { "rule34", "34" }
 )

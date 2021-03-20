@@ -9,6 +9,7 @@ import commands.runnables.RealbooruAbstract;
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
+        maxCalculationTimeSec = 3 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
         aliases = { "ass", "r1ass" }
