@@ -9,6 +9,7 @@ import constants.Language;
 import core.ShardManager;
 import core.TextManager;
 import net.dv8tion.jda.api.entities.Message;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 
 public final class StringUtil {
@@ -404,6 +405,13 @@ public final class StringUtil {
 
     public static boolean stringContainsVague(String str0, String str1) {
         return str0.toLowerCase().replace(" ", "").contains(str1.toLowerCase().replace(" ", ""));
+    }
+
+    public static String unescapeHtml(String html) {
+        return StringEscapeUtils.unescapeHtml4(html)
+                .replaceAll("</?(i|cite)>", "*")
+                .replaceAll("</?b>", "**")
+                .replaceAll("<[^>]*>", "");
     }
 
 }

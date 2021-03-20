@@ -5,13 +5,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import constants.Language;
-import core.MainLogger;
 import core.internet.HttpResponse;
 import core.internet.InternetCache;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
@@ -58,12 +56,12 @@ public class AnimeNewsDownloader {
         try {
             thumbnailUrl = InternetUtil.retrieveThumbnailPreview(jsonPost.getString("link")).get();
         } catch (InterruptedException | ExecutionException e) {
-            MainLogger.get().error("Could not retrieve thumbnail for anime news", e);
+            //Ignore
         }
 
         return new AnimeNewsArticle(
-                StringUtil.shortenString(StringEscapeUtils.unescapeHtml4(jsonPost.getString("title")), 256),
-                StringEscapeUtils.unescapeHtml4(jsonPost.getString("description")),
+                StringUtil.shortenString(StringUtil.unescapeHtml(jsonPost.getString("title")), 256),
+                StringUtil.unescapeHtml(jsonPost.getString("description")),
                 thumbnailUrl,
                 jsonPost.getString("link"),
                 TimeUtil.parseDateStringRSS(jsonPost.getString("pubDate"))
@@ -74,9 +72,9 @@ public class AnimeNewsDownloader {
         String content = jsonPost.getString("description");
 
         return new AnimeNewsArticle(
-                StringUtil.shortenString(StringEscapeUtils.unescapeHtml4(jsonPost.getString("title")), 256),
-                StringEscapeUtils.unescapeHtml4(StringUtil.extractGroups(content, "</p><p>", "</p>")[0]),
-                StringEscapeUtils.unescapeHtml4(StringUtil.extractGroups(content, "src=\"", "\"")[0]),
+                StringUtil.shortenString(StringUtil.unescapeHtml(jsonPost.getString("title")), 256),
+                StringUtil.unescapeHtml(StringUtil.extractGroups(content, "</p><p>", "</p>")[0]),
+                StringUtil.unescapeHtml(StringUtil.extractGroups(content, "src=\"", "\"")[0]),
                 jsonPost.getString("link"),
                 TimeUtil.parseDateStringRSS(jsonPost.getString("pubDate"))
         );

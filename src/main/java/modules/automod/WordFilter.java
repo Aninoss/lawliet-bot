@@ -9,6 +9,7 @@ import constants.Category;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
+import core.utils.StringUtil;
 import mysql.modules.bannedwords.BannedWordsBean;
 import mysql.modules.bannedwords.DBBannedWords;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -34,7 +35,7 @@ public class WordFilter extends AutoModAbstract {
     protected void designEmbed(Message message, Locale locale, EmbedBuilder eb) {
         eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log", message.getAuthor().getAsTag()))
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getTextChannel().getAsMention(), true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), message.getContentRaw(), true);
+                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), StringUtil.shortenString(message.getContentRaw(), 1024), true);
 
         bannedWordsBean.getLogReceiverUserIds().transform(message.getGuild()::getMemberById, ISnowflake::getIdLong)
                 .forEach(member -> JDAUtil.sendPrivateMessage(member, eb.build()).queue());
