@@ -23,6 +23,7 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
@@ -139,7 +140,8 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, areaBuilder.toString());
         if (active) {
-            eb.addField(Emojis.EMPTY_EMOJI, getString("instructions", EMOJIS[fishFocus]), false);
+            String unknownMember = TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()));
+            eb.addField(Emojis.EMPTY_EMOJI, getString("instructions", StringUtil.escapeMarkdown(getMember().map(Member::getEffectiveName).orElse(unknownMember)), EMOJIS[fishFocus]), false);
         }
 
         return eb;
