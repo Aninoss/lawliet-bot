@@ -271,7 +271,7 @@ public class WelcomeCommand extends NavigationAbstract {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(Welcome.resolveVariables(
                         welcomeMessageBean.getWelcomeText(),
-                        StringUtil.escapeMarkdown(member.getUser().getName()),
+                        StringUtil.escapeMarkdown(member.getGuild().getName()),
                         member.getAsMention(),
                         StringUtil.escapeMarkdown(member.getUser().getName()),
                         StringUtil.escapeMarkdown(member.getUser().getAsTag()),

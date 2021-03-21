@@ -107,7 +107,7 @@ public class CoinFlipCommand extends CasinoAbstract {
         deregisterListenersWithReactions();
 
         MainScheduler.getInstance().schedule(3000, "coinflip_cputhrow", () -> {
-            selection[1] = new Random().nextInt(2);
+            selection[1] = new Random().nextBoolean() ? 1 : 0;
             drawMessage(draw());
 
             MainScheduler.getInstance().schedule(1000, "coinflip_results", () -> {
