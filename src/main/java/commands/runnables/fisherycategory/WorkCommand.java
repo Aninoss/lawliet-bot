@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "💼",
         executableWithoutArgs = true,
-        aliases = { "working", "salary" }
+        aliases = { "working", "salary", "w" }
 )
 public class WorkCommand extends Command implements FisheryInterface, OnReactionListener, OnMessageInputListener {
 

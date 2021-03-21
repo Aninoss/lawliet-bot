@@ -51,9 +51,7 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
     public void update(Observable o, Object arg) {
         U u = (U) o;
         if (!changed.contains(u)) {
-            synchronized (this) {
-                changed.add(u);
-            }
+            changed.add(u);
         }
     }
 

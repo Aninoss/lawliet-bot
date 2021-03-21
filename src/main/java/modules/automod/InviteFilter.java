@@ -52,9 +52,15 @@ public class InviteFilter extends AutoModAbstract {
 
     @Override
     protected void designEmbed(Message message, Locale locale, EmbedBuilder eb) {
+        String content = message.getContentRaw();
+        for (String invite : message.getInvites()) {
+            content = content.replace(invite, "*".repeat(6));
+        }
+
         eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log", message.getAuthor().getAsTag()))
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getTextChannel().getAsMention(), true);
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getTextChannel().getAsMention(), true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), content, false);
 
         spBlockBean.getLogReceiverUserIds().transform(message.getGuild()::getMemberById, ISnowflake::getIdLong)
                 .forEach(member -> JDAUtil.sendPrivateMessage(member, eb.build()).queue());

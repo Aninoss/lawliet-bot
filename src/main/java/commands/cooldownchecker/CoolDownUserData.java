@@ -5,10 +5,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
 import constants.Settings;
-import core.MainLogger;
-import core.ShardManager;
 import core.schedule.MainScheduler;
-import net.dv8tion.jda.api.entities.User;
 
 public class CoolDownUserData {
 
@@ -35,7 +32,6 @@ public class CoolDownUserData {
 
     public synchronized boolean canPostCoolDownMessage() {
         if (canPostCoolDownMessage) {
-            MainLogger.get().warn("{} ({}) has hit a cool down", ShardManager.getInstance().getCachedUserById(userId).map(User::getAsTag).orElse("???"), userId);
             canPostCoolDownMessage = false;
             return true;
         }

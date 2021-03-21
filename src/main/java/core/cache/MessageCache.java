@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import constants.Settings;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -20,15 +21,16 @@ public class MessageCache {
     }
 
     private final Cache<Long, Message> cache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofHours(1))
+            .expireAfterAccess(Duration.ofMinutes(30))
             .build();
 
     private final Cache<Long, Boolean> cacheMessageBlock = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(5))
+            .expireAfterAccess(Duration.ofMinutes(10))
             .build();
 
     public synchronized CompletableFuture<Message> retrieveMessage(TextChannel channel, long messageId) {
-        if (cacheMessageBlock.asMap().containsKey(messageId)) {
+        Boolean block = cacheMessageBlock.getIfPresent(messageId);
+        if (block != null && block) {
             return CompletableFuture.failedFuture(new NoSuchElementException("No such message"));
         }
 
@@ -44,17 +46,18 @@ public class MessageCache {
     }
 
     public synchronized void put(Message message) {
-        cache.put(message.getIdLong(), message);
+        if (Settings.CACHE_NEW_MESSAGES || cache.asMap().containsKey(message.getIdLong())) {
+            cache.put(message.getIdLong(), message);
+        }
     }
 
     public synchronized void block(long messageId) {
-        if (!cacheMessageBlock.asMap().containsKey(messageId)) {
-            cacheMessageBlock.put(messageId, true);
-        }
+        cacheMessageBlock.put(messageId, true);
     }
 
     public synchronized void delete(long messageId) {
         cache.invalidate(messageId);
+        cacheMessageBlock.invalidate(messageId);
     }
 
 }
