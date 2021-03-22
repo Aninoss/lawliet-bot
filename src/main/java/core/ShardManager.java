@@ -254,6 +254,12 @@ public class ShardManager {
                 .collect(Collectors.toList());
     }
 
+    public List<Guild> getLocalMutualGuilds(long userId) {
+        return getLocalGuilds().stream()
+                .filter(server -> JDABlocker.guildIsAvailable(server.getIdLong()) && server.getMembers().stream().anyMatch(m -> m.getIdLong() == userId))
+                .collect(Collectors.toList());
+    }
+
     public Optional<String> getGuildName(long guildId) {
         Optional<String> guildNameOpt = getLocalGuildById(guildId).map(Guild::getName);
         return guildNameOpt.or(() -> ExternalGuildNameCache.getInstance().getGuildNameById(guildId));
