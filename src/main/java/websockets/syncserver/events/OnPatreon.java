@@ -1,7 +1,7 @@
 package websockets.syncserver.events;
 
-import java.util.HashMap;
 import core.MainLogger;
+import core.PatreonData;
 import core.cache.PatreonCache;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
@@ -12,9 +12,9 @@ public class OnPatreon implements SyncServerFunction {
 
     @Override
     public JSONObject apply(JSONObject jsonObject) {
-        HashMap<Long, Integer> userPatreonMap = PatreonCache.userPatreonMapFromJson(jsonObject);
-        PatreonCache.getInstance().setValue(userPatreonMap);
-        MainLogger.get().info("Received new Patreon list with {} entries", userPatreonMap.size());
+        PatreonData patreonData = PatreonCache.patreonDataFromJson(jsonObject);
+        PatreonCache.getInstance().setValue(patreonData);
+        MainLogger.get().info("Received new Patreon list with {} users and {} unlocked guilds", patreonData.getUserMap().size(), patreonData.getGuildList().size());
         return null;
     }
 

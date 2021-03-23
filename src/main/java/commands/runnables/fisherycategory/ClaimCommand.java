@@ -45,9 +45,10 @@ public class ClaimCommand extends Command implements FisheryInterface {
 
         if (upvotesUnclaimed == 0) {
             EmbedBuilder eb;
-            if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) >= 2 &&
-                    DBAutoClaim.getInstance().retrieve().isActive(event.getMember().getIdLong())
-            ) {
+            boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 2 ||
+                    PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
+
+            if (patreon && DBAutoClaim.getInstance().retrieve().isActive(event.getGuild().getIdLong(), event.getMember().getIdLong())) {
                 eb = EmbedFactory.getEmbedDefault(this, getString("autoclaim", ExternalLinks.UPVOTE_URL));
             } else {
                 eb = EmbedFactory.getEmbedDefault(this, getString("nothing_description", ExternalLinks.UPVOTE_URL))

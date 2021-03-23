@@ -50,7 +50,7 @@ public class AlertsCommand extends NavigationAbstract {
     private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
     private long serverId;
     private long channelId;
-    private int patreonLevel;
+    private boolean patreon;
     private CustomObservableMap<Integer, TrackerSlot> alerts;
     private Command commandCache;
     private boolean cont = true;
@@ -65,7 +65,9 @@ public class AlertsCommand extends NavigationAbstract {
         serverId = event.getGuild().getIdLong();
         channelId = event.getChannel().getIdLong();
         alerts = DBTracker.getInstance().retrieve(event.getGuild().getIdLong());
-        patreonLevel = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong());
+        patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 ||
+                PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
+
         controll(args, true);
         if (addNavigation) {
             registerNavigationListener(12);
@@ -350,8 +352,8 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     private boolean enoughSpaceForNewTrackers() {
-        if (getTrackersInChannel().size() < LIMIT_CHANNEL || patreonLevel >= 3) {
-            if (alerts.size() < LIMIT_SERVER || patreonLevel >= 3) {
+        if (getTrackersInChannel().size() < LIMIT_CHANNEL || patreon) {
+            if (alerts.size() < LIMIT_SERVER || patreon) {
                 return true;
             } else {
                 setLog(LogStatus.FAILURE, getString("toomuch_server", String.valueOf(LIMIT_SERVER)));

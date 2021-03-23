@@ -15,7 +15,7 @@ public class GuildMemberRemovePatreon extends GuildMemberRemoveAbstract {
     @Override
     public boolean onGuildMemberRemove(GuildMemberRemoveEvent event) {
         if (event.getGuild().getIdLong() == AssetIds.SUPPORT_SERVER_ID) {
-            if (PatreonCache.getInstance().getUserTier(event.getUser().getIdLong()) > 0) {
+            if (PatreonCache.getInstance().getUserTier(event.getUser().getIdLong(), false) > 0) {
                 MainLogger.get().info("PATREON LEFT (LEFT SERVER) {} ({})", event.getUser().getAsTag(), event.getUser().getId());
                 JDAUtil.sendPrivateMessage(event.getGuild().getSelfMember(), "PATREON USER LEFT (LEFT SERVER): " + StringUtil.escapeMarkdown(event.getUser().getAsTag()))
                         .queue();

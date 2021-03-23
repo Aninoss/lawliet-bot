@@ -504,7 +504,7 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
                                                               long rank, long rankPrevious, long fishIncomePrevious, long fishPrevious,
                                                               long coinsPrevious, Long newDailyStreak, long dailyStreakPrevious
     ) {
-        boolean patron = PatreonCache.getInstance().getUserTier(memberId) >= 1;
+        boolean patreon = PatreonCache.getInstance().getUserTier(memberId, false) >= 1;
 
         String patreonEmoji = "👑";
         String displayName = member.getEffectiveName();
@@ -513,10 +513,10 @@ public class FisheryMemberBean extends BeanWithGuild implements MemberAsset {
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", patron, displayName, patreonEmoji), null, member.getUser().getEffectiveAvatarUrl())
+                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", patreon, displayName, patreonEmoji), null, member.getUser().getEffectiveAvatarUrl())
                 .setThumbnail(member.getUser().getEffectiveAvatarUrl());
 
-        if (patron) eb.setColor(Color.YELLOW);
+        if (patreon) eb.setColor(Color.YELLOW);
         if (fishAdd > 0 || (fishAdd == 0 && coinsAdd > 0)) {
             eb.setColor(Color.GREEN);
         } else if (coinsAdd <= 0 && (fishAdd < 0 || coinsAdd < 0)) {

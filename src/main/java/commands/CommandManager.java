@@ -107,6 +107,7 @@ public class CommandManager {
         if (command instanceof PingCommand) command.getAttachments().put("start_instant", Instant.now());
         if (RunningCheckerManager.getInstance().canUserRunCommand(
                 command,
+                event.getGuild().getIdLong(),
                 event.getMember().getIdLong(),
                 event.getJDA().getShardInfo().getShardId(),
                 command.getCommandProperties().maxCalculationTimeSec()
@@ -131,7 +132,7 @@ public class CommandManager {
     }
 
     private static boolean checkCoolDown(GuildMessageReceivedEvent event, Command command) {
-        if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) >= 3) {
+        if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 || PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())) {
             return true;
         }
         CoolDownUserData cooldownUserData = CoolDownManager.getInstance().getCoolDownData(event.getMember().getIdLong());
@@ -159,11 +160,14 @@ public class CommandManager {
 
     private static boolean checkReleased(GuildMessageReceivedEvent event, Command command) {
         LocalDate releaseDate = command.getReleaseDate().orElse(LocalDate.now());
-        if (!releaseDate.isAfter(LocalDate.now()) || PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) > 1) {
+        if (!releaseDate.isAfter(LocalDate.now()) ||
+                PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) > 1 ||
+                PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())
+        ) {
             return true;
         }
 
-        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description", ExternalLinks.PATREON_PAGE);
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description", ExternalLinks.PATREON_PAGE, ExternalLinks.UNLOCK_SERVER_WEBSITE);
         String waitTime = TextManager.getString(command.getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(command.getLocale(), Instant.now(), TimeUtil.localDateToInstant(releaseDate), false));
 
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
@@ -181,11 +185,20 @@ public class CommandManager {
     }
 
     private static boolean checkPatreon(GuildMessageReceivedEvent event, Command command) {
-        if (!command.getCommandProperties().patreonRequired() || PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) > 1) {
+        if (!command.getCommandProperties().patreonRequired() ||
+                PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) > 1 ||
+                PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())
+        ) {
             return true;
         }
 
-        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description", ExternalLinks.PATREON_PAGE);
+        String desc = TextManager.getString(
+                command.getLocale(),
+                TextManager.GENERAL,
+                "patreon_description",
+                ExternalLinks.PATREON_PAGE,
+                ExternalLinks.UNLOCK_SERVER_WEBSITE
+        );
 
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()

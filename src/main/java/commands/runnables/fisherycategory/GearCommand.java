@@ -42,16 +42,16 @@ public class GearCommand extends FisheryMemberAccountInterface {
                 .setDescription(getString("desc", StringUtil.numToString(fisheryMemberBean.getFish()), StringUtil.numToString(fisheryMemberBean.getCoins())));
         EmbedUtil.setFooter(eb, this);
 
-        boolean patron = PatreonCache.getInstance().getUserTier(member.getIdLong()) >= 1;
+        boolean patreon = PatreonCache.getInstance().getUserTier(member.getIdLong(), false) >= 1;
         String patreonEmoji = "\uD83D\uDC51";
         String displayName = member.getEffectiveName();
         while (displayName.length() > 0 && displayName.startsWith(patreonEmoji)) {
             displayName = displayName.substring(patreonEmoji.length());
         }
 
-        eb.setAuthor(TextManager.getString(getLocale(), TextManager.GENERAL, "rankingprogress_title", patron, displayName, patreonEmoji), null, member.getUser().getEffectiveAvatarUrl())
+        eb.setAuthor(TextManager.getString(getLocale(), TextManager.GENERAL, "rankingprogress_title", patreon, displayName, patreonEmoji), null, member.getUser().getEffectiveAvatarUrl())
                 .setThumbnail(member.getUser().getEffectiveAvatarUrl());
-        if (patron) eb.setColor(Color.YELLOW);
+        if (patreon) eb.setColor(Color.YELLOW);
 
         //Gear
         StringBuilder gearString = new StringBuilder();

@@ -74,6 +74,7 @@ public class Console {
         tasks.put("servers", this::onServers);
         tasks.put("servers_mutual", this::onServersMutual);
         tasks.put("patreon", this::onPatreon);
+        tasks.put("patreon_guild", this::onPatreonGuild);
         tasks.put("internet", this::onInternetConnection);
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_channel", this::onSendChannel);
@@ -145,7 +146,12 @@ public class Console {
 
     private void onPatreon(String[] args) {
         long userId = Long.parseLong(args[1]);
-        MainLogger.get().info("Patreon stats of user {}: {}", userId, PatreonCache.getInstance().getUserTier(userId));
+        MainLogger.get().info("Patreon stats of user {}: {}", userId, PatreonCache.getInstance().getUserTier(userId, false));
+    }
+
+    private void onPatreonGuild(String[] args) {
+        long guildId = Long.parseLong(args[1]);
+        MainLogger.get().info("{} unlocked: {}", guildId, PatreonCache.getInstance().isUnlocked(guildId));
     }
 
     private void onServersMutual(String[] args) {

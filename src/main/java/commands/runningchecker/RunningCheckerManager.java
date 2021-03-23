@@ -24,11 +24,11 @@ public class RunningCheckerManager {
             .expireAfterAccess(Duration.ofMinutes(1))
             .build();
 
-    public synchronized boolean canUserRunCommand(Command command, long userId, int shardId, int maxCalculationTimeSec) {
+    public synchronized boolean canUserRunCommand(Command command, long guildId, long userId, int shardId, int maxCalculationTimeSec) {
         ArrayList<RunningCheckerSlot> runningCommandsList = runningCommandsCache.asMap().computeIfAbsent(userId, k -> new ArrayList<>());
         stopAndRemoveOutdatedRunningCommands(runningCommandsList);
 
-        if (runningCommandsList.isEmpty() || runningCommandsList.size() < getMaxAmount(userId)) {
+        if (runningCommandsList.isEmpty() || runningCommandsList.size() < getMaxAmount(guildId, userId)) {
             final RunningCheckerSlot runningCheckerSlot = new RunningCheckerSlot(userId, shardId, maxCalculationTimeSec, !command.getCommandProperties().turnOffTimeout());
             runningCommandsList.add(runningCheckerSlot);
             removeOnThreadEnd(command, runningCommandsList, runningCheckerSlot, userId);
@@ -50,8 +50,8 @@ public class RunningCheckerManager {
         });
     }
 
-    private int getMaxAmount(long userId) {
-        return PatreonCache.getInstance().getUserTier(userId) >= 3 ? 2 : 1;
+    private int getMaxAmount(long guildId, long userId) {
+        return PatreonCache.getInstance().getUserTier(userId, true) >= 3 || PatreonCache.getInstance().isUnlocked(guildId) ? 2 : 1;
     }
 
     private void stopAndRemoveOutdatedRunningCommands(ArrayList<RunningCheckerSlot> runningCommandsList) {

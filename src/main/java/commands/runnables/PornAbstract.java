@@ -71,8 +71,10 @@ public abstract class PornAbstract extends Command {
             String group = m.group();
             args = args.replaceFirst(group, "").replace("  ", " ").trim();
             amount = Long.parseLong(group);
-            int patreonLevel = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong());
-            if (patreonLevel <= 1 && (amount < 1 || amount > 20)) {
+            boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 2 ||
+                    PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
+
+            if (!patreon && (amount < 1 || amount > 20)) {
                 if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
                     event.getChannel().sendMessage(EmbedFactory.getEmbedError(
                             this,
@@ -85,7 +87,7 @@ public abstract class PornAbstract extends Command {
                             .queue();
                 }
                 return false;
-            } else if (patreonLevel > 1 && (amount < 1 || amount > 30)) {
+            } else if (patreon && (amount < 1 || amount > 30)) {
                 if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
                     event.getChannel().sendMessage(EmbedFactory.getEmbedError(
                             this,

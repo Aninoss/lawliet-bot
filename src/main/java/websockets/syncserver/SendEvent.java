@@ -1,10 +1,10 @@
 package websockets.syncserver;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import core.PatreonData;
 import core.Program;
 import core.ShardManager;
 import core.cache.PatreonCache;
@@ -55,11 +55,11 @@ public class SendEvent {
         );
     }
 
-    public static CompletableFuture<HashMap<Long, Integer>> sendRequestPatreon() {
+    public static CompletableFuture<PatreonData> sendRequestPatreon() {
         return process(
                 "PATREON",
                 Map.of(),
-                PatreonCache::userPatreonMapFromJson
+                PatreonCache::patreonDataFromJson
         );
     }
 

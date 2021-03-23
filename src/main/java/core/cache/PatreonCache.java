@@ -1,14 +1,16 @@
 package core.cache;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import constants.AssetIds;
+import core.PatreonData;
 import core.Program;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import websockets.syncserver.SendEvent;
 
-public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
+public class PatreonCache extends SingleCache<PatreonData> {
 
     private static final PatreonCache ourInstance = new PatreonCache();
 
@@ -19,7 +21,8 @@ public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
     private PatreonCache() {
     }
 
-    public int getUserTier(long userId) {
+    public int getUserTier(long userId, boolean requiresOld) {
+        //TODO: compare old new system
         if (userId == AssetIds.OWNER_USER_ID) {
             return 6;
         }
@@ -28,7 +31,12 @@ public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
             return 0;
         }
 
-        return getAsync().getOrDefault(userId, 0);
+        return getAsync().getUserMap().getOrDefault(userId, 0);
+    }
+
+    public boolean isUnlocked(long guildId) {
+        PatreonData patreonData = getAsync();
+        return patreonData != null && patreonData.getGuildList().contains(guildId);
     }
 
     public void requestUpdate() {
@@ -36,7 +44,7 @@ public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
     }
 
     @Override
-    protected HashMap<Long, Integer> fetchValue() {
+    protected PatreonData fetchValue() {
         try {
             return SendEvent.sendRequestPatreon().get();
         } catch (InterruptedException | ExecutionException e) {
@@ -49,8 +57,10 @@ public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
         return 5;
     }
 
-    public static HashMap<Long, Integer> userPatreonMapFromJson(JSONObject responseJson) {
+    public static PatreonData patreonDataFromJson(JSONObject responseJson) {
         HashMap<Long, Integer> patreonUserTiers = new HashMap<>();
+        ArrayList<Long> unlockedGuilds = new ArrayList<>();
+
         JSONArray usersArray = responseJson.getJSONArray("users");
         for (int i = 0; i < usersArray.length(); i++) {
             JSONObject userJson = usersArray.getJSONObject(i);
@@ -59,7 +69,13 @@ public class PatreonCache extends SingleCache<HashMap<Long, Integer>> {
                     userJson.getInt("tier")
             );
         }
-        return patreonUserTiers;
+
+        JSONArray guildsArray = responseJson.getJSONArray("guilds");
+        for (int i = 0; i < guildsArray.length(); i++) {
+            unlockedGuilds.add(guildsArray.getLong(i));
+        }
+
+        return new PatreonData(patreonUserTiers, unlockedGuilds);
     }
 
 }

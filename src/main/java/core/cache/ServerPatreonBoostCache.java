@@ -36,7 +36,7 @@ public class ServerPatreonBoostCache {
 
                                 return guild.getMembers().stream()
                                         .filter(member -> !member.getUser().isBot() && BotPermissionUtil.can(member, Permission.MANAGE_SERVER))
-                                        .anyMatch(member -> PatreonCache.getInstance().getUserTier(member.getIdLong()) > 1);
+                                        .anyMatch(member -> PatreonCache.getInstance().getUserTier(member.getIdLong(), true) > 1);
                             }
 
                             return false;
@@ -48,9 +48,9 @@ public class ServerPatreonBoostCache {
         cache.put(serverId, true);
     }
 
-    public boolean get(long serverId) {
+    public boolean get(long guildId) {
         try {
-            return cache.get(serverId);
+            return PatreonCache.getInstance().isUnlocked(guildId) || cache.get(guildId);
         } catch (ExecutionException e) {
             MainLogger.get().error("Unknown error", e);
         }

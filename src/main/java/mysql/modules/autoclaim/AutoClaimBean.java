@@ -20,8 +20,9 @@ public class AutoClaimBean {
         return userList;
     }
 
-    public boolean isActive(long userId) {
-        return userList.contains(userId) && PatreonCache.getInstance().getUserTier(userId) >= 2;
+    public boolean isActive(long guildId, long userId) {
+        boolean patreon = PatreonCache.getInstance().getUserTier(userId, true) >= 2 || PatreonCache.getInstance().isUnlocked(guildId);
+        return userList.contains(userId) && patreon;
     }
 
     public void setActive(long userId, boolean active) {

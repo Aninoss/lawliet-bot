@@ -9,6 +9,7 @@ public interface ExternalLinks {
     String LAWLIET_WEBSITE = "https://lawlietbot.xyz/";
     String COMMANDS_WEBSITE = "https://lawlietbot.xyz/commands";
     String PATREON_PAGE = "https://www.patreon.com/lawlietbot";
+    String UNLOCK_SERVER_WEBSITE = "https://lawlietbot.xyz/premium";
     String FEATURE_REQUESTS_WEBSITE = "https://lawlietbot.xyz/featurerequests";
     String FAQ_WEBSITE = "https://lawlietbot.xyz/faq";
 

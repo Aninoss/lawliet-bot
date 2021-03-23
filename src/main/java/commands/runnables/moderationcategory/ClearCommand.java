@@ -41,7 +41,9 @@ public class ClearCommand extends Command {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws InterruptedException {
         if (args.length() > 0 && StringUtil.stringIsLong(args) && Long.parseLong(args) >= 2 && Long.parseLong(args) <= 500) {
-            boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong()) >= 3;
+            boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 ||
+                    PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
+
             addLoadingReactionInstantly();
             ClearResults clearResults = clear(event.getChannel(), patreon, event.getMessage().getIdLong(), Integer.parseInt(args));
 

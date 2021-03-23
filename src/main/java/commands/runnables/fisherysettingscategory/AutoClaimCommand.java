@@ -19,7 +19,7 @@ public class AutoClaimCommand extends CommandOnOffSwitchAbstract {
 
     @Override
     protected boolean isActive() {
-        return DBAutoClaim.getInstance().retrieve().isActive(getMemberId().get());
+        return DBAutoClaim.getInstance().retrieve().isActive(getGuildId().get(), getMemberId().get());
     }
 
     @Override

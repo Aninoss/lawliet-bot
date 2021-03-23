@@ -6,7 +6,6 @@ import java.util.concurrent.ExecutionException;
 import constants.FisheryStatus;
 import core.MainLogger;
 import core.ShardManager;
-import core.cache.PatreonCache;
 import modules.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.bannedusers.DBBannedUsers;
@@ -56,9 +55,7 @@ public class OnTopGG implements SyncServerFunction {
                             int value = isWeekend ? 2 : 1;
                             FisheryMemberBean userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(userId);
 
-                            if (PatreonCache.getInstance().getUserTier(userId) >= 2 &&
-                                    DBAutoClaim.getInstance().retrieve().isActive(userId)
-                            ) {
+                            if (DBAutoClaim.getInstance().retrieve().isActive(guild.getIdLong(), userId)) {
                                 userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
                             } else {
                                 userBean.addUpvote(value);
