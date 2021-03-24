@@ -11,6 +11,7 @@ import mysql.modules.autoclaim.DBAutoClaim;
         patreonRequired = true,
         executableWithoutArgs = true
 )
+//TODO: merge with L.claim
 public class AutoClaimCommand extends CommandOnOffSwitchAbstract {
 
     public AutoClaimCommand(Locale locale, String prefix) {

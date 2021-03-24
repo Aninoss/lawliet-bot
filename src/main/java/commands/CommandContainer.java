@@ -138,7 +138,6 @@ public class CommandContainer {
         commandList.add(WorkCommand.class);
         commandList.add(ClaimCommand.class);
         commandList.add(ExchangeRateCommand.class);
-        commandList.add(ExchangeRateForecastCommand.class);
         commandList.add(SellCommand.class);
         commandList.add(BuyCommand.class);
         commandList.add(TopCommand.class);
