@@ -3,15 +3,14 @@ package commands.runnables.fisherysettingscategory;
 import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.CommandOnOffSwitchAbstract;
+import core.cache.PatreonCache;
 import mysql.modules.autoclaim.DBAutoClaim;
 
 @CommandProperties(
         trigger = "autoclaim",
         emoji = "\uD83E\uDD16",
-        patreonRequired = true,
         executableWithoutArgs = true
 )
-//TODO: merge with L.claim
 public class AutoClaimCommand extends CommandOnOffSwitchAbstract {
 
     public AutoClaimCommand(Locale locale, String prefix) {
@@ -24,8 +23,13 @@ public class AutoClaimCommand extends CommandOnOffSwitchAbstract {
     }
 
     @Override
-    protected void setActive(boolean active) {
-        DBAutoClaim.getInstance().retrieve().setActive(getMemberId().get(), active);
+    protected boolean setActive(boolean active) {
+        if (!active || PatreonCache.getInstance().getUserTier(getMemberId().get(), false) >= 2) {
+            DBAutoClaim.getInstance().retrieve().setActive(getMemberId().get(), active);
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

@@ -24,8 +24,9 @@ public class AutoQuoteCommand extends CommandOnOffSwitchAbstract {
     }
 
     @Override
-    protected void setActive(boolean active) {
+    protected boolean setActive(boolean active) {
         DBAutoQuote.getInstance().retrieve(getGuildId().get()).setActive(active);
+        return true;
     }
 
 }

@@ -42,7 +42,7 @@ public class NewCommand extends Command implements OnAlertListener {
 
         // without args
         if (args.length() == 0) {
-            List<VersionBeanSlot> versions = versionBean.getCurrentVersions(3);
+            List<VersionBeanSlot> versions = versionBean.getCurrentVersions(1);
             event.getChannel().sendMessage(getEmbedNormal(event.getMember(), versions, true).build()).queue();
             return true;
         } else {

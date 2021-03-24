@@ -14,10 +14,12 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 
 public abstract class CommandOnOffSwitchAbstract extends Command implements OnReactionListener {
 
+    private enum Mode { PENDING, SET, ERROR }
+
     private final String[] ACTIVE_ARGS = new String[] { "off", "on" };
 
     private final boolean forMember;
-    private boolean set = false;
+    private Mode mode = Mode.PENDING;
 
     public CommandOnOffSwitchAbstract(Locale locale, String prefix, boolean forMember) {
         super(locale, prefix);
@@ -26,7 +28,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
 
     protected abstract boolean isActive();
 
-    protected abstract void setActive(boolean active);
+    protected abstract boolean setActive(boolean active);
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
@@ -47,8 +49,14 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
             }
 
             boolean active = option == 1;
-            setActive(active);
-            event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getSetText()).build())
+            EmbedBuilder eb;
+            if (setActive(active)) {
+                eb = EmbedFactory.getEmbedDefault(this, getSetText());
+            } else {
+                eb = EmbedFactory.getEmbedDefault(this, getErrorText())
+                        .setColor(EmbedFactory.FAILED_EMBED_COLOR);
+            }
+            event.getChannel().sendMessage((eb).build())
                     .queue();
         } else {
             registerReactionListener(Emojis.CHECKMARK, Emojis.X);
@@ -63,8 +71,11 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
             if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), str)) {
                 deregisterListenersWithReactions();
                 boolean active = i == 1;
-                setActive(active);
-                set = true;
+                if (setActive(active)) {
+                    mode = Mode.SET;
+                } else {
+                    mode = Mode.ERROR;
+                }
                 return true;
             }
         }
@@ -73,12 +84,18 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
 
     @Override
     public EmbedBuilder draw() {
-        if (!set) {
-            String onOffText = StringUtil.getOnOffForBoolean(getLocale(), isActive());
-            String status = TextManager.getString(getLocale(), TextManager.GENERAL, "function_status", onOffText);
-            return EmbedFactory.getEmbedDefault(this, getCommandLanguage().getDescLong() + status);
-        } else {
-            return EmbedFactory.getEmbedDefault(this, getSetText());
+        switch (mode) {
+            case SET:
+                return EmbedFactory.getEmbedDefault(this, getSetText());
+
+            case ERROR:
+                return EmbedFactory.getEmbedDefault(this, getErrorText())
+                        .setColor(EmbedFactory.FAILED_EMBED_COLOR);
+
+            default:
+                String onOffText = StringUtil.getOnOffForBoolean(getLocale(), isActive());
+                String status = TextManager.getString(getLocale(), TextManager.GENERAL, "function_status", onOffText);
+                return EmbedFactory.getEmbedDefault(this, getCommandLanguage().getDescLong() + status);
         }
     }
 
@@ -86,6 +103,10 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
         return TextManager.getString(getLocale(), TextManager.GENERAL, forMember ? "function_onoff_member" : "function_onoff",
                 isActive(), getCommandLanguage().getTitle(), getMember().get().getAsMention()
         );
+    }
+
+    private String getErrorText() {
+        return getString("error");
     }
 
 }
