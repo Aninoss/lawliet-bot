@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 @CommandProperties(
         trigger = "chmute",
         userGuildPermissions = { Permission.MANAGE_ROLES },
+        botGuildPermissions = { Permission.MESSAGE_WRITE },
         emoji = "\uD83D\uDED1",
         executableWithoutArgs = false,
         aliases = { "channelmute", "mute" }

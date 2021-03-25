@@ -18,6 +18,7 @@ import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import websockets.syncserver.SyncManager;
@@ -72,6 +73,7 @@ public class Console {
         tasks.put("fishery_vc", this::onFisheryVC);
         tasks.put("server", this::onServer);
         tasks.put("leave_server", this::onLeaveServer);
+        tasks.put("user_find", this::onUserFind);
         tasks.put("user", this::onUser);
         tasks.put("servers", this::onServers);
         tasks.put("servers_mutual", this::onServersMutual);
@@ -237,6 +239,18 @@ public class Console {
                 guild.getMemberCount() - bots,
                 bots
         );
+    }
+
+    private void onUserFind(String[] args) {
+        for (int i = ShardManager.getInstance().getShardIntervalMin(); i <= ShardManager.getInstance().getShardIntervalMax(); i++) {
+            ShardManager.getInstance().getJDA(i).map(JDA::getUsers).ifPresent(users -> {
+                users.forEach(user -> {
+                    if (user.getAsTag().contains(args[1])) {
+                        MainLogger.get().info("{} => {}", user.getId(), user.getAsTag());
+                    }
+                });
+            });
+        }
     }
 
     private void onUser(String[] args) {

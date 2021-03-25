@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.Permission;
 @CommandProperties(
         trigger = "chunmute",
         userGuildPermissions = { Permission.MANAGE_ROLES },
+        botGuildPermissions = { Permission.MESSAGE_WRITE },
         emoji = "\uD83D\uDED1",
         executableWithoutArgs = false,
         aliases = { "channelunmute", "unmute", "unchmute", "unchannelmute" }
