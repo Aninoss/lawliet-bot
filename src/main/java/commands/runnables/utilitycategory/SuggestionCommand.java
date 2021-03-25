@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
         trigger = "suggestion",
         emoji = "❕",
         executableWithoutArgs = false,
-        aliases = { "sugg" }
+        aliases = { "sugg", "suggest" }
 )
 public class SuggestionCommand extends Command implements OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
