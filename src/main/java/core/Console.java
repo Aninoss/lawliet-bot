@@ -17,6 +17,7 @@ import modules.repair.MainRepair;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import websockets.syncserver.SyncManager;
@@ -46,6 +47,7 @@ public class Console {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
+        tasks.put("premium_message", this::onPremiumMessage);
         tasks.put("routes", this::onRoutes);
         tasks.put("patreon_fetch", this::onPatreonFetch);
         tasks.put("survey", this::onSurvey);
@@ -78,6 +80,60 @@ public class Console {
         tasks.put("internet", this::onInternetConnection);
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_channel", this::onSendChannel);
+    }
+
+    private void onPremiumMessage(String[] args) {
+        String message = """
+                         Many of you have contacted me over the last few months because you were unhappy about how unlocking premium commands has been implemented previously.
+                         
+                         A survey has shown that most of you prefer a system where premium commands are unlocked for one entire server and not just the individual user, so I'm very happy to inform you that you can now switch to a new perk system!
+                         
+                         
+                         > **"What is going to change?"**
+                                                  
+                         Mainly, premium commands will now be unlocked starting from the *Supporter+* tier for an entire server and not just the individual user. You can find more information about the new perks on the [Lawliet Patreon Page](https://www.patreon.com/lawlietbot)
+                                                  
+                                                  
+                         > **"How can I move to the new system?"**
+                                                  
+                         If you already have the *Supporter+* ($5) tier or higher, then you can just go to https://lawlietbot.xyz/premium and unlock your first server. You will automatically be moved to the new system immediately. But be aware that you cannot undo this change!
+                                                  
+                         If you're not on *Supporter+* yet, then you can just upgrade your current tier on Patreon and then unlock a server
+                                                  
+                                                  
+                         > **"I don't want to move to the new system, how can I prevent it?"**
+                                                  
+                         If you want to keep the old system, then no action is required. You will be guranteed to keep the old system until April 1st 2022
+                                                  
+                                                  
+                         > **"What about new subscribers?"**
+                                                  
+                         New subscribers will automatically start with the new system from now on
+                                                  
+                                                  
+                         > **"Will the new perk system stay forever?"**
+                                                  
+                         It all depends on how well it works out and whether it makes patrons like you more happy
+                                                  
+                                                  
+                         *Please let me know about what you think about this update! Just write me a dm (Aninoss#7220) or tell me on the [Lawliet Support Server](https://discord.gg/F4FcAbQ)*
+                         """;
+
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                .setTitle("We're Testing New Perks for Patreon Subscribers!")
+                .setDescription(message)
+                .setThumbnail("https://cdn.discordapp.com/attachments/499629904380297226/824649655589535794/patreon_icon.png");
+
+        List<Long> userIds = PatreonCache.getInstance().getAsync().getOldUsersList();
+        for (long userId : userIds) {
+            MainLogger.get().info("SEND: {}", userId);
+            try {
+                JDAUtil.sendPrivateMessage(userId, eb.build()).complete();
+                MainLogger.get().info("SUCCESS");
+            } catch (Throwable e) {
+                MainLogger.get().info("FAILED");
+            }
+        }
     }
 
     private void onRoutes(String[] args) {
