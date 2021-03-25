@@ -72,7 +72,8 @@ public class HelpCommand extends NavigationAbstract {
         searchTerm = args;
         commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
         EmbedBuilder commandEmbed = checkCommand(event.getChannel(), args);
-        if (commandEmbed == null) {
+        EmbedBuilder categoryEmbed = checkCategory(event.getChannel(), args);
+        if (commandEmbed == null || categoryEmbed != null) {
             registerNavigationListener(LIST.length);
         } else {
             drawMessage(commandEmbed);
@@ -125,8 +126,8 @@ public class HelpCommand extends NavigationAbstract {
         setOptions(null);
 
         EmbedBuilder eb;
-        if ((eb = checkCommand(channel, arg)) == null) {
-            if ((eb = checkCategory(channel, arg)) == null) {
+        if ((eb = checkCategory(channel, arg)) == null) {
+            if ((eb = checkCommand(channel, arg)) == null) {
                 eb = checkMainPage(channel);
                 if (arg.length() > 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));

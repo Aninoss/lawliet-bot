@@ -12,7 +12,6 @@ import core.EmbedFactory;
 import core.PatreonData;
 import core.ShardManager;
 import core.cache.PatreonCache;
-import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -21,7 +20,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "patreon",
         emoji = "\uD83D\uDCB3",
         executableWithoutArgs = true,
-        aliases = { "donate", "donation" }
+        aliases = { "donate", "donation", "premium" }
 )
 public class PatreonCommand extends Command {
 
@@ -40,7 +39,14 @@ public class PatreonCommand extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         patreonData = PatreonCache.getInstance().getAsync();
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("info", ExternalLinks.PATREON_PAGE, ExternalLinks.UNLOCK_SERVER_WEBSITE))
+        String content = getString("info",
+                ExternalLinks.PATREON_PAGE,
+                ExternalLinks.UNLOCK_SERVER_WEBSITE,
+                getString("status", PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false)),
+                StringUtil.getEmojiForBoolean(PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong()))
+        );
+
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, content)
                 .setImage("https://cdn.discordapp.com/attachments/499629904380297226/763202405474238464/Patreon_Banner_New.png")
                 .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false);
 
@@ -51,7 +57,6 @@ public class PatreonCommand extends Command {
         sb.append(getString("andmanymore"));
 
         eb.addField(getString("slot_title"), sb.toString(), false);
-        EmbedUtil.addLog(eb, null, getString("status", PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false)));
         event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
