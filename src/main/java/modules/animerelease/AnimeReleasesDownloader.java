@@ -139,8 +139,11 @@ public class AnimeReleasesDownloader {
                 episodeTitle = String.valueOf(value);
             }
         }
+        if (episodeTitle.length() == 0) {
+            episodeTitle = null;
+        }
 
-        String thumbnail = "";
+        String thumbnail = null;
         if (data.has("media:thumbnail")) {
             thumbnail = data.getJSONArray("media:thumbnail").getJSONObject(0).getString("url");
         }
@@ -148,7 +151,16 @@ public class AnimeReleasesDownloader {
         String url = data.getString("link").replace("/de/", "/");
         int id = data.getInt("crunchyroll:mediaId");
 
-        return new AnimeReleasePost(anime, description, episode, episodeTitle, thumbnail, date, url, id);
+        return new AnimeReleasePost(
+                anime,
+                description,
+                episode,
+                episodeTitle,
+                thumbnail,
+                date,
+                url,
+                id
+        );
     }
 
 }
