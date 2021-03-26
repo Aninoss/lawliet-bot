@@ -3,6 +3,7 @@ package core;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
 import constants.Locales;
@@ -17,7 +18,6 @@ import modules.repair.MainRepair;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -48,7 +48,6 @@ public class Console {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
-        tasks.put("premium_message", this::onPremiumMessage);
         tasks.put("routes", this::onRoutes);
         tasks.put("patreon_fetch", this::onPatreonFetch);
         tasks.put("survey", this::onSurvey);
@@ -84,60 +83,6 @@ public class Console {
         tasks.put("send_channel", this::onSendChannel);
     }
 
-    private void onPremiumMessage(String[] args) {
-        String message = """
-                         Many of you have contacted me over the last few months because you were unhappy about how unlocking premium commands has been implemented previously.
-                         
-                         A survey has shown that most of you prefer a system where premium commands are unlocked for one entire server and not just the individual user, so I'm very happy to inform you that you can now switch to a new perk system!
-                         
-                         
-                         > **"What is going to change?"**
-                                                  
-                         Mainly, premium commands will now be unlocked starting from the *Supporter+* tier for an entire server and not just the individual user. You can find more information about the new perks on the [Lawliet Patreon Page](https://www.patreon.com/lawlietbot)
-                                                  
-                                                  
-                         > **"How can I move to the new system?"**
-                                                  
-                         If you already have the *Supporter+* ($5) tier or higher, then you can just go to https://lawlietbot.xyz/premium and unlock your first server. You will automatically be moved to the new system immediately. But be aware that you cannot undo this change!
-                                                  
-                         If you're not on *Supporter+* yet, then you can just upgrade your current tier on Patreon and then unlock a server
-                                                  
-                                                  
-                         > **"I don't want to move to the new system, how can I prevent it?"**
-                                                  
-                         If you want to keep the old system, then no action is required. You will be guranteed to keep the old system until April 1st 2022
-                                                  
-                                                  
-                         > **"What about new subscribers?"**
-                                                  
-                         New subscribers will automatically start with the new system from now on
-                                                  
-                                                  
-                         > **"Will the new perk system stay forever?"**
-                                                  
-                         It all depends on how well it works out and whether it makes patrons like you more happy
-                                                  
-                                                  
-                         *Please let me know about what you think about this update! Just write me a dm (Aninoss#7220) or tell me on the [Lawliet Support Server](https://discord.gg/F4FcAbQ)*
-                         """;
-
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle("We're Testing New Perks for Patreon Subscribers!")
-                .setDescription(message)
-                .setThumbnail("https://cdn.discordapp.com/attachments/499629904380297226/824649655589535794/patreon_icon.png");
-
-        List<Long> userIds = PatreonCache.getInstance().getAsync().getOldUsersList();
-        for (long userId : userIds) {
-            MainLogger.get().info("SEND: {}", userId);
-            try {
-                JDAUtil.sendPrivateMessage(userId, eb.build()).complete();
-                MainLogger.get().info("SUCCESS");
-            } catch (Throwable e) {
-                MainLogger.get().info("FAILED");
-            }
-        }
-    }
-
     private void onRoutes(String[] args) {
         int limit = 999;
         if (args.length > 1) {
@@ -167,12 +112,7 @@ public class Console {
     private void onSendChannel(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long channelId = Long.parseLong(args[2]);
-
-        StringBuilder message = new StringBuilder();
-        for (int i = 3; i < args.length; i++) {
-            message.append(" ").append(args[i]);
-        }
-        String text = message.toString().trim().replace("\\n", "\n");
+        String text = collectArgs(args, 3).replace("\\n", "\n");
 
         ShardManager.getInstance().getLocalGuildById(serverId)
                 .map(guild -> guild.getTextChannelById(channelId))
@@ -183,13 +123,8 @@ public class Console {
     }
 
     private void onSendUser(String[] args) {
-        StringBuilder message = new StringBuilder();
-        for (int i = 2; i < args.length; i++) {
-            message.append(" ").append(args[i]);
-        }
-
         long userId = Long.parseLong(args[1]);
-        String text = message.toString().trim().replace("\\n", "\n");
+        String text = collectArgs(args, 2).replace("\\n", "\n");
         ShardManager.getInstance().fetchUserById(userId)
                 .exceptionally(ExceptionLogger.get())
                 .thenAccept(user -> {
@@ -216,7 +151,10 @@ public class Console {
         ShardManager.getInstance().getCachedUserById(Long.parseLong(args[1])).ifPresent(user ->
                 ShardManager.getInstance()
                         .getLocalMutualGuilds(user)
-                        .forEach(this::printGuild));
+                        .stream()
+                        .limit(50)
+                        .forEach(this::printGuild)
+        );
     }
 
     private void onServers(String[] args) {
@@ -225,6 +163,7 @@ public class Console {
 
         guilds.stream()
                 .filter(g -> g.getMemberCount() >= min)
+                .limit(50)
                 .forEach(this::printGuild);
     }
 
@@ -242,11 +181,15 @@ public class Console {
     }
 
     private void onUserFind(String[] args) {
+        String username = collectArgs(args, 1);
+        AtomicInteger n = new AtomicInteger();
         for (int i = ShardManager.getInstance().getShardIntervalMin(); i <= ShardManager.getInstance().getShardIntervalMax(); i++) {
             ShardManager.getInstance().getJDA(i).map(JDA::getUsers).ifPresent(users -> {
                 users.forEach(user -> {
-                    if (user.getAsTag().contains(args[1])) {
-                        MainLogger.get().info("{} => {}", user.getId(), user.getAsTag());
+                    if (user.getAsTag().toLowerCase().contains(username.toLowerCase())) {
+                        if (n.getAndIncrement() < 20) {
+                            MainLogger.get().info("{} => {}", user.getId(), user.getAsTag());
+                        }
                     }
                 });
             });
@@ -456,6 +399,14 @@ public class Console {
         } else {
             System.err.printf("No result for \"%s\"\n", args[0]);
         }
+    }
+
+    private String collectArgs(String[] args, int firstIndex) {
+        StringBuilder argsString = new StringBuilder();
+        for (int i = firstIndex; i < args.length; i++) {
+            argsString.append(" ").append(args[i]);
+        }
+        return argsString.toString().trim();
     }
 
     public String getMemory() {
