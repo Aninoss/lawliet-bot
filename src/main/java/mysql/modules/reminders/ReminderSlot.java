@@ -6,17 +6,17 @@ import mysql.BeanWithGuild;
 
 public class ReminderSlot extends BeanWithGuild implements TextChannelAsset {
 
-    private final int id;
+    private final long id;
     private final long channelId;
     private final Instant time;
     private final String message;
     private final Runnable completedRunnable;
 
-    public ReminderSlot(long serverId, int id, long channelId, Instant time, String message) {
+    public ReminderSlot(long serverId, long id, long channelId, Instant time, String message) {
         this(serverId, id, channelId, time, message, null);
     }
 
-    public ReminderSlot(long serverId, int id, long channelId, Instant time, String message, Runnable completedRunnable) {
+    public ReminderSlot(long serverId, long id, long channelId, Instant time, String message, Runnable completedRunnable) {
         super(serverId);
         this.id = id;
         this.channelId = channelId;
@@ -25,7 +25,7 @@ public class ReminderSlot extends BeanWithGuild implements TextChannelAsset {
         this.completedRunnable = completedRunnable;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

@@ -40,7 +40,7 @@ public class ReminderScheduler {
         loadReminderBean(remindersBean.getGuildId(), remindersBean.getId(), remindersBean.getTime());
     }
 
-    public void loadReminderBean(long guildId, int reminderId, Instant due) {
+    public void loadReminderBean(long guildId, long reminderId, Instant due) {
         if (guildId == AssetIds.ANICORD_SERVER_ID || !Program.isProductionMode()) { //TODO: Debug
             MainLogger.get().info("Reminder registered: " + DBMain.instantToDateTimeString(due));
         }
@@ -49,9 +49,10 @@ public class ReminderScheduler {
             if (guildId == AssetIds.ANICORD_SERVER_ID || !Program.isProductionMode()) { //TODO: Debug
                 MainLogger.get().info("Reminder: 0");
             }
-            CustomObservableMap<Integer, ReminderSlot> map = DBReminders.getInstance().retrieve(guildId);
+            CustomObservableMap<Long, ReminderSlot> map = DBReminders.getInstance().retrieve(guildId);
             if (guildId == AssetIds.ANICORD_SERVER_ID || !Program.isProductionMode()) { //TODO: Debug
-                MainLogger.get().info("Reminder: " + (map.containsKey(reminderId) && ShardManager.getInstance().guildIsManaged(guildId)));
+                MainLogger.get().info("Reminder A: " + (map.containsKey(reminderId)));
+                MainLogger.get().info("Reminder B: " + (ShardManager.getInstance().guildIsManaged(guildId)));
             }
             if (map.containsKey(reminderId) && ShardManager.getInstance().guildIsManaged(guildId)) {
                 if (guildId == AssetIds.ANICORD_SERVER_ID || !Program.isProductionMode()) { //TODO: Debug

@@ -130,12 +130,12 @@ public class ReminderCommand extends Command implements OnReactionListener {
     }
 
     private void insertReminderBean(TextChannel channel, long minutes, String messageText) {
-        CustomObservableMap<Integer, ReminderSlot> remindersMap = DBReminders.getInstance()
+        CustomObservableMap<Long, ReminderSlot> remindersMap = DBReminders.getInstance()
                 .retrieve(channel.getGuild().getIdLong());
 
         remindersBean = new ReminderSlot(
                 channel.getGuild().getIdLong(),
-                generateNewId(remindersMap),
+                System.nanoTime(),
                 channel.getIdLong(),
                 Instant.now().plus(minutes, ChronoUnit.MINUTES),
                 messageText,
@@ -144,14 +144,6 @@ public class ReminderCommand extends Command implements OnReactionListener {
 
         remindersMap.put(remindersBean.getId(), remindersBean);
         ReminderScheduler.getInstance().loadReminderBean(remindersBean);
-    }
-
-    private int generateNewId(CustomObservableMap<Integer, ReminderSlot> remindersBeans) {
-        int value = 0;
-        while (remindersBeans.containsKey(value)) {
-            value++;
-        }
-        return value;
     }
 
     private void cancel(long guildId) {
