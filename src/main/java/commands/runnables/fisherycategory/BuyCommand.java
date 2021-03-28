@@ -196,7 +196,9 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
             setLog(LogStatus.SUCCESS, getString("levelup", getString("product_" + slot.getGear().ordinal() + "_0")));
             return true;
         } else {
-            setLog(LogStatus.FAILURE, getString("notenough"));
+            if (getLog() == null || getLog().isEmpty()) {
+                setLog(LogStatus.FAILURE, getString("notenough"));
+            }
             return false;
         }
     }

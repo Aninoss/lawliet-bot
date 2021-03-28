@@ -21,7 +21,7 @@ public class FeatureRequestsRefillNotification implements ScheduleInterface {
             ShardManager.getInstance().getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
                     .map(server -> server.getTextChannelById(557960859792441357L))
                     .ifPresent(channel -> {
-                        channel.sendMessage(message).queue(); //TODO: crosspost
+                        channel.sendMessage(message).flatMap(Message::crosspost).queue();
 
                         Role role = channel.getGuild().getRoleById(703879430799622155L);
                         channel.sendMessage(role.getAsMention())

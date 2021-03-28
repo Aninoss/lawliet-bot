@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class CommandManager {
 
@@ -122,9 +123,9 @@ public class CommandManager {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_title"))
                         .setDescription(desc);
-                sendError(event, command.getLocale(), eb);
+                sendError(event, command.getLocale(), eb, true);
             } else if (BotPermissionUtil.canWrite(event.getChannel())) {
-                sendErrorNoEmbed(event, command.getLocale(), desc);
+                sendErrorNoEmbed(event, command.getLocale(), desc, true);
             }
         }
 
@@ -149,9 +150,9 @@ public class CommandManager {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
                         .setDescription(desc);
-                sendError(event, command.getLocale(), eb);
+                sendError(event, command.getLocale(), eb, false);
             } else if (BotPermissionUtil.canWrite(event.getChannel())) {
-                sendErrorNoEmbed(event, command.getLocale(), desc);
+                sendErrorNoEmbed(event, command.getLocale(), desc, false);
             }
         }
 
@@ -176,9 +177,9 @@ public class CommandManager {
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);
             EmbedUtil.addLog(eb, LogStatus.TIME, waitTime);
-            sendError(event, command.getLocale(), eb);
+            sendError(event, command.getLocale(), eb, false);
         } else if (BotPermissionUtil.canWrite(event.getChannel())) {
-            sendErrorNoEmbed(event, command.getLocale(), desc + "\n\n`" + waitTime + "`");
+            sendErrorNoEmbed(event, command.getLocale(), desc + "\n\n`" + waitTime + "`", false);
         }
 
         return false;
@@ -205,9 +206,9 @@ public class CommandManager {
                     .setColor(Settings.PATREON_COLOR)
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);
-            sendError(event, command.getLocale(), eb);
+            sendError(event, command.getLocale(), eb, false);
         } else if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            sendErrorNoEmbed(event, command.getLocale(), desc);
+            sendErrorNoEmbed(event, command.getLocale(), desc, false);
         }
 
         return false;
@@ -228,7 +229,7 @@ public class CommandManager {
         }
 
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            sendError(event, command.getLocale(), errEmbed);
+            sendError(event, command.getLocale(), errEmbed, true);
         }
         return false;
     }
@@ -246,9 +247,9 @@ public class CommandManager {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_title", command.getPrefix()))
                     .setDescription(desc);
-            sendError(event, command.getLocale(), eb);
+            sendError(event, command.getLocale(), eb, true);
         } else if (BotPermissionUtil.canWrite(event.getChannel())) {
-            sendErrorNoEmbed(event, command.getLocale(), desc);
+            sendErrorNoEmbed(event, command.getLocale(), desc, true);
         }
         return false;
     }
@@ -262,7 +263,7 @@ public class CommandManager {
             return true;
         }
 
-        sendErrorNoEmbed(event, command.getLocale(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_embed"));
+        sendErrorNoEmbed(event, command.getLocale(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_embed"), true);
         sendHelpDm(event.getMember(), command);
         return false;
     }
@@ -273,35 +274,48 @@ public class CommandManager {
         }
 
         EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
-        sendError(event, command.getLocale(), eb);
+        sendError(event, command.getLocale(), eb, true);
         return false;
     }
 
-    private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text) {
+    private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text, boolean autoDelete) {
         if (BotPermissionUtil.canWrite(event.getChannel())) {
+            MessageAction messageAction;
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
-                event.getMessage()
-                        .reply(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
-                        .queue(message -> autoRemoveMessageAfterCountdown(event, message));
+                messageAction = event.getMessage()
+                        .reply(TextManager.getString(locale, TextManager.GENERAL, "command_block", text));
             } else {
-                event.getChannel()
-                        .sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
-                        .queue(message -> autoRemoveMessageAfterCountdown(event, message));
+                messageAction = event.getChannel()
+                        .sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text));
+            }
+
+            if (autoDelete) {
+                messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
+            } else {
+                messageAction.queue();
             }
         }
     }
 
-    private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb) {
+    private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb, boolean autoDelete) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
+            if (autoDelete) {
+                eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
+            }
+
+            MessageAction messageAction;
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
-                event.getMessage()
-                        .reply(eb.build())
-                        .queue(message -> autoRemoveMessageAfterCountdown(event, message));
+                messageAction = event.getMessage()
+                        .reply(eb.build());
             } else {
-                event.getChannel()
-                        .sendMessage(eb.build())
-                        .queue(message -> autoRemoveMessageAfterCountdown(event, message));
+                messageAction = event.getChannel()
+                        .sendMessage(eb.build());
+            }
+
+            if (autoDelete) {
+                messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
+            } else {
+                messageAction.queue();
             }
         }
     }
@@ -329,9 +343,9 @@ public class CommandManager {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "whitelist_title", command.getPrefix()))
                     .setDescription(desc);
-            sendError(event, command.getLocale(), eb);
+            sendError(event, command.getLocale(), eb, true);
         } else if (BotPermissionUtil.canWrite(event.getChannel())) {
-            sendErrorNoEmbed(event, command.getLocale(), desc);
+            sendErrorNoEmbed(event, command.getLocale(), desc, true);
         }
         return false;
     }
