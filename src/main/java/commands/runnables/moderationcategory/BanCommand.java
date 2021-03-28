@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.entities.User;
 public class BanCommand extends WarnCommand {
 
     public BanCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, true, true);
+        super(locale, prefix, true, false, true);
     }
 
     @Override
