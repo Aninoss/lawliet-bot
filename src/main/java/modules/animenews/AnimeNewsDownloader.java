@@ -21,7 +21,8 @@ public class AnimeNewsDownloader {
         if (StringUtil.getLanguage(locale) == Language.DE) {
             downloadUrl = "https://www.anime2you.de/news/feed/";
         } else {
-            downloadUrl = "https://www.animenewsnetwork.com/all/rss.xml?ann-edition=w";
+            //downloadUrl = "https://www.animenewsnetwork.com/all/rss.xml?ann-edition=w"; TODO: Doesn't work anymore because cloudflare blocks bots
+            downloadUrl = "https://otakukart.com/animeblog/feed";
         }
 
         JSONArray jsonArray = retrieveJSONArray(downloadUrl);

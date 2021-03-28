@@ -88,7 +88,7 @@ public final class InternetUtil {
         return InternetCache.getData(url, 10 * 60)
                 .thenApply(data -> {
                     String content = data.getContent().get();
-                    return StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\">")[0];
+                    return StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\"")[0];
                 });
     }
 
