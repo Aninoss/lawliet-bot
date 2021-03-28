@@ -1,6 +1,7 @@
 package modules;
 
 import java.util.*;
+import core.utils.StringUtil;
 
 public class VoteInfo {
 
@@ -11,7 +12,7 @@ public class VoteInfo {
     private boolean active = true;
 
     public VoteInfo(String topic, String[] choices, ArrayList<HashSet<Long>> userVotes, long creatorId) {
-        this.topic = topic;
+        this.topic = StringUtil.shortenString(topic, 1024);
         this.userVotes = userVotes;
         this.creatorId = creatorId;
 
