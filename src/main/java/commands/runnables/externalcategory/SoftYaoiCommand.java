@@ -8,7 +8,7 @@ import commands.runnables.SafebooruAbstract;
         trigger = "softyaoi",
         emoji = "\uD83D\uDC6C",
         executableWithoutArgs = true,
-        maxCalculationTimeSec = 3 * 60,
+        maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         aliases = { "safeyaoi", "sfwyaoi", "shounenai", "shounen-ai" }
 )

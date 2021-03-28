@@ -8,7 +8,7 @@ import commands.runnables.SafebooruAbstract;
         trigger = "softyuri",
         emoji = "\uD83D\uDC6D",
         executableWithoutArgs = true,
-        maxCalculationTimeSec = 3 * 60,
+        maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         aliases = { "safeyuri", "sfwyuri", "shoujoai", "shoujo-ai" }
 )

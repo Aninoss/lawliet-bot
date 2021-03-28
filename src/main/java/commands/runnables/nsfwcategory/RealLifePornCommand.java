@@ -10,7 +10,7 @@ import commands.runnables.RealbooruAbstract;
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
-        maxCalculationTimeSec = 3 * 60,
+        maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         aliases = { "r1porn" }
 )

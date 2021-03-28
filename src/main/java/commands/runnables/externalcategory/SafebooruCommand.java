@@ -8,7 +8,7 @@ import commands.runnables.PornSearchAbstract;
         trigger = "safeb",
         emoji = "\uD83D\uDE07",
         executableWithoutArgs = true,
-        maxCalculationTimeSec = 3 * 60,
+        maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         aliases = { "softb", "safebooru", "softbooru", "sbooru" }
 )
