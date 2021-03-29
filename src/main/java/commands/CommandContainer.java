@@ -177,6 +177,7 @@ public class CommandContainer {
         //INTERACTIONS
         commandList.add(BakaCommand.class);
         commandList.add(BiteCommand.class);
+        commandList.add(BonkCommand.class);
         commandList.add(BullyCommand.class);
         commandList.add(CuddleCommand.class);
         commandList.add(EveryoneCommand.class);
