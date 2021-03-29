@@ -70,7 +70,10 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
     @Override
     protected synchronized void save(FisheryGuildBean fisheryGuildBean) {
         try {
-            if (fisheryGuildBean.getGuildBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryGuildBean.getGuildBean().isSaved()) {
+            if (fisheryGuildBean != null &&
+                    fisheryGuildBean.getGuildBean().getFisheryStatus() != FisheryStatus.STOPPED &&
+                    fisheryGuildBean.getGuildBean().isSaved()
+            ) {
                 DBBatch userBatch = new DBBatch("REPLACE INTO PowerPlantUsers (serverId, userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed, dailyValuesUpdated, dailyVCMinutes, dailyReceivedCoins, nextWork) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 DBBatch hourlyBatch = new DBBatch("REPLACE INTO PowerPlantUserGained (serverId, userId, time, coinsGrowth) VALUES (?, ?, ?, ?)");
                 DBBatch powerUpBatch = new DBBatch("REPLACE INTO PowerPlantUserPowerUp (serverId, userId, categoryId, level) VALUES (?, ?, ?, ?)");
