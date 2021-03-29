@@ -513,7 +513,7 @@ public class MentionUtil {
         return min;
     }
 
-    private static String reformatForDigits(String str) {
+    public static String reformatForDigits(String str) {
         str = " " + str.toLowerCase()
                 .replace("\n", " ")
                 .replaceAll(" {2}", " ");

@@ -1,8 +1,7 @@
 package commands.runnables.fisherysettingscategory;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
@@ -14,12 +13,12 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
-import core.utils.StringUtil;
-import mysql.modules.fisheryusers.DBFishery;
+import modules.FisheryMemberGroup;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
@@ -36,8 +35,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
     private enum ValueProcedure { ABSOLUTE, ADD, SUB }
 
-    private long userId;
-    private FisheryMemberBean fisheryMemberBean;
+    private FisheryMemberGroup fisheryMemberGroup;
 
     public FisheryManageCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -46,11 +44,18 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     @Override
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
         MentionList<Member> userMentions = MentionUtil.getMembers(event.getMessage(), args);
-        List<Member> list = userMentions
+        ArrayList<Member> list = userMentions
                 .getList()
                 .stream()
                 .filter(member -> !member.getUser().isBot())
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        MentionList<Role> roleMentions = MentionUtil.getRoles(event.getMessage(), userMentions.getFilteredArgs());
+        roleMentions.getList().forEach(role -> {
+            event.getGuild().getMembersWithRoles(role).stream()
+                    .filter(member -> !member.getUser().isBot() && !list.contains(member))
+                    .forEach(list::add);
+        });
 
         if (list.isEmpty()) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")).build())
@@ -58,10 +63,9 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             return false;
         }
 
-        userId = list.get(0).getIdLong();
-        fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(userId);
+        fisheryMemberGroup = new FisheryMemberGroup(event.getGuild().getIdLong(), list);
 
-        args = userMentions.getFilteredArgs();
+        args = roleMentions.getFilteredArgs();
         if (args.length() > 0) {
             String typeString = args.split(" ")[0];
 
@@ -89,10 +93,8 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
             } else {
                 String amountString = args.substring(typeString.length()).trim();
-                Long value;
-                AtomicLong valueOld = new AtomicLong();
-                if ((value = updateValues(type, amountString, valueOld)) != null) {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", type, MentionUtil.getUserAsMention(userId, false), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value))).build())
+                if (updateValues(type, amountString)) {
+                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", type, fisheryMemberGroup.getAsTag(), amountString)).build())
                             .queue();
                     return true;
                 } else {
@@ -110,14 +112,12 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     @Override
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state >= 1) {
-            Long value;
-            AtomicLong valueOld = new AtomicLong();
-            if ((value = updateValues(state - 1, input, valueOld)) == null) {
+            if (!updateValues(state - 1, input)) {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
                 return Response.FALSE;
             }
 
-            setLog(LogStatus.SUCCESS, getString("set_log", state - 1, getMember().map(Member::getEffectiveName).orElse(MentionUtil.getUserAsMention(userId, false)), StringUtil.numToString(valueOld.get()), StringUtil.numToString(value)).replace("*", ""));
+            setLog(LogStatus.SUCCESS, getString("set_log", state - 1, fisheryMemberGroup.getAsTag(), input).replace("*", ""));
             setState(0);
 
             return Response.TRUE;
@@ -126,7 +126,8 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         return null;
     }
 
-    private Long updateValues(int type, String inputString, AtomicLong valueOld) {
+    private boolean updateValues(int type, String inputString) {
+        boolean success = false;
         ValueProcedure valueProcedure = ValueProcedure.ABSOLUTE;
         if (inputString.startsWith("+")) {
             valueProcedure = ValueProcedure.ADD;
@@ -136,22 +137,26 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             inputString = inputString.substring(1);
         }
 
-        if (inputString.length() == 0 || !Character.isDigit(inputString.charAt(0))) return null;
-
-        long baseValue = getBaseValueByType(fisheryMemberBean, type);
-        valueOld.set(baseValue);
-        long newValue = MentionUtil.getAmountExt(inputString, baseValue);
-        if (newValue == -1) {
-            return null;
+        if (inputString.length() == 0 || !Character.isDigit(inputString.charAt(0))) {
+            return false;
         }
 
-        newValue = calculateNewValue(baseValue, newValue, valueProcedure);
-        setNewValues(newValue, type);
+        for (FisheryMemberBean fisheryMemberBean : fisheryMemberGroup.getFisheryMemberList()) {
+            long baseValue = getBaseValueByType(fisheryMemberBean, type);
+            long newValue = MentionUtil.getAmountExt(inputString, baseValue);
+            if (newValue == -1) {
+                continue;
+            }
 
-        return newValue;
+            newValue = calculateNewValue(baseValue, newValue, valueProcedure);
+            setNewValues(fisheryMemberBean, newValue, type);
+            success = true;
+        }
+
+        return success;
     }
 
-    private void setNewValues(long newValue, int type) {
+    private void setNewValues(FisheryMemberBean fisheryMemberBean, long newValue, int type) {
         switch (type) {
             /* Fish */
             case 0:
@@ -225,28 +230,21 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
     @Override
     public EmbedBuilder draw(int state) throws Throwable {
-        if (state == 0) {
-            setOptions(
-                    getString(
-                            "state0_options",
-                            StringUtil.numToString(fisheryMemberBean.getFish()),
-                            StringUtil.numToString(fisheryMemberBean.getCoins()),
-                            StringUtil.numToString(fisheryMemberBean.getDailyStreak())
-                    ).split("\n")
-            );
+        String[] values = new String[] {
+                fisheryMemberGroup.getFishString(),
+                fisheryMemberGroup.getCoinsString(),
+                fisheryMemberGroup.getDailyStreakString()
+        };
 
-            String desc = getString("state0_description", MentionUtil.getUserAsMention(userId, false));
+        if (state == 0) {
+            setOptions(getString("state0_options", values).split("\n"));
+
+            String desc = getString("state0_description", fisheryMemberGroup.getAsTag());
             return EmbedFactory.getEmbedDefault(this, desc);
         } else {
             return EmbedFactory.getEmbedDefault(
                     this,
-                    getString(
-                            "state1_description",
-                            state - 1,
-                            StringUtil.numToString(fisheryMemberBean.getFish()),
-                            StringUtil.numToString(fisheryMemberBean.getCoins()),
-                            StringUtil.numToString(fisheryMemberBean.getDailyStreak())
-                    ),
+                    getString("state1_description", state - 1, values),
                     getString("state1_title", state - 1)
             );
         }
