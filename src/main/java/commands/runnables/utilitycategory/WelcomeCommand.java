@@ -103,8 +103,8 @@ public class WelcomeCommand extends NavigationAbstract {
             case 4:
                 List<Message.Attachment> attachmentList = event.getMessage().getAttachments();
                 if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
-                    String downloadFileName = String.format("data/welcome_backgrounds/%d.png", event.getGuild().getIdLong());
-                    if (FileUtil.downloadMessageAttachment(attachmentList.get(0), new LocalFile(downloadFileName)).isPresent()) {
+                    String downloadFileName = String.format("%d.png", event.getGuild().getIdLong());
+                    if (FileUtil.downloadMessageAttachment(attachmentList.get(0), new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, downloadFileName)).isPresent()) {
                         setLog(LogStatus.SUCCESS, getString("backgroundset"));
                         setState(0);
                         return Response.TRUE;

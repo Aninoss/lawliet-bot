@@ -56,8 +56,8 @@ public class TriggerGraphics {
             g.setColor(new Color(255, 0, 0, 255 / 4));
             g.fillRect(0, 0, image.getWidth(), image.getHeight());
 
-            g.drawImage(ImageIO.read(new LocalFile("data/resources/triggeredsign.png")), 0, image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
-            g.drawImage(ImageIO.read(new LocalFile("data/resources/triggeredsign.png")), (int) -xPlus, (int) -yPlus + image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
+            g.drawImage(ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES, "triggeredsign.png")), 0, image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
+            g.drawImage(ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES, "triggeredsign.png")), (int) -xPlus, (int) -yPlus + image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
 
             gifSequenceWriter.writeToSequence(result);
             g.dispose();

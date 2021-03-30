@@ -40,7 +40,7 @@ public class HangmanCommand extends CasinoAbstract {
     @Override
     public String[] onGameStart(GuildMessageReceivedEvent event, String args) throws IOException {
         Random r = new Random();
-        List<String> wordList = FileManager.readInList(new LocalFile("data/resources/hangman_" + getLocale().getDisplayName() + ".txt"));
+        List<String> wordList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "hangman_" + getLocale().getDisplayName() + ".txt"));
         answer = wordList.get(r.nextInt(wordList.size()));
         progress = new boolean[answer.length()];
         return new String[] { "🛑" };

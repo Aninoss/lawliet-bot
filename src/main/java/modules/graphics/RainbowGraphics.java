@@ -17,7 +17,7 @@ public class RainbowGraphics {
         BufferedImage image = ImageIO.read(new URL(user.getEffectiveAvatarUrl()));
         double scale = 1.5;
         image = GraphicsUtil.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
-        BufferedImage rainbow = ImageIO.read(new LocalFile("data/resources/rainbow.png"));
+        BufferedImage rainbow = ImageIO.read(new LocalFile(LocalFile.Directory.RESOURCES, "rainbow.png"));
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(),
                 BufferedImage.TYPE_INT_ARGB
         );

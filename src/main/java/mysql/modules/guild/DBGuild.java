@@ -168,7 +168,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildBean> {
         DBMain.getInstance().asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, guildId));
         DBMain.getInstance().invalidateGuildId(guildId);
 
-        LocalFile welcomeBackgroundFile = new LocalFile(String.format("data/welcome_backgrounds/%d.png", guildId));
+        LocalFile welcomeBackgroundFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guildId));
         if (welcomeBackgroundFile.exists()) {
             welcomeBackgroundFile.delete();
         }

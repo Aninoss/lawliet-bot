@@ -159,12 +159,12 @@ public class WelcomeGraphics {
     }
 
     private static LocalFile getBackgroundFile(Guild guild) {
-        LocalFile syncedBackgroundFile = new LocalFile(String.format("data/welcome_backgrounds/%d.png", guild.getIdLong()));
+        LocalFile syncedBackgroundFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guild.getIdLong()));
         if (syncedBackgroundFile.exists()) {
             return syncedBackgroundFile;
         }
 
-        return new LocalFile("data/welcome_backgrounds/placeholder.png");
+        return new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, "placeholder.png");
     }
 
 }
