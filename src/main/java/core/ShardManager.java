@@ -303,10 +303,6 @@ public class ShardManager {
         return fetchUserById(AssetIds.OWNER_USER_ID);
     }
 
-    public CompletableFuture<User> fetchCacheUser() {
-        return fetchUserById(AssetIds.CACHE_USER_ID);
-    }
-
     public User getSelf() {
         return getAnyJDA()
                 .map(JDA::getSelfUser)

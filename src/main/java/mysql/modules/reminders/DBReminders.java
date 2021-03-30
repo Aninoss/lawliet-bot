@@ -2,10 +2,7 @@ package mysql.modules.reminders;
 
 import java.util.HashMap;
 import java.util.List;
-import constants.AssetIds;
 import core.CustomObservableMap;
-import core.MainLogger;
-import core.Program;
 import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMain;
@@ -72,10 +69,6 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
 
     private void addRemindersBean(ReminderSlot remindersBean) {
         DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Reminders (id, serverId, channelId, time, message) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
-            if (remindersBean.getGuildId() == AssetIds.ANICORD_SERVER_ID || !Program.isProductionMode()) { //TODO: Debug
-                MainLogger.get().info("Reminder: Saved");
-            }
-
             preparedStatement.setLong(1, remindersBean.getId());
             preparedStatement.setLong(2, remindersBean.getGuildId());
             preparedStatement.setLong(3, remindersBean.getTextChannelId());

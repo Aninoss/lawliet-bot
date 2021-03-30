@@ -27,9 +27,6 @@ public class SurveyBean extends Observable {
         this.notificationUserIds = new CustomObservableList<>(notificationUserIds);
     }
 
-
-    /* Getters */
-
     public int getSurveyId() {
         return surveyId;
     }
@@ -70,9 +67,6 @@ public class SurveyBean extends Observable {
             notificationUserIds.add(userId);
         }
     }
-
-
-    /* Tools */
 
     public SurveyQuestion getSurveyQuestionAndAnswers(Locale locale) throws IOException {
         List<String> surveyList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "survey_" + locale.getDisplayName() + ".txt"));

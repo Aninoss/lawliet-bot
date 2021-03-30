@@ -1,6 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -11,7 +10,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
-import constants.AssetIds;
 import constants.Emojis;
 import constants.LogStatus;
 import constants.Response;
@@ -63,7 +61,7 @@ public class GiveawayCommand extends NavigationAbstract {
     private int amountOfWinners = 1;
     private String emoji = "🎉";
     private String imageLink;
-    private Message imageMessage;
+    private LocalFile imageCdn;
     private AtomicTextChannel channel;
     private Instant instant;
     private boolean editMode = false;
@@ -174,13 +172,13 @@ public class GiveawayCommand extends NavigationAbstract {
     }
 
     @ControllerMessage(state = UPDATE_IMAGE)
-    public Response onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException {
+    public Response onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException, ExecutionException, InterruptedException {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
-            Optional<File> file = FileUtil.downloadMessageAttachment(attachments.get(0), new LocalFile(LocalFile.Directory.TEMP, String.format("%d.png", System.nanoTime())));
-            if (file.isPresent()) {
-                imageLink = uploadFile(file.get());
-                file.get().delete();
+            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%d.png", System.nanoTime()));
+            boolean success = FileUtil.downloadImageAttachment(attachments.get(0), tempFile);
+            if (success) {
+                imageLink = uploadFile(tempFile);
                 setLog(LogStatus.SUCCESS, getString("imageset"));
                 setState(CONFIGURE_MESSAGE);
                 return Response.TRUE;
@@ -191,16 +189,14 @@ public class GiveawayCommand extends NavigationAbstract {
         return Response.FALSE;
     }
 
-    private String uploadFile(File file) {
-        if (imageMessage != null) {
-            imageMessage.delete().queue();
-            imageMessage = null;
+    private String uploadFile(LocalFile file) {
+        if (imageCdn != null) {
+            imageCdn.delete();
+            imageCdn = null;
         }
 
-        //TODO: use cdn instead
-        imageMessage = JDAUtil.sendPrivateFile(AssetIds.CACHE_USER_ID, file)
-                .complete();
-        return imageMessage.getAttachments().get(0).getUrl();
+        imageCdn = file;
+        return file.cdnGetUrl();
     }
 
     @ControllerReaction(state = ADD_OR_EDIT)
@@ -372,9 +368,9 @@ public class GiveawayCommand extends NavigationAbstract {
             setState(CONFIGURE_MESSAGE);
             return true;
         } else if (i == 0) {
-            if (imageMessage != null) {
-                imageMessage.delete().queue();
-                imageMessage = null;
+            if (imageCdn != null) {
+                imageCdn.delete();
+                imageCdn = null;
             }
             imageLink = null;
             setLog(LogStatus.SUCCESS, getString("imageset"));

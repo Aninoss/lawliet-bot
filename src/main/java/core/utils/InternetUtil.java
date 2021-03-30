@@ -1,16 +1,15 @@
 package core.utils;
 
-import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import com.google.common.io.Files;
 import com.google.common.net.UrlEscapers;
-import constants.AssetIds;
-import core.ExceptionLogger;
+import core.LocalFile;
 import core.MainLogger;
 import core.internet.InternetCache;
 
@@ -19,40 +18,12 @@ public final class InternetUtil {
     private InternetUtil() {
     }
 
-    public static CompletableFuture<String> getURLFromFile(File file) throws ExecutionException, InterruptedException {
-        return getURLFromFile(file, 0);
-    }
-
-    //TODO: switching to cdn
-    public static CompletableFuture<String> getURLFromFile(File file, int deleteAfterSeconds) throws ExecutionException, InterruptedException {
-        return JDAUtil.sendPrivateFile(AssetIds.CACHE_USER_ID, file)
-                .submit()
-                .exceptionally(ExceptionLogger.get())
-                .thenApply(m -> {
-                    String url = m.getAttachments().get(0).getUrl();
-                    if (deleteAfterSeconds > 0) {
-                        m.delete().queueAfter(deleteAfterSeconds, TimeUnit.SECONDS);
-                    }
-                    return url;
-                });
-    }
-
-    public static CompletableFuture<String> getURLFromInputStream(InputStream inputStream, String filename) throws ExecutionException, InterruptedException {
-        return getURLFromInputStream(inputStream, filename, 0);
-    }
-
-    //TODO: switching to cdn
-    public static CompletableFuture<String> getURLFromInputStream(InputStream inputStream, String filename, int deleteAfterSeconds) throws ExecutionException, InterruptedException {
-        return JDAUtil.sendPrivateFile(AssetIds.CACHE_USER_ID, inputStream, filename)
-                .submit()
-                .exceptionally(ExceptionLogger.get())
-                .thenApply(m -> {
-                    String url = m.getAttachments().get(0).getUrl();
-                    if (deleteAfterSeconds > 0) {
-                        m.delete().queueAfter(deleteAfterSeconds, TimeUnit.SECONDS);
-                    }
-                    return url;
-                });
+    public static String getUrlFromInputStream(InputStream inputStream, String fileExt) throws ExecutionException, InterruptedException, IOException {
+        LocalFile cdnFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%d.%s", System.nanoTime(), fileExt));
+        byte[] buffer = new byte[inputStream.available()];
+        inputStream.read(buffer);
+        Files.write(buffer, cdnFile);
+        return cdnFile.cdnGetUrl();
     }
 
     public static boolean urlContainsImage(String url) {

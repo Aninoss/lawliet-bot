@@ -54,7 +54,7 @@ public class WelcomeCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws IOException {
+    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws IOException, ExecutionException, InterruptedException {
         switch (state) {
             case 1:
                 if (input.length() > 0) {
@@ -103,8 +103,8 @@ public class WelcomeCommand extends NavigationAbstract {
             case 4:
                 List<Message.Attachment> attachmentList = event.getMessage().getAttachments();
                 if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
-                    String downloadFileName = String.format("%d.png", event.getGuild().getIdLong());
-                    if (FileUtil.downloadMessageAttachment(attachmentList.get(0), new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, downloadFileName)).isPresent()) {
+                    LocalFile localFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", event.getGuild().getIdLong()));
+                    if (FileUtil.downloadImageAttachment(attachmentList.get(0), localFile)) {
                         setLog(LogStatus.SUCCESS, getString("backgroundset"));
                         setState(0);
                         return Response.TRUE;
@@ -229,7 +229,7 @@ public class WelcomeCommand extends NavigationAbstract {
     }
 
     @Override
-    public EmbedBuilder draw(int state) throws ExecutionException, InterruptedException {
+    public EmbedBuilder draw(int state) throws ExecutionException, InterruptedException, IOException {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         if (state == 0) {
@@ -268,7 +268,7 @@ public class WelcomeCommand extends NavigationAbstract {
         );
     }
 
-    public EmbedBuilder getWelcomeMessageTest(Member member) throws ExecutionException, InterruptedException {
+    public EmbedBuilder getWelcomeMessageTest(Member member) throws ExecutionException, InterruptedException, IOException {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(Welcome.resolveVariables(
                         welcomeMessageBean.getWelcomeText(),
@@ -279,11 +279,10 @@ public class WelcomeCommand extends NavigationAbstract {
                         StringUtil.numToString(member.getGuild().getMemberCount())
                 ));
 
-        eb.setImage(InternetUtil.getURLFromInputStream(
+        eb.setImage(InternetUtil.getUrlFromInputStream(
                 WelcomeGraphics.createImageWelcome(member, welcomeMessageBean.getWelcomeTitle()).get(),
-                "welcome.png",
-                10
-        ).get());
+                "png"
+        ));
 
         return eb;
     }

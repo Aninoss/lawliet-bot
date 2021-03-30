@@ -1,32 +1,23 @@
 package core.utils;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import core.LocalFile;
 import net.dv8tion.jda.api.entities.Message;
 
 public class FileUtil {
 
-    public static Optional<File> downloadMessageAttachment(Message.Attachment messageAttachment, LocalFile localFile) throws IOException {
-        return downloadMessageAttachment(messageAttachment, localFile);
-    }
-
-    public static Optional<File> downloadMessageAttachment(Message.Attachment messageAttachment, File file) throws IOException {
+    public static boolean downloadImageAttachment(Message.Attachment messageAttachment, LocalFile localFile) throws IOException, ExecutionException, InterruptedException {
         BufferedImage bi;
-        try {
-            bi = ImageIO.read(messageAttachment.retrieveInputStream().get());
-        } catch (Throwable e) {
-            return Optional.empty();
-        }
+        bi = ImageIO.read(messageAttachment.retrieveInputStream().get());
         if (bi == null) {
-            return Optional.empty();
+            return false;
         }
 
-        ImageIO.write(bi, "png", file);
-        return Optional.of(file);
+        ImageIO.write(bi, "png", localFile);
+        return true;
     }
 
 }
