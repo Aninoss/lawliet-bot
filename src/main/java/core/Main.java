@@ -1,6 +1,5 @@
 package core;
 
-import java.io.File;
 import java.time.Instant;
 import core.emoji.EmojiTable;
 import core.utils.BotUtil;
@@ -40,7 +39,7 @@ public class Main {
     }
 
     private static void createTempDir() {
-        File tempDir = ResourceHandler.getFileResource("temp");
+        LocalFile tempDir = new LocalFile("temp");
         if (!tempDir.exists() && !tempDir.mkdir()) {
             throw new RuntimeException("Could not create temp dir");
         }

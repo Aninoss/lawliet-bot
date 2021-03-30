@@ -10,6 +10,7 @@ import constants.Emojis;
 import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
+import core.LocalFile;
 import core.TextManager;
 import core.utils.FileUtil;
 import core.utils.InternetUtil;
@@ -103,7 +104,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 List<Message.Attachment> attachmentList = event.getMessage().getAttachments();
                 if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
                     String downloadFileName = String.format("data/welcome_backgrounds/%d.png", event.getGuild().getIdLong());
-                    if (FileUtil.downloadMessageAttachment(attachmentList.get(0), downloadFileName).isPresent()) {
+                    if (FileUtil.downloadMessageAttachment(attachmentList.get(0), new LocalFile(downloadFileName)).isPresent()) {
                         setLog(LogStatus.SUCCESS, getString("backgroundset"));
                         setState(0);
                         return Response.TRUE;

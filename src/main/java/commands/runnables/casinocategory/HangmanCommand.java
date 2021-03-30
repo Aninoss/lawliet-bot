@@ -7,10 +7,7 @@ import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.LogStatus;
 import constants.Response;
-import core.EmbedFactory;
-import core.FileManager;
-import core.ResourceHandler;
-import core.TextManager;
+import core.*;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -43,7 +40,7 @@ public class HangmanCommand extends CasinoAbstract {
     @Override
     public String[] onGameStart(GuildMessageReceivedEvent event, String args) throws IOException {
         Random r = new Random();
-        List<String> wordList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/hangman_" + getLocale().getDisplayName() + ".txt"));
+        List<String> wordList = FileManager.readInList(new LocalFile("data/resources/hangman_" + getLocale().getDisplayName() + ".txt"));
         answer = wordList.get(r.nextInt(wordList.size()));
         progress = new boolean[answer.length()];
         return new String[] { "🛑" };

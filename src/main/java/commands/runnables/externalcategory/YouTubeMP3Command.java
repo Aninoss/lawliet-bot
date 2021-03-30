@@ -10,10 +10,7 @@ import java.util.stream.Collectors;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import core.EmbedFactory;
-import core.MainLogger;
-import core.ResourceHandler;
-import core.TextManager;
+import core.*;
 import core.internet.HttpRequest;
 import core.internet.HttpResponse;
 import core.utils.EmojiUtil;
@@ -81,7 +78,7 @@ public class YouTubeMP3Command extends Command {
             Pattern filePattern = Pattern.compile(String.format(".*\\[%s\\]\\.[A-Za-z0-9]*$", Pattern.quote(meta.identifier)));
             for (int i = 0; i < 500; i++) {
                 Thread.sleep(100);
-                List<File> validFiles = getValidFiles(ResourceHandler.getFileResource("data/youtube-dl"), filePattern);
+                List<File> validFiles = getValidFiles(new LocalFile("data/youtube-dl"), filePattern);
 
                 if (validFiles.size() == 1 && validFiles.get(0).getAbsolutePath().endsWith(".mp3")) {
                     handleFile(event, message, meta, validFiles.get(0));
@@ -98,7 +95,7 @@ public class YouTubeMP3Command extends Command {
         return false;
     }
 
-    private List<File> getValidFiles(File root, Pattern filePattern) {
+    private List<File> getValidFiles(LocalFile root, Pattern filePattern) {
         return Arrays.stream(Objects.requireNonNull(root.listFiles()))
                 .filter(file -> filePattern.matcher(file.getAbsolutePath()).matches())
                 .collect(Collectors.toUnmodifiableList());

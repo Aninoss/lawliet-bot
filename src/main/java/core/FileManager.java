@@ -7,7 +7,7 @@ import java.util.List;
 
 public class FileManager {
 
-    public static List<String> readInList(File file) throws IOException {
+    public static List<String> readInList(LocalFile file) throws IOException {
         ArrayList<String> list = new ArrayList<>();
 
         BufferedReader br = new BufferedReader(

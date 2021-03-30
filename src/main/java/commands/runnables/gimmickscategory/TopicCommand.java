@@ -36,7 +36,7 @@ public class TopicCommand extends Command implements OnAlertListener {
     }
 
     private EmbedBuilder getEmbed(TextChannel channel) throws IOException {
-        List<String> topicList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/topics_" + getLocale().getDisplayName() + ".txt"));
+        List<String> topicList = FileManager.readInList(new LocalFile("data/resources/topics_" + getLocale().getDisplayName() + ".txt"));
         int n = RandomPicker.getInstance().pick(getTrigger(), channel.getGuild().getIdLong(), topicList.size());
         String topic = topicList.get(n);
 

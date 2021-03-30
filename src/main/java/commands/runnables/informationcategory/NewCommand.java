@@ -1,6 +1,7 @@
 package commands.runnables.informationcategory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
@@ -122,7 +123,7 @@ public class NewCommand extends Command implements OnAlertListener {
 
             if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID) {
                 if (messageId != 0) {
-                    slot.getTextChannel().get().crosspostMessageById(messageId).queue();
+                    slot.getTextChannel().get().crosspostMessageById(messageId).queueAfter(10, TimeUnit.MINUTES);
                 }
 
                 Role role = slot.getGuild().get().getRoleById(703879430799622155L);

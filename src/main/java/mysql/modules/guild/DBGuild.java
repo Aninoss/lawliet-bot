@@ -1,6 +1,5 @@
 package mysql.modules.guild;
 
-import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +11,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.FisheryStatus;
 import constants.Locales;
-import core.ResourceHandler;
+import core.LocalFile;
 import core.ShardManager;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
@@ -169,7 +168,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildBean> {
         DBMain.getInstance().asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, guildId));
         DBMain.getInstance().invalidateGuildId(guildId);
 
-        File welcomeBackgroundFile = ResourceHandler.getFileResource(String.format("data/welcome_backgrounds/%d.png", guildId));
+        LocalFile welcomeBackgroundFile = new LocalFile(String.format("data/welcome_backgrounds/%d.png", guildId));
         if (welcomeBackgroundFile.exists()) {
             welcomeBackgroundFile.delete();
         }

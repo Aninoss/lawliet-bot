@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import javax.imageio.ImageIO;
-import core.ResourceHandler;
+import core.LocalFile;
 import net.dv8tion.jda.api.entities.User;
 
 public class RainbowGraphics {
@@ -17,7 +17,7 @@ public class RainbowGraphics {
         BufferedImage image = ImageIO.read(new URL(user.getEffectiveAvatarUrl()));
         double scale = 1.5;
         image = GraphicsUtil.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
-        BufferedImage rainbow = ImageIO.read(ResourceHandler.getFileResource("data/resources/rainbow.png"));
+        BufferedImage rainbow = ImageIO.read(new LocalFile("data/resources/rainbow.png"));
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(),
                 BufferedImage.TYPE_INT_ARGB
         );

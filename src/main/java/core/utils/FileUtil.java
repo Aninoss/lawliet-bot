@@ -5,13 +5,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import javax.imageio.ImageIO;
-import core.ResourceHandler;
+import core.LocalFile;
 import net.dv8tion.jda.api.entities.Message;
 
 public class FileUtil {
 
-    public static Optional<File> downloadMessageAttachment(Message.Attachment messageAttachment, String fileName) throws IOException {
-        return downloadMessageAttachment(messageAttachment, ResourceHandler.getFileResource(fileName));
+    public static Optional<File> downloadMessageAttachment(Message.Attachment messageAttachment, LocalFile localFile) throws IOException {
+        return downloadMessageAttachment(messageAttachment, localFile);
     }
 
     public static Optional<File> downloadMessageAttachment(Message.Attachment messageAttachment, File file) throws IOException {

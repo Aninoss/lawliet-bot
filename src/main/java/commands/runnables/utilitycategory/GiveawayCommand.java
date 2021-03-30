@@ -177,7 +177,7 @@ public class GiveawayCommand extends NavigationAbstract {
     public Response onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
-            Optional<File> file = FileUtil.downloadMessageAttachment(attachments.get(0), String.format("temp/%d.png", System.nanoTime()));
+            Optional<File> file = FileUtil.downloadMessageAttachment(attachments.get(0), new LocalFile(String.format("temp/%d.png", System.nanoTime())));
             if (file.isPresent()) {
                 imageLink = uploadFile(file.get());
                 file.get().delete();

@@ -41,7 +41,7 @@ public class MainScheduler {
                     monitorTimeOuts(slot);
                     listener.run();
                 } catch (Throwable e) {
-                    MainLogger.get().error("Unchecked exception in schedule timer");
+                    MainLogger.get().error("Unchecked exception in schedule timer", e);
                 }
                 slotCache.invalidate(slot.getId());
             }, millis, TimeUnit.MILLISECONDS);
@@ -72,7 +72,7 @@ public class MainScheduler {
                         poll(millis, name, listener);
                     }
                 } catch (Throwable e) {
-                    MainLogger.get().error("Unchecked exception in schedule timer");
+                    MainLogger.get().error("Unchecked exception in schedule timer", e);
                 }
                 slotCache.invalidate(slot.getId());
             }, millis, TimeUnit.MILLISECONDS);

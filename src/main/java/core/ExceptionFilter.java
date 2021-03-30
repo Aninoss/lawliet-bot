@@ -13,6 +13,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "10003",    /* Unknown channel */
             "10008",    /* Unknown message */
             "10011",    /* Unknown role */
+            "30007",    /* Maximum number of webhook reached */
             "50001",    /* Missing access */
             "50007",    /* Cannot send messages to this user */
             "90001",    /* Reaction blocked */

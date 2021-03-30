@@ -6,10 +6,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import core.CustomObservableList;
-import core.CustomObservableMap;
-import core.FileManager;
-import core.ResourceHandler;
+import core.*;
 import javafx.util.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -78,7 +75,7 @@ public class SurveyBean extends Observable {
     /* Tools */
 
     public SurveyQuestion getSurveyQuestionAndAnswers(Locale locale) throws IOException {
-        List<String> surveyList = FileManager.readInList(ResourceHandler.getFileResource("data/resources/survey_" + locale.getDisplayName() + ".txt"));
+        List<String> surveyList = FileManager.readInList(new LocalFile("data/resources/survey_" + locale.getDisplayName() + ".txt"));
         int serverIdTemp = surveyId;
 
         while (serverIdTemp >= surveyList.size()) serverIdTemp -= surveyList.size();

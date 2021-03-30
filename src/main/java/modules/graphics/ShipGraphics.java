@@ -8,13 +8,13 @@ import java.net.URL;
 import java.text.AttributedCharacterIterator;
 import javax.imageio.ImageIO;
 import core.AttributedStringGenerator;
-import core.ResourceHandler;
+import core.LocalFile;
 import net.dv8tion.jda.api.entities.User;
 
 public class ShipGraphics {
 
     public static InputStream createImageShip(User user1, User user2, int n, int percentage) throws IOException {
-        BufferedImage image = ImageIO.read(ResourceHandler.getFileResource("data/resources/ship/" + n + ".png"));
+        BufferedImage image = ImageIO.read(new LocalFile("data/resources/ship/" + n + ".png"));
         BufferedImage image1;
         BufferedImage image2;
         try {
@@ -27,7 +27,8 @@ public class ShipGraphics {
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g = GraphicsUtil.createGraphics(result);
-        FileReader fReader = new FileReader(ResourceHandler.translateRelativePath("data/resources/ship/pos.txt"));
+        LocalFile localFile = new LocalFile("data/resources/ship/pos.txt");
+        FileReader fReader = new FileReader(localFile);
         BufferedReader reader = new BufferedReader(fReader);
 
         String text;

@@ -11,7 +11,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileCacheImageOutputStream;
-import core.ResourceHandler;
+import core.LocalFile;
 import modules.GifSequenceWriter;
 import net.dv8tion.jda.api.entities.User;
 
@@ -23,7 +23,7 @@ public class TriggerGraphics {
         image = GraphicsUtil.getScaledImage(image, (int) (image.getWidth() * scale), (int) (image.getHeight() * scale));
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        FileCacheImageOutputStream ios = new FileCacheImageOutputStream(os, ResourceHandler.getFileResource("temp"));
+        FileCacheImageOutputStream ios = new FileCacheImageOutputStream(os, new LocalFile("temp"));
 
         GifSequenceWriter gifSequenceWriter = new GifSequenceWriter(ios, image.getType(), 25, true);
 
@@ -56,8 +56,8 @@ public class TriggerGraphics {
             g.setColor(new Color(255, 0, 0, 255 / 4));
             g.fillRect(0, 0, image.getWidth(), image.getHeight());
 
-            g.drawImage(ImageIO.read(ResourceHandler.getFileResource("data/resources/triggeredsign.png")), 0, image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
-            g.drawImage(ImageIO.read(ResourceHandler.getFileResource("data/resources/triggeredsign.png")), (int) -xPlus, (int) -yPlus + image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
+            g.drawImage(ImageIO.read(new LocalFile("data/resources/triggeredsign.png")), 0, image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
+            g.drawImage(ImageIO.read(new LocalFile("data/resources/triggeredsign.png")), (int) -xPlus, (int) -yPlus + image.getHeight(), image.getWidth(), (int) (114 * (image.getWidth() / 600.0)), null);
 
             gifSequenceWriter.writeToSequence(result);
             g.dispose();

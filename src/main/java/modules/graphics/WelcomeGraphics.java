@@ -4,14 +4,17 @@ import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.text.AttributedCharacterIterator;
 import java.util.concurrent.CompletableFuture;
 import javax.imageio.ImageIO;
 import core.AttributedStringGenerator;
+import core.LocalFile;
 import core.MainLogger;
-import core.ResourceHandler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -155,13 +158,13 @@ public class WelcomeGraphics {
         return ImageIO.read(getBackgroundFile(guild));
     }
 
-    private static File getBackgroundFile(Guild guild) {
-        File syncedBackgroundFile = ResourceHandler.getFileResource(String.format("data/welcome_backgrounds/%d.png", guild.getIdLong()));
+    private static LocalFile getBackgroundFile(Guild guild) {
+        LocalFile syncedBackgroundFile = new LocalFile(String.format("data/welcome_backgrounds/%d.png", guild.getIdLong()));
         if (syncedBackgroundFile.exists()) {
             return syncedBackgroundFile;
         }
 
-        return ResourceHandler.getFileResource("data/welcome_backgrounds/placeholder.png");
+        return new LocalFile("data/welcome_backgrounds/placeholder.png");
     }
 
 }
