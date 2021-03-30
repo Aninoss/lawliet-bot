@@ -315,7 +315,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     }
 
     private long calculateRolePrice(FisheryMemberGearBean slot) {
-        return Fishery.getFisheryRolePrice(getGuild().get(), fisheryGuildBean.getRoleIds(), slot.getLevel());
+        return Fishery.getFisheryRolePrice(getGuild().get(), fisheryGuildBean.getRoles().size(), slot.getLevel());
     }
 
 }

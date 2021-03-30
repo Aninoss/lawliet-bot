@@ -1,6 +1,5 @@
 package commands.runnables.fisherysettingscategory;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -228,7 +227,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
         int n = fisheryGuildBean.getRoles().indexOf(role);
         return getString(
                 "state0_rolestring",
-                role.getAsMention(), StringUtil.numToString(Fishery.getFisheryRolePrice(role.getGuild(), new ArrayList<>(fisheryGuildBean.getRoleIds()), n))
+                role.getAsMention(), StringUtil.numToString(Fishery.getFisheryRolePrice(role.getGuild(), fisheryGuildBean.getRoles().size(), n))
         );
     }
 

@@ -40,7 +40,7 @@ public class FisheryGuildBean extends BeanWithGuild {
 
     public CustomObservableList<Role> getRoles() {
         return getGuild().map(guild -> {
-            CustomObservableList<Role> roles = roleIds.transform(guild::getRoleById, ISnowflake::getIdLong);
+            CustomObservableList<Role> roles = roleIds.transform(guild::getRoleById, ISnowflake::getIdLong, true);
             roles.sort(Comparator.comparingInt(Role::getPosition));
             return roles;
         }).orElse(new CustomObservableList<>(new ArrayList<>()));

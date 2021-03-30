@@ -1,6 +1,5 @@
 package modules;
 
-import java.util.List;
 import java.util.Locale;
 import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
@@ -42,18 +41,20 @@ public class Fishery {
                 });
     }
 
-    public static long getFisheryRolePrice(Guild guild, List<Long> roleIds, int n) {
+    public static long getFisheryRolePrice(Guild guild, int size, int n) {
         GuildBean guildBean = DBGuild.getInstance().retrieve(guild.getIdLong());
 
         double priceIdealMin = guildBean.getFisheryRoleMin();
         double priceIdealMax = guildBean.getFisheryRoleMax();
 
-        if (roleIds.size() == 1) return (long) priceIdealMin;
+        if (size == 1) {
+            return (long) priceIdealMin;
+        }
 
-        double power = Math.pow(priceIdealMax / priceIdealMin, 1 / (double) (roleIds.size() - 1));
+        double power = Math.pow(priceIdealMax / priceIdealMin, 1 / (double) (size - 1));
 
         double price = Math.pow(power, n);
-        double priceMax = Math.pow(power, roleIds.size() - 1);
+        double priceMax = Math.pow(power, size - 1);
 
         return Math.round(price * (priceIdealMax / priceMax));
     }

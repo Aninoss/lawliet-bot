@@ -74,12 +74,18 @@ public class CustomObservableList<T> extends ObservableListWrapper<T> implements
     }
 
     public <U> CustomObservableList<U> transform(Function<T, U> function, Function<U, T> backFunction) {
+        return transform(function, backFunction, false);
+    }
+
+    public <U> CustomObservableList<U> transform(Function<T, U> function, Function<U, T> backFunction, boolean removeInvalidEntries) {
         ArrayList<U> listTemp = new ArrayList<>();
 
         for (T t : new ArrayList<>(this)) {
             U u = function.apply(t);
             if (u != null) {
                 listTemp.add(u);
+            } else if (removeInvalidEntries) {
+                remove(t);
             }
         }
 
