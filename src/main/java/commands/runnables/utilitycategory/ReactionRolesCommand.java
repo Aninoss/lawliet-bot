@@ -21,6 +21,8 @@ import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
 import core.emojiconnection.EmojiConnection;
 import core.utils.*;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
+import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -390,6 +392,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             if (checkWriteInChannelWithLog(channel.get().orElse(null))) {
                 TextChannel textChannel = channel.get().get();
                 m = textChannel.sendMessage(getMessageEmbed(false).build()).complete();
+                DBStaticReactionMessages.getInstance().retrieve().put(m.getIdLong(), new StaticReactionMessageData(m, getTrigger()));
                 if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
                     RestActionQueue restActionQueue = new RestActionQueue();
                     for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {

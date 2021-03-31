@@ -21,6 +21,8 @@ import core.ShardManager;
 import core.TextManager;
 import core.utils.*;
 import javafx.util.Pair;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
+import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.survey.*;
 import mysql.modules.tracker.TrackerSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -174,6 +176,13 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         long messageId = messageFunction.apply(eb.build());
+        DBStaticReactionMessages.getInstance().retrieve().put(messageId, new StaticReactionMessageData(
+                channel.getGuild().getIdLong(),
+                channel.getIdLong(),
+                messageId,
+                getTrigger()
+        ));
+
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
                 if (i == 0) {
@@ -241,7 +250,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     private EmbedBuilder getSurveyEmbed(SurveyBean surveyBean, boolean tracker) throws IOException {
         SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("sdescription", BELL_EMOJI), getString("title") + Emojis.EMPTY_EMOJI)
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("sdescription", BELL_EMOJI), getString("title"))
                 .setFooter("");
 
         StringBuilder personalString = new StringBuilder();
@@ -269,7 +278,6 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     @Override
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
-        //TODO: save sent messages for new static listeners
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         if (slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get())) {
             return TrackerResult.CONTINUE;
@@ -281,7 +289,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).queue());
-        slot.setMessageId(sendMessages(channel, null, true, eb -> channel.sendMessage(eb).complete().getIdLong()));
+        slot.setMessageId(sendMessages(channel, null, true, eb -> slot.sendMessage(eb).get()));
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 

@@ -4,7 +4,6 @@ import java.util.Locale;
 import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
 import constants.Category;
-import constants.Emojis;
 import constants.FisheryGear;
 import constants.FisheryStatus;
 import core.EmbedFactory;
@@ -15,6 +14,8 @@ import mysql.modules.fisheryusers.FisheryGuildBean;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
+import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -67,12 +68,15 @@ public class Fishery {
         GuildBean guildBean = DBGuild.getInstance().retrieve(channel.getGuild().getIdLong());
         Locale locale = guildBean.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title") + Emojis.EMPTY_EMOJI)
+                .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title"))
                 .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription", FisheryCommand.EMOJI_KEY))
                 .setImage("https://cdn.discordapp.com/attachments/711665837114654781/711665915355201576/treasure_closed.png");
 
         channel.sendMessage(eb.build())
-                .flatMap(m -> m.addReaction(FisheryCommand.EMOJI_KEY))
+                .flatMap(m -> {
+                    DBStaticReactionMessages.getInstance().retrieve().put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger()));
+                    return m.addReaction(FisheryCommand.EMOJI_KEY);
+                })
                 .queue();
     }
 

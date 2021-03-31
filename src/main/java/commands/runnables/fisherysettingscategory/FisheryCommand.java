@@ -1,12 +1,9 @@
 package commands.runnables.fisherysettingscategory;
 
-import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticReactionAddListener;
@@ -27,6 +24,7 @@ import mysql.modules.fisheryusers.FisheryGuildBean;
 import mysql.modules.fisheryusers.FisheryMemberBean;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -55,10 +53,6 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
 
     public static final String EMOJI_TREASURE = "💰";
     public static final String EMOJI_KEY = "🔑";
-
-    private static final Cache<Long, Boolean> treasureBlockCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(Duration.ofMinutes(1))
-            .build();
 
     public FisheryCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -182,10 +176,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
 
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
-        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_KEY) &&
-                !treasureBlockCache.asMap().containsKey(message.getIdLong())
-        ) {
-            treasureBlockCache.put(message.getIdLong(), true);
+        DBStaticReactionMessages.getInstance().retrieve().remove(message.getIdLong());
+        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_KEY)) {
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                 message.clearReactions().queue();
             }

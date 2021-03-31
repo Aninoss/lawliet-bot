@@ -18,6 +18,8 @@ import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
+import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -64,6 +66,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMember().getIdLong());
                 EmbedBuilder eb = getEmbed(voteInfo, true);
                 Message message = event.getChannel().sendMessage(eb.build()).complete();
+                DBStaticReactionMessages.getInstance().retrieve().put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
                 VoteCache.getInstance().put(message.getIdLong(), voteInfo);
 
                 RestActionQueue restActionQueue = new RestActionQueue();
@@ -91,7 +94,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
             resultsText.append(Emojis.LETTERS[i]).append(" | ").append(StringUtil.getBar((double) voteInfo.getUserVotes(i) / voteInfo.getTotalVotes(), 12)).append(" 【 ").append(voteInfo.getUserVotes(i)).append(" • ").append((int) (voteInfo.getPercentage(i) * 100)).append("% 】").append("\n");
         }
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("title") + (open ? Emojis.EMPTY_EMOJI : ""))
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("title"))
                 .addField(getString("topic"), voteInfo.getTopic(), false)
                 .addField(getString("choices"), answerText.toString(), false)
                 .addField(getString("results") + " (" + voteInfo.getTotalVotes() + " " + getString("votes", voteInfo.getTotalVotes() != 1) + ")", resultsText.toString(), false);
@@ -113,6 +116,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                     voteInfo.getCreatorId().get() == event.getUserIdLong()
             ) {
                 voteInfo.stop();
+                DBStaticReactionMessages.getInstance().retrieve().remove(event.getMessageIdLong());
                 if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
                     quickUpdater.update(
                             event.getMessageIdLong(),

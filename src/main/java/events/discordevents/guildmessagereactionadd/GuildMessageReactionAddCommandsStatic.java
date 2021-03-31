@@ -6,6 +6,7 @@ import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.OnStaticReactionAddListener;
 import constants.Emojis;
+import core.CustomObservableMap;
 import core.MainLogger;
 import core.ShardManager;
 import core.cache.MessageCache;
@@ -14,6 +15,8 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageReactionAddAbstract;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
+import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -36,7 +39,8 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
             return true;
         }
 
-        if (message.getAuthor().getIdLong() == ShardManager.getInstance().getSelfId() &&
+        boolean valid = DBStaticReactionMessages.getInstance().retrieve().containsKey(event.getMessageIdLong());
+        if ((valid || message.getAuthor().getIdLong() == ShardManager.getInstance().getSelfId()) &&
                 message.getEmbeds().size() > 0
         ) {
             GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
@@ -45,8 +49,13 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
                 String title = embed.getTitle();
                 for (Class<? extends OnStaticReactionAddListener> clazz : CommandContainer.getInstance().getStaticReactionAddCommands()) {
                     Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz, guildBean.getLocale(), guildBean.getPrefix());
-                    if (title.toLowerCase().startsWith(((OnStaticReactionAddListener) command).titleStartIndicator().toLowerCase()) && title.endsWith(Emojis.EMPTY_EMOJI)) {
+                    if (title.toLowerCase().startsWith(((OnStaticReactionAddListener) command).titleStartIndicator().toLowerCase()) && (valid || title.endsWith(Emojis.EMPTY_EMOJI))) {
                         try {
+                            CustomObservableMap<Long, StaticReactionMessageData> map = DBStaticReactionMessages.getInstance().retrieve();
+                            if (!map.containsKey(event.getMessageIdLong())) {
+                                map.put(event.getMessageIdLong(), new StaticReactionMessageData(message, command.getTrigger()));
+                            }
+
                             ((OnStaticReactionAddListener) command).onStaticReactionAdd(message, event);
                         } catch (Throwable throwable) {
                             MainLogger.get().error("Static reaction add exception", throwable);

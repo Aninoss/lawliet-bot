@@ -16,6 +16,8 @@ import core.RatelimitManager;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
+import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.suggestions.DBSuggestions;
 import mysql.modules.suggestions.SuggestionsBean;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -61,6 +63,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     }
 
                     messageAction.queue(message -> {
+                        DBStaticReactionMessages.getInstance().retrieve().put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
                         message.addReaction(Emojis.LIKE)
                                 .queue(v -> message.addReaction(Emojis.DISLIKE).queue());
 
@@ -101,7 +104,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
     private EmbedBuilder generateEmbed(String content, String author, String footer) {
         return EmbedFactory.getEmbedDefault()
-                .setTitle(getCommandProperties().emoji() + " " + getString("message_title", author) + Emojis.EMPTY_EMOJI)
+                .setTitle(getCommandProperties().emoji() + " " + getString("message_title", author))
                 .setDescription(content)
                 .setFooter(footer);
     }
