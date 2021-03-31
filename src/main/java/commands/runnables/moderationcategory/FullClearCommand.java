@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         userChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
         emoji = "\uD83E\uDDF9",
         executableWithoutArgs = true,
-        maxCalculationTimeSec = 10 * 60,
+        maxCalculationTimeSec = 20 * 60,
         aliases = { "fclear", "allclear", "clearall" }
 )
 public class FullClearCommand extends Command implements OnAlertListener {

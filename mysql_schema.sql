@@ -787,6 +787,24 @@ CREATE TABLE `ServerWelcomeMessage` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `StaticReactionMessages`
+--
+
+DROP TABLE IF EXISTS `StaticReactionMessages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `StaticReactionMessages` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  `messageId` bigint unsigned NOT NULL,
+  `command` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`messageId`),
+  KEY `StaticReactionMessagesServerBase` (`serverId`),
+  CONSTRAINT `StaticReactionMessagesServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `StatsCommandUsages`
 --
 
@@ -1330,4 +1348,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-03-30 14:59:09
+-- Dump completed on 2021-03-31 14:17:26
