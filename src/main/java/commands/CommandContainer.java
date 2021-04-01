@@ -254,6 +254,8 @@ public class CommandContainer {
         commandList.add(WebgateCommand.class);
         commandList.add(CelebrateCommand.class);
         commandList.add(PokemonCommand.class);
+        commandList.add(WeaknessTypeCommand.class);
+        commandList.add(WeaknessMonCommand.class);
 
         for (Class<? extends Command> clazz : commandList) {
             Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");

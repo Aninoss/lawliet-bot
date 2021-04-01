@@ -1,9 +1,13 @@
 package commands.runnables.externalcategory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import constants.Category;
+import constants.Locales;
 import core.EmbedFactory;
 import core.TextManager;
 import core.internet.HttpResponse;
@@ -39,7 +43,7 @@ public class PokemonCommand extends Command {
         return true;
     }
 
-    private Pokemon fetchPokemon(String searchKey) throws ExecutionException, InterruptedException {
+    public static Pokemon fetchPokemon(String searchKey) throws ExecutionException, InterruptedException {
         HttpResponse response = InternetCache.getData("https://www.pokewiki.de/" + searchKey, 60 * 60).get();
         if (response.getCode() != 200 || response.getContent().isEmpty()) {
             return null;
@@ -57,8 +61,36 @@ public class PokemonCommand extends Command {
             thumbnail = StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\"/>")[0];
         }
 
+        ArrayList<Integer> types = new ArrayList<>();
+        if (content.contains("<span class=\"ic_icon\">")) {
+            String groupsBase = StringUtil.extractGroups(content, "class=\"right round innerround\"", "</table>")[0];
+            if (groupsBase.contains("<span style=\"font-size:x-small;\">")) {
+                int i = groupsBase.lastIndexOf("<span style=\"font-size:x-small;\">");
+                groupsBase = groupsBase.substring(i);
+            }
+            String[] lines = groupsBase.split("<br />");
+            for (int k = lines.length - 1; k >= 0; k--) {
+                String line = lines[k];
+                boolean found = false;
+                String[] groups = StringUtil.extractGroups(line, "<span class=\"ic_icon\">", "</span>");
+                for (int j = 0; j < groups.length; j++) {
+                    String group = groups[j];
+                    String[] typesString = TextManager.getString(new Locale(Locales.DE), Category.EXTERNAL, "weaknesstype_types").split("\n");
+                    for (int i = 0; i < typesString.length; i++) {
+                        if (group.contains(typesString[i]) && !types.contains(i) && types.size() < 2) {
+                            types.add(i);
+                            found = true;
+                        }
+                    }
+                }
+                if (found) {
+                    break;
+                }
+            }
+        }
+
         String url = StringUtil.extractGroups(content, "<meta property=\"og:url\" content=\"", "\"/>")[0];
-        return new Pokemon(title, desc, thumbnail, url);
+        return new Pokemon(title, desc, thumbnail, url, types);
     }
 
     private EmbedBuilder getEmbed(Pokemon pokemon) {
@@ -68,18 +100,40 @@ public class PokemonCommand extends Command {
                 .setThumbnail(pokemon.thumbnail);
     }
 
-    private static class Pokemon {
+    public static class Pokemon {
 
         private final String title;
         private final String description;
         private final String thumbnail;
         private final String url;
+        private final List<Integer> types;
 
-        public Pokemon(String title, String description, String thumbnail, String url) {
+        public Pokemon(String title, String description, String thumbnail, String url, List<Integer> types) {
             this.title = title;
             this.description = description;
             this.thumbnail = thumbnail;
             this.url = url;
+            this.types = types;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public String getThumbnail() {
+            return thumbnail;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public List<Integer> getTypes() {
+            return types;
         }
 
     }
