@@ -65,11 +65,11 @@ public class PokemonCommand extends Command {
         if (content.contains("<span class=\"ic_icon\">")) {
             String groupsBase = StringUtil.extractGroups(content, "class=\"right round innerround\"", "</table>")[0];
             if (groupsBase.contains("<span style=\"font-size:x-small;\">")) {
-                int i = groupsBase.lastIndexOf("<span style=\"font-size:x-small;\">");
-                groupsBase = groupsBase.substring(i);
+                int i = groupsBase.indexOf("<span style=\"font-size:x-small;\">");
+                groupsBase = groupsBase.substring(0, i);
             }
             String[] lines = groupsBase.split("<br />");
-            for (int k = lines.length - 1; k >= 0; k--) {
+            for (int k = 0; k < lines.length; k++) {
                 String line = lines[k];
                 boolean found = false;
                 String[] groups = StringUtil.extractGroups(line, "<span class=\"ic_icon\">", "</span>");

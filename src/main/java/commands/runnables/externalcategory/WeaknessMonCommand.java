@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
+import constants.Category;
+import core.TextManager;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
@@ -23,7 +25,18 @@ public class WeaknessMonCommand extends WeaknessTypeCommand {
 
     @Override
     protected String getContent(GuildMessageReceivedEvent event, String args, List<Integer> types) {
-        return getString("desc", pokemon.getTitle().split("–")[0]);
+        String[] typesString = TextManager.getString(getLocale(), Category.EXTERNAL, "weaknesstype_types").split("\n");
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < typesString.length; i++) {
+            if (types.contains(i)) {
+                if (!sb.isEmpty()) {
+                    sb.append(", ");
+                }
+                sb.append(typesString[i]);
+            }
+        }
+
+        return getString("desc", pokemon.getTitle().split("–")[0], sb.toString());
     }
 
     @Override

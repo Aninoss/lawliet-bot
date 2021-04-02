@@ -58,7 +58,7 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
                     long serverId = resultSet.getLong(2);
                     return new ReminderSlot(
                             serverId,
-                            resultSet.getInt(1),
+                            resultSet.getLong(1),
                             resultSet.getLong(3),
                             resultSet.getTimestamp(4).toInstant(),
                             resultSet.getString(5)

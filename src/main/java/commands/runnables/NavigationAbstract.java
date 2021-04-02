@@ -272,7 +272,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public boolean checkWriteInChannelWithLog(TextChannel channel) {
-        if (channel != null && BotPermissionUtil.canWriteEmbed(channel)) {
+        if (channel == null || BotPermissionUtil.canWriteEmbed(channel)) {
             return true;
         }
         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#" + channel.getName()));
