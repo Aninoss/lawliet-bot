@@ -55,7 +55,7 @@ public class OnTopGG implements SyncServerFunction {
                             int value = isWeekend ? 2 : 1;
                             FisheryMemberBean userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(userId);
 
-                            if (DBAutoClaim.getInstance().retrieve().isActive(guild.getIdLong(), userId)) {
+                            if (DBAutoClaim.getInstance().retrieve().isActive(userId)) {
                                 userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
                             } else {
                                 userBean.addUpvote(value);
