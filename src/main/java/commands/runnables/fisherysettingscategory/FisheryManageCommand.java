@@ -36,6 +36,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     private enum ValueProcedure { ABSOLUTE, ADD, SUB }
 
     private FisheryMemberGroup fisheryMemberGroup;
+    private boolean resetLog = true;
 
     public FisheryManageCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -86,11 +87,23 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                     type = 2;
                     break;
 
+                case "reset":
+                case "remove":
+                case "delete":
+                case "clear":
+                    type = 3;
+                    break;
+
                 default:
             }
 
             if (type == -1) {
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
+            } else if (type == 3) {
+                fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberBean::remove);
+                event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag())).build())
+                        .queue();
+                return true;
             } else {
                 String amountString = args.substring(typeString.length()).trim();
                 if (updateValues(type, amountString)) {
@@ -105,7 +118,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             }
         }
 
-        registerNavigationListener(3);
+        registerNavigationListener(4);
         return true;
     }
 
@@ -118,6 +131,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             }
 
             setLog(LogStatus.SUCCESS, getString("set_log", state - 1, fisheryMemberGroup.getAsTag(), input).replace("*", ""));
+            resetLog = true;
             setState(0);
 
             return Response.TRUE;
@@ -220,8 +234,20 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             } else if (i >= 0 && i <= 2) {
                 setState(i + 1);
                 return true;
+            } else if (i == 3) {
+                if (resetLog) {
+                    resetLog = false;
+                    setLog(LogStatus.WARNING, getString("state0_confirm"));
+                } else {
+                    fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberBean::remove);
+                    resetLog = true;
+                    setLog(LogStatus.SUCCESS, getString("reset_log", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag()));
+                    setState(0);
+                }
+                return true;
             }
         } else if (i == -1) {
+            resetLog = true;
             setState(0);
             return true;
         }
@@ -239,7 +265,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         if (state == 0) {
             setOptions(getString("state0_options", values).split("\n"));
 
-            String desc = getString("state0_description", fisheryMemberGroup.getAsTag());
+            String desc = getString("state0_description", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag());
             return EmbedFactory.getEmbedDefault(this, desc);
         } else {
             return EmbedFactory.getEmbedDefault(

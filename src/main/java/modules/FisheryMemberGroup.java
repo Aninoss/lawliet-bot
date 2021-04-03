@@ -52,6 +52,10 @@ public class FisheryMemberGroup {
         return getValueString(FisheryMemberBean::getDailyStreak);
     }
 
+    public boolean containsMultiple() {
+        return members.size() != 1;
+    }
+
     private String getValueString(ToLongFunction<? super FisheryMemberBean> mapper) {
         long min = getFisheryMemberList().stream()
                 .mapToLong(mapper)

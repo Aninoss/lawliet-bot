@@ -63,7 +63,7 @@ public class FisheryGuildBean extends BeanWithGuild {
                 0,
                 LocalDate.now(),
                 0,
-                0L,
+                0,
                 Instant.now(),
                 new HashMap<>(),
                 new HashMap<>()
