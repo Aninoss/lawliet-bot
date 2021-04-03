@@ -246,12 +246,9 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
         switch (state) {
             case 0:
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("beginning"));
-                StringBuilder description;
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("beginning") + "\n" + Emojis.EMPTY_EMOJI);
                 int i = 0;
-
                 for (FisheryMemberGearBean slot : getUpgradableGears()) {
-                    description = new StringBuilder();
                     String productDescription = "???";
                     long price = slot.getPrice();
                     if (slot.getGear() != FisheryGear.ROLE) {
@@ -260,9 +257,12 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                         price = calculateRolePrice(slot);
                         productDescription = getString("product_des_" + slot.getGear().ordinal(), roles.get(slot.getLevel()).getAsMention());
                     }
-                    description.append(getString("product", Emojis.LETTERS[i], slot.getGear().getEmoji(), getString("product_" + slot.getGear().ordinal() + "_0"), String.valueOf(slot.getLevel()), StringUtil.numToString(price), productDescription));
 
-                    eb.addField(Emojis.EMPTY_EMOJI, description.toString(), false);
+                    eb.addField(
+                            getString("product_title", Emojis.LETTERS[i], slot.getGear().getEmoji(), getString("product_" + slot.getGear().ordinal() + "_0"), StringUtil.numToString(slot.getLevel()), StringUtil.numToString(price)),
+                            productDescription + "\n" + Emojis.EMPTY_EMOJI,
+                            false
+                    );
                     i++;
                 }
 
@@ -282,7 +282,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                         fisheryMemberBean.getGuildBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberBean.getCoinsGivenMax()) : "∞"
                 );
 
-                eb.addField(Emojis.EMPTY_EMOJI, StringUtil.shortenStringLine(status, 1024), false);
+                eb.addField(getString("status_title"), StringUtil.shortenStringLine(status, 1024), false);
                 return eb;
 
             case 1:

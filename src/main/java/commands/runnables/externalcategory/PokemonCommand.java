@@ -69,12 +69,10 @@ public class PokemonCommand extends Command {
                 groupsBase = groupsBase.substring(0, i);
             }
             String[] lines = groupsBase.split("<br />");
-            for (int k = 0; k < lines.length; k++) {
-                String line = lines[k];
+            for (String line : lines) {
                 boolean found = false;
                 String[] groups = StringUtil.extractGroups(line, "<span class=\"ic_icon\">", "</span>");
-                for (int j = 0; j < groups.length; j++) {
-                    String group = groups[j];
+                for (String group : groups) {
                     String[] typesString = TextManager.getString(new Locale(Locales.DE), Category.EXTERNAL, "weaknesstype_types").split("\n");
                     for (int i = 0; i < typesString.length; i++) {
                         if (group.contains(typesString[i]) && !types.contains(i) && types.size() < 2) {

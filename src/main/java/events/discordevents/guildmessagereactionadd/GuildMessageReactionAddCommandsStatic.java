@@ -17,7 +17,6 @@ import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
@@ -27,7 +26,7 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
 
     @Override
     public boolean onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) {
-        if (!BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
+        if (!BotPermissionUtil.canReadHistory(event.getChannel())) {
             return true;
         }
 

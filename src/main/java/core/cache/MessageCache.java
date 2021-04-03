@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.Settings;
+import core.utils.BotPermissionUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -30,7 +31,7 @@ public class MessageCache {
 
     public synchronized CompletableFuture<Message> retrieveMessage(TextChannel channel, long messageId) {
         Boolean block = cacheMessageBlock.getIfPresent(messageId);
-        if (block != null && block) {
+        if ((block != null && block) || !BotPermissionUtil.canReadHistory(channel)) {
             return CompletableFuture.failedFuture(new NoSuchElementException("No such message"));
         }
 
