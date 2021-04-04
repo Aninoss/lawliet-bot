@@ -13,6 +13,7 @@ import core.TextManager;
 import core.mention.Mention;
 import core.mention.MentionList;
 import core.utils.EmojiUtil;
+import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Mod;
@@ -113,6 +114,7 @@ public class WarnCommand extends Command implements OnReactionListener {
         }
 
         reason = userMention.getFilteredArgs().trim();
+        reason = JDAUtil.resolveMentions(event.getMessage(), reason);
         reason = StringUtil.shortenString(reason, CHAR_LIMIT);
 
         return true;

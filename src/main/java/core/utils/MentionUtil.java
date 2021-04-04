@@ -19,6 +19,7 @@ import core.TextManager;
 import core.cache.PatternCache;
 import core.mention.Mention;
 import core.mention.MentionList;
+import core.mention.MentionValue;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 
@@ -480,9 +481,8 @@ public class MentionUtil {
         return -1;
     }
 
-    public static long getTimeMinutesExt(String str) {
+    public static MentionValue<Long> getTimeMinutesExt(String str) {
         long min = 0;
-        str = reformatForDigits(str);
 
         for (String part : str.split(" ")) {
             if (part.length() > 0) {
@@ -494,14 +494,17 @@ public class MentionUtil {
                         case "m":
                         case "min":
                             min += value;
+                            str = str.replace(part, "");
                             break;
 
                         case "h":
                             min += value * 60;
+                            str = str.replace(part, "");
                             break;
 
                         case "d":
                             min += value * 60 * 24;
+                            str = str.replace(part, "");
                             break;
 
                         default:
@@ -510,7 +513,7 @@ public class MentionUtil {
             }
         }
 
-        return min;
+        return new MentionValue<>(str, min);
     }
 
     public static String reformatForDigits(String str) {

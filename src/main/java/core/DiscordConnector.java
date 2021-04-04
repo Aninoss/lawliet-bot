@@ -11,6 +11,7 @@ import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
 import modules.schedulers.GiveawayScheduler;
 import modules.schedulers.ReminderScheduler;
+import modules.schedulers.TempBanScheduler;
 import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -117,6 +118,7 @@ public class DiscordConnector {
         AlertScheduler.getInstance().start();
         ReminderScheduler.getInstance().start();
         GiveawayScheduler.getInstance().start();
+        TempBanScheduler.getInstance().start();
 
         ShardManager.getInstance().start();
         SyncManager.getInstance().setFullyConnected();

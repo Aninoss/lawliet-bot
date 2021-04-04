@@ -25,6 +25,23 @@ public class JDAUtil {
         return Optional.empty();
     }
 
+    public static String resolveMentions(Message message, String content) {
+        for (Member member : message.getMentionedMembers()) {
+            content = content.replace(MentionUtil.getUserAsMention(member.getIdLong(), true), "@" + member.getEffectiveName())
+                    .replace(MentionUtil.getUserAsMention(member.getIdLong(), false), "@" + member.getEffectiveName());
+        }
+        for (TextChannel channel : message.getMentionedChannels()) {
+            content = content.replace(channel.getAsMention(), "#" + channel.getName());
+        }
+        for (Role role : message.getMentionedRoles()) {
+            content = content.replace(role.getAsMention(), "@" + role.getName());
+        }
+        for (Emote emote : message.getEmotes()) {
+            content = content.replace(emote.getAsMention(), ":" + emote.getName() + ":");
+        }
+        return content;
+    }
+
     @CheckReturnValue
     public static RestAction<Message> sendPrivateMessage(Member member, String content) {
         return sendPrivateMessage(member.getIdLong(), content);

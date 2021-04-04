@@ -122,7 +122,7 @@ public class GiveawayCommand extends NavigationAbstract {
 
     @ControllerMessage(state = UPDATE_DURATION)
     public Response onMessageUpdateDuration(GuildMessageReceivedEvent event, String input) {
-        long minutes = MentionUtil.getTimeMinutesExt(input);
+        long minutes = MentionUtil.getTimeMinutesExt(input).getValue();
 
         if (minutes > 0) {
             final int MAX = 999 * 24 * 60;

@@ -173,9 +173,7 @@ public class HelpCommand extends NavigationAbstract {
                 }
 
                 String addNotExecutable = "";
-                if (!command.getCommandProperties().executableWithoutArgs()) {
-                    addNotExecutable = "\n" + getString("command_notexecutable");
-                } else {
+                if (command.getCommandProperties().executableWithoutArgs()) {
                     setOptions(getString("command_execute").split("\n"));
                     emojiConnections.add(new EmojiConnection(Emojis.LETTERS[0], "exec:" + command.getClass().getName()));
                 }
