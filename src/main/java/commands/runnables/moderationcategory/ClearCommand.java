@@ -3,17 +3,20 @@ package commands.runnables.moderationcategory;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnReactionListener;
+import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
 import core.cache.PatreonCache;
-import core.schedule.MainScheduler;
-import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.ClearResults;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -22,43 +25,47 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "clear",
         botChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
         userChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
         emoji = "\uD83D\uDDD1\uFE0F",
-        maxCalculationTimeSec = 10 * 60,
+        maxCalculationTimeSec = 20 * 60,
         executableWithoutArgs = false,
+        turnOffLoadingReaction = true,
         aliases = { "clean", "purge" }
 )
-public class ClearCommand extends Command {
+public class ClearCommand extends Command implements OnReactionListener {
+
+    private boolean interrupt = false;
 
     public ClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws InterruptedException {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws InterruptedException, ExecutionException {
         if (args.length() > 0 && StringUtil.stringIsLong(args) && Long.parseLong(args) >= 2 && Long.parseLong(args) <= 500) {
             boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 ||
                     PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
-            addLoadingReactionInstantly();
-            ClearResults clearResults = clear(event.getChannel(), patreon, event.getMessage().getIdLong(), Integer.parseInt(args));
+            long messageId = registerReactionListener(Emojis.X).get();
+            TimeUnit.SECONDS.sleep(3);
+            ClearResults clearResults = clear(event.getChannel(), patreon, Integer.parseInt(args), event.getMessage().getIdLong(), messageId);
 
             String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
 
-            if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-                event.getChannel().sendMessage(eb.build())
-                        .queue(m -> {
-                            if (BotPermissionUtil.can(event.getGuild(), Permission.MESSAGE_MANAGE)) {
-                                MainScheduler.getInstance().schedule(8, ChronoUnit.SECONDS, "clear_confirmation_autoremove", () -> event.getChannel().purgeMessages(m, event.getMessage()));
-                            }
-                        });
+            if (!interrupt) {
+                deregisterListenersWithReactions();
+                drawMessage(eb);
             }
+
+            event.getChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessage().getId()))
+                    .queueAfter(8, TimeUnit.SECONDS);
             return true;
         } else {
             event.getChannel().sendMessage(
@@ -68,12 +75,12 @@ public class ClearCommand extends Command {
         }
     }
 
-    private ClearResults clear(TextChannel channel, boolean patreon, long messageIdIgnore, int count) throws InterruptedException {
+    private ClearResults clear(TextChannel channel, boolean patreon, int count, long... messageIdsIgnore) throws InterruptedException {
         int deleted = 0;
         boolean skipped = false;
         MessageHistory messageHistory = channel.getHistory();
 
-        while (count > 0 && !skipped) {
+        while (count > 0 && !skipped && !interrupt) {
             /* Check for message date and therefore permissions */
             List<Message> messageList = messageHistory.retrievePast(100).complete();
             if (messageList.size() < 100 && messageList.size() < count) {
@@ -85,7 +92,7 @@ public class ClearCommand extends Command {
                 if (message.getTimeCreated().toInstant().isBefore(Instant.now().minus(14, ChronoUnit.DAYS))) {
                     skipped = true;
                     break;
-                } else if (!message.isPinned() && message.getIdLong() != messageIdIgnore) {
+                } else if (!message.isPinned() && Arrays.stream(messageIdsIgnore).noneMatch(mId -> message.getIdLong() == mId)) {
                     messagesDelete.add(message);
                     deleted++;
                     count--;
@@ -95,7 +102,7 @@ public class ClearCommand extends Command {
                 }
             }
 
-            if (messagesDelete.size() >= 1) {
+            if (messagesDelete.size() >= 1 && !interrupt) {
                 if (messagesDelete.size() == 1) {
                     messagesDelete.get(0).delete().complete();
                 } else {
@@ -104,22 +111,21 @@ public class ClearCommand extends Command {
             }
         }
 
-        messageHistory = channel.getHistory();
-        while (count > 0 && patreon) {
+        while (count > 0 && patreon && !interrupt) {
             List<Message> messageList = messageHistory.retrievePast(100).complete();
             if (messageList.size() < 100 && messageList.size() < count) {
                 count = messageList.size();
             }
 
             for (Message message : messageList) {
-                if (!message.isPinned() && message.getIdLong() != messageIdIgnore) {
+                if (!message.isPinned() && Arrays.stream(messageIdsIgnore).noneMatch(mId -> message.getIdLong() == mId)) {
                     message.delete().complete();
                     deleted++;
                     count--;
                     if (count > 0) {
                         TimeUnit.SECONDS.sleep(1);
                     }
-                    if (count <= 0) {
+                    if (count <= 0 || interrupt) {
                         break;
                     }
                 }
@@ -127,6 +133,24 @@ public class ClearCommand extends Command {
         }
 
         return new ClearResults(deleted, count);
+    }
+
+    @Override
+    public boolean onReaction(GenericGuildMessageReactionEvent event) {
+        deregisterListenersWithReactions();
+        interrupt = true;
+        return true;
+    }
+
+    @Override
+    public EmbedBuilder draw() throws Throwable {
+        if (!interrupt) {
+            return EmbedFactory.getEmbedDefault(this, getString("progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get()), Emojis.X));
+        } else {
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));
+            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
+            return eb;
+        }
     }
 
 }

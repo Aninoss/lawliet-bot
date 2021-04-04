@@ -2,20 +2,21 @@ package commands.runnables.moderationcategory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
+import commands.listeners.OnReactionListener;
+import constants.Category;
+import constants.Emojis;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
-import core.schedule.MainScheduler;
-import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.ClearResults;
 import mysql.modules.tracker.TrackerSlot;
@@ -25,6 +26,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "fullclear",
@@ -32,33 +34,37 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         userChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
         emoji = "\uD83E\uDDF9",
         executableWithoutArgs = true,
+        turnOffLoadingReaction = true,
         maxCalculationTimeSec = 20 * 60,
         aliases = { "fclear", "allclear", "clearall" }
 )
-public class FullClearCommand extends Command implements OnAlertListener {
+public class FullClearCommand extends Command implements OnAlertListener, OnReactionListener {
+
+    private boolean interrupt = false;
 
     public FullClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws InterruptedException, ExecutionException {
         Optional<Integer> hoursMin = extractHoursMin(event.getChannel(), args);
         if (hoursMin.isPresent()) {
-            addLoadingReactionInstantly();
-            ClearResults clearResults = fullClear(event.getChannel(), hoursMin.get(), event.getMessage().getIdLong());
+            long messageId = registerReactionListener(Emojis.X).get();
+            TimeUnit.SECONDS.sleep(3);
+            ClearResults clearResults = fullClear(event.getChannel(), hoursMin.get(), event.getMessage().getIdLong(), messageId);
 
             String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
-            if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-                event.getChannel().sendMessage(eb.build())
-                        .queue(m -> {
-                            if (BotPermissionUtil.can(event.getGuild(), Permission.MESSAGE_MANAGE)) {
-                                MainScheduler.getInstance().schedule(8, ChronoUnit.SECONDS, "fullclear_confirmation_autoremove", () -> event.getChannel().purgeMessages(m, event.getMessage()));
-                            }
-                        });
+
+            if (!interrupt) {
+                deregisterListenersWithReactions();
+                drawMessage(eb);
             }
+
+            event.getChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessage().getId()))
+                    .queueAfter(8, TimeUnit.SECONDS);
             return true;
         } else {
             return false;
@@ -84,7 +90,7 @@ public class FullClearCommand extends Command implements OnAlertListener {
         return fullClear(channel, hours, 0L);
     }
 
-    private ClearResults fullClear(TextChannel channel, int hours, long messageIdIgnore) {
+    private ClearResults fullClear(TextChannel channel, int hours, long... messageIdsIgnore) {
         int deleted = 0;
         boolean tooOld = false;
 
@@ -92,7 +98,7 @@ public class FullClearCommand extends Command implements OnAlertListener {
         do {
             /* Check for message date and therefore permissions */
             List<Message> messageList = messageHistory.retrievePast(100).complete();
-            if (messageList.isEmpty()) {
+            if (messageList.isEmpty() || interrupt) {
                 break;
             }
 
@@ -102,7 +108,7 @@ public class FullClearCommand extends Command implements OnAlertListener {
                     tooOld = true;
                     break;
                 } else if (!message.isPinned() &&
-                        message.getIdLong() != messageIdIgnore &&
+                        Arrays.stream(messageIdsIgnore).noneMatch(mId -> message.getIdLong() == mId) &&
                         message.getTimeCreated().toInstant().isBefore(Instant.now().minus(hours, ChronoUnit.HOURS))
                 ) {
                         messagesDelete.add(message);
@@ -117,7 +123,7 @@ public class FullClearCommand extends Command implements OnAlertListener {
                     channel.deleteMessages(messagesDelete).complete();
                 }
             }
-        } while (!tooOld);
+        } while (!tooOld && !interrupt);
 
         return new ClearResults(deleted, tooOld ? 1 : 0);
     }
@@ -140,6 +146,24 @@ public class FullClearCommand extends Command implements OnAlertListener {
     @Override
     public boolean trackerUsesKey() {
         return true;
+    }
+
+    @Override
+    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+        deregisterListenersWithReactions();
+        interrupt = true;
+        return true;
+    }
+
+    @Override
+    public EmbedBuilder draw() throws Throwable {
+        if (!interrupt) {
+            return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), Category.MODERATION, "clear_progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get()), Emojis.X));
+        } else {
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));
+            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
+            return eb;
+        }
     }
 
 }

@@ -43,4 +43,6 @@ public @interface CommandProperties {
 
     boolean onlyPublicVersion() default false;
 
+    boolean turnOffLoadingReaction() default false;
+
 }

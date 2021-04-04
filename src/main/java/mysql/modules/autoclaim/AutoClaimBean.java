@@ -13,9 +13,6 @@ public class AutoClaimBean {
         this.userList = new CustomObservableList<>(userList);
     }
 
-
-    /* Getters */
-
     public CustomObservableList<Long> getUserList() {
         return userList;
     }
