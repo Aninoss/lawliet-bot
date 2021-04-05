@@ -322,10 +322,12 @@ public class CommandManager {
 
     private static void autoRemoveMessageAfterCountdown(GuildMessageReceivedEvent event, Message message) {
         MainScheduler.getInstance().schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, "command_manager_error_countdown", () -> {
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
-                event.getChannel().deleteMessages(Arrays.asList(message, event.getMessage())).queue();
-            } else {
-                message.delete().queue();
+            if (BotPermissionUtil.can(event.getChannel())) {
+                if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+                    event.getChannel().deleteMessages(Arrays.asList(message, event.getMessage())).queue();
+                } else {
+                    message.delete().queue();
+                }
             }
         });
     }

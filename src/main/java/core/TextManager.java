@@ -1,11 +1,16 @@
 package core;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import constants.Emojis;
 import constants.Locales;
 import core.utils.StringUtil;
+import javafx.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
 public class TextManager {
 
@@ -15,14 +20,25 @@ public class TextManager {
     public static final String VERSIONS = "versions";
     public static final String FAQ = "faq";
 
-    private static final HashMap<String, ResourceBundle> bundles = new HashMap<>();
+    private static final LoadingCache<Pair<String, Locale>, ResourceBundle> bundles = CacheBuilder.newBuilder()
+            .build(new CacheLoader<>() {
+                @Override
+                public ResourceBundle load(@NotNull Pair<String, Locale> pair) {
+                    return ResourceBundle.getBundle(pair.getKey(), pair.getValue(), new UTF8Control());
+                }
+            });
 
     public static String getString(Locale locale, String category, String key, String... args) {
         return getString(locale, category, key, -1, args);
     }
 
     public static String getString(Locale locale, String category, String key, int option, String... args) {
-        ResourceBundle texts = bundles.computeIfAbsent(category + "_" + locale.toString(), k -> ResourceBundle.getBundle(category, locale, new UTF8Control()));
+        ResourceBundle texts;
+        try {
+            texts = bundles.get(new Pair<>(category, locale));
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
 
         if (!texts.containsKey(key)) {
             MainLogger.get().error("Key " + key + " not found in " + category + " and thread " + Thread.currentThread().getName());

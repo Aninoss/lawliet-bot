@@ -11,6 +11,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
 
     private final String[] FILTERS = {
             "10003",    /* Unknown channel */
+            "10007",    /* Unknown member */
             "10008",    /* Unknown message */
             "10011",    /* Unknown role */
             "30007",    /* Maximum number of webhook reached */
@@ -18,7 +19,10 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "50007",    /* Cannot send messages to this user */
             "90001",    /* Reaction blocked */
             "The Requester has been stopped! No new requests can be requested!",
-            "Timeout"
+            "Timeout",
+            "Received a GuildVoiceState with a channel ID for a non-existent channel!",
+            "There was an I/O error while executing a REST request: timeout",
+            "500: Internal Server Error"
     };
 
     public ExceptionFilter() {
