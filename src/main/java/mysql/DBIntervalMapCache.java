@@ -39,8 +39,12 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
     }
 
     private void intervalSave() {
-        LinkedList<U> tempList = new LinkedList<>(changed);
-        changed = new LinkedList<>();
+        LinkedList<U> tempList;
+        synchronized (this) {
+            tempList = new LinkedList<>(changed);
+            changed = new LinkedList<>();
+        }
+
         AtomicInteger saved = new AtomicInteger(0);
         tempList.stream()
                 .filter(value -> !(value instanceof BeanWithGuild) || ((BeanWithGuild) value).getGuildBean().isSaved())
@@ -58,7 +62,7 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
     }
 
     @Override
-    public void update(Observable o, Object arg) {
+    public synchronized void update(Observable o, Object arg) {
         U u = (U) o;
         if (!changed.contains(u)) {
             changed.add(u);
