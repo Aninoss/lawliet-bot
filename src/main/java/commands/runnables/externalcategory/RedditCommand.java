@@ -68,7 +68,7 @@ public class RedditCommand extends Command implements OnAlertListener {
     }
 
     private EmbedBuilder getEmbed(RedditPost post) {
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, StringUtil.shortenString(post.getDescription(), 6000))
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, StringUtil.shortenString(post.getDescription(), 5000))
                 .setTitle(post.getTitle())
                 .setAuthor(post.getAuthor(), "https://www.reddit.com/user/" + post.getAuthor(), null)
                 .setTimestamp(post.getInstant());

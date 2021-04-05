@@ -29,7 +29,7 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
     }
 
     private DBFishery() {
-        super(Program.isProductionMode() ? 10 : 1);
+        super(Program.isProductionMode() ? 5 : 1);
     }
 
     @Override
