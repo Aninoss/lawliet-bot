@@ -6,11 +6,11 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.ExternalLinks;
 import core.EmbedFactory;
+import core.Program;
 import core.ShardManager;
 import core.utils.BotUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import mysql.modules.survey.DBSurvey;
 import mysql.modules.version.DBVersion;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -55,7 +55,8 @@ public class StatsCommand extends Command {
                         TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().retrieve().getCurrentVersion().getDate(), true),
                         ShardManager.getInstance().getGlobalGuildSize().map(StringUtil::numToString).orElse("-"),
                         owner,
-                        StringUtil.numToString(DBSurvey.getInstance().getCurrentSurvey().getFirstVoteNumber())
+                        StringUtil.numToString(event.getJDA().getShardInfo().getShardId()),
+                        StringUtil.numToString(Program.getClusterId())
                 ) + "\n\n" + getString("translator", dephordName, neverCookFirstName)
         );
 
