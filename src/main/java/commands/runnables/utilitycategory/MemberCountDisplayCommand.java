@@ -72,23 +72,13 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                 return Response.FALSE;
             } else {
                 VoiceChannel channel = vcList.get(0);
-
-                List<Permission> missingPermissions = BotPermissionUtil.getMissingPermissions(channel, event.getGuild().getSelfMember(), Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS, Permission.VOICE_CONNECT);
-                if (missingPermissions.size() > 0) {
-                    String permissionsList = new ListGen<Permission>().getList(missingPermissions, ListGen.SLOT_TYPE_BULLET, permission -> TextManager.getString(getLocale(), TextManager.PERMISSIONS, permission.name()));
-                    setLog(LogStatus.FAILURE, getString("missing_perms", permissionsList));
-                    return Response.FALSE;
+                if (checkChannel(channel)) {
+                    currentVC = new AtomicVoiceChannel(channel);
+                    setLog(LogStatus.SUCCESS, getString("vcset"));
+                    return Response.TRUE;
                 }
 
-                if (memberCountBean.getMemberCountBeanSlots().containsKey(channel.getIdLong())) {
-                    setLog(LogStatus.FAILURE, getString("alreadyexists"));
-                    return Response.FALSE;
-                }
-
-                currentVC = new AtomicVoiceChannel(channel);
-
-                setLog(LogStatus.SUCCESS, getString("vcset"));
-                return Response.TRUE;
+                return Response.FALSE;
             }
         }
 
@@ -138,8 +128,11 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                     Optional<VoiceChannel> vcOpt = currentVC.get();
                     if (vcOpt.isPresent()) {
                         VoiceChannel voiceChannel = vcOpt.get();
-                        ChannelManager manager = voiceChannel.getManager();
+                        if (!checkChannel(voiceChannel)) {
+                            return true;
+                        }
 
+                        ChannelManager manager = voiceChannel.getManager();
                         for (PermissionOverride permissionOverride : voiceChannel.getPermissionOverrides()) {
                             manager = manager.putPermissionOverride(
                                     permissionOverride.getPermissionHolder(),
@@ -167,18 +160,13 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                                 permissionBot != null ? permissionBot.getDeniedRaw() & ~permissionBotOverride : 0
                         );
 
-                        try {
-                            manager.complete();
-                            memberCountBean.getMemberCountBeanSlots().put(currentVC.getIdLong(), new MemberCountDisplaySlot(event.getGuild().getIdLong(), currentVC.getIdLong(), currentName));
-                            MemberCountDisplay.getInstance().manage(getLocale(), event.getGuild());
+                        manager.complete();
+                        memberCountBean.getMemberCountBeanSlots().put(currentVC.getIdLong(), new MemberCountDisplaySlot(event.getGuild().getIdLong(), currentVC.getIdLong(), currentName));
+                        MemberCountDisplay.getInstance().manage(getLocale(), event.getGuild());
 
-                            setLog(LogStatus.SUCCESS, getString("displayadd"));
-                            setState(0);
-
-                            return true;
-                        } catch (Throwable e) {
-                            //Ignore
-                        }
+                        setLog(LogStatus.SUCCESS, getString("displayadd"));
+                        setState(0);
+                        return true;
                     }
 
                     setLog(LogStatus.FAILURE, getString("nopermissions"));
@@ -237,6 +225,20 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
             default:
                 return null;
         }
+    }
+
+    private boolean checkChannel(VoiceChannel channel) {
+        String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), channel, Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS, Permission.VOICE_CONNECT);
+        if (channelMissingPerms != null) {
+            setLog(LogStatus.FAILURE, channelMissingPerms);
+            return false;
+        }
+        if (memberCountBean.getMemberCountBeanSlots().containsKey(channel.getIdLong())) {
+            setLog(LogStatus.FAILURE, getString("alreadyexists"));
+            return false;
+        }
+
+        return true;
     }
 
     private String highlightVariables(String str) {

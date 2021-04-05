@@ -62,7 +62,7 @@ public class PokemonCommand extends Command {
         }
 
         ArrayList<Integer> types = new ArrayList<>();
-        if (content.contains("<span class=\"ic_icon\">")) {
+        if (content.contains("class=\"right round innerround\"") && content.contains("<span class=\"ic_icon\">")) {
             String groupsBase = StringUtil.extractGroups(content, "class=\"right round innerround\"", "</table>")[0];
             if (groupsBase.contains("<span style=\"font-size:x-small;\">")) {
                 int i = groupsBase.indexOf("<span style=\"font-size:x-small;\">");

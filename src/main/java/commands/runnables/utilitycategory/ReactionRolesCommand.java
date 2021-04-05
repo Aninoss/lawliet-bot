@@ -118,13 +118,13 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
 
     @ControllerMessage(state = UPDATE_TITLE)
     public Response onMessageUpdateTitle(GuildMessageReceivedEvent event, String input) {
-        if (input.length() > 0 && input.length() <= 256) {
+        if (input.length() > 0 && input.length() <= 250) {
             title = input;
             setLog(LogStatus.SUCCESS, getString("titleset", input));
             setState(CONFIGURE_MESSAGE);
             return Response.TRUE;
         } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "256"));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "250"));
             return Response.FALSE;
         }
     }
@@ -389,8 +389,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     private boolean sendMessage() {
         Message m;
         if (!editMode) {
-            if (checkWriteInChannelWithLog(channel.get().orElse(null))) {
-                TextChannel textChannel = channel.get().get();
+            Optional<TextChannel> channelOpt = channel.get();
+            if (channelOpt.isPresent() && checkWriteInChannelWithLog(channelOpt.get())) {
+                TextChannel textChannel = channelOpt.get();
                 m = textChannel.sendMessage(getMessageEmbed(false).build()).complete();
                 DBStaticReactionMessages.getInstance().retrieve().put(m.getIdLong(), new StaticReactionMessageData(m, getTrigger()));
                 if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {

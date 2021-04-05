@@ -98,7 +98,7 @@ public class CommandManagementCommand extends NavigationAbstract {
                 if (i == -1) {
                     setState(1);
                     return true;
-                } else if (i < commandList.size()) {
+                } else if (i >= 0 && i < commandList.size()) {
                     Command command = commandList.get(i);
                     if (commandManagementBean.commandIsTurnedOn(command)) {
                         commandManagementBean.getSwitchedOffElements().add(command.getTrigger());
