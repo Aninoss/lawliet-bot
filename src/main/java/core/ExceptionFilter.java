@@ -30,6 +30,10 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
 
     @Override
     public FilterReply decide(final ILoggingEvent event) {
+        if (!shouldBeVisible(event.getFormattedMessage())) {
+            return FilterReply.DENY;
+        }
+
         final IThrowableProxy throwableProxy = event.getThrowableProxy();
         if (throwableProxy == null) {
             return FilterReply.NEUTRAL;
@@ -40,7 +44,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
         }
 
         final ThrowableProxy throwableProxyImpl = (ThrowableProxy) throwableProxy;
-        if (!shouldBeVisible(throwableProxyImpl.getThrowable().toString()) || !shouldBeVisible(event.getFormattedMessage())) {
+        if (!shouldBeVisible(throwableProxyImpl.getThrowable().toString())) {
             return FilterReply.DENY;
         }
 
