@@ -6,10 +6,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
-import core.CustomThread;
-import core.IntervalBlock;
-import core.MainLogger;
-import core.Program;
+import core.*;
 import mysql.modules.fisheryusers.DBFishery;
 
 public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObserverMapCache<T, U> implements Observer {
@@ -62,11 +59,15 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
     }
 
     @Override
-    public synchronized void update(Observable o, Object arg) {
-        U u = (U) o;
-        if (!changed.contains(u)) {
-            changed.add(u);
-        }
+    public void update(Observable o, Object arg) {
+        GlobalThreadPool.getExecutorService().submit(() -> {
+            synchronized (this) {
+                U u = (U) o;
+                if (!changed.contains(u)) {
+                    changed.add(u);
+                }
+            }
+        });
     }
 
     protected synchronized void removeUpdate(U value) {
