@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.Permission;
         userGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "🛑",
         executableWithoutArgs = false,
+        releaseDate = { 2021, 04, 15 },
         aliases = { "chunmute", "channelunmute", "demute" }
 )
 public class UnmuteCommand extends MuteCommand {
