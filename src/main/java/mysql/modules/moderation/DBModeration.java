@@ -22,7 +22,7 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationBean> {
     protected ModerationBean load(Long serverId) throws Exception {
         ModerationBean moderationBean;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question, autoKick, autoBan, autoKickDays, autoBanDays FROM Moderation WHERE serverId = ?;");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question, muteRoleId, autoKick, autoBan, autoKickDays, autoBanDays FROM Moderation WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
         preparedStatement.execute();
 
@@ -32,16 +32,18 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationBean> {
                     serverId,
                     resultSet.getLong(1),
                     resultSet.getBoolean(2),
-                    resultSet.getInt(3),
+                    resultSet.getLong(3),
                     resultSet.getInt(4),
                     resultSet.getInt(5),
-                    resultSet.getInt(6)
+                    resultSet.getInt(6),
+                    resultSet.getInt(7)
             );
         } else {
             moderationBean = new ModerationBean(
                     serverId,
                     null,
                     true,
+                    null,
                     0,
                     0,
                     0,
@@ -57,7 +59,7 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationBean> {
 
     @Override
     protected void save(ModerationBean moderationBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Moderation (serverId, channelId, question, autoKick, autoBan, autoKickDays, autoBanDays) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("REPLACE INTO Moderation (serverId, channelId, question, muteRoleId, autoKick, autoBan, autoKickDays, autoBanDays) VALUES (?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, moderationBean.getGuildId());
 
             Optional<Long> channelIdOpt = moderationBean.getAnnouncementChannelId();
@@ -68,10 +70,18 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationBean> {
             }
 
             preparedStatement.setBoolean(3, moderationBean.isQuestion());
-            preparedStatement.setInt(4, moderationBean.getAutoKick());
-            preparedStatement.setInt(5, moderationBean.getAutoBan());
-            preparedStatement.setInt(6, moderationBean.getAutoKickDays());
-            preparedStatement.setInt(7, moderationBean.getAutoBanDays());
+
+            Optional<Long> muteRoleOpt = moderationBean.getMuteRoleId();
+            if (muteRoleOpt.isPresent()) {
+                preparedStatement.setLong(4, muteRoleOpt.get());
+            } else {
+                preparedStatement.setNull(4, Types.BIGINT);
+            }
+
+            preparedStatement.setInt(5, moderationBean.getAutoKick());
+            preparedStatement.setInt(6, moderationBean.getAutoBan());
+            preparedStatement.setInt(7, moderationBean.getAutoKickDays());
+            preparedStatement.setInt(8, moderationBean.getAutoBanDays());
         });
     }
 

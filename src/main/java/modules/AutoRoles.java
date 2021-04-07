@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 public class AutoRoles {
 
-    public static void giveRoles(Member member) {
+    public static void process(Member member) {
         Guild guild = member.getGuild();
         Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
         RestActionQueue restActionQueue = new RestActionQueue();

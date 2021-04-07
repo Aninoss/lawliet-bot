@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import core.CustomObservableMap;
-import core.ShardManager;
 import mysql.DBDataLoad;
+import mysql.DBDataLoadAll;
 import mysql.DBMain;
 import mysql.DBMapCache;
 
@@ -49,23 +49,19 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
     }
 
     public List<TrackerSlot> retrieveAll() {
-        return new DBDataLoad<TrackerSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl", "(serverId >> 22) % ? >= ? AND (serverId >> 22) % ? <= ?", preparedStatement -> {
-            preparedStatement.setInt(1, ShardManager.getInstance().getTotalShards());
-            preparedStatement.setInt(2, ShardManager.getInstance().getShardIntervalMin());
-            preparedStatement.setInt(3, ShardManager.getInstance().getTotalShards());
-            preparedStatement.setInt(4, ShardManager.getInstance().getShardIntervalMax());
-        }).getArrayList(
-                resultSet -> new TrackerSlot(
-                        resultSet.getLong(1),
-                        resultSet.getLong(2),
-                        resultSet.getString(3),
-                        resultSet.getLong(4),
-                        resultSet.getString(5),
-                        resultSet.getTimestamp(6).toInstant(),
-                        resultSet.getString(7),
-                        resultSet.getString(8)
-                )
-        );
+        return new DBDataLoadAll<TrackerSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl")
+                .getArrayList(
+                        resultSet -> new TrackerSlot(
+                                resultSet.getLong(1),
+                                resultSet.getLong(2),
+                                resultSet.getString(3),
+                                resultSet.getLong(4),
+                                resultSet.getString(5),
+                                resultSet.getTimestamp(6).toInstant(),
+                                resultSet.getString(7),
+                                resultSet.getString(8)
+                        )
+                );
     }
 
     private void addTracker(TrackerSlot slot) {

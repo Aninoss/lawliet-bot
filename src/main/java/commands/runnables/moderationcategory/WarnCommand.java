@@ -194,7 +194,7 @@ public class WarnCommand extends Command implements OnReactionListener {
 
             case ERROR:
                 Mention mentionError = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), usersErrorList);
-                return EmbedFactory.getEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getMentionText()), TextManager.getString(getLocale(), TextManager.GENERAL, "missing_permissions_title"));
+                return EmbedFactory.getEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getMentionText()), TextManager.getString(getLocale(), TextManager.GENERAL, "wrong_args"));
 
             default:
                 eb = getConfirmationEmbed();

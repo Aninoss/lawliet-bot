@@ -3,8 +3,8 @@ package mysql.modules.tempban;
 import java.util.HashMap;
 import java.util.List;
 import core.CustomObservableMap;
-import core.ShardManager;
 import mysql.DBDataLoad;
+import mysql.DBDataLoadAll;
 import mysql.DBMain;
 import mysql.DBMapCache;
 
@@ -35,32 +35,24 @@ public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBa
                 }
         );
 
-        CustomObservableMap<Long, TempBanSlot> tempBanBean = new CustomObservableMap<>(tempBanMap);
-        tempBanBean.addMapAddListener(this::addTempBan)
+        return new CustomObservableMap<>(tempBanMap)
+                .addMapAddListener(this::addTempBan)
                 .addMapUpdateListener(this::addTempBan)
                 .addMapRemoveListener(this::removeTempBan);
-
-        return tempBanBean;
     }
 
     public List<TempBanSlot> retrieveAll() {
-        return new DBDataLoad<TempBanSlot>("TempBans", "serverId, userId, expires", "(serverId >> 22) % ? >= ? AND (serverId >> 22) % ? <= ?",
-                preparedStatement -> {
-                    preparedStatement.setInt(1, ShardManager.getInstance().getTotalShards());
-                    preparedStatement.setInt(2, ShardManager.getInstance().getShardIntervalMin());
-                    preparedStatement.setInt(3, ShardManager.getInstance().getTotalShards());
-                    preparedStatement.setInt(4, ShardManager.getInstance().getShardIntervalMax());
-                }
-        ).getArrayList(
-                resultSet -> {
-                    long serverId = resultSet.getLong(1);
-                    return new TempBanSlot(
-                            serverId,
-                            resultSet.getLong(2),
-                            resultSet.getTimestamp(3).toInstant()
-                    );
-                }
-        );
+        return new DBDataLoadAll<TempBanSlot>("TempBans", "serverId, userId, expires")
+                .getArrayList(
+                        resultSet -> {
+                            long serverId = resultSet.getLong(1);
+                            return new TempBanSlot(
+                                    serverId,
+                                    resultSet.getLong(2),
+                                    resultSet.getTimestamp(3).toInstant()
+                            );
+                        }
+                );
     }
 
     private void addTempBan(TempBanSlot tempBan) {

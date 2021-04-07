@@ -41,7 +41,7 @@ public class WarnLogCommand extends MemberAccountAbstract {
 
         StringBuilder latestWarnings = new StringBuilder();
 
-        List<GuildWarningsSlot> slots = serverWarningsBean.getLatest(3);
+        List<GuildWarningsSlot> slots = serverWarningsBean.getLatest(5);
         Collections.reverse(slots);
         for (GuildWarningsSlot serverWarningsSlot : slots) {
             Optional<Member> requestor = serverWarningsSlot.getRequesterMember();

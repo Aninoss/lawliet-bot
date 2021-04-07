@@ -10,11 +10,13 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import modules.ServerMute;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
@@ -25,7 +27,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "️⚙️️",
         executableWithoutArgs = true,
-        aliases = { "modsettings" }
+        aliases = { "moderation", "modsettings" }
 )
 public class ModSettingsCommand extends NavigationAbstract {
 
@@ -40,7 +42,7 @@ public class ModSettingsCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener(4);
+        registerNavigationListener(5);
         return true;
     }
 
@@ -130,6 +132,23 @@ public class ModSettingsCommand extends NavigationAbstract {
                     return Response.FALSE;
                 }
 
+            case 6:
+                List<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
+                if (roleList.size() == 0) {
+                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
+                    return Response.FALSE;
+                } else {
+                    Role role = roleList.get(0);
+                    if (checkRoleWithLog(role)) {
+                        moderationBean.setMuteRoleId(role.getIdLong());
+                        setLog(LogStatus.SUCCESS, getString("muteroleset"));
+                        setState(0);
+                        return Response.TRUE;
+                    } else {
+                        return Response.FALSE;
+                    }
+                }
+
             default:
                 return null;
         }
@@ -154,10 +173,14 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 2:
-                        setState(2);
+                        setState(6);
                         return true;
 
                     case 3:
+                        setState(2);
+                        return true;
+
+                    case 4:
                         setState(3);
                         return true;
 
@@ -245,6 +268,22 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return false;
                 }
 
+            case 6:
+                switch (i) {
+                    case -1:
+                        setState(0);
+                        return true;
+
+                    case 0:
+                        moderationBean.setMuteRoleId(null);
+                        setLog(LogStatus.SUCCESS, getString("muterolereset"));
+                        setState(0);
+                        return true;
+
+                    default:
+                        return false;
+                }
+
             default:
                 return false;
         }
@@ -256,9 +295,17 @@ public class ModSettingsCommand extends NavigationAbstract {
             case 0:
                 String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
                 setOptions(getString("state0_options").split("\n"));
-                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
+
+                String content = getString("state0_description");
+                List<TextChannel> leakedChannels = ServerMute.getLeakedChannels(getGuild().get());
+                if (leakedChannels.size() > 0) {
+                    content += "\n\n" + getString("state0_noteffective", leakedChannels.size() != 1, StringUtil.numToString(leakedChannels.size()), "https://discordhelp.net/mute-user");
+                }
+
+                return EmbedFactory.getEmbedDefault(this, content)
                         .addField(getString("state0_mchannel"), moderationBean.getAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(getLocale(), moderationBean.isQuestion()), true)
+                        .addField(getString("state0_mmuterole"), moderationBean.getMuteRole().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc", getAutoModString(moderationBean.getAutoKick(), moderationBean.getAutoKickDays()), getAutoModString(moderationBean.getAutoBan(), moderationBean.getAutoBanDays())), false);
 
             case 1:
@@ -280,6 +327,10 @@ public class ModSettingsCommand extends NavigationAbstract {
             case 5:
                 setOptions(new String[] { getString("state4_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoBanTemp != 1, StringUtil.numToString(autoBanTemp)), getString("state5_title"));
+
+            case 6:
+                setOptions(new String[] { getString("state6_options") });
+                return EmbedFactory.getEmbedDefault(this, getString("state6_description"), getString("state6_title"));
 
             default:
                 return null;

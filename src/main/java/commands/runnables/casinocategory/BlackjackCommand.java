@@ -202,11 +202,7 @@ public class BlackjackCommand extends CasinoAbstract {
         if (getCardsForPlayer(playerType).size() == 2 && value == 21) {
             return getCommandLanguage().getTitle();
         } else {
-            if (value <= 21) {
-                return String.valueOf(value);
-            } else {
-                return ">21";
-            }
+            return String.valueOf(value);
         }
     }
 

@@ -3,8 +3,8 @@ package mysql.modules.reminders;
 import java.util.HashMap;
 import java.util.List;
 import core.CustomObservableMap;
-import core.ShardManager;
 import mysql.DBDataLoad;
+import mysql.DBDataLoadAll;
 import mysql.DBMain;
 import mysql.DBMapCache;
 
@@ -46,25 +46,19 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
     }
 
     public List<ReminderSlot> retrieveAll() {
-        return new DBDataLoad<ReminderSlot>("Reminders", "id, serverId, channelId, time, message", "(serverId >> 22) % ? >= ? AND (serverId >> 22) % ? <= ?",
-                preparedStatement -> {
-                    preparedStatement.setInt(1, ShardManager.getInstance().getTotalShards());
-                    preparedStatement.setInt(2, ShardManager.getInstance().getShardIntervalMin());
-                    preparedStatement.setInt(3, ShardManager.getInstance().getTotalShards());
-                    preparedStatement.setInt(4, ShardManager.getInstance().getShardIntervalMax());
-                }
-        ).getArrayList(
-                resultSet -> {
-                    long serverId = resultSet.getLong(2);
-                    return new ReminderSlot(
-                            serverId,
-                            resultSet.getLong(1),
-                            resultSet.getLong(3),
-                            resultSet.getTimestamp(4).toInstant(),
-                            resultSet.getString(5)
-                    );
-                }
-        );
+        return new DBDataLoadAll<ReminderSlot>("Reminders", "id, serverId, channelId, time, message")
+                .getArrayList(
+                        resultSet -> {
+                            long serverId = resultSet.getLong(2);
+                            return new ReminderSlot(
+                                    serverId,
+                                    resultSet.getLong(1),
+                                    resultSet.getLong(3),
+                                    resultSet.getTimestamp(4).toInstant(),
+                                    resultSet.getString(5)
+                            );
+                        }
+                );
     }
 
     private void addRemindersBean(ReminderSlot remindersBean) {

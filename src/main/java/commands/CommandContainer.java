@@ -102,8 +102,8 @@ public class CommandContainer {
         commandList.add(UnbanCommand.class);
         commandList.add(WarnLogCommand.class);
         commandList.add(WarnRemoveCommand.class);
-        commandList.add(ChannelMuteCommand.class);
-        commandList.add(ChannelUnmuteCommand.class);
+        commandList.add(MuteCommand.class);
+        commandList.add(UnmuteCommand.class);
         commandList.add(InviteFilterCommand.class);
         commandList.add(WordFilterCommand.class);
         commandList.add(ClearCommand.class);

@@ -2,26 +2,29 @@ package mysql.modules.moderation;
 
 import java.util.Optional;
 import mysql.BeanWithGuild;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class ModerationBean extends BeanWithGuild {
 
     private Long announcementChannelId;
     private boolean question;
-    private int autoKick, autoBan, autoKickDays, autoBanDays;
+    private Long muteRoleId;
+    private int autoKick;
+    private int autoBan;
+    private int autoKickDays;
+    private int autoBanDays;
 
-    public ModerationBean(long serverId, Long announcementChannelId, boolean question, int autoKick, int autoBan, int autoKickDays, int autoBanDays) {
+    public ModerationBean(long serverId, Long announcementChannelId, boolean question, Long muteRoleId, int autoKick, int autoBan, int autoKickDays, int autoBanDays) {
         super(serverId);
         this.announcementChannelId = announcementChannelId;
         this.question = question;
+        this.muteRoleId = muteRoleId;
         this.autoKick = autoKick;
         this.autoBan = autoBan;
         this.autoKickDays = autoKickDays;
         this.autoBanDays = autoBanDays;
     }
-
-
-    /* Getters */
 
     public Optional<Long> getAnnouncementChannelId() {
         return Optional.ofNullable(announcementChannelId);
@@ -29,6 +32,14 @@ public class ModerationBean extends BeanWithGuild {
 
     public Optional<TextChannel> getAnnouncementChannel() {
         return getGuild().map(guild -> guild.getTextChannelById(announcementChannelId != null ? announcementChannelId : 0L));
+    }
+
+    public Optional<Long> getMuteRoleId() {
+        return Optional.ofNullable(muteRoleId);
+    }
+
+    public Optional<Role> getMuteRole() {
+        return getGuild().map(guild -> guild.getRoleById(muteRoleId != null ? muteRoleId : 0L));
     }
 
     public boolean isQuestion() {
@@ -51,12 +62,17 @@ public class ModerationBean extends BeanWithGuild {
         return autoBanDays;
     }
 
-
-    /* Setters */
-
     public void setAnnouncementChannelId(Long announcementChannelId) {
         if (this.announcementChannelId == null || !this.announcementChannelId.equals(announcementChannelId)) {
             this.announcementChannelId = announcementChannelId;
+            setChanged();
+            notifyObservers();
+        }
+    }
+
+    public void setMuteRoleId(Long muteRoleId) {
+        if (this.muteRoleId == null || !this.muteRoleId.equals(muteRoleId)) {
+            this.muteRoleId = muteRoleId;
             setChanged();
             notifyObservers();
         }

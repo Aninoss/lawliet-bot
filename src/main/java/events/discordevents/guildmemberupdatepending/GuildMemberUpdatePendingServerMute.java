@@ -2,16 +2,16 @@ package events.discordevents.guildmemberupdatepending;
 
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberUpdatePendingAbstract;
-import modules.AutoRoles;
+import modules.ServerMute;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdatePendingEvent;
 
 @DiscordEvent(allowBots = true)
-public class GuildMemberUpdatePendingAutoRoles extends GuildMemberUpdatePendingAbstract {
+public class GuildMemberUpdatePendingServerMute extends GuildMemberUpdatePendingAbstract {
 
     @Override
     public boolean onGuildMemberUpdatePending(GuildMemberUpdatePendingEvent event) throws Throwable {
         if (!event.getMember().isPending()) {
-            AutoRoles.process(event.getMember());
+            ServerMute.process(event.getMember());
         }
 
         return true;

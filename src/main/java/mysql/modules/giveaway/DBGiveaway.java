@@ -3,8 +3,8 @@ package mysql.modules.giveaway;
 import java.util.HashMap;
 import java.util.List;
 import core.CustomObservableMap;
-import core.ShardManager;
 import mysql.DBDataLoad;
+import mysql.DBDataLoadAll;
 import mysql.DBMain;
 import mysql.DBMapCache;
 
@@ -49,28 +49,22 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
     }
 
     public List<GiveawaySlot> retrieveAll() {
-        return new DBDataLoad<GiveawaySlot>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active", "(serverId >> 22) % ? >= ? AND (serverId >> 22) % ? <= ?",
-                preparedStatement -> {
-                    preparedStatement.setInt(1, ShardManager.getInstance().getTotalShards());
-                    preparedStatement.setInt(2, ShardManager.getInstance().getShardIntervalMin());
-                    preparedStatement.setInt(3, ShardManager.getInstance().getTotalShards());
-                    preparedStatement.setInt(4, ShardManager.getInstance().getShardIntervalMax());
-                }
-        ).getArrayList(
-                resultSet -> new GiveawaySlot(
-                        resultSet.getLong(1),
-                        resultSet.getLong(2),
-                        resultSet.getLong(3),
-                        resultSet.getString(4),
-                        resultSet.getInt(5),
-                        resultSet.getTimestamp(6).toInstant(),
-                        resultSet.getLong(7),
-                        resultSet.getString(8),
-                        resultSet.getString(9),
-                        resultSet.getString(10),
-                        resultSet.getBoolean(11)
-                )
-        );
+        return new DBDataLoadAll<GiveawaySlot>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active")
+                .getArrayList(
+                        resultSet -> new GiveawaySlot(
+                                resultSet.getLong(1),
+                                resultSet.getLong(2),
+                                resultSet.getLong(3),
+                                resultSet.getString(4),
+                                resultSet.getInt(5),
+                                resultSet.getTimestamp(6).toInstant(),
+                                resultSet.getLong(7),
+                                resultSet.getString(8),
+                                resultSet.getString(9),
+                                resultSet.getString(10),
+                                resultSet.getBoolean(11)
+                        )
+                );
     }
 
     private void addGiveawaySlot(GiveawaySlot slot) {
