@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
         userGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "🛑",
         executableWithoutArgs = false,
-        releaseDate = { 2021, 04, 15 },
+        releaseDate = { 2021, 4, 16 },
         aliases = { "chmute", "channelmute" }
 )
 public class MuteCommand extends WarnCommand {

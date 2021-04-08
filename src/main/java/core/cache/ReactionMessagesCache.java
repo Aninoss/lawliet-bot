@@ -81,6 +81,11 @@ public class ReactionMessagesCache {
             description = embed.getDescription().trim();
         }
 
+        String banner = null;
+        if (embed.getImage() != null) {
+            banner = embed.getImage().getUrl();
+        }
+
         ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
         for (String line : embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
@@ -93,6 +98,7 @@ public class ReactionMessagesCache {
                 message.getIdLong(),
                 title,
                 description,
+                banner,
                 removeRole,
                 multipleRoles,
                 emojiConnections

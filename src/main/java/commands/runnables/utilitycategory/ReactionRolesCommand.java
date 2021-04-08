@@ -1,7 +1,10 @@
 package commands.runnables.utilitycategory;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -49,6 +52,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             CONFIGURE_MESSAGE = 3,
             UPDATE_TITLE = 4,
             UPDATE_DESC = 5,
+            UPDATE_IMAGE = 10,
             ADD_SLOT = 6,
             REMOVE_SLOT = 7,
             EXAMPLE = 8,
@@ -57,12 +61,14 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     private String title, description;
     private List<EmojiConnection> emojiConnections = new ArrayList<>();
     private String emojiTemp;
+    private String banner;
     private AtomicRole roleTemp;
     private AtomicTextChannel atomicTextChannel;
     private boolean removeRole = true;
     private boolean editMode = false;
     private boolean multipleRoles = true;
     private long editMessageId = 0L;
+    private File imageCdn = null;
 
     private static final Cache<Long, Boolean> blockCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(1))
@@ -118,6 +124,34 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "1024"));
             return Response.FALSE;
         }
+    }
+
+    @ControllerMessage(state = UPDATE_IMAGE)
+    public Response onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException, ExecutionException, InterruptedException {
+        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        if (attachments.size() > 0) {
+            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("reactionroles/%d.png", System.nanoTime()));
+            boolean success = FileUtil.downloadImageAttachment(attachments.get(0), tempFile);
+            if (success) {
+                banner = uploadFile(tempFile);
+                setLog(LogStatus.SUCCESS, getString("imageset"));
+                setState(CONFIGURE_MESSAGE);
+                return Response.TRUE;
+            }
+        }
+
+        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
+        return Response.FALSE;
+    }
+
+    private String uploadFile(LocalFile file) {
+        if (imageCdn != null) {
+            imageCdn.delete();
+            imageCdn = null;
+        }
+
+        imageCdn = file;
+        return file.cdnGetUrl();
     }
 
     @ControllerMessage(state = ADD_SLOT)
@@ -255,6 +289,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 if (!editMode) {
                     setState(ADD_MESSAGE);
                 } else {
+                    imageCdn = null;
                     setState(EDIT_MESSAGE);
                 }
                 return true;
@@ -268,6 +303,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 return true;
 
             case 2:
+                setState(UPDATE_IMAGE);
+                return true;
+
+            case 3:
                 if (emojiConnections.size() < MAX_LINKS) {
                     setState(ADD_SLOT);
                 } else {
@@ -277,7 +316,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 emojiTemp = null;
                 return true;
 
-            case 3:
+            case 4:
                 if (emojiConnections.size() > 0) {
                     setState(REMOVE_SLOT);
                 } else {
@@ -285,17 +324,17 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 }
                 return true;
 
-            case 4:
+            case 5:
                 removeRole = !removeRole;
                 setLog(LogStatus.SUCCESS, getString("roleremoveset"));
                 return true;
 
-            case 5:
+            case 6:
                 multipleRoles = !multipleRoles;
                 setLog(LogStatus.SUCCESS, getString("multiplerolesset"));
                 return true;
 
-            case 6:
+            case 7:
                 if (emojiConnections.size() > 0) {
                     if (getLinkString().length() <= 1024) {
                         setState(EXAMPLE);
@@ -307,7 +346,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 }
                 return true;
 
-            case 7:
+            case 8:
                 if (emojiConnections.size() > 0) {
                     if (getLinkString().length() <= 1024) {
                         if (sendMessage()) {
@@ -325,6 +364,25 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             default:
                 return false;
         }
+    }
+
+    @ControllerReaction(state = UPDATE_IMAGE)
+    public boolean onReactionUpdateImage(GenericGuildMessageReactionEvent event, int i) {
+        if (i == -1) {
+            setState(CONFIGURE_MESSAGE);
+            return true;
+        } else if (i == 0) {
+            if (imageCdn != null) {
+                imageCdn.delete();
+                imageCdn = null;
+            }
+            banner = null;
+            setLog(LogStatus.SUCCESS, getString("imageset"));
+            setState(CONFIGURE_MESSAGE);
+            return true;
+        }
+
+        return false;
     }
 
     @ControllerReaction(state = ADD_SLOT)
@@ -441,6 +499,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 messageId,
                 title != null ? title : getCommandLanguage().getTitle(),
                 description,
+                banner,
                 removeRole,
                 multipleRoles,
                 emojiConnections
@@ -508,6 +567,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_" + add))
                 .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(Optional.ofNullable(title).orElse(notSet)), true)
                 .addField(getString("state3_mdescription"), StringUtil.shortenString(StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), 1024), true)
+                .addField(getString("state3_mimage"), StringUtil.getEmojiForBoolean(banner != null), true)
                 .addField(getString("state3_mshortcuts"), StringUtil.shortenString(Optional.ofNullable(getLinkString()).orElse(notSet), 1024), false)
                 .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringUtil.getOnOffForBoolean(getLocale(), removeRole), StringUtil.getOnOffForBoolean(getLocale(), multipleRoles)), false);
     }
@@ -520,6 +580,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     @Draw(state = UPDATE_DESC)
     public EmbedBuilder onDrawUpdateDesc() {
         return EmbedFactory.getEmbedDefault(this, getString("state5_description"), getString("state5_title"));
+    }
+
+    @Draw(state = UPDATE_IMAGE)
+    public EmbedBuilder onDrawUpdateImage() {
+        setOptions(getString("state10_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
     }
 
     @Draw(state = ADD_SLOT)
@@ -560,6 +626,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         return EmbedFactory.getEmbedDefault()
                 .setTitle(getCommandProperties().emoji() + " " + (title != null ? title : getString("title")) + identity + titleAdd)
                 .setDescription(description)
+                .setImage(banner)
                 .addField(TextManager.getString(getLocale(), TextManager.GENERAL, "options"), getLinkString(), false);
     }
 
@@ -607,7 +674,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
 
     private void updateValuesFromMessage(ReactionMessage message) {
         this.title = message.getTitle();
-        this.description = message.getDescription();
+        this.description = message.getDescription().orElse(null);
+        this.banner = message.getBanner().orElse(null);
         this.multipleRoles = message.isMultipleRoles();
         this.removeRole = message.isMultipleRoles();
         this.emojiConnections = message.getEmojiConnections();
