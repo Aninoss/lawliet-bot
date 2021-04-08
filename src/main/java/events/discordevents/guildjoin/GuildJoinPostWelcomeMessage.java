@@ -24,7 +24,26 @@ public class GuildJoinPostWelcomeMessage extends GuildJoinAbstract {
     }
 
     private void sendNewMessage(TextChannel channel) {
-        String text = "Hi! Thanks for inviting me to your lovely server! ❤️\n\n• Just write `L.help` to get an overview of all my commands and features\n• You can restrict the channels which can trigger bot commands by running `L.whitelist`\n• With `L.fishery` you can configure the fishing idle-game / economy and read how it works\n\nFurthermore, you can also change the bot language:\n• \uD83C\uDDE9\uD83C\uDDEA German: `L.language de`\n• \uD83C\uDDF7\uD83C\uDDFA Russian: `L.language ru`\n\nAnd finally, if you have any issues with the bot, then you can take a look at the [FAQ Page](" + ExternalLinks.FAQ_WEBSITE + "). You can also just join the Lawliet Support server and ask for help:\n\n[Join Lawliet Support Server](" + ExternalLinks.SERVER_INVITE_URL + ")";
+        String text = """
+                      Hi! Thanks for inviting me to your lovely server! ❤️
+                      
+                      *No dashboard is required! You can set up every function within your Discord client by running the corresponding command.*
+                              
+                      • Just write `L.help` to get an overview of all my commands and features
+                      • You can restrict the channels which can trigger bot commands by running `L.whitelist`
+                      • With `L.fishery` you can configure the fishing idle-game / economy and read how it works
+                              
+                      Furthermore, you can also change the bot language:
+                      • 🇩🇪 German: `L.language de`
+                      • 🇷🇺 Russian: `L.language ru`
+                              
+                      And finally, if you have any issues with the bot, then you can take a look at the [FAQ Page](%s). You can also just join the Lawliet Support server and ask for help:
+                              
+                      [Join Lawliet Support Server](%s)
+                      """;
+
+        text = String.format(text, ExternalLinks.FAQ_WEBSITE, ExternalLinks.SERVER_INVITE_URL);
+
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(text)
                 .setThumbnail(ShardManager.getInstance().getSelf().getEffectiveAvatarUrl());
