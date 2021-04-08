@@ -45,13 +45,13 @@ public class ExchangeRateCommand extends Command implements OnReactionListener, 
             registerReactionListener(emojiForecast);
         } else {
             textInclude = getString("forecast_patreon");
-            drawMessage(generateEmbed());
+            drawMessage(generateEmbed(false));
         }
         return true;
     }
 
-    private EmbedBuilder generateEmbed() {
-        StringBuilder sb = new StringBuilder(getString("template", StringUtil.numToString(ExchangeRate.getInstance().get(0)), Fishery.getChangeEmoji()));
+    private EmbedBuilder generateEmbed(boolean alert) {
+        StringBuilder sb = new StringBuilder(getString(alert ? "template_alert" : "template", StringUtil.numToString(ExchangeRate.getInstance().get(0)), Fishery.getChangeEmoji()));
         if (textInclude != null) {
             sb.append("\n")
                     .append(textInclude);
@@ -89,14 +89,14 @@ public class ExchangeRateCommand extends Command implements OnReactionListener, 
 
     @Override
     public EmbedBuilder draw() {
-        EmbedBuilder eb = generateEmbed();
+        EmbedBuilder eb = generateEmbed(false);
         getMember().ifPresent(member -> EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger()));
         return eb;
     }
 
     @Override
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
-        long messageId = slot.sendMessage(generateEmbed().build()).get();
+        long messageId = slot.sendMessage(generateEmbed(true).build()).get();
         slot.setMessageId(messageId);
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));
 

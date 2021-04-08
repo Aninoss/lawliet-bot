@@ -38,13 +38,13 @@ public class MapsCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        EmbedBuilder eb = getEmbed();
+        EmbedBuilder eb = getEmbed(false);
         EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 
-    private EmbedBuilder getEmbed() throws ExecutionException, InterruptedException {
+    private EmbedBuilder getEmbed(boolean alert) throws ExecutionException, InterruptedException {
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
         String region;
         if (language.equalsIgnoreCase("en")) {
@@ -99,7 +99,7 @@ public class MapsCommand extends Command implements OnAlertListener {
             for (int i = 0; i < modeIDs.length; i++) {
                 String id = modeIDs[i];
                 String modeName = languageData.getJSONObject("game_modes").getJSONObject(id).getString("name");
-                String fieldTitle = emojiMap.get(id) + " __**" + modeName + "**__";
+                String fieldTitle = (alert ? "" : emojiMap.get(id)) + " __**" + modeName + "**__";
                 String[] timeNames = getString("times").split("\n");
                 StringBuilder fieldContent = new StringBuilder();
                 for (int j = 0; j < timeNames.length; j++) {
@@ -122,7 +122,7 @@ public class MapsCommand extends Command implements OnAlertListener {
             festTeams[1] = languageData.getJSONObject("festivals").getJSONObject(String.valueOf(festData.getInt("festival_id"))).getJSONObject("names").getString("bravo_short");
 
             String id = "regular";
-            String fieldTitle = Emojis.SPLATOON_SPLATFEST + getString("splatfest_battle", festTeams[0], festTeams[1]);
+            String fieldTitle = (alert ? "" : Emojis.SPLATOON_SPLATFEST) + getString("splatfest_battle", festTeams[0], festTeams[1]);
             String[] timeNames = getString("times").split("\n");
             StringBuilder fieldContent = new StringBuilder();
             for (int j = 0; j < timeNames.length; j++) {
@@ -143,7 +143,7 @@ public class MapsCommand extends Command implements OnAlertListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
-        slot.setMessageId(slot.sendMessage(getEmbed().build()).get());
+        slot.setMessageId(slot.sendMessage(getEmbed(true).build()).get());
         slot.setNextRequest(trackingTime);
 
         return TrackerResult.CONTINUE_AND_SAVE;

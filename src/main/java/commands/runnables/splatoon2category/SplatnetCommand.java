@@ -36,13 +36,13 @@ public class SplatnetCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        EmbedBuilder eb = getEmbed();
+        EmbedBuilder eb = getEmbed(false);
         EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 
-    private EmbedBuilder getEmbed() throws ExecutionException, InterruptedException {
+    private EmbedBuilder getEmbed(boolean alert) throws ExecutionException, InterruptedException {
         int datesShown = 2;
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 
@@ -61,7 +61,7 @@ public class SplatnetCommand extends Command implements OnAlertListener {
                 Instant endTime = new Date(data.getLong("end_time") * 1000L).toInstant();
                 if (endTime.isBefore(Instant.now())) {
                     Thread.sleep(5000);
-                    return getEmbed();
+                    return getEmbed(alert);
                 }
             }
         }
@@ -77,7 +77,7 @@ public class SplatnetCommand extends Command implements OnAlertListener {
             if (endTime.isBefore(trackingTime)) trackingTime = endTime;
 
             String gearName = languageData.getJSONObject("gear").getJSONObject(data.getString("kind")).getJSONObject(data.getJSONObject("gear").getString("id")).getString("name");
-            String fieldTitle = Emojis.SPLATOON_SQUID + " __**" + gearName + "**__";
+            String fieldTitle = (alert ? "" : Emojis.SPLATOON_SQUID) + " __**" + gearName + "**__";
             int price = data.getInt("price");
 
             String mainAbility = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("skill").getString("id")).getString("name");
@@ -89,7 +89,7 @@ public class SplatnetCommand extends Command implements OnAlertListener {
                 effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
             }
 
-            String fieldContent = getString("template", Emojis.SPLATOON_COIN, String.valueOf(price), TimeUtil.getInstantString(getLocale(), endTime, true), TimeUtil.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
+            String fieldContent = getString("template", alert ? "" : Emojis.SPLATOON_COIN, String.valueOf(price), TimeUtil.getInstantString(getLocale(), endTime, true), TimeUtil.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
             eb.addField(fieldTitle, fieldContent, true);
         }
 
@@ -101,7 +101,7 @@ public class SplatnetCommand extends Command implements OnAlertListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
-        slot.setMessageId(slot.sendMessage(getEmbed().build()).get());
+        slot.setMessageId(slot.sendMessage(getEmbed(true).build()).get());
         slot.setNextRequest(trackingTime);
 
         return TrackerResult.CONTINUE_AND_SAVE;

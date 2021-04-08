@@ -36,13 +36,13 @@ public class SalmonCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        EmbedBuilder eb = getEmbed();
+        EmbedBuilder eb = getEmbed(false);
         EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
         event.getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 
-    private EmbedBuilder getEmbed() throws InterruptedException, ExecutionException {
+    private EmbedBuilder getEmbed(boolean alert) throws InterruptedException, ExecutionException {
         int datesShown = 2;
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 
@@ -63,7 +63,7 @@ public class SalmonCommand extends Command implements OnAlertListener {
 
         if (Instant.now().isAfter(endTime[0])) {
             Thread.sleep(5000);
-            return getEmbed();
+            return getEmbed(alert);
         }
 
         trackingTime = startTime[0];
@@ -76,7 +76,7 @@ public class SalmonCommand extends Command implements OnAlertListener {
         EmbedUtil.setFooter(eb, this, getString("footer", startTime[0].isBefore(Instant.now()), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
 
         for (int i = 0; i < datesShown; i++) {
-            String title = Emojis.SPLATOON_SALMONRUN + " __**" + TimeUtil.getInstantString(getLocale(), startTime[i], true) + " - " + TimeUtil.getInstantString(getLocale(), endTime[i], true) + "**__";
+            String title = (alert ? "" : Emojis.SPLATOON_SALMONRUN) + " __**" + TimeUtil.getInstantString(getLocale(), startTime[i], true) + " - " + TimeUtil.getInstantString(getLocale(), endTime[i], true) + "**__";
             StringBuilder weapons = new StringBuilder();
             for (int j = 0; j < 4; j++) {
                 if (!salmonData.getJSONObject(i).getJSONArray("weapons").isNull(j) && Integer.parseInt(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")) >= 0) {
@@ -96,7 +96,7 @@ public class SalmonCommand extends Command implements OnAlertListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
-        slot.setMessageId(slot.sendMessage(getEmbed().build()).get());
+        slot.setMessageId(slot.sendMessage(getEmbed(true).build()).get());
         slot.setNextRequest(trackingTime);
 
         return TrackerResult.CONTINUE_AND_SAVE;
