@@ -37,7 +37,7 @@ public class GuildJoinPostWelcomeMessage extends GuildJoinAbstract {
                       • 🇩🇪 German: `L.language de`
                       • 🇷🇺 Russian: `L.language ru`
                               
-                      And finally, if you have any issues with the bot, then you can take a look at the [FAQ Page](%s). You can also just join the Lawliet Support server and ask for help:
+                      And finally, if you have any issues with the bot, then you can take a look at the [FAQ page](%s). You can also just join the Lawliet support server and ask for help:
                               
                       [Join Lawliet Support Server](%s)
                       """;
