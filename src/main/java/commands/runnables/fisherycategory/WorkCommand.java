@@ -154,19 +154,21 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
     }
 
     private void setArea() {
-        area = new String[7][7];
-        fishFocus = new Random().nextInt(EMOJIS.length - 1);
-        fishCounter = 0;
+        do {
+            area = new String[7][7];
+            fishFocus = new Random().nextInt(EMOJIS.length - 1);
+            fishCounter = 0;
 
-        for (int y = 0; y < area.length; y++) {
-            for (int x = 0; x < area[0].length; x++) {
-                int i = RandomUtil.pickWithProbabilities(1.0 / 6, 1.0 / 8, 1.0 / 10);
-                if (i == fishFocus) {
-                    fishCounter++;
+            for (int y = 0; y < area.length; y++) {
+                for (int x = 0; x < area[0].length; x++) {
+                    int i = RandomUtil.pickWithProbabilities(1.0 / 6, 1.0 / 8, 1.0 / 10);
+                    if (i == fishFocus) {
+                        fishCounter++;
+                    }
+                    area[y][x] = EMOJIS[i];
                 }
-                area[y][x] = EMOJIS[i];
             }
-        }
+        } while (fishCounter <= 0);
     }
 
 }
