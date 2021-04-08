@@ -1,11 +1,8 @@
 package commands.runnables.utilitycategory;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
+import java.util.*;
+import java.util.stream.Collectors;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.listeners.CommandProperties;
@@ -19,8 +16,10 @@ import core.*;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
+import core.cache.ReactionMessagesCache;
 import core.emojiconnection.EmojiConnection;
 import core.utils.*;
+import modules.ReactionMessage;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -56,14 +55,14 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             SENT = 9;
 
     private String title, description;
-    private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
+    private List<EmojiConnection> emojiConnections = new ArrayList<>();
     private String emojiTemp;
     private AtomicRole roleTemp;
-    private AtomicTextChannel channel;
+    private AtomicTextChannel atomicTextChannel;
     private boolean removeRole = true;
     private boolean editMode = false;
     private boolean multipleRoles = true;
-    private Message editMessage;
+    private long editMessageId = 0L;
 
     private static final Cache<Long, Boolean> blockCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(1))
@@ -84,32 +83,11 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         List<TextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getMessage(), input).getList();
         if (serverTextChannel.size() > 0) {
             if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
-                channel = new AtomicTextChannel(serverTextChannel.get(0));
+                atomicTextChannel = new AtomicTextChannel(serverTextChannel.get(0));
                 setLog(LogStatus.SUCCESS, getString("channelset"));
                 return Response.TRUE;
             } else {
                 return Response.FALSE;
-            }
-        }
-        setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-        return Response.FALSE;
-    }
-
-    @ControllerMessage(state = EDIT_MESSAGE)
-    public Response onMessageEditMessage(GuildMessageReceivedEvent event, String input) throws ExecutionException, InterruptedException {
-        List<Message> messageArrayList = MentionUtil.getMessageWithLinks(event.getMessage(), input).get().getList();
-        if (messageArrayList.size() > 0) {
-            for (Message message : messageArrayList) {
-                if (messageIsReactionMessage(message)) {
-                    TextChannel messageChannel = message.getTextChannel();
-                    if (checkWriteInChannelWithLog(messageChannel)) {
-                        editMessage = message;
-                        setLog(LogStatus.SUCCESS, getString("messageset"));
-                        return Response.TRUE;
-                    } else {
-                        return Response.FALSE;
-                    }
-                }
             }
         }
         setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
@@ -212,9 +190,17 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 return true;
 
             case 1:
-                setState(EDIT_MESSAGE);
-                editMode = true;
-                return true;
+                if (getReactionMessagesInGuild(event.getGuild()).size() > 0) {
+                    setState(EDIT_MESSAGE);
+                    editMode = true;
+                    return true;
+                } else {
+                    setLog(LogStatus.FAILURE, getString("noreactionmessage"));
+                    setState(EDIT_MESSAGE);
+                    editMode = true;
+                    //TODO: Don't go to next
+                    return true;
+                }
 
             default:
                 return false;
@@ -229,7 +215,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 return true;
 
             case 0:
-                if (channel != null) {
+                if (atomicTextChannel != null) {
                     setState(CONFIGURE_MESSAGE);
                     return true;
                 }
@@ -241,21 +227,25 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
 
     @ControllerReaction(state = EDIT_MESSAGE)
     public boolean onReactionEditMessage(GenericGuildMessageReactionEvent event, int i) {
-        switch (i) {
-            case -1:
-                setState(ADD_OR_EDIT);
-                return true;
-
-            case 0:
-                if (editMessage != null) {
-                    updateValuesFromMessage(editMessage);
+        if (i == -1) {
+            setState(ADD_OR_EDIT);
+            return true;
+        } else if (i >= 0) {
+            List<ReactionMessage> reactionMessages = getReactionMessagesInGuild(event.getGuild());
+            if (i < reactionMessages.size()) {
+                ReactionMessage reactionMessage = reactionMessages.get(i);
+                TextChannel messageChannel = reactionMessage.getTextChannel().get();
+                if (checkWriteInChannelWithLog(messageChannel)) {
+                    editMessageId = reactionMessage.getMessageId();
+                    updateValuesFromMessage(reactionMessage);
                     setState(CONFIGURE_MESSAGE);
-                    return true;
                 }
 
-            default:
-                return false;
+                return true;
+            }
         }
+
+        return false;
     }
 
     @ControllerReaction(state = CONFIGURE_MESSAGE)
@@ -387,17 +377,17 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     }
 
     private boolean sendMessage() {
-        Message m;
-        if (!editMode) {
-            Optional<TextChannel> channelOpt = channel.get();
-            if (channelOpt.isPresent() && checkWriteInChannelWithLog(channelOpt.get())) {
-                TextChannel textChannel = channelOpt.get();
-                m = textChannel.sendMessage(getMessageEmbed(false).build()).complete();
-                DBStaticReactionMessages.getInstance().retrieve().put(m.getIdLong(), new StaticReactionMessageData(m, getTrigger()));
+        Optional<TextChannel> channelOpt = atomicTextChannel.get();
+        if (channelOpt.isPresent() && checkWriteInChannelWithLog(channelOpt.get())) {
+            TextChannel textChannel = channelOpt.get();
+            if (!editMode) {
+                Message message = textChannel.sendMessage(getMessageEmbed(false).build()).complete();
+                DBStaticReactionMessages.getInstance().retrieve().put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
+                ReactionMessagesCache.getInstance().put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
                 if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
                     RestActionQueue restActionQueue = new RestActionQueue();
                     for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                        restActionQueue.attach(emojiConnection.addReaction(m));
+                        restActionQueue.attach(emojiConnection.addReaction(message));
                     }
                     restActionQueue
                             .getCurrentRestAction()
@@ -405,43 +395,56 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 }
                 return true;
             } else {
-                return false;
-            }
-        } else {
-            editMessage.editMessage(getMessageEmbed(false).build()).queue();
-            m = editMessage;
-            RestActionQueue restActionQueue = new RestActionQueue();
-            for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                boolean exist = false;
-                for (MessageReaction reaction : m.getReactions()) {
-                    if (emojiConnection.isEmoji(reaction.getReactionEmote())) {
-                        exist = true;
-                        break;
-                    }
-                }
-                if (!exist) {
-                    restActionQueue.attach(emojiConnection.addReaction(m));
-                }
-            }
-            if (BotPermissionUtil.can(m.getTextChannel(), Permission.MESSAGE_MANAGE)) {
-                for (MessageReaction reaction : m.getReactions()) {
+                Message message = textChannel.editMessageById(editMessageId, getMessageEmbed(false).build()).complete();
+                ReactionMessagesCache.getInstance().put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
+                RestActionQueue restActionQueue = new RestActionQueue();
+                for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                     boolean exist = false;
-                    for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
+                    for (MessageReaction reaction : message.getReactions()) {
                         if (emojiConnection.isEmoji(reaction.getReactionEmote())) {
                             exist = true;
                             break;
                         }
                     }
                     if (!exist) {
-                        restActionQueue.attach(reaction.clearReactions());
+                        restActionQueue.attach(emojiConnection.addReaction(message));
                     }
                 }
+                if (BotPermissionUtil.can(textChannel, Permission.MESSAGE_MANAGE)) {
+                    for (MessageReaction reaction : message.getReactions()) {
+                        boolean exist = false;
+                        for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
+                            if (emojiConnection.isEmoji(reaction.getReactionEmote())) {
+                                exist = true;
+                                break;
+                            }
+                        }
+                        if (!exist) {
+                            restActionQueue.attach(reaction.clearReactions());
+                        }
+                    }
+                }
+                if (restActionQueue.isSet()) {
+                    restActionQueue.getCurrentRestAction().queue();
+                }
+                return true;
             }
-            if (restActionQueue.isSet()) {
-                restActionQueue.getCurrentRestAction().queue();
-            }
-            return true;
+        } else {
+            return false;
         }
+    }
+
+    private ReactionMessage generateReactionMessage(long messageId) {
+        return new ReactionMessage(
+                getGuildId().get(),
+                atomicTextChannel.getIdLong(),
+                messageId,
+                title != null ? title : getCommandLanguage().getTitle(),
+                description,
+                removeRole,
+                multipleRoles,
+                emojiConnections
+        );
     }
 
     private boolean calculateEmoji(String emoji) {
@@ -470,19 +473,24 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     @Draw(state = ADD_MESSAGE)
     public EmbedBuilder onDrawAddMessage() {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        if (channel != null) {
+        if (atomicTextChannel != null) {
             setOptions(new String[] { TextManager.getString(getLocale(), TextManager.GENERAL, "continue") });
         }
-        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(channel).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state1_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(atomicTextChannel).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state1_title"));
     }
 
     @Draw(state = EDIT_MESSAGE)
     public EmbedBuilder onDrawEditMessage() {
-        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        if (editMessage != null) {
-            setOptions(new String[] { TextManager.getString(getLocale(), TextManager.GENERAL, "continue") });
+        List<ReactionMessage> reactionMessages = getReactionMessagesInGuild(getGuild().get());
+        String[] options = new String[reactionMessages.size()];
+        for (int i = 0; i < reactionMessages.size(); i++) {
+            ReactionMessage reactionMessage = reactionMessages.get(i);
+            AtomicTextChannel channel = new AtomicTextChannel(reactionMessage.getGuildId(), reactionMessage.getTextChannelId());
+            options[i] = getString("state2_template", reactionMessage.getTitle(), channel.getAsMention());
         }
-        return EmbedFactory.getEmbedDefault(this, getString("state2_description", Optional.ofNullable(editMessage).map(ISnowflake::getId).orElse(notSet)), getString("state2_title"));
+
+        setOptions(options);
+        return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
     }
 
     @Draw(state = CONFIGURE_MESSAGE)
@@ -567,55 +575,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         return link.toString();
     }
 
-    private void updateValuesFromMessage(Message editMessage) {
-        MessageEmbed embed = editMessage.getEmbeds().get(0);
-        String title = embed.getTitle();
-
-        int hiddenNumber = -1;
-        while (title.endsWith(Emojis.EMPTY_EMOJI)) {
-            title = title.substring(0, title.length() - 1);
-            hiddenNumber++;
-        }
-        removeRole = (hiddenNumber & 0x1) <= 0;
-        multipleRoles = (hiddenNumber & 0x2) <= 0;
-        this.title = title.substring(3).trim();
-        if (embed.getDescription() != null) {
-            this.description = embed.getDescription().trim();
-        }
-
-        emojiConnections = new ArrayList<>();
-        checkRolesWithLog(editMessage.getGuild(), MentionUtil.getRoles(editMessage, embed.getFields().get(0).getValue()).getList());
-        for (String line : embed.getFields().get(0).getValue().split("\n")) {
-            String[] parts = line.split(" → ");
-            emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
-        }
-    }
-
-    private boolean messageIsReactionMessage(Message message) {
-        if (message.getAuthor().getIdLong() == ShardManager.getInstance().getSelfId() && message.getEmbeds().size() > 0) {
-            MessageEmbed embed = message.getEmbeds().get(0);
-            if (embed.getTitle() != null && embed.getAuthor() == null) {
-                String title = embed.getTitle();
-                return title.startsWith(getCommandProperties().emoji()) && title.endsWith(Emojis.EMPTY_EMOJI);
-            }
-        }
-        return false;
-    }
-
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
         Member member = event.getMember();
-
-        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), "⭐") &&
-                BotPermissionUtil.can(member, getCommandProperties().userGuildPermissions())
-        ) {
-            JDAUtil.sendPrivateMessage(
-                    member,
-                    EmbedFactory.getEmbedDefault(this, getString("messageid", message.getJumpUrl())).build()
-            ).queue();
-        }
-
-        updateValuesFromMessage(message);
+        updateValuesFromMessage(ReactionMessagesCache.getInstance().get(message).get());
         if (!blockCache.asMap().containsKey(member.getIdLong())) {
             try {
                 if (!multipleRoles) {
@@ -632,6 +595,23 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 }
             }
         }
+    }
+
+    private List<ReactionMessage> getReactionMessagesInGuild(Guild guild) {
+        return DBStaticReactionMessages.getInstance().retrieve().values().stream()
+                .filter(m -> m.getGuildId() == guild.getIdLong() && m.getCommand().equals(getTrigger()))
+                .map(m -> m.getTextChannel().flatMap(ch -> ReactionMessagesCache.getInstance().get(ch, m.getMessageId())).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    private void updateValuesFromMessage(ReactionMessage message) {
+        this.title = message.getTitle();
+        this.description = message.getDescription();
+        this.multipleRoles = message.isMultipleRoles();
+        this.removeRole = message.isMultipleRoles();
+        this.emojiConnections = message.getEmojiConnections();
+        this.atomicTextChannel = new AtomicTextChannel(message.getGuildId(), message.getTextChannelId());
     }
 
     private boolean giveRole(GuildMessageReactionAddEvent event) {
@@ -674,7 +654,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
 
     @Override
     public void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) {
-        updateValuesFromMessage(message);
+        updateValuesFromMessage(ReactionMessagesCache.getInstance().get(message).get());
         if (removeRole) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                 if (emojiConnection.isEmoji(event.getReactionEmote())) {
