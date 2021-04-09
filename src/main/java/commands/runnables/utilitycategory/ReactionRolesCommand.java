@@ -58,7 +58,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             EXAMPLE = 8,
             SENT = 9;
 
-    private String title, description;
+    private String title;
+    private String description;
     private List<EmojiConnection> emojiConnections = new ArrayList<>();
     private String emojiTemp;
     private String banner;
