@@ -24,7 +24,7 @@ public class ReactionMessagesCache {
     }
 
     private final Cache<Long, Optional<ReactionMessage>> reactionMessageCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(60))
+            .expireAfterAccess(Duration.ofHours(12))
             .build();
 
     public void put(long messageId, ReactionMessage reactionMessage) {

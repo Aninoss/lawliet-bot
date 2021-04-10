@@ -1,6 +1,7 @@
 package modules;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -9,7 +10,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.runnables.utilitycategory.MemberCountDisplayCommand;
 import core.PermissionCheckRuntime;
-import core.QuickUpdater;
+import core.RatelimitUpdater;
 import core.utils.StringUtil;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
 import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
@@ -26,7 +27,7 @@ public class MemberCountDisplay {
         return ourInstance;
     }
 
-    private final QuickUpdater quickUpdater = new QuickUpdater();
+    private final RatelimitUpdater ratelimitUpdater = new RatelimitUpdater(5, ChronoUnit.MINUTES);
     private final Cache<Long, String> voiceNameCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(20))
             .build();
@@ -61,7 +62,7 @@ public class MemberCountDisplay {
         RestAction<Void> restAction = voiceChannel.getManager()
                 .setName(newVCName);
 
-        quickUpdater.update(
+        ratelimitUpdater.update(
                 voiceChannel.getIdLong(),
                 restAction
         );
