@@ -678,7 +678,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         this.description = message.getDescription().orElse(null);
         this.banner = message.getBanner().orElse(null);
         this.multipleRoles = message.isMultipleRoles();
-        this.removeRole = message.isMultipleRoles();
+        this.removeRole = message.isRemoveRole();
         this.emojiConnections = message.getEmojiConnections();
         this.atomicTextChannel = new AtomicTextChannel(message.getGuildId(), message.getTextChannelId());
     }
