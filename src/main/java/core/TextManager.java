@@ -41,7 +41,7 @@ public class TextManager {
         }
 
         if (!texts.containsKey(key)) {
-            MainLogger.get().error("Key " + key + " not found in " + category + " and thread " + Thread.currentThread().getName());
+            MainLogger.get().error("Key {} not found in {} with locale {}", key, category, locale.toString());
             return "???";
         } else {
             //Get String
