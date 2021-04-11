@@ -39,7 +39,8 @@ public class BiteCommand extends InteractionAbstract {
                 "https://media.discordapp.net/attachments/736272811789779006/736272988722167808/bite.gif",
                 "https://media.discordapp.net/attachments/736272811789779006/736272993193427035/bite.gif",
                 "https://media.discordapp.net/attachments/736272811789779006/737035754651254834/bite.gif",
-                "https://media.discordapp.net/attachments/736272811789779006/737035908699652136/bite.gif"
+                "https://media.discordapp.net/attachments/736272811789779006/737035908699652136/bite.gif",
+                "https://media.discordapp.net/attachments/736272811789779006/830910952949284884/bite.gif"
         };
     }
 
