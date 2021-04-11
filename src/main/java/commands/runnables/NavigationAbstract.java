@@ -303,19 +303,20 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         if (roles.size() == 0) {
             return true;
         }
-        if (member == null) {
-            member = guild.getSelfMember();
-        }
 
         ArrayList<Role> unmanagableRoles = new ArrayList<>();
-
         for (Role role : roles) {
-            if (role != null && !role.getGuild().getSelfMember().canInteract(role)) {
+            if (role != null && (!role.getGuild().getSelfMember().canInteract(role) || !BotPermissionUtil.can(role.getGuild().getSelfMember(), Permission.MANAGE_ROLES))) {
                 unmanagableRoles.add(role);
             }
         }
 
+        /* if the bot is able to manage all of the roles */
         if (unmanagableRoles.size() == 0) {
+            if (member == null) {
+                member = guild.getSelfMember();
+            }
+
             ArrayList<Role> forbiddenRoles = new ArrayList<>();
             for (Role role : roles) {
                 if (role != null && (!member.canInteract(role) || !BotPermissionUtil.can(member, Permission.MANAGE_ROLES))) {
@@ -326,11 +327,11 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                 return true;
             }
 
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getMentionText().replace("**", "")));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getMentionText().replace("**", "\"")));
             return false;
         }
 
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getMentionText().replace("**", "")));
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getMentionText().replace("**", "\"")));
         return false;
     }
 

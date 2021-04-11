@@ -54,7 +54,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
         fisheryGuildBean = fisheryMemberBean.getFisheryServerBean();
 
-        checkRolesWithLog(event.getGuild(), null, fisheryGuildBean.getRoles());
+        checkRolesWithLog(event.getGuild(), fisheryGuildBean.getRoles());
         if (args.length() > 0) {
             String letters = StringUtil.filterLettersFromString(args).toLowerCase().replace(" ", "");
             long numbers = StringUtil.filterLongFromString(args);

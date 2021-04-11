@@ -427,7 +427,7 @@ public class MentionUtil {
 
     public static Optional<Role> getRoleByTag(Guild guild, String tag) {
         String id = tag.substring(3, tag.length() - 1);
-        return Optional.ofNullable(guild.getRoleById(id));
+        return StringUtil.stringIsLong(id) ? Optional.ofNullable(guild.getRoleById(id)) : Optional.empty();
     }
 
     public static long getAmountExt(String str) {

@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.managers.ChannelManager;
 
 @CommandProperties(
@@ -133,12 +134,18 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                         }
 
                         ChannelManager manager = voiceChannel.getManager();
-                        for (PermissionOverride permissionOverride : voiceChannel.getPermissionOverrides()) {
-                            manager = manager.putPermissionOverride(
-                                    permissionOverride.getPermissionHolder(),
-                                    permissionOverride.getAllowedRaw() & ~Permission.VOICE_CONNECT.getRawValue(),
-                                    permissionOverride.getDeniedRaw() | Permission.VOICE_CONNECT.getRawValue()
-                            );
+                        try {
+                            for (PermissionOverride permissionOverride : voiceChannel.getPermissionOverrides()) {
+                                manager = manager.putPermissionOverride(
+                                        permissionOverride.getPermissionHolder(),
+                                        permissionOverride.getAllowedRaw() & ~Permission.VOICE_CONNECT.getRawValue(),
+                                        permissionOverride.getDeniedRaw() | Permission.VOICE_CONNECT.getRawValue()
+                                );
+                            }
+                        } catch (InsufficientPermissionException e) {
+                            //Ignore
+                            setLog(LogStatus.FAILURE, getString("nopermissions"));
+                            return true;
                         }
 
                         Role publicRole = event.getGuild().getPublicRole();

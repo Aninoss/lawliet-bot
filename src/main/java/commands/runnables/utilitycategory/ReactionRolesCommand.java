@@ -666,7 +666,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     }
 
     private List<ReactionMessage> getReactionMessagesInGuild(Guild guild) {
-        return DBStaticReactionMessages.getInstance().retrieve().values().stream()
+        return new ArrayList<>(DBStaticReactionMessages.getInstance().retrieve().values()).stream()
                 .filter(m -> m.getGuildId() == guild.getIdLong() && m.getCommand().equals(getTrigger()))
                 .map(m -> m.getTextChannel().flatMap(ch -> ReactionMessagesCache.getInstance().get(ch, m.getMessageId())).orElse(null))
                 .filter(Objects::nonNull)
