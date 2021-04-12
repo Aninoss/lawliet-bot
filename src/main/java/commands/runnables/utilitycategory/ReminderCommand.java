@@ -85,7 +85,7 @@ public class ReminderCommand extends Command implements OnReactionListener {
 
         if (!BotPermissionUtil.memberCanMentionRoles(channel, event.getMember(), args)) {
             event.getChannel().sendMessage(
-                    EmbedFactory.getEmbedError(this, getString("user_nomention")).build()
+                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention")).build()
             ).queue();
             return false;
         }

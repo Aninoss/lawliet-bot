@@ -96,7 +96,7 @@ public class ExchangeRateCommand extends Command implements OnReactionListener, 
 
     @Override
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
-        long messageId = slot.sendMessage(generateEmbed(true).build()).get();
+        long messageId = slot.sendMessage(true, generateEmbed(true).build()).get();
         slot.setMessageId(messageId);
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));
 

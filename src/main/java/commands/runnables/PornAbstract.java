@@ -214,9 +214,9 @@ public abstract class PornAbstract extends Command {
 
         post(pornImages, slot.getCommandKey(), channel, !pornImages.get(0).isVideo(), 1, message -> {
             if (message.getEmbeds().size() > 0) {
-                slot.sendMessage(message.getEmbeds().get(0));
+                slot.sendMessage(true, message.getEmbeds().get(0));
             } else {
-                slot.sendMessage(message.getContentRaw());
+                slot.sendMessage(true, message.getContentRaw());
             }
         });
 

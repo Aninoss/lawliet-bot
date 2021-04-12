@@ -76,7 +76,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
             embeds = new MessageEmbed[] { getEmbed(articles.get(0)).build() };
         }
 
-        slot.sendMessage(embeds);
+        slot.sendMessage(true, embeds);
         slot.setArgs(articles.get(0).getPublicationTime().toString());
         return TrackerResult.CONTINUE_AND_SAVE;
     }

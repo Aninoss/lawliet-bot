@@ -50,6 +50,7 @@ public class PatreonCommand extends Command {
                 .setImage("https://cdn.discordapp.com/attachments/499629904380297226/763202405474238464/Patreon_Banner_New.png")
                 .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false);
 
+        addLoadingReactionInstantly();
         StringBuilder sb = new StringBuilder();
         for (int i = Settings.PATREON_ROLE_IDS.length - 1; i >= 3; i--) {
             sb.append(getPatreonUsersString(i));

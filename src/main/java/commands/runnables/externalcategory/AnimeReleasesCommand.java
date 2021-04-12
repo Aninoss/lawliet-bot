@@ -91,7 +91,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
 
         Collections.reverse(embedList);
         MessageEmbed[] embeds = embedList.toArray(new MessageEmbed[0]);
-        slot.sendMessage(embeds);
+        slot.sendMessage(true, embeds);
 
         if (first && postBundle.getPosts().size() == 0) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)

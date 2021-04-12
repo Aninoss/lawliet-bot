@@ -1,7 +1,10 @@
 package commands.runnables.utilitycategory;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandContainer;
@@ -9,10 +12,7 @@ import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.runnables.NavigationAbstract;
-import constants.Category;
-import constants.Emojis;
-import constants.LogStatus;
-import constants.Response;
+import constants.*;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.ShardManager;
@@ -20,6 +20,7 @@ import core.TextManager;
 import core.cache.PatreonCache;
 import core.emojiconnection.BackEmojiConnection;
 import core.emojiconnection.EmojiConnection;
+import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import modules.schedulers.AlertScheduler;
 import mysql.modules.tracker.DBTracker;
@@ -41,7 +42,8 @@ public class AlertsCommand extends NavigationAbstract {
     private final int
             STATE_ADD = 1,
             STATE_REMOVE = 2,
-            STATE_KEY = 3;
+            STATE_KEY = 3,
+            STATE_USERMESSAGE = 4;
 
     private final int LIMIT_CHANNEL = 5;
     private final int LIMIT_SERVER = 20;
@@ -53,8 +55,8 @@ public class AlertsCommand extends NavigationAbstract {
     private boolean patreon;
     private CustomObservableMap<Integer, TrackerSlot> alerts;
     private Command commandCache;
+    private String commandKeyCache;
     private boolean cont = true;
-    private boolean addNavigation = true;
 
     public AlertsCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -68,20 +70,16 @@ public class AlertsCommand extends NavigationAbstract {
         patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 ||
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
-        controll(args, true);
-        if (addNavigation) {
-            registerNavigationListener(12);
-        } else {
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("state3_added", commandCache.getTrigger()));
-            drawMessage(eb);
-        }
+        controll(args);
+        registerNavigationListener(12);
         return true;
     }
 
     @Override
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state != STATE_REMOVE) {
-            return controll(input, false);
+            cont = true;
+            return controll(input);
         }
         return null;
     }
@@ -92,22 +90,26 @@ public class AlertsCommand extends NavigationAbstract {
             if (emojiConnection.isEmoji(event.getReactionEmote()) || (i == -1 && emojiConnection instanceof BackEmojiConnection)) {
                 if (emojiConnection.getConnection().equalsIgnoreCase("back")) {
                     switch (state) {
-                        case 0:
+                        case DEFAULT_STATE:
                             removeNavigationWithMessage();
                             return false;
 
-                        case 1:
-
-                        case 2:
-                        case 3:
+                        case STATE_ADD:
+                        case STATE_REMOVE:
                             setState(DEFAULT_STATE);
                             return true;
 
+                        case STATE_KEY:
+                        case STATE_USERMESSAGE:
+                            setState(STATE_ADD);
+                            return true;
+
                         default:
+                            return false;
                     }
                 }
 
-                controll(emojiConnection.getConnection(), false);
+                controll(emojiConnection.getConnection());
                 return true;
             }
         }
@@ -115,37 +117,39 @@ public class AlertsCommand extends NavigationAbstract {
         return false;
     }
 
-    private Response controll(String searchTerm, boolean firstTime) {
+    private Response controll(String searchTerm) {
         while (true) {
             if (searchTerm.replace(" ", "").isEmpty()) {
                 return Response.TRUE;
             }
+
             String arg = searchTerm.split(" ")[0].toLowerCase();
-
-            Response currentResponse = processArg(arg, searchTerm, firstTime);
-
-            if (currentResponse == Response.FALSE) return Response.FALSE;
-            if (currentResponse == null) return null;
-            if (!cont) return currentResponse;
+            Response currentResponse = processArg(arg, searchTerm);
+            if (currentResponse != Response.TRUE || !cont) {
+                return currentResponse;
+            }
 
             searchTerm = searchTerm.substring(arg.length()).trim();
         }
     }
 
-    private Response processArg(String arg, String argComplete, boolean firstTime) {
+    private Response processArg(String arg, String argComplete) {
         int state = getState();
         switch (state) {
             case DEFAULT_STATE:
                 return processMain(arg);
 
             case STATE_ADD:
-                return processAdd(arg, firstTime);
+                return processAdd(arg);
 
             case STATE_REMOVE:
                 return processRemove(arg);
 
             case STATE_KEY:
-                return processKey(argComplete, firstTime);
+                return processKey(argComplete);
+
+            case STATE_USERMESSAGE:
+                return processUserMessage(argComplete);
 
             default:
                 return null;
@@ -176,7 +180,7 @@ public class AlertsCommand extends NavigationAbstract {
         }
     }
 
-    private Response processAdd(String arg, boolean firstTime) {
+    private Response processAdd(String arg) {
         if (!enoughSpaceForNewTrackers()) {
             return null;
         }
@@ -189,7 +193,7 @@ public class AlertsCommand extends NavigationAbstract {
 
         Command command = commandOpt.get();
         if (command.getCommandProperties().nsfw() && !ShardManager.getInstance().getLocalGuildById(serverId).get().getTextChannelById(channelId).isNSFW()) {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description"));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description_short"));
             return Response.FALSE;
         }
 
@@ -199,11 +203,13 @@ public class AlertsCommand extends NavigationAbstract {
         }
 
         OnAlertListener trackerCommand = (OnAlertListener) command;
+        commandCache = command;
         if (trackerCommand.trackerUsesKey()) {
-            commandCache = command;
             setState(STATE_KEY);
         } else {
-            addTracker(command, "", firstTime);
+            commandKeyCache = "";
+            cont = false;
+            setState(STATE_USERMESSAGE);
         }
         return Response.TRUE;
     }
@@ -230,7 +236,7 @@ public class AlertsCommand extends NavigationAbstract {
         return Response.FALSE;
     }
 
-    private Response processKey(String arg, boolean firstTime) {
+    private Response processKey(String arg) {
         if (!enoughSpaceForNewTrackers()) {
             return Response.FALSE;
         }
@@ -245,9 +251,33 @@ public class AlertsCommand extends NavigationAbstract {
             return Response.FALSE;
         }
 
-        addTracker(commandCache, arg, firstTime);
+        commandKeyCache = arg;
+        setState(STATE_USERMESSAGE);
         cont = false;
         return Response.TRUE;
+    }
+
+    private Response processUserMessage(String args) {
+        cont = false;
+        if (args.equals("no")) {
+            addTracker(null);
+            return Response.TRUE;
+        } else {
+            if (PatreonCache.getInstance().isUnlocked(getGuildId().get()) ||
+                    PatreonCache.getInstance().getUserTier(getMemberId().get(), true) >= 3
+            ) {
+                if (!BotPermissionUtil.memberCanMentionRoles(getTextChannel().get(), getMember().get(), args)) {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention"));
+                    return Response.FALSE;
+                }
+
+                addTracker(args);
+                return Response.TRUE;
+            } else {
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                return Response.FALSE;
+            }
+        }
     }
 
     @Draw(state = DEFAULT_STATE)
@@ -310,34 +340,43 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     @Draw(state = STATE_KEY)
-    public EmbedBuilder onDrawKey() throws Throwable {
+    public EmbedBuilder onDrawKey() {
         emojiConnections = new ArrayList<>();
         emojiConnections.add(new BackEmojiConnection(getTextChannel().get(), "back"));
         return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), commandCache.getCategory(), commandCache.getTrigger() + "_trackerkey"), getString("state3_title"));
     }
 
-    private void addTracker(Command command, String commandKey, boolean firstTime) {
+    @Draw(state = STATE_USERMESSAGE)
+    public EmbedBuilder onDrawUserMessage() {
+        emojiConnections = new ArrayList<>();
+        emojiConnections.add(new BackEmojiConnection(getTextChannel().get(), "back"));
+        emojiConnections.add(new EmojiConnection(Emojis.LETTERS[0], "no"));
+        setOptions(getString("state4_options").split("\n"));
+
+        return EmbedFactory.getEmbedDefault(
+                this,
+                getString("state4_description", ExternalLinks.PATREON_PAGE, ExternalLinks.UNLOCK_SERVER_WEBSITE),
+                getString("state4_title")
+        );
+    }
+
+    private void addTracker(String userMessage) {
         TrackerSlot slot = new TrackerSlot(
                 serverId,
                 channelId,
-                command.getTrigger(),
+                commandCache.getTrigger(),
                 null,
-                commandKey,
+                commandKeyCache,
                 Instant.now(),
                 null,
-                null
+                null,
+                userMessage
         );
 
         alerts.put(slot.hashCode(), slot);
         AlertScheduler.getInstance().loadAlert(slot);
-
-        if (firstTime) {
-            commandCache = command;
-            addNavigation = false;
-        } else {
-            setState(STATE_ADD);
-            setLog(LogStatus.SUCCESS, getString("state3_added", command.getTrigger()));
-        }
+        setState(STATE_ADD);
+        setLog(LogStatus.SUCCESS, getString("state3_added", commandCache.getTrigger()));
     }
 
     private List<Command> getAllTrackerCommands() {

@@ -143,7 +143,7 @@ public class MapsCommand extends Command implements OnAlertListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
-        slot.setMessageId(slot.sendMessage(getEmbed(true).build()).get());
+        slot.setMessageId(slot.sendMessage(true, getEmbed(true).build()).get());
         slot.setNextRequest(trackingTime);
 
         return TrackerResult.CONTINUE_AND_SAVE;

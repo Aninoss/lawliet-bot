@@ -16,6 +16,7 @@ import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.AllowedMentions;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
+import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import core.MainLogger;
 import core.ShardManager;
 import core.assets.TextChannelAsset;
@@ -24,6 +25,7 @@ import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
 
@@ -36,11 +38,12 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
     private String args;
     private Instant nextRequest;
     private String webhookUrl;
+    private String userMessage;
     private WebhookClient webhookClient;
     private boolean active = true;
     private boolean preferWebhook = true;
 
-    public TrackerSlot(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args, String webhookUrl) {
+    public TrackerSlot(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args, String webhookUrl, String userMessage) {
         super(serverId);
         this.channelId = channelId;
         this.messageId = messageId;
@@ -49,6 +52,7 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
         this.args = args;
         this.nextRequest = nextRequest;
         this.webhookUrl = webhookUrl;
+        this.userMessage = userMessage;
     }
 
 
@@ -79,6 +83,10 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
         return Optional.ofNullable(webhookUrl);
     }
 
+    public Optional<String> getUserMessage() {
+        return Optional.ofNullable(userMessage);
+    }
+
     public Instant getNextRequest() {
         return nextRequest;
     }
@@ -101,29 +109,35 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
         }
     }
 
-    public Optional<Long> sendMessage(String content) {
-        return processMessage(true, content);
+    public Optional<Long> sendMessage(boolean acceptUserMessage, String content) {
+        if (acceptUserMessage && userMessage != null) {
+            content = userMessage + "\n" + content;
+        }
+        return processMessage(true, acceptUserMessage, content);
     }
 
-    public Optional<Long> editMessage(String content) {
-        return processMessage(false, content);
+    public Optional<Long> editMessage(boolean acceptUserMessage, String content) {
+        if (acceptUserMessage && userMessage != null) {
+            content = userMessage + "\n" + content;
+        }
+        return processMessage(false, acceptUserMessage, content);
     }
 
-    public Optional<Long> sendMessage(MessageEmbed... embeds) {
+    public Optional<Long> sendMessage(boolean acceptUserMessage, MessageEmbed... embeds) {
         if (embeds.length == 0) {
             return Optional.empty();
         }
-        return processMessage(true, null, embeds);
+        return processMessage(true, acceptUserMessage, null, embeds);
     }
 
-    public Optional<Long> editMessage(MessageEmbed... embeds) {
+    public Optional<Long> editMessage(boolean acceptUserMessage, MessageEmbed... embeds) {
         if (embeds.length == 0) {
             return Optional.empty();
         }
-        return processMessage(false, null, embeds);
+        return processMessage(false, acceptUserMessage, null, embeds);
     }
 
-    private Optional<Long> processMessage(boolean newMessage, String content, MessageEmbed... embeds) {
+    private Optional<Long> processMessage(boolean newMessage, boolean acceptUserMessage, String content, MessageEmbed... embeds) {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
             TextChannel channel = channelOpt.get();
@@ -134,7 +148,7 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                         Member webhookOwner = webhook.getOwner();
                         if (webhookOwner != null && webhookOwner.getIdLong() == ShardManager.getInstance().getSelfId()) {
                             webhookUrl = webhook.getUrl();
-                            return processMessageViaWebhook(newMessage, content, embeds);
+                            return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds);
                         }
                     }
                     if (webhooks.size() < 10) {
@@ -152,35 +166,35 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
 
                         is.close();
                         webhookUrl = webhook.getUrl();
-                        return processMessageViaWebhook(newMessage, content, embeds);
+                        return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds);
                     } else {
                         preferWebhook = false;
-                        getTextChannel().map(textChannel -> processMessageViaRest(newMessage, content, embeds));
+                        getTextChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds));
                     }
                 } catch (Throwable e) {
                     MainLogger.get().error("Could not process webhooks", e);
-                    getTextChannel().map(textChannel -> processMessageViaRest(newMessage, content, embeds));
+                    getTextChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds));
                 }
             }
 
             if (webhookUrl != null) {
-                return processMessageViaWebhook(newMessage, content, embeds);
+                return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds);
             } else {
-                return processMessageViaRest(newMessage, content, embeds);
+                return processMessageViaRest(newMessage, acceptUserMessage, content, embeds);
             }
         } else {
             return Optional.empty();
         }
     }
 
-    private Optional<Long> processMessageViaWebhook(boolean newMessage, String content, MessageEmbed... embeds) {
+    private Optional<Long> processMessageViaWebhook(boolean newMessage, boolean acceptUserMessage, String content, MessageEmbed... embeds) {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
             if (webhookClient == null) {
                 webhookClient = new WebhookClientBuilder(webhookUrl)
                         .setWait(true)
                         .setExecutorService(executor)
-                        .setAllowedMentions(AllowedMentions.none())
+                        .setAllowedMentions(AllowedMentions.all())
                         .build();
             }
 
@@ -191,10 +205,16 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
 
             try {
                 if (embeds.length > 0) {
+                    WebhookMessageBuilder wmb = new WebhookMessageBuilder()
+                            .addEmbeds(webhookEmbeds);
+                    if (acceptUserMessage && userMessage != null) {
+                        wmb.setContent(userMessage);
+                    }
+
                     if (newMessage) {
-                        return Optional.of(webhookClient.send(webhookEmbeds).get(10, TimeUnit.SECONDS).getId());
+                        return Optional.of(webhookClient.send(wmb.build()).get(10, TimeUnit.SECONDS).getId());
                     } else {
-                        return Optional.of(webhookClient.edit(messageId, webhookEmbeds).get(10, TimeUnit.SECONDS).getId());
+                        return Optional.of(webhookClient.edit(messageId, wmb.build()).get(10, TimeUnit.SECONDS).getId());
                     }
                 } else {
                     if (newMessage) {
@@ -208,10 +228,10 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                     MainLogger.get().error("Could not send webhook message", e);
                     this.webhookClient = null;
                     this.webhookUrl = null;
-                    return processMessageViaRest(newMessage, content, embeds);
+                    return processMessageViaRest(newMessage, acceptUserMessage, content, embeds);
                 } else {
                     MainLogger.get().error("Could not edit webhook message", e);
-                    return processMessageViaWebhook(true, content, embeds)
+                    return processMessageViaWebhook(true, acceptUserMessage, content, embeds)
                             .map(messageId -> {
                                 this.messageId = messageId;
                                 return messageId;
@@ -223,19 +243,31 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
         }
     }
 
-    private Optional<Long> processMessageViaRest(boolean newMessage, String content, MessageEmbed... embeds) {
+    private Optional<Long> processMessageViaRest(boolean newMessage, boolean acceptUserMessage, String content, MessageEmbed... embeds) {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
             TextChannel channel = channelOpt.get();
             if (embeds.length > 0) {
                 if (newMessage) {
                     Long newMessageId = null;
-                    for (MessageEmbed embed : embeds) {
-                        newMessageId = channel.sendMessage(embed).complete().getIdLong();
+                    for (int i = 0; i < embeds.length; i++) {
+                        MessageEmbed embed = embeds[i];
+                        MessageAction messageAction = channel.sendMessage(embed);
+                        if (acceptUserMessage && i == 0 && userMessage != null) {
+                            messageAction = messageAction.content(userMessage);
+                        }
+                        newMessageId = messageAction
+                                .allowedMentions(null)
+                                .complete()
+                                .getIdLong();
                     }
                     return Optional.of(newMessageId);
                 } else {
-                    return Optional.of(channel.editMessageById(messageId, embeds[0]).complete().getIdLong());
+                    MessageAction messageAction = channel.editMessageById(messageId, embeds[0]);
+                    if (userMessage != null) {
+                        messageAction = messageAction.content(userMessage);
+                    }
+                    return Optional.of(messageAction.allowedMentions(null).complete().getIdLong());
                 }
             } else {
                 Message message = new MessageBuilder()
@@ -249,7 +281,7 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                         return Optional.of(channel.editMessageById(messageId, message).complete().getIdLong());
                     } catch (Throwable e) {
                         MainLogger.get().error("Could not edit rest message", e);
-                        return processMessageViaRest(true, content, embeds)
+                        return processMessageViaRest(true, acceptUserMessage, content, embeds)
                                 .map(messageId -> {
                                     this.messageId = messageId;
                                     return messageId;

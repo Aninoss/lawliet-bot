@@ -1,6 +1,9 @@
 package commands.runnables.informationcategory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import commands.Command;
@@ -19,8 +22,6 @@ import mysql.modules.version.VersionBean;
 import mysql.modules.version.VersionBeanSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
@@ -119,17 +120,10 @@ public class NewCommand extends Command implements OnAlertListener {
     public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
         if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionBeanSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
-            long messageId = slot.sendMessage(getVersionsEmbed(newestSlot).build()).orElse(0L);
+            long messageId = slot.sendMessage(true, getVersionsEmbed(newestSlot).build()).orElse(0L);
 
-            if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID) {
-                if (messageId != 0) {
-                    slot.getTextChannel().get().crosspostMessageById(messageId).queueAfter(10, TimeUnit.MINUTES);
-                }
-
-                Role role = slot.getGuild().get().getRoleById(703879430799622155L);
-                slot.getTextChannel().get().sendMessage(role.getAsMention())
-                        .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
-                        .flatMap(Message::delete).queue();
+            if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID && messageId != 0) {
+                slot.getTextChannel().get().crosspostMessageById(messageId).queueAfter(10, TimeUnit.MINUTES);
             }
 
             slot.setArgs(BotUtil.getCurrentVersion());

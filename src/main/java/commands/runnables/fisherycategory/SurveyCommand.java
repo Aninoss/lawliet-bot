@@ -6,7 +6,7 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
@@ -47,7 +47,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     @Override
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws IOException {
-        sendMessages(event.getChannel(), event.getMember(), false, eb -> event.getChannel().sendMessage(eb).complete().getIdLong());
+        sendMessages(event.getChannel(), event.getMember(), false, (i, eb) -> event.getChannel().sendMessage(eb).complete().getIdLong());
         return true;
     }
 
@@ -162,12 +162,12 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
     }
 
-    private long sendMessages(TextChannel channel, Member member, boolean tracker, Function<MessageEmbed, Long> messageFunction) throws IOException {
+    private long sendMessages(TextChannel channel, Member member, boolean tracker, BiFunction<Integer, MessageEmbed, Long> messageFunction) throws IOException {
         SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         SurveyBean lastSurvey = DBSurvey.getInstance().retrieve(currentSurvey.getSurveyId() - 1);
 
         //Results Message
-        messageFunction.apply(getResultsEmbed(lastSurvey, member).build());
+        messageFunction.apply(0, getResultsEmbed(lastSurvey, member).build());
 
         //Survey Message
         EmbedBuilder eb = getSurveyEmbed(currentSurvey, tracker);
@@ -175,7 +175,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
         }
 
-        long messageId = messageFunction.apply(eb.build());
+        long messageId = messageFunction.apply(1, eb.build());
         DBStaticReactionMessages.getInstance().retrieve().put(messageId, new StaticReactionMessageData(
                 channel.getGuild().getIdLong(),
                 channel.getIdLong(),
@@ -289,7 +289,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).queue());
-        slot.setMessageId(sendMessages(channel, null, true, eb -> slot.sendMessage(eb).get()));
+        slot.setMessageId(sendMessages(channel, null, true, (i, eb) -> slot.sendMessage(i == 0, eb).get()));
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 
