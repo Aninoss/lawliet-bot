@@ -8,10 +8,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import constants.FisheryStatus;
 import core.*;
+import core.utils.BotPermissionUtil;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildBean;
 import mysql.modules.guild.DBGuild;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -96,6 +98,7 @@ public class FisheryVoiceChannelObserver {
                     !voice.isDeafened() &&
                     !voice.isSelfMuted() &&
                     !voice.isSelfDeafened() &&
+                    BotPermissionUtil.can(member, voiceChannel, Permission.VOICE_SPEAK) &&
                     !DBBannedUsers.getInstance().retrieve().getUserIds().contains(member.getIdLong())
             ) {
                 validMembers.add(member);
