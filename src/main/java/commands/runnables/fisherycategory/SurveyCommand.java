@@ -98,10 +98,10 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getInstance().getGuildName(surveySecondVote.getGuildId()).orElse(String.valueOf(surveySecondVote.getGuildId()))) + ")\n";
         }
 
-        return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.EMPTY_EMOJI)
+        return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.ZERO_WIDTH_SPACE)
                 .addField(surveyQuestion.getQuestion(), voteStrings[0], false)
                 .addField(getString("majority"), voteStrings[1], false)
-                .addField(Emojis.EMPTY_EMOJI, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyBean.hasNotificationUserId(event.getUserIdLong()))), false);
+                .addField(Emojis.ZERO_WIDTH_SPACE, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyBean.hasNotificationUserId(event.getUserIdLong()))), false);
     }
 
     private void removeUserReactions(Message message, String addedEmoji) {

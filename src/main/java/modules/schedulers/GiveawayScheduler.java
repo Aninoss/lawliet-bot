@@ -107,7 +107,7 @@ public class GiveawayScheduler {
         giveawaySlot.getImageUrl().ifPresent(eb::setImage);
         if (winners.size() > 0) {
             eb.addField(
-                    Emojis.EMPTY_EMOJI,
+                    Emojis.ZERO_WIDTH_SPACE,
                     new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getAsTag()) + "**"),
                     false
             );

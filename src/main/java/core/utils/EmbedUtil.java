@@ -69,7 +69,7 @@ public class EmbedUtil {
                         break;
                 }
             }
-            eb.addField(Emojis.EMPTY_EMOJI, "`" + add + log + "`", false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, "`" + add + log + "`", false);
         }
 
         return eb;

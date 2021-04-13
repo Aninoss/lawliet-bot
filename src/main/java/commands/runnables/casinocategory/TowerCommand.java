@@ -81,7 +81,7 @@ public class TowerCommand extends CasinoAbstract {
         String[] towerEmojisAnimated = Emojis.TOWER_BASE_FALLING;
 
         /* build tower */
-        StringBuilder towerText = new StringBuilder(towerLevel < LEVEL_LIMIT ? (Emojis.EMPTY_EMOJI + "\n") : "");
+        StringBuilder towerText = new StringBuilder(towerLevel < LEVEL_LIMIT ? (Emojis.ZERO_WIDTH_SPACE + "\n") : "");
         for (int i = 0; i < Math.min(LEVEL_LIMIT, towerLevel) && !crashed; i++) {
             if (i == 0 && falling && towerLevel <= LEVEL_LIMIT) {
                 towerText.append(getString("base", EMPTY_EMOJI, towerEmojisAnimated[0], towerEmojisAnimated[1]))
@@ -94,7 +94,7 @@ public class TowerCommand extends CasinoAbstract {
         towerText.append(getString("template", EMPTY_EMOJI, towerEmojis[0], towerEmojis[1], GRASS_EMOJI));
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, towerText.toString());
-        eb.addField(Emojis.EMPTY_EMOJI, getString("template_start", showMoreText,
+        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("template_start", showMoreText,
                 playerName,
                 StringUtil.numToString(coinsInput),
                 StringUtil.doubleToString(towerMultiplier, 2, getLocale()),

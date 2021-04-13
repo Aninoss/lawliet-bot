@@ -73,13 +73,13 @@ public class RedditCommand extends Command implements OnAlertListener {
                 .setAuthor(post.getAuthor(), "https://www.reddit.com/user/" + post.getAuthor(), null)
                 .setTimestamp(post.getInstant());
 
-        if (InternetUtil.stringHasURL(post.getThumbnail(), true)) {
+        if (InternetUtil.stringIsURL(post.getThumbnail())) {
             eb.setThumbnail(post.getThumbnail());
         }
-        if (InternetUtil.stringHasURL(post.getUrl(), true)) {
+        if (InternetUtil.stringIsURL(post.getUrl())) {
             eb.setTitle(post.getTitle(), post.getUrl());
         }
-        if (InternetUtil.stringHasURL(post.getImage(), true)) {
+        if (InternetUtil.stringIsURL(post.getImage())) {
             eb.setImage(post.getImage());
         }
 

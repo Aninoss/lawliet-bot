@@ -535,7 +535,7 @@ public class GiveawayCommand extends NavigationAbstract {
             eb.setDescription(getString("tutorial", amountOfWinners != 1, emoji, String.valueOf(amountOfWinners)));
         } else {
             eb.addField(
-                    Emojis.EMPTY_EMOJI,
+                    Emojis.ZERO_WIDTH_SPACE,
                     getString("tutorial", amountOfWinners != 1, emoji, String.valueOf(amountOfWinners)),
                     false
             );

@@ -192,12 +192,12 @@ public class HelpCommand extends NavigationAbstract {
                                         command.getCommandProperties().emoji() + " " + TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title")
                         )
                         .setDescription(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_helptext") + addNotExecutable)
-                        .addField(Emojis.EMPTY_EMOJI, getString("command_usage") + "\n" + usage.toString(), true)
-                        .addField(Emojis.EMPTY_EMOJI, getString("command_example", exampleNumber > 1) + "\n" + examples.toString(), true);
+                        .addField(Emojis.ZERO_WIDTH_SPACE, getString("command_usage") + "\n" + usage.toString(), true)
+                        .addField(Emojis.ZERO_WIDTH_SPACE, getString("command_example", exampleNumber > 1) + "\n" + examples.toString(), true);
                 EmbedUtil.setFooter(eb, this, getString("command_args"));
 
                 if (command.getUserPermissions().length > 0) {
-                    eb.addField(Emojis.EMPTY_EMOJI, getString("command_userpermissions") + "\n" + permissionsList, false);
+                    eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("command_userpermissions") + "\n" + permissionsList, false);
                 }
                 if (noArgs) {
                     EmbedUtil.addLog(eb, LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
@@ -281,14 +281,14 @@ public class HelpCommand extends NavigationAbstract {
                 emojiConnections.add(new EmojiConnection("", command.getTrigger()));
                 i++;
                 if (i >= 10) {
-                    if (stringBuilder.length() > 0) eb.addField(Emojis.EMPTY_EMOJI, stringBuilder.toString(), true);
+                    if (stringBuilder.length() > 0) eb.addField(Emojis.ZERO_WIDTH_SPACE, stringBuilder.toString(), true);
                     stringBuilder = new StringBuilder();
                     i = 0;
                 }
             }
         }
         if (stringBuilder.length() > 0) {
-            eb.addField(Emojis.EMPTY_EMOJI, stringBuilder.toString(), true);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, stringBuilder.toString(), true);
         }
 
         addIconDescriptions(eb, false, false, category.equals(Category.INTERACTIONS), false);
@@ -334,14 +334,14 @@ public class HelpCommand extends NavigationAbstract {
                     i++;
                     eb.addField(
                             title.toString(),
-                            TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.EMPTY_EMOJI,
+                            TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.ZERO_WIDTH_SPACE,
                             true
                     );
                 }
             }
         }
 
-        eb.setDescription(getString("premium", ExternalLinks.PATREON_PAGE) + "\n" + Emojis.EMPTY_EMOJI);
+        eb.setDescription(getString("premium", ExternalLinks.PATREON_PAGE) + "\n" + Emojis.ZERO_WIDTH_SPACE);
         addIconDescriptions(eb, includeLocked, includeAlerts, includeNSFW, false);
     }
 
@@ -379,7 +379,7 @@ public class HelpCommand extends NavigationAbstract {
                 i++;
                 eb.addField(
                         title.toString(),
-                        TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.EMPTY_EMOJI,
+                        TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.ZERO_WIDTH_SPACE,
                         true
                 );
             }
@@ -449,7 +449,7 @@ public class HelpCommand extends NavigationAbstract {
             sb.append(getString("commandproperties_PATREON", CommandIcon.PATREON.toString(), ExternalLinks.PATREON_PAGE)).append("\n");
         }
 
-        eb.addField(Emojis.EMPTY_EMOJI, sb.toString(), false);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE, sb.toString(), false);
     }
 
     private EmbedBuilder checkMainPage(TextChannel channel) {
@@ -471,7 +471,7 @@ public class HelpCommand extends NavigationAbstract {
             }
         }
 
-        categoriesSB.append("\n").append(getString("sp")).append("\n").append(Emojis.EMPTY_EMOJI);
+        categoriesSB.append("\n").append(getString("sp")).append("\n").append(Emojis.ZERO_WIDTH_SPACE);
         eb.setDescription(categoriesSB.toString());
 
         if (Program.isPublicVersion()) {

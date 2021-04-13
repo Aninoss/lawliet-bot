@@ -6,7 +6,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
-import constants.Emojis;
 import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
@@ -235,19 +234,19 @@ public class WelcomeCommand extends NavigationAbstract {
         if (state == 0) {
             setOptions(getString("state0_options").split("\n"));
             return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                    .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false)
+                    .addBlankField(false)
                     .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isWelcomeActive()), true)
                     .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageBean.getWelcomeTitle()), true)
                     .addField(getString("state0_mdescription"), stressVariables(welcomeMessageBean.getWelcomeText()),
                             true
                     )
                     .addField(getString("state0_mchannel"), welcomeMessageBean.getWelcomeChannel().map(IMentionable::getAsMention).orElse(notSet), true)
-                    .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false)
+                    .addBlankField(false)
                     .addField(getString("state0_mdm"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isDmActive()), true)
                     .addField(getString("state0_mdmText"), stressVariables(welcomeMessageBean.getDmText().isEmpty() ? notSet : welcomeMessageBean.getDmText()),
                             true
                     )
-                    .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false)
+                    .addBlankField(false)
                     .addField(getString("state0_mgoodbye"), StringUtil.getOnOffForBoolean(getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
                     .addField(getString("state0_mgoodbyeText"), stressVariables(welcomeMessageBean.getGoodbyeText()), true)
                     .addField(getString("state0_mfarewellchannel"), welcomeMessageBean.getGoodbyeChannel().map(IMentionable::getAsMention).orElse(notSet), true);

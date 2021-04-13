@@ -48,7 +48,7 @@ public class FortuneCommand extends Command {
         if (answer.equals("%RandomUpperCase")) {
             answer = RandomUtil.randomUpperCase(question);
         } else if (answer.startsWith("%Gif")) {
-            answer = Emojis.EMPTY_EMOJI;
+            answer = Emojis.ZERO_WIDTH_SPACE;
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)

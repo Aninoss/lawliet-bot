@@ -47,10 +47,10 @@ public abstract class RedditAbstract extends Command {
                 .setTitle(post.getTitle())
                 .setTimestamp(post.getInstant());
 
-        if (InternetUtil.stringHasURL(post.getUrl(), true)) {
+        if (InternetUtil.stringIsURL(post.getUrl())) {
             eb.setTitle(post.getTitle(), post.getUrl());
         }
-        if (InternetUtil.stringHasURL(post.getImage(), true)) {
+        if (InternetUtil.stringIsURL(post.getImage())) {
             eb.setImage(post.getImage());
         }
 

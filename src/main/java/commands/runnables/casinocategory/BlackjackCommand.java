@@ -175,7 +175,7 @@ public class BlackjackCommand extends CasinoAbstract {
 
         String key = turnForPlayer ? "tutorial" : "data";
 
-        eb.addField(Emojis.EMPTY_EMOJI, getString(key, playerName, StringUtil.numToString(coinsInput)), false);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString(key, playerName, StringUtil.numToString(coinsInput)), false);
         return eb;
     }
 
@@ -193,7 +193,7 @@ public class BlackjackCommand extends CasinoAbstract {
                 sb.append(Emojis.CARD[gameCard.getId()]);
             }
         }
-        sb.append(Emojis.EMPTY_EMOJI);
+        sb.append(Emojis.ZERO_WIDTH_SPACE);
         return sb.toString();
     }
 

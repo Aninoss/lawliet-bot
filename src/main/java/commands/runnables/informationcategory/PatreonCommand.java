@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.Objects;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.Emojis;
 import constants.ExternalLinks;
 import constants.Settings;
 import core.EmbedFactory;
@@ -48,7 +47,7 @@ public class PatreonCommand extends Command {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, content)
                 .setImage("https://cdn.discordapp.com/attachments/499629904380297226/763202405474238464/Patreon_Banner_New.png")
-                .addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false);
+                .addBlankField(false);
 
         addLoadingReactionInstantly();
         StringBuilder sb = new StringBuilder();

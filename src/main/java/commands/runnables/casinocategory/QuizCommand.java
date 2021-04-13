@@ -117,7 +117,7 @@ public class QuizCommand extends CasinoAbstract {
             label = "tutorial_start";
         }
 
-        eb.addField(Emojis.EMPTY_EMOJI, getString(label, playerName, StringUtil.numToString(coinsInput), Emojis.COUNTDOWN_10), false);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString(label, playerName, StringUtil.numToString(coinsInput), Emojis.COUNTDOWN_10), false);
         return eb;
     }
 

@@ -15,7 +15,7 @@ public class LinkFilter {
 
         if ((guild.getIdLong() == AssetIds.ANICORD_SERVER_ID || guild.getIdLong() == AssetIds.SUPPORT_SERVER_ID) &&
                 !BotPermissionUtil.can(message.getMember(), Permission.MESSAGE_EMBED_LINKS) &&
-                InternetUtil.stringHasURL(message.getContentRaw(), false)
+                InternetUtil.stringHasURL(message.getContentRaw())
         ) {
             message.delete().queue();
             if (guild.getIdLong() == AssetIds.ANICORD_SERVER_ID) {

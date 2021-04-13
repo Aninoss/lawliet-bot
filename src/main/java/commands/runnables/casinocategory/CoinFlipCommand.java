@@ -60,12 +60,12 @@ public class CoinFlipCommand extends CasinoAbstract {
     @Override
     public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
-        eb.addField(getString("yourbet"), getChoiceString(getTextChannel().get(), 0), true);
-        eb.addField(getString("yourthrow"), getChoiceString(getTextChannel().get(), 1), true);
-        eb.addField(Emojis.EMPTY_EMOJI, getString("template", playerName, StringUtil.numToString(coinsInput)), false);
+        eb.addField(getString("yourbet"), getChoiceString(getTextChannel().get(), 0) + Emojis.ZERO_WIDTH_SPACE, true);
+        eb.addField(getString("yourthrow"), getChoiceString(getTextChannel().get(), 1) + Emojis.ZERO_WIDTH_SPACE, true);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("template", playerName, StringUtil.numToString(coinsInput)), false);
 
         if (selection[0] == -1) {
-            eb.addField(Emojis.EMPTY_EMOJI, getString("expl", EMOJIS[0], EMOJIS[1]), false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("expl", EMOJIS[0], EMOJIS[1]), false);
         }
 
         if (coinsInput != 0) {
@@ -88,7 +88,7 @@ public class CoinFlipCommand extends CasinoAbstract {
 
     private String getChoiceString(TextChannel channel, int pos) {
         if (pos == 1 && selection[0] == -1) {
-            return Emojis.EMPTY_EMOJI;
+            return "";
         }
 
         if (selection[0] != -1 && selection[1] == -1) {

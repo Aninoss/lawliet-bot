@@ -2,7 +2,6 @@ package core.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.CompletableFuture;
@@ -12,6 +11,7 @@ import com.google.common.net.UrlEscapers;
 import core.LocalFile;
 import core.MainLogger;
 import core.internet.InternetCache;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public final class InternetUtil {
 
@@ -30,29 +30,16 @@ public final class InternetUtil {
         return url.endsWith("jpeg") || url.endsWith("jpg") || url.endsWith("png") || url.endsWith("bmp") || url.endsWith("gif");
     }
 
-    public static boolean stringHasURL(String str, boolean strict) {
-        if (str == null || str.isEmpty()) {
+    public static boolean stringHasURL(String url) {
+        if (url == null || url.isEmpty()) {
             return false;
         }
 
-        if (!strict &&
-                (str.contains("http://") || str.contains("https://") || str.contains("www."))
-        ) {
-            return true;
-        }
+        return url.contains("http://") || url.contains("https://") || url.contains("www.");
+    }
 
-        String[] parts = str.split("\\s+");
-
-        for (String item : parts) {
-            try {
-                new URL(item);
-                return true;
-            } catch (MalformedURLException e) {
-                //Ignore
-            }
-        }
-
-        return false;
+    public static boolean stringIsURL(String url) {
+        return url != null && EmbedBuilder.URL_PATTERN.matcher(url).matches();
     }
 
     public static CompletableFuture<String> retrieveThumbnailPreview(String url) {

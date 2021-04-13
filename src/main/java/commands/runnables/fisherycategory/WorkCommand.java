@@ -108,8 +108,8 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
 
         StringBuilder areaBuilder = new StringBuilder();
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        for (int y = 1; y < height - 1; y++) { //TODO: border removed temporarily
+            for (int x = 1; x < width - 1; x++) {
                 if (y == 0) {
                     if (x == 0) {
                         areaBuilder.append(Emojis.SLOT_DR);
@@ -141,7 +141,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, areaBuilder.toString());
         if (active) {
             String unknownMember = TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()));
-            eb.addField(Emojis.EMPTY_EMOJI, getString("instructions", StringUtil.escapeMarkdown(getMember().map(Member::getEffectiveName).orElse(unknownMember)), EMOJIS[fishFocus]), false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("instructions", StringUtil.escapeMarkdown(getMember().map(Member::getEffectiveName).orElse(unknownMember)), EMOJIS[fishFocus]), false);
         }
 
         return eb;
@@ -161,7 +161,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
 
             for (int y = 0; y < area.length; y++) {
                 for (int x = 0; x < area[0].length; x++) {
-                    int i = RandomUtil.pickWithProbabilities(1.0 / 6, 1.0 / 8, 1.0 / 10);
+                    int i = RandomUtil.pickWithProbabilities(1.0 / 8, 1.0 / 10, 1.0 / 12);
                     if (i == fishFocus) {
                         fishCounter++;
                     }

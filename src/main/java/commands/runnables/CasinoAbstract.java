@@ -253,7 +253,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
                 EmbedUtil.addLog(eb, getLogStatus(), getLog());
             }
 
-            eb.addField(Emojis.EMPTY_EMOJI, TextManager.getString(getLocale(), Category.CASINO, "casino_retry", RETRY_EMOJI), false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, TextManager.getString(getLocale(), Category.CASINO, "casino_retry", RETRY_EMOJI), false);
             setLog(null, null);
         }
         return eb;

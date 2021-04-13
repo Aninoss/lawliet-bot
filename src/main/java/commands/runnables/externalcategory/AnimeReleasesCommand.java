@@ -71,7 +71,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
             }
         }
 
-        if (InternetUtil.stringHasURL(post.getThumbnail(), true)) {
+        if (InternetUtil.stringIsURL(post.getThumbnail())) {
             eb.setImage(post.getThumbnail());
         }
 

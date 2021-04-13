@@ -234,7 +234,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             }
 
             String str = EmojiConnection.getOptionsString(channel, false, options.length > reactions ? reactions - 2 : -1, newOptions);
-            eb.addField(Emojis.EMPTY_EMOJI, Emojis.EMPTY_EMOJI, false);
+            eb.addBlankField(false);
             eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), str, false);
 
             if (options.length > reactions) {

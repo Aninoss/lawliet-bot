@@ -13,7 +13,7 @@ public interface Emojis {
     String BACK_EMOJI_UNICODE = "⏪";
     String LOADING = "<a:loading:407189379749117981>";
     String EMPTY_EMOJI = "⠀";
-    String NO = "<:no_writing_permissions:707952533267677204>";
+    String ZERO_WIDTH_SPACE = "\u200E";
 
     String CURRENCY = "🐟";
     String COINS = "<a:coin:512684910620835841>";
