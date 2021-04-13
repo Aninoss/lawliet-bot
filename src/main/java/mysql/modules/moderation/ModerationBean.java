@@ -12,18 +12,26 @@ public class ModerationBean extends BeanWithGuild {
     private Long muteRoleId;
     private int autoKick;
     private int autoBan;
+    private int autoMute;
     private int autoKickDays;
     private int autoBanDays;
+    private int autoMuteDays;
+    private int autoBanDuration;
+    private int autoMuteDuration;
 
-    public ModerationBean(long serverId, Long announcementChannelId, boolean question, Long muteRoleId, int autoKick, int autoBan, int autoKickDays, int autoBanDays) {
+    public ModerationBean(long serverId, Long announcementChannelId, boolean question, Long muteRoleId, int autoKick, int autoBan, int autoMute, int autoKickDays, int autoBanDays,  int autoMuteDays, int autoBanDuration, int autoMuteDuration) {
         super(serverId);
         this.announcementChannelId = announcementChannelId;
         this.question = question;
         this.muteRoleId = muteRoleId;
         this.autoKick = autoKick;
         this.autoBan = autoBan;
+        this.autoMute = autoMute;
         this.autoKickDays = autoKickDays;
         this.autoBanDays = autoBanDays;
+        this.autoMuteDays = autoMuteDays;
+        this.autoBanDuration = autoBanDuration;
+        this.autoMuteDuration = autoMuteDuration;
     }
 
     public Optional<Long> getAnnouncementChannelId() {
@@ -62,6 +70,22 @@ public class ModerationBean extends BeanWithGuild {
         return autoBanDays;
     }
 
+    public int getAutoMute() {
+        return autoMute;
+    }
+
+    public int getAutoMuteDays() {
+        return autoMuteDays;
+    }
+
+    public int getAutoBanDuration() {
+        return autoBanDuration;
+    }
+
+    public int getAutoMuteDuration() {
+        return autoMuteDuration;
+    }
+
     public void setAnnouncementChannelId(Long announcementChannelId) {
         if (this.announcementChannelId == null || !this.announcementChannelId.equals(announcementChannelId)) {
             this.announcementChannelId = announcementChannelId;
@@ -93,10 +117,21 @@ public class ModerationBean extends BeanWithGuild {
         }
     }
 
-    public void setAutoBan(int autoBan, int autoBanDays) {
-        if (this.autoBan != autoBan || this.autoBanDays != autoBanDays) {
+    public void setAutoBan(int autoBan, int autoBanDays, int autoBanDuration) {
+        if (this.autoBan != autoBan || this.autoBanDays != autoBanDays || this.autoBanDuration != autoBanDuration) {
             this.autoBan = autoBan;
             this.autoBanDays = autoBanDays;
+            this.autoBanDuration = autoBanDuration;
+            setChanged();
+            notifyObservers();
+        }
+    }
+
+    public void setAutoMute(int autoMute, int autoMuteDays, int autoMuteDuration) {
+        if (this.autoMute != autoMute || this.autoMuteDays != autoMuteDays || this.autoMuteDuration != autoMuteDuration) {
+            this.autoMute = autoMute;
+            this.autoMuteDays = autoMuteDays;
+            this.autoMuteDuration = autoMuteDuration;
             setChanged();
             notifyObservers();
         }

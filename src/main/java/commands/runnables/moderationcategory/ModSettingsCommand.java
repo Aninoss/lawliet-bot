@@ -10,6 +10,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import core.utils.TimeUtil;
 import modules.ServerMute;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
@@ -34,6 +35,9 @@ public class ModSettingsCommand extends NavigationAbstract {
     private ModerationBean moderationBean;
     private int autoKickTemp;
     private int autoBanTemp;
+    private int autoMuteTemp;
+    private int autoBanDaysTemp;
+    private int autoMuteDaysTemp;
 
     public ModSettingsCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -119,9 +123,8 @@ public class ModSettingsCommand extends NavigationAbstract {
                 if (StringUtil.stringIsInt(input)) {
                     int value = Integer.parseInt(input);
                     if (value >= 1) {
-                        moderationBean.setAutoBan(autoBanTemp, value);
-                        setLog(LogStatus.SUCCESS, getString("autobanset"));
-                        setState(0);
+                        autoBanDaysTemp = value;
+                        setState(7);
                         return Response.TRUE;
                     } else {
                         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
@@ -147,6 +150,18 @@ public class ModSettingsCommand extends NavigationAbstract {
                     } else {
                         return Response.FALSE;
                     }
+                }
+
+            case 7:
+                long minutes = MentionUtil.getTimeMinutesExt(input).getValue();
+                if (minutes > 0) {
+                    moderationBean.setAutoBan(autoBanTemp, autoBanDaysTemp, (int) minutes);
+                    setLog(LogStatus.SUCCESS, getString("autobanset"));
+                    setState(0);
+                    return Response.TRUE;
+                } else {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid"));
+                    return Response.FALSE;
                 }
 
             default:
@@ -227,7 +242,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setAutoBan(0, 0);
+                        moderationBean.setAutoBan(0, 0, 0);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
@@ -259,9 +274,8 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setAutoBan(autoBanTemp, 0);
-                        setLog(LogStatus.SUCCESS, getString("autobanset"));
-                        setState(0);
+                        autoBanDaysTemp = 0;
+                        setState(7);
                         return true;
 
                     default:
@@ -277,6 +291,22 @@ public class ModSettingsCommand extends NavigationAbstract {
                     case 0:
                         moderationBean.setMuteRoleId(null);
                         setLog(LogStatus.SUCCESS, getString("muterolereset"));
+                        setState(0);
+                        return true;
+
+                    default:
+                        return false;
+                }
+
+            case 7:
+                switch (i) {
+                    case -1:
+                        setState(3);
+                        return true;
+
+                    case 0:
+                        moderationBean.setAutoBan(autoBanTemp, autoBanDaysTemp, 0);
+                        setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
 
@@ -306,7 +336,10 @@ public class ModSettingsCommand extends NavigationAbstract {
                         .addField(getString("state0_mchannel"), moderationBean.getAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(getLocale(), moderationBean.isQuestion()), true)
                         .addField(getString("state0_mmuterole"), moderationBean.getMuteRole().map(IMentionable::getAsMention).orElse(notSet), true)
-                        .addField(getString("state0_mautomod"), getString("state0_mautomod_desc", getAutoModString(moderationBean.getAutoKick(), moderationBean.getAutoKickDays()), getAutoModString(moderationBean.getAutoBan(), moderationBean.getAutoBanDays())), false);
+                        .addField(getString("state0_mautomod"), getString("state0_mautomod_desc",
+                                getAutoModString(moderationBean.getAutoKick(), moderationBean.getAutoKickDays(), 0),
+                                getAutoModString(moderationBean.getAutoBan(), moderationBean.getAutoBanDays(), moderationBean.getAutoBanDuration())
+                        ), false);
 
             case 1:
                 setOptions(new String[] { getString("state1_options") });
@@ -332,14 +365,22 @@ public class ModSettingsCommand extends NavigationAbstract {
                 setOptions(new String[] { getString("state6_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state6_description"), getString("state6_title"));
 
+            case 7:
+                setOptions(new String[] { getString("state7_options") });
+                return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
+
             default:
                 return null;
         }
     }
 
-    private String getAutoModString(int value, int days) {
+    private String getAutoModString(int value, int days, int duration) {
         if (value <= 0) return StringUtil.getOnOffForBoolean(getLocale(), false);
-        return getString("state0_mautomod_templ", value > 1, StringUtil.numToString(value), days > 0 ? getString("days", days > 1, StringUtil.numToString(days)) : getString("total"));
+        String content = getString("state0_mautomod_templ", value > 1, StringUtil.numToString(value), days > 0 ? getString("days", days > 1, StringUtil.numToString(days)) : getString("total"));
+        if (duration > 0) {
+            content = content + " " + getString("duration", TimeUtil.getRemainingTimeString(getLocale(), duration * 60_000L, true));
+        }
+        return content;
     }
 
 }

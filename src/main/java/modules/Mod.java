@@ -1,5 +1,6 @@
 package modules;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -18,9 +19,13 @@ import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
+import core.utils.TimeUtil;
 import javafx.util.Pair;
+import modules.schedulers.TempBanScheduler;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
+import mysql.modules.tempban.DBTempBan;
+import mysql.modules.tempban.TempBanSlot;
 import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.GuildWarningsSlot;
 import mysql.modules.warning.ServerWarningsBean;
@@ -64,12 +69,18 @@ public class Mod {
             ) {
                 guild.retrieveBanList().queue(banList -> {
                     if (banList.stream().noneMatch(ban -> ban.getUser().getIdLong() == target.getIdLong())) {
+                        int duration = moderationBean.getAutoBanDuration();
                         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                                 .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
-                                .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", target.getAsTag()));
+                                .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", duration > 0, target.getAsTag(), TimeUtil.getRemainingTimeString(locale, duration * 60_000L, false)));
 
                         postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                             guild.ban(target.getId(), 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).queue();
+                            if (duration > 0) {
+                                TempBanSlot tempBanSlot = new TempBanSlot(guild.getIdLong(), target.getIdLong(), Instant.now().plus(Duration.ofMinutes(duration)));
+                                DBTempBan.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), tempBanSlot);
+                                TempBanScheduler.getInstance().loadTempBan(tempBanSlot);
+                            }
                         });
                     }
                 });
