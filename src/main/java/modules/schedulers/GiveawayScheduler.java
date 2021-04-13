@@ -116,8 +116,8 @@ public class GiveawayScheduler {
         }
 
         giveawaySlot.stop();
-        message.editMessage(mentions.toString())
-                .embed(eb.build())
+        message.editMessage(eb.build())
+                .content(winners.size() > 0 ? mentions.toString() : null)
                 .queue();
 
         if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE)) {

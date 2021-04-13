@@ -63,7 +63,7 @@ public class AutoChannelCommand extends NavigationAbstract {
 
                     Category parent = voiceChannel.getParent();
                     if (parent != null) {
-                        String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL);
+                        String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT);
                         if (categoryMissingPerms != null) {
                             setLog(LogStatus.FAILURE, categoryMissingPerms);
                             return Response.FALSE;
