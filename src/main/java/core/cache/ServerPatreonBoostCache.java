@@ -36,7 +36,7 @@ public class ServerPatreonBoostCache {
 
                                 return guild.getMembers().stream()
                                         .filter(member -> !member.getUser().isBot() && BotPermissionUtil.can(member, Permission.MANAGE_SERVER))
-                                        .anyMatch(member -> PatreonCache.getInstance().getUserTier(member.getIdLong(), true) > 1);
+                                        .anyMatch(member -> PatreonCache.getInstance().getUserTier(member.getIdLong(), true) >= 2);
                             }
 
                             return false;

@@ -135,7 +135,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnReac
             Optional<Integer> hoursMin = extractHoursMin(textChannel, slot.getCommandKey());
             if (hoursMin.isPresent()) {
                 fullClear(textChannel, hoursMin.get());
-                if (slot.getUserMessage().isPresent()) {
+                if (slot.getEffectiveUserMessage().isPresent()) {
                     slot.sendMessage(true, "");
                 }
                 slot.setNextRequest(Instant.now().plus(1, ChronoUnit.HOURS));

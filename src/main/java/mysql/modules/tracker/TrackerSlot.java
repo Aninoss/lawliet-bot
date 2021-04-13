@@ -20,6 +20,7 @@ import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import core.MainLogger;
 import core.ShardManager;
 import core.assets.TextChannelAsset;
+import core.cache.ServerPatreonBoostCache;
 import core.utils.BotPermissionUtil;
 import mysql.BeanWithGuild;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -87,6 +88,13 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
         return Optional.ofNullable(userMessage);
     }
 
+    public Optional<String> getEffectiveUserMessage() {
+        if (!ServerPatreonBoostCache.getInstance().get(getGuildId())) {
+            return Optional.empty();
+        }
+        return getUserMessage();
+    }
+
     public Instant getNextRequest() {
         return nextRequest;
     }
@@ -110,15 +118,15 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
     }
 
     public Optional<Long> sendMessage(boolean acceptUserMessage, String content) {
-        if (acceptUserMessage && userMessage != null) {
-            content = userMessage + "\n" + content;
+        if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
+            content = getEffectiveUserMessage().get() + "\n" + content;
         }
         return processMessage(true, acceptUserMessage, content);
     }
 
     public Optional<Long> editMessage(boolean acceptUserMessage, String content) {
-        if (acceptUserMessage && userMessage != null) {
-            content = userMessage + "\n" + content;
+        if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
+            content = getEffectiveUserMessage().get() + "\n" + content;
         }
         return processMessage(false, acceptUserMessage, content);
     }
@@ -207,8 +215,8 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                 if (embeds.length > 0) {
                     WebhookMessageBuilder wmb = new WebhookMessageBuilder()
                             .addEmbeds(webhookEmbeds);
-                    if (acceptUserMessage && userMessage != null) {
-                        wmb.setContent(userMessage);
+                    if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
+                        wmb.setContent(getEffectiveUserMessage().get());
                     }
 
                     if (newMessage) {
@@ -253,8 +261,8 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                     for (int i = 0; i < embeds.length; i++) {
                         MessageEmbed embed = embeds[i];
                         MessageAction messageAction = channel.sendMessage(embed);
-                        if (acceptUserMessage && i == 0 && userMessage != null) {
-                            messageAction = messageAction.content(userMessage);
+                        if (acceptUserMessage && i == 0 && getEffectiveUserMessage().isPresent()) {
+                            messageAction = messageAction.content(getEffectiveUserMessage().get());
                         }
                         newMessageId = messageAction
                                 .allowedMentions(null)
@@ -264,8 +272,8 @@ public class TrackerSlot extends BeanWithGuild implements TextChannelAsset {
                     return Optional.of(newMessageId);
                 } else {
                     MessageAction messageAction = channel.editMessageById(messageId, embeds[0]);
-                    if (userMessage != null) {
-                        messageAction = messageAction.content(userMessage);
+                    if (getEffectiveUserMessage().isPresent()) {
+                        messageAction = messageAction.content(getEffectiveUserMessage().get());
                     }
                     return Optional.of(messageAction.allowedMentions(null).complete().getIdLong());
                 }
