@@ -1,30 +1,24 @@
 package commands.runnables.moderationcategory;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import commands.listeners.CommandProperties;
 import constants.Category;
 import core.EmbedFactory;
 import core.TextManager;
-import core.atomicassets.AtomicRole;
 import core.mention.Mention;
 import core.mention.MentionValue;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import modules.schedulers.ServerMuteScheduler;
+import modules.Mute;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationBean;
-import mysql.modules.servermute.DBServerMute;
-import mysql.modules.servermute.ServerMuteSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 @CommandProperties(
         trigger = "mute",
@@ -39,7 +33,6 @@ public class MuteCommand extends WarnCommand {
 
     private long minutes = 0;
     private final boolean giveRole;
-    private AtomicRole atomicRole;
 
     public MuteCommand(Locale locale, String prefix) {
         this(locale, prefix, true, true);
@@ -68,7 +61,6 @@ public class MuteCommand extends WarnCommand {
             return false;
         }
 
-        this.atomicRole = new AtomicRole(event.getGuild().getIdLong(), muteRoleOpt.get().getIdLong());
         if (giveRole) {
             MentionValue<Long> mention = MentionUtil.getTimeMinutesExt(args);
             this.minutes = mention.getValue();
@@ -81,21 +73,10 @@ public class MuteCommand extends WarnCommand {
     @Override
     protected void process(Guild guild, User target, String reason) {
         if (giveRole) {
-            Instant expiration = minutes > 0 ? Instant.now().plus(Duration.ofMinutes(minutes)) : null;
-            ServerMuteSlot serverMuteSlot = new ServerMuteSlot(guild.getIdLong(), target.getIdLong(), expiration);
-            DBServerMute.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), serverMuteSlot);
-            ServerMuteScheduler.getInstance().loadServerMute(serverMuteSlot);
+            Mute.mute(guild, target, minutes, getCommandLanguage().getTitle());
         } else {
-            DBServerMute.getInstance().retrieve(guild.getIdLong()).remove(target.getIdLong());
+            Mute.unmute(guild, target, getCommandLanguage().getTitle());
         }
-
-        Optional.ofNullable(guild.getMemberById(target.getIdLong())).ifPresent(member -> {
-            atomicRole.get().ifPresent(muteRole -> {
-                AuditableRestAction<Void> restAction = giveRole ? guild.addRoleToMember(member, muteRole) : guild.removeRoleFromMember(member, muteRole);
-                restAction.reason(getCommandLanguage().getTitle())
-                        .queue();
-            });
-        });
     }
 
     @Override

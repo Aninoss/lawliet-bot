@@ -46,7 +46,7 @@ public class ModSettingsCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener(5);
+        registerNavigationListener(6);
         return true;
     }
 
@@ -164,6 +164,50 @@ public class ModSettingsCommand extends NavigationAbstract {
                     return Response.FALSE;
                 }
 
+            case 8:
+                if (StringUtil.stringIsInt(input)) {
+                    int value = Integer.parseInt(input);
+                    if (value >= 1) {
+                        autoMuteTemp = value;
+                        setState(9);
+                        return Response.TRUE;
+                    } else {
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
+                        return Response.FALSE;
+                    }
+                } else {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
+                    return Response.FALSE;
+                }
+
+            case 9:
+                if (StringUtil.stringIsInt(input)) {
+                    int value = Integer.parseInt(input);
+                    if (value >= 1) {
+                        autoMuteDaysTemp = value;
+                        setState(10);
+                        return Response.TRUE;
+                    } else {
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
+                        return Response.FALSE;
+                    }
+                } else {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
+                    return Response.FALSE;
+                }
+
+            case 10:
+                minutes = MentionUtil.getTimeMinutesExt(input).getValue();
+                if (minutes > 0) {
+                    moderationBean.setAutoMute(autoMuteTemp, autoMuteDaysTemp, (int) minutes);
+                    setLog(LogStatus.SUCCESS, getString("automuteset"));
+                    setState(0);
+                    return Response.TRUE;
+                } else {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid"));
+                    return Response.FALSE;
+                }
+
             default:
                 return null;
         }
@@ -192,10 +236,18 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 3:
-                        setState(2);
+                        if (moderationBean.getMuteRole().isPresent()) {
+                            setState(8);
+                        } else {
+                            setLog(LogStatus.FAILURE, getString("nomute"));
+                        }
                         return true;
 
                     case 4:
+                        setState(2);
+                        return true;
+
+                    case 5:
                         setState(3);
                         return true;
 
@@ -301,12 +353,59 @@ public class ModSettingsCommand extends NavigationAbstract {
             case 7:
                 switch (i) {
                     case -1:
-                        setState(3);
+                        setState(5);
                         return true;
 
                     case 0:
                         moderationBean.setAutoBan(autoBanTemp, autoBanDaysTemp, 0);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
+                        setState(0);
+                        return true;
+
+                    default:
+                        return false;
+                }
+
+            case 8:
+                switch (i) {
+                    case -1:
+                        setState(0);
+                        return true;
+
+                    case 0:
+                        moderationBean.setAutoMute(0, 0, 0);
+                        setLog(LogStatus.SUCCESS, getString("automuteset"));
+                        setState(0);
+                        return true;
+
+                    default:
+                        return false;
+                }
+
+            case 9:
+                switch (i) {
+                    case -1:
+                        setState(8);
+                        return true;
+
+                    case 0:
+                        autoMuteDaysTemp = 0;
+                        setState(10);
+                        return true;
+
+                    default:
+                        return false;
+                }
+
+            case 10:
+                switch (i) {
+                    case -1:
+                        setState(9);
+                        return true;
+
+                    case 0:
+                        moderationBean.setAutoMute(autoMuteTemp, autoMuteDaysTemp, 0);
+                        setLog(LogStatus.SUCCESS, getString("automuteset"));
                         setState(0);
                         return true;
 
@@ -337,6 +436,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(getLocale(), moderationBean.isQuestion()), true)
                         .addField(getString("state0_mmuterole"), moderationBean.getMuteRole().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc",
+                                getAutoModString(moderationBean.getAutoMute(), moderationBean.getAutoMuteDays(), moderationBean.getAutoMuteDuration()),
                                 getAutoModString(moderationBean.getAutoKick(), moderationBean.getAutoKickDays(), 0),
                                 getAutoModString(moderationBean.getAutoBan(), moderationBean.getAutoBanDays(), moderationBean.getAutoBanDuration())
                         ), false);
@@ -368,6 +468,18 @@ public class ModSettingsCommand extends NavigationAbstract {
             case 7:
                 setOptions(new String[] { getString("state7_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
+
+            case 8:
+                setOptions(new String[] { getString("state8_options") });
+                return EmbedFactory.getEmbedDefault(this, getString("state8_description"), getString("state8_title"));
+
+            case 9:
+                setOptions(new String[] { getString("state4_options") });
+                return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoMuteTemp != 1, StringUtil.numToString(autoMuteTemp)), getString("state9_title"));
+
+            case 10:
+                setOptions(new String[] { getString("state10_options") });
+                return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
 
             default:
                 return null;

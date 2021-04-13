@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 
 public class Mod {
@@ -56,12 +57,17 @@ public class Mod {
 
         if (withAutoActions) {
             ModerationBean moderationBean = DBModeration.getInstance().retrieve(guild.getIdLong());
+            Role muteRole = moderationBean.getMuteRole().orElse(null);
+            Member member = guild.getMember(target);
 
             int autoKickDays = moderationBean.getAutoKickDays();
             int autoBanDays = moderationBean.getAutoBanDays();
+            int autoMuteDays = moderationBean.getAutoMuteDays();
 
             boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? serverWarningsBean.getAmountLatest(autoKickDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoKick();
             boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? serverWarningsBean.getAmountLatest(autoBanDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoBan();
+            boolean autoMute = moderationBean.getAutoMute() > 0 && (autoMuteDays > 0 ? serverWarningsBean.getAmountLatest(autoMuteDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoMute();
+
 
             if (autoBan &&
                     PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, guild, Permission.BAN_MEMBERS) &&
@@ -94,6 +100,19 @@ public class Mod {
 
                 postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                     guild.kick(target.getId(), TextManager.getString(locale, Category.MODERATION, "mod_autokick")).queue();
+                });
+            } else if (autoMute &&
+                    muteRole != null &&
+                    PermissionCheckRuntime.getInstance().botCanManageRoles(locale, ModSettingsCommand.class, muteRole) &&
+                    (member == null || !BotPermissionUtil.can(member, Permission.ADMINISTRATOR))
+            ) {
+                int duration = moderationBean.getAutoMuteDuration();
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                        .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_automute"))
+                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_automute_template", duration > 0, target.getAsTag(), TimeUtil.getRemainingTimeString(locale, duration * 60_000L, false)));
+
+                postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
+                    Mute.mute(guild, target, duration, TextManager.getString(locale, Category.MODERATION, "mod_automute"));
                 });
             }
         }
