@@ -456,35 +456,37 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             } else {
                 Message message = textChannel.editMessageById(editMessageId, getMessageEmbed(false).build()).complete();
                 ReactionMessagesCache.getInstance().put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
-                RestActionQueue restActionQueue = new RestActionQueue();
-                for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                    boolean exist = false;
-                    for (MessageReaction reaction : message.getReactions()) {
-                        if (emojiConnection.isEmoji(reaction.getReactionEmote())) {
-                            exist = true;
-                            break;
-                        }
-                    }
-                    if (!exist) {
-                        restActionQueue.attach(emojiConnection.addReaction(message));
-                    }
-                }
-                if (BotPermissionUtil.can(textChannel, Permission.MESSAGE_MANAGE)) {
-                    for (MessageReaction reaction : message.getReactions()) {
+                if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
+                    RestActionQueue restActionQueue = new RestActionQueue();
+                    for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                         boolean exist = false;
-                        for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
+                        for (MessageReaction reaction : message.getReactions()) {
                             if (emojiConnection.isEmoji(reaction.getReactionEmote())) {
                                 exist = true;
                                 break;
                             }
                         }
                         if (!exist) {
-                            restActionQueue.attach(reaction.clearReactions());
+                            restActionQueue.attach(emojiConnection.addReaction(message));
                         }
                     }
-                }
-                if (restActionQueue.isSet()) {
-                    restActionQueue.getCurrentRestAction().queue();
+                    if (BotPermissionUtil.can(textChannel, Permission.MESSAGE_MANAGE)) {
+                        for (MessageReaction reaction : message.getReactions()) {
+                            boolean exist = false;
+                            for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
+                                if (emojiConnection.isEmoji(reaction.getReactionEmote())) {
+                                    exist = true;
+                                    break;
+                                }
+                            }
+                            if (!exist) {
+                                restActionQueue.attach(reaction.clearReactions());
+                            }
+                        }
+                    }
+                    if (restActionQueue.isSet()) {
+                        restActionQueue.getCurrentRestAction().queue();
+                    }
                 }
                 return true;
             }
@@ -671,6 +673,16 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 .collect(Collectors.toList());
 
         return guildReactions.stream()
+                .sorted((md0, md1) -> {
+                    int channelComp = Integer.compare(
+                            md0.getTextChannel().map(GuildChannel::getPositionRaw).orElse(0),
+                            md1.getTextChannel().map(GuildChannel::getPositionRaw).orElse(0)
+                    );
+                    if (channelComp == 0) {
+                        return Long.compare(md0.getMessageId(), md1.getMessageId());
+                    }
+                    return channelComp;
+                })
                 .map(m -> m.getTextChannel().flatMap(ch -> ReactionMessagesCache.getInstance().get(ch, m.getMessageId())).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableList());
