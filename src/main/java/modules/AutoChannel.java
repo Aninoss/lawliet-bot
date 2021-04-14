@@ -80,19 +80,21 @@ public class AutoChannel {
     }
 
     private static void processCreatedVoice(AutoChannelBean autoChannelBean, VoiceChannel voiceChannel, Member member) {
-        member.getGuild().moveVoiceMember(member, voiceChannel).queue(v -> {
-            autoChannelBean.getChildChannelIds().add(voiceChannel.getIdLong());
-            if (!voiceChannel.getMembers().contains(member)) {
+        if (member.getVoiceState() != null && member.getVoiceState().inVoiceChannel()) {
+            member.getGuild().moveVoiceMember(member, voiceChannel).queue(v -> {
+                autoChannelBean.getChildChannelIds().add(voiceChannel.getIdLong());
+                if (!voiceChannel.getMembers().contains(member)) {
+                    voiceChannel.delete()
+                            .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildBean().getLocale()).getTitle())
+                            .queue();
+                    autoChannelBean.getChildChannelIds().remove(voiceChannel.getIdLong());
+                }
+            }, e -> {
                 voiceChannel.delete()
                         .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildBean().getLocale()).getTitle())
                         .queue();
-                autoChannelBean.getChildChannelIds().remove(voiceChannel.getIdLong());
-            }
-        }, e -> {
-            voiceChannel.delete()
-                    .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildBean().getLocale()).getTitle())
-                    .queue();
-        });
+            });
+        }
     }
 
     private static ChannelAction<VoiceChannel> createNewVoice(AutoChannelBean autoChannelBean, VoiceChannel parentVoice, Member member, int n) {

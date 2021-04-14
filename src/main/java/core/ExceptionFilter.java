@@ -22,7 +22,9 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "Timeout",
             "Received a GuildVoiceState with a channel ID for a non-existent channel!",
             "There was an I/O error while executing a REST request: timeout",
-            "500: Internal Server Error"
+            "500: Internal Server Error",
+            "503: upstream connect error",
+            "502 Server Error"
     };
 
     public ExceptionFilter() {

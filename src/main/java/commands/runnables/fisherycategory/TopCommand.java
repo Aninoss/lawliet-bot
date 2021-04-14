@@ -56,23 +56,12 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
         userString = StringUtil.escapeMarkdown(userString);
 
         int rank = memberBean.getRank();
-        String rankString = String.valueOf(rank);
-        switch (rank) {
-            case 1:
-                rankString = "🥇";
-                break;
-
-            case 2:
-                rankString = "🥈";
-                break;
-
-            case 3:
-                rankString = "🥉";
-                break;
-
-            default:
-                rankString = getString("stringrank", rankString);
-        }
+        String rankString = switch (rank) {
+            case 1 -> "🥇";
+            case 2 -> "🥈";
+            case 3 -> "🥉";
+            default -> getString("stringrank", String.valueOf(rank));
+        };
 
         return new Pair<>(
                 getString(
@@ -86,7 +75,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
                         StringUtil.numToString(memberBean.getFishIncome()),
                         StringUtil.numToString(memberBean.getCoins()),
                         StringUtil.numToString(memberBean.getFish())
-                )
+                ) + "\n" + Emojis.ZERO_WIDTH_SPACE
         );
     }
 

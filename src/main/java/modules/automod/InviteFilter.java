@@ -13,6 +13,7 @@ import core.TextManager;
 import core.cache.InviteCache;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
+import core.utils.StringUtil;
 import mysql.modules.spblock.DBSPBlock;
 import mysql.modules.spblock.SPBlockBean;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -60,7 +61,7 @@ public class InviteFilter extends AutoModAbstract {
         eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log", message.getAuthor().getAsTag()))
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getTextChannel().getAsMention(), true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), content, false);
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), StringUtil.shortenString(content, 1024), false);
 
         spBlockBean.getLogReceiverUserIds().transform(message.getGuild()::getMemberById, ISnowflake::getIdLong)
                 .forEach(member -> JDAUtil.sendPrivateMessage(member, eb.build()).queue());

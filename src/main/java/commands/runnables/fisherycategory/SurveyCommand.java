@@ -100,7 +100,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.ZERO_WIDTH_SPACE)
                 .addField(surveyQuestion.getQuestion(), voteStrings[0], false)
-                .addField(getString("majority"), voteStrings[1], false)
+                .addField(getString("majority"), StringUtil.shortenStringLine(voteStrings[1], 1024), false)
                 .addField(Emojis.ZERO_WIDTH_SPACE, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyBean.hasNotificationUserId(event.getUserIdLong()))), false);
     }
 

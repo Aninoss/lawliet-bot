@@ -219,13 +219,17 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
                     channel.sendMessage(userBean.changeValuesEmbed(0, won).build())
                             .queue(m -> {
                                 MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove_account_change", () -> {
-                                    m.delete().queue();
+                                    if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
+                                        m.delete().queue();
+                                    }
                                 });
                             });
                 }
 
                 MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
-                    message.delete().queue();
+                    if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
+                        message.delete().queue();
+                    }
                 });
             });
         }

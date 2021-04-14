@@ -1,5 +1,6 @@
 package mysql.modules.servermute;
 
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
 import java.util.HashMap;
@@ -28,11 +29,14 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getHashMap(
                 ServerMuteSlot::getMemberId,
-                resultSet -> new ServerMuteSlot(
-                        resultSet.getLong(1),
-                        resultSet.getLong(2),
-                        resultSet.getTimestamp(3).toInstant()
-                )
+                resultSet -> {
+                    Timestamp timestamp = resultSet.getTimestamp(3);
+                    return new ServerMuteSlot(
+                            resultSet.getLong(1),
+                            resultSet.getLong(2),
+                            timestamp != null ? timestamp.toInstant() : null
+                    );
+                }
         );
 
         return new CustomObservableMap<>(serverMuteMap)
@@ -46,10 +50,11 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
                 .getArrayList(
                         resultSet -> {
                             long serverId = resultSet.getLong(1);
+                            Timestamp timestamp = resultSet.getTimestamp(3);
                             return new ServerMuteSlot(
                                     serverId,
                                     resultSet.getLong(2),
-                                    resultSet.getTimestamp(3).toInstant()
+                                    timestamp != null ? timestamp.toInstant() : null
                             );
                         }
                 );

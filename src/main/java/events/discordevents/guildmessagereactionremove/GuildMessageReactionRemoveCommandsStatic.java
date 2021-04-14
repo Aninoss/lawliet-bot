@@ -17,6 +17,7 @@ import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildBean;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
@@ -26,7 +27,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
 
     @Override
     public boolean onGuildMessageReactionRemove(GuildMessageReactionRemoveEvent event) {
-        if (!BotPermissionUtil.canReadHistory(event.getChannel())) {
+        if (!BotPermissionUtil.canReadHistory(event.getChannel(), Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
             return true;
         }
 
