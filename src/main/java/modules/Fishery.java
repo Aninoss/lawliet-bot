@@ -74,7 +74,8 @@ public class Fishery {
 
         channel.sendMessage(eb.build())
                 .flatMap(m -> {
-                    DBStaticReactionMessages.getInstance().retrieve().put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger()));
+                    DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong())
+                            .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger()));
                     return m.addReaction(FisheryCommand.EMOJI_KEY);
                 })
                 .queue();

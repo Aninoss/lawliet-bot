@@ -518,6 +518,7 @@ public class MentionUtil {
 
     public static String reformatForDigits(String str) {
         str = " " + str.toLowerCase()
+                .replace(" ", " ")
                 .replace("\n", " ")
                 .replaceAll(" {2}", " ");
 

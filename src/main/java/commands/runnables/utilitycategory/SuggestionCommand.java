@@ -63,7 +63,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     }
 
                     messageAction.queue(message -> {
-                        DBStaticReactionMessages.getInstance().retrieve().put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
+                        DBStaticReactionMessages.getInstance().retrieve(message.getGuild().getIdLong()).put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
                         message.addReaction(Emojis.LIKE)
                                 .queue(v -> message.addReaction(Emojis.DISLIKE).queue());
 

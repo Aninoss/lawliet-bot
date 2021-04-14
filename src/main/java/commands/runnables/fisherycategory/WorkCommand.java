@@ -36,7 +36,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class WorkCommand extends Command implements FisheryInterface, OnReactionListener, OnMessageInputListener {
 
-    private final String[] EMOJIS = new String[] { "🐟", "🐠", "🐡", Emojis.SPACEHOLDER };
+    private final String[] EMOJIS = new String[] { "🐟", "🐠", "🐡", Emojis.EMPTY_EMOJI + Emojis.EMPTY_EMOJI };
 
     private FisheryMemberBean fisheryMemberBean;
     private String[][] area;

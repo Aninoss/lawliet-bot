@@ -2,11 +2,11 @@ package mysql.modules.staticreactionmessages;
 
 import java.util.HashMap;
 import core.CustomObservableMap;
-import mysql.DBDataLoadAll;
+import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBSingleCache;
+import mysql.DBMapCache;
 
-public class DBStaticReactionMessages extends DBSingleCache<CustomObservableMap<Long, StaticReactionMessageData>> {
+public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableMap<Long, StaticReactionMessageData>> {
 
     private static final DBStaticReactionMessages ourInstance = new DBStaticReactionMessages();
 
@@ -18,17 +18,21 @@ public class DBStaticReactionMessages extends DBSingleCache<CustomObservableMap<
     }
 
     @Override
-    protected CustomObservableMap<Long, StaticReactionMessageData> loadBean() throws Exception {
-        HashMap<Long, StaticReactionMessageData> staticReactionMap = new DBDataLoadAll<StaticReactionMessageData>("StaticReactionMessages", "serverId, channelId, messageId, command")
-                .getHashMap(
-                        StaticReactionMessageData::getMessageId,
-                        resultSet -> new StaticReactionMessageData(
-                                resultSet.getLong(1),
-                                resultSet.getLong(2),
-                                resultSet.getLong(3),
-                                resultSet.getString(4)
-                        )
-                );
+    protected CustomObservableMap<Long, StaticReactionMessageData> load(Long guildId) throws Exception {
+        HashMap<Long, StaticReactionMessageData> staticReactionMap = new DBDataLoad<StaticReactionMessageData>(
+                "StaticReactionMessages",
+                "serverId, channelId, messageId, command",
+                "serverId = ?",
+                preparedStatement -> preparedStatement.setLong(1, guildId)
+        ).getHashMap(
+                StaticReactionMessageData::getMessageId,
+                resultSet -> new StaticReactionMessageData(
+                        resultSet.getLong(1),
+                        resultSet.getLong(2),
+                        resultSet.getLong(3),
+                        resultSet.getString(4)
+                )
+        );
 
         return new CustomObservableMap<>(staticReactionMap)
                 .addMapAddListener(this::addStaticReaction)

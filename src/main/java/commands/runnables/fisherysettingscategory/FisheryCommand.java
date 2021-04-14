@@ -176,7 +176,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
 
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
-        DBStaticReactionMessages.getInstance().retrieve().remove(message.getIdLong());
+        DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(message.getIdLong());
         if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_KEY)) {
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                 message.clearReactions().queue();

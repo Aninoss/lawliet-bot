@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
 public class TextChannelDeleteClearStaticReactionMessages extends TextChannelDeleteAbstract {
 
     @Override
-    public boolean onTextChannelDelete(TextChannelDeleteEvent event) throws Throwable {
-        DBStaticReactionMessages.getInstance().retrieve().values().removeIf(data -> data.getTextChannelId() == event.getChannel().getIdLong());
+    public boolean onTextChannelDelete(TextChannelDeleteEvent event) {
+        DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).values().removeIf(data -> data.getTextChannelId() == event.getChannel().getIdLong());
         return true;
     }
 

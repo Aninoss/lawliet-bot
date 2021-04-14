@@ -233,7 +233,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                     setLog(LogStatus.FAILURE, getString("noreactionmessage"));
                     setState(EDIT_MESSAGE);
                     editMode = true;
-                    //TODO: Don't go to next
+                    //TODO: don't go to next
                     return true;
                 }
 
@@ -441,7 +441,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             TextChannel textChannel = channelOpt.get();
             if (!editMode) {
                 Message message = textChannel.sendMessage(getMessageEmbed(false).build()).complete();
-                DBStaticReactionMessages.getInstance().retrieve().put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
+                DBStaticReactionMessages.getInstance().retrieve(message.getGuild().getIdLong()).put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
                 ReactionMessagesCache.getInstance().put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
                 if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
                     RestActionQueue restActionQueue = new RestActionQueue();
@@ -666,8 +666,11 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     }
 
     private List<ReactionMessage> getReactionMessagesInGuild(Guild guild) {
-        return new ArrayList<>(DBStaticReactionMessages.getInstance().retrieve().values()).stream()
-                .filter(m -> m.getGuildId() == guild.getIdLong() && m.getCommand().equals(getTrigger()))
+        List<StaticReactionMessageData> guildReactions = DBStaticReactionMessages.getInstance().retrieve(guild.getIdLong()).values().stream()
+                .filter(m -> m.getCommand().equals(getTrigger()))
+                .collect(Collectors.toList());
+
+        return guildReactions.stream()
                 .map(m -> m.getTextChannel().flatMap(ch -> ReactionMessagesCache.getInstance().get(ch, m.getMessageId())).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableList());

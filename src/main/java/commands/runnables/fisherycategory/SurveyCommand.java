@@ -176,7 +176,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         long messageId = messageFunction.apply(1, eb.build());
-        DBStaticReactionMessages.getInstance().retrieve().put(messageId, new StaticReactionMessageData(
+        DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong()).put(messageId, new StaticReactionMessageData(
                 channel.getGuild().getIdLong(),
                 channel.getIdLong(),
                 messageId,

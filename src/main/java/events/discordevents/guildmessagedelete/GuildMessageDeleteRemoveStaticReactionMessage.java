@@ -10,7 +10,7 @@ public class GuildMessageDeleteRemoveStaticReactionMessage extends GuildMessageD
 
     @Override
     public boolean onGuildMessageDelete(GuildMessageDeleteEvent event) {
-        DBStaticReactionMessages.getInstance().retrieve().remove(event.getMessageIdLong());
+        DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMessageIdLong());
         return true;
     }
 

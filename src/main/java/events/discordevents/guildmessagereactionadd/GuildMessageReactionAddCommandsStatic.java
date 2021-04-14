@@ -38,7 +38,7 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
             return true;
         }
 
-        boolean valid = DBStaticReactionMessages.getInstance().retrieve().containsKey(event.getMessageIdLong());
+        boolean valid = DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).containsKey(event.getMessageIdLong());
         if ((valid || message.getAuthor().getIdLong() == ShardManager.getInstance().getSelfId()) &&
                 message.getEmbeds().size() > 0
         ) {
@@ -50,7 +50,7 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
                     Command command = CommandManager.createCommandByClass((Class<? extends Command>) clazz, guildBean.getLocale(), guildBean.getPrefix());
                     if (title.toLowerCase().startsWith(((OnStaticReactionAddListener) command).titleStartIndicator().toLowerCase()) && (valid || title.endsWith(Emojis.EMPTY_EMOJI))) {
                         try {
-                            CustomObservableMap<Long, StaticReactionMessageData> map = DBStaticReactionMessages.getInstance().retrieve();
+                            CustomObservableMap<Long, StaticReactionMessageData> map = DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong());
                             if (!map.containsKey(event.getMessageIdLong())) {
                                 map.put(event.getMessageIdLong(), new StaticReactionMessageData(message, command.getTrigger()));
                             }
