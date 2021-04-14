@@ -35,11 +35,11 @@ public class MuteCommand extends WarnCommand {
     private final boolean giveRole;
 
     public MuteCommand(Locale locale, String prefix) {
-        this(locale, prefix, true, true);
+        this(locale, prefix, true);
     }
 
-    public MuteCommand(Locale locale, String prefix, boolean sendWarning, boolean giveRole) {
-        super(locale, prefix, sendWarning, false, true);
+    public MuteCommand(Locale locale, String prefix, boolean giveRole) {
+        super(locale, prefix, false, false, true);
         this.giveRole = giveRole;
     }
 

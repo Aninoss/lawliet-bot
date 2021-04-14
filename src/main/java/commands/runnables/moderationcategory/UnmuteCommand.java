@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.Permission;
 public class UnmuteCommand extends MuteCommand {
 
     public UnmuteCommand(Locale locale, String prefix) {
-        super(locale, prefix, false, false);
+        super(locale, prefix, false);
     }
 
 }
