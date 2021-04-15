@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 public class Mute {
 
-    public static void mute(Guild guild, User target, long minutes, String auditLogReason) {
+    public static void mute(Guild guild, User target, long minutes, String reason) {
         ModerationBean moderationBean = DBModeration.getInstance().retrieve(guild.getIdLong());
         if (prerequisites(guild, moderationBean)) {
             Instant expiration = minutes > 0 ? Instant.now().plus(Duration.ofMinutes(minutes)) : null;
@@ -26,7 +26,7 @@ public class Mute {
             Optional.ofNullable(guild.getMemberById(target.getIdLong())).ifPresent(member -> {
                 moderationBean.getMuteRole().ifPresent(muteRole -> {
                     AuditableRestAction<Void> restAction = guild.addRoleToMember(member, muteRole);
-                    restAction.reason(auditLogReason)
+                    restAction.reason(reason)
                             .queue();
                 });
             });
