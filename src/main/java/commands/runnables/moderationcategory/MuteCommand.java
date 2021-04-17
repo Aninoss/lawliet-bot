@@ -62,7 +62,7 @@ public class MuteCommand extends WarnCommand {
         }
 
         if (giveRole) {
-            MentionValue<Long> mention = MentionUtil.getTimeMinutesExt(args);
+            MentionValue<Long> mention = MentionUtil.getTimeMinutes(args);
             this.minutes = mention.getValue();
             return super.setUserListAndReason(event, mention.getFilteredArgs());
         } else {

@@ -153,7 +153,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                 }
 
             case 7:
-                long minutes = MentionUtil.getTimeMinutesExt(input).getValue();
+                long minutes = MentionUtil.getTimeMinutes(input).getValue();
                 if (minutes > 0) {
                     moderationBean.setAutoBan(autoBanTemp, autoBanDaysTemp, (int) minutes);
                     setLog(LogStatus.SUCCESS, getString("autobanset"));
@@ -197,7 +197,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                 }
 
             case 10:
-                minutes = MentionUtil.getTimeMinutesExt(input).getValue();
+                minutes = MentionUtil.getTimeMinutes(input).getValue();
                 if (minutes > 0) {
                     moderationBean.setAutoMute(autoMuteTemp, autoMuteDaysTemp, (int) minutes);
                     setLog(LogStatus.SUCCESS, getString("automuteset"));

@@ -40,7 +40,7 @@ public class BanCommand extends WarnCommand {
 
     @Override
     protected boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
-        MentionValue<Long> mention = MentionUtil.getTimeMinutesExt(args);
+        MentionValue<Long> mention = MentionUtil.getTimeMinutes(args);
         this.minutes = mention.getValue();
         return super.setUserListAndReason(event, mention.getFilteredArgs());
     }

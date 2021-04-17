@@ -12,19 +12,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
-import constants.Category;
-import constants.ExternalLinks;
-import constants.LogStatus;
-import constants.TrackerResult;
+import constants.*;
 import core.EmbedFactory;
 import core.MainLogger;
 import core.TextManager;
 import core.cache.PatreonCache;
-import core.cache.PatternCache;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
@@ -63,9 +58,7 @@ public abstract class PornAbstract extends Command {
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords());
         args = NSFWUtil.filterPornSearchKey(args, nsfwFilter).replace("`", "");
 
-        Pattern pattern = PatternCache.getInstance().generate("\\b[0-9]{1,6}\\b");
-        Matcher m = pattern.matcher(args);
-
+        Matcher m = RegexPatterns.BOORU_AMOUNT_PATTERN.matcher(args);
         long amount = 1;
         if (m.find()) {
             String group = m.group();

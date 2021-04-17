@@ -12,14 +12,15 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import core.emoji.EmojiTable;
+import constants.RegexPatterns;
 import core.MainLogger;
 import core.ShardManager;
 import core.TextManager;
-import core.cache.PatternCache;
+import core.emoji.EmojiTable;
 import core.mention.Mention;
 import core.mention.MentionList;
 import core.mention.MentionValue;
+import javafx.util.Pair;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 
@@ -435,81 +436,76 @@ public class MentionUtil {
     }
 
     public static long getAmountExt(String str, long available) {
+        str = str.toLowerCase();
+
+        if (available >= 0) {
+            if (str.contains("all") || str.contains("allin")) {
+                return available;
+            } else if (str.contains("half")) {
+                return available / 2;
+            }
+        }
+
         str = reformatForDigits(str);
+        Matcher m = RegexPatterns.AMOUNT_FILTER_PATTERN.matcher(str);
+        while(m.find()) {
+            double value = Double.parseDouble(m.group("digits").replace(",", "."));
+            String unit = m.group("unit").toLowerCase();
 
-        for (String part : str.split(" ")) {
-            if (part.length() > 0) {
-                if (available >= 0 && (part.equals("all") || part.equals("allin"))) {
-                    return available;
-                }
-                if (available >= 0 && part.equals("half")) {
-                    return available / 2;
-                }
+            switch (unit) {
+                case "%":
+                    if (available < 0) continue;
+                    return (long) Math.abs(value / 100.0 * available);
 
-                String valueString = StringUtil.filterDoubleString(part);
-                String partPostfix = part.substring(valueString.length()).toLowerCase();
-                if (valueString.isEmpty()) {
-                    continue;
-                }
+                case "k":
+                case "thousand":
+                case "thousands":
+                    return (long) (value * 1_000.0);
 
-                double value = Double.parseDouble(valueString);
-                switch (partPostfix) {
-                    case "":
-                        return (long) value;
+                case "m":
+                case "mio":
+                case "million":
+                case "millions":
+                case "kk":
+                    return (long) (value * 1_000_000.0);
 
-                    case "%":
-                        if (available < 0) continue;
-                        return (long) Math.abs(value / 100.0 * available);
+                case "b":
+                case "bio":
+                case "billion":
+                case "billions":
+                case "kkk":
+                    return (long) (value * 1_000_000_000.0);
 
-                    case "k":
-                        return (long) (value * 1000);
+                case "t":
+                case "tri":
+                case "trillion":
+                case "trillions":
+                case "kkkk":
+                case "mm":
+                    return (long) (value * 1_000_000_000_000.0);
 
-                    case "m":
-                    case "mio":
-                    case "kk":
-                        return (long) (value * 1000000);
-
-                    case "b":
-                    case "kkk":
-                        return (long) (value * 1000000000);
-
-                    default:
-                }
+                default:
+                    return (long) value;
             }
         }
 
         return -1;
     }
 
-    public static MentionValue<Long> getTimeMinutesExt(String str) {
+    public static MentionValue<Long> getTimeMinutes(String str) {
         long min = 0;
+        List<Pair<Pattern, Integer>> unitList = List.of(
+                new Pair<>(RegexPatterns.MINUTES_PATTERN, 1),
+                new Pair<>(RegexPatterns.HOURS_PATTERN, 60),
+                new Pair<>(RegexPatterns.DAYS_PATTERN, 60 * 24)
+        );
 
-        for (String part : str.split(" ")) {
-            if (part.length() > 0) {
-                long value = StringUtil.filterLongFromString(part);
-                if (value > 0) {
-                    String partPostfix = part.substring(String.valueOf(value).length()).toLowerCase();
-
-                    switch (partPostfix) {
-                        case "m":
-                        case "min":
-                            min += value;
-                            str = str.replace(part, "");
-                            break;
-
-                        case "h":
-                            min += value * 60;
-                            str = str.replace(part, "");
-                            break;
-
-                        case "d":
-                            min += value * 60 * 24;
-                            str = str.replace(part, "");
-                            break;
-
-                        default:
-                    }
-                }
+        for (Pair<Pattern, Integer> patternIntegerPair : unitList) {
+            Matcher matcher = patternIntegerPair.getKey().matcher(str);
+            while(matcher.find()) {
+                String groupStr = matcher.group();
+                min += StringUtil.filterLongFromString(groupStr) * patternIntegerPair.getValue();
+                str = str.replace(groupStr, "");
             }
         }
 
@@ -517,16 +513,11 @@ public class MentionUtil {
     }
 
     public static String reformatForDigits(String str) {
-        str = " " + str.toLowerCase()
-                .replace(" ", " ")
-                .replace("\n", " ")
-                .replaceAll(" {2}", " ");
-
-        Pattern p = PatternCache.getInstance().generate(" [0-9]+ [0-9]");
+        Pattern p = RegexPatterns.DIGIT_REFORMAT_PATTERN;
         Matcher m = p.matcher(str);
         while (m.find()) {
             String group = m.group();
-            String groupNew = StringUtil.replaceLast(group, " ", "");
+            String groupNew = group.replaceAll("[\\s| ]s*", "");
             str = str.replace(group, groupNew);
             m = p.matcher(str);
         }

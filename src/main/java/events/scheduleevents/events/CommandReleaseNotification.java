@@ -3,6 +3,7 @@ package events.scheduleevents.events;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
@@ -12,8 +13,10 @@ import core.Program;
 import core.ShardManager;
 import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventDaily;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 @ScheduleEventDaily
 public class CommandReleaseNotification implements ScheduleInterface {
@@ -21,6 +24,7 @@ public class CommandReleaseNotification implements ScheduleInterface {
     @Override
     public void run() throws Throwable {
         if (Program.isPublicVersion()) {
+            AtomicBoolean newRelease = new AtomicBoolean(false);
             CommandContainer.getInstance().getCommandCategoryMap().values().forEach(list -> list.forEach(clazz -> {
                 Command command = CommandManager.createCommandByClass(clazz, new Locale(Locales.EN), "L.");
                 command.getReleaseDate().ifPresent(date -> {
@@ -30,15 +34,20 @@ public class CommandReleaseNotification implements ScheduleInterface {
                                 .map(guild -> guild.getTextChannelById(557960859792441357L))
                                 .ifPresent(channel -> {
                                     channel.sendMessage(message).flatMap(Message::crosspost).queue();
-
-                                    Role role = channel.getGuild().getRoleById(703879430799622155L);
-                                    channel.sendMessage(role.getAsMention())
-                                            .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
-                                            .flatMap(Message::delete).queue();
+                                    newRelease.set(true);
                                 });
                     }
                 });
             }));
+
+            if (newRelease.get()) {
+                Guild guild = ShardManager.getInstance().getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get();
+                TextChannel channel = guild.getTextChannelById(557960859792441357L);
+                Role role = guild.getRoleById(703879430799622155L);
+                channel.sendMessage(role.getAsMention())
+                        .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
+                        .flatMap(Message::delete).queue();
+            }
         }
     }
 

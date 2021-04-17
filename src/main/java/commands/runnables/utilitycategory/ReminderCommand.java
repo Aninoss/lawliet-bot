@@ -12,6 +12,7 @@ import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.MentionList;
+import core.mention.MentionValue;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -46,8 +47,6 @@ public class ReminderCommand extends Command implements OnReactionListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        long minutes = 0;
-        StringBuilder text = new StringBuilder();
         MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
         args = channelMention.getFilteredArgs();
 
@@ -90,18 +89,9 @@ public class ReminderCommand extends Command implements OnReactionListener {
             return false;
         }
 
-        for (String part : args.split(" ")) {
-            if (part.length() > 0) {
-                long value = MentionUtil.getTimeMinutesExt(part).getValue();
-                if (value > 0) {
-                    minutes += value;
-                } else {
-                    text.append(part).append(" ");
-                }
-            } else {
-                text.append(" ");
-            }
-        }
+        MentionValue<Long> timeMention = MentionUtil.getTimeMinutes(args);
+        long minutes = timeMention.getValue();
+        String messageText = timeMention.getFilteredArgs();
 
         if (minutes <= 0 || minutes > 999 * 24 * 60) {
             event.getChannel().sendMessage(
@@ -110,7 +100,6 @@ public class ReminderCommand extends Command implements OnReactionListener {
             return false;
         }
 
-        String messageText = text.toString().trim();
         if (messageText.isEmpty()) {
             event.getChannel().sendMessage(
                     EmbedFactory.getEmbedError(this, getString("notext")).build()
