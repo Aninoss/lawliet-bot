@@ -18,7 +18,7 @@ public class MentionList<E> {
     }
 
     public String getFilteredArgs() {
-        return filteredArgs.trim();
+        return filteredArgs.trim().replace("  ", " ");
     }
 
 }

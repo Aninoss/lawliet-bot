@@ -15,7 +15,7 @@ public class MentionValue<E> {
     }
 
     public String getFilteredArgs() {
-        return filteredArgs.trim();
+        return filteredArgs.trim().replace("  ", " ");
     }
 
 }
