@@ -27,7 +27,7 @@ import core.utils.StringUtil;
 import modules.porn.PornImage;
 import modules.porn.PornImageDownloader;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -175,7 +175,7 @@ public abstract class PornAbstract extends Command {
         }
     }
 
-    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         TextChannel channel = slot.getTextChannel().get();
 
         if (isExplicit() && !channel.isNSFW()) {

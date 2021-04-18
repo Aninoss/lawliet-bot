@@ -12,7 +12,7 @@ import core.schedule.MainScheduler;
 import core.utils.ExceptionUtil;
 import mysql.modules.commandusages.DBCommandUsages;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -56,7 +56,7 @@ public interface OnTriggerListener {
     }
 
     private void processTriggerDelete(GuildMessageReceivedEvent event) {
-        GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+        GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         if (guildBean.isCommandAuthorMessageRemove() &&
                 ServerPatreonBoostCache.getInstance().get(event.getGuild().getIdLong()) &&
                 PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), TriggerDeleteCommand.class, event.getChannel(), Permission.MESSAGE_MANAGE)

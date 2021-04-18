@@ -19,7 +19,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.schedulers.ReminderScheduler;
 import mysql.modules.reminders.DBReminders;
-import mysql.modules.reminders.ReminderSlot;
+import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -36,7 +36,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class ReminderCommand extends Command implements OnReactionListener {
 
-    private ReminderSlot remindersBean = null;
+    private ReminderData remindersBean = null;
     private boolean active = true;
     private boolean canceled = false;
     private EmbedBuilder eb;
@@ -119,10 +119,10 @@ public class ReminderCommand extends Command implements OnReactionListener {
     }
 
     private void insertReminderBean(TextChannel channel, long minutes, String messageText) {
-        CustomObservableMap<Long, ReminderSlot> remindersMap = DBReminders.getInstance()
+        CustomObservableMap<Long, ReminderData> remindersMap = DBReminders.getInstance()
                 .retrieve(channel.getGuild().getIdLong());
 
-        remindersBean = new ReminderSlot(
+        remindersBean = new ReminderData(
                 channel.getGuild().getIdLong(),
                 System.nanoTime(),
                 channel.getIdLong(),

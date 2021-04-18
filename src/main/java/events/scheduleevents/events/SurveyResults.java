@@ -14,7 +14,7 @@ import core.schedule.ScheduleInterface;
 import core.utils.JDAUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.survey.*;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -26,9 +26,9 @@ public class SurveyResults implements ScheduleInterface {
     @Override
     public void run() throws Throwable {
         if (Program.isProductionMode()) {
-            SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
+            SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
             LocalDate today = LocalDate.now();
-            if (!today.isBefore(surveyBean.getNextDate()) && ShardManager.getInstance().isEverythingConnected()) {
+            if (!today.isBefore(surveyData.getNextDate()) && ShardManager.getInstance().isEverythingConnected()) {
                 processCurrentResults();
             }
         }
@@ -37,7 +37,7 @@ public class SurveyResults implements ScheduleInterface {
     public static void processCurrentResults() {
         GlobalThreadPool.getExecutorService().submit(() -> {
             DBSurvey.getInstance().clear();
-            SurveyBean lastSurvey = DBSurvey.getInstance().getCurrentSurvey();
+            SurveyData lastSurvey = DBSurvey.getInstance().getCurrentSurvey();
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException ignored) {
@@ -49,7 +49,7 @@ public class SurveyResults implements ScheduleInterface {
         });
     }
 
-    private static void processSurvey(SurveyBean lastSurvey) {
+    private static void processSurvey(SurveyData lastSurvey) {
         byte won = lastSurvey.getWon();
         int percent = won != 2 ? (int) Math.round(lastSurvey.getFirstVoteNumbers(won) / (double) lastSurvey.getFirstVoteNumber() * 100) : 0;
 
@@ -99,14 +99,14 @@ public class SurveyResults implements ScheduleInterface {
         secondVotes.stream()
                 .filter(secondVote -> won == 2 || secondVote.getVote() == won)
                 .forEach(secondVote -> {
-                    FisheryMemberBean userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getMemberBean(user.getIdLong());
+                    FisheryMemberData userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getMemberBean(user.getIdLong());
                     long price = userBean.getMemberGear(FisheryGear.SURVEY).getEffect();
                     MainLogger.get().info("Survey: Giving {} coins to {} ({})", price, user, user.getIdLong());
                     userBean.changeValues(0, price);
                 });
     }
 
-    private static void sendSurveyResult(SurveyBean lastSurvey, long userId, byte won, int percent) throws IOException {
+    private static void sendSurveyResult(SurveyData lastSurvey, long userId, byte won, int percent) throws IOException {
         SurveyFirstVote surveyFirstVote = lastSurvey.getFirstVotes().get(userId);
         if (surveyFirstVote != null) {
             Locale locale = surveyFirstVote.getLocale();

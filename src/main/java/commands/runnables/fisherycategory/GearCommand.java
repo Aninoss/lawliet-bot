@@ -13,8 +13,8 @@ import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberBean;
-import mysql.modules.fisheryusers.FisheryMemberGearBean;
+import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.modules.fisheryusers.FisheryMemberGearData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -37,7 +37,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
     @Override
     protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         List<Role> buyableRoles = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getRoles();
-        FisheryMemberBean fisheryMemberBean = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberBean(member.getIdLong());
+        FisheryMemberData fisheryMemberBean = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberBean(member.getIdLong());
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(getString("desc", StringUtil.numToString(fisheryMemberBean.getFish()), StringUtil.numToString(fisheryMemberBean.getCoins())));
         EmbedUtil.setFooter(eb, this);
@@ -55,7 +55,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
 
         //Gear
         StringBuilder gearString = new StringBuilder();
-        for (FisheryMemberGearBean slot : fisheryMemberBean.getGearMap().values()) {
+        for (FisheryMemberGearData slot : fisheryMemberBean.getGearMap().values()) {
             gearString.append(getString(
                     "gear_slot",
                     slot.getGear().getEmoji(),

@@ -8,7 +8,7 @@ import commands.Command;
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import core.PermissionCheckRuntime;
 import core.ShardManager;
-import mysql.modules.autochannel.AutoChannelBean;
+import mysql.modules.autochannel.AutoChannelData;
 import mysql.modules.autochannel.DBAutoChannel;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
@@ -41,7 +41,7 @@ public class AutoChannelRepair {
     }
 
     private void deleteEmptyVoiceChannels(Guild guild) {
-        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
+        AutoChannelData autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
         Locale locale = autoChannelBean.getGuildBean().getLocale();
         autoChannelBean.getChildChannelIds().transform(guild::getVoiceChannelById, ISnowflake::getIdLong).stream()
                 .filter(vc -> vc.getMembers().isEmpty() && PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getGuildBean().getLocale(), AutoChannelCommand.class, vc, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT))

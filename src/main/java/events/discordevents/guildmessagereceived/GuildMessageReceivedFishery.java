@@ -9,9 +9,9 @@ import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildBean;
+import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -20,11 +20,11 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
 
     @Override
     public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
-        GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+        GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
 
         //manage message
         boolean messageRegistered = false;
-        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
+        FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
         if (!event.getMessage().getContentRaw().isEmpty()
                 && guildBean.getFisheryStatus() == FisheryStatus.ACTIVE
                 && !fisheryGuildBean.getIgnoredChannelIds().contains(event.getChannel().getIdLong())

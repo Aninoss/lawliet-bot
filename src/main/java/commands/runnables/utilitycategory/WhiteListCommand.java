@@ -15,7 +15,7 @@ import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
 import core.utils.MentionUtil;
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
-import mysql.modules.whitelistedchannels.WhiteListedChannelsBean;
+import mysql.modules.whitelistedchannels.WhiteListedChannelsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -42,7 +42,7 @@ public class WhiteListCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        WhiteListedChannelsBean whiteListedChannelsBean = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
+        WhiteListedChannelsData whiteListedChannelsBean = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
         whiteListedChannels = AtomicTextChannel.transformIdList(event.getGuild(), whiteListedChannelsBean.getChannelIds());
         channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, AtomicTextChannel.class, MAX_CHANNELS);
         registerNavigationListener(12);

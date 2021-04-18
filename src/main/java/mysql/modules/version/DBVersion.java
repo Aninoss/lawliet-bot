@@ -5,7 +5,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
 
-public class DBVersion extends DBSingleCache<VersionBean> {
+public class DBVersion extends DBSingleCache<VersionData> {
 
     private static final DBVersion ourInstance = new DBVersion();
 
@@ -17,25 +17,25 @@ public class DBVersion extends DBSingleCache<VersionBean> {
     }
 
     @Override
-    protected VersionBean loadBean() {
-        ArrayList<VersionBeanSlot> slots = new DBDataLoad<VersionBeanSlot>("Version", "version, date", "1 ORDER BY date")
+    protected VersionData loadBean() {
+        ArrayList<VersionSlot> slots = new DBDataLoad<VersionSlot>("Version", "version, date", "1 ORDER BY date")
                 .getArrayList(
-                        resultSet -> new VersionBeanSlot(
+                        resultSet -> new VersionSlot(
                                 resultSet.getString(1),
                                 resultSet.getTimestamp(2).toInstant()
                         )
                 );
 
-        VersionBean versionBean = new VersionBean(slots);
-        versionBean.getSlots().addListAddListener(list -> list.forEach(this::insertVersion));
+        VersionData versionData = new VersionData(slots);
+        versionData.getSlots().addListAddListener(list -> list.forEach(this::insertVersion));
 
-        return versionBean;
+        return versionData;
     }
 
-    protected void insertVersion(VersionBeanSlot versionBeanSlot) {
+    protected void insertVersion(VersionSlot versionSlot) {
         DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Version (version, date) VALUES (?, ?);", preparedStatement -> {
-            preparedStatement.setString(1, versionBeanSlot.getVersion());
-            preparedStatement.setString(2, DBMain.instantToDateTimeString(versionBeanSlot.getDate()));
+            preparedStatement.setString(1, versionSlot.getVersion());
+            preparedStatement.setString(2, DBMain.instantToDateTimeString(versionSlot.getDate()));
         });
     }
 

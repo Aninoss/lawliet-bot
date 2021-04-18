@@ -19,7 +19,7 @@ import modules.suggestions.SuggestionMessage;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.suggestions.DBSuggestions;
-import mysql.modules.suggestions.SuggestionsBean;
+import mysql.modules.suggestions.SuggestionsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -47,7 +47,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        SuggestionsBean suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
+        SuggestionsData suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
         if (suggestionsBean.isActive()) {
             Optional<TextChannel> channelOpt = suggestionsBean.getTextChannel();
             if (channelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.MESSAGE_WRITE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION)) {

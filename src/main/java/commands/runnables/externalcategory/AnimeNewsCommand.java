@@ -16,7 +16,7 @@ import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import modules.animenews.AnimeNewsArticle;
 import modules.animenews.AnimeNewsDownloader;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -54,7 +54,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
         List<AnimeNewsArticle> articles = AnimeNewsDownloader.retrieveArticles(getLocale());
         if (articles == null || articles.size() == 0) {

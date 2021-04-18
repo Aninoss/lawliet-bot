@@ -17,7 +17,7 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.MemberCountDisplay;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
-import mysql.modules.membercountdisplays.MemberCountBean;
+import mysql.modules.membercountdisplays.MemberCountData;
 import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -37,7 +37,7 @@ import net.dv8tion.jda.api.managers.ChannelManager;
 )
 public class MemberCountDisplayCommand extends NavigationAbstract {
 
-    private MemberCountBean memberCountBean;
+    private MemberCountData memberCountBean;
     private AtomicVoiceChannel currentVC = null;
     private String currentName = null;
 

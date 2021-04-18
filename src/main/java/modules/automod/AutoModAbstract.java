@@ -10,7 +10,7 @@ import core.MainLogger;
 import core.PermissionCheckRuntime;
 import modules.Mod;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -31,7 +31,7 @@ public abstract class AutoModAbstract {
     public boolean check() {
         if (!message.getAuthor().isBot() && checkCondition(message)) {
             try {
-                GuildBean guildBean = DBGuild.getInstance().retrieve(message.getGuild().getIdLong());
+                GuildData guildBean = DBGuild.getInstance().retrieve(message.getGuild().getIdLong());
                 Class<? extends Command> commandClass = getCommandClass();
                 if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), commandClass, message.getTextChannel(), Permission.MESSAGE_MANAGE)) {
                     message.delete().queue();
@@ -46,7 +46,7 @@ public abstract class AutoModAbstract {
         return true;
     }
 
-    private void punish(Message message, GuildBean guildBean, Class<? extends Command> commandClass) {
+    private void punish(Message message, GuildData guildBean, Class<? extends Command> commandClass) {
         Guild guild = message.getGuild();
         Member member = message.getMember();
         CommandProperties commandProperties = Command.getCommandProperties(commandClass);

@@ -24,7 +24,7 @@ import javafx.util.Pair;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.survey.*;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -68,11 +68,11 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             if (emoji.equals(BELL_EMOJI)) type = 3;
 
             if (type > 0) {
-                SurveyBean surveyBean = DBSurvey.getInstance().getCurrentSurvey();
+                SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
 
-                if (message.getTimeCreated().toInstant().isAfter(surveyBean.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
-                    if (!registerVote(event, surveyBean, type, i)) return;
-                    EmbedBuilder eb = getVoteStatusEmbed(event, surveyBean);
+                if (message.getTimeCreated().toInstant().isAfter(surveyData.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
+                    if (!registerVote(event, surveyData, type, i)) return;
+                    EmbedBuilder eb = getVoteStatusEmbed(event, surveyData);
                     JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
                 }
                 break;
@@ -80,13 +80,13 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
     }
 
-    private EmbedBuilder getVoteStatusEmbed(GuildMessageReactionAddEvent event, SurveyBean surveyBean) throws IOException {
-        SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
+    private EmbedBuilder getVoteStatusEmbed(GuildMessageReactionAddEvent event, SurveyData surveyData) throws IOException {
+        SurveyQuestion surveyQuestion = surveyData.getSurveyQuestionAndAnswers(getLocale());
         String[] voteStrings = new String[2];
 
-        voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyBean.getFirstVotes().get(event.getUserIdLong()).getVote()];
+        voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyData.getFirstVotes().get(event.getUserIdLong()).getVote()];
 
-        List<SurveySecondVote> surveySecondVotes = surveyBean.getSurveySecondVotesForUserId(event.getUserIdLong());
+        List<SurveySecondVote> surveySecondVotes = surveyData.getSurveySecondVotesForUserId(event.getUserIdLong());
 
         if (surveySecondVotes.size() == 0) {
             voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
@@ -101,7 +101,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.ZERO_WIDTH_SPACE)
                 .addField(surveyQuestion.getQuestion(), voteStrings[0], false)
                 .addField(getString("majority"), StringUtil.shortenStringLine(voteStrings[1], 1024), false)
-                .addField(Emojis.ZERO_WIDTH_SPACE, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyBean.hasNotificationUserId(event.getUserIdLong()))), false);
+                .addField(Emojis.ZERO_WIDTH_SPACE, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyData.hasNotificationUserId(event.getUserIdLong()))), false);
     }
 
     private void removeUserReactions(Message message, String addedEmoji) {
@@ -128,15 +128,15 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
     }
 
-    private boolean registerVote(GuildMessageReactionAddEvent event, SurveyBean surveyBean, int type, byte i) {
+    private boolean registerVote(GuildMessageReactionAddEvent event, SurveyData surveyData, int type, byte i) {
         switch (type) {
             case 1:
-                surveyBean.getFirstVotes().put(event.getUserIdLong(), new SurveyFirstVote(event.getUserIdLong(), i, getLocale()));
+                surveyData.getFirstVotes().put(event.getUserIdLong(), new SurveyFirstVote(event.getUserIdLong(), i, getLocale()));
                 return true;
 
             case 2:
-                if (surveyBean.getFirstVotes().containsKey(event.getUserIdLong())) {
-                    surveyBean.getSecondVotes().put(
+                if (surveyData.getFirstVotes().containsKey(event.getUserIdLong())) {
+                    surveyData.getSecondVotes().put(
                             new Pair<>(event.getGuild().getIdLong(), event.getUserIdLong()),
                             new SurveySecondVote(event.getGuild().getIdLong(), event.getUserIdLong(), i)
                     );
@@ -148,8 +148,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
                 }
 
             case 3:
-                if (surveyBean.getFirstVotes().containsKey(event.getUserIdLong())) {
-                    surveyBean.toggleNotificationUserId(event.getUserIdLong());
+                if (surveyData.getFirstVotes().containsKey(event.getUserIdLong())) {
+                    surveyData.toggleNotificationUserId(event.getUserIdLong());
                     return true;
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
@@ -163,8 +163,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     }
 
     private long sendMessages(TextChannel channel, Member member, boolean tracker, BiFunction<Integer, MessageEmbed, Long> messageFunction) throws IOException {
-        SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
-        SurveyBean lastSurvey = DBSurvey.getInstance().retrieve(currentSurvey.getSurveyId() - 1);
+        SurveyData currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
+        SurveyData lastSurvey = DBSurvey.getInstance().retrieve(currentSurvey.getSurveyId() - 1);
 
         //Results Message
         messageFunction.apply(0, getResultsEmbed(lastSurvey, member).build());
@@ -197,7 +197,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         return messageId;
     }
 
-    private EmbedBuilder getResultsEmbed(SurveyBean lastSurvey, Member member) throws IOException {
+    private EmbedBuilder getResultsEmbed(SurveyData lastSurvey, Member member) throws IOException {
         SurveyQuestion surveyQuestion = lastSurvey.getSurveyQuestionAndAnswers(getLocale());
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("results_title"));
@@ -248,8 +248,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         return eb;
     }
 
-    private EmbedBuilder getSurveyEmbed(SurveyBean surveyBean, boolean tracker) throws IOException {
-        SurveyQuestion surveyQuestion = surveyBean.getSurveyQuestionAndAnswers(getLocale());
+    private EmbedBuilder getSurveyEmbed(SurveyData surveyData, boolean tracker) throws IOException {
+        SurveyQuestion surveyQuestion = surveyData.getSurveyQuestionAndAnswers(getLocale());
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("sdescription", BELL_EMOJI), getString("title"))
                 .setFooter("");
 
@@ -262,7 +262,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         eb.addField(surveyQuestion.getQuestion(), personalString.toString(), false);
         eb.addField(getString("majority"), majorityString.toString(), false);
 
-        Instant after = TimeUtil.localDateToInstant(surveyBean.getNextDate());
+        Instant after = TimeUtil.localDateToInstant(surveyData.getNextDate());
         if (!tracker) {
             EmbedUtil.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), after, false)));
         }
@@ -277,8 +277,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
-        SurveyBean currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
+    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+        SurveyData currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         if (slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get())) {
             return TrackerResult.CONTINUE;
         }

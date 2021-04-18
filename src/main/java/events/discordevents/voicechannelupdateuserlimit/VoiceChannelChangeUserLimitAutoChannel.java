@@ -7,10 +7,10 @@ import commands.runnables.utilitycategory.AutoChannelCommand;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.VoiceChannelUpdateUserLimitAbstract;
-import mysql.modules.autochannel.AutoChannelBean;
+import mysql.modules.autochannel.AutoChannelData;
 import mysql.modules.autochannel.DBAutoChannel;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.channel.voice.update.VoiceChannelUpdateUserLimitEvent;
 
@@ -19,7 +19,7 @@ public class VoiceChannelChangeUserLimitAutoChannel extends VoiceChannelUpdateUs
 
     @Override
     public boolean onVoiceChannelUpdateUserLimit(VoiceChannelUpdateUserLimitEvent event) {
-        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
+        AutoChannelData autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
         for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (event.getChannel().getIdLong() == childChannelId) {
                 autoChannelBean.getParentChannel().ifPresent(channel -> {
@@ -27,7 +27,7 @@ public class VoiceChannelChangeUserLimitAutoChannel extends VoiceChannelUpdateUs
                     int parentUserLimit = channel.getUserLimit();
 
                     if (parentUserLimit != 0 && (childUserLimit == 0 || childUserLimit > parentUserLimit)) {
-                        GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+                        GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
                         Locale locale = guildBean.getLocale();
 
                         if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL)) {

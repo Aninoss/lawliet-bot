@@ -18,7 +18,7 @@ import core.atomicassets.MentionableAtomicAsset;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.automod.WordFilter;
-import mysql.modules.bannedwords.BannedWordsBean;
+import mysql.modules.bannedwords.BannedWordsData;
 import mysql.modules.bannedwords.DBBannedWords;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -39,7 +39,7 @@ public class WordFilterCommand extends NavigationAbstract {
     private static final int MAX_WORDS = 20;
     private static final int MAX_LETTERS = 20;
 
-    private BannedWordsBean bannedWordsBean;
+    private BannedWordsData bannedWordsBean;
     private NavigationHelper<String> wordsNavigationHelper;
     private CustomObservableList<AtomicMember> ignoredUsers;
     private CustomObservableList<AtomicMember> logReceivers;

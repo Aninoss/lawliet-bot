@@ -8,7 +8,7 @@ import core.TextManager;
 import core.atomicassets.AtomicMember;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -34,29 +34,29 @@ public class FisheryMemberGroup {
         }
     }
 
-    public List<FisheryMemberBean> getFisheryMemberList() {
+    public List<FisheryMemberData> getFisheryMemberList() {
         return members.stream()
                 .map(m -> DBFishery.getInstance().retrieve(guildId).getMemberBean(m.getIdLong()))
                 .collect(Collectors.toList());
     }
 
     public String getFishString() {
-        return getValueString(FisheryMemberBean::getFish);
+        return getValueString(FisheryMemberData::getFish);
     }
 
     public String getCoinsString() {
-        return getValueString(FisheryMemberBean::getCoins);
+        return getValueString(FisheryMemberData::getCoins);
     }
 
     public String getDailyStreakString() {
-        return getValueString(FisheryMemberBean::getDailyStreak);
+        return getValueString(FisheryMemberData::getDailyStreak);
     }
 
     public boolean containsMultiple() {
         return members.size() != 1;
     }
 
-    private String getValueString(ToLongFunction<? super FisheryMemberBean> mapper) {
+    private String getValueString(ToLongFunction<? super FisheryMemberData> mapper) {
         long min = getFisheryMemberList().stream()
                 .mapToLong(mapper)
                 .min()

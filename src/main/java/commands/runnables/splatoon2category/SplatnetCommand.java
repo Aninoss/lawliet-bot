@@ -13,7 +13,7 @@ import core.EmbedFactory;
 import core.internet.InternetCache;
 import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -99,7 +99,7 @@ public class SplatnetCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         slot.setMessageId(slot.sendMessage(true, getEmbed(true).build()).get());
         slot.setNextRequest(trackingTime);
 

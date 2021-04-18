@@ -12,10 +12,10 @@ import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
-import mysql.modules.autoroles.AutoRolesBean;
+import mysql.modules.autoroles.AutoRolesData;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildBean;
+import mysql.modules.fisheryusers.FisheryGuildData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -47,7 +47,7 @@ public class RolesRepair {
     }
 
     private void processFisheryRoles(Guild guild, int minutes) {
-        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
+        FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
         Locale locale = fisheryGuildBean.getGuildBean().getLocale();
         if (fisheryGuildBean.getGuildBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryGuildBean.getRoleIds().size() > 0) {
             guild.getMembers().stream()
@@ -62,7 +62,7 @@ public class RolesRepair {
     }
 
     private void processAutoRoles(Guild guild, int minutes) {
-        AutoRolesBean autoRolesBean = DBAutoRoles.getInstance().retrieve(guild.getIdLong());
+        AutoRolesData autoRolesBean = DBAutoRoles.getInstance().retrieve(guild.getIdLong());
         Locale locale = autoRolesBean.getGuildBean().getLocale();
         if (autoRolesBean.getRoleIds().size() > 0) {
             List<Role> roles = autoRolesBean.getRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);

@@ -17,7 +17,7 @@ import core.utils.StringUtil;
 import modules.PostBundle;
 import modules.reddit.RedditDownloader;
 import modules.reddit.RedditPost;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -100,7 +100,7 @@ public class RedditCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         if (slot.getCommandKey().isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());

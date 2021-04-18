@@ -10,7 +10,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsBean> {
+public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
 
     private static final DBSuggestions ourInstance = new DBSuggestions();
 
@@ -22,8 +22,8 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsBean> {
     }
 
     @Override
-    protected SuggestionsBean load(Long serverId) throws Exception {
-        SuggestionsBean suggestionsBean;
+    protected SuggestionsData load(Long serverId) throws Exception {
+        SuggestionsData suggestionsBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active, channelId FROM SuggestionConfig WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
@@ -31,14 +31,14 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsBean> {
 
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
-            suggestionsBean = new SuggestionsBean(
+            suggestionsBean = new SuggestionsData(
                     serverId,
                     resultSet.getBoolean(1),
                     resultSet.getLong(2),
                     getSuggestionMessages(serverId)
             );
         } else {
-            suggestionsBean = new SuggestionsBean(
+            suggestionsBean = new SuggestionsData(
                     serverId,
                     false,
                     null,
@@ -57,7 +57,7 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsBean> {
     }
 
     @Override
-    protected void save(SuggestionsBean suggestionsBean) {
+    protected void save(SuggestionsData suggestionsBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO SuggestionConfig (serverId, active, channelId) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, suggestionsBean.getGuildId());
             preparedStatement.setBoolean(2, suggestionsBean.isActive());

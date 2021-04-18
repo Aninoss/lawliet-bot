@@ -44,7 +44,7 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
 
         AtomicInteger saved = new AtomicInteger(0);
         tempList.stream()
-                .filter(value -> !(value instanceof BeanWithGuild) || ((BeanWithGuild) value).getGuildBean().isSaved())
+                .filter(value -> !(value instanceof DataWithGuild) || ((DataWithGuild) value).getGuildBean().isSaved())
                 .forEach(value -> {
                     try {
                         save(value);

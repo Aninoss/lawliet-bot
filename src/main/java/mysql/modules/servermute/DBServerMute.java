@@ -12,7 +12,7 @@ import mysql.DBDataLoadAll;
 import mysql.DBMain;
 import mysql.DBMapCache;
 
-public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, ServerMuteSlot>> {
+public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, ServerMuteData>> {
 
     private static final DBServerMute ourInstance = new DBServerMute();
 
@@ -24,14 +24,14 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
     }
 
     @Override
-    protected CustomObservableMap<Long, ServerMuteSlot> load(Long guildId) throws Exception {
-        HashMap<Long, ServerMuteSlot> serverMuteMap = new DBDataLoad<ServerMuteSlot>("ServerMute", "serverId, userId, expires", "serverId = ?",
+    protected CustomObservableMap<Long, ServerMuteData> load(Long guildId) throws Exception {
+        HashMap<Long, ServerMuteData> serverMuteMap = new DBDataLoad<ServerMuteData>("ServerMute", "serverId, userId, expires", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getHashMap(
-                ServerMuteSlot::getMemberId,
+                ServerMuteData::getMemberId,
                 resultSet -> {
                     Timestamp timestamp = resultSet.getTimestamp(3);
-                    return new ServerMuteSlot(
+                    return new ServerMuteData(
                             resultSet.getLong(1),
                             resultSet.getLong(2),
                             timestamp != null ? timestamp.toInstant() : null
@@ -45,13 +45,13 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
                 .addMapRemoveListener(this::removeServerMute);
     }
 
-    public List<ServerMuteSlot> retrieveAll() {
-        return new DBDataLoadAll<ServerMuteSlot>("ServerMute", "serverId, userId, expires")
+    public List<ServerMuteData> retrieveAll() {
+        return new DBDataLoadAll<ServerMuteData>("ServerMute", "serverId, userId, expires")
                 .getArrayList(
                         resultSet -> {
                             long serverId = resultSet.getLong(1);
                             Timestamp timestamp = resultSet.getTimestamp(3);
-                            return new ServerMuteSlot(
+                            return new ServerMuteData(
                                     serverId,
                                     resultSet.getLong(2),
                                     timestamp != null ? timestamp.toInstant() : null
@@ -60,12 +60,12 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
                 );
     }
 
-    private void addServerMute(ServerMuteSlot serverMuteSlot) {
+    private void addServerMute(ServerMuteData serverMuteData) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO ServerMute (serverId, userId, expires) VALUES (?,?,?);", preparedStatement -> {
-            preparedStatement.setLong(1, serverMuteSlot.getGuildId());
-            preparedStatement.setLong(2, serverMuteSlot.getMemberId());
+            preparedStatement.setLong(1, serverMuteData.getGuildId());
+            preparedStatement.setLong(2, serverMuteData.getMemberId());
 
-            Optional<Instant> expirationOpt = serverMuteSlot.getExpirationTime();
+            Optional<Instant> expirationOpt = serverMuteData.getExpirationTime();
             if (expirationOpt.isPresent()) {
                 preparedStatement.setString(3, DBMain.instantToDateTimeString(expirationOpt.get()));
             } else {
@@ -74,10 +74,10 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
         });
     }
 
-    private void removeServerMute(ServerMuteSlot serverMuteSlot) {
+    private void removeServerMute(ServerMuteData serverMuteData) {
         DBMain.getInstance().asyncUpdate("DELETE FROM ServerMute WHERE serverId = ? AND userId = ?;", preparedStatement -> {
-            preparedStatement.setLong(1, serverMuteSlot.getGuildId());
-            preparedStatement.setLong(2, serverMuteSlot.getMemberId());
+            preparedStatement.setLong(1, serverMuteData.getGuildId());
+            preparedStatement.setLong(2, serverMuteData.getMemberId());
         });
     }
 

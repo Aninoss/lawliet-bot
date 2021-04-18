@@ -15,7 +15,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import mysql.modules.spblock.DBSPBlock;
-import mysql.modules.spblock.SPBlockBean;
+import mysql.modules.spblock.SPBlockData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.entities.Message;
 
 public class InviteFilter extends AutoModAbstract {
 
-    private final SPBlockBean spBlockBean;
+    private final SPBlockData spBlockBean;
 
     public InviteFilter(Message message) throws ExecutionException {
         super(message);
@@ -32,14 +32,14 @@ public class InviteFilter extends AutoModAbstract {
 
     @Override
     protected boolean withAutoActions(Message message, Locale locale) {
-        if (spBlockBean.getAction() == SPBlockBean.ActionList.BAN_USER &&
+        if (spBlockBean.getAction() == SPBlockData.ActionList.BAN_USER &&
                 PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getTextChannel(), Permission.BAN_MEMBERS)
         ) {
             message.getGuild()
                     .ban(message.getMember(), 0, TextManager.getString(spBlockBean.getGuildBean().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
                     .queue();
             return false;
-        } else if (spBlockBean.getAction() == SPBlockBean.ActionList.KICK_USER &&
+        } else if (spBlockBean.getAction() == SPBlockData.ActionList.KICK_USER &&
                 PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getTextChannel(), Permission.KICK_MEMBERS)
         ) {
             message.getGuild()

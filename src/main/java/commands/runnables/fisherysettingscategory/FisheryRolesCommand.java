@@ -16,9 +16,9 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildBean;
+import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -39,8 +39,8 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
     private static final int MAX_ROLES = 50;
 
-    private GuildBean guildBean;
-    private FisheryGuildBean fisheryGuildBean;
+    private GuildData guildBean;
+    private FisheryGuildData fisheryGuildBean;
 
     public FisheryRolesCommand(Locale locale, String prefix) {
         super(locale, prefix);

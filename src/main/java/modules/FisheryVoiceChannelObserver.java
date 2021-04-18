@@ -11,7 +11,7 @@ import core.*;
 import core.utils.BotPermissionUtil;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildBean;
+import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -64,7 +64,7 @@ public class FisheryVoiceChannelObserver {
     }
 
     private void manageVCFish(Guild guild, AtomicInteger actions) {
-        FisheryGuildBean serverBean = DBFishery.getInstance().retrieve(guild.getIdLong());
+        FisheryGuildData serverBean = DBFishery.getInstance().retrieve(guild.getIdLong());
 
         for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {
             try {

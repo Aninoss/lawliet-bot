@@ -5,7 +5,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBCommandManagement extends DBObserverMapCache<Long, CommandManagementBean> {
+public class DBCommandManagement extends DBObserverMapCache<Long, CommandManagementData> {
 
     private static final DBCommandManagement ourInstance = new DBCommandManagement();
 
@@ -17,8 +17,8 @@ public class DBCommandManagement extends DBObserverMapCache<Long, CommandManagem
     }
 
     @Override
-    protected CommandManagementBean load(Long serverId) throws Exception {
-        CommandManagementBean commandManagementBean = new CommandManagementBean(
+    protected CommandManagementData load(Long serverId) throws Exception {
+        CommandManagementData commandManagementBean = new CommandManagementData(
                 serverId,
                 getSwitchedOffElements(serverId)
         );
@@ -31,7 +31,7 @@ public class DBCommandManagement extends DBObserverMapCache<Long, CommandManagem
     }
 
     @Override
-    protected void save(CommandManagementBean commandManagementBean) {
+    protected void save(CommandManagementData commandManagementBean) {
     }
 
     private ArrayList<String> getSwitchedOffElements(long serverId) {

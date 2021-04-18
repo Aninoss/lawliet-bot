@@ -12,7 +12,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.suggestions.DBSuggestions;
-import mysql.modules.suggestions.SuggestionsBean;
+import mysql.modules.suggestions.SuggestionsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class SuggestionConfigCommand extends NavigationAbstract {
 
-    private SuggestionsBean suggestionsBean;
+    private SuggestionsData suggestionsBean;
 
     public SuggestionConfigCommand(Locale locale, String prefix) {
         super(locale, prefix);

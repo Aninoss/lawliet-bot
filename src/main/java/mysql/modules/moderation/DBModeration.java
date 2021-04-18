@@ -7,7 +7,7 @@ import java.util.Optional;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBModeration extends DBObserverMapCache<Long, ModerationBean> {
+public class DBModeration extends DBObserverMapCache<Long, ModerationData> {
 
     private static final DBModeration ourInstance = new DBModeration();
 
@@ -19,8 +19,8 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationBean> {
     }
 
     @Override
-    protected ModerationBean load(Long serverId) throws Exception {
-        ModerationBean moderationBean;
+    protected ModerationData load(Long serverId) throws Exception {
+        ModerationData moderationBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question, muteRoleId, autoKick, autoBan, autoMute, autoKickDays, autoBanDays, autoMuteDays, autoBanDuration, autoMuteDuration FROM Moderation WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
@@ -28,7 +28,7 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationBean> {
 
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
-            moderationBean = new ModerationBean(
+            moderationBean = new ModerationData(
                     serverId,
                     resultSet.getLong(1),
                     resultSet.getBoolean(2),
@@ -43,7 +43,7 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationBean> {
                     resultSet.getInt(11)
             );
         } else {
-            moderationBean = new ModerationBean(
+            moderationBean = new ModerationData(
                     serverId,
                     null,
                     true,
@@ -66,7 +66,7 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationBean> {
     }
 
     @Override
-    protected void save(ModerationBean moderationBean) {
+    protected void save(ModerationData moderationBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO Moderation (serverId, channelId, question, muteRoleId, autoKick, autoBan, autoMute, autoKickDays, autoBanDays, autoMuteDays, autoBanDuration, autoMuteDuration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, moderationBean.getGuildId());
 

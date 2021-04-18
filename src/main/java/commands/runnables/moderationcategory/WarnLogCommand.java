@@ -14,8 +14,8 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import javafx.util.Pair;
 import mysql.modules.warning.DBServerWarnings;
-import mysql.modules.warning.GuildWarningsSlot;
-import mysql.modules.warning.ServerWarningsBean;
+import mysql.modules.warning.ServerWarningSlot;
+import mysql.modules.warning.ServerWarningsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
@@ -37,13 +37,13 @@ public class WarnLogCommand extends MemberAccountAbstract {
     @Override
     protected EmbedBuilder processUser(GuildMessageReceivedEvent event, User user, boolean userIsAuthor, String args) {
         Member member = event.getGuild().getMemberById(user.getIdLong());
-        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(event.getGuild().getIdLong(), user.getIdLong()));
+        ServerWarningsData serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(event.getGuild().getIdLong(), user.getIdLong()));
 
         StringBuilder latestWarnings = new StringBuilder();
 
-        List<GuildWarningsSlot> slots = serverWarningsBean.getLatest(5);
+        List<ServerWarningSlot> slots = serverWarningsBean.getLatest(5);
         Collections.reverse(slots);
-        for (GuildWarningsSlot serverWarningsSlot : slots) {
+        for (ServerWarningSlot serverWarningsSlot : slots) {
             Optional<Member> requestor = serverWarningsSlot.getRequesterMember();
             Optional<String> reason = serverWarningsSlot.getReason();
             String userString = requestor.map(IMentionable::getAsMention).orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user"));

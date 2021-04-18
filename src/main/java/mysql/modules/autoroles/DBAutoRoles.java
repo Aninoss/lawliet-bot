@@ -5,7 +5,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBAutoRoles extends DBObserverMapCache<Long, AutoRolesBean> {
+public class DBAutoRoles extends DBObserverMapCache<Long, AutoRolesData> {
 
     private static final DBAutoRoles ourInstance = new DBAutoRoles();
 
@@ -17,8 +17,8 @@ public class DBAutoRoles extends DBObserverMapCache<Long, AutoRolesBean> {
     }
 
     @Override
-    protected AutoRolesBean load(Long serverId) throws Exception {
-        AutoRolesBean autoRolesBean = new AutoRolesBean(
+    protected AutoRolesData load(Long serverId) throws Exception {
+        AutoRolesData autoRolesBean = new AutoRolesData(
                 serverId,
                 getRoleIds(serverId)
         );
@@ -31,7 +31,7 @@ public class DBAutoRoles extends DBObserverMapCache<Long, AutoRolesBean> {
     }
 
     @Override
-    protected void save(AutoRolesBean autoRolesBean) {
+    protected void save(AutoRolesData autoRolesBean) {
     }
 
     private ArrayList<Long> getRoleIds(long serverId) {

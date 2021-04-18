@@ -15,7 +15,7 @@ import core.utils.StringUtil;
 import modules.ExchangeRate;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class SellCommand extends Command implements FisheryInterface, OnReactionListener, OnMessageInputListener {
 
-    private FisheryMemberBean userBean;
+    private FisheryMemberData userBean;
     private EmbedBuilder eb;
 
     public SellCommand(Locale locale, String prefix) {

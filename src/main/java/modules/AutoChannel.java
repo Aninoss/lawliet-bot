@@ -10,9 +10,9 @@ import commands.Command;
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import core.PermissionCheckRuntime;
 import core.utils.BotPermissionUtil;
-import mysql.modules.autochannel.AutoChannelBean;
+import mysql.modules.autochannel.AutoChannelData;
 import mysql.modules.autochannel.DBAutoChannel;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -34,9 +34,9 @@ public class AutoChannel {
         }
 
         Guild guild = voiceChannel.getGuild();
-        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
+        AutoChannelData autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
         if (autoChannelBean.isActive() && voiceChannel.getIdLong() == autoChannelBean.getParentChannelId().orElse(0L)) {
-            GuildBean guildBean = autoChannelBean.getGuildBean();
+            GuildData guildBean = autoChannelBean.getGuildBean();
             if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, guild, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT) &&
                     (voiceChannel.getParent() == null || PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParent(), Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT)) &&
                     PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
@@ -65,7 +65,7 @@ public class AutoChannel {
     }
 
     public static void processRemove(VoiceChannel voiceChannel) {
-        AutoChannelBean autoChannelBean = DBAutoChannel.getInstance().retrieve(voiceChannel.getGuild().getIdLong());
+        AutoChannelData autoChannelBean = DBAutoChannel.getInstance().retrieve(voiceChannel.getGuild().getIdLong());
 
         for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (voiceChannel.getIdLong() == childChannelId) {
@@ -79,7 +79,7 @@ public class AutoChannel {
         }
     }
 
-    private static void processCreatedVoice(AutoChannelBean autoChannelBean, VoiceChannel voiceChannel, Member member) {
+    private static void processCreatedVoice(AutoChannelData autoChannelBean, VoiceChannel voiceChannel, Member member) {
         if (member.getVoiceState() != null && member.getVoiceState().inVoiceChannel()) {
             member.getGuild().moveVoiceMember(member, voiceChannel).queue(v -> {
                 autoChannelBean.getChildChannelIds().add(voiceChannel.getIdLong());
@@ -97,7 +97,7 @@ public class AutoChannel {
         }
     }
 
-    private static ChannelAction<VoiceChannel> createNewVoice(AutoChannelBean autoChannelBean, VoiceChannel parentVoice, Member member, int n) {
+    private static ChannelAction<VoiceChannel> createNewVoice(AutoChannelData autoChannelBean, VoiceChannel parentVoice, Member member, int n) {
         ChannelAction<VoiceChannel> channelAction;
         if (parentVoice.getParent() != null) {
             channelAction = parentVoice.getParent().createVoiceChannel(getNewVoiceName(autoChannelBean, parentVoice, member, n));
@@ -175,7 +175,7 @@ public class AutoChannel {
         );
     }
 
-    private static String getNewVoiceName(AutoChannelBean autoChannelBean, VoiceChannel parentVoice, Member member, int n) {
+    private static String getNewVoiceName(AutoChannelData autoChannelBean, VoiceChannel parentVoice, Member member, int n) {
         String name = autoChannelBean.getNameMask();
         name = AutoChannel.resolveVariables(name, parentVoice.getName(), String.valueOf(n), member.getEffectiveName());
         name = name.substring(0, Math.min(100, name.length()));

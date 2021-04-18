@@ -8,9 +8,9 @@ import core.TextManager;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 
-public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageBean> {
+public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageData> {
 
     private static final DBWelcomeMessage ourInstance = new DBWelcomeMessage();
 
@@ -22,8 +22,8 @@ public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageBea
     }
 
     @Override
-    protected WelcomeMessageBean load(Long serverId) throws Exception {
-        WelcomeMessageBean welcomeMessageBean;
+    protected WelcomeMessageData load(Long serverId) throws Exception {
+        WelcomeMessageData welcomeMessageBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText FROM ServerWelcomeMessage WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
@@ -31,7 +31,7 @@ public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageBea
 
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
-            welcomeMessageBean = new WelcomeMessageBean(
+            welcomeMessageBean = new WelcomeMessageData(
                     serverId,
                     resultSet.getBoolean(1),
                     resultSet.getString(2),
@@ -44,10 +44,10 @@ public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageBea
                     resultSet.getString(9)
             );
         } else {
-            GuildBean guildBean = DBGuild.getInstance().retrieve(serverId);
+            GuildData guildBean = DBGuild.getInstance().retrieve(serverId);
             Locale locale = guildBean.getLocale();
 
-            welcomeMessageBean = new WelcomeMessageBean(
+            welcomeMessageBean = new WelcomeMessageData(
                     serverId,
                     false,
                     TextManager.getString(locale, Category.UTILITY, "welcome_standard_title"),
@@ -68,7 +68,7 @@ public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageBea
     }
 
     @Override
-    protected void save(WelcomeMessageBean welcomeMessageBean) {
+    protected void save(WelcomeMessageData welcomeMessageBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO ServerWelcomeMessage (serverId, activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, welcomeMessageBean.getGuildId());
 

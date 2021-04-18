@@ -17,7 +17,7 @@ import core.atomicassets.MentionableAtomicAsset;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.spblock.DBSPBlock;
-import mysql.modules.spblock.SPBlockBean;
+import mysql.modules.spblock.SPBlockData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -35,7 +35,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class InviteFilterCommand extends NavigationAbstract {
 
-    private SPBlockBean spBlockBean;
+    private SPBlockData spBlockBean;
     private CustomObservableList<AtomicMember> ignoredUsers;
     private CustomObservableList<AtomicMember> logReceivers;
     private CustomObservableList<AtomicTextChannel> ignoredChannels;
@@ -177,7 +177,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i <= 2) {
-                    spBlockBean.setAction(SPBlockBean.ActionList.values()[i]);
+                    spBlockBean.setAction(SPBlockData.ActionList.values()[i]);
                     setState(0);
                     setLog(LogStatus.SUCCESS, getString("actionset"));
                     return true;

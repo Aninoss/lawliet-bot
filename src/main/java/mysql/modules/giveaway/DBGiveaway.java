@@ -8,7 +8,7 @@ import mysql.DBDataLoadAll;
 import mysql.DBMain;
 import mysql.DBMapCache;
 
-public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, GiveawaySlot>> {
+public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, GiveawayData>> {
 
     private static final DBGiveaway ourInstance = new DBGiveaway();
 
@@ -20,12 +20,12 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
     }
 
     @Override
-    protected CustomObservableMap<Long, GiveawaySlot> load(Long guildId) {
-        HashMap<Long, GiveawaySlot> giveawaysMapRaw = new DBDataLoad<GiveawaySlot>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active", "serverId = ?",
+    protected CustomObservableMap<Long, GiveawayData> load(Long guildId) {
+        HashMap<Long, GiveawayData> giveawaysMapRaw = new DBDataLoad<GiveawayData>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getHashMap(
-                GiveawaySlot::getMessageId,
-                resultSet -> new GiveawaySlot(
+                GiveawayData::getMessageId,
+                resultSet -> new GiveawayData(
                         resultSet.getLong(1),
                         resultSet.getLong(2),
                         resultSet.getLong(3),
@@ -40,7 +40,7 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
                 )
         );
 
-        CustomObservableMap<Long, GiveawaySlot> giveawaysMap = new CustomObservableMap<>(giveawaysMapRaw);
+        CustomObservableMap<Long, GiveawayData> giveawaysMap = new CustomObservableMap<>(giveawaysMapRaw);
         giveawaysMap.addMapAddListener(this::addGiveawaySlot)
                 .addMapUpdateListener(this::addGiveawaySlot)
                 .addMapRemoveListener(this::removeGiveawaySlot);
@@ -48,10 +48,10 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
         return giveawaysMap;
     }
 
-    public List<GiveawaySlot> retrieveAll() {
-        return new DBDataLoadAll<GiveawaySlot>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active")
+    public List<GiveawayData> retrieveAll() {
+        return new DBDataLoadAll<GiveawayData>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active")
                 .getArrayList(
-                        resultSet -> new GiveawaySlot(
+                        resultSet -> new GiveawayData(
                                 resultSet.getLong(1),
                                 resultSet.getLong(2),
                                 resultSet.getLong(3),
@@ -67,7 +67,7 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
                 );
     }
 
-    private void addGiveawaySlot(GiveawaySlot slot) {
+    private void addGiveawaySlot(GiveawayData slot) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO Giveaways (serverId, messageId, channelId, emoji, winners, start, durationMinutes, title, description, imageUrl, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getGuildId());
             preparedStatement.setLong(2, slot.getMessageId());
@@ -83,7 +83,7 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
         });
     }
 
-    private void removeGiveawaySlot(GiveawaySlot slot) {
+    private void removeGiveawaySlot(GiveawayData slot) {
         DBMain.getInstance().asyncUpdate("DELETE FROM Giveaways WHERE messageId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, slot.getMessageId());
         });

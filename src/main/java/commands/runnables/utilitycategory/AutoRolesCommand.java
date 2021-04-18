@@ -13,7 +13,7 @@ import core.ListGen;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.MentionableAtomicAsset;
 import core.utils.MentionUtil;
-import mysql.modules.autoroles.AutoRolesBean;
+import mysql.modules.autoroles.AutoRolesData;
 import mysql.modules.autoroles.DBAutoRoles;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -42,7 +42,7 @@ public class AutoRolesCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        AutoRolesBean autoRolesBean = DBAutoRoles.getInstance().retrieve(event.getGuild().getIdLong());
+        AutoRolesData autoRolesBean = DBAutoRoles.getInstance().retrieve(event.getGuild().getIdLong());
         roles = AtomicRole.transformIdList(event.getGuild(), autoRolesBean.getRoleIds());
         roleNavigationHelper = new NavigationHelper<>(this, roles, AtomicRole.class, MAX_ROLES);
         checkRolesWithLog(event.getGuild(), event.getMember(), roles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));

@@ -10,10 +10,10 @@ import modules.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.upvotes.DBUpvotes;
-import mysql.modules.upvotes.UpvotesBean;
+import mysql.modules.upvotes.UpvotesData;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
 import websockets.syncserver.SyncServerFunction;
@@ -44,8 +44,8 @@ public class OnTopGG implements SyncServerFunction {
     }
 
     protected void processUpvote(long userId, boolean isWeekend) throws ExecutionException, InterruptedException {
-        UpvotesBean upvotesBean = DBUpvotes.getInstance().retrieve();
-        if (upvotesBean.getLastUpvote(userId).plus(11, ChronoUnit.HOURS).isBefore(Instant.now())) {
+        UpvotesData upvotesData = DBUpvotes.getInstance().retrieve();
+        if (upvotesData.getLastUpvote(userId).plus(11, ChronoUnit.HOURS).isBefore(Instant.now())) {
             ShardManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
                 MainLogger.get().info("UPVOTE | {}", user.getName());
 
@@ -53,7 +53,7 @@ public class OnTopGG implements SyncServerFunction {
                         .filter(guild -> DBGuild.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE)
                         .forEach(guild -> {
                             int value = isWeekend ? 2 : 1;
-                            FisheryMemberBean userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(userId);
+                            FisheryMemberData userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(userId);
 
                             if (DBAutoClaim.getInstance().retrieve().isActive(userId)) {
                                 userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);
@@ -62,7 +62,7 @@ public class OnTopGG implements SyncServerFunction {
                             }
                         });
             });
-            upvotesBean.updateLastUpvote(userId);
+            upvotesData.updateLastUpvote(userId);
         }
     }
 

@@ -5,7 +5,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
 
-public class DBBannedUsers extends DBSingleCache<BannedUsersBean> {
+public class DBBannedUsers extends DBSingleCache<BannedUsersData> {
 
     private static final DBBannedUsers ourInstance = new DBBannedUsers();
 
@@ -17,13 +17,13 @@ public class DBBannedUsers extends DBSingleCache<BannedUsersBean> {
     }
 
     @Override
-    protected BannedUsersBean loadBean() throws Exception {
-        BannedUsersBean bannedUsersBean = new BannedUsersBean(getUserIds());
-        bannedUsersBean.getUserIds()
+    protected BannedUsersData loadBean() throws Exception {
+        BannedUsersData bannedUsersData = new BannedUsersData(getUserIds());
+        bannedUsersData.getUserIds()
                 .addListAddListener(list -> list.forEach(this::addUserId))
                 .addListRemoveListener(list -> list.forEach(this::removeUserId));
 
-        return bannedUsersBean;
+        return bannedUsersData;
     }
 
     private ArrayList<Long> getUserIds() {

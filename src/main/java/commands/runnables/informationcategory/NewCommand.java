@@ -16,10 +16,10 @@ import core.TextManager;
 import core.utils.BotUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import mysql.modules.version.DBVersion;
-import mysql.modules.version.VersionBean;
-import mysql.modules.version.VersionBeanSlot;
+import mysql.modules.version.VersionData;
+import mysql.modules.version.VersionSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 )
 public class NewCommand extends Command implements OnAlertListener {
 
-    VersionBean versionBean;
+    VersionData versionData;
 
     public NewCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -40,11 +40,11 @@ public class NewCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        versionBean = DBVersion.getInstance().retrieve();
+        versionData = DBVersion.getInstance().retrieve();
 
         // without args
         if (args.length() == 0) {
-            List<VersionBeanSlot> versions = versionBean.getCurrentVersions(1);
+            List<VersionSlot> versions = versionData.getCurrentVersions(1);
             event.getChannel().sendMessage(getEmbedNormal(event.getMember(), versions, true).build()).queue();
             return true;
         } else {
@@ -53,7 +53,7 @@ public class NewCommand extends Command implements OnAlertListener {
                 int i = Integer.parseInt(args);
                 if (i >= 1) {
                     if (i <= 10) {
-                        List<VersionBeanSlot> versions = versionBean.getCurrentVersions(i);
+                        List<VersionSlot> versions = versionData.getCurrentVersions(i);
                         event.getChannel().sendMessage(
                                 getEmbedNormal(event.getMember(), versions, false).build()
                         ).queue();
@@ -72,7 +72,7 @@ public class NewCommand extends Command implements OnAlertListener {
                 }
             } else {
                 List<String> askVersions = Arrays.stream(args.split(" ")).filter(str -> !str.isEmpty()).collect(Collectors.toList());
-                List<VersionBeanSlot> versions = versionBean.getSlots().stream().filter(slot -> askVersions.contains(slot.getVersion())).collect(Collectors.toList());
+                List<VersionSlot> versions = versionData.getSlots().stream().filter(slot -> askVersions.contains(slot.getVersion())).collect(Collectors.toList());
 
                 if (versions.size() > 0) {
                     event.getChannel().sendMessage(
@@ -89,23 +89,23 @@ public class NewCommand extends Command implements OnAlertListener {
         }
     }
 
-    private EmbedBuilder getEmbedNormal(Member member, List<VersionBeanSlot> versions, boolean showEmptyFooter) {
+    private EmbedBuilder getEmbedNormal(Member member, List<VersionSlot> versions, boolean showEmptyFooter) {
         EmbedBuilder eb = getVersionsEmbed(versions, showEmptyFooter);
         EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
         return eb;
     }
 
-    private EmbedBuilder getVersionsEmbed(VersionBeanSlot slot) {
-        ArrayList<VersionBeanSlot> versions = new ArrayList<>();
+    private EmbedBuilder getVersionsEmbed(VersionSlot slot) {
+        ArrayList<VersionSlot> versions = new ArrayList<>();
         versions.add(slot);
         return getVersionsEmbed(versions, false);
     }
 
-    private EmbedBuilder getVersionsEmbed(List<VersionBeanSlot> versions, boolean showEmptyFooter) {
+    private EmbedBuilder getVersionsEmbed(List<VersionSlot> versions, boolean showEmptyFooter) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         if (showEmptyFooter) EmbedUtil.setFooter(eb, this, getString("footer"));
         for (int i = versions.size() - 1; i >= 0; i--) {
-            VersionBeanSlot slot = versions.get(i);
+            VersionSlot slot = versions.get(i);
             String versionsString = TextManager.getString(getLocale(), TextManager.VERSIONS, slot.getVersion());
             eb.addField(
                     slot.getVersion(),
@@ -117,9 +117,9 @@ public class NewCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
-            VersionBeanSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
+            VersionSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
             long messageId = slot.sendMessage(true, getVersionsEmbed(newestSlot).build()).orElse(0L);
 
             if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID && messageId != 0) {

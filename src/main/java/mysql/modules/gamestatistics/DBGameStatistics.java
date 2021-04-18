@@ -6,7 +6,7 @@ import core.Program;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBGameStatistics extends DBObserverMapCache<String, GameStatisticsBean> {
+public class DBGameStatistics extends DBObserverMapCache<String, GameStatisticsData> {
 
     private static final DBGameStatistics ourInstance = new DBGameStatistics();
 
@@ -18,7 +18,7 @@ public class DBGameStatistics extends DBObserverMapCache<String, GameStatisticsB
     }
 
     @Override
-    protected GameStatisticsBean load(String command) throws Exception {
+    protected GameStatisticsData load(String command) throws Exception {
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT won, value FROM GameStatistics WHERE game = ?;");
         preparedStatement.setString(1, command);
         preparedStatement.execute();
@@ -32,19 +32,19 @@ public class DBGameStatistics extends DBObserverMapCache<String, GameStatisticsB
         resultSet.close();
         preparedStatement.close();
 
-        return new GameStatisticsBean(command, values);
+        return new GameStatisticsData(command, values);
     }
 
     @Override
-    protected void save(GameStatisticsBean gameStatisticsBean) {
+    protected void save(GameStatisticsData gameStatisticsData) {
         if (Program.isPublicVersion()) {
             DBMain.getInstance().asyncUpdate("REPLACE INTO GameStatistics (game, won, value) VALUES (?, ?, ?), (?, ?, ?);", preparedStatement -> {
-                preparedStatement.setString(1, gameStatisticsBean.getCommand());
+                preparedStatement.setString(1, gameStatisticsData.getCommand());
                 preparedStatement.setBoolean(2, false);
-                preparedStatement.setDouble(3, gameStatisticsBean.getValue(false));
-                preparedStatement.setString(4, gameStatisticsBean.getCommand());
+                preparedStatement.setDouble(3, gameStatisticsData.getValue(false));
+                preparedStatement.setString(4, gameStatisticsData.getCommand());
                 preparedStatement.setBoolean(5, true);
-                preparedStatement.setDouble(6, gameStatisticsBean.getValue(true));
+                preparedStatement.setDouble(6, gameStatisticsData.getValue(true));
             });
         }
     }

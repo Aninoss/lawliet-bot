@@ -5,7 +5,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountBean> {
+public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountData> {
 
     private static final DBMemberCountDisplays ourInstance = new DBMemberCountDisplays();
 
@@ -17,8 +17,8 @@ public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountB
     }
 
     @Override
-    protected MemberCountBean load(Long serverId) throws Exception {
-        MemberCountBean memberCountBean = new MemberCountBean(
+    protected MemberCountData load(Long serverId) throws Exception {
+        MemberCountData memberCountBean = new MemberCountData(
                 serverId,
                 getMemberCountBeanSlot(serverId)
         );
@@ -31,7 +31,7 @@ public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountB
     }
 
     @Override
-    protected void save(MemberCountBean memberCountBean) {
+    protected void save(MemberCountData memberCountBean) {
     }
 
     private HashMap<Long, MemberCountDisplaySlot> getMemberCountBeanSlot(long serverId) {

@@ -19,7 +19,7 @@ import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.ClearResults;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -129,7 +129,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnReac
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         TextChannel textChannel = slot.getTextChannel().get();
         if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), textChannel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
             Optional<Integer> hoursMin = extractHoursMin(textChannel, slot.getCommandKey());

@@ -24,7 +24,7 @@ import core.emojiconnection.EmojiConnection;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import mysql.modules.commandmanagement.CommandManagementBean;
+import mysql.modules.commandmanagement.CommandManagementData;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -60,7 +60,7 @@ public class HelpCommand extends NavigationAbstract {
 
     private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
     private String searchTerm;
-    private CommandManagementBean commandManagementBean;
+    private CommandManagementData commandManagementBean;
     private String currentCategory = null;
 
     public HelpCommand(Locale locale, String prefix) {

@@ -11,7 +11,7 @@ import core.TextManager;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 )
 public class TopCommand extends ListAbstract implements FisheryInterface {
 
-    private ArrayList<FisheryMemberBean> rankingSlots;
+    private ArrayList<FisheryMemberData> rankingSlots;
 
     public TopCommand(Locale locale, String prefix) {
         super(locale, prefix, 10);
@@ -48,7 +48,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
 
     @Override
     protected Pair<String, String> getEntry(int i) {
-        FisheryMemberBean memberBean = rankingSlots.get(i);
+        FisheryMemberData memberBean = rankingSlots.get(i);
         Optional<Member> memberOpt = memberBean.getMember();
         String userString = memberOpt
                 .map(Member::getEffectiveName)

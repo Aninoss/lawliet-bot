@@ -18,11 +18,11 @@ import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import modules.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildBean;
-import mysql.modules.fisheryusers.FisheryMemberBean;
-import mysql.modules.fisheryusers.FisheryMemberGearBean;
+import mysql.modules.fisheryusers.FisheryGuildData;
+import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.modules.fisheryusers.FisheryMemberGearData;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -40,9 +40,9 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
-    private FisheryMemberBean fisheryMemberBean;
-    private FisheryGuildBean fisheryGuildBean;
-    private GuildBean guildBean;
+    private FisheryMemberData fisheryMemberBean;
+    private FisheryGuildData fisheryGuildBean;
+    private GuildData guildBean;
 
     public BuyCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -184,7 +184,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         if (i > FisheryGear.values().length - 1 || i < 0) return false;
         fisheryGear = FisheryGear.values()[i];
 
-        FisheryMemberGearBean slot = fisheryMemberBean.getMemberGear(fisheryGear);
+        FisheryMemberGearData slot = fisheryMemberBean.getMemberGear(fisheryGear);
 
         long price = slot.getPrice();
         if (slot.getGear() == FisheryGear.ROLE) {
@@ -203,7 +203,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         }
     }
 
-    private void upgrade(FisheryMemberGearBean slot, long price, List<Role> roles, Member member) {
+    private void upgrade(FisheryMemberGearData slot, long price, List<Role> roles, Member member) {
         fisheryMemberBean.changeValues(0, -price);
         fisheryMemberBean.levelUp(slot.getGear());
 
@@ -248,7 +248,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
             case 0:
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("beginning") + "\n" + Emojis.ZERO_WIDTH_SPACE);
                 int i = 0;
-                for (FisheryMemberGearBean slot : getUpgradableGears()) {
+                for (FisheryMemberGearData slot : getUpgradableGears()) {
                     String productDescription = "???";
                     long price = slot.getPrice();
                     if (slot.getGear() != FisheryGear.ROLE) {
@@ -293,14 +293,14 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         }
     }
 
-    private List<FisheryMemberGearBean> getUpgradableGears() {
+    private List<FisheryMemberGearData> getUpgradableGears() {
         List<Role> roles = fisheryGuildBean.getRoles();
         return fisheryMemberBean.getGearMap().values().stream()
                 .filter(slot -> slotIsValid(roles, slot))
                 .collect(Collectors.toList());
     }
 
-    private boolean slotIsValid(List<Role> roles, FisheryMemberGearBean slot) {
+    private boolean slotIsValid(List<Role> roles, FisheryMemberGearData slot) {
         if (slot.getGear() == FisheryGear.ROLE) {
             return slot.getLevel() < roles.size() &&
                     BotPermissionUtil.can(getGuild().get(), Permission.MANAGE_ROLES) &&
@@ -314,7 +314,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         return true;
     }
 
-    private long calculateRolePrice(FisheryMemberGearBean slot) {
+    private long calculateRolePrice(FisheryMemberGearData slot) {
         return Fishery.getFisheryRolePrice(getGuild().get(), fisheryGuildBean.getRoles().size(), slot.getLevel());
     }
 

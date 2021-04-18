@@ -8,7 +8,7 @@ import mysql.DBDataLoadAll;
 import mysql.DBMain;
 import mysql.DBMapCache;
 
-public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBanSlot>> {
+public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBanData>> {
 
     private static final DBTempBan ourInstance = new DBTempBan();
 
@@ -20,14 +20,14 @@ public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBa
     }
 
     @Override
-    protected CustomObservableMap<Long, TempBanSlot> load(Long guildId) throws Exception {
-        HashMap<Long, TempBanSlot> tempBanMap = new DBDataLoad<TempBanSlot>("TempBans", "serverId, userId, expires", "serverId = ?",
+    protected CustomObservableMap<Long, TempBanData> load(Long guildId) throws Exception {
+        HashMap<Long, TempBanData> tempBanMap = new DBDataLoad<TempBanData>("TempBans", "serverId, userId, expires", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getHashMap(
-                TempBanSlot::getMemberId,
+                TempBanData::getMemberId,
                 resultSet -> {
                     long serverId = resultSet.getLong(1);
-                    return new TempBanSlot(
+                    return new TempBanData(
                             serverId,
                             resultSet.getLong(2),
                             resultSet.getTimestamp(3).toInstant()
@@ -41,12 +41,12 @@ public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBa
                 .addMapRemoveListener(this::removeTempBan);
     }
 
-    public List<TempBanSlot> retrieveAll() {
-        return new DBDataLoadAll<TempBanSlot>("TempBans", "serverId, userId, expires")
+    public List<TempBanData> retrieveAll() {
+        return new DBDataLoadAll<TempBanData>("TempBans", "serverId, userId, expires")
                 .getArrayList(
                         resultSet -> {
                             long serverId = resultSet.getLong(1);
-                            return new TempBanSlot(
+                            return new TempBanData(
                                     serverId,
                                     resultSet.getLong(2),
                                     resultSet.getTimestamp(3).toInstant()
@@ -55,7 +55,7 @@ public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBa
                 );
     }
 
-    private void addTempBan(TempBanSlot tempBan) {
+    private void addTempBan(TempBanData tempBan) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO TempBans (serverId, userId, expires) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, tempBan.getGuildId());
             preparedStatement.setLong(2, tempBan.getMemberId());
@@ -63,7 +63,7 @@ public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBa
         });
     }
 
-    private void removeTempBan(TempBanSlot tempBan) {
+    private void removeTempBan(TempBanData tempBan) {
         DBMain.getInstance().asyncUpdate("DELETE FROM TempBans WHERE serverId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, tempBan.getGuildId());
             preparedStatement.setLong(2, tempBan.getMemberId());

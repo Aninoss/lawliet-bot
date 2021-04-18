@@ -17,9 +17,9 @@ import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.gamestatistics.DBGameStatistics;
-import mysql.modules.gamestatistics.GameStatisticsBean;
+import mysql.modules.gamestatistics.GameStatisticsData;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -84,7 +84,7 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
                 return true;
             }
 
-            FisheryMemberBean memberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
+            FisheryMemberData memberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
             long coins = memberBean.getCoins();
             long value = Math.min(MentionUtil.getAmountExt(args, coins), coins);
             if (value == -1) {
@@ -184,11 +184,11 @@ public abstract class CasinoAbstract extends Command implements OnReactionListen
 
             double multiplicator = 1;
             if (coinsInput != 0 && useCalculatedMultiplicator) {
-                GameStatisticsBean gameStatisticsBean = DBGameStatistics.getInstance().retrieve(compareKey);
-                gameStatisticsBean.addValue(true, winMultiplicator);
+                GameStatisticsData gameStatisticsData = DBGameStatistics.getInstance().retrieve(compareKey);
+                gameStatisticsData.addValue(true, winMultiplicator);
 
-                double won = gameStatisticsBean.getValue(true);
-                double lost = gameStatisticsBean.getValue(false);
+                double won = gameStatisticsData.getValue(true);
+                double lost = gameStatisticsData.getValue(false);
                 if (won > 0 && lost > 0) multiplicator = lost / won;
             }
 

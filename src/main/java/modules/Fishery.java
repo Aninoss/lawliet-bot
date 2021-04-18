@@ -10,10 +10,10 @@ import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildBean;
-import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryGuildData;
+import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -25,7 +25,7 @@ public class Fishery {
 
     public static void giveRoles(Member member) {
         Guild guild = member.getGuild();
-        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
+        FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
         Locale locale = fisheryGuildBean.getGuildBean().getLocale();
         if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED) {
             return;
@@ -43,7 +43,7 @@ public class Fishery {
     }
 
     public static long getFisheryRolePrice(Guild guild, int size, int n) {
-        GuildBean guildBean = DBGuild.getInstance().retrieve(guild.getIdLong());
+        GuildData guildBean = DBGuild.getInstance().retrieve(guild.getIdLong());
 
         double priceIdealMin = guildBean.getFisheryRoleMin();
         double priceIdealMax = guildBean.getFisheryRoleMax();
@@ -60,12 +60,12 @@ public class Fishery {
         return Math.round(price * (priceIdealMax / priceMax));
     }
 
-    public static long getClaimValue(FisheryMemberBean userBean) {
+    public static long getClaimValue(FisheryMemberData userBean) {
         return Math.round(userBean.getMemberGear(FisheryGear.DAILY).getEffect() * 0.25);
     }
 
     public static void spawnTreasureChest(TextChannel channel) {
-        GuildBean guildBean = DBGuild.getInstance().retrieve(channel.getGuild().getIdLong());
+        GuildData guildBean = DBGuild.getInstance().retrieve(channel.getGuild().getIdLong());
         Locale locale = guildBean.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title"))

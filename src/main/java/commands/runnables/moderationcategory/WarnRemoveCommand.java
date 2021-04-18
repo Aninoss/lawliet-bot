@@ -9,7 +9,7 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import mysql.modules.warning.DBServerWarnings;
-import mysql.modules.warning.GuildWarningsSlot;
+import mysql.modules.warning.ServerWarningSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -57,7 +57,7 @@ public class WarnRemoveCommand extends WarnCommand {
 
     @Override
     protected void process(Guild guild, User target, String reason) throws Throwable {
-        CustomObservableList<GuildWarningsSlot> serverWarningsSlots = DBServerWarnings.getInstance().retrieve(new Pair<>(guild.getIdLong(), target.getIdLong())).getWarnings();
+        CustomObservableList<ServerWarningSlot> serverWarningsSlots = DBServerWarnings.getInstance().retrieve(new Pair<>(guild.getIdLong(), target.getIdLong())).getWarnings();
         serverWarningsSlots.remove(Math.max(0, serverWarningsSlots.size() - n), serverWarningsSlots.size());
     }
 

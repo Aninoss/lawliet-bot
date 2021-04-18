@@ -5,7 +5,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBWhiteListedChannels extends DBObserverMapCache<Long, WhiteListedChannelsBean> {
+public class DBWhiteListedChannels extends DBObserverMapCache<Long, WhiteListedChannelsData> {
 
     private static final DBWhiteListedChannels ourInstance = new DBWhiteListedChannels();
 
@@ -17,8 +17,8 @@ public class DBWhiteListedChannels extends DBObserverMapCache<Long, WhiteListedC
     }
 
     @Override
-    protected WhiteListedChannelsBean load(Long serverId) throws Exception {
-        WhiteListedChannelsBean whiteListedChannelsBean = new WhiteListedChannelsBean(
+    protected WhiteListedChannelsData load(Long serverId) throws Exception {
+        WhiteListedChannelsData whiteListedChannelsBean = new WhiteListedChannelsData(
                 serverId,
                 getChannelIds(serverId)
         );
@@ -31,7 +31,7 @@ public class DBWhiteListedChannels extends DBObserverMapCache<Long, WhiteListedC
     }
 
     @Override
-    protected void save(WhiteListedChannelsBean whiteListedChannelsBean) {
+    protected void save(WhiteListedChannelsData whiteListedChannelsBean) {
     }
 
     private ArrayList<Long> getChannelIds(long serverId) {

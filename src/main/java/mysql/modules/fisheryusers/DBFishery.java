@@ -20,7 +20,7 @@ import mysql.DBIntervalMapCache;
 import mysql.DBMain;
 import mysql.modules.guild.DBGuild;
 
-public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
+public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildData> {
 
     private static final DBFishery ourInstance = new DBFishery();
 
@@ -37,7 +37,7 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
         return CacheBuilder.newBuilder()
                 .expireAfterAccess(5, TimeUnit.MINUTES)
                 .removalListener(e -> {
-                    FisheryGuildBean serverBean = (FisheryGuildBean) e.getValue();
+                    FisheryGuildData serverBean = (FisheryGuildData) e.getValue();
                     if (e.getCause() == RemovalCause.EXPIRED && isChanged(serverBean)) {
                         removeUpdate(serverBean);
                         save(serverBean);
@@ -46,11 +46,11 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
     }
 
     @Override
-    protected FisheryGuildBean load(Long serverId) throws Exception {
-        HashMap<Long, HashMap<Instant, FisheryHourlyIncomeBean>> fisheryHourlyIncomeMap = getFisheryHourlyIncomeMap(serverId);
-        HashMap<Long, HashMap<Integer, FisheryMemberGearBean>> fisheryPowerUpMap = getFisheryPowerUpMap(serverId);
+    protected FisheryGuildData load(Long serverId) throws Exception {
+        HashMap<Long, HashMap<Instant, FisheryHourlyIncomeData>> fisheryHourlyIncomeMap = getFisheryHourlyIncomeMap(serverId);
+        HashMap<Long, HashMap<Integer, FisheryMemberGearData>> fisheryPowerUpMap = getFisheryPowerUpMap(serverId);
 
-        FisheryGuildBean fisheryGuildBean = new FisheryGuildBean(
+        FisheryGuildData fisheryGuildBean = new FisheryGuildData(
                 serverId,
                 getIgnoredChannelIds(serverId),
                 getRoleIds(serverId),
@@ -68,7 +68,7 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
     }
 
     @Override
-    protected synchronized void save(FisheryGuildBean fisheryGuildBean) {
+    protected synchronized void save(FisheryGuildData fisheryGuildBean) {
         try {
             if (fisheryGuildBean != null &&
                     fisheryGuildBean.getGuildBean().getFisheryStatus() != FisheryStatus.STOPPED &&
@@ -79,7 +79,7 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
                 DBBatch powerUpBatch = new DBBatch("REPLACE INTO PowerPlantUserPowerUp (serverId, userId, categoryId, level) VALUES (?, ?, ?, ?)");
 
                 new ArrayList<>(fisheryGuildBean.getUsers().values()).stream()
-                        .filter(FisheryMemberBean::checkChanged)
+                        .filter(FisheryMemberData::checkChanged)
                         .forEach(fisheryUserBean -> saveFisheryUserBean(fisheryUserBean, userBatch, hourlyBatch, powerUpBatch));
 
                 userBatch.execute();
@@ -96,7 +96,7 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
         }
     }
 
-    private void saveFisheryUserBean(FisheryMemberBean fisheryMemberBean, DBBatch userBatch, DBBatch hourlyBatch, DBBatch powerUpBatch) {
+    private void saveFisheryUserBean(FisheryMemberData fisheryMemberBean, DBBatch userBatch, DBBatch hourlyBatch, DBBatch powerUpBatch) {
         try {
             userBatch.add(preparedStatement -> {
                 preparedStatement.setLong(1, fisheryMemberBean.getGuildId());
@@ -113,9 +113,9 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
                 preparedStatement.setString(12, DBMain.instantToDateTimeString(fisheryMemberBean.getNextWork()));
             });
 
-            fisheryMemberBean.getAllFishHourlyIncomeChanged().forEach(fisheryHourlyIncomeBean -> saveFisheryHourlyIncomeBean(fisheryHourlyIncomeBean, hourlyBatch));
+            fisheryMemberBean.getAllFishHourlyIncomeChanged().forEach(fisheryHourlyIncomeData -> saveFisheryHourlyIncomeBean(fisheryHourlyIncomeData, hourlyBatch));
             fisheryMemberBean.getGearMap().values().stream()
-                    .filter(FisheryMemberGearBean::checkChanged)
+                    .filter(FisheryMemberGearData::checkChanged)
                     .forEach(powerUpBean -> saveFisheryUserPowerUpBean(powerUpBean, powerUpBatch));
         } catch (Throwable e) {
             fisheryMemberBean.setChanged();
@@ -123,35 +123,35 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
         }
     }
 
-    private void saveFisheryHourlyIncomeBean(FisheryHourlyIncomeBean fisheryHourlyIncomeBean, DBBatch hourlyBatch) {
+    private void saveFisheryHourlyIncomeBean(FisheryHourlyIncomeData fisheryHourlyIncomeData, DBBatch hourlyBatch) {
         try {
             hourlyBatch.add(preparedStatement -> {
-                preparedStatement.setLong(1, fisheryHourlyIncomeBean.getGuildId());
-                preparedStatement.setLong(2, fisheryHourlyIncomeBean.getMemberId());
-                preparedStatement.setString(3, DBMain.instantToDateTimeString(fisheryHourlyIncomeBean.getTime()));
-                preparedStatement.setLong(4, fisheryHourlyIncomeBean.getFishIncome());
+                preparedStatement.setLong(1, fisheryHourlyIncomeData.getGuildId());
+                preparedStatement.setLong(2, fisheryHourlyIncomeData.getMemberId());
+                preparedStatement.setString(3, DBMain.instantToDateTimeString(fisheryHourlyIncomeData.getTime()));
+                preparedStatement.setLong(4, fisheryHourlyIncomeData.getFishIncome());
             });
         } catch (Throwable e) {
-            fisheryHourlyIncomeBean.setChanged();
+            fisheryHourlyIncomeData.setChanged();
             MainLogger.get().error("Could not save fishery hourly income", e);
         }
     }
 
-    private void saveFisheryUserPowerUpBean(FisheryMemberGearBean fisheryMemberGearBean, DBBatch powerUpBatch) {
+    private void saveFisheryUserPowerUpBean(FisheryMemberGearData fisheryMemberGearData, DBBatch powerUpBatch) {
         try {
             powerUpBatch.add(preparedStatement -> {
-                preparedStatement.setLong(1, fisheryMemberGearBean.getGuildId());
-                preparedStatement.setLong(2, fisheryMemberGearBean.getMemberId());
-                preparedStatement.setInt(3, fisheryMemberGearBean.getGear().ordinal());
-                preparedStatement.setInt(4, fisheryMemberGearBean.getLevel());
+                preparedStatement.setLong(1, fisheryMemberGearData.getGuildId());
+                preparedStatement.setLong(2, fisheryMemberGearData.getMemberId());
+                preparedStatement.setInt(3, fisheryMemberGearData.getGear().ordinal());
+                preparedStatement.setInt(4, fisheryMemberGearData.getLevel());
             });
         } catch (Throwable e) {
-            fisheryMemberGearBean.setChanged();
+            fisheryMemberGearData.setChanged();
             MainLogger.get().error("Could not save fishery power up bean", e);
         }
     }
 
-    protected void removeFisheryUserBean(FisheryMemberBean fisheryMemberBean) {
+    protected void removeFisheryUserBean(FisheryMemberData fisheryMemberBean) {
         DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantUsers WHERE serverId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, fisheryMemberBean.getGuildId());
             preparedStatement.setLong(2, fisheryMemberBean.getMemberId());
@@ -168,8 +168,8 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
         });
     }
 
-    private HashMap<Long, FisheryMemberBean> getFisheryUsers(long serverId, HashMap<Long, HashMap<Instant, FisheryHourlyIncomeBean>> fisheryHourlyIncomeMap, HashMap<Long, HashMap<Integer, FisheryMemberGearBean>> fisheryPowerUpMap) throws SQLException, ExecutionException {
-        HashMap<Long, FisheryMemberBean> usersMap = new HashMap<>();
+    private HashMap<Long, FisheryMemberData> getFisheryUsers(long serverId, HashMap<Long, HashMap<Instant, FisheryHourlyIncomeData>> fisheryHourlyIncomeMap, HashMap<Long, HashMap<Integer, FisheryMemberGearData>> fisheryPowerUpMap) throws SQLException, ExecutionException {
+        HashMap<Long, FisheryMemberData> usersMap = new HashMap<>();
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed, dailyValuesUpdated, dailyVCMinutes, dailyReceivedCoins, nextWork FROM PowerPlantUsers WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
@@ -178,7 +178,7 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
         ResultSet resultSet = preparedStatement.getResultSet();
         while (resultSet.next()) {
             long userId = resultSet.getLong(1);
-            FisheryMemberBean fisheryMemberBean = new FisheryMemberBean(
+            FisheryMemberData fisheryMemberBean = new FisheryMemberData(
                     serverId,
                     userId,
                     resultSet.getLong(2),
@@ -203,8 +203,8 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
         return usersMap;
     }
 
-    private HashMap<Long, HashMap<Instant, FisheryHourlyIncomeBean>> getFisheryHourlyIncomeMap(long serverId) throws SQLException {
-        HashMap<Long, HashMap<Instant, FisheryHourlyIncomeBean>> hourlyIncomeMap = new HashMap<>();
+    private HashMap<Long, HashMap<Instant, FisheryHourlyIncomeData>> getFisheryHourlyIncomeMap(long serverId) throws SQLException {
+        HashMap<Long, HashMap<Instant, FisheryHourlyIncomeData>> hourlyIncomeMap = new HashMap<>();
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId, time, coinsGrowth FROM PowerPlantUserGained WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
@@ -215,7 +215,7 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
             long userId = resultSet.getLong(1);
             Instant time = resultSet.getTimestamp(2).toInstant();
 
-            FisheryHourlyIncomeBean fisheryUserBean = new FisheryHourlyIncomeBean(
+            FisheryHourlyIncomeData fisheryUserBean = new FisheryHourlyIncomeData(
                     serverId,
                     userId,
                     time,
@@ -231,8 +231,8 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
         return hourlyIncomeMap;
     }
 
-    private HashMap<Long, HashMap<Integer, FisheryMemberGearBean>> getFisheryPowerUpMap(long serverId) throws SQLException {
-        HashMap<Long, HashMap<Integer, FisheryMemberGearBean>> powerUpMap = new HashMap<>();
+    private HashMap<Long, HashMap<Integer, FisheryMemberGearData>> getFisheryPowerUpMap(long serverId) throws SQLException {
+        HashMap<Long, HashMap<Integer, FisheryMemberGearData>> powerUpMap = new HashMap<>();
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId, categoryId, level FROM PowerPlantUserPowerUp WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
@@ -242,14 +242,14 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildBean> {
         while (resultSet.next()) {
             long userId = resultSet.getLong(1);
             int powerUpId = resultSet.getInt(2);
-            FisheryMemberGearBean fisheryMemberGearBean = new FisheryMemberGearBean(
+            FisheryMemberGearData fisheryMemberGearData = new FisheryMemberGearData(
                     serverId,
                     userId,
                     FisheryGear.values()[powerUpId],
                     resultSet.getInt(3)
             );
 
-            powerUpMap.computeIfAbsent(userId, k -> new HashMap<>()).put(powerUpId, fisheryMemberGearBean);
+            powerUpMap.computeIfAbsent(userId, k -> new HashMap<>()).put(powerUpId, fisheryMemberGearData);
         }
 
         resultSet.close();

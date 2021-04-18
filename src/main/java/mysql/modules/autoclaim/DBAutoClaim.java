@@ -5,7 +5,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
 
-public class DBAutoClaim extends DBSingleCache<AutoClaimBean> {
+public class DBAutoClaim extends DBSingleCache<AutoClaimData> {
 
     private static final DBAutoClaim ourInstance = new DBAutoClaim();
 
@@ -17,15 +17,15 @@ public class DBAutoClaim extends DBSingleCache<AutoClaimBean> {
     }
 
     @Override
-    protected AutoClaimBean loadBean() throws Exception {
+    protected AutoClaimData loadBean() throws Exception {
         ArrayList<Long> autoClaimList = new DBDataLoad<Long>("AutoClaim", "userId", "active = 1")
                 .getArrayList(resultSet -> resultSet.getLong(1));
 
-        AutoClaimBean autoClaimBean = new AutoClaimBean(autoClaimList);
-        autoClaimBean.getUserList().addListAddListener(list -> list.forEach(this::addAutoClaim))
+        AutoClaimData autoClaimData = new AutoClaimData(autoClaimList);
+        autoClaimData.getUserList().addListAddListener(list -> list.forEach(this::addAutoClaim))
                 .addListRemoveListener(list -> list.forEach(this::removeAutoClaim));
 
-        return autoClaimBean;
+        return autoClaimData;
     }
 
     private void addAutoClaim(long userId) {

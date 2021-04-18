@@ -14,7 +14,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.Mute;
 import mysql.modules.moderation.DBModeration;
-import mysql.modules.moderation.ModerationBean;
+import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -45,7 +45,7 @@ public class MuteCommand extends WarnCommand {
 
     @Override
     protected boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
-        ModerationBean moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
+        ModerationData moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         Optional<Role> muteRoleOpt = moderationBean.getMuteRole();
         if (muteRoleOpt.isEmpty()) {
             event.getChannel()

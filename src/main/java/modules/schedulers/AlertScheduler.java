@@ -16,7 +16,7 @@ import core.PermissionCheckRuntime;
 import core.ShardManager;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.DBTracker;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -46,16 +46,16 @@ public class AlertScheduler {
         }
     }
 
-    public void loadAlert(TrackerSlot slot) {
+    public void loadAlert(TrackerData slot) {
         loadAlert(slot.getGuildId(), slot.hashCode(), slot.getNextRequest());
     }
 
     public void loadAlert(long guildId, int hash, Instant due) {
         long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), due);
         executorService.schedule(() -> {
-            CustomObservableMap<Integer, TrackerSlot> map = DBTracker.getInstance().retrieve(guildId);
+            CustomObservableMap<Integer, TrackerData> map = DBTracker.getInstance().retrieve(guildId);
             if (map.containsKey(hash)) {
-                TrackerSlot slot = map.get(hash);
+                TrackerData slot = map.get(hash);
                 if (slot.isActive() && ShardManager.getInstance().guildIsManaged(slot.getGuildId()) && manageAlert(slot)) {
                     loadAlert(slot);
                 }
@@ -63,7 +63,7 @@ public class AlertScheduler {
         }, millis, TimeUnit.MILLISECONDS);
     }
 
-    private boolean manageAlert(TrackerSlot slot) {
+    private boolean manageAlert(TrackerData slot) {
         Instant minInstant = Instant.now().plus(1, ChronoUnit.MINUTES);
 
         try {
@@ -86,7 +86,7 @@ public class AlertScheduler {
         return false;
     }
 
-    private void processAlert(TrackerSlot slot) throws Throwable {
+    private void processAlert(TrackerData slot) throws Throwable {
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getGuildBean().getLocale(), slot.getGuildBean().getPrefix());
         if (commandOpt.isEmpty()) {
             MainLogger.get().error("Invalid command for alert: {}", slot.getCommandTrigger());

@@ -5,7 +5,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBNSFWFilters extends DBObserverMapCache<Long, NSFWFiltersBean> {
+public class DBNSFWFilters extends DBObserverMapCache<Long, NSFWFiltersData> {
 
     private static final DBNSFWFilters ourInstance = new DBNSFWFilters();
 
@@ -17,8 +17,8 @@ public class DBNSFWFilters extends DBObserverMapCache<Long, NSFWFiltersBean> {
     }
 
     @Override
-    protected NSFWFiltersBean load(Long serverId) throws Exception {
-        NSFWFiltersBean nsfwFiltersBean = new NSFWFiltersBean(
+    protected NSFWFiltersData load(Long serverId) throws Exception {
+        NSFWFiltersData nsfwFiltersBean = new NSFWFiltersData(
                 serverId,
                 getKeywords(serverId)
         );
@@ -31,7 +31,7 @@ public class DBNSFWFilters extends DBObserverMapCache<Long, NSFWFiltersBean> {
     }
 
     @Override
-    protected void save(NSFWFiltersBean nsfwFiltersBean) {
+    protected void save(NSFWFiltersData nsfwFiltersBean) {
     }
 
     private ArrayList<String> getKeywords(long serverId) {

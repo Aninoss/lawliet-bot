@@ -16,7 +16,7 @@ import core.ShardManager;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBGuild extends DBObserverMapCache<Long, GuildBean> {
+public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
     private static final DBGuild ourInstance = new DBGuild();
 
@@ -32,7 +32,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildBean> {
             .build();
 
     @Override
-    protected GuildBean load(Long serverId) throws Exception {
+    protected GuildData load(Long serverId) throws Exception {
         int shard = ShardManager.getInstance().getResponsibleShard(serverId);
         if (shard < ShardManager.getInstance().getShardIntervalMin() || shard > ShardManager.getInstance().getShardIntervalMax()) {
             throw new Exception("Invalid server");
@@ -43,7 +43,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildBean> {
             removedServerIds.invalidate(serverId);
         }
 
-        GuildBean guildBean;
+        GuildData guildBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit FROM DServer WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
@@ -51,7 +51,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildBean> {
 
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
-            guildBean = new GuildBean(
+            guildBean = new GuildData(
                     serverId,
                     resultSet.getString(1),
                     new Locale(resultSet.getString(2)),
@@ -68,7 +68,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildBean> {
 
             );
         } else {
-            guildBean = new GuildBean(
+            guildBean = new GuildData(
                     serverId,
                     "L.",
                     new Locale(Locales.EN),
@@ -96,7 +96,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildBean> {
         return !removedServerIds.asMap().containsKey(serverId);
     }
 
-    private void insertBean(GuildBean guildBean) throws SQLException, InterruptedException {
+    private void insertBean(GuildData guildBean) throws SQLException, InterruptedException {
         DBMain.getInstance().update("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, guildBean.getGuildId());
             preparedStatement.setString(2, guildBean.getPrefix());
@@ -129,7 +129,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildBean> {
     }
 
     @Override
-    protected void save(GuildBean guildBean) {
+    protected void save(GuildData guildBean) {
         DBMain.getInstance().asyncUpdate("UPDATE DServer SET prefix = ?, locale = ?, powerPlant = ?, powerPlantSingleRole = ?, powerPlantAnnouncementChannelId = ?, powerPlantTreasureChests = ?, powerPlantReminders = ?, powerPlantRoleMin = ?, powerPlantRoleMax = ?, powerPlantVCHoursCap = ?, commandAuthorMessageRemove = ?, fisheryCoinsGivenLimit = ? WHERE serverId = ?;", preparedStatement -> {
             preparedStatement.setLong(11, guildBean.getGuildId());
 

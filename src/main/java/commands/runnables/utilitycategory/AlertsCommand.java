@@ -24,7 +24,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import modules.schedulers.AlertScheduler;
 import mysql.modules.tracker.DBTracker;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -53,7 +53,7 @@ public class AlertsCommand extends NavigationAbstract {
     private long serverId;
     private long channelId;
     private boolean patreon;
-    private CustomObservableMap<Integer, TrackerSlot> alerts;
+    private CustomObservableMap<Integer, TrackerData> alerts;
     private Command commandCache;
     private String commandKeyCache;
     private boolean cont = true;
@@ -215,18 +215,18 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     private Response processRemove(String arg) {
-        List<TrackerSlot> trackerSlots = getTrackersInChannel();
+        List<TrackerData> trackerData = getTrackersInChannel();
 
         if (!StringUtil.stringIsInt(arg)) {
             return null;
         }
 
         int index = Integer.parseInt(arg) + 10 * getPage();
-        if (index < 0 || index >= trackerSlots.size()) {
+        if (index < 0 || index >= trackerData.size()) {
             return null;
         }
 
-        TrackerSlot slotRemove = trackerSlots.get(index);
+        TrackerData slotRemove = trackerData.get(index);
         slotRemove.delete();
         setLog(LogStatus.SUCCESS, getString("state2_removed", slotRemove.getCommandTrigger()));
         if (getTrackersInChannel().size() == 0) {
@@ -323,15 +323,15 @@ public class AlertsCommand extends NavigationAbstract {
         emojiConnections = new ArrayList<>();
         emojiConnections.add(new BackEmojiConnection(getTextChannel().get(), "back"));
 
-        List<TrackerSlot> trackerSlots = getTrackersInChannel();
-        setOptions(new String[trackerSlots.size()]);
+        List<TrackerData> trackerData = getTrackersInChannel();
+        setOptions(new String[trackerData.size()]);
 
         for (int i = 0; i < getOptions().length; i++) {
-            String trigger = trackerSlots.get(i).getCommandTrigger();
+            String trigger = trackerData.get(i).getCommandTrigger();
 
-            getOptions()[i] = getString("slot_remove", trackerSlots.get(i).getCommandKey().length() > 0,
+            getOptions()[i] = getString("slot_remove", trackerData.get(i).getCommandKey().length() > 0,
                     trigger,
-                    StringUtil.escapeMarkdown(StringUtil.shortenString(trackerSlots.get(i).getCommandKey(), 200))
+                    StringUtil.escapeMarkdown(StringUtil.shortenString(trackerData.get(i).getCommandKey(), 200))
             );
             emojiConnections.add(new EmojiConnection(Emojis.LETTERS[i], String.valueOf(i)));
         }
@@ -361,7 +361,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     private void addTracker(String userMessage) {
-        TrackerSlot slot = new TrackerSlot(
+        TrackerData slot = new TrackerData(
                 serverId,
                 channelId,
                 commandCache.getTrigger(),
@@ -404,7 +404,7 @@ public class AlertsCommand extends NavigationAbstract {
         }
     }
 
-    private List<TrackerSlot> getTrackersInChannel() {
+    private List<TrackerData> getTrackersInChannel() {
         return alerts.values().stream()
                 .filter(slot -> slot != null && slot.getTextChannelId() == channelId)
                 .collect(Collectors.toList());

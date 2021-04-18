@@ -18,7 +18,7 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Mod;
 import mysql.modules.moderation.DBModeration;
-import mysql.modules.moderation.ModerationBean;
+import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -39,7 +39,7 @@ public class WarnCommand extends Command implements OnReactionListener {
 
     private List<User> userList;
     private String reason;
-    private ModerationBean moderationBean;
+    private ModerationData moderationBean;
     private Status status = Status.PENDING;
     private final ArrayList<User> usersErrorList = new ArrayList<>();
     private final boolean sendWarning;

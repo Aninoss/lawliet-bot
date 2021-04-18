@@ -14,7 +14,7 @@ import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
 import modules.FisheryMemberGroup;
-import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -100,7 +100,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             if (type == -1) {
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
             } else if (type == 3) {
-                fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberBean::remove);
+                fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
                 event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag())).build())
                         .queue();
                 return true;
@@ -155,7 +155,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             return false;
         }
 
-        for (FisheryMemberBean fisheryMemberBean : fisheryMemberGroup.getFisheryMemberList()) {
+        for (FisheryMemberData fisheryMemberBean : fisheryMemberGroup.getFisheryMemberList()) {
             long baseValue = getBaseValueByType(fisheryMemberBean, type);
             long newValue = MentionUtil.getAmountExt(inputString, baseValue);
             if (newValue == -1) {
@@ -170,7 +170,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         return success;
     }
 
-    private void setNewValues(FisheryMemberBean fisheryMemberBean, long newValue, int type) {
+    private void setNewValues(FisheryMemberData fisheryMemberBean, long newValue, int type) {
         switch (type) {
             /* Fish */
             case 0:
@@ -209,7 +209,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         return newValue;
     }
 
-    private long getBaseValueByType(FisheryMemberBean fisheryMemberBean, int type) {
+    private long getBaseValueByType(FisheryMemberData fisheryMemberBean, int type) {
         switch (type) {
             case 0:
                 return fisheryMemberBean.getFish();
@@ -239,7 +239,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                     resetLog = false;
                     setLog(LogStatus.WARNING, getString("state0_confirm"));
                 } else {
-                    fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberBean::remove);
+                    fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
                     resetLog = true;
                     setLog(LogStatus.SUCCESS, getString("reset_log", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag()));
                     setState(0);

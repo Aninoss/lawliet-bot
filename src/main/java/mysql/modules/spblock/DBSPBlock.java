@@ -7,7 +7,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBSPBlock extends DBObserverMapCache<Long, SPBlockBean> {
+public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
 
     private static final DBSPBlock ourInstance = new DBSPBlock();
 
@@ -19,8 +19,8 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockBean> {
     }
 
     @Override
-    protected SPBlockBean load(Long serverId) throws Exception {
-        SPBlockBean spBlockBean;
+    protected SPBlockData load(Long serverId) throws Exception {
+        SPBlockData spBlockBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active, action FROM SPBlock WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
@@ -28,19 +28,19 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockBean> {
 
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
-            spBlockBean = new SPBlockBean(
+            spBlockBean = new SPBlockData(
                     serverId,
                     resultSet.getBoolean(1),
-                    SPBlockBean.ActionList.valueOf(resultSet.getString(2)),
+                    SPBlockData.ActionList.valueOf(resultSet.getString(2)),
                     getIgnoredUsers(serverId),
                     getIgnoredChannels(serverId),
                     getLogReceivers(serverId)
             );
         } else {
-            spBlockBean = new SPBlockBean(
+            spBlockBean = new SPBlockData(
                     serverId,
                     false,
-                    SPBlockBean.ActionList.DELETE_MESSAGE,
+                    SPBlockData.ActionList.DELETE_MESSAGE,
                     getIgnoredUsers(serverId),
                     getIgnoredChannels(serverId),
                     getLogReceivers(serverId)
@@ -63,7 +63,7 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockBean> {
     }
 
     @Override
-    protected void save(SPBlockBean spBlockBean) {
+    protected void save(SPBlockData spBlockBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO SPBlock (serverId, active, action) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, spBlockBean.getGuildId());
             preparedStatement.setBoolean(2, spBlockBean.isActive());

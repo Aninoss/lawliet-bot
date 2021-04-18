@@ -13,7 +13,7 @@ import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -50,8 +50,8 @@ public class GiveCommand extends Command implements FisheryInterface {
         Member user0 = event.getMember();
         Member user1 = list.get(0);
 
-        FisheryMemberBean fisheryUser0 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user0.getIdLong());
-        FisheryMemberBean fisheryUser1 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user1.getIdLong());
+        FisheryMemberData fisheryUser0 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user0.getIdLong());
+        FisheryMemberData fisheryUser1 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user1.getIdLong());
         long value = Math.min(MentionUtil.getAmountExt(args, fisheryUser0.getCoins()), fisheryUser0.getCoins());
         long cap = fisheryUser1.getCoinsGivenMax() - fisheryUser1.getCoinsGiven();
 

@@ -20,10 +20,10 @@ import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildBean;
-import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryGuildData;
+import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -46,7 +46,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
 
     private static final int MAX_CHANNELS = 50;
 
-    private GuildBean guildBean;
+    private GuildData guildBean;
     private boolean stopLock = true;
     private NavigationHelper<AtomicTextChannel> channelNavigationHelper;
     private CustomObservableList<AtomicTextChannel> ignoredChannels;
@@ -61,7 +61,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-        FisheryGuildBean fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
+        FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
         ignoredChannels = AtomicTextChannel.transformIdList(event.getGuild(), fisheryGuildBean.getIgnoredChannelIds());
         channelNavigationHelper = new NavigationHelper<>(this, ignoredChannels, AtomicTextChannel.class, MAX_CHANNELS);
         registerNavigationListener(7);
@@ -187,7 +187,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
                     .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getMember().getAsMention()));
             message.editMessage(eb.build()).queue();
 
-            FisheryMemberBean userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getUserIdLong());
+            FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getUserIdLong());
             MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
                 Random r = new Random();
                 String[] winLose = new String[] { "win", "lose" };

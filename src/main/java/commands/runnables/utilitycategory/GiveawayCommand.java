@@ -19,7 +19,7 @@ import core.atomicassets.MentionableAtomicAsset;
 import core.utils.*;
 import modules.schedulers.GiveawayScheduler;
 import mysql.modules.giveaway.DBGiveaway;
-import mysql.modules.giveaway.GiveawaySlot;
+import mysql.modules.giveaway.GiveawayData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -52,7 +52,7 @@ public class GiveawayCommand extends NavigationAbstract {
             EXAMPLE = 9,
             SENT = 10;
 
-    private CustomObservableMap<Long, GiveawaySlot> giveawayBeans = null;
+    private CustomObservableMap<Long, GiveawayData> giveawayBeans = null;
 
     private long messageId;
     private String title;
@@ -250,9 +250,9 @@ public class GiveawayCommand extends NavigationAbstract {
             return true;
         }
 
-        List<GiveawaySlot> giveaways = getActiveGiveawaySlots();
+        List<GiveawayData> giveaways = getActiveGiveawaySlots();
         if (i >= 0 && i < giveaways.size()) {
-            GiveawaySlot giveaway = giveaways.get(i);
+            GiveawayData giveaway = giveaways.get(i);
             messageId = giveaway.getMessageId();
             title = giveaway.getTitle();
             description = giveaway.getDescription();
@@ -322,7 +322,7 @@ public class GiveawayCommand extends NavigationAbstract {
                 if (messageIdOpt.isPresent()) {
                     setState(SENT);
                     removeNavigation();
-                    GiveawaySlot giveawaySlot = new GiveawaySlot(
+                    GiveawayData giveawayData = new GiveawayData(
                             event.getGuild().getIdLong(),
                             channel.getIdLong(),
                             messageIdOpt.get(),
@@ -335,11 +335,11 @@ public class GiveawayCommand extends NavigationAbstract {
                             imageLink,
                             true
                     );
-                    if (!giveawayBeans.containsKey(giveawaySlot.getMessageId())) {
-                        GiveawayScheduler.getInstance().loadGiveawayBean(giveawaySlot);
+                    if (!giveawayBeans.containsKey(giveawayData.getMessageId())) {
+                        GiveawayScheduler.getInstance().loadGiveawayBean(giveawayData);
                     }
 
-                    giveawayBeans.put(giveawaySlot.getMessageId(), giveawaySlot);
+                    giveawayBeans.put(giveawayData.getMessageId(), giveawayData);
                 } else {
                     setLog(LogStatus.FAILURE, getString("error"));
                 }
@@ -424,8 +424,8 @@ public class GiveawayCommand extends NavigationAbstract {
 
     @Draw(state = EDIT_MESSAGE)
     public EmbedBuilder onDrawEditMessage() {
-        String[] options = new ListGen<GiveawaySlot>()
-                .getList(getActiveGiveawaySlots(), ListGen.SLOT_TYPE_NONE, giveawaySlot -> getString("state2_slot", giveawaySlot.getTitle(), giveawaySlot.getTextChannel().get().getAsMention()))
+        String[] options = new ListGen<GiveawayData>()
+                .getList(getActiveGiveawaySlots(), ListGen.SLOT_TYPE_NONE, giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getTextChannel().get().getAsMention()))
                 .split("\n");
         setOptions(options);
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
@@ -486,7 +486,7 @@ public class GiveawayCommand extends NavigationAbstract {
         return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
     }
 
-    private List<GiveawaySlot> getActiveGiveawaySlots() {
+    private List<GiveawayData> getActiveGiveawaySlots() {
         return giveawayBeans.values().stream()
                 .filter(g -> g.isActive() && g.getEnd().isAfter(Instant.now()))
                 .collect(Collectors.toList());

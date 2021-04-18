@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import mysql.DBIntervalMapCache;
 import mysql.DBMain;
 
-public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesBean> {
+public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesData> {
 
     private static final DBCommandUsages ourInstance = new DBCommandUsages();
 
@@ -18,8 +18,8 @@ public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesBea
     }
 
     @Override
-    protected CommandUsagesBean load(String command) throws Exception {
-        CommandUsagesBean commandUsagesBean;
+    protected CommandUsagesData load(String command) throws Exception {
+        CommandUsagesData commandUsagesData;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT usages FROM CommandUsages WHERE command = ?;");
         preparedStatement.setString(1, command);
@@ -27,12 +27,12 @@ public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesBea
 
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
-            commandUsagesBean = new CommandUsagesBean(
+            commandUsagesData = new CommandUsagesData(
                     command,
                     resultSet.getLong(1)
             );
         } else {
-            commandUsagesBean = new CommandUsagesBean(
+            commandUsagesData = new CommandUsagesData(
                     command,
                     0L
             );
@@ -41,14 +41,14 @@ public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesBea
         resultSet.close();
         preparedStatement.close();
 
-        return commandUsagesBean;
+        return commandUsagesData;
     }
 
     @Override
-    protected void save(CommandUsagesBean commandUsagesBean) {
+    protected void save(CommandUsagesData commandUsagesData) {
         DBMain.getInstance().asyncUpdate("INSERT INTO CommandUsages (command, usages) VALUES (?, ?) ON DUPLICATE KEY UPDATE usages = usages + ?;", preparedStatement -> {
-            long inc = commandUsagesBean.flushIncrement();
-            preparedStatement.setString(1, commandUsagesBean.getCommand());
+            long inc = commandUsagesData.flushIncrement();
+            preparedStatement.setString(1, commandUsagesData.getCommand());
             preparedStatement.setLong(2, inc);
             preparedStatement.setLong(3, inc);
         });

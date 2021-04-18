@@ -12,7 +12,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBSurvey extends DBObserverMapCache<Integer, SurveyBean> {
+public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
 
     private static final DBSurvey ourInstance = new DBSurvey();
 
@@ -26,8 +26,8 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyBean> {
     private Integer currentSurveyId = null;
 
     @Override
-    protected SurveyBean load(Integer surveyId) throws Exception {
-        SurveyBean surveyBean;
+    protected SurveyData load(Integer surveyId) throws Exception {
+        SurveyData surveyData;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT start FROM SurveyDates WHERE surveyId = ?;");
         preparedStatement.setInt(1, surveyId);
@@ -35,7 +35,7 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyBean> {
 
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
-            surveyBean = new SurveyBean(
+            surveyData = new SurveyData(
                     surveyId,
                     resultSet.getDate(1).toLocalDate(),
                     getFirstVotes(surveyId),
@@ -43,7 +43,7 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyBean> {
                     getNotificationUserIds()
             );
         } else {
-            surveyBean = new SurveyBean(
+            surveyData = new SurveyData(
                     surveyId,
                     resultSet.getDate(1).toLocalDate(),
                     new HashMap<>(),
@@ -55,20 +55,20 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyBean> {
         resultSet.close();
         preparedStatement.close();
 
-        surveyBean.getFirstVotes()
+        surveyData.getFirstVotes()
                 .addMapAddListener(firstVote -> addFirstVote(surveyId, firstVote))
                 .addMapRemoveListener(firstVote -> removeFirstVote(surveyId, firstVote));
-        surveyBean.getSecondVotes()
+        surveyData.getSecondVotes()
                 .addMapAddListener(secondVote -> addSecondVote(surveyId, secondVote))
                 .addMapRemoveListener(secondVote -> removeSecondVote(surveyId, secondVote));
-        surveyBean.getNotificationUserIds()
+        surveyData.getNotificationUserIds()
                 .addListAddListener(list -> list.forEach(this::addNotificationUserId))
                 .addListRemoveListener(list -> list.forEach(this::removeNotificationUserId));
 
-        return surveyBean;
+        return surveyData;
     }
 
-    public SurveyBean getCurrentSurvey() {
+    public SurveyData getCurrentSurvey() {
         return retrieve(getCurrentSurveyId());
     }
 
@@ -103,7 +103,7 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyBean> {
     }
 
     @Override
-    protected void save(SurveyBean surveyBean) {
+    protected void save(SurveyData surveyData) {
     }
 
     private HashMap<Long, SurveyFirstVote> getFirstVotes(int surveyId) {

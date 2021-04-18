@@ -16,7 +16,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.ExchangeRate;
 import modules.Fishery;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -95,7 +95,7 @@ public class ExchangeRateCommand extends Command implements OnReactionListener, 
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         long messageId = slot.sendMessage(true, generateEmbed(true).build()).get();
         slot.setMessageId(messageId);
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));

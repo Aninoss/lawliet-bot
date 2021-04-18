@@ -20,7 +20,7 @@ import core.utils.RandomUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberBean;
+import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -38,7 +38,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
 
     private final String[] EMOJIS = new String[] { "🐟", "🐠", "🐡", Emojis.EMPTY_EMOJI + Emojis.EMPTY_EMOJI };
 
-    private FisheryMemberBean fisheryMemberBean;
+    private FisheryMemberData fisheryMemberBean;
     private String[][] area;
     private int fishFocus;
     private int fishCounter;

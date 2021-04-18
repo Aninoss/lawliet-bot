@@ -13,7 +13,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.ServerMute;
 import mysql.modules.moderation.DBModeration;
-import mysql.modules.moderation.ModerationBean;
+import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class ModSettingsCommand extends NavigationAbstract {
 
-    private ModerationBean moderationBean;
+    private ModerationData moderationBean;
     private int autoKickTemp;
     private int autoBanTemp;
     private int autoMuteTemp;

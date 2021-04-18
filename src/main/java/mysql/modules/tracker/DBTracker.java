@@ -11,7 +11,7 @@ import mysql.DBDataLoadAll;
 import mysql.DBMain;
 import mysql.DBMapCache;
 
-public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, TrackerSlot>> {
+public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, TrackerData>> {
 
     private static final DBTracker ourInstance = new DBTracker();
 
@@ -23,12 +23,12 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
     }
 
     @Override
-    protected CustomObservableMap<Integer, TrackerSlot> load(Long guildId) {
-        HashMap<Integer, TrackerSlot> trackersMap = new DBDataLoad<TrackerSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage", "serverId = ?",
+    protected CustomObservableMap<Integer, TrackerData> load(Long guildId) {
+        HashMap<Integer, TrackerData> trackersMap = new DBDataLoad<TrackerData>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getHashMap(
-                TrackerSlot::hashCode,
-                resultSet -> new TrackerSlot(
+                TrackerData::hashCode,
+                resultSet -> new TrackerData(
                         resultSet.getLong(1),
                         resultSet.getLong(2),
                         resultSet.getString(3),
@@ -41,7 +41,7 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
                 )
         );
 
-        CustomObservableMap<Integer, TrackerSlot> remindersBeans = new CustomObservableMap<>(trackersMap);
+        CustomObservableMap<Integer, TrackerData> remindersBeans = new CustomObservableMap<>(trackersMap);
         remindersBeans.addMapAddListener(this::addTracker)
                 .addMapUpdateListener(this::addTracker)
                 .addMapRemoveListener(this::removeTracker);
@@ -49,10 +49,10 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
         return remindersBeans;
     }
 
-    public List<TrackerSlot> retrieveAll() {
-        return new DBDataLoadAll<TrackerSlot>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage")
+    public List<TrackerData> retrieveAll() {
+        return new DBDataLoadAll<TrackerData>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage")
                 .getArrayList(
-                        resultSet -> new TrackerSlot(
+                        resultSet -> new TrackerData(
                                 resultSet.getLong(1),
                                 resultSet.getLong(2),
                                 resultSet.getString(3),
@@ -66,7 +66,7 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
                 );
     }
 
-    private void addTracker(TrackerSlot slot) {
+    private void addTracker(TrackerData slot) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getGuildId());
             preparedStatement.setLong(2, slot.getTextChannelId());
@@ -105,7 +105,7 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
         });
     }
 
-    private void removeTracker(TrackerSlot slot) {
+    private void removeTracker(TrackerData slot) {
         if (!Objects.isNull(slot)) {
             DBMain.getInstance().asyncUpdate("DELETE FROM Tracking WHERE channelId = ? AND command = ? AND commandKey = ?;", preparedStatement -> {
                 preparedStatement.setLong(1, slot.getTextChannelId());

@@ -9,7 +9,7 @@ import events.discordevents.eventtypeabstracts.GuildMemberRemoveAbstract;
 import modules.Welcome;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
-import mysql.modules.welcomemessage.WelcomeMessageBean;
+import mysql.modules.welcomemessage.WelcomeMessageData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -23,7 +23,7 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
         Guild guild = event.getGuild();
         Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
 
-        WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
+        WelcomeMessageData welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
         if (welcomeMessageBean.isGoodbyeActive()) {
             welcomeMessageBean.getGoodbyeChannel().ifPresent(channel -> {
                 if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)) {

@@ -12,7 +12,7 @@ import core.TextManager;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -32,7 +32,7 @@ public class VCTimeCommand extends Command implements OnReactionListener, OnMess
     private static final String CLEAR_EMOJI = "\uD83D\uDDD1️";
     private static final String QUIT_EMOJI = Emojis.X;
 
-    private GuildBean guildBean;
+    private GuildData guildBean;
     private EmbedBuilder eb;
 
     public VCTimeCommand(Locale locale, String prefix) {

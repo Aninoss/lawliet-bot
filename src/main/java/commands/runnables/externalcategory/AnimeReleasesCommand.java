@@ -18,7 +18,7 @@ import core.utils.StringUtil;
 import modules.PostBundle;
 import modules.animerelease.AnimeReleasePost;
 import modules.animerelease.AnimeReleasesDownloader;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -79,7 +79,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         boolean first = slot.getArgs().isEmpty();
         PostBundle<AnimeReleasePost> postBundle = AnimeReleasesDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());

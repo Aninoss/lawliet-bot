@@ -13,7 +13,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.schedulers.TempBanScheduler;
 import mysql.modules.tempban.DBTempBan;
-import mysql.modules.tempban.TempBanSlot;
+import mysql.modules.tempban.TempBanData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -48,7 +48,7 @@ public class BanCommand extends WarnCommand {
     @Override
     protected void process(Guild guild, User target, String reason) {
         if (minutes > 0) {
-            TempBanSlot tempBan = new TempBanSlot(guild.getIdLong(), target.getIdLong(), Instant.now().plus(Duration.ofMinutes(minutes)));
+            TempBanData tempBan = new TempBanData(guild.getIdLong(), target.getIdLong(), Instant.now().plus(Duration.ofMinutes(minutes)));
             DBTempBan.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), tempBan);
             TempBanScheduler.getInstance().loadTempBan(tempBan);
         } else {

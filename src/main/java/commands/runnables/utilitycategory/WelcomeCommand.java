@@ -18,7 +18,7 @@ import core.utils.StringUtil;
 import modules.Welcome;
 import modules.graphics.WelcomeGraphics;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
-import mysql.modules.welcomemessage.WelcomeMessageBean;
+import mysql.modules.welcomemessage.WelcomeMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -37,7 +37,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class WelcomeCommand extends NavigationAbstract {
 
-    private WelcomeMessageBean welcomeMessageBean;
+    private WelcomeMessageData welcomeMessageBean;
 
     public WelcomeCommand(Locale locale, String prefix) {
         super(locale, prefix);

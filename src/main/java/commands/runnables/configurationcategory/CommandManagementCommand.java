@@ -15,7 +15,7 @@ import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import mysql.modules.commandmanagement.CommandManagementBean;
+import mysql.modules.commandmanagement.CommandManagementData;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class CommandManagementCommand extends NavigationAbstract {
 
-    private CommandManagementBean commandManagementBean;
+    private CommandManagementData commandManagementBean;
     private String category;
 
     public CommandManagementCommand(Locale locale, String prefix) {

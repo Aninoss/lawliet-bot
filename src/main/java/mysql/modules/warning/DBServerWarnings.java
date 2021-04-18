@@ -8,7 +8,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, ServerWarningsBean> {
+public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, ServerWarningsData> {
 
     private static final DBServerWarnings ourInstance = new DBServerWarnings();
 
@@ -20,8 +20,8 @@ public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, Serve
     }
 
     @Override
-    protected ServerWarningsBean load(Pair<Long, Long> pair) throws Exception {
-        ServerWarningsBean serverWarningsBean = new ServerWarningsBean(
+    protected ServerWarningsData load(Pair<Long, Long> pair) throws Exception {
+        ServerWarningsData serverWarningsBean = new ServerWarningsData(
                 pair.getKey(),
                 pair.getValue(),
                 getWarnings(pair.getKey(), pair.getValue())
@@ -35,16 +35,16 @@ public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, Serve
     }
 
     @Override
-    protected void save(ServerWarningsBean serverWarningsBean) {
+    protected void save(ServerWarningsData serverWarningsBean) {
     }
 
-    private ArrayList<GuildWarningsSlot> getWarnings(long serverId, long userId) {
-        return new DBDataLoad<GuildWarningsSlot>("Warnings", "userId, time, requestorUserId, reason", "serverId = ? AND userId = ? ORDER BY time",
+    private ArrayList<ServerWarningSlot> getWarnings(long serverId, long userId) {
+        return new DBDataLoad<ServerWarningSlot>("Warnings", "userId, time, requestorUserId, reason", "serverId = ? AND userId = ? ORDER BY time",
                 preparedStatement -> {
                     preparedStatement.setLong(1, serverId);
                     preparedStatement.setLong(2, userId);
                 }
-        ).getArrayList(resultSet -> new GuildWarningsSlot(
+        ).getArrayList(resultSet -> new ServerWarningSlot(
                 serverId,
                 resultSet.getLong(1),
                 resultSet.getTimestamp(2).toInstant(),
@@ -53,7 +53,7 @@ public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, Serve
         ));
     }
 
-    private void addWarning(GuildWarningsSlot serverWarningsSlot) {
+    private void addWarning(ServerWarningSlot serverWarningsSlot) {
         DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Warnings (serverId, userId, time, requestorUserId, reason) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverWarningsSlot.getGuildId());
             preparedStatement.setLong(2, serverWarningsSlot.getMemberId());
@@ -69,7 +69,7 @@ public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, Serve
         });
     }
 
-    private void removeWarning(GuildWarningsSlot serverWarningsSlot) {
+    private void removeWarning(ServerWarningSlot serverWarningsSlot) {
         DBMain.getInstance().asyncUpdate("DELETE FROM Warnings WHERE serverId = ? AND userId = ? AND time = ? AND requestorUserId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverWarningsSlot.getGuildId());
             preparedStatement.setLong(2, serverWarningsSlot.getMemberId());

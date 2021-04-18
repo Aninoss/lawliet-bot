@@ -10,7 +10,7 @@ import mysql.DBKeySetLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelBean> {
+public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelData> {
 
     private static final DBAutoChannel ourInstance = new DBAutoChannel();
 
@@ -22,8 +22,8 @@ public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelBean> {
     }
 
     @Override
-    protected AutoChannelBean load(Long serverId) throws Exception {
-        AutoChannelBean autoChannelBean;
+    protected AutoChannelData load(Long serverId) throws Exception {
+        AutoChannelData autoChannelBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, active, channelName, locked FROM AutoChannel WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
@@ -31,7 +31,7 @@ public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelBean> {
 
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
-            autoChannelBean = new AutoChannelBean(
+            autoChannelBean = new AutoChannelData(
                     serverId,
                     resultSet.getLong(1),
                     resultSet.getBoolean(2),
@@ -40,7 +40,7 @@ public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelBean> {
                     getChildChannels(serverId)
             );
         } else {
-            autoChannelBean = new AutoChannelBean(
+            autoChannelBean = new AutoChannelData(
                     serverId,
                     null,
                     false,
@@ -61,7 +61,7 @@ public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelBean> {
     }
 
     @Override
-    protected void save(AutoChannelBean autoChannelBean) {
+    protected void save(AutoChannelData autoChannelBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO AutoChannel (serverId, channelId, active, channelName, locked) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, autoChannelBean.getGuildId());
 

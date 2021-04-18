@@ -12,7 +12,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.AutoChannel;
-import mysql.modules.autochannel.AutoChannelBean;
+import mysql.modules.autochannel.AutoChannelData;
 import mysql.modules.autochannel.DBAutoChannel;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class AutoChannelCommand extends NavigationAbstract {
 
-    private AutoChannelBean autoChannelBean;
+    private AutoChannelData autoChannelBean;
 
     public AutoChannelCommand(Locale locale, String prefix) {
         super(locale, prefix);

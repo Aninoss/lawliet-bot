@@ -9,7 +9,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.ListAbstract;
 import core.utils.StringUtil;
 import javafx.util.Pair;
-import mysql.modules.commandusages.CommandUsagesBean;
+import mysql.modules.commandusages.CommandUsagesData;
 import mysql.modules.commandusages.DBCommandUsages;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 )
 public class CommandUsagesCommand extends ListAbstract {
 
-    private final ArrayList<Pair<CommandUsagesBean, String>> commandUsages = new ArrayList<>();
+    private final ArrayList<Pair<CommandUsagesData, String>> commandUsages = new ArrayList<>();
 
     public CommandUsagesCommand(Locale locale, String prefix) {
         super(locale, prefix, 10);
@@ -45,7 +45,7 @@ public class CommandUsagesCommand extends ListAbstract {
 
     @Override
     protected Pair<String, String> getEntry(int i) throws Throwable {
-        Pair<CommandUsagesBean, String> commandUsagesPair = commandUsages.get(i);
+        Pair<CommandUsagesData, String> commandUsagesPair = commandUsages.get(i);
 
         return new Pair<>(
                 getString("slot_title", commandUsagesPair.getKey().getCommand(), commandUsagesPair.getValue()),

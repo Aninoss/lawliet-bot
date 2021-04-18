@@ -21,7 +21,7 @@ import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.MessageQuote;
 import mysql.modules.autoquote.DBAutoQuote;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -30,7 +30,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     @Override
     public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
-        GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+        GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         String prefix = guildBean.getPrefix();
         String content = event.getMessage().getContentRaw();
 
@@ -102,7 +102,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     private void checkAutoQuote(GuildMessageReceivedEvent event) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+            GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
             MentionUtil.getMessageWithLinks(event.getMessage(), event.getMessage().getContentRaw()).thenAccept(mentionMessages -> {
                 List<Message> messages = mentionMessages.getList();
                 if (messages.size() > 0 && DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive()) {

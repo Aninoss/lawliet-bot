@@ -23,12 +23,12 @@ import core.utils.TimeUtil;
 import javafx.util.Pair;
 import modules.schedulers.TempBanScheduler;
 import mysql.modules.moderation.DBModeration;
-import mysql.modules.moderation.ModerationBean;
+import mysql.modules.moderation.ModerationData;
 import mysql.modules.tempban.DBTempBan;
-import mysql.modules.tempban.TempBanSlot;
+import mysql.modules.tempban.TempBanData;
 import mysql.modules.warning.DBServerWarnings;
-import mysql.modules.warning.GuildWarningsSlot;
-import mysql.modules.warning.ServerWarningsBean;
+import mysql.modules.warning.ServerWarningSlot;
+import mysql.modules.warning.ServerWarningsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -45,8 +45,8 @@ public class Mod {
     }
 
     public static void insertWarning(Locale locale, Guild guild, User target, Member requester, String reason, boolean withAutoActions) throws ExecutionException {
-        ServerWarningsBean serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(guild.getIdLong(), target.getIdLong()));
-        serverWarningsBean.getWarnings().add(new GuildWarningsSlot(
+        ServerWarningsData serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(guild.getIdLong(), target.getIdLong()));
+        serverWarningsBean.getWarnings().add(new ServerWarningSlot(
                         guild.getIdLong(),
                         target.getIdLong(),
                         Instant.now(),
@@ -56,7 +56,7 @@ public class Mod {
         );
 
         if (withAutoActions) {
-            ModerationBean moderationBean = DBModeration.getInstance().retrieve(guild.getIdLong());
+            ModerationData moderationBean = DBModeration.getInstance().retrieve(guild.getIdLong());
             Role muteRole = moderationBean.getMuteRole().orElse(null);
             Member member = guild.getMember(target);
 
@@ -83,9 +83,9 @@ public class Mod {
                         postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                             guild.ban(target.getId(), 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).queue();
                             if (duration > 0) {
-                                TempBanSlot tempBanSlot = new TempBanSlot(guild.getIdLong(), target.getIdLong(), Instant.now().plus(Duration.ofMinutes(duration)));
-                                DBTempBan.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), tempBanSlot);
-                                TempBanScheduler.getInstance().loadTempBan(tempBanSlot);
+                                TempBanData tempBanData = new TempBanData(guild.getIdLong(), target.getIdLong(), Instant.now().plus(Duration.ofMinutes(duration)));
+                                DBTempBan.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), tempBanData);
+                                TempBanScheduler.getInstance().loadTempBan(tempBanData);
                             }
                         });
                     }
@@ -134,19 +134,19 @@ public class Mod {
         return postLogUsers(command, eb, guild, DBModeration.getInstance().retrieve(guild.getIdLong()), users);
     }
 
-    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, Guild guild, ModerationBean moderationBean, Member member) {
+    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, Guild guild, ModerationData moderationBean, Member member) {
         return postLogMembers(command, eb, guild, moderationBean, Collections.singletonList(member));
     }
 
-    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationBean moderationBean, User user) {
+    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationData moderationBean, User user) {
         return postLogUsers(command, eb, guild, moderationBean, Collections.singletonList(user));
     }
 
-    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, Guild guild, ModerationBean moderationBean, List<Member> members) {
+    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, Guild guild, ModerationData moderationBean, List<Member> members) {
         return Mod.postLogUsers(command, eb, guild, moderationBean, members.stream().map(Member::getUser).collect(Collectors.toList()));
     }
 
-    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationBean moderationBean, List<User> users) {
+    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationData moderationBean, List<User> users) {
         eb.setFooter("");
         CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
             users.forEach(user -> {

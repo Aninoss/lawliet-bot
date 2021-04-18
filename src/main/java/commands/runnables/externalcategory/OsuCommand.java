@@ -19,7 +19,7 @@ import modules.osu.OsuAccountCheck;
 import modules.osu.OsuAccountDownloader;
 import modules.osu.OsuAccountSync;
 import mysql.modules.osuaccounts.DBOsuAccounts;
-import mysql.modules.osuaccounts.OsuBeanBean;
+import mysql.modules.osuaccounts.OsuAccountData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -59,7 +59,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
         this.memberIsAuthor = memberIsAuthor;
 
         boolean userExists = false;
-        CustomObservableMap<Long, OsuBeanBean> osuMap = DBOsuAccounts.getInstance().retrieve();
+        CustomObservableMap<Long, OsuAccountData> osuMap = DBOsuAccounts.getInstance().retrieve();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("noacc", member.getEffectiveName()));
         setGameMode(args);
 
@@ -129,7 +129,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
                     Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode).get();
                     this.osuName = osuUsername;
                     this.osuAccount = osuAccountOptional.orElse(null);
-                    DBOsuAccounts.getInstance().retrieve().put(getMemberId().get(), new OsuBeanBean(getMemberId().get(), this.osuAccount.getOsuId()));
+                    DBOsuAccounts.getInstance().retrieve().put(getMemberId().get(), new OsuAccountData(getMemberId().get(), this.osuAccount.getOsuId()));
                     this.status = Status.DEFAULT;
                     return true;
                 }
@@ -152,7 +152,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
                                 this.osuName = osuUsername;
                                 this.osuAccount = osuAccountOptional.orElse(null);
                                 osuAccountOptional
-                                        .ifPresent(o -> DBOsuAccounts.getInstance().retrieve().put(getMemberId().get(), new OsuBeanBean(getMemberId().get(), o.getOsuId())));
+                                        .ifPresent(o -> DBOsuAccounts.getInstance().retrieve().put(getMemberId().get(), new OsuAccountData(getMemberId().get(), o.getOsuId())));
                                 this.status = Status.DEFAULT;
                                 drawMessage(draw());
                             });

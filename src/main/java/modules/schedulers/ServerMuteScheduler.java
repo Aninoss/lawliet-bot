@@ -11,7 +11,7 @@ import core.schedule.MainScheduler;
 import modules.Mod;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.servermute.DBServerMute;
-import mysql.modules.servermute.ServerMuteSlot;
+import mysql.modules.servermute.ServerMuteData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -41,14 +41,14 @@ public class ServerMuteScheduler {
         }
     }
 
-    public void loadServerMute(ServerMuteSlot serverMuteSlot) {
-        serverMuteSlot.getExpirationTime()
-                .ifPresent(expirationTime -> loadServerMute(serverMuteSlot.getGuildId(), serverMuteSlot.getMemberId(), expirationTime));
+    public void loadServerMute(ServerMuteData serverMuteData) {
+        serverMuteData.getExpirationTime()
+                .ifPresent(expirationTime -> loadServerMute(serverMuteData.getGuildId(), serverMuteData.getMemberId(), expirationTime));
     }
 
     public void loadServerMute(long guildId, long memberId, Instant expires) {
         MainScheduler.getInstance().schedule(expires, "servermute_" + guildId, () -> {
-            CustomObservableMap<Long, ServerMuteSlot> map = DBServerMute.getInstance().retrieve(guildId);
+            CustomObservableMap<Long, ServerMuteData> map = DBServerMute.getInstance().retrieve(guildId);
             if (map.containsKey(memberId) &&
                     map.get(memberId).getExpirationTime().orElse(Instant.now()).getEpochSecond() == expires.getEpochSecond() &&
                     ShardManager.getInstance().guildIsManaged(guildId)
@@ -58,13 +58,13 @@ public class ServerMuteScheduler {
         });
     }
 
-    private void onServerMuteExpire(ServerMuteSlot serverMuteSlot) {
-        DBServerMute.getInstance().retrieve(serverMuteSlot.getGuildId())
-                .remove(serverMuteSlot.getMemberId(), serverMuteSlot);
+    private void onServerMuteExpire(ServerMuteData serverMuteData) {
+        DBServerMute.getInstance().retrieve(serverMuteData.getGuildId())
+                .remove(serverMuteData.getMemberId(), serverMuteData);
 
-        serverMuteSlot.getGuild().ifPresent(guild -> {
-            Locale locale = serverMuteSlot.getGuildBean().getLocale();
-            Member member = serverMuteSlot.getMember().orElse(null);
+        serverMuteData.getGuild().ifPresent(guild -> {
+            Locale locale = serverMuteData.getGuildBean().getLocale();
+            Member member = serverMuteData.getMember().orElse(null);
             Role muteRole = DBModeration.getInstance().retrieve(guild.getIdLong()).getMuteRole().orElse(null);
             if (muteRole != null && member != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, MuteCommand.class, muteRole)) {
                 member.getGuild().removeRoleFromMember(member, muteRole)
@@ -72,8 +72,8 @@ public class ServerMuteScheduler {
                         .queue();
             }
 
-            ShardManager.getInstance().fetchUserById(serverMuteSlot.getMemberId()).thenAccept(user -> {
-                Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteSlot.getGuildBean().getPrefix());
+            ShardManager.getInstance().fetchUserById(serverMuteData.getMemberId()).thenAccept(user -> {
+                Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildBean().getPrefix());
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", user.getAsTag()));
                 Mod.postLogUsers(command, eb, guild, user);
             });

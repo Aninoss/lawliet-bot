@@ -6,7 +6,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBSingleCache;
 
-public class DBUpvotes extends DBSingleCache<UpvotesBean> {
+public class DBUpvotes extends DBSingleCache<UpvotesData> {
 
     private static final DBUpvotes ourInstance = new DBUpvotes();
 
@@ -18,7 +18,7 @@ public class DBUpvotes extends DBSingleCache<UpvotesBean> {
     }
 
     @Override
-    protected UpvotesBean loadBean() throws Exception {
+    protected UpvotesData loadBean() throws Exception {
         HashMap<Long, UpvoteSlot> upvoteMap = new DBDataLoad<UpvoteSlot>("Upvotes", "userId, lastDate", "1")
                 .getHashMap(
                         UpvoteSlot::getUserId,
@@ -28,10 +28,10 @@ public class DBUpvotes extends DBSingleCache<UpvotesBean> {
                         )
                 );
 
-        UpvotesBean upvotesBean = new UpvotesBean(upvoteMap);
-        upvotesBean.getUpvoteMap().addMapAddListener(this::addUpvote);
+        UpvotesData upvotesData = new UpvotesData(upvoteMap);
+        upvotesData.getUpvoteMap().addMapAddListener(this::addUpvote);
 
-        return upvotesBean;
+        return upvotesData;
     }
 
     private void addUpvote(UpvoteSlot upvoteSlot) {

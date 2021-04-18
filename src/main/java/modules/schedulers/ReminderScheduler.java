@@ -9,7 +9,7 @@ import core.PermissionCheckRuntime;
 import core.ShardManager;
 import core.schedule.MainScheduler;
 import mysql.modules.reminders.DBReminders;
-import mysql.modules.reminders.ReminderSlot;
+import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.Permission;
 
 public class ReminderScheduler {
@@ -37,40 +37,40 @@ public class ReminderScheduler {
         }
     }
 
-    public void loadReminderBean(ReminderSlot remindersBean) {
+    public void loadReminderBean(ReminderData remindersBean) {
         loadReminderBean(remindersBean.getGuildId(), remindersBean.getId(), remindersBean.getTime());
     }
 
     public void loadReminderBean(long guildId, long reminderId, Instant due) {
         MainScheduler.getInstance().schedule(due, "reminder_" + reminderId, () -> {
-            CustomObservableMap<Long, ReminderSlot> map = DBReminders.getInstance().retrieve(guildId);
+            CustomObservableMap<Long, ReminderData> map = DBReminders.getInstance().retrieve(guildId);
             if (map.containsKey(reminderId) && ShardManager.getInstance().guildIsManaged(guildId)) {
                 onReminderDue(map.get(reminderId));
             }
         });
     }
 
-    private void onReminderDue(ReminderSlot reminderSlot) {
-        DBReminders.getInstance().retrieve(reminderSlot.getGuildId())
-                .remove(reminderSlot.getId(), reminderSlot);
+    private void onReminderDue(ReminderData reminderData) {
+        DBReminders.getInstance().retrieve(reminderData.getGuildId())
+                .remove(reminderData.getId(), reminderData);
 
-        long channelId = reminderSlot.getTextChannelId();
-        reminderSlot.getGuild()
+        long channelId = reminderData.getTextChannelId();
+        reminderData.getGuild()
                 .map(guild -> guild.getTextChannelById(channelId))
                 .ifPresent(channel -> {
                     if (PermissionCheckRuntime.getInstance().botHasPermission(
-                            reminderSlot.getGuildBean().getLocale(),
+                            reminderData.getGuildBean().getLocale(),
                             ReminderCommand.class,
                             channel,
                             Permission.MESSAGE_WRITE
                     )) {
-                        channel.sendMessage(reminderSlot.getMessage())
+                        channel.sendMessage(reminderData.getMessage())
                                 .allowedMentions(null)
                                 .queue();
                     }
                 });
 
-        Optional.ofNullable(reminderSlot.getCompletedRunnable())
+        Optional.ofNullable(reminderData.getCompletedRunnable())
                 .ifPresent(Runnable::run);
     }
 

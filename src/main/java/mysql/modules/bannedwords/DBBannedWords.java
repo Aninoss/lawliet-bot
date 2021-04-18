@@ -7,7 +7,7 @@ import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
-public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsBean> {
+public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
 
     private static final DBBannedWords ourInstance = new DBBannedWords();
 
@@ -19,8 +19,8 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsBean> {
     }
 
     @Override
-    protected BannedWordsBean load(Long serverId) throws Exception {
-        BannedWordsBean bannedWordsBean;
+    protected BannedWordsData load(Long serverId) throws Exception {
+        BannedWordsData bannedWordsBean;
 
         PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active FROM BannedWords WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
@@ -28,7 +28,7 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsBean> {
 
         ResultSet resultSet = preparedStatement.getResultSet();
         if (resultSet.next()) {
-            bannedWordsBean = new BannedWordsBean(
+            bannedWordsBean = new BannedWordsData(
                     serverId,
                     resultSet.getBoolean(1),
                     getIgnoredUsers(serverId),
@@ -36,7 +36,7 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsBean> {
                     getWords(serverId)
             );
         } else {
-            bannedWordsBean = new BannedWordsBean(
+            bannedWordsBean = new BannedWordsData(
                     serverId,
                     false,
                     getIgnoredUsers(serverId),
@@ -62,7 +62,7 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsBean> {
     }
 
     @Override
-    protected void save(BannedWordsBean bannedWordsBean) {
+    protected void save(BannedWordsData bannedWordsBean) {
         DBMain.getInstance().asyncUpdate("REPLACE INTO BannedWords (serverId, active) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, bannedWordsBean.getGuildId());
             preparedStatement.setBoolean(2, bannedWordsBean.isActive());

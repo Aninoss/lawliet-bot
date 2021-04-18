@@ -14,7 +14,7 @@ import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageReactionAddAbstract;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.Permission;
@@ -43,7 +43,7 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
         if ((valid || message.getAuthor().getIdLong() == ShardManager.getInstance().getSelfId()) &&
                 message.getEmbeds().size() > 0
         ) {
-            GuildBean guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+            GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
             MessageEmbed embed = message.getEmbeds().get(0);
             if (embed.getTitle() != null && embed.getAuthor() == null) {
                 String title = embed.getTitle();

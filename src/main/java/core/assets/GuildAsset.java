@@ -3,7 +3,7 @@ package core.assets;
 import java.util.Optional;
 import core.ShardManager;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildBean;
+import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.entities.Guild;
 
 public interface GuildAsset {
@@ -14,7 +14,7 @@ public interface GuildAsset {
         return ShardManager.getInstance().getLocalGuildById(getGuildId());
     }
 
-    default GuildBean getGuildBean() {
+    default GuildData getGuildBean() {
         return DBGuild.getInstance().retrieve(getGuildId());
     }
 

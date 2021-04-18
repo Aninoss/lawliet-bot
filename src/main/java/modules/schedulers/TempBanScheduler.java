@@ -10,7 +10,7 @@ import core.*;
 import core.schedule.MainScheduler;
 import modules.Mod;
 import mysql.modules.tempban.DBTempBan;
-import mysql.modules.tempban.TempBanSlot;
+import mysql.modules.tempban.TempBanData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 
@@ -39,13 +39,13 @@ public class TempBanScheduler {
         }
     }
 
-    public void loadTempBan(TempBanSlot tempBanSlot) {
-        loadTempBan(tempBanSlot.getGuildId(), tempBanSlot.getMemberId(), tempBanSlot.getExpirationTime());
+    public void loadTempBan(TempBanData tempBanData) {
+        loadTempBan(tempBanData.getGuildId(), tempBanData.getMemberId(), tempBanData.getExpirationTime());
     }
 
     public void loadTempBan(long guildId, long memberId, Instant expires) {
         MainScheduler.getInstance().schedule(expires, "tempban_" + guildId, () -> {
-            CustomObservableMap<Long, TempBanSlot> map = DBTempBan.getInstance().retrieve(guildId);
+            CustomObservableMap<Long, TempBanData> map = DBTempBan.getInstance().retrieve(guildId);
             if (map.containsKey(memberId) &&
                     map.get(memberId).getExpirationTime().getEpochSecond() == expires.getEpochSecond() &&
                     ShardManager.getInstance().guildIsManaged(guildId)
@@ -55,25 +55,25 @@ public class TempBanScheduler {
         });
     }
 
-    private void onTempBanExpire(TempBanSlot tempBanSlot) {
-        DBTempBan.getInstance().retrieve(tempBanSlot.getGuildId())
-                .remove(tempBanSlot.getMemberId(), tempBanSlot);
+    private void onTempBanExpire(TempBanData tempBanData) {
+        DBTempBan.getInstance().retrieve(tempBanData.getGuildId())
+                .remove(tempBanData.getMemberId(), tempBanData);
 
-        Locale locale = tempBanSlot.getGuildBean().getLocale();
-        tempBanSlot.getGuild()
+        Locale locale = tempBanData.getGuildBean().getLocale();
+        tempBanData.getGuild()
                 .ifPresent(guild -> {
                     if (PermissionCheckRuntime.getInstance().botHasPermission(
                             locale,
                             BanCommand.class,
                             guild,
                             Permission.BAN_MEMBERS
-                    ) && guild.getMemberById(tempBanSlot.getMemberId()) == null) {
-                        guild.unban(String.valueOf(tempBanSlot.getMemberId()))
+                    ) && guild.getMemberById(tempBanData.getMemberId()) == null) {
+                        guild.unban(String.valueOf(tempBanData.getMemberId()))
                                 .reason(TextManager.getString(locale, Category.MODERATION, "ban_expired_title"))
                                 .queue();
 
-                        ShardManager.getInstance().fetchUserById(tempBanSlot.getMemberId()).thenAccept(user -> {
-                            Command command = CommandManager.createCommandByClass(BanCommand.class, locale, tempBanSlot.getGuildBean().getPrefix());
+                        ShardManager.getInstance().fetchUserById(tempBanData.getMemberId()).thenAccept(user -> {
+                            Command command = CommandManager.createCommandByClass(BanCommand.class, locale, tempBanData.getGuildBean().getPrefix());
                             EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "ban_expired", user.getAsTag()));
                             Mod.postLogUsers(command, eb, guild, user);
                         });

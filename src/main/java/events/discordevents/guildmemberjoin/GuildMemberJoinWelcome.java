@@ -12,7 +12,7 @@ import modules.Welcome;
 import modules.graphics.WelcomeGraphics;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
-import mysql.modules.welcomemessage.WelcomeMessageBean;
+import mysql.modules.welcomemessage.WelcomeMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -28,7 +28,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         Guild guild = event.getGuild();
         Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
 
-        WelcomeMessageBean welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
+        WelcomeMessageData welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
         if (welcomeMessageBean.isDmActive()) {
             sendDmMessage(event, welcomeMessageBean);
         }
@@ -42,7 +42,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         return true;
     }
 
-    private void sendDmMessage(GuildMemberJoinEvent event, WelcomeMessageBean welcomeMessageBean) {
+    private void sendDmMessage(GuildMemberJoinEvent event, WelcomeMessageData welcomeMessageBean) {
         Guild guild = event.getGuild();
         Member member = event.getMember();
         String text = welcomeMessageBean.getDmText();
@@ -65,7 +65,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         }
     }
 
-    private void sendWelcomeMessage(GuildMemberJoinEvent event, WelcomeMessageBean welcomeMessageBean, TextChannel channel, Locale locale) {
+    private void sendWelcomeMessage(GuildMemberJoinEvent event, WelcomeMessageData welcomeMessageBean, TextChannel channel, Locale locale) {
         Guild guild = event.getGuild();
 
         if (PermissionCheckRuntime.getInstance().botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)) {

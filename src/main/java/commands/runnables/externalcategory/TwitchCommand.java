@@ -16,7 +16,7 @@ import core.utils.StringUtil;
 import modules.twitch.TwitchDownloader;
 import modules.twitch.TwitchStream;
 import modules.twitch.TwitchUser;
-import mysql.modules.tracker.TrackerSlot;
+import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -78,7 +78,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerSlot slot) throws Throwable {
+    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(5, ChronoUnit.MINUTES));
         TextChannel channel = slot.getTextChannel().get();
 

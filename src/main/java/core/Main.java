@@ -5,8 +5,8 @@ import core.emoji.EmojiTable;
 import core.utils.BotUtil;
 import mysql.DBMain;
 import mysql.modules.version.DBVersion;
-import mysql.modules.version.VersionBean;
-import mysql.modules.version.VersionBeanSlot;
+import mysql.modules.version.VersionData;
+import mysql.modules.version.VersionSlot;
 import websockets.syncserver.SyncManager;
 
 public class Main {
@@ -46,11 +46,11 @@ public class Main {
     }
 
     private static void initializeUpdate() {
-        VersionBean versionBean = DBVersion.getInstance().retrieve();
+        VersionData versionData = DBVersion.getInstance().retrieve();
 
-        String currentVersionDB = versionBean.getCurrentVersion().getVersion();
+        String currentVersionDB = versionData.getCurrentVersion().getVersion();
         if (!BotUtil.getCurrentVersion().equals(currentVersionDB)) {
-            versionBean.getSlots().add(new VersionBeanSlot(BotUtil.getCurrentVersion(), Instant.now()));
+            versionData.getSlots().add(new VersionSlot(BotUtil.getCurrentVersion(), Instant.now()));
         }
     }
 
