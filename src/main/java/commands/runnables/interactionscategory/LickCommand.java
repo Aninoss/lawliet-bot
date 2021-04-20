@@ -23,7 +23,6 @@ public class LickCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736276719161311264/736276747737235487/lick.gif",
                 "https://cdn.discordapp.com/attachments/736276719161311264/736276750547288244/lick.gif",
                 "https://cdn.discordapp.com/attachments/736276719161311264/736276758483042414/lick.gif",
-                "https://cdn.discordapp.com/attachments/736276719161311264/736276770109653022/lick.gif",
                 "https://cdn.discordapp.com/attachments/736276719161311264/736276778502586378/lick.gif",
                 "https://cdn.discordapp.com/attachments/736276719161311264/736276786043682868/lick.gif",
                 "https://cdn.discordapp.com/attachments/736276719161311264/736276797376823316/lick.gif",

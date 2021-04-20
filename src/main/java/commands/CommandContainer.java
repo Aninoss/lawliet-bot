@@ -178,7 +178,6 @@ public class CommandContainer {
         commandList.add(BakaCommand.class);
         commandList.add(BiteCommand.class);
         commandList.add(BonkCommand.class);
-        commandList.add(BullyCommand.class);
         commandList.add(CuddleCommand.class);
         commandList.add(EveryoneCommand.class);
         commandList.add(FuckCommand.class);

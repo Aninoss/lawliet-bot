@@ -22,7 +22,6 @@ public class PokeCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273788198715522/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273794540372018/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273799246381187/poke.gif",
-                "https://cdn.discordapp.com/attachments/736273767520665610/736273803910316142/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273806900985922/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273816673845338/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273820125495440/poke.gif",

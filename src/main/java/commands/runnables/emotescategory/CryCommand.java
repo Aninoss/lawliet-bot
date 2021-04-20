@@ -37,7 +37,6 @@ public class CryCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736255198808375307/736255291976581220/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/736255295038160937/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/736255301916950588/cry.gif",
-                "https://cdn.discordapp.com/attachments/736255198808375307/736255307071881246/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/736255314126438400/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/736255317897248778/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/736255326398971944/cry.gif",

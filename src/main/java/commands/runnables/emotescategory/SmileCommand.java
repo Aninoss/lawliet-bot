@@ -21,7 +21,6 @@ public class SmileCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736256980020101160/736256987121188924/smile.gif",
                 "https://cdn.discordapp.com/attachments/736256980020101160/736256993723023430/smile.gif",
                 "https://cdn.discordapp.com/attachments/736256980020101160/736256999389397047/smile.gif",
-                "https://cdn.discordapp.com/attachments/736256980020101160/736257003818713198/smile.gif",
                 "https://cdn.discordapp.com/attachments/736256980020101160/736257012870021231/smile.gif",
                 "https://cdn.discordapp.com/attachments/736256980020101160/736257019052425266/smile.gif",
                 "https://cdn.discordapp.com/attachments/736256980020101160/736257024521928806/smile.gif",
@@ -92,7 +91,6 @@ public class SmileCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736256980020101160/736258026385702973/happy.gif",
                 "https://cdn.discordapp.com/attachments/736256980020101160/736258137559924806/happy.gif",
                 "https://cdn.discordapp.com/attachments/736256980020101160/736258306334654604/happy.gif",
-                "https://cdn.discordapp.com/attachments/736256980020101160/739030111600509018/smile.gif",
                 "https://cdn.discordapp.com/attachments/736256980020101160/743053465261179002/smile.gif",
                 "https://cdn.discordapp.com/attachments/736256980020101160/755840479375131064/smile.gif"
         };
