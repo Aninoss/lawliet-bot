@@ -17,17 +17,17 @@ public class YuriHugCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
         return new String[] {
-                "https://media.discordapp.net/attachments/736278804829306930/736278809795625080/yurihug.gif",
-                "https://media.discordapp.net/attachments/736278804829306930/736278814065426573/yurihug.gif",
-                "https://media.discordapp.net/attachments/736278804829306930/736278820256088094/yurihug.gif",
-                "https://media.discordapp.net/attachments/736278804829306930/736278846114103316/yurihug.gif",
-                "https://media.discordapp.net/attachments/736278804829306930/736278854955565066/yurihug.gif",
-                "https://media.discordapp.net/attachments/736278804829306930/736278911939379345/yurihug.gif",
-                "https://media.discordapp.net/attachments/736278804829306930/736278978184347759/yurihug.gif",
-                "https://media.discordapp.net/attachments/736278804829306930/736279020110479480/yurihug.gif",
-                "https://media.discordapp.net/attachments/736278804829306930/736279287572725821/yurihug.gif",
-                "https://media.discordapp.net/attachments/736278804829306930/736279360092373102/yurihug.gif",
-                "https://media.discordapp.net/attachments/736278804829306930/736279429419892776/yurihug.gif"
+                "https://cdn.discordapp.com/attachments/736278804829306930/736278809795625080/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/736278814065426573/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/736278820256088094/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/736278846114103316/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/736278854955565066/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/736278911939379345/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/736278978184347759/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/736279020110479480/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/736279287572725821/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/736279360092373102/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/736279429419892776/yurihug.gif"
         };
     }
 

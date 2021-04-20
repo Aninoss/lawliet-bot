@@ -35,7 +35,7 @@ public abstract class InteractionAbstract extends Command {
                             this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "alone")
                     )
-                            .setImage("https://media.discordapp.net/attachments/736277561373491265/736277600053493770/hug.gif").build())
+                            .setImage("https://cdn.discordapp.com/attachments/736277561373491265/736277600053493770/hug.gif").build())
                     .queue();
             return false;
         }

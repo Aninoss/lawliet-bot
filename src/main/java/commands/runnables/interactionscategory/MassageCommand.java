@@ -17,11 +17,11 @@ public class MassageCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
         return new String[] {
-                "https://media.discordapp.net/attachments/736276388226662420/736276394828627968/massage.gif",
-                "https://media.discordapp.net/attachments/736276388226662420/736276400524492950/massage.gif",
-                "https://media.discordapp.net/attachments/736276388226662420/736276410762526752/massage.gif",
-                "https://media.discordapp.net/attachments/736276388226662420/736276423819526174/massage.gif",
-                "https://media.discordapp.net/attachments/736276388226662420/736276427174969354/massage.gif"
+                "https://cdn.discordapp.com/attachments/736276388226662420/736276394828627968/massage.gif",
+                "https://cdn.discordapp.com/attachments/736276388226662420/736276400524492950/massage.gif",
+                "https://cdn.discordapp.com/attachments/736276388226662420/736276410762526752/massage.gif",
+                "https://cdn.discordapp.com/attachments/736276388226662420/736276423819526174/massage.gif",
+                "https://cdn.discordapp.com/attachments/736276388226662420/736276427174969354/massage.gif"
         };
     }
 

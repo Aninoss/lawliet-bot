@@ -18,7 +18,7 @@ public class BonkCommand extends InteractionAbstract {
 
     protected String[] getGifs() {
         return new String[] {
-                "https://media.discordapp.net/attachments/826095943748943913/826095979614044180/bonk.gif"
+                "https://cdn.discordapp.com/attachments/826095943748943913/826095979614044180/bonk.gif"
         };
     }
 
