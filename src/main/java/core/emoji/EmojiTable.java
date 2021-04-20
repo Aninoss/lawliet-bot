@@ -2,10 +2,12 @@ package core.emoji;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import core.Program;
+import constants.Emojis;
 import core.GlobalThreadPool;
 import core.MainLogger;
+import core.Program;
 
 public class EmojiTable {
 
@@ -33,6 +35,7 @@ public class EmojiTable {
                     emojiUnicodePointAndValueMaker.build("https://unicode.org/emoji/charts/full-emoji-list.html")
                             .forEach(emoji -> this.emojis.add(emoji.toEmoji()));
 
+                    emojis.addAll(List.of(Emojis.LETTERS));
                     MainLogger.get().info("Emoji lists completed with {} emojis", emojis.size());
                 } catch (Throwable e) {
                     MainLogger.get().error("EXIT - Exception on emoji load", e);
