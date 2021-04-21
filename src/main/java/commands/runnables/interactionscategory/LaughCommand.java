@@ -57,7 +57,30 @@ public class LaughCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736261908960903268/736262199814652005/laugh.gif",
                 "https://cdn.discordapp.com/attachments/736261908960903268/736262210837413961/laugh.gif",
                 "https://cdn.discordapp.com/attachments/736261908960903268/736262227014713476/laugh.gif",
-                "https://cdn.discordapp.com/attachments/736261908960903268/736262326545547284/laugh.gif"
+                "https://cdn.discordapp.com/attachments/736261908960903268/736262326545547284/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512073001271297/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512083491225680/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512095142871150/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512107038310440/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512120082333728/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512132301258772/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512145076191312/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512158397693982/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512170825023578/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512181780807691/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512194368438292/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512207441035264/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512220519923742/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512234242637854/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512248181489674/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512262147604510/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512277126250567/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512291705389056/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512306444173322/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512317311090748/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512329735012462/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512341450096670/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512352736182352/laugh.gif"
         );
     }
 

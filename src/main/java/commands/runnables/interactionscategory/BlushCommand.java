@@ -69,7 +69,21 @@ public class BlushCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736260129418248242/736260566364061746/blush.gif",
                 "https://cdn.discordapp.com/attachments/736260129418248242/736260573729259550/blush.gif",
                 "https://cdn.discordapp.com/attachments/736260129418248242/750018308144758865/blush.gif",
-                "https://cdn.discordapp.com/attachments/736260129418248242/755840615354335262/blush.gif"
+                "https://cdn.discordapp.com/attachments/736260129418248242/755840615354335262/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493130689740861/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493146595197019/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493158640582686/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493173128626196/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493189977145455/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493202324127774/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493214710825050/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493226885972048/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493241797640192/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493254577684510/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493266329862194/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493278828363786/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493290798776360/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493305667977276/blush.gif"
         );
     }
 

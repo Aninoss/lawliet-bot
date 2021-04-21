@@ -13,7 +13,7 @@ import commands.runnables.RolePlayAbstract;
 public class NomCommand extends RolePlayAbstract {
 
     public NomCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273374858182757/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273380373954730/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273394412159106/nom.gif",
@@ -25,7 +25,6 @@ public class NomCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273443191914597/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273448375943258/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273452323045466/nom.gif",
-                "https://cdn.discordapp.com/attachments/736273366784278558/736273460975894548/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273463857381376/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273472153714719/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273475823468654/nom.gif",
@@ -54,7 +53,6 @@ public class NomCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273620275298434/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273624427659284/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273635941023764/nom.gif",
-                "https://cdn.discordapp.com/attachments/736273366784278558/736273640248574063/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273650537463918/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273655889133699/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273665213333544/nom.gif",

@@ -35,7 +35,24 @@ public class FurryFuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283830163472479/furryfuck.gif",
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283835431518298/furryfuck.gif",
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283848052047913/furryfuck.gif",
-                "https://cdn.discordapp.com/attachments/736283579457208414/736283993590202538/furryfuck.gif"
+                "https://cdn.discordapp.com/attachments/736283579457208414/736283993590202538/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834506853157175356/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834506896194535534/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834506911276728330/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834506927178383420/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834506943896223794/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834506955405000804/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834506966902243348/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834506981464473610/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834506994937102407/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834507010568486962/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834507023235153954/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834507036699263026/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834507047667236874/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834507066743717908/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834507078596427786/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834507432750350346/furryfuck.gif",
+                "https://cdn.discordapp.com/attachments/736283579457208414/834507707331379240/furryfuck.gif"
         );
     }
 

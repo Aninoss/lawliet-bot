@@ -31,7 +31,18 @@ public class FacepalmCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736262744474517584/736262847973294171/facepalm.gif",
                 "https://cdn.discordapp.com/attachments/736262744474517584/736262854734512188/facepalm.gif",
                 "https://cdn.discordapp.com/attachments/736262744474517584/736262859821940836/facepalm.gif",
-                "https://cdn.discordapp.com/attachments/736262744474517584/736262871125721209/facepalm.gif"
+                "https://cdn.discordapp.com/attachments/736262744474517584/736262871125721209/facepalm.gif",
+                "https://cdn.discordapp.com/attachments/736262744474517584/834504257276477510/facepalm.gif",
+                "https://cdn.discordapp.com/attachments/736262744474517584/834504268996018186/facepalm.gif",
+                "https://cdn.discordapp.com/attachments/736262744474517584/834504282911932486/facepalm.gif",
+                "https://cdn.discordapp.com/attachments/736262744474517584/834504295553957888/facepalm.gif",
+                "https://cdn.discordapp.com/attachments/736262744474517584/834504311413276732/facepalm.gif",
+                "https://cdn.discordapp.com/attachments/736262744474517584/834504326566248498/facepalm.gif",
+                "https://cdn.discordapp.com/attachments/736262744474517584/834504338612289586/facepalm.gif",
+                "https://cdn.discordapp.com/attachments/736262744474517584/834504350113857556/facepalm.gif",
+                "https://cdn.discordapp.com/attachments/736262744474517584/834504362276946002/facepalm.gif",
+                "https://cdn.discordapp.com/attachments/736262744474517584/834504375288201216/facepalm.gif",
+                "https://cdn.discordapp.com/attachments/736262744474517584/834504387749609492/facepalm.gif"
         );
     }
 

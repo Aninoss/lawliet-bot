@@ -156,12 +156,15 @@ public class CommandContainer {
         commandList.add(AngryCommand.class);
         commandList.add(AwkwardCommand.class);
         commandList.add(BlushCommand.class);
+        commandList.add(BoredCommand.class);
         commandList.add(CryCommand.class);
         commandList.add(DabCommand.class);
         commandList.add(DanceCommand.class);
         commandList.add(FacepalmCommand.class);
+        commandList.add(JumpCommand.class);
         commandList.add(LaughCommand.class);
         commandList.add(NoCommand.class);
+        commandList.add(NomCommand.class);
         commandList.add(NoseBleedCommand.class);
         commandList.add(RunCommand.class);
         commandList.add(ShrugCommand.class);
@@ -187,7 +190,6 @@ public class CommandContainer {
         commandList.add(MarryCommand.class);
         commandList.add(MassageCommand.class);
         commandList.add(MerkelCommand.class);
-        commandList.add(NomCommand.class);
         commandList.add(PatCommand.class);
         commandList.add(PokeCommand.class);
         commandList.add(PunchCommand.class);
@@ -204,6 +206,10 @@ public class CommandContainer {
         commandList.add(YuriHugCommand.class);
         commandList.add(YuriKissCommand.class);
 
+        commandList.add(AssGrabCommand.class);
+        commandList.add(BlowjobCommand.class);
+        commandList.add(BoobsGrabCommand.class);
+        commandList.add(CumCommand.class);
         commandList.add(FuckCommand.class);
         commandList.add(FurryFuckCommand.class);
         commandList.add(SpankCommand.class);

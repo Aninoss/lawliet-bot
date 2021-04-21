@@ -37,7 +37,9 @@ public class LoveCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277204891336754/love.gif",
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277211975516261/love.gif",
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277216400507000/love.gif",
-                "https://cdn.discordapp.com/attachments/736277076868595794/736277224491319417/love.gif"
+                "https://cdn.discordapp.com/attachments/736277076868595794/736277224491319417/love.gif",
+                "https://cdn.discordapp.com/attachments/736277076868595794/834512912387145728/love.gif",
+                "https://cdn.discordapp.com/attachments/736277076868595794/834512923850047509/love.gif"
         );
     }
 

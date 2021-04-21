@@ -38,7 +38,15 @@ public class HighfiveCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736274901673181216/736275073866006568/highfive.gif",
                 "https://cdn.discordapp.com/attachments/736274901673181216/736275079192903851/highfive.gif",
                 "https://cdn.discordapp.com/attachments/736274901673181216/736275088323903558/highfive.gif",
-                "https://cdn.discordapp.com/attachments/736274901673181216/736275096833884261/highfive.gif"
+                "https://cdn.discordapp.com/attachments/736274901673181216/736275096833884261/highfive.gif",
+                "https://cdn.discordapp.com/attachments/736274901673181216/834508123594031155/highfive.gif",
+                "https://cdn.discordapp.com/attachments/736274901673181216/834508141907279932/highfive.gif",
+                "https://cdn.discordapp.com/attachments/736274901673181216/834508156146810980/highfive.gif",
+                "https://cdn.discordapp.com/attachments/736274901673181216/834508169634906142/highfive.gif",
+                "https://cdn.discordapp.com/attachments/736274901673181216/834508183355129856/highfive.gif",
+                "https://cdn.discordapp.com/attachments/736274901673181216/834508196030316654/highfive.gif",
+                "https://cdn.discordapp.com/attachments/736274901673181216/834508208038608906/highfive.gif",
+                "https://cdn.discordapp.com/attachments/736274901673181216/834508220034711552/highfive.gif"
         );
     }
 

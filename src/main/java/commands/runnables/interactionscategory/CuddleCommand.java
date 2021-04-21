@@ -39,7 +39,12 @@ public class CuddleCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279758425554984/cuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279761495785512/cuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279766386212954/cuddle.gif",
-                "https://cdn.discordapp.com/attachments/736279549121396816/736279770983301120/cuddle.gif"
+                "https://cdn.discordapp.com/attachments/736279549121396816/736279770983301120/cuddle.gif",
+                "https://cdn.discordapp.com/attachments/736279549121396816/834499908903501864/cuddle.gif",
+                "https://cdn.discordapp.com/attachments/736279549121396816/834499922052644914/cuddle.gif",
+                "https://cdn.discordapp.com/attachments/736279549121396816/834499934072995853/cuddle.gif",
+                "https://cdn.discordapp.com/attachments/736279549121396816/834499946576085023/cuddle.gif",
+                "https://cdn.discordapp.com/attachments/736279549121396816/834499958156689439/cuddle.gif"
         );
     }
 

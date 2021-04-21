@@ -70,7 +70,29 @@ public class HugCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736277561373491265/736277952894861352/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/736277965591281684/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/736278192850993192/hug.gif",
-                "https://cdn.discordapp.com/attachments/736277561373491265/736278197426978907/hug.gif"
+                "https://cdn.discordapp.com/attachments/736277561373491265/736278197426978907/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508552797814815/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508565360279592/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508579141976114/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508592752623616/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508606530781245/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508619792908378/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508630862725190/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508646049644574/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508661291352114/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508675119841320/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508688806772746/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508700487516210/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508715729485874/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508727704617000/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508740031938617/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508753704321044/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508768305872907/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508782738079814/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508794733920266/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508808033665034/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508820084293652/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/834508831765430342/hug.gif"
         );
     }
 
