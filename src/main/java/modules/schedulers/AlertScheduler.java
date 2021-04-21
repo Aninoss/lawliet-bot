@@ -13,7 +13,6 @@ import commands.runnables.utilitycategory.AlertsCommand;
 import core.CustomObservableMap;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
-import core.ShardManager;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
@@ -56,7 +55,7 @@ public class AlertScheduler {
             CustomObservableMap<Integer, TrackerData> map = DBTracker.getInstance().retrieve(guildId);
             if (map.containsKey(hash)) {
                 TrackerData slot = map.get(hash);
-                if (slot.isActive() && ShardManager.getInstance().guildIsManaged(slot.getGuildId()) && manageAlert(slot)) {
+                if (slot.isActive() && manageAlert(slot)) {
                     loadAlert(slot);
                 }
             }
@@ -71,9 +70,6 @@ public class AlertScheduler {
         } catch (Throwable throwable) {
             MainLogger.get().error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);
             minInstant = Instant.now().plus(10, ChronoUnit.MINUTES);
-            if (throwable.toString().contains("Unknown Channel")) {
-                slot.delete();
-            }
         }
 
         if (slot.isActive()) {
@@ -94,7 +90,7 @@ public class AlertScheduler {
             return;
         }
 
-        OnAlertListener command = commandOpt.map(c -> (OnAlertListener) c).get();
+        OnAlertListener command = (OnAlertListener) commandOpt.get();
         Optional<TextChannel> channelOpt = slot.getTextChannel();
         if (channelOpt.isPresent()) {
             if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
@@ -120,8 +116,12 @@ public class AlertScheduler {
                         break;
                 }
             }
-        } else if (slot.getGuild().isPresent()) {
-            slot.delete();
+        } else {
+            if (slot.getGuild().isPresent()) {
+                slot.delete();
+            } else {
+                slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
+            }
         }
     }
 
