@@ -5,7 +5,7 @@ import events.discordevents.eventtypeabstracts.VoiceChannelDeleteAbstract;
 import mysql.modules.autochannel.DBAutoChannel;
 import net.dv8tion.jda.api.events.channel.voice.VoiceChannelDeleteEvent;
 
-@DiscordEvent()
+@DiscordEvent
 public class VoiceChannelDeleteAutoChannel extends VoiceChannelDeleteAbstract {
 
     @Override

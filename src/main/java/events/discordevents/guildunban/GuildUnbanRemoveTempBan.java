@@ -5,7 +5,7 @@ import events.discordevents.eventtypeabstracts.GuildUnbanAbstract;
 import mysql.modules.tempban.DBTempBan;
 import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
 
-@DiscordEvent
+@DiscordEvent(allowBots = true, allowBannedUser = true)
 public class GuildUnbanRemoveTempBan extends GuildUnbanAbstract {
 
     @Override

@@ -5,7 +5,7 @@ import events.discordevents.eventtypeabstracts.GuildMessageDeleteAbstract;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 
-@DiscordEvent
+@DiscordEvent(allowBannedUser = true, allowBots = true)
 public class GuildMessageDeleteRemoveStaticReactionMessage extends GuildMessageDeleteAbstract {
 
     @Override

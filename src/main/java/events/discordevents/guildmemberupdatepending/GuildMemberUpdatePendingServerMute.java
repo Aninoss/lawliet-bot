@@ -5,7 +5,7 @@ import events.discordevents.eventtypeabstracts.GuildMemberUpdatePendingAbstract;
 import modules.ServerMute;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdatePendingEvent;
 
-@DiscordEvent(allowBots = true)
+@DiscordEvent(allowBots = true, allowBannedUser = true)
 public class GuildMemberUpdatePendingServerMute extends GuildMemberUpdatePendingAbstract {
 
     @Override

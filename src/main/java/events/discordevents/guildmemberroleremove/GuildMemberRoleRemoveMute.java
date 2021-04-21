@@ -6,7 +6,7 @@ import mysql.modules.moderation.DBModeration;
 import mysql.modules.servermute.DBServerMute;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 
-@DiscordEvent
+@DiscordEvent(allowBannedUser = true, allowBots = true)
 public class GuildMemberRoleRemoveMute extends GuildMemberRoleRemoveAbstract {
 
     @Override

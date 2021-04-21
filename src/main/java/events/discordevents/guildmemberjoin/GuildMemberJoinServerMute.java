@@ -5,7 +5,7 @@ import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.ServerMute;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
-@DiscordEvent(allowBots = true)
+@DiscordEvent(allowBots = true, allowBannedUser = true)
 public class GuildMemberJoinServerMute extends GuildMemberJoinAbstract {
 
     @Override
