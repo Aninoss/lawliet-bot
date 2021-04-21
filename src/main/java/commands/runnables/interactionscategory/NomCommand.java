@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "nom",
@@ -10,14 +10,10 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         aliases = { "eat" }
 )
-public class NomCommand extends InteractionAbstract {
+public class NomCommand extends RolePlayAbstract {
 
     public NomCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273374858182757/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273380373954730/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/736273394412159106/nom.gif",
@@ -69,7 +65,7 @@ public class NomCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736273366784278558/739030221096747069/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/755840757901820054/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/768163643451375647/nom.gif"
-        };
+        );
     }
 
 }

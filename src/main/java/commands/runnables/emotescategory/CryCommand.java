@@ -2,7 +2,7 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "cry",
@@ -10,14 +10,10 @@ import commands.runnables.EmoteAbstract;
         executableWithoutArgs = true,
         aliases = { "sad", "sob" }
 )
-public class CryCommand extends EmoteAbstract {
+public class CryCommand extends RolePlayAbstract {
 
     public CryCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736255198808375307/736255201878474822/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/736255204030283837/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/736255209361375263/cry.gif",
@@ -69,7 +65,7 @@ public class CryCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736255198808375307/736255514102595694/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/741227824823664650/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/816323891181256744/cry.gif"
-        };
+        );
     }
 
 }

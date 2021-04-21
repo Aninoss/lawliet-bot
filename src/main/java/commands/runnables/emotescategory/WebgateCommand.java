@@ -2,7 +2,7 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "webgate",
@@ -10,14 +10,10 @@ import commands.runnables.EmoteAbstract;
         executableWithoutArgs = true,
         exclusiveGuilds = { 580048842020487180L }
 )
-public class WebgateCommand extends EmoteAbstract {
+public class WebgateCommand extends RolePlayAbstract {
 
     public WebgateCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/745660306239258767/745660330562027540/1ae440510ab43961363838d69fa16aa3.jpg",
                 "https://cdn.discordapp.com/attachments/745660306239258767/745660333263159396/2e2ee82e.png",
                 "https://cdn.discordapp.com/attachments/745660306239258767/745660336215949412/3kpd5a.png",
@@ -104,7 +100,7 @@ public class WebgateCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/745660306239258767/745661431307042908/95722845_240025797107687_5944562684228763072_n.jpg",
                 "https://cdn.discordapp.com/attachments/745660306239258767/745661437619339404/106233059_673104176577462_1614223870327634262_n.jpg",
                 "https://cdn.discordapp.com/attachments/745660306239258767/745661443919052810/unnamed.png"
-        };
+        );
     }
 
 }

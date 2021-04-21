@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "pat",
@@ -10,14 +10,10 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         aliases = { "praise", "yaoipat", "yuripat" }
 )
-public class PatCommand extends InteractionAbstract {
+public class PatCommand extends RolePlayAbstract {
 
     public PatCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736275536317382717/736275542193733702/pat.gif",
                 "https://cdn.discordapp.com/attachments/736275536317382717/736275544949260368/pat.gif",
                 "https://cdn.discordapp.com/attachments/736275536317382717/736275548061302886/pat.gif",
@@ -51,7 +47,7 @@ public class PatCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736275536317382717/772095989560639509/pat.gif",
                 "https://cdn.discordapp.com/attachments/736275536317382717/774620244597407755/pat.gif",
                 "https://cdn.discordapp.com/attachments/736275536317382717/816317244048277536/pat.gif"
-        };
+        );
     }
 
 }

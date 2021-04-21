@@ -2,7 +2,7 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "stare",
@@ -10,14 +10,10 @@ import commands.runnables.EmoteAbstract;
         executableWithoutArgs = true,
         aliases = { "see" }
 )
-public class StareCommand extends EmoteAbstract {
+public class StareCommand extends RolePlayAbstract {
 
     public StareCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736260687633842216/736260702947508244/stare.gif",
                 "https://cdn.discordapp.com/attachments/736260687633842216/736260707611312288/stare.gif",
                 "https://cdn.discordapp.com/attachments/736260687633842216/736260716276875354/stare.gif",
@@ -48,7 +44,7 @@ public class StareCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736260687633842216/736260921600508005/stare.gif",
                 "https://cdn.discordapp.com/attachments/736260687633842216/736260930098298931/stare.gif",
                 "https://cdn.discordapp.com/attachments/736260687633842216/736260936528166963/stare.gif"
-        };
+        );
     }
 
 }

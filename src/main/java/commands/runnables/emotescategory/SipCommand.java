@@ -2,7 +2,7 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "sip",
@@ -10,14 +10,10 @@ import commands.runnables.EmoteAbstract;
         executableWithoutArgs = true,
         aliases = { "teasip", "tea" }
 )
-public class SipCommand extends EmoteAbstract {
+public class SipCommand extends RolePlayAbstract {
 
     public SipCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/761612990784471041/761613273048678430/sip.gif",
                 "https://cdn.discordapp.com/attachments/761612990784471041/761613356704333847/sip.gif",
                 "https://cdn.discordapp.com/attachments/761612990784471041/761613393864949760/sip.gif",
@@ -30,7 +26,7 @@ public class SipCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/761612990784471041/762355934864474112/sip.gif",
                 "https://cdn.discordapp.com/attachments/761612990784471041/762358715964850176/sip.gif",
                 "https://cdn.discordapp.com/attachments/761612990784471041/779071115187978310/sip.gif"
-        };
+        );
     }
 
 }

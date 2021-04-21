@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "punch",
@@ -10,14 +10,10 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         aliases = { "hit", "attack" }
 )
-public class PunchCommand extends InteractionAbstract {
+public class PunchCommand extends RolePlayAbstract {
 
     public PunchCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736270998772383826/736271005756031066/punch.gif",
                 "https://cdn.discordapp.com/attachments/736270998772383826/736271012462723223/punch.gif",
                 "https://cdn.discordapp.com/attachments/736270998772383826/736271042212790339/punch.gif",
@@ -50,7 +46,7 @@ public class PunchCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736270998772383826/736271285230764152/punch.gif",
                 "https://cdn.discordapp.com/attachments/736270998772383826/736271295062343740/punch.gif",
                 "https://cdn.discordapp.com/attachments/736270998772383826/736271300414144552/punch.gif"
-        };
+        );
     }
 
 }

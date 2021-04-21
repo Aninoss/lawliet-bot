@@ -2,7 +2,7 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "laugh",
@@ -10,14 +10,10 @@ import commands.runnables.EmoteAbstract;
         executableWithoutArgs = true,
         aliases = { "lol", "funny" }
 )
-public class LaughCommand extends EmoteAbstract {
+public class LaughCommand extends RolePlayAbstract {
 
     public LaughCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736261908960903268/736261913096224869/laugh.gif",
                 "https://cdn.discordapp.com/attachments/736261908960903268/736261916850126968/laugh.gif",
                 "https://cdn.discordapp.com/attachments/736261908960903268/736261919228297256/laugh.gif",
@@ -62,7 +58,7 @@ public class LaughCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736261908960903268/736262210837413961/laugh.gif",
                 "https://cdn.discordapp.com/attachments/736261908960903268/736262227014713476/laugh.gif",
                 "https://cdn.discordapp.com/attachments/736261908960903268/736262326545547284/laugh.gif"
-        };
+        );
     }
 
 }

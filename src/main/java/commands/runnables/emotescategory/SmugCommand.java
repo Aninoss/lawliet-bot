@@ -2,21 +2,17 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "smug",
         emoji = "\uD83D\uDE0F",
         executableWithoutArgs = true
 )
-public class SmugCommand extends EmoteAbstract {
+public class SmugCommand extends RolePlayAbstract {
 
     public SmugCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736262910678007808/736262920786149467/smug.gif",
                 "https://cdn.discordapp.com/attachments/736262910678007808/736262926553579640/smug.gif",
                 "https://cdn.discordapp.com/attachments/736262910678007808/736262937626411108/smug.gif",
@@ -45,7 +41,7 @@ public class SmugCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736262910678007808/736263094984245299/smug.gif",
                 "https://cdn.discordapp.com/attachments/736262910678007808/745277946721206352/smug.gif",
                 "https://cdn.discordapp.com/attachments/736262910678007808/745278389128003674/smug.gif"
-        };
+        );
     }
 
 }

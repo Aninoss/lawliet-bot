@@ -2,21 +2,17 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "facepalm",
         emoji = "\uD83E\uDD26",
         executableWithoutArgs = true
 )
-public class FacepalmCommand extends EmoteAbstract {
+public class FacepalmCommand extends RolePlayAbstract {
 
     public FacepalmCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736262744474517584/736262755283238992/facepalm.gif",
                 "https://cdn.discordapp.com/attachments/736262744474517584/736262759964213439/facepalm.gif",
                 "https://cdn.discordapp.com/attachments/736262744474517584/736262764284346428/facepalm.gif",
@@ -36,7 +32,7 @@ public class FacepalmCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736262744474517584/736262854734512188/facepalm.gif",
                 "https://cdn.discordapp.com/attachments/736262744474517584/736262859821940836/facepalm.gif",
                 "https://cdn.discordapp.com/attachments/736262744474517584/736262871125721209/facepalm.gif"
-        };
+        );
     }
 
 }

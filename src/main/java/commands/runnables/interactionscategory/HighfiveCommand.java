@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "highfive",
         emoji = "✋",
         executableWithoutArgs = true
 )
-public class HighfiveCommand extends InteractionAbstract {
+public class HighfiveCommand extends RolePlayAbstract {
 
     public HighfiveCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736274901673181216/736274914381922444/highfive.gif",
                 "https://cdn.discordapp.com/attachments/736274901673181216/736274917502353408/highfive.gif",
                 "https://cdn.discordapp.com/attachments/736274901673181216/736274922028138606/highfive.gif",
@@ -43,7 +39,7 @@ public class HighfiveCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736274901673181216/736275079192903851/highfive.gif",
                 "https://cdn.discordapp.com/attachments/736274901673181216/736275088323903558/highfive.gif",
                 "https://cdn.discordapp.com/attachments/736274901673181216/736275096833884261/highfive.gif"
-        };
+        );
     }
 
 }

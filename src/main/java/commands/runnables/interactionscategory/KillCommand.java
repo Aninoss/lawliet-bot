@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "kill",
@@ -10,14 +10,10 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         aliases = { "die" }
 )
-public class KillCommand extends InteractionAbstract {
+public class KillCommand extends RolePlayAbstract {
 
     public KillCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736270438627278859/736270444973391992/kill.gif",
                 "https://cdn.discordapp.com/attachments/736270438627278859/736270452443316224/kill.gif",
                 "https://cdn.discordapp.com/attachments/736270438627278859/736270456952193125/kill.gif",
@@ -44,7 +40,7 @@ public class KillCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736270438627278859/736270624300728320/kill.gif",
                 "https://cdn.discordapp.com/attachments/736270438627278859/736270633260023858/kill.gif",
                 "https://cdn.discordapp.com/attachments/736270438627278859/736270655749619732/kill.gif"
-        };
+        );
     }
 
 }

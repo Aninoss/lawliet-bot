@@ -2,7 +2,7 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "no",
@@ -10,14 +10,10 @@ import commands.runnables.EmoteAbstract;
         executableWithoutArgs = true,
         aliases = { "nope", "thumbsdown", "thumpsdown" }
 )
-public class NoCommand extends EmoteAbstract {
+public class NoCommand extends RolePlayAbstract {
 
     public NoCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736254603410014320/736254607449128981/no.gif",
                 "https://cdn.discordapp.com/attachments/736254603410014320/736254609856659577/no.gif",
                 "https://cdn.discordapp.com/attachments/736254603410014320/736254616714608651/no.gif",
@@ -39,7 +35,7 @@ public class NoCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736254603410014320/736254733131579482/no.gif",
                 "https://cdn.discordapp.com/attachments/736254603410014320/736254738223333517/no.gif",
                 "https://cdn.discordapp.com/attachments/736254603410014320/743053003820498964/no.gif"
-        };
+        );
     }
 
 }

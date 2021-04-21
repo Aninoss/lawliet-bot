@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "bite",
         emoji = "\uD83E\uDE78",
         executableWithoutArgs = true
 )
-public class BiteCommand extends InteractionAbstract {
+public class BiteCommand extends RolePlayAbstract {
 
     public BiteCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736272811789779006/736272843343659120/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/736272848963764224/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/736272854709960784/bite.gif",
@@ -40,7 +36,7 @@ public class BiteCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736272811789779006/737035754651254834/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/737035908699652136/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/830910952949284884/bite.gif"
-        };
+        );
     }
 
 }

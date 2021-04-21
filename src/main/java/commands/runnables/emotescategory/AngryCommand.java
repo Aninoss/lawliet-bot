@@ -2,7 +2,7 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "angry",
@@ -10,14 +10,10 @@ import commands.runnables.EmoteAbstract;
         executableWithoutArgs = true,
         aliases = { "rage", "mad" }
 )
-public class AngryCommand extends EmoteAbstract {
+public class AngryCommand extends RolePlayAbstract {
 
     public AngryCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736258706383175720/736258715128299620/angry.gif",
                 "https://cdn.discordapp.com/attachments/736258706383175720/736258717447880874/angry.gif",
                 "https://cdn.discordapp.com/attachments/736258706383175720/736258727711211600/angry.gif",
@@ -64,7 +60,7 @@ public class AngryCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736258706383175720/772196563313360896/angry.gif",
                 "https://cdn.discordapp.com/attachments/736258706383175720/772196703045550125/angry.gif",
                 "https://cdn.discordapp.com/attachments/736258706383175720/821077468382232606/angry.gif"
-        };
+        );
     }
 
 }

@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "love",
         emoji = "\u2764\uFE0F",
         executableWithoutArgs = true
 )
-public class LoveCommand extends InteractionAbstract {
+public class LoveCommand extends RolePlayAbstract {
 
     public LoveCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277083407384626/love.gif",
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277085747675206/love.gif",
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277089451507712/love.gif",
@@ -42,7 +38,7 @@ public class LoveCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277211975516261/love.gif",
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277216400507000/love.gif",
                 "https://cdn.discordapp.com/attachments/736277076868595794/736277224491319417/love.gif"
-        };
+        );
     }
 
 }

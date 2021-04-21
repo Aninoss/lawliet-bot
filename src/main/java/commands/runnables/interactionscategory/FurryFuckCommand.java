@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "furryfuck",
@@ -10,14 +10,10 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         nsfw = true
 )
-public class FurryFuckCommand extends InteractionAbstract {
+public class FurryFuckCommand extends RolePlayAbstract {
 
     public FurryFuckCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283596993855548/furryfuck.gif",
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283604535214100/furryfuck.gif",
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283613531734127/furryfuck.gif",
@@ -40,7 +36,7 @@ public class FurryFuckCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283835431518298/furryfuck.gif",
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283848052047913/furryfuck.gif",
                 "https://cdn.discordapp.com/attachments/736283579457208414/736283993590202538/furryfuck.gif"
-        };
+        );
     }
 
 }

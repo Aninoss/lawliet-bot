@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "yaoicuddle",
@@ -10,14 +10,10 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         aliases = { "yaoisnuggle" }
 )
-public class YaoiCuddleCommand extends InteractionAbstract {
+public class YaoiCuddleCommand extends RolePlayAbstract {
 
     public YaoiCuddleCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279883776262144/yaoicuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279889224925214/yaoicuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279896518557787/yaoicuddle.gif",
@@ -30,7 +26,7 @@ public class YaoiCuddleCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279930203013270/yaoicuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279935152554044/yaoicuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279946741153882/yaoicuddle.gif"
-        };
+        );
     }
 
 }

@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "yurihug",
         emoji = "\uD83D\uDC69\uD83D\uDC50\uD83D\uDC69",
         executableWithoutArgs = true
 )
-public class YuriHugCommand extends InteractionAbstract {
+public class YuriHugCommand extends RolePlayAbstract {
 
     public YuriHugCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736278804829306930/736278809795625080/yurihug.gif",
                 "https://cdn.discordapp.com/attachments/736278804829306930/736278814065426573/yurihug.gif",
                 "https://cdn.discordapp.com/attachments/736278804829306930/736278820256088094/yurihug.gif",
@@ -28,7 +24,7 @@ public class YuriHugCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736278804829306930/736279287572725821/yurihug.gif",
                 "https://cdn.discordapp.com/attachments/736278804829306930/736279360092373102/yurihug.gif",
                 "https://cdn.discordapp.com/attachments/736278804829306930/736279429419892776/yurihug.gif"
-        };
+        );
     }
 
 }

@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "slap",
         emoji = "\uD83D\uDC4F",
         executableWithoutArgs = true
 )
-public class SlapCommand extends InteractionAbstract {
+public class SlapCommand extends RolePlayAbstract {
 
     public SlapCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736271623098990792/736271626714218507/slap.gif",
                 "https://cdn.discordapp.com/attachments/736271623098990792/736271635174391979/slap.gif",
                 "https://cdn.discordapp.com/attachments/736271623098990792/736271639301324860/slap.gif",
@@ -35,7 +31,7 @@ public class SlapCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736271623098990792/736271742724472872/slap.gif",
                 "https://cdn.discordapp.com/attachments/736271623098990792/736271751725580320/slap.gif",
                 "https://cdn.discordapp.com/attachments/736271623098990792/736271759279521903/slap.gif"
-        };
+        );
     }
 
 }

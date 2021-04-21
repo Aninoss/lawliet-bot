@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "yaoikiss",
         emoji = "\uD83D\uDC68\u200D❤️\u200D\uD83D\uDC68",
         executableWithoutArgs = true
 )
-public class YaoiKissCommand extends InteractionAbstract {
+public class YaoiKissCommand extends RolePlayAbstract {
 
     public YaoiKissCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736280745601007737/736280751187689482/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/736280753842683994/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/736280757068234823/yaoikiss.gif",
@@ -54,7 +50,7 @@ public class YaoiKissCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736280745601007737/774620635997011978/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/783699292757164102/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/783755433126264912/yaoikiss.gif"
-        };
+        );
     }
 
 }

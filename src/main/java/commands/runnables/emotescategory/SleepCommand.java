@@ -2,21 +2,17 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "sleep",
         emoji = "\uD83D\uDCA4",
         executableWithoutArgs = true
 )
-public class SleepCommand extends EmoteAbstract {
+public class SleepCommand extends RolePlayAbstract {
 
     public SleepCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736261025166524498/736261034935058563/sleep.gif",
                 "https://cdn.discordapp.com/attachments/736261025166524498/736261044783153222/sleep.gif",
                 "https://cdn.discordapp.com/attachments/736261025166524498/736261050495926303/sleep.gif",
@@ -47,7 +43,7 @@ public class SleepCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736261025166524498/736261314514780230/sleep.gif",
                 "https://cdn.discordapp.com/attachments/736261025166524498/736261332067942400/sleep.gif",
                 "https://cdn.discordapp.com/attachments/736261025166524498/736261433293144085/sleep.gif"
-        };
+        );
     }
 
 }

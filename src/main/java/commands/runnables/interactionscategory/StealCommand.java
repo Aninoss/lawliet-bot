@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "steal",
         emoji = "❔",
         executableWithoutArgs = true
 )
-public class StealCommand extends InteractionAbstract {
+public class StealCommand extends RolePlayAbstract {
 
     public StealCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736271960065048577/736271967300223079/steal.gif",
                 "https://cdn.discordapp.com/attachments/736271960065048577/736271972966858772/steal.gif",
                 "https://cdn.discordapp.com/attachments/736271960065048577/736271981372112958/steal.gif",
@@ -26,7 +22,7 @@ public class StealCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736271960065048577/736272008761049199/steal.gif",
                 "https://cdn.discordapp.com/attachments/736271960065048577/736272017590059038/steal.gif",
                 "https://cdn.discordapp.com/attachments/736271960065048577/736272026041450557/steal.gif"
-        };
+        );
     }
 
 }

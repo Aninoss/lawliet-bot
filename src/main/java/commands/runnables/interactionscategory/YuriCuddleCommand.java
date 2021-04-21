@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "yuricuddle",
@@ -10,14 +10,10 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         aliases = { "yurisnuggle" }
 )
-public class YuriCuddleCommand extends InteractionAbstract {
+public class YuriCuddleCommand extends RolePlayAbstract {
 
     public YuriCuddleCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736280073379774536/736280076546474075/yuricuddle.gif",
                 "https://cdn.discordapp.com/attachments/736280073379774536/736280078975238154/yuricuddle.gif",
                 "https://cdn.discordapp.com/attachments/736280073379774536/736280083110690836/yuricuddle.gif",
@@ -29,7 +25,7 @@ public class YuriCuddleCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736280073379774536/736280113208885268/yuricuddle.gif",
                 "https://cdn.discordapp.com/attachments/736280073379774536/736280178623250568/yuricuddle.gif",
                 "https://cdn.discordapp.com/attachments/736280073379774536/829471458212052992/yuricuddle.gif"
-        };
+        );
     }
 
 }

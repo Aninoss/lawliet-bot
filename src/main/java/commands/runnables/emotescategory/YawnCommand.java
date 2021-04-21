@@ -2,7 +2,7 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "yawn",
@@ -10,14 +10,10 @@ import commands.runnables.EmoteAbstract;
         executableWithoutArgs = true,
         aliases = { "wakeup", "tired", "sleepy" }
 )
-public class YawnCommand extends EmoteAbstract {
+public class YawnCommand extends RolePlayAbstract {
 
     public YawnCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736262435501113465/736262443247992832/yawn.gif",
                 "https://cdn.discordapp.com/attachments/736262435501113465/736262449401167889/yawn.gif",
                 "https://cdn.discordapp.com/attachments/736262435501113465/736262460868395029/yawn.gif",
@@ -45,7 +41,7 @@ public class YawnCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736262435501113465/736262644293697546/yawn.gif",
                 "https://cdn.discordapp.com/attachments/736262435501113465/741228041199681546/yawn.gif",
                 "https://cdn.discordapp.com/attachments/736262435501113465/815214009128976424/yawn.gif"
-        };
+        );
     }
 
 }

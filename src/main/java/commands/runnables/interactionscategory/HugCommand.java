@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "hug",
         emoji = "\uD83D\uDC50",
         executableWithoutArgs = true
 )
-public class HugCommand extends InteractionAbstract {
+public class HugCommand extends RolePlayAbstract {
 
     public HugCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736277561373491265/736277568629506146/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/736277578633183293/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/736277583767011368/hug.gif",
@@ -75,7 +71,7 @@ public class HugCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736277561373491265/736277965591281684/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/736278192850993192/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/736278197426978907/hug.gif"
-        };
+        );
     }
 
 }

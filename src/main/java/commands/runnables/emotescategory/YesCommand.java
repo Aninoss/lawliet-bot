@@ -2,7 +2,7 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "yes",
@@ -10,14 +10,10 @@ import commands.runnables.EmoteAbstract;
         executableWithoutArgs = true,
         aliases = { "thumbsup", "thumpsup" }
 )
-public class YesCommand extends EmoteAbstract {
+public class YesCommand extends RolePlayAbstract {
 
     public YesCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736254151620820993/736254158205747270/yes.gif",
                 "https://cdn.discordapp.com/attachments/736254151620820993/736254160902553661/yes.gif",
                 "https://cdn.discordapp.com/attachments/736254151620820993/736254166216998912/yes.gif",
@@ -37,7 +33,7 @@ public class YesCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736254151620820993/736254251327684698/yes.gif",
                 "https://cdn.discordapp.com/attachments/736254151620820993/736254259837796352/yes.gif",
                 "https://cdn.discordapp.com/attachments/736254151620820993/736254266213138442/yes.gif"
-        };
+        );
     }
 
 }

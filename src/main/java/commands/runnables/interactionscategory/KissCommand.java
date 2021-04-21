@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "kiss",
         emoji = "\uD83D\uDC8B",
         executableWithoutArgs = true
 )
-public class KissCommand extends InteractionAbstract {
+public class KissCommand extends RolePlayAbstract {
 
     public KissCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280301571145769/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280306797248512/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280315030667384/kiss.gif",
@@ -60,7 +56,7 @@ public class KissCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280563887112262/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280569536708738/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/768080405668167680/kiss.gif"
-        };
+        );
     }
 
 }

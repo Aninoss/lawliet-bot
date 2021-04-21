@@ -2,21 +2,17 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "run",
         emoji = "\uD83C\uDFC3",
         executableWithoutArgs = true
 )
-public class RunCommand extends EmoteAbstract {
+public class RunCommand extends RolePlayAbstract {
 
     public RunCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736259684763435059/736259690962485268/run.gif",
                 "https://cdn.discordapp.com/attachments/736259684763435059/736259694955331694/run.gif",
                 "https://cdn.discordapp.com/attachments/736259684763435059/736259702135980144/run.gif",
@@ -48,7 +44,7 @@ public class RunCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736259684763435059/736259959783948358/run.gif",
                 "https://cdn.discordapp.com/attachments/736259684763435059/736259968616890428/run.gif",
                 "https://cdn.discordapp.com/attachments/736259684763435059/736259984127557692/run.gif"
-        };
+        );
     }
 
 }

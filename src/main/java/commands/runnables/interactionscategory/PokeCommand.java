@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "poke",
         emoji = "\uD83D\uDC49",
         executableWithoutArgs = true
 )
-public class PokeCommand extends InteractionAbstract {
+public class PokeCommand extends RolePlayAbstract {
 
     public PokeCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273774760165506/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273784067194890/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273788198715522/poke.gif",
@@ -37,7 +33,7 @@ public class PokeCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273867802279987/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273880112693348/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273886299029535/poke.gif"
-        };
+        );
     }
 
 }

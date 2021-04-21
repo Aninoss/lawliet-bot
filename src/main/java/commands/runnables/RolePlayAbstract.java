@@ -12,19 +12,27 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
-public abstract class InteractionAbstract extends Command {
+public abstract class RolePlayAbstract extends Command {
 
+    private final boolean interactive;
     private final String[] gifs;
 
-    public InteractionAbstract(Locale locale, String prefix) {
+    public RolePlayAbstract(Locale locale, String prefix, boolean interactive, String... gifs) {
         super(locale, prefix);
-        this.gifs = getGifs();
+        this.interactive = interactive;
+        this.gifs = gifs;
     }
-
-    protected abstract String[] getGifs();
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+        if (interactive) {
+            return onTriggerInteractive(event, args);
+        } else {
+            return onTriggerNonInteractive(event, args);
+        }
+    }
+
+    public boolean onTriggerInteractive(GuildMessageReceivedEvent event, String args) {
         Message message = event.getMessage();
         Mention mention = MentionUtil.getMentionedString(getLocale(), message, args, event.getMember());
         boolean mentionPresent = !mention.getMentionText().isEmpty();
@@ -59,6 +67,23 @@ public abstract class InteractionAbstract extends Command {
         }
 
         message.getChannel().sendMessage(eb.build()).queue();
+        return true;
+    }
+
+    public boolean onTriggerNonInteractive(GuildMessageReceivedEvent event, String args) {
+        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), gifs.length)];
+
+        String quote = "";
+        if (args.length() > 0) {
+            quote = "\n\n> " + args.replace("\n", "\n> ");
+        }
+
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(
+                this,
+                getString("template", "**" + StringUtil.escapeMarkdown(event.getMessage().getMember().getEffectiveName()) + "**") + quote
+        ).setImage(gifUrl);
+
+        event.getMessage().getChannel().sendMessage(eb.build()).queue();
         return true;
     }
 

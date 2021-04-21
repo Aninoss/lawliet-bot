@@ -2,21 +2,17 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "awkward",
         emoji = "\uD83D\uDE05",
         executableWithoutArgs = true
 )
-public class AwkwardCommand extends EmoteAbstract {
+public class AwkwardCommand extends RolePlayAbstract {
 
     public AwkwardCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736253855339249695/736253858308817007/awkward.gif",
                 "https://cdn.discordapp.com/attachments/736253855339249695/736253865015377960/awkward.gif",
                 "https://cdn.discordapp.com/attachments/736253855339249695/736253872057745539/awkward.gif",
@@ -34,7 +30,7 @@ public class AwkwardCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736253855339249695/736253947248902254/awkward.gif",
                 "https://cdn.discordapp.com/attachments/736253855339249695/736253952143655032/awkward.gif",
                 "https://cdn.discordapp.com/attachments/736253855339249695/736253958380585080/awkward.gif"
-        };
+        );
     }
 
 }

@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "fuck",
@@ -10,14 +10,10 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         nsfw = true
 )
-public class FuckCommand extends InteractionAbstract {
+public class FuckCommand extends RolePlayAbstract {
 
     public FuckCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281490484363344/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281495257219112/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281501951590430/fuck.gif",
@@ -61,7 +57,7 @@ public class FuckCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736281485216317442/736281929590243489/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736282288844963891/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/736282318788100157/fuck.gif"
-        };
+        );
     }
 
 }

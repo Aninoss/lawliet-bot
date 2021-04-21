@@ -2,21 +2,17 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "blush",
         emoji = "\uD83D\uDE0A",
         executableWithoutArgs = true
 )
-public class BlushCommand extends EmoteAbstract {
+public class BlushCommand extends RolePlayAbstract {
 
     public BlushCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736260129418248242/736260135047135362/blush.gif",
                 "https://cdn.discordapp.com/attachments/736260129418248242/736260147059490906/blush.gif",
                 "https://cdn.discordapp.com/attachments/736260129418248242/736260154139476069/blush.gif",
@@ -74,7 +70,7 @@ public class BlushCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736260129418248242/736260573729259550/blush.gif",
                 "https://cdn.discordapp.com/attachments/736260129418248242/750018308144758865/blush.gif",
                 "https://cdn.discordapp.com/attachments/736260129418248242/755840615354335262/blush.gif"
-        };
+        );
     }
 
 }

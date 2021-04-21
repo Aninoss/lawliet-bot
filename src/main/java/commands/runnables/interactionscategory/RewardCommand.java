@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "reward",
@@ -10,16 +10,12 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         aliases = { "rewards" }
 )
-public class RewardCommand extends InteractionAbstract {
+public class RewardCommand extends RolePlayAbstract {
 
     public RewardCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736276242466078761/736276249969950781/reward.gif"
-        };
+        );
     }
 
 }

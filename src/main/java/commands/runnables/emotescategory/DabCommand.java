@@ -2,7 +2,7 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "dab",
@@ -10,18 +10,14 @@ import commands.runnables.EmoteAbstract;
         executableWithoutArgs = true,
         aliases = { "dap" }
 )
-public class DabCommand extends EmoteAbstract {
+public class DabCommand extends RolePlayAbstract {
 
     public DabCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736253507618865215/736253511095943269/dab.gif",
                 "https://cdn.discordapp.com/attachments/736253507618865215/736253518100299796/dab.gif",
-                "https://cdn.discordapp.com/attachments/736253507618865215/736253522198396928/dab.gif",
-        };
+                "https://cdn.discordapp.com/attachments/736253507618865215/736253522198396928/dab.gif"
+        );
     }
 
 }

@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "cuddle",
@@ -10,14 +10,10 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         aliases = { "snuggle" }
 )
-public class CuddleCommand extends InteractionAbstract {
+public class CuddleCommand extends RolePlayAbstract {
 
     public CuddleCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279555710386306/cuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279565739229275/cuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279573867659394/cuddle.gif",
@@ -44,7 +40,7 @@ public class CuddleCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279761495785512/cuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279766386212954/cuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279770983301120/cuddle.gif"
-        };
+        );
     }
 
 }

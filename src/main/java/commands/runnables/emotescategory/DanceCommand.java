@@ -2,7 +2,7 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "dance",
@@ -10,14 +10,10 @@ import commands.runnables.EmoteAbstract;
         executableWithoutArgs = true,
         aliases = { "party" }
 )
-public class DanceCommand extends EmoteAbstract {
+public class DanceCommand extends RolePlayAbstract {
 
     public DanceCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736255695296528484/736255699134316634/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/736255702888218645/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/736255712967131146/dance.gif",
@@ -49,7 +45,7 @@ public class DanceCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736255695296528484/781298738953715722/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/816316872294137916/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/816323356437381160/dance.gif"
-        };
+        );
     }
 
 }

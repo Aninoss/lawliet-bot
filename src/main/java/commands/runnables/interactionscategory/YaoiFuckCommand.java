@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "yaoifuck",
@@ -10,14 +10,10 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         nsfw = true
 )
-public class YaoiFuckCommand extends InteractionAbstract {
+public class YaoiFuckCommand extends RolePlayAbstract {
 
     public YaoiFuckCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736282657062912080/736282666126540870/yaoifuck.gif",
                 "https://cdn.discordapp.com/attachments/736282657062912080/736282674771001514/yaoifuck.gif",
                 "https://cdn.discordapp.com/attachments/736282657062912080/736282683608662021/yaoifuck.gif",
@@ -42,7 +38,7 @@ public class YaoiFuckCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736282657062912080/736283049439789066/yaoifuck.gif",
                 "https://cdn.discordapp.com/attachments/736282657062912080/736283053487292446/yaoifuck.gif",
                 "https://cdn.discordapp.com/attachments/736282657062912080/736283058642223154/yaoifuck.gif"
-        };
+        );
     }
 
 }

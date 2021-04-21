@@ -2,7 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "wave",
@@ -10,14 +10,10 @@ import commands.runnables.InteractionAbstract;
         executableWithoutArgs = true,
         aliases = { "greet", "bye", "hi", "cya" }
 )
-public class WaveCommand extends InteractionAbstract {
+public class WaveCommand extends RolePlayAbstract {
 
     public WaveCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736274581492465665/736274586097811500/wave.gif",
                 "https://cdn.discordapp.com/attachments/736274581492465665/736274589025566740/wave.gif",
                 "https://cdn.discordapp.com/attachments/736274581492465665/736274593622523954/wave.gif",
@@ -49,7 +45,7 @@ public class WaveCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736274581492465665/736274744718000240/wave.gif",
                 "https://cdn.discordapp.com/attachments/736274581492465665/736274750862655588/wave.gif",
                 "https://cdn.discordapp.com/attachments/736274581492465665/736274757221351494/wave.gif"
-        };
+        );
     }
 
 }

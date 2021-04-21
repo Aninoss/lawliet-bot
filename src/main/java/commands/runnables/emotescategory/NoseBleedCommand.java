@@ -2,21 +2,17 @@ package commands.runnables.emotescategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.EmoteAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "nosebleed",
         emoji = "\uD83E\uDE78",
         executableWithoutArgs = true
 )
-public class NoseBleedCommand extends EmoteAbstract {
+public class NoseBleedCommand extends RolePlayAbstract {
 
     public NoseBleedCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, false,
                 "https://cdn.discordapp.com/attachments/736261590508371980/736261596900491375/nosebleed.gif",
                 "https://cdn.discordapp.com/attachments/736261590508371980/736261602525053009/nosebleed.gif",
                 "https://cdn.discordapp.com/attachments/736261590508371980/736261608615182476/nosebleed.gif",
@@ -30,7 +26,7 @@ public class NoseBleedCommand extends EmoteAbstract {
                 "https://cdn.discordapp.com/attachments/736261590508371980/736261662092558406/nosebleed.gif",
                 "https://cdn.discordapp.com/attachments/736261590508371980/736261667767451768/nosebleed.gif",
                 "https://cdn.discordapp.com/attachments/736261590508371980/736261672938897408/nosebleed.gif"
-        };
+        );
     }
 
 }

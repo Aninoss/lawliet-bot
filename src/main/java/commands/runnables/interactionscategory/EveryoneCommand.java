@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "everyone",
         emoji = "\uD83D\uDE21",
         executableWithoutArgs = true
 )
-public class EveryoneCommand extends InteractionAbstract {
+public class EveryoneCommand extends RolePlayAbstract {
 
     public EveryoneCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736272698870857738/736272703253643314/everyone.jpg",
                 "https://cdn.discordapp.com/attachments/736272698870857738/736272708106715236/everyone.jpg",
                 "https://cdn.discordapp.com/attachments/736272698870857738/736272711499776050/everyone.jpg",
@@ -28,7 +24,7 @@ public class EveryoneCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736272698870857738/736272744731115580/everyone.gif",
                 "https://cdn.discordapp.com/attachments/736272698870857738/736272748481085570/everyone.jpg",
                 "https://cdn.discordapp.com/attachments/736272698870857738/736272752889036890/everyone.jpg"
-        };
+        );
     }
 
 }

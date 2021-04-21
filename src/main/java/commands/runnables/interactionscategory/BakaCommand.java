@@ -2,21 +2,17 @@ package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.InteractionAbstract;
+import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "baka",
         emoji = "\uD83D\uDCA2",
         executableWithoutArgs = true
 )
-public class BakaCommand extends InteractionAbstract {
+public class BakaCommand extends RolePlayAbstract {
 
     public BakaCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    protected String[] getGifs() {
-        return new String[] {
+        super(locale, prefix, true,
                 "https://cdn.discordapp.com/attachments/736271836278423553/736271843027058788/baka.gif",
                 "https://cdn.discordapp.com/attachments/736271836278423553/736271848546893975/baka.gif",
                 "https://cdn.discordapp.com/attachments/736271836278423553/736271857443012730/baka.gif",
@@ -27,7 +23,7 @@ public class BakaCommand extends InteractionAbstract {
                 "https://cdn.discordapp.com/attachments/736271836278423553/736271894315139123/baka.gif",
                 "https://cdn.discordapp.com/attachments/736271836278423553/736271901420159007/baka.gif",
                 "https://cdn.discordapp.com/attachments/736271836278423553/736271906398797824/baka.gif"
-        };
+        );
     }
 
 }
