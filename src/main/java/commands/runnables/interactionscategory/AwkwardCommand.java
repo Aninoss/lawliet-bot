@@ -1,4 +1,4 @@
-package commands.runnables.emotescategory;
+package commands.runnables.interactionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;

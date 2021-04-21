@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
@@ -14,10 +15,11 @@ import commands.listeners.OnAlertListener;
 import commands.runnables.NavigationAbstract;
 import commands.runnables.PornPredefinedAbstract;
 import commands.runnables.PornSearchAbstract;
+import commands.runnables.RolePlayAbstract;
 import constants.*;
-import core.Program;
 import core.EmbedFactory;
 import core.ListGen;
+import core.Program;
 import core.TextManager;
 import core.emojiconnection.BackEmojiConnection;
 import core.emojiconnection.EmojiConnection;
@@ -50,7 +52,6 @@ public class HelpCommand extends NavigationAbstract {
             Category.FISHERY_SETTINGS,
             Category.FISHERY,
             Category.CASINO,
-            Category.EMOTES,
             Category.INTERACTIONS,
             Category.EXTERNAL,
             Category.NSFW,
@@ -227,11 +228,7 @@ public class HelpCommand extends NavigationAbstract {
 
                     switch (category) {
                         case Category.INTERACTIONS:
-                            categoryInteractionsEmotes(eb, Category.INTERACTIONS);
-                            break;
-
-                        case Category.EMOTES:
-                            categoryInteractionsEmotes(eb, Category.EMOTES);
+                            categoryRolePlay(eb);
                             break;
 
                         case Category.NSFW:
@@ -254,16 +251,26 @@ public class HelpCommand extends NavigationAbstract {
         return null;
     }
 
-    private void categoryInteractionsEmotes(EmbedBuilder eb, String category) {
-        eb.setDescription(getString("emotes_desc"));
+    private void categoryRolePlay(EmbedBuilder eb) {
+        addRolePlayCommandList(eb, command -> !command.isInteractive() && !command.getCommandProperties().nsfw());
+        eb.addBlankField(false);
 
+        eb.addField(getString("roleplay_interactive_title"), getString("roleplay_interactive_desc"), false);
+        addRolePlayCommandList(eb, command -> command.isInteractive() && !command.getCommandProperties().nsfw());
+        eb.addBlankField(false);
+
+        eb.addField(getString("roleplay_nsfwinteractive_title"), getString("interaction_nsfw_desc"), false);
+        addRolePlayCommandList(eb, command -> command.isInteractive() && command.getCommandProperties().nsfw());
+    }
+
+    private void addRolePlayCommandList(EmbedBuilder eb, Function<RolePlayAbstract, Boolean> rolePlayAbstractFilter) {
         StringBuilder stringBuilder = new StringBuilder();
         int i = 0;
-        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(category)) {
+        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(Category.INTERACTIONS)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            if (commandManagementBean.commandIsTurnedOn(command) ||
-                    BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR)
+            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) &&
+                    (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR))
             ) {
                 stringBuilder
                         .append("• `")
@@ -271,12 +278,8 @@ public class HelpCommand extends NavigationAbstract {
                         .append("⠀")
                         .append(getPrefix())
                         .append(commandTrigger)
-                        .append("`");
-
-                if (command.getCommandProperties().nsfw()) {
-                    stringBuilder.append(generateCommandIcons(command, true, true));
-                }
-                stringBuilder.append("\n");
+                        .append("`")
+                        .append("\n");
 
                 emojiConnections.add(new EmojiConnection("", command.getTrigger()));
                 i++;
@@ -290,14 +293,6 @@ public class HelpCommand extends NavigationAbstract {
         if (stringBuilder.length() > 0) {
             eb.addField(Emojis.ZERO_WIDTH_SPACE, stringBuilder.toString(), true);
         }
-
-        addIconDescriptions(eb, false, false, category.equals(Category.INTERACTIONS), false);
-        if (category.equals(Category.INTERACTIONS)) {
-            eb.setDescription(getString("interactions_desc"));
-        } else {
-            eb.setDescription(getString("emotes_desc"));
-        }
-
     }
 
     private void categoryPatreon(EmbedBuilder eb) {

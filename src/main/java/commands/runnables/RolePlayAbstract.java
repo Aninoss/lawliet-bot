@@ -32,6 +32,10 @@ public abstract class RolePlayAbstract extends Command {
         }
     }
 
+    public boolean isInteractive() {
+        return interactive;
+    }
+
     public boolean onTriggerInteractive(GuildMessageReceivedEvent event, String args) {
         Message message = event.getMessage();
         Mention mention = MentionUtil.getMentionedString(getLocale(), message, args, event.getMember());

@@ -17,7 +17,6 @@ import commands.runnables.configurationcategory.CommandManagementCommand;
 import commands.runnables.configurationcategory.LanguageCommand;
 import commands.runnables.configurationcategory.NSFWFilterCommand;
 import commands.runnables.configurationcategory.PrefixCommand;
-import commands.runnables.emotescategory.*;
 import commands.runnables.externalcategory.*;
 import commands.runnables.fisherycategory.*;
 import commands.runnables.fisherysettingscategory.*;
@@ -153,7 +152,7 @@ public class CommandContainer {
         commandList.add(AnimeQuizCommand.class);
         commandList.add(TowerCommand.class);
 
-        //EMOTES
+        //INTERACTIONS
         commandList.add(AngryCommand.class);
         commandList.add(AwkwardCommand.class);
         commandList.add(BlushCommand.class);
@@ -174,14 +173,11 @@ public class CommandContainer {
         commandList.add(YawnCommand.class);
         commandList.add(YesCommand.class);
 
-        //INTERACTIONS
         commandList.add(BakaCommand.class);
         commandList.add(BiteCommand.class);
         commandList.add(BonkCommand.class);
         commandList.add(CuddleCommand.class);
         commandList.add(EveryoneCommand.class);
-        commandList.add(FuckCommand.class);
-        commandList.add(FurryFuckCommand.class);
         commandList.add(HighfiveCommand.class);
         commandList.add(HugCommand.class);
         commandList.add(KillCommand.class);
@@ -197,19 +193,22 @@ public class CommandContainer {
         commandList.add(PunchCommand.class);
         commandList.add(RewardCommand.class);
         commandList.add(SlapCommand.class);
-        commandList.add(SpankCommand.class);
         commandList.add(StealCommand.class);
         commandList.add(ThrowCommand.class);
         commandList.add(TickleCommand.class);
         commandList.add(WaveCommand.class);
         commandList.add(YaoiCuddleCommand.class);
-        commandList.add(YaoiFuckCommand.class);
         commandList.add(YaoiHugCommand.class);
         commandList.add(YaoiKissCommand.class);
         commandList.add(YuriCuddleCommand.class);
-        commandList.add(YuriFuckCommand.class);
         commandList.add(YuriHugCommand.class);
         commandList.add(YuriKissCommand.class);
+
+        commandList.add(FuckCommand.class);
+        commandList.add(FurryFuckCommand.class);
+        commandList.add(SpankCommand.class);
+        commandList.add(YaoiFuckCommand.class);
+        commandList.add(YuriFuckCommand.class);
 
         //EXTERNAL
         commandList.add(RedditCommand.class);

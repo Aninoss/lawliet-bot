@@ -12,7 +12,6 @@ public class CategoryCalculator {
         if (packageName.endsWith("utilitycategory")) return Category.UTILITY;
         if (packageName.endsWith("informationcategory")) return Category.INFORMATION;
         if (packageName.endsWith("splatoon2category")) return Category.SPLATOON_2;
-        if (packageName.endsWith("emotescategory")) return Category.EMOTES;
         if (packageName.endsWith("interactionscategory")) return Category.INTERACTIONS;
         if (packageName.endsWith("externalcategory")) return Category.EXTERNAL;
         if (packageName.endsWith("fisherysettingscategory")) return Category.FISHERY_SETTINGS;
