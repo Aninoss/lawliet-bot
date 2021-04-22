@@ -110,12 +110,17 @@ public class ShardManager {
         return Optional.ofNullable(jdaMap.get(shard)).map(JDAExtended::getJDA);
     }
 
+    public synchronized boolean jdaIsConnected(int shard) {
+        return jdaMap.containsKey(shard) && jdaMap.get(shard).isActive();
+    }
+
     public synchronized Optional<JDA> getAnyJDA() {
         return new ArrayList<>(jdaMap.values()).stream().findFirst().map(JDAExtended::getJDA);
     }
 
     public synchronized List<JDA> getConnectedLocalJDAs() {
         return new ArrayList<>(jdaMap.values()).stream()
+                .filter(JDAExtended::isActive)
                 .map(JDAExtended::getJDA)
                 .collect(Collectors.toList());
     }
@@ -138,7 +143,6 @@ public class ShardManager {
 
     public void reconnectShard(JDA jda) {
         int shard = jda.getShardInfo().getShardId();
-        jdaMap.remove(shard);
         jda.shutdownNow();
         shardDisconnectConsumers.forEach(c -> c.accept(shard));
     }
@@ -342,6 +346,7 @@ public class ShardManager {
 
         private final JDA jda;
         private boolean alive = true;
+        private boolean active = true;
         private int errors = 0;
 
         public JDAExtended(JDA jda) {
@@ -358,6 +363,14 @@ public class ShardManager {
             return jda;
         }
 
+        public JDA getJda() {
+            return jda;
+        }
+
+        public boolean isActive() {
+            return active;
+        }
+
         public void checkConnection() {
             if (alive) {
                 ShardManager.getInstance().resetGlobalErrorCounter();
@@ -365,10 +378,11 @@ public class ShardManager {
                 alive = false;
             } else {
                 MainLogger.get().debug("No data from shard {}", jda.getShardInfo().getShardId());
-                if (++errors >= 3) {    /* reconnect after 30 seconds */
+                if (++errors % 4 == 3) {    /* reconnect after 30 seconds */
+                    active = false;
                     ShardManager.getInstance().increaseGlobalErrorCounter();
                     MainLogger.get().warn("Shard {} temporarily offline", jda.getShardInfo().getShardId());
-                    ShardManager.getInstance().reconnectShard(jda.getShardInfo().getShardId());
+                    ShardManager.getInstance().reconnectShard(jda);
                 }
             }
         }

@@ -343,7 +343,7 @@ public class Console {
     private void onShards(String[] args) {
         MainLogger.get().info("Cluster: {} - Shards: {} / {}", Program.getClusterId(), ShardManager.getInstance().getConnectedLocalJDAs().size(), ShardManager.getInstance().getLocalShards());
         for (int i = ShardManager.getInstance().getShardIntervalMin(); i <= ShardManager.getInstance().getShardIntervalMax(); i++) {
-            if (ShardManager.getInstance().getJDA(i).isEmpty()) {
+            if (!ShardManager.getInstance().jdaIsConnected(i)) {
                 MainLogger.get().info("Shard {} is unavailable!", i);
             }
         }
