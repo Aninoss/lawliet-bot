@@ -235,7 +235,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
             String str = EmojiConnection.getOptionsString(channel, false, options.length > reactions ? reactions - 2 : -1, newOptions);
             eb.addBlankField(false);
-            eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), str, false);
+            eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), StringUtil.shortenString(str, 1024), false);
 
             if (options.length > reactions) {
                 EmbedUtil.setFooter(eb, this, TextManager.getString(locale, TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));

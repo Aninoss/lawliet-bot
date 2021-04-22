@@ -4,7 +4,6 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.OnReactionListener;
 import core.EmbedFactory;
-import core.MainLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
@@ -40,10 +39,6 @@ public abstract class ListAbstract extends Command implements OnReactionListener
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) {
-        if (event.getGuild().getIdLong() == 727973534713774160L) { //TODO: debug
-            MainLogger.get().info("Test: " + EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
-        }
-
         if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), SCROLL_EMOJIS[0])) {
             page--;
             if (page < 0) page = getPageSize() - 1;

@@ -231,9 +231,6 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                     return true;
                 } else {
                     setLog(LogStatus.FAILURE, getString("noreactionmessage"));
-                    setState(EDIT_MESSAGE);
-                    editMode = true;
-                    //TODO: don't go to next
                     return true;
                 }
 

@@ -7,6 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import commands.listeners.*;
 import constants.LogStatus;
+import core.MainLogger;
 import core.Program;
 import core.TextManager;
 import core.atomicassets.AtomicGuild;
@@ -18,10 +19,7 @@ import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import org.json.JSONObject;
@@ -96,14 +94,30 @@ public abstract class Command implements OnTriggerListener {
         CompletableFuture<Long> future = new CompletableFuture<>();
         getTextChannel().ifPresentOrElse(channel -> {
             if (BotPermissionUtil.canWriteEmbed(channel)) {
+                MessageEmbed messageEmbed;
+                try {
+                    messageEmbed = eb.build();
+                } catch (Throwable e) {
+                    StringBuilder sb = new StringBuilder("Embed exception with fields:");
+                    eb.getFields().forEach(field -> sb
+                            .append("\nKey: \"")
+                            .append(field.getName())
+                            .append("\"; Value: \"")
+                            .append(field.getValue())
+                            .append("\"")
+                    );
+                    MainLogger.get().error(sb.toString(), e);
+                    throw e;
+                }
+
                 if (drawMessageId == 0) {
-                    channel.sendMessage(eb.build())
+                    channel.sendMessage(messageEmbed)
                             .queue(message -> {
                                 drawMessageId = message.getIdLong();
                                 future.complete(drawMessageId);
                             }, future::completeExceptionally);
                 } else {
-                    channel.editMessageById(drawMessageId, eb.build())
+                    channel.editMessageById(drawMessageId, messageEmbed)
                             .queue(v -> future.complete(drawMessageId), future::completeExceptionally);
                 }
             } else {

@@ -34,15 +34,15 @@ public class VoteInfo {
         return choices[i];
     }
 
-    public void addVote(int i, long userId) {
+    public synchronized void addVote(int i, long userId) {
         userVotes.get(i).add(userId);
     }
 
-    public void removeVote(int i, long userId) {
+    public synchronized void removeVote(int i, long userId) {
         userVotes.get(i).remove(userId);
     }
 
-    public int getVotes(long userId) {
+    public synchronized int getVotes(long userId) {
         int votes = 0;
         for (HashSet<Long> userVoteSet : userVotes) {
             votes += userVoteSet.stream()
@@ -52,7 +52,7 @@ public class VoteInfo {
         return votes;
     }
 
-    public int[] getUserVotes() {
+    public synchronized int[] getUserVotes() {
         HashMap<Long, Integer> userCounter = new HashMap<>();
         for (HashSet<Long> userVoteSet : userVotes) {
             userVoteSet.forEach(userId -> {

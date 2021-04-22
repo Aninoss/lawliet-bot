@@ -8,7 +8,8 @@ import commands.runnables.RolePlayAbstract;
         trigger = "yaoifuck",
         emoji = "\uD83D\uDC68\uD83D\uDECF\uD83D\uDC68️",
         executableWithoutArgs = true,
-        nsfw = true
+        nsfw = true,
+        aliases = { "gayfuck" }
 )
 public class YaoiFuckCommand extends RolePlayAbstract {
 
