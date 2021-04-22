@@ -50,7 +50,6 @@ public class KissCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280520312225873/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280529049223279/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280534602481714/kiss.gif",
-                "https://cdn.discordapp.com/attachments/736280297171058759/736280540189032458/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280547206234202/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280554512711680/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280563887112262/kiss.gif",

@@ -166,6 +166,7 @@ public class CommandContainer {
         commandList.add(NoCommand.class);
         commandList.add(NomCommand.class);
         commandList.add(NoseBleedCommand.class);
+        commandList.add(PoutCommand.class);
         commandList.add(RunCommand.class);
         commandList.add(ShrugCommand.class);
         commandList.add(SipCommand.class);
@@ -212,7 +213,9 @@ public class CommandContainer {
         commandList.add(CumCommand.class);
         commandList.add(FuckCommand.class);
         commandList.add(FurryFuckCommand.class);
+        commandList.add(MasturbateCommand.class);
         commandList.add(SpankCommand.class);
+        commandList.add(TittyFuckCommand.class);
         commandList.add(YaoiFuckCommand.class);
         commandList.add(YuriFuckCommand.class);
 

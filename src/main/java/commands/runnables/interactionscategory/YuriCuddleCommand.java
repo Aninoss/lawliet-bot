@@ -24,7 +24,9 @@ public class YuriCuddleCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280073379774536/736280110692565062/yuricuddle.gif",
                 "https://cdn.discordapp.com/attachments/736280073379774536/736280113208885268/yuricuddle.gif",
                 "https://cdn.discordapp.com/attachments/736280073379774536/736280178623250568/yuricuddle.gif",
-                "https://cdn.discordapp.com/attachments/736280073379774536/829471458212052992/yuricuddle.gif"
+                "https://cdn.discordapp.com/attachments/736280073379774536/829471458212052992/yuricuddle.gif",
+                "https://cdn.discordapp.com/attachments/736280073379774536/834849068630671450/yuricuddle.gif",
+                "https://cdn.discordapp.com/attachments/736280073379774536/834849079427203112/yuricuddle.gif"
         );
     }
 

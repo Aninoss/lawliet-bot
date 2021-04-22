@@ -31,7 +31,9 @@ public class YuriFuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736283166758797324/736283456941719642/yurifuck.gif",
                 "https://cdn.discordapp.com/attachments/736283166758797324/736283473274339388/yurifuck.gif",
                 "https://cdn.discordapp.com/attachments/736283166758797324/736283490856992858/yurifuck.gif",
-                "https://cdn.discordapp.com/attachments/736283166758797324/736283499455053854/yurifuck.gif"
+                "https://cdn.discordapp.com/attachments/736283166758797324/736283499455053854/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/834849298096717874/yurifuck.gif",
+                "https://cdn.discordapp.com/attachments/736283166758797324/834849312219463680/yurifuck.gif"
         );
     }
 

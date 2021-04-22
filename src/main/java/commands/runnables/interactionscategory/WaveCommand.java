@@ -44,7 +44,28 @@ public class WaveCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736274581492465665/736274738392989746/wave.gif",
                 "https://cdn.discordapp.com/attachments/736274581492465665/736274744718000240/wave.gif",
                 "https://cdn.discordapp.com/attachments/736274581492465665/736274750862655588/wave.gif",
-                "https://cdn.discordapp.com/attachments/736274581492465665/736274757221351494/wave.gif"
+                "https://cdn.discordapp.com/attachments/736274581492465665/736274757221351494/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847812989747230/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847825321263144/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847837438083113/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847849199173723/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847860867465246/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847872620822538/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847884151226377/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847895299555359/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847906690760724/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847918044217364/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847929558761492/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847943093780538/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847953994121246/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847966547411004/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847979432968212/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834847992917000192/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834848008859942993/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834848019899482182/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834848032960020510/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834848046403682314/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/834848059166425148/wave.gif"
         );
     }
 

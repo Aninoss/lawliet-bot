@@ -25,7 +25,19 @@ public class SpankCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736274084488282113/736274138632552478/spank.gif",
                 "https://cdn.discordapp.com/attachments/736274084488282113/736274143187828757/spank.gif",
                 "https://cdn.discordapp.com/attachments/736274084488282113/736274153820127362/spank.gif",
-                "https://cdn.discordapp.com/attachments/736274084488282113/736274160266903674/spank.gif"
+                "https://cdn.discordapp.com/attachments/736274084488282113/736274160266903674/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842062976188456/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842075178467389/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842096350789692/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842123806965790/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842136088150016/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842148817862656/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842161659904100/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842176428703824/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842192396288040/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842212650844160/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842232880234516/spank.gif",
+                "https://cdn.discordapp.com/attachments/736274084488282113/834842252601065562/spank.gif"
         );
     }
 

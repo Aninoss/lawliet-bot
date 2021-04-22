@@ -23,7 +23,15 @@ public class YuriHugCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736278804829306930/736279020110479480/yurihug.gif",
                 "https://cdn.discordapp.com/attachments/736278804829306930/736279287572725821/yurihug.gif",
                 "https://cdn.discordapp.com/attachments/736278804829306930/736279360092373102/yurihug.gif",
-                "https://cdn.discordapp.com/attachments/736278804829306930/736279429419892776/yurihug.gif"
+                "https://cdn.discordapp.com/attachments/736278804829306930/736279429419892776/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/834849513579216956/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/834849563474657320/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736278804829306930/834849577344434196/yurihug.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849779824853023/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849792659947520/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849805246660608/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849818278887435/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849832022704158/yurikiss.gif"
         );
     }
 

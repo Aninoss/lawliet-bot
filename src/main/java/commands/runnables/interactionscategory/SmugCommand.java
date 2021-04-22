@@ -40,7 +40,13 @@ public class SmugCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736262910678007808/736263085173506118/smug.gif",
                 "https://cdn.discordapp.com/attachments/736262910678007808/736263094984245299/smug.gif",
                 "https://cdn.discordapp.com/attachments/736262910678007808/745277946721206352/smug.gif",
-                "https://cdn.discordapp.com/attachments/736262910678007808/745278389128003674/smug.gif"
+                "https://cdn.discordapp.com/attachments/736262910678007808/745278389128003674/smug.gif",
+                "https://cdn.discordapp.com/attachments/736262910678007808/834841518660648960/smug.gif",
+                "https://cdn.discordapp.com/attachments/736262910678007808/834841530782580751/smug.gif",
+                "https://cdn.discordapp.com/attachments/736262910678007808/834841545747333160/smug.gif",
+                "https://cdn.discordapp.com/attachments/736262910678007808/834841560318738502/smug.gif",
+                "https://cdn.discordapp.com/attachments/736262910678007808/834841586848235520/smug.gif",
+                "https://cdn.discordapp.com/attachments/736262910678007808/834841600869007370/smug.gif"
         );
     }
 

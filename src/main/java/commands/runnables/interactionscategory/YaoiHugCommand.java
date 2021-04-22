@@ -20,12 +20,12 @@ public class YaoiHugCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736278340733894710/736278366818271302/yaoihug.gif",
                 "https://cdn.discordapp.com/attachments/736278340733894710/736278374993100840/yaoihug.gif",
                 "https://cdn.discordapp.com/attachments/736278340733894710/736278379849973780/yaoihug.gif",
-                "https://cdn.discordapp.com/attachments/736278340733894710/736278390432071800/yaoihug.gif",
                 "https://cdn.discordapp.com/attachments/736278340733894710/736278403434676224/yaoihug.gif",
                 "https://cdn.discordapp.com/attachments/736278340733894710/736278410568925315/yaoihug.gif",
                 "https://cdn.discordapp.com/attachments/736278340733894710/736278429510533176/yaoihug.gif",
                 "https://cdn.discordapp.com/attachments/736278340733894710/736278434866790532/yaoihug.gif",
-                "https://cdn.discordapp.com/attachments/736278340733894710/741227684587241503/yaoihug.gif"
+                "https://cdn.discordapp.com/attachments/736278340733894710/741227684587241503/yaoihug.gif",
+                "https://cdn.discordapp.com/attachments/736278340733894710/834717466424901652/yaoihug.gif"
         );
     }
 

@@ -32,7 +32,17 @@ public class PokeCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273864492843048/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273867802279987/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/736273880112693348/poke.gif",
-                "https://cdn.discordapp.com/attachments/736273767520665610/736273886299029535/poke.gif"
+                "https://cdn.discordapp.com/attachments/736273767520665610/736273886299029535/poke.gif",
+                "https://cdn.discordapp.com/attachments/736273767520665610/834835419966996540/poke.gif",
+                "https://cdn.discordapp.com/attachments/736273767520665610/834835432688189450/poke.gif",
+                "https://cdn.discordapp.com/attachments/736273767520665610/834835446395437066/poke.gif",
+                "https://cdn.discordapp.com/attachments/736273767520665610/834835460034527242/poke.gif",
+                "https://cdn.discordapp.com/attachments/736273767520665610/834835471996682280/poke.gif",
+                "https://cdn.discordapp.com/attachments/736273767520665610/834835483997503528/poke.gif",
+                "https://cdn.discordapp.com/attachments/736273767520665610/834835495871316044/poke.gif",
+                "https://cdn.discordapp.com/attachments/736273767520665610/834835507515097151/poke.gif",
+                "https://cdn.discordapp.com/attachments/736273767520665610/834835519157698560/poke.gif",
+                "https://cdn.discordapp.com/attachments/736273767520665610/834835531182768128/poke.gif"
         );
     }
 
