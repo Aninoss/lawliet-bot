@@ -51,7 +51,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnReac
         Optional<Integer> hoursMin = extractHoursMin(event.getChannel(), args);
         if (hoursMin.isPresent()) {
             long messageId = registerReactionListener(Emojis.X).get();
-            TimeUnit.SECONDS.sleep(3);
+            TimeUnit.SECONDS.sleep(1);
             ClearResults clearResults = fullClear(event.getChannel(), hoursMin.get(), event.getMessage().getIdLong(), messageId);
 
             String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";

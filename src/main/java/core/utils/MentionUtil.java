@@ -375,7 +375,7 @@ public class MentionUtil {
         args = roleMention.getFilteredArgs();
 
         /* add everyone mention */
-        if (message.mentionsEveryone() || args.contains("everyone") || args.contains("all") || args.contains("@here")) {
+        if (message.mentionsEveryone() || args.contains("everyone") || args.contains("@here")) {
             if (mentions.isEmpty()) {
                 mentions.add(TextManager.getString(locale, TextManager.GENERAL, "everyone_start"));
             } else {
