@@ -9,13 +9,8 @@ import core.schedule.MainScheduler;
 
 public class CoolDownUserData {
 
-    private final long userId;
     private final ArrayList<Instant> commandInstants = new ArrayList<>();
     private boolean canPostCoolDownMessage = true;
-
-    public CoolDownUserData(long userId) {
-        this.userId = userId;
-    }
 
     public Optional<Integer> getWaitingSec(int coolDown) {
         clean();
