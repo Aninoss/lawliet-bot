@@ -13,10 +13,7 @@ import commands.runnables.aitoyscategory.DeepDreamCommand;
 import commands.runnables.aitoyscategory.ImitateCommand;
 import commands.runnables.aitoyscategory.Waifu2xCommand;
 import commands.runnables.casinocategory.*;
-import commands.runnables.configurationcategory.CommandManagementCommand;
-import commands.runnables.configurationcategory.LanguageCommand;
-import commands.runnables.configurationcategory.NSFWFilterCommand;
-import commands.runnables.configurationcategory.PrefixCommand;
+import commands.runnables.configurationcategory.*;
 import commands.runnables.externalcategory.*;
 import commands.runnables.fisherycategory.*;
 import commands.runnables.fisherysettingscategory.*;
@@ -59,10 +56,9 @@ public class CommandContainer {
         commandList.add(RainbowCommand.class);
         commandList.add(ShipCommand.class);
         commandList.add(QuoteCommand.class);
-        commandList.add(AvatarCommand.class);
         commandList.add(SayCommand.class);
-        commandList.add(VoteCommand.class);
         commandList.add(TopicCommand.class);
+        commandList.add(EveryoneCommand.class);
 
         //AI TOYS
         commandList.add(ImitateCommand.class);
@@ -71,14 +67,16 @@ public class CommandContainer {
         commandList.add(DeepDreamCommand.class);
 
         //CONFIGURATION
-        commandList.add(CommandManagementCommand.class);
         commandList.add(LanguageCommand.class);
         commandList.add(PrefixCommand.class);
+        commandList.add(WhiteListCommand.class);
+        commandList.add(CommandManagementCommand.class);
         commandList.add(NSFWFilterCommand.class);
+        commandList.add(SuggestionConfigCommand.class);
 
         //UTILITY
-        commandList.add(WhiteListCommand.class);
         commandList.add(AlertsCommand.class);
+        commandList.add(VoteCommand.class);
         commandList.add(ReactionRolesCommand.class);
         commandList.add(WelcomeCommand.class);
         commandList.add(AutoRolesCommand.class);
@@ -90,7 +88,6 @@ public class CommandContainer {
         commandList.add(TriggerDeleteCommand.class);
         commandList.add(ReminderCommand.class);
         commandList.add(GiveawayCommand.class);
-        commandList.add(SuggestionConfigCommand.class);
         commandList.add(SuggestionCommand.class);
 
         //MODERATION
@@ -115,6 +112,7 @@ public class CommandContainer {
         commandList.add(ServerInfoCommand.class);
         commandList.add(ChannelInfoCommand.class);
         commandList.add(MemberInfoCommand.class);
+        commandList.add(AvatarCommand.class);
         commandList.add(CommandUsagesCommand.class);
         commandList.add(PingCommand.class);
         commandList.add(NewCommand.class);
@@ -181,7 +179,6 @@ public class CommandContainer {
         commandList.add(BiteCommand.class);
         commandList.add(BonkCommand.class);
         commandList.add(CuddleCommand.class);
-        commandList.add(EveryoneCommand.class);
         commandList.add(HighfiveCommand.class);
         commandList.add(HugCommand.class);
         commandList.add(KillCommand.class);

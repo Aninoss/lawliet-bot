@@ -23,11 +23,11 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
-        trigger = "commandmanagement",
+        trigger = "cman",
         userGuildPermissions = Permission.ADMINISTRATOR,
         emoji = "🚦",
         executableWithoutArgs = true,
-        aliases = { "cmanagement", "cm", "commandmanagements", "commandmanager", "commandm", "comman" }
+        aliases = { "commandmanagement", "cmanagement", "cm", "commandmanagements", "commandmanager", "commandm", "comman" }
 )
 public class CommandManagementCommand extends NavigationAbstract {
 

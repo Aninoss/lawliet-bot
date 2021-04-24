@@ -1,4 +1,4 @@
-package commands.runnables.gimmickscategory;
+package commands.runnables.informationcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;

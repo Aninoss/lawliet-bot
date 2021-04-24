@@ -120,7 +120,7 @@ public class GiveawayScheduler {
                 .content(winners.size() > 0 ? mentions.toString() : null)
                 .queue();
 
-        if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE)) {
+        if (winners.size() > 0 && PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE)) {
             channel.sendMessage(mentions.toString()).flatMap(Message::delete).queue();
         }
     }

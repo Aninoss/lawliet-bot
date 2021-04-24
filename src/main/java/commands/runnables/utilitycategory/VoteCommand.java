@@ -1,4 +1,4 @@
-package commands.runnables.gimmickscategory;
+package commands.runnables.utilitycategory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
