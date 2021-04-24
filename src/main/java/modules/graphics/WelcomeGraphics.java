@@ -155,7 +155,11 @@ public class WelcomeGraphics {
     }
 
     private static BufferedImage getBackgroundImage(Guild guild) throws IOException {
-        return ImageIO.read(getBackgroundFile(guild));
+        BufferedImage background = ImageIO.read(getBackgroundFile(guild));
+        if (background == null) {
+            background = ImageIO.read(getDefaultBackgroundFile());
+        }
+        return background;
     }
 
     private static LocalFile getBackgroundFile(Guild guild) {
@@ -164,6 +168,10 @@ public class WelcomeGraphics {
             return syncedBackgroundFile;
         }
 
+        return getDefaultBackgroundFile();
+    }
+
+    private static LocalFile getDefaultBackgroundFile() {
         return new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, "placeholder.png");
     }
 
