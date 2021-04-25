@@ -367,8 +367,8 @@ public class FisheryMemberData extends DataWithGuild implements MemberAsset {
 
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
-                            .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("%PREFIX", prefix))
-                            .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("%PREFIX", prefix));
+                            .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("{PREFIX}", prefix))
+                            .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("{PREFIX}", prefix));
                     EmbedUtil.setMemberAuthor(eb, member);
 
                     message.getTextChannel().sendMessage(member.getAsMention())

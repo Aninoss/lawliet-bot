@@ -27,7 +27,7 @@ public interface FisheryInterface extends OnTriggerListener {
                     .sendMessage(
                             EmbedFactory.getEmbedError(
                                     command,
-                                    TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("%PREFIX", command.getPrefix()),
+                                    TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("{PREFIX}", command.getPrefix()),
                                     TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_title")
                             ).build()
                     ).queue();

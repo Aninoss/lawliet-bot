@@ -21,7 +21,7 @@ public class SyncLocaleUtil {
 
         for (String localeString : Locales.LIST) {
             Locale locale = new Locale(localeString);
-            jsonObject.put(locale.getDisplayName(), TextManager.getString(locale, category, key).replace("%PREFIX", "L."));
+            jsonObject.put(locale.getDisplayName(), TextManager.getString(locale, category, key).replace("{PREFIX}", "L."));
         }
 
         return jsonObject;

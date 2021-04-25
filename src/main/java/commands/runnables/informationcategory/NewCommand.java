@@ -109,7 +109,7 @@ public class NewCommand extends Command implements OnAlertListener {
             String versionsString = TextManager.getString(getLocale(), TextManager.VERSIONS, slot.getVersion());
             eb.addField(
                     slot.getVersion(),
-                    ("• " + versionsString).replace("\n", "\n• ").replace("%PREFIX", getPrefix()),
+                    ("• " + versionsString).replace("\n", "\n• ").replace("{PREFIX}", getPrefix()),
                     false
             );
         }

@@ -1,13 +1,18 @@
 package core;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import constants.Emojis;
 import constants.Locales;
+import constants.RegexPatterns;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -40,54 +45,87 @@ public class TextManager {
             throw new RuntimeException(e);
         }
 
-        if (!texts.containsKey(key)) {
-            MainLogger.get().error("Key {} not found in {} with locale {}", key, category, locale.toString());
-            return "???";
+        if (texts.containsKey(key)) {
+            try {
+                String text = texts.getString(key);
+                String[] placeholders = extractGroups(RegexPatterns.TEXT_PLACEHOLDER_PATTERN, text);
+                text = processMultiOptions(text, option);
+                text = processReferences(text, placeholders, category, locale);
+                text = processParams(text, placeholders, args);
+                text = processEmojis(text, placeholders);
+
+                return text;
+            } catch (Throwable e) {
+                MainLogger.get().error("Text error", e);
+            }
         } else {
-            //Get String
-            String text = texts.getString(key);
-
-            //Calculate References
-            for (String reference : StringUtil.extractGroups(text, "%<", ">")) {
-                String newString;
-                if (reference.contains(".")) {
-                    String[] argsLink = reference.split("\\.");
-                    newString = getString(locale, argsLink[0], argsLink[1]);
-                } else {
-                    newString = getString(locale, category, reference);
-                }
-                text = text.replace("%<" + reference + ">", newString);
-            }
-
-            // calculate multi option element
-            if (option >= 0) {
-                String[] parts = text.split("%\\[");
-                for (int i = 1; i < parts.length; i++) {
-                    String subText = parts[i];
-                    if (subText.contains("]%")) {
-                        subText = subText.split("]%")[0];
-                        String[] options = subText.split("\\|");
-                        text = text.replace("%[" + subText + "]%", options[option]);
-                    }
-                }
-            }
-
-            //Fill Params
-            if (args != null) {
-                for (int i = args.length - 1; i >= 0; i--) {
-                    text = text.replace("%l" + i, args[i].toLowerCase());
-                    text = text.replace("%" + i, args[i]);
-                }
-            }
-
-            //Fill global variables
-            text = text.replace("%CURRENCY", Emojis.CURRENCY);
-            text = text.replace("%COINS", Emojis.COINS);
-            text = text.replace("%GROWTH", Emojis.GROWTH);
-            text = text.replace("%DAILYSTREAK", Emojis.DAILY_STREAK);
-
-            return text;
+            MainLogger.get().error("Key {} not found in {} with locale {}", key, category, locale.toString());
         }
+
+        return "???";
+    }
+
+    private static String[] extractGroups(Pattern pattern, String text) {
+        ArrayList<String> placeholderList = new ArrayList<>();
+        Matcher m = pattern.matcher(text);
+        while(m.find()) {
+            placeholderList.add(m.group("inner"));
+        }
+        return placeholderList.toArray(new String[0]);
+    }
+
+    private static String processEmojis(String text, String[] placeholders) {
+        List<Pair<String, String>> emojiPairs = List.of(
+                new Pair<>("CURRENCY", Emojis.CURRENCY),
+                new Pair<>("COINS", Emojis.COINS),
+                new Pair<>("GROWTH", Emojis.GROWTH),
+                new Pair<>("DAILY_STREAK", Emojis.DAILY_STREAK)
+        );
+
+        for (String placeholder : placeholders) {
+            for (Pair<String, String> emojiPair : emojiPairs) {
+                if (emojiPair.getKey().equals(placeholder)) {
+                    text = text.replace("{" + emojiPair.getKey() + "}", emojiPair.getValue());
+                }
+            }
+        }
+
+        return text;
+    }
+
+    private static String processParams(String text, String[] placeholders, String[] args) {
+        for (int i = 0; i < args.length; i++) {
+            text = text.replace("{" + i + "}", args[i]);
+        }
+
+        return text;
+    }
+
+    private static String processMultiOptions(String text, int option) {
+        String[] groups = extractGroups(RegexPatterns.TEXT_MULTIOPTION_PATTERN, text);
+
+        for (String group : groups) {
+            if (group.contains("|")) {
+                text = text.replace("[" + group + "]", group.split("\\|")[option]);
+            }
+        }
+
+        return text;
+    }
+
+    private static String processReferences(String text, String[] placeholders, String category, Locale locale) {
+        for (String placeholder : placeholders) {
+            if (placeholder.contains(".")) {
+                String[] parts = placeholder.split("\\.");
+                if (parts[0].equals("this")) {
+                    parts[0] = category;
+                }
+                String newValue = getString(locale, parts[0], parts[1]);
+                text = text.replace("{" + placeholder + "}", newValue);
+            }
+        }
+
+        return text;
     }
 
     public static String getString(Locale locale, String category, String key, boolean secondOption, String... args) {
