@@ -63,14 +63,13 @@ public class SyncLocaleUtil {
 
     private static String solveVariablesOfCommandText(String string) {
         return string
-                .replaceAll("(?i)%MessageContent", "hi")
-                .replaceAll("(?i)%#Channel", "#welcome")
-                .replaceAll("(?i)%MessageID", "557961653975515168")
-                .replaceAll("(?i)%ChannelID", "557953262305804310")
-                .replaceAll("(?i)%ServerID", String.valueOf(AssetIds.SUPPORT_SERVER_ID))
-                .replaceAll("(?i)%@User", "@Aninoss#7220")
-                .replaceAll("(?i)%@Bot", "@Lawliet#5480")
-                .replaceAll("(?i)%Prefix", "L.");
+                .replace("{#CHANNEL}", "#welcome")
+                .replace("{MESSAGE_ID}", "557961653975515168")
+                .replace("{CHANNEL_ID}", "557953262305804310")
+                .replace("{GUILD_ID}", String.valueOf(AssetIds.SUPPORT_SERVER_ID))
+                .replace("{@USER}", "@Aninoss#7220")
+                .replace("{@BOT}", "@Lawliet#5480")
+                .replace("%Prefix", "L.");
     }
 
 }

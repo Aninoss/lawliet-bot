@@ -226,15 +226,13 @@ public final class StringUtil {
 
     public static String solveVariablesOfCommandText(String string, Message message, String prefix) {
         return string
-                .replaceAll("(?i)%MessageContent", message.getContentRaw())
-                .replaceAll("(?i)%#Channel", message.getTextChannel().getAsMention())
-                .replaceAll("(?i)%MessageID", message.getId())
-                .replaceAll("(?i)%ChannelID", message.getChannel().getId())
-                .replaceAll("(?i)%ServerID", message.getGuild().getId())
-                .replaceAll("(?i)%@User", message.getMember().getAsMention())
-                .replaceAll("(?i)%@Bot", ShardManager.getInstance().getSelf().getAsMention())
-                .replaceAll("(?i)%@BotID", ShardManager.getInstance().getSelfIdString())
-                .replaceAll("(?i)%Prefix", prefix);
+                .replace("{#CHANNEL}", message.getTextChannel().getAsMention())
+                .replace("{MESSAGE_ID}", message.getId())
+                .replace("{CHANNEL_ID}", message.getChannel().getId())
+                .replace("{GUILD_ID}", message.getGuild().getId())
+                .replace("{@USER}", message.getMember().getAsMention())
+                .replace("{@BOT}", ShardManager.getInstance().getSelf().getAsMention())
+                .replace("%Prefix", prefix);
     }
 
     public static String doubleToString(double d, int placesAfterPoint) {
