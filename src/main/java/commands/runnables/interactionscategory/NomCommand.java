@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "nom",
         emoji = "\uD83E\uDD62",
         executableWithoutArgs = true,
-        aliases = { "eat" }
+        aliases = { "eat", "hunger", "hungry" }
 )
 public class NomCommand extends RolePlayAbstract {
 
