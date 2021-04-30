@@ -476,7 +476,6 @@ public class MentionUtil {
                 case "kkk":
                     return (long) (value * 1_000_000_000.0);
 
-                case "t":
                 case "tri":
                 case "trillion":
                 case "trillions":

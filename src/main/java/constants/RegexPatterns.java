@@ -11,6 +11,6 @@ public interface RegexPatterns {
     Pattern HOURS_PATTERN = Pattern.compile("\\b\\d{1,4}[\\s| ]*h(ours?)?\\b");
     Pattern DAYS_PATTERN = Pattern.compile("\\b\\d{1,3}[\\s| ]*d(ays?)?\\b");
     Pattern TEXT_PLACEHOLDER_PATTERN = Pattern.compile("\\{(?<inner>[^}]*)}");
-    Pattern TEXT_MULTIOPTION_PATTERN = Pattern.compile("\\[(?<inner>[^]]*)]");
+    Pattern TEXT_MULTIOPTION_PATTERN = Pattern.compile("(?<!\\\\)\\[(?<inner>[^]]*)]");
 
 }

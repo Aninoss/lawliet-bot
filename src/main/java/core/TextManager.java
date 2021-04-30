@@ -56,7 +56,7 @@ public class TextManager {
 
                 return text;
             } catch (Throwable e) {
-                MainLogger.get().error("Text error", e);
+                MainLogger.get().error("Text error for key {} in {} with locale {}", key, category, locale.toString(), e);
             }
         } else {
             MainLogger.get().error("Key {} not found in {} with locale {}", key, category, locale.toString());
@@ -110,7 +110,7 @@ public class TextManager {
             }
         }
 
-        return text;
+        return text.replace("\\[", "[").replace("\\]", "]");
     }
 
     private static String processReferences(String text, String[] placeholders, String category, Locale locale) {

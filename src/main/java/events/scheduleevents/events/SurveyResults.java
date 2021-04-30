@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import constants.Category;
 import constants.FisheryGear;
 import constants.FisheryStatus;
@@ -20,33 +21,36 @@ import mysql.modules.survey.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 
-@ScheduleEventFixedRate(rateValue = 10, rateUnit = ChronoUnit.MINUTES)
+@ScheduleEventFixedRate(rateValue = 30, rateUnit = ChronoUnit.SECONDS)
 public class SurveyResults implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
         if (Program.isProductionMode()) {
-            SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
-            LocalDate today = LocalDate.now();
-            if (!today.isBefore(surveyData.getNextDate()) && ShardManager.getInstance().isEverythingConnected()) {
-                processCurrentResults();
-            }
+            GlobalThreadPool.getExecutorService().submit(() -> {
+                synchronized (this) {
+                    SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
+                    LocalDate today = LocalDate.now();
+                    if (!today.isBefore(surveyData.getNextDate())) {
+                        processCurrentResults();
+                    }
+                }
+            });
         }
     }
 
     public static void processCurrentResults() {
-        GlobalThreadPool.getExecutorService().submit(() -> {
-            DBSurvey.getInstance().clear();
-            SurveyData lastSurvey = DBSurvey.getInstance().getCurrentSurvey();
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException ignored) {
-            }
-            DBSurvey.getInstance().next();
+        DBSurvey.getInstance().clear();
+        SurveyData lastSurvey = DBSurvey.getInstance().getCurrentSurvey();
+        try {
+            TimeUnit.SECONDS.sleep(40);
+        } catch (InterruptedException ignored) {
+            //Ignore
+        }
+        DBSurvey.getInstance().next();
 
-            MainLogger.get().info("Calculating survey results...");
-            processSurvey(lastSurvey);
-        });
+        MainLogger.get().info("Calculating survey results...");
+        processSurvey(lastSurvey);
     }
 
     private static void processSurvey(SurveyData lastSurvey) {
