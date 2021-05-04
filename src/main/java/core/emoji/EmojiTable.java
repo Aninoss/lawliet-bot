@@ -46,12 +46,16 @@ public class EmojiTable {
     }
 
     public Optional<String> extractFirstEmoji(String input) {
+        Optional<String> emojiResult = Optional.empty();
+        int maxLength = 0;
+
         for (String emoji : emojis) {
-            if (input.contains(emoji)) {
-                return Optional.of(emoji);
+            if (input.contains(emoji) && emoji.length() > maxLength) {
+                emojiResult = Optional.of(emoji);
+                maxLength = emoji.length();
             }
         }
-        return Optional.empty();
+        return emojiResult;
     }
 
 }
