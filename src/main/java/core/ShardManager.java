@@ -103,6 +103,10 @@ public class ShardManager {
     }
 
     public void addJDA(JDA jda) {
+        JDAExtended jdaExtended = jdaMap.get(jda.getShardInfo().getShardId());
+        if (jdaExtended != null) {
+            jdaExtended.getJDA().shutdown();
+        }
         jdaMap.put(jda.getShardInfo().getShardId(), new JDAExtended(jda));
     }
 
@@ -143,7 +147,7 @@ public class ShardManager {
 
     public void reconnectShard(JDA jda) {
         int shard = jda.getShardInfo().getShardId();
-        jda.shutdownNow();
+        jda.shutdown();
         shardDisconnectConsumers.forEach(c -> c.accept(shard));
     }
 

@@ -36,10 +36,11 @@ public class LanguageCommand extends Command implements OnReactionListener {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (args.length() > 0) {
             Locale locale = null;
-            for (int i = 0; i < LANGUAGES.length; i++) {
-                String str = LANGUAGES[i].getLocale().getDisplayName().split("_")[0];
+            for (Language language : LANGUAGES) {
+                String str = language.getLocale().getDisplayName().split("_")[0];
                 if (args.equalsIgnoreCase(str)) {
-                    locale = LANGUAGES[i].getLocale();
+                    locale = language.getLocale();
+                    break;
                 }
             }
 
@@ -63,10 +64,10 @@ public class LanguageCommand extends Command implements OnReactionListener {
 
     @Override
     public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        for (int i = 0; i < LANGUAGES.length; i++) {
-            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), LANGUAGES[i].getFlag())) {
+        for (Language language : LANGUAGES) {
+            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), language.getFlag())) {
                 deregisterListenersWithReactions();
-                setLocale(LANGUAGES[i].getLocale());
+                setLocale(language.getLocale());
                 DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setLocale(getLocale());
                 set = true;
                 return true;
