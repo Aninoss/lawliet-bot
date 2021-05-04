@@ -246,7 +246,7 @@ public final class StringUtil {
 
         DecimalFormat df = new DecimalFormat(pattern.toString(), DecimalFormatSymbols.getInstance(Locale.US));
         String str = df.format(d);
-        if (StringUtil.getLanguage(locale) != Language.EN) {
+        if (Language.from(locale) != Language.EN) {
             str = str.replace(".", ",");
         }
 
@@ -278,18 +278,6 @@ public final class StringUtil {
 
     public static String numToHex(long n) {
         return String.format("%x", n).toUpperCase();
-    }
-
-    public static Language getLanguage(Locale locale) {
-        String language = locale.getLanguage().split("_")[0].toLowerCase();
-        switch (language) {
-            case "de":
-                return Language.DE;
-            case "ru":
-                return Language.RU;
-            default:
-                return Language.EN;
-        }
     }
 
     public static String decryptString(String str) {

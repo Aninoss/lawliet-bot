@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Category;
-import constants.Locales;
+import constants.Language;
 import core.EmbedFactory;
 import core.TextManager;
 import core.internet.HttpResponse;
@@ -73,7 +73,7 @@ public class PokemonCommand extends Command {
                 boolean found = false;
                 String[] groups = StringUtil.extractGroups(line, "<span class=\"ic_icon\">", "</span>");
                 for (String group : groups) {
-                    String[] typesString = TextManager.getString(new Locale(Locales.DE), Category.EXTERNAL, "weaknesstype_types").split("\n");
+                    String[] typesString = TextManager.getString(Language.DE.getLocale(), Category.EXTERNAL, "weaknesstype_types").split("\n");
                     for (int i = 0; i < typesString.length; i++) {
                         if (group.contains(typesString[i]) && !types.contains(i) && types.size() < 2) {
                             types.add(i);

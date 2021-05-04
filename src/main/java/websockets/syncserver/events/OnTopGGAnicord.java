@@ -3,7 +3,7 @@ package websockets.syncserver.events;
 import java.util.Locale;
 import java.util.Optional;
 import constants.AssetIds;
-import constants.Locales;
+import constants.Language;
 import core.EmbedFactory;
 import core.ShardManager;
 import core.TextManager;
@@ -21,7 +21,7 @@ public class OnTopGGAnicord extends OnTopGG {
     @Override
     protected void processUpvote(long userId, boolean isWeekend) {
         Guild guild = ShardManager.getInstance().getLocalGuildById(AssetIds.ANICORD_SERVER_ID).get();
-        Locale locale = new Locale(Locales.DE);
+        Locale locale = Language.DE.getLocale();
         Optional.ofNullable(guild.getMemberById(userId)).ifPresent(user -> {
             TextChannel bumpChannel = guild.getTextChannelById(713849992611102781L);
 

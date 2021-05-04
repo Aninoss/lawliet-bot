@@ -2,11 +2,14 @@ package core;
 
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
-import constants.Locales;
+import constants.Language;
 import core.cache.PatreonCache;
 import core.utils.ExceptionUtil;
 import core.utils.InternetUtil;
@@ -350,7 +353,7 @@ public class Console {
     }
 
     private void onUptime(String[] args) {
-        MainLogger.get().info("Uptime cluster {}: {}", Program.getClusterId(), TimeUtil.getRemainingTimeString(new Locale(Locales.EN), Program.getStartTime(), Instant.now(), false));
+        MainLogger.get().info("Uptime cluster {}: {}", Program.getClusterId(), TimeUtil.getRemainingTimeString(Language.EN.getLocale(), Program.getStartTime(), Instant.now(), false));
     }
 
     private void onStats(String[] args) {

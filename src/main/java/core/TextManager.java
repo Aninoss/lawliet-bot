@@ -11,7 +11,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import constants.Emojis;
-import constants.Locales;
+import constants.Language;
 import constants.RegexPatterns;
 import core.utils.StringUtil;
 import javafx.util.Pair;
@@ -141,7 +141,7 @@ public class TextManager {
     }
 
     public static int getKeySize(String category) {
-        ResourceBundle texts = ResourceBundle.getBundle(category, new Locale(Locales.EN));
+        ResourceBundle texts = ResourceBundle.getBundle(category, Language.EN.getLocale());
         return texts.keySet().size();
     }
 

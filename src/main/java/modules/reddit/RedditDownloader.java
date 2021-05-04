@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import constants.Category;
-import constants.Locales;
+import constants.Language;
 import core.MainLogger;
 import core.TextManager;
 import core.internet.HttpResponse;
@@ -161,7 +161,7 @@ public class RedditDownloader {
 
     public static boolean checkRedditConnection() {
         try {
-            return getPost(new Locale(Locales.EN), "memes") != null;
+            return getPost(Language.EN.getLocale(), "memes") != null;
         } catch (InterruptedException | ExecutionException e) {
             MainLogger.get().error("Error in reddit check", e);
         }

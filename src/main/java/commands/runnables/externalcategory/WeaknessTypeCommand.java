@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Category;
-import constants.Locales;
+import constants.Language;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
@@ -119,8 +119,8 @@ public class WeaknessTypeCommand extends Command {
 
     protected List<Integer> retrieveTypes(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         ArrayList<Integer> types = new ArrayList<>();
-        for (String s : Locales.LIST) {
-            String[] typesCheck = TextManager.getString(new Locale(s), Category.EXTERNAL, "weaknesstype_types").split("\n");
+        for (Language l : Language.values()) {
+            String[] typesCheck = TextManager.getString(l.getLocale(), Category.EXTERNAL, "weaknesstype_types").split("\n");
             for (int i = 0; i < typesCheck.length; i++) {
                 if (args.toLowerCase().contains(typesCheck[i].toLowerCase()) &&
                         !types.contains(i) &&

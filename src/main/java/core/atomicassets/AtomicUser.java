@@ -5,7 +5,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import constants.Locales;
+import constants.Language;
 import core.CustomObservableList;
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.User;
@@ -34,7 +34,7 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
 
     @Override
     public Locale getLocale() {
-        return new Locale(Locales.EN);
+        return Language.EN.getLocale();
     }
 
     @Override

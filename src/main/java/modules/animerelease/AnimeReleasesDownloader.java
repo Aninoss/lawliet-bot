@@ -36,8 +36,9 @@ public class AnimeReleasesDownloader {
         for (AnimeReleasePost post : animeReleasePosts) {
             boolean dub = post.getAnime().endsWith("Dub)") || post.getAnime().endsWith("(Russian)");
             boolean validDub = post.getAnime().endsWith("(English Dub)") ||
-                    (post.getAnime().endsWith("(Russian)") && StringUtil.getLanguage(locale) == Language.RU) ||
-                    (post.getAnime().endsWith("(German Dub)") && StringUtil.getLanguage(locale) == Language.DE);
+                    (post.getAnime().endsWith("(Russian)") && Language.from(locale) == Language.RU) ||
+                    (post.getAnime().endsWith("(Spanish Dub)") && Language.from(locale) == Language.ES) ||
+                    (post.getAnime().endsWith("(German Dub)") && Language.from(locale) == Language.DE);
 
             boolean ok = postPassesFilter(post, filter) && (!dub || validDub);
             if (ok) {

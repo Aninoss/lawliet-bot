@@ -18,7 +18,7 @@ public class AnimeNewsDownloader {
 
     public static List<AnimeNewsArticle> retrieveArticles(Locale locale) throws ExecutionException, InterruptedException {
         String downloadUrl;
-        if (StringUtil.getLanguage(locale) == Language.DE) {
+        if (Language.from(locale) == Language.DE) {
             downloadUrl = "https://www.anime2you.de/news/feed/";
         } else {
             downloadUrl = "https://www.animenewsnetwork.com/all/rss.xml?ann-edition=w";
@@ -30,7 +30,7 @@ public class AnimeNewsDownloader {
         ArrayList<AnimeNewsArticle> posts = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             JSONObject jsonPost = jsonArray.getJSONObject(i);
-            if (StringUtil.getLanguage(locale) == Language.DE) {
+            if (Language.from(locale) == Language.DE) {
                 posts.add(extractPostDe(jsonPost));
             } else {
                 posts.add(extractPostEn(jsonPost));

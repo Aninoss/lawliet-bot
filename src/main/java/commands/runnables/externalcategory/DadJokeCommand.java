@@ -7,9 +7,11 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Language;
-import core.*;
+import core.EmbedFactory;
+import core.FileManager;
+import core.LocalFile;
+import core.RandomPicker;
 import core.internet.HttpRequest;
-import core.utils.StringUtil;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
 
@@ -28,7 +30,7 @@ public class DadJokeCommand extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException, ExecutionException, InterruptedException {
         String joke;
 
-        if (StringUtil.getLanguage(getLocale()) == Language.DE) {
+        if (Language.from(getLocale()) == Language.DE) {
             /* taken from https://github.com/derphilipp/Flachwitze */
             List<String> jokeList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "dadjokes_" + getLocale().getDisplayName() + ".txt"));
             int n = RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), jokeList.size());

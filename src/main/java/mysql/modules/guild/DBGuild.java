@@ -10,7 +10,7 @@ import java.util.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.FisheryStatus;
-import constants.Locales;
+import constants.Language;
 import core.LocalFile;
 import core.ShardManager;
 import mysql.DBMain;
@@ -71,7 +71,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
             guildBean = new GuildData(
                     serverId,
                     "L.",
-                    new Locale(Locales.EN),
+                    Language.EN.getLocale(),
                     FisheryStatus.STOPPED,
                     false,
                     null,
