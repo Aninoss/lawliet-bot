@@ -26,7 +26,7 @@ public class EmojiConnection {
     }
 
     public boolean isEmoji(MessageReaction.ReactionEmote reactionEmote) {
-        return this.emoji.equals(EmojiUtil.reactionEmoteAsMention(reactionEmote));
+        return EmojiUtil.reactionEmoteEqualsEmoji(reactionEmote, emoji);
     }
 
     public String getConnection() {

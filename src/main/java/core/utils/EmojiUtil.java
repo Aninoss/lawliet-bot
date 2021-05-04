@@ -1,7 +1,9 @@
 package core.utils;
 
 import java.util.Optional;
+import java.util.regex.Matcher;
 import constants.Emojis;
+import constants.RegexPatterns;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
@@ -14,8 +16,11 @@ public class EmojiUtil {
     }
 
     public static long extractIdFromEmoteMention(String emoji) {
-        String[] array = emoji.substring(0, emoji.length() - 1).split(":");
-        return Long.parseUnsignedLong(array[array.length - 1]);
+        Matcher m = RegexPatterns.EMOTE.matcher(emoji);
+        if (m.find()) {
+            return Long.parseLong(m.group("id"));
+        }
+        return 0L;
     }
 
     public static String emojiAsReactionTag(String mention) {
@@ -33,7 +38,13 @@ public class EmojiUtil {
     }
 
     public static boolean reactionEmoteEqualsEmoji(MessageReaction.ReactionEmote reactionEmote, String emoji) {
-        return reactionEmoteAsMention(reactionEmote).equals(emoji);
+        long emojiId = extractIdFromEmoteMention(emoji);
+        if (emojiId != 0 && reactionEmote.isEmote()) {
+            return reactionEmote.getIdLong() == emojiId;
+        } else if (emojiId == 0 && reactionEmote.isEmoji()) {
+            return reactionEmote.getEmoji().equals(emoji);
+        }
+        return false;
     }
 
     public static Optional<MessageReaction> getMessageReactionFromMessage(Message message, String emoji) {

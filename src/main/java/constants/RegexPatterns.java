@@ -12,5 +12,6 @@ public interface RegexPatterns {
     Pattern DAYS_PATTERN = Pattern.compile("\\b\\d{1,3}[\\s| ]*d(ays?)?\\b");
     Pattern TEXT_PLACEHOLDER_PATTERN = Pattern.compile("\\{(?<inner>[^}]*)}");
     Pattern TEXT_MULTIOPTION_PATTERN = Pattern.compile("(?<!\\\\)\\[(?<inner>[^]]*)]");
+    Pattern EMOTE = Pattern.compile("<a?:(?<name>[^:]*):(?<id>[0-9]*)>");
 
 }
