@@ -2,7 +2,6 @@ package commands.runnables.externalcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.RedditAbstract;
 
 @CommandProperties(
         trigger = "meme",
@@ -10,15 +9,10 @@ import commands.runnables.RedditAbstract;
         executableWithoutArgs = true,
         aliases = { "memes" }
 )
-public class MemeCommand extends RedditAbstract {
+public class MemeCommand extends RedditCommand {
 
     public MemeCommand(Locale locale, String prefix) {
-        super(locale, prefix);
-    }
-
-    @Override
-    public String getSubreddit() {
-        return "memes";
+        super(locale, prefix, "memes");
     }
 
 }

@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
+import constants.Category;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
@@ -30,14 +31,27 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 )
 public class RedditCommand extends Command implements OnAlertListener {
 
+    private final String forceSubreddit;
+
     public RedditCommand(Locale locale, String prefix) {
+        this(locale, prefix, null);
+    }
+
+    public RedditCommand(Locale locale, String prefix, String forceSubreddit) {
         super(locale, prefix);
+        this.forceSubreddit = forceSubreddit;
     }
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        args = args.trim();
-        if (args.startsWith("r/")) args = args.substring(2);
+        if (forceSubreddit == null) {
+            args = args.trim();
+            if (args.startsWith("r/")) {
+                args = args.substring(2);
+            }
+        } else {
+            args = forceSubreddit;
+        }
 
         if (args.length() == 0) {
             event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build()).queue();
@@ -91,24 +105,25 @@ public class RedditCommand extends Command implements OnAlertListener {
 
         String nsfwString = "";
         if (post.isNsfw()) {
-            nsfwString = " " + getString("nsfw");
+            nsfwString = " " + TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_nsfw");
         }
 
-        EmbedUtil.setFooter(eb, this, getString("footer", flairText, StringUtil.numToString(post.getScore()), StringUtil.numToString(post.getComments()), post.getDomain()) + nsfwString);
+        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_footer", flairText, StringUtil.numToString(post.getScore()), StringUtil.numToString(post.getComments()), post.getDomain()) + nsfwString);
 
         return eb;
     }
 
     @Override
     public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
-        if (slot.getCommandKey().isEmpty()) {
+        String key = forceSubreddit != null ? forceSubreddit : slot.getCommandKey();
+        if (key.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
             slot.getTextChannel().get().sendMessage(eb.build()).complete();
             return TrackerResult.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
-            PostBundle<RedditPost> postBundle = RedditDownloader.getPostTracker(getLocale(), slot.getCommandKey(), slot.getArgs().orElse(null));
+            PostBundle<RedditPost> postBundle = RedditDownloader.getPostTracker(getLocale(), key, slot.getArgs().orElse(null));
             TextChannel channel = slot.getTextChannel().get();
             boolean containsOnlyNsfw = true;
 
@@ -143,7 +158,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 if (slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                            .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
+                            .setDescription(TextManager.getNoResultsString(getLocale(), key));
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                     channel.sendMessage(eb.build()).complete();
                     return TrackerResult.STOP_AND_DELETE;
@@ -156,7 +171,7 @@ public class RedditCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean trackerUsesKey() {
-        return true;
+        return forceSubreddit == null;
     }
 
 }

@@ -35,6 +35,7 @@ public class GuildJoinPostWelcomeMessage extends GuildJoinAbstract {
                               
                       Furthermore, you can also change the bot language:
                       • 🇩🇪 German: `L.language de`
+                      • 🇪🇸 Spanish: `L.language es`
                       • 🇷🇺 Russian: `L.language ru`
                               
                       And finally, if you have any issues with the bot, then you can take a look at the [FAQ page](%s). You can also just join the Lawliet support server and ask for help:
