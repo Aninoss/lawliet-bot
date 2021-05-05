@@ -112,7 +112,9 @@ public class FuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736281485216317442/834505987490578529/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/834506000609837096/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/834506018188165160/fuck.gif",
-                "https://cdn.discordapp.com/attachments/736281485216317442/834506032612114492/fuck.gif"
+                "https://cdn.discordapp.com/attachments/736281485216317442/834506032612114492/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/839471780678991882/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/839471858193530910/fuck.gif"
         );
     }
 

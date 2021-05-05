@@ -83,7 +83,8 @@ public class BlushCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736260129418248242/834493266329862194/blush.gif",
                 "https://cdn.discordapp.com/attachments/736260129418248242/834493278828363786/blush.gif",
                 "https://cdn.discordapp.com/attachments/736260129418248242/834493290798776360/blush.gif",
-                "https://cdn.discordapp.com/attachments/736260129418248242/834493305667977276/blush.gif"
+                "https://cdn.discordapp.com/attachments/736260129418248242/834493305667977276/blush.gif",
+                "https://cdn.discordapp.com/attachments/736260129418248242/839473543472218153/blush.gif"
         );
     }
 

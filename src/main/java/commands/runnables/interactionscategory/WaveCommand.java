@@ -65,7 +65,8 @@ public class WaveCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736274581492465665/834848019899482182/wave.gif",
                 "https://cdn.discordapp.com/attachments/736274581492465665/834848032960020510/wave.gif",
                 "https://cdn.discordapp.com/attachments/736274581492465665/834848046403682314/wave.gif",
-                "https://cdn.discordapp.com/attachments/736274581492465665/834848059166425148/wave.gif"
+                "https://cdn.discordapp.com/attachments/736274581492465665/834848059166425148/wave.gif",
+                "https://cdn.discordapp.com/attachments/736274581492465665/839471656900755476/wave.gif"
         );
     }
 

@@ -51,7 +51,8 @@ public class BoredCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/834496715712888863/834497453180846121/bored.gif",
                 "https://cdn.discordapp.com/attachments/834496715712888863/834497468909223936/bored.gif",
                 "https://cdn.discordapp.com/attachments/834496715712888863/834497481697787904/bored.gif",
-                "https://cdn.discordapp.com/attachments/834496715712888863/834497493223866488/bored.gif"
+                "https://cdn.discordapp.com/attachments/834496715712888863/834497493223866488/bored.gif",
+                "https://cdn.discordapp.com/attachments/834496715712888863/839471157907554314/bored.gif"
         );
     }
 

@@ -80,7 +80,8 @@ public class LaughCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736261908960903268/834512317311090748/laugh.gif",
                 "https://cdn.discordapp.com/attachments/736261908960903268/834512329735012462/laugh.gif",
                 "https://cdn.discordapp.com/attachments/736261908960903268/834512341450096670/laugh.gif",
-                "https://cdn.discordapp.com/attachments/736261908960903268/834512352736182352/laugh.gif"
+                "https://cdn.discordapp.com/attachments/736261908960903268/834512352736182352/laugh.gif",
+                "https://cdn.discordapp.com/attachments/736261908960903268/839473363210600448/laugh.gif"
         );
     }
 
