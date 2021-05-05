@@ -3,6 +3,8 @@ package core;
 import java.awt.*;
 import java.util.Locale;
 import commands.Command;
+import constants.ExternalLinks;
+import constants.Settings;
 import core.utils.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 
@@ -67,6 +69,23 @@ public class EmbedFactory {
         return getEmbedError()
                 .setTitle(TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_title"))
                 .setDescription(TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_description"));
+    }
+
+    public static EmbedBuilder getPatreonBlockEmbed(Locale locale) {
+        String desc = TextManager.getString(
+                locale,
+                TextManager.GENERAL,
+                "patreon_description",
+                ExternalLinks.PATREON_PAGE,
+                ExternalLinks.UNLOCK_SERVER_WEBSITE
+        );
+
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                .setColor(Settings.PATREON_COLOR)
+                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "patreon_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
+                .setDescription(desc);
+
+        return eb;
     }
 
     public static EmbedBuilder getApiDownEmbed(Locale locale, String service) {

@@ -11,11 +11,15 @@ import commands.CommandManager;
 import commands.listeners.OnAlertListener;
 import commands.runnables.utilitycategory.AlertsCommand;
 import core.CustomObservableMap;
+import core.EmbedFactory;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
+import core.cache.ServerPatreonBoostCache;
+import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 
@@ -94,6 +98,12 @@ public class AlertScheduler {
         Optional<TextChannel> channelOpt = slot.getTextChannel();
         if (channelOpt.isPresent()) {
             if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+                if (checkNSFW(slot, channelOpt.get(), (Command) command) ||
+                        checkPatreon(slot, channelOpt.get(), (Command) command)
+                ) {
+                    return;
+                }
+
                 switch (command.onTrackerRequest(slot)) {
                     case STOP:
                         slot.stop();
@@ -123,6 +133,30 @@ public class AlertScheduler {
                 slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
             }
         }
+    }
+
+    private boolean checkNSFW(TrackerData slot, TextChannel channel, Command command) {
+        if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
+            EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
+            EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
+            channel.sendMessage(eb.build()).complete();
+            slot.delete();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkPatreon(TrackerData slot, TextChannel channel, Command command) {
+        if (command.getCommandProperties().patreonRequired() &&
+                !ServerPatreonBoostCache.getInstance().get(channel.getGuild().getIdLong())
+        ) {
+            EmbedBuilder eb = EmbedFactory.getPatreonBlockEmbed(command.getLocale());
+            EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
+            channel.sendMessage(eb.build()).complete();
+            slot.delete();
+            return true;
+        }
+        return false;
     }
 
 }

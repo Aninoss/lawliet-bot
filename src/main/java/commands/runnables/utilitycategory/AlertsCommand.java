@@ -197,6 +197,14 @@ public class AlertsCommand extends NavigationAbstract {
             return Response.FALSE;
         }
 
+        if (command.getCommandProperties().patreonRequired() &&
+                PatreonCache.getInstance().getUserTier(getMemberId().get(), true) < 2 &&
+                !PatreonCache.getInstance().isUnlocked(getGuildId().get())
+        ) {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+            return Response.FALSE;
+        }
+
         if (trackerSlotExists(command.getTrigger(), "")) {
             setLog(LogStatus.FAILURE, getString("state1_alreadytracking", command.getTrigger()));
             return Response.FALSE;
@@ -306,14 +314,20 @@ public class AlertsCommand extends NavigationAbstract {
             trackerCommands.stream()
                     .filter(command -> command.getCategory().equals(category))
                     .forEach(command -> {
-                        sb.append(getString("slot_add", command.getCommandProperties().nsfw(), command.getTrigger(), Emojis.COMMAND_ICON_NSFW))
-                                .append("\n");
+                        sb.append(getString("slot_add", command.getTrigger(),
+                                command.getCommandProperties().nsfw() ? Emojis.COMMAND_ICON_NSFW : "",
+                                command.getCommandProperties().patreonRequired() ? Emojis.COMMAND_ICON_PATREON : ""
+                        )).append("\n");
                     });
 
             if (sb.length() > 0) {
                 eb.addField(TextManager.getString(getLocale(), TextManager.COMMANDS, category), sb.toString(), true);
             }
         }
+
+        String commandInfo = TextManager.getString(getLocale(), Category.INFORMATION, "help_commandproperties_NSFW", Emojis.COMMAND_ICON_NSFW) + "\n" +
+                TextManager.getString(getLocale(), Category.INFORMATION, "help_commandproperties_PATREON", Emojis.COMMAND_ICON_PATREON, ExternalLinks.PATREON_PAGE);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE, commandInfo, false);
 
         return eb;
     }

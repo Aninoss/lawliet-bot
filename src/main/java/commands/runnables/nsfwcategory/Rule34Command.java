@@ -2,7 +2,6 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnAlertListener;
 import commands.runnables.PornSearchAbstract;
 
 @CommandProperties(
@@ -14,7 +13,7 @@ import commands.runnables.PornSearchAbstract;
         requiresEmbeds = false,
         aliases = { "rule34", "34" }
 )
-public class Rule34Command extends PornSearchAbstract implements OnAlertListener {
+public class Rule34Command extends PornSearchAbstract {
 
     public Rule34Command(Locale locale, String prefix) {
         super(locale, prefix);

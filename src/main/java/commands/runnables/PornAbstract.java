@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
+import commands.listeners.OnAlertListener;
 import constants.*;
 import core.EmbedFactory;
 import core.MainLogger;
@@ -35,7 +36,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
-public abstract class PornAbstract extends Command {
+public abstract class PornAbstract extends Command implements OnAlertListener {
 
     private static final Cache<String, ArrayList<PornImage>> alertsCache = CacheBuilder.newBuilder()
             .expireAfterWrite(9, TimeUnit.MINUTES)
@@ -175,15 +176,9 @@ public abstract class PornAbstract extends Command {
         }
     }
 
+    @Override
     public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         TextChannel channel = slot.getTextChannel().get();
-
-        if (isExplicit() && !channel.isNSFW()) {
-            EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
-            EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-            channel.sendMessage(eb.build()).complete();
-            return TrackerResult.STOP_AND_DELETE;
-        }
 
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(slot.getGuildId()).getKeywords());
         ArrayList<PornImage> pornImages;

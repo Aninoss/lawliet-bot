@@ -2,7 +2,6 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnAlertListener;
 import commands.runnables.RealbooruAbstract;
 
 @CommandProperties(
@@ -14,7 +13,7 @@ import commands.runnables.RealbooruAbstract;
         requiresEmbeds = false,
         aliases = { "r1porn", "porn" }
 )
-public class RealLifePornCommand extends RealbooruAbstract implements OnAlertListener {
+public class RealLifePornCommand extends RealbooruAbstract {
 
     public RealLifePornCommand(Locale locale, String prefix) {
         super(locale, prefix);

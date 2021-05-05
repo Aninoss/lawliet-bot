@@ -2,7 +2,6 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnAlertListener;
 import commands.runnables.PornSearchAbstract;
 
 @CommandProperties(
@@ -14,12 +13,13 @@ import commands.runnables.PornSearchAbstract;
         requiresEmbeds = false,
         aliases = { "furrybooru", "yiff" }
 )
-public class FurryCommand extends PornSearchAbstract implements OnAlertListener {
+public class FurryCommand extends PornSearchAbstract {
 
     public FurryCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
+    //TODO: go back to furry.booru.org
     /*@Override WHILE furry.booru.org is down
     protected String getDomain() {
         return "furry.booru.org";

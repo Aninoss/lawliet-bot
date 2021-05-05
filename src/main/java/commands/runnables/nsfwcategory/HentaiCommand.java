@@ -2,7 +2,6 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnAlertListener;
 import commands.runnables.GelbooruAbstract;
 
 @CommandProperties(
@@ -13,7 +12,7 @@ import commands.runnables.GelbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false
 )
-public class HentaiCommand extends GelbooruAbstract implements OnAlertListener {
+public class HentaiCommand extends GelbooruAbstract {
 
     public HentaiCommand(Locale locale, String prefix) {
         super(locale, prefix);

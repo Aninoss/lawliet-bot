@@ -13,7 +13,7 @@ import commands.runnables.GelbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false
 )
-public class YuriCommand extends GelbooruAbstract implements OnAlertListener {
+public class YuriCommand extends GelbooruAbstract {
 
     public YuriCommand(Locale locale, String prefix) {
         super(locale, prefix);

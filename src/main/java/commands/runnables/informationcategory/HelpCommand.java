@@ -319,7 +319,7 @@ public class HelpCommand extends NavigationAbstract {
                     if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) {
                         title.append(" ").append(getString("beta"));
                     }
-                    title.append(generateCommandIcons(command, true, false));
+                    title.append(generateCommandIcons(command, true, true, false));
 
                     if (command.isModCommand()) includeLocked = true;
                     if (command instanceof OnAlertListener) includeAlerts = true;
@@ -363,7 +363,7 @@ public class HelpCommand extends NavigationAbstract {
                 if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) {
                     title.append(" ").append(getString("beta"));
                 }
-                title.append(generateCommandIcons(command, true, true));
+                title.append(generateCommandIcons(command, true, true, true));
 
                 if (command.isModCommand()) includeLocked = true;
                 if (command instanceof OnAlertListener) includeAlerts = true;
@@ -397,7 +397,7 @@ public class HelpCommand extends NavigationAbstract {
             ) {
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
-                StringBuilder extras = new StringBuilder(generateCommandIcons(command, false, true));
+                StringBuilder extras = new StringBuilder(generateCommandIcons(command, false, false, true));
                 if (command instanceof PornSearchAbstract) {
                     withSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
                 } else if (command instanceof PornPredefinedAbstract) {
@@ -417,14 +417,14 @@ public class HelpCommand extends NavigationAbstract {
             eb.addField(getString("nsfw_searchkey_off"), withoutSearchKey.toString(), true);
         }
 
-        addIconDescriptions(eb, false, true, false, true);
+        addIconDescriptions(eb, false, false, false, true);
     }
 
-    private String generateCommandIcons(Command command, boolean includeNsfw, boolean includePatreon) {
+    private String generateCommandIcons(Command command, boolean includeAlert, boolean includeNsfw, boolean includePatreon) {
         StringBuilder sb = new StringBuilder();
 
         if (command.isModCommand()) sb.append(CommandIcon.LOCKED);
-        if (command instanceof OnAlertListener) sb.append(CommandIcon.ALERTS);
+        if (includeAlert && command instanceof OnAlertListener) sb.append(CommandIcon.ALERTS);
         if (includeNsfw && command.getCommandProperties().nsfw()) sb.append(CommandIcon.NSFW);
         if (includePatreon && command.getCommandProperties().patreonRequired()) sb.append(CommandIcon.PATREON);
 

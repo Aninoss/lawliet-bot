@@ -193,22 +193,10 @@ public class CommandManager {
             return true;
         }
 
-        String desc = TextManager.getString(
-                command.getLocale(),
-                TextManager.GENERAL,
-                "patreon_description",
-                ExternalLinks.PATREON_PAGE,
-                ExternalLinks.UNLOCK_SERVER_WEBSITE
-        );
-
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setColor(Settings.PATREON_COLOR)
-                    .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
-                    .setDescription(desc);
-            sendError(event, command.getLocale(), eb, false);
+            sendError(event, command.getLocale(), EmbedFactory.getPatreonBlockEmbed(command.getLocale()), false);
         } else if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            sendErrorNoEmbed(event, command.getLocale(), desc, false);
+            sendErrorNoEmbed(event, command.getLocale(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description_noembed"), false);
         }
 
         return false;

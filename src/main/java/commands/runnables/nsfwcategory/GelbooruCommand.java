@@ -2,7 +2,6 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnAlertListener;
 import commands.runnables.PornSearchAbstract;
 
 @CommandProperties(
@@ -14,7 +13,7 @@ import commands.runnables.PornSearchAbstract;
         requiresEmbeds = false,
         aliases = { "gel", "gbooru", "gelbooru" }
 )
-public class GelbooruCommand extends PornSearchAbstract implements OnAlertListener {
+public class GelbooruCommand extends PornSearchAbstract {
 
     public GelbooruCommand(Locale locale, String prefix) {
         super(locale, prefix);
