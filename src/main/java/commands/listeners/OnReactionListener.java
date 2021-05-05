@@ -11,10 +11,9 @@ import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import core.MainLogger;
 import core.RestActionQueue;
-import core.cache.MessageCache;
 import core.utils.BotPermissionUtil;
-import core.utils.ExceptionUtil;
 import core.utils.EmojiUtil;
+import core.utils.ExceptionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
@@ -33,7 +32,6 @@ public interface OnReactionListener {
                         event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
                         (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)))
                 ).thenApply(messageId -> {
-                    MessageCache.getInstance().block(messageId);
                     command.getTextChannel().ifPresent(channel -> {
                         RestActionQueue restActionQueue = new RestActionQueue();
                         Arrays.stream(emojis).forEach(emoji -> restActionQueue.attach(channel.addReactionById(messageId, EmojiUtil.emojiAsReactionTag(emoji))));
