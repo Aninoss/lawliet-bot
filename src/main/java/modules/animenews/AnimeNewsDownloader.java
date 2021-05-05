@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import constants.Language;
+import core.MainLogger;
 import core.internet.HttpResponse;
 import core.internet.InternetCache;
 import core.utils.InternetUtil;
@@ -17,12 +18,12 @@ import org.json.XML;
 public class AnimeNewsDownloader {
 
     public static List<AnimeNewsArticle> retrieveArticles(Locale locale) throws ExecutionException, InterruptedException {
-        String downloadUrl;
-        if (Language.from(locale) == Language.DE) {
-            downloadUrl = "https://www.anime2you.de/news/feed/";
-        } else {
-            downloadUrl = "https://www.animenewsnetwork.com/all/rss.xml?ann-edition=w";
-        }
+        Language language = Language.from(locale);
+        String downloadUrl = switch (language) {
+            case DE -> "https://www.anime2you.de/news/feed/";
+            case ES -> "https://feeds.feedburner.com/animanga_rss";
+            default -> "https://www.animenewsnetwork.com/all/rss.xml?ann-edition=w";
+        };
 
         JSONArray jsonArray = retrieveJSONArray(downloadUrl);
         if (jsonArray == null) return null;
@@ -30,11 +31,12 @@ public class AnimeNewsDownloader {
         ArrayList<AnimeNewsArticle> posts = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             JSONObject jsonPost = jsonArray.getJSONObject(i);
-            if (Language.from(locale) == Language.DE) {
-                posts.add(extractPostDe(jsonPost));
-            } else {
-                posts.add(extractPostEn(jsonPost));
-            }
+            AnimeNewsArticle article = switch (language) {
+                case DE -> extractPostDe(jsonPost);
+                case ES -> extractPostEs(jsonPost);
+                default -> extractPostEn(jsonPost);
+            };
+            posts.add(article);
         }
 
         return posts;
@@ -49,6 +51,25 @@ public class AnimeNewsDownloader {
                 .getJSONObject("rss")
                 .getJSONObject("channel")
                 .getJSONArray("item");
+    }
+
+    private static AnimeNewsArticle extractPostEs(JSONObject jsonPost) {
+        String contentEncoded = jsonPost.getString("content:encoded");
+        String thumbnailUrl;
+        try {
+            thumbnailUrl = "https://media.redadn.es/" + StringUtil.extractGroups(contentEncoded, "https://media.redadn.es/", "\"")[0];
+        } catch (Throwable e) {
+            MainLogger.get().error("Anime news spanish missing thumbnail", e);
+            thumbnailUrl = null;
+        }
+
+        return new AnimeNewsArticle(
+                StringUtil.shortenString(StringUtil.unescapeHtml(jsonPost.getString("title")), 256),
+                StringUtil.unescapeHtml(jsonPost.getString("description")),
+                thumbnailUrl,
+                jsonPost.getString("link"),
+                TimeUtil.parseDateStringRSS(jsonPost.getString("pubDate"))
+        );
     }
 
     private static AnimeNewsArticle extractPostEn(JSONObject jsonPost) {

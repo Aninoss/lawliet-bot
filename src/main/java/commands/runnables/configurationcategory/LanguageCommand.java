@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class LanguageCommand extends Command implements OnReactionListener {
 
-    private final Language[] LANGUAGES = new Language[] { Language.EN, Language.DE, Language.RU };
+    private final Language[] LANGUAGES = new Language[] { Language.EN, Language.DE, Language.ES, Language.RU };
 
     private boolean set = false;
 
