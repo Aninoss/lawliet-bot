@@ -46,7 +46,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws IOException {
+    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws IOException, InterruptedException {
         sendMessages(event.getChannel(), event.getMember(), false, (i, eb) -> event.getChannel().sendMessage(eb).complete().getIdLong());
         return true;
     }
@@ -162,7 +162,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
     }
 
-    private long sendMessages(TextChannel channel, Member member, boolean tracker, BiFunction<Integer, MessageEmbed, Long> messageFunction) throws IOException {
+    private long sendMessages(TextChannel channel, Member member, boolean tracker, BiFunction<Integer, MessageEmbed, Long> messageFunction) throws IOException, InterruptedException {
         SurveyData currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         SurveyData lastSurvey = DBSurvey.getInstance().retrieve(currentSurvey.getSurveyId() - 1);
 
