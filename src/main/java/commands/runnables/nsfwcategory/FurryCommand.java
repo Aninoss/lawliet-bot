@@ -19,7 +19,7 @@ public class FurryCommand extends PornSearchAbstract {
         super(locale, prefix);
     }
 
-    //TODO: go back to furry.booru.org
+    //TODO: go back to furry.booru.org yeet
     /*@Override WHILE furry.booru.org is down
     protected String getDomain() {
         return "furry.booru.org";
