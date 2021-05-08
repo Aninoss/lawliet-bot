@@ -28,6 +28,7 @@ import commands.runnables.splatoon2category.SplatnetCommand;
 import commands.runnables.utilitycategory.*;
 import constants.Settings;
 import core.MainLogger;
+import core.utils.ExceptionUtil;
 
 public class CommandContainer {
 
@@ -44,6 +45,8 @@ public class CommandContainer {
     private final ArrayList<Class<? extends OnAlertListener>> trackerCommands = new ArrayList<>();
 
     private final HashMap<Class<?>, Cache<Long, CommandListenerMeta<?>>> listenerMap = new HashMap<>();
+
+    private int commandStuckCounter = 0;
 
     private CommandContainer() {
         final ArrayList<Class<? extends Command>> commandList = new ArrayList<>();
@@ -379,6 +382,16 @@ public class CommandContainer {
         return (int) listenerMap.values().stream()
                 .mapToLong(Cache::size)
                 .sum();
+    }
+
+    public void addCommandTerminationStatus(Command command, Thread commandThread, boolean stuck) {
+        if (stuck) {
+            Exception e = ExceptionUtil.generateForStack(commandThread);
+            MainLogger.get().error("Command \"{}\" stuck (stuck counter: {})", command.getTrigger(), ++commandStuckCounter, e);
+            commandThread.interrupt();
+        } else {
+            commandStuckCounter = 0;
+        }
     }
 
 }

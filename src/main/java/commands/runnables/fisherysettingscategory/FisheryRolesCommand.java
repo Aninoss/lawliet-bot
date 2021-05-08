@@ -33,7 +33,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "📜",
         executableWithoutArgs = true,
-        aliases = { "fishingroles", "fishroles", "fisheryr" }
+        aliases = { "fishingroles", "fishroles", "fisheryr", "fisheryrole" }
 )
 public class FisheryRolesCommand extends NavigationAbstract {
 
@@ -65,7 +65,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return Response.FALSE;
                 } else {
-                    if (!checkRolesWithLog(event.getMember().getGuild(), event.getMember(), roleList)) {
+                    if (!checkRolesWithLog(event.getMember(), roleList)) {
                         return Response.FALSE;
                     }
 

@@ -12,10 +12,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.mention.Mention;
 import core.mention.MentionList;
-import core.utils.EmojiUtil;
-import core.utils.JDAUtil;
-import core.utils.MentionUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import modules.Mod;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
@@ -81,12 +78,20 @@ public class WarnCommand extends Command implements OnReactionListener {
     }
 
     protected boolean canProcess(Member executor, User target) throws Throwable {
-        return true;
+        return BotPermissionUtil.canInteract(executor.getGuild(), target) &&
+                BotPermissionUtil.canInteract(executor, target);
     }
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
         if (!setUserListAndReason(event, args)) {
+            return false;
+        }
+
+        checkAllProcess(event.getMember());
+        if (usersErrorList.size() > 0) {
+            status = Status.ERROR;
+            drawMessage(draw());
             return false;
         }
 
@@ -100,6 +105,14 @@ public class WarnCommand extends Command implements OnReactionListener {
         }
 
         return true;
+    }
+
+    private void checkAllProcess(Member executor) throws Throwable {
+        for (User user : userList) {
+            if (!canProcess(executor, user)) {
+                usersErrorList.add(user);
+            }
+        }
     }
 
     protected boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
@@ -121,11 +134,7 @@ public class WarnCommand extends Command implements OnReactionListener {
     }
 
     private boolean execute(TextChannel channel, Member executor) throws Throwable {
-        for (User user : userList) {
-            if (!canProcess(executor, user)) {
-                usersErrorList.add(user);
-            }
-        }
+        checkAllProcess(executor);
         if (usersErrorList.size() > 0) {
             status = Status.ERROR;
             return false;

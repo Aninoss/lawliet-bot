@@ -33,7 +33,8 @@ public class KickCommand extends WarnCommand {
 
     @Override
     protected boolean canProcess(Member executor, User target) {
-        return BotPermissionUtil.canInteract(executor.getGuild(), target);
+        return BotPermissionUtil.canInteract(executor.getGuild(), target) &&
+                BotPermissionUtil.canInteract(executor, target);
     }
 
 }

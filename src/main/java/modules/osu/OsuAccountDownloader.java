@@ -35,7 +35,7 @@ public class OsuAccountDownloader {
                                     data.getString("username"),
                                     country.getString("code"),
                                     (int) Math.round(stats.getDouble("pp")),
-                                    rank.isNull("global") ? null : rank.getLong("global"),
+                                    stats.isNull("global_rank") ? null : stats.getLong("global_rank"),
                                     rank.isNull("country") ? null : rank.getLong("country"),
                                     data.getString("avatar_url"),
                                     stats.getDouble("hit_accuracy"),

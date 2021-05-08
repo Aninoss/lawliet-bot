@@ -45,7 +45,7 @@ public class AutoRolesCommand extends NavigationAbstract {
         AutoRolesData autoRolesBean = DBAutoRoles.getInstance().retrieve(event.getGuild().getIdLong());
         roles = AtomicRole.transformIdList(event.getGuild(), autoRolesBean.getRoleIds());
         roleNavigationHelper = new NavigationHelper<>(this, roles, AtomicRole.class, MAX_ROLES);
-        checkRolesWithLog(event.getGuild(), event.getMember(), roles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
+        checkRolesWithLog(event.getMember(), roles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
         registerNavigationListener(12);
         return true;
     }

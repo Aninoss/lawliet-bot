@@ -46,7 +46,7 @@ public class NavigationHelper<T> {
             command.setLog(LogStatus.FAILURE, TextManager.getNoResultsString(command.getLocale(), inputString));
             return Response.FALSE;
         } else {
-            if (type == Type.Role && !command.checkRolesWithLog(author.getGuild(), author, AtomicRole.to((List<AtomicRole>) newList))) {
+            if (type == Type.Role && !command.checkRolesWithLog(author, AtomicRole.to((List<AtomicRole>) newList))) {
                 return Response.FALSE;
             }
 

@@ -287,19 +287,20 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return false;
     }
 
-    public boolean checkRoleWithLog(Role role) {
-        if (role.getGuild().getSelfMember().canInteract(role) && BotPermissionUtil.can(role.getGuild(), Permission.MANAGE_ROLES)) {
-            return true;
-        }
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, "@" + role.getName()));
-        return false;
+    public boolean checkRoleWithLog(Guild guild, Role role) {
+        return checkRolesWithLog(guild, List.of(role));
+    }
+
+    public boolean checkRoleWithLog(Member member, Role role) {
+        return checkRolesWithLog(member, List.of(role));
     }
 
     public boolean checkRolesWithLog(Guild guild, List<Role> roles) {
-        return checkRolesWithLog(guild, null, roles);
+        return checkRolesWithLog(guild.getSelfMember(), roles);
     }
 
-    public boolean checkRolesWithLog(Guild guild, Member member, List<Role> roles) {
+    public boolean checkRolesWithLog(Member member, List<Role> roles) {
+        Guild guild = member.getGuild();
         if (roles.size() == 0) {
             return true;
         }

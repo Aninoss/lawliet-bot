@@ -155,14 +155,22 @@ public class BotPermissionUtil {
                 canWrite(channel, permissions);
     }
 
-    public static boolean canInteract(Guild guild, User user) {
-        return canInteract(guild, user.getIdLong());
+    public static boolean canInteract(Guild guild, User targetUser) {
+        return canInteract(guild, targetUser.getIdLong());
     }
 
-    public static boolean canInteract(Guild guild, long userId) {
-        Member member = guild.getMemberById(userId);
-        if (member != null) {
-            return guild.getSelfMember().canInteract(member);
+    public static boolean canInteract(Guild guild, long targetUserId) {
+        return canInteract(guild.getSelfMember(), targetUserId);
+    }
+
+    public static boolean canInteract(Member member, User targetUser) {
+        return canInteract(member, targetUser.getIdLong());
+    }
+
+    public static boolean canInteract(Member member, long targetUserId) {
+        Member target = member.getGuild().getMemberById(targetUserId);
+        if (target != null) {
+            return member.canInteract(target);
         } else {
             return true;
         }

@@ -142,7 +142,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                     return Response.FALSE;
                 } else {
                     Role role = roleList.get(0);
-                    if (checkRoleWithLog(role)) {
+                    if (checkRoleWithLog(event.getMember(), role)) {
                         moderationBean.setMuteRoleId(role.getIdLong());
                         setLog(LogStatus.SUCCESS, getString("muteroleset"));
                         setState(0);

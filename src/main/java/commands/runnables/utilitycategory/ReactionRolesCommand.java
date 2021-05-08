@@ -171,7 +171,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             }
 
             if (roles.size() > 0) {
-                if (processRole(roles)) {
+                if (processRole(event.getMember(), roles)) {
                     ok = true;
                 } else {
                     return Response.FALSE;
@@ -202,9 +202,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         }
     }
 
-    private boolean processRole(List<Role> list) {
+    private boolean processRole(Member member, List<Role> list) {
         Role roleTest = list.get(0);
-        if (!checkRoleWithLog(roleTest)) {
+        if (!checkRoleWithLog(member, roleTest)) {
             return false;
         }
 
