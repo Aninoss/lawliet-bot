@@ -44,6 +44,13 @@ public class StatsCommand extends Command {
             //Ignore
         }
 
+        String laleName = "???";
+        try {
+            laleName = ShardManager.getInstance().fetchUserById(774017093309431808L).get().getAsTag();
+        } catch (InterruptedException | ExecutionException e) {
+            //Ignore
+        }
+
         String owner = ShardManager.getInstance().fetchOwner().get().getAsTag();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,
@@ -57,7 +64,7 @@ public class StatsCommand extends Command {
                         owner,
                         StringUtil.numToString(event.getJDA().getShardInfo().getShardId()),
                         StringUtil.numToString(Program.getClusterId())
-                ) + "\n\n" + getString("translator", dephordName, neverCookFirstName)
+                ) + "\n\n" + getString("translator", dephordName, neverCookFirstName, laleName)
         );
 
         event.getChannel().sendMessage(eb.build()).queue();
