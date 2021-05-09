@@ -4,6 +4,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnStaticReactionAddListener;
+import core.CustomObservableMap;
 import core.cache.MessageCache;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
@@ -25,9 +26,9 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
             return true;
         }
 
-        StaticReactionMessageData messageData = DBStaticReactionMessages.getInstance()
-                .retrieve(event.getGuild().getIdLong())
-                .get(event.getMessageIdLong());
+        CustomObservableMap<Long, StaticReactionMessageData> map = DBStaticReactionMessages.getInstance()
+                .retrieve(event.getGuild().getIdLong());
+        StaticReactionMessageData messageData = map.get(event.getMessageIdLong());
 
         if (messageData != null) {
             GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
@@ -41,7 +42,9 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
                     return true;
                 }
 
-                ((OnStaticReactionAddListener) command).onStaticReactionAdd(message, event);
+                if (map.containsKey(event.getMessageIdLong())) {
+                    ((OnStaticReactionAddListener) command).onStaticReactionAdd(message, event);
+                }
             }
         }
 
