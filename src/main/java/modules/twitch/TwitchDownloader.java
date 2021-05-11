@@ -66,7 +66,7 @@ public class TwitchDownloader {
         data = data.getJSONObject("stream");
         final JSONObject channelJSON = data.getJSONObject("channel");
 
-        final String previewImage = data.getJSONObject("preview").getString("large");
+        final String previewImage = data.getJSONObject("preview").getString("large") + "?" + System.nanoTime();
         final String game = channelJSON.getString("game");
         final String status = channelJSON.getString("status");
         final int viewers = data.getInt("viewers");
