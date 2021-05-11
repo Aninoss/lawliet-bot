@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 
 @ScheduleEventFixedRate(rateValue = 30, rateUnit = ChronoUnit.SECONDS)
-public class SurveyResults implements ScheduleInterface {
+public class FisherySurveyResults implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {

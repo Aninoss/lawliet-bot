@@ -1,9 +1,8 @@
 package core.schedule;
 
-import java.util.TimerTask;
 import core.MainLogger;
 
-public class ScheduleAdapter extends TimerTask {
+public class ScheduleAdapter implements Runnable {
 
     private final ScheduleInterface scheduleEvent;
 

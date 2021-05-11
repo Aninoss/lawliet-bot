@@ -5,7 +5,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Timer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import core.MainLogger;
 import core.schedule.ScheduleAdapter;
@@ -19,7 +21,7 @@ public class ScheduleEventManager {
 
     private boolean started = false;
     private final Reflections reflections = new Reflections("events/scheduleevents");
-    private final Timer timer = new Timer();
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
 
     public ScheduleEventManager() {
     }
@@ -54,7 +56,7 @@ public class ScheduleEventManager {
         ScheduleEventFixedRate fixedRateAnnotation = listener.getClass().getAnnotation(ScheduleEventFixedRate.class);
         if (fixedRateAnnotation != null) {
             long millis = Duration.of(fixedRateAnnotation.rateValue(), fixedRateAnnotation.rateUnit()).toMillis();
-            timer.scheduleAtFixedRate(new ScheduleAdapter(listener), millis + DELAY, millis);
+            scheduledExecutorService.scheduleAtFixedRate(new ScheduleAdapter(listener), millis + DELAY, millis, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -62,7 +64,7 @@ public class ScheduleEventManager {
         ScheduleEventHourly fixedRateHourly = listener.getClass().getAnnotation(ScheduleEventHourly.class);
         if (fixedRateHourly != null) {
             long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), TimeUtil.instantToNextHour(Instant.now()));
-            timer.scheduleAtFixedRate(new ScheduleAdapter(listener), millis + DELAY, 60 * 60 * 1000);
+            scheduledExecutorService.scheduleAtFixedRate(new ScheduleAdapter(listener), millis + DELAY, 60 * 60 * 1000, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -70,7 +72,7 @@ public class ScheduleEventManager {
         ScheduleEventDaily fixedRateDaily = listener.getClass().getAnnotation(ScheduleEventDaily.class);
         if (fixedRateDaily != null) {
             long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), TimeUtil.setInstantToNextDay(Instant.now()));
-            timer.scheduleAtFixedRate(new ScheduleAdapter(listener), millis + DELAY, 24 * 60 * 60 * 1000);
+            scheduledExecutorService.scheduleAtFixedRate(new ScheduleAdapter(listener), millis + DELAY, 24 * 60 * 60 * 1000, TimeUnit.MILLISECONDS);
         }
     }
 

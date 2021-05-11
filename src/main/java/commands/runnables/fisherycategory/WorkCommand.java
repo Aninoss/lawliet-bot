@@ -19,6 +19,7 @@ import core.utils.EmbedUtil;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
+import mysql.modules.autowork.DBAutoWork;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -58,8 +59,13 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
             registerMessageInputListener(false);
             return true;
         } else {
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("cannot_work"));
-            eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
+            EmbedBuilder eb;
+            if (DBAutoWork.getInstance().retrieve().isActive(event.getMember().getIdLong())) {
+                eb = EmbedFactory.getEmbedDefault(this, getString("autowork"));
+            } else {
+                eb = EmbedFactory.getEmbedDefault(this, getString("cannot_work"));
+                eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
+            }
 
             EmbedUtil.addRemainingTime(eb, nextWork.get());
             EmbedUtil.addLog(eb, LogStatus.TIME, TextManager.getString(getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextWork.get(), false)));

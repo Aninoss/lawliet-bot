@@ -6,7 +6,6 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
-import modules.FisheryVoiceChannelObserver;
 import modules.repair.MainRepair;
 import modules.schedulers.*;
 import mysql.modules.fisheryusers.DBFishery;
@@ -67,7 +66,6 @@ public class DiscordConnector {
 
         ShardManager.getInstance().init(shardMin, shardMax, totalShards);
         DBFishery.getInstance().cleanUp();
-        FisheryVoiceChannelObserver.getInstance().start();
 
         MainLogger.get().info("Bot is logging in...");
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);

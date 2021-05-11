@@ -1,4 +1,4 @@
-package modules;
+package events.scheduleevents.events;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import constants.FisheryStatus;
-import core.*;
+import core.MainLogger;
+import core.Program;
+import core.ShardManager;
+import core.schedule.ScheduleInterface;
+import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
@@ -17,51 +21,34 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
-public class FisheryVoiceChannelObserver {
+@ScheduleEventFixedRate(rateValue = FisheryVoiceChannelObserver.VC_CHECK_INTERVAL_MIN, rateUnit = ChronoUnit.MINUTES)
+public class FisheryVoiceChannelObserver implements ScheduleInterface {
 
-    private static final FisheryVoiceChannelObserver ourInstance = new FisheryVoiceChannelObserver();
+    public static final int VC_CHECK_INTERVAL_MIN = 1;
 
-    public static FisheryVoiceChannelObserver getInstance() {
-        return ourInstance;
+    @Override
+    public void run() throws Throwable {
+        AtomicInteger actions = new AtomicInteger(0);
+        ShardManager.getInstance().getLocalGuilds().stream()
+                .filter(guild -> {
+                    try {
+                        return DBGuild.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE;
+                    } catch (Throwable e) {
+                        MainLogger.get().error("Could not get server bean", e);
+                    }
+                    return false;
+                })
+                .forEach(guild -> {
+                    try {
+                        manageVoiceFish(guild, actions);
+                    } catch (Throwable e) {
+                        MainLogger.get().error("Could not manage vc fish observer", e);
+                    }
+                });
+        MainLogger.get().info("VC Observer - {} Actions", actions.get());
     }
 
-    private FisheryVoiceChannelObserver() {
-    }
-
-    private final int VC_CHECK_INTERVAL_MIN = 1;
-
-    private boolean active = false;
-
-    public void start() {
-        if (active) return;
-        active = true;
-
-        new CustomThread(() -> {
-            IntervalBlock intervalBlock = new IntervalBlock(VC_CHECK_INTERVAL_MIN, ChronoUnit.MINUTES);
-            while (intervalBlock.block()) {
-                AtomicInteger actions = new AtomicInteger(0);
-                ShardManager.getInstance().getLocalGuilds().stream()
-                        .filter(guild -> {
-                            try {
-                                return DBGuild.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE;
-                            } catch (Throwable e) {
-                                MainLogger.get().error("Could not get server bean", e);
-                            }
-                            return false;
-                        })
-                        .forEach(guild -> {
-                            try {
-                                manageVCFish(guild, actions);
-                            } catch (Throwable e) {
-                                MainLogger.get().error("Could not manage vc fish observer", e);
-                            }
-                        });
-                MainLogger.get().info("VC Observer - {} Actions", actions.get());
-            }
-        }, "vc_observer", 1).start();
-    }
-
-    private void manageVCFish(Guild guild, AtomicInteger actions) {
+    private void manageVoiceFish(Guild guild, AtomicInteger actions) {
         FisheryGuildData serverBean = DBFishery.getInstance().retrieve(guild.getIdLong());
 
         for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {

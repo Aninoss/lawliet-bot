@@ -9,7 +9,6 @@ import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -45,10 +44,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
 
         if (upvotesUnclaimed == 0) {
             EmbedBuilder eb;
-            boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 2 ||
-                    PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
-
-            if (patreon && DBAutoClaim.getInstance().retrieve().isActive(event.getMember().getIdLong())) {
+            if (DBAutoClaim.getInstance().retrieve().isActive(event.getMember().getIdLong())) {
                 eb = EmbedFactory.getEmbedDefault(this, getString("autoclaim", ExternalLinks.UPVOTE_URL));
             } else {
                 eb = EmbedFactory.getEmbedDefault(this, getString("nothing_description", ExternalLinks.UPVOTE_URL))

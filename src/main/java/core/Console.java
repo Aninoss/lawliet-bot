@@ -15,8 +15,8 @@ import core.utils.ExceptionUtil;
 import core.utils.InternetUtil;
 import core.utils.JDAUtil;
 import core.utils.TimeUtil;
-import events.scheduleevents.events.SurveyResults;
-import modules.FisheryVoiceChannelObserver;
+import events.scheduleevents.events.FisherySurveyResults;
+import events.scheduleevents.events.FisheryVoiceChannelObserver;
 import modules.repair.MainRepair;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
@@ -103,7 +103,7 @@ public class Console {
     }
 
     private void onSurvey(String[] args) {
-        SurveyResults.processCurrentResults();
+        FisherySurveyResults.processCurrentResults();
     }
 
     private void onRepair(String[] args) {
