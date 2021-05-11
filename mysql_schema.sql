@@ -1081,6 +1081,51 @@ CREATE TABLE `TempBans` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `TicketAnnouncementChannel`
+--
+
+DROP TABLE IF EXISTS `TicketAnnouncementChannel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `TicketAnnouncementChannel` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`),
+  CONSTRAINT `TicketAnnouncementChannelServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `TicketOpenChannel`
+--
+
+DROP TABLE IF EXISTS `TicketOpenChannel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `TicketOpenChannel` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`channelId`),
+  CONSTRAINT `TicketOpenChannelServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `TicketStaffRole`
+--
+
+DROP TABLE IF EXISTS `TicketStaffRole`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `TicketStaffRole` (
+  `serverId` bigint unsigned NOT NULL,
+  `roleId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`roleId`),
+  CONSTRAINT `TicketStaffRoleServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `Tracking`
 --
 
@@ -1400,4 +1445,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-05-11 17:40:34
+-- Dump completed on 2021-05-11 19:29:06
