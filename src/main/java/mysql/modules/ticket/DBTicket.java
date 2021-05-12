@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import mysql.DBDataLoad;
 import mysql.DBMain;
@@ -24,7 +25,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
     protected TicketData load(Long serverId) throws Exception {
         TicketData ticketData;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId FROM TicketAnnouncementChannel WHERE serverId = ?;");
+        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, counter FROM Ticket WHERE serverId = ?;");
         preparedStatement.setLong(1, serverId);
         preparedStatement.execute();
 
@@ -33,24 +34,26 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
             ticketData = new TicketData(
                     serverId,
                     resultSet.getLong(1),
+                    resultSet.getInt(2),
                     getStaffRoles(serverId),
-                    getOpenChannels(serverId)
+                    getTicketChannels(serverId)
             );
         } else {
             ticketData = new TicketData(
                     serverId,
                     null,
+                    0,
                     new ArrayList<>(),
-                    new ArrayList<>()
+                    new HashMap<>()
             );
         }
 
         resultSet.close();
         preparedStatement.close();
 
-        ticketData.getOpenTextChannelIds()
-                .addListAddListener(list -> list.forEach(channelId -> addOpenChannel(serverId, channelId)))
-                .addListRemoveListener(list -> list.forEach(channelId -> removeOpenChannel(serverId, channelId)));
+        ticketData.getTicketChannels()
+                .addMapAddListener(this::addTicketChannel)
+                .addMapRemoveListener(this::removeTicketChannel);
 
         ticketData.getStaffRoleIds()
                 .addListAddListener(list -> list.forEach(roleId -> addStaffRole(serverId, roleId)))
@@ -61,7 +64,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
 
     @Override
     protected void save(TicketData ticketData) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO TicketAnnouncementChannel (serverId, channelId) VALUES (?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("REPLACE INTO Ticket (serverId, channelId, counter) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, ticketData.getGuildId());
 
             Optional<Long> channelIdOpt = ticketData.getAnnouncementTextChannelId();
@@ -70,26 +73,38 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
             } else {
                 preparedStatement.setNull(2, Types.BIGINT);
             }
+
+            preparedStatement.setInt(3, ticketData.getCounter());
         });
     }
 
-    private ArrayList<Long> getOpenChannels(long serverId) {
-        return new DBDataLoad<Long>("TicketOpenChannel", "channelId", "serverId = ?",
+    private HashMap<Long, TicketChannel> getTicketChannels(long serverId) {
+        return new DBDataLoad<TicketChannel>("TicketOpenChannel", "channelId, messageChannelId, messageMessageId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getHashMap(
+                TicketChannel::getChannelId,
+                resultSet -> new TicketChannel(
+                        serverId,
+                        resultSet.getLong(1),
+                        resultSet.getLong(2),
+                        resultSet.getLong(3)
+                )
+        );
     }
 
-    private void addOpenChannel(long serverId, long channelId) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO TicketOpenChannel (serverId, channelId) VALUES (?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.setLong(2, channelId);
+    private void addTicketChannel(TicketChannel ticketChannel) {
+        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO TicketOpenChannel (serverId, channelId, messageChannelId, messageMessageId) VALUES (?, ?, ?, ?);", preparedStatement -> {
+            preparedStatement.setLong(1, ticketChannel.getGuildId());
+            preparedStatement.setLong(2, ticketChannel.getChannelId());
+            preparedStatement.setLong(3, ticketChannel.getMessageChannelId());
+            preparedStatement.setLong(4, ticketChannel.getMessageMessageId());
         });
     }
 
-    private void removeOpenChannel(long serverId, long channelId) {
+    private void removeTicketChannel(TicketChannel ticketChannel) {
         DBMain.getInstance().asyncUpdate("DELETE FROM TicketOpenChannel WHERE serverId = ? AND channelId = ?;", preparedStatement -> {
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.setLong(2, channelId);
+            preparedStatement.setLong(1, ticketChannel.getGuildId());
+            preparedStatement.setLong(2, ticketChannel.getChannelId());
         });
     }
 

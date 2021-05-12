@@ -1,8 +1,10 @@
 package mysql.modules.ticket;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import core.CustomObservableList;
+import core.CustomObservableMap;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -10,14 +12,16 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 public class TicketData extends DataWithGuild {
 
     private Long channelId;
+    private int counter;
     private final CustomObservableList<Long> staffRoleIds;
-    private final CustomObservableList<Long> openTextChannelIds;
+    private final CustomObservableMap<Long, TicketChannel> ticketChannels;
 
-    public TicketData(long serverId, Long channelId, @NonNull ArrayList<Long> staffRoleIds, @NonNull ArrayList<Long> openTextChannelIds) {
+    public TicketData(long serverId, Long channelId, int counter, @NonNull ArrayList<Long> staffRoleIds, @NonNull HashMap<Long, TicketChannel> ticketChannels) {
         super(serverId);
         this.channelId = channelId;
+        this.counter = counter;
         this.staffRoleIds = new CustomObservableList<>(staffRoleIds);
-        this.openTextChannelIds = new CustomObservableList<>(openTextChannelIds);
+        this.ticketChannels = new CustomObservableMap<>(ticketChannels);
     }
 
     public Optional<Long> getAnnouncementTextChannelId() {
@@ -36,12 +40,22 @@ public class TicketData extends DataWithGuild {
         }
     }
 
+    public void increaseCounter() {
+        counter++;
+        setChanged();
+        notifyObservers();
+    }
+
+    public int getCounter() {
+        return counter;
+    }
+
     public CustomObservableList<Long> getStaffRoleIds() {
         return staffRoleIds;
     }
 
-    public CustomObservableList<Long> getOpenTextChannelIds() {
-        return openTextChannelIds;
+    public CustomObservableMap<Long, TicketChannel> getTicketChannels() {
+        return ticketChannels;
     }
 
 }
