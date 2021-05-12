@@ -3,7 +3,6 @@ package core.schedule;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalUnit;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -11,10 +10,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import core.Program;
 import core.MainLogger;
+import core.Program;
 import core.utils.ExceptionUtil;
 import core.utils.TimeUtil;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class MainScheduler {
 
@@ -24,9 +24,9 @@ public class MainScheduler {
         return ourInstance;
     }
 
-    private final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(8);
-    private final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(3);
-    private final Timer timeOutObserver = new Timer();
+    private final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(8, new CountingThreadFactory(() -> "Main", "Scheduler", true));
+    private final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(3, new CountingThreadFactory(() -> "Main", "Poller", true));
+    private final ScheduledExecutorService timeOutObserver = Executors.newScheduledThreadPool(1, new CountingThreadFactory(() -> "Main", "Scheduler-TimeOut", true));
 
     private final Cache<Long, ScheduleSlot> slotCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(1))
@@ -94,7 +94,7 @@ public class MainScheduler {
                     MainLogger.get().error("Task \"{}\" stuck in scheduler {}", slot.name, runnerThread.getName(), e);
                 }
             }
-        }, 1000);
+        }, 1, TimeUnit.SECONDS);
     }
 
 

@@ -13,6 +13,7 @@ import core.MainLogger;
 import core.schedule.ScheduleAdapter;
 import core.schedule.ScheduleInterface;
 import core.utils.TimeUtil;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 import org.reflections.Reflections;
 
 public class ScheduleEventManager {
@@ -21,7 +22,7 @@ public class ScheduleEventManager {
 
     private boolean started = false;
     private final Reflections reflections = new Reflections("events/scheduleevents");
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2, new CountingThreadFactory(() -> "Main", "ScheduleEvent", true));
 
     public ScheduleEventManager() {
     }

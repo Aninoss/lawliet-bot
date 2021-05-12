@@ -30,7 +30,7 @@ public class Main {
             if (!Program.isProductionMode()) {
                 DiscordConnector.getInstance().connect(0, 0, 1);
             } else {
-                Runtime.getRuntime().addShutdownHook(new CustomThread(Program::onStop, "shutdown_botstop"));
+                Runtime.getRuntime().addShutdownHook(new Thread(Program::onStop, "Shutdown Bot-Stop"));
             }
         } catch (Throwable e) {
             MainLogger.get().error("EXIT - Error on startup", e);

@@ -4,10 +4,11 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public abstract class DBSingleCache<T> extends DBCache {
 
-    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor(new CountingThreadFactory(() -> "Main", "SingleCache", false));
     private T o = null;
     private Instant nextUpdate = null;
 

@@ -1,7 +1,9 @@
 package core;
 
 import java.util.EnumSet;
+import java.util.concurrent.ForkJoinPool;
 import javax.security.auth.login.LoginException;
+import com.neovisionaries.ws.client.WebSocketFactory;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
@@ -20,6 +22,7 @@ import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.utils.IOUtil;
+import net.dv8tion.jda.internal.utils.config.ThreadingConfig;
 import okhttp3.Interceptor;
 import websockets.syncserver.SyncManager;
 
@@ -52,7 +55,12 @@ public class DiscordConnector {
             .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)
             .setActivity(Activity.watching(getActivityText()))
-            .setHttpClientBuilder(IOUtil.newHttpClientBuilder().addInterceptor(interceptor))
+            .setHttpClient(IOUtil.newHttpClientBuilder().addInterceptor(interceptor).build())
+            .setWebsocketFactory(new WebSocketFactory())
+            .setRateLimitPool(ThreadingConfig.newScheduler(16, () -> "JDA", "RateLimit", false))
+            .setGatewayPool(ThreadingConfig.newScheduler(8, () -> "JDA", "Gateway", true))
+            .setCallbackPool(ForkJoinPool.commonPool())
+            .setAudioPool(ThreadingConfig.newScheduler(2, () -> "JDA", "Audio", true))
             .addEventListeners(new DiscordEventAdapter());
 
     private DiscordConnector() {
@@ -71,7 +79,7 @@ public class DiscordConnector {
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageAction.setDefaultMentions(EnumSet.complementOf(deny));
 
-        new CustomThread(() -> {
+        new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
                 try {
                     jdaBuilder.useSharding(i, totalShards)
@@ -81,7 +89,7 @@ public class DiscordConnector {
                     System.exit(1);
                 }
             }
-        }, "startup").start();
+        }, "Shard-Starter").start();
     }
 
     public void reconnectApi(int shardId) {

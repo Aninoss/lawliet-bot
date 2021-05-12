@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import core.MainLogger;
 import mysql.interfaces.SQLConsumer;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class DBMain implements DriverAction {
 
@@ -27,7 +28,7 @@ public class DBMain implements DriverAction {
     }
 
     private Connection connect = null;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(3, new CountingThreadFactory(() -> "Main", "DB", false));
 
     private final ArrayList<DBCache> caches = new ArrayList<>();
 

@@ -45,7 +45,9 @@ public class Console {
         if (started) return;
         started = true;
 
-        new CustomThread(this::manageConsole, "console", 1).start();
+        Thread t = new Thread(this::manageConsole, "Console");
+        t.setDaemon(true);
+        t.start();
     }
 
     private void registerTasks() {

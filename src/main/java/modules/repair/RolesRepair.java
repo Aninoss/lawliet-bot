@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class RolesRepair {
 
@@ -33,7 +34,7 @@ public class RolesRepair {
     private RolesRepair() {
     }
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor(new CountingThreadFactory(() -> "Main", "RoleRepair", false));
 
     public void start(JDA jda, int minutes) {
         executorService.submit(() -> run(jda, minutes));

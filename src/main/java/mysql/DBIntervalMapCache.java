@@ -14,13 +14,13 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
     private LinkedList<U> changed = new LinkedList<>();
 
     protected DBIntervalMapCache(int minutes) {
-        Runtime.getRuntime().addShutdownHook(new CustomThread(() -> {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (changed.size() > 0) {
                 intervalSave();
             }
-        }, "shutdown_intervalsave"));
+        }, "Shutdown DBInterval"));
 
-        Thread t = new CustomThread(() -> {
+        Thread t = new Thread(() -> {
             IntervalBlock intervalBlock = new IntervalBlock(Program.isProductionMode() ? minutes : 1, ChronoUnit.MINUTES);
             while (intervalBlock.block()) {
                 if (changed.size() > 0) {
@@ -31,7 +31,7 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
                     }
                 }
             }
-        }, "dbbean_interval_save", 1);
+        }, "DBInterval Save");
         t.start();
     }
 

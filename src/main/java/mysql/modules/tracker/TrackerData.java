@@ -27,10 +27,11 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class TrackerData extends DataWithGuild implements TextChannelAsset {
 
-    private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+    private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2, new CountingThreadFactory(() -> "JDA", "WebHook", false));
 
     private final long channelId;
     private Long messageId;
@@ -39,7 +40,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
     private String args;
     private Instant nextRequest;
     private String webhookUrl;
-    private String userMessage;
+    private final String userMessage;
     private WebhookClient webhookClient;
     private boolean active = true;
     private boolean preferWebhook = true;

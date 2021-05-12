@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class AutoChannelRepair {
 
@@ -26,7 +27,7 @@ public class AutoChannelRepair {
     private AutoChannelRepair() {
     }
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor(new CountingThreadFactory(() -> "Main", "AutoChannelRepair", false));
 
     public void start(JDA jda) {
         executorService.submit(() -> run(jda));

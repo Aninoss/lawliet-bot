@@ -22,6 +22,7 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class AlertScheduler {
 
@@ -34,7 +35,7 @@ public class AlertScheduler {
     private AlertScheduler() {
     }
 
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(new CountingThreadFactory(() -> "Main", "Alerts", true));
 
     private boolean started = false;
 
