@@ -71,7 +71,7 @@ public class AlertsCommand extends NavigationAbstract {
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
         controll(args);
-        registerNavigationListener(12);
+        registerNavigationListener(7);
         return true;
     }
 

@@ -81,7 +81,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        registerNavigationListener(12);
+        registerNavigationListener(9);
         return true;
     }
 
@@ -752,11 +752,6 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                 }
             }
         }
-    }
-
-    @Override
-    public String titleStartIndicator() {
-        return getCommandProperties().emoji();
     }
 
 }

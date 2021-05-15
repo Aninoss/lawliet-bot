@@ -40,10 +40,11 @@ public class TicketData extends DataWithGuild {
         }
     }
 
-    public void increaseCounter() {
+    public int increaseCounterAndGet() {
         counter++;
         setChanged();
         notifyObservers();
+        return counter;
     }
 
     public int getCounter() {

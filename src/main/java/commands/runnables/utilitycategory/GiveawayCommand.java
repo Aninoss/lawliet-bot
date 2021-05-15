@@ -74,7 +74,7 @@ public class GiveawayCommand extends NavigationAbstract {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         giveawayBeans = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
         title = getString("title");
-        registerNavigationListener(12);
+        registerNavigationListener(8);
         return true;
     }
 

@@ -10,6 +10,7 @@ import core.TextManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
 public class BotPermissionUtil {
 
@@ -176,12 +177,14 @@ public class BotPermissionUtil {
         }
     }
 
-    public static boolean canInteract(Guild guild, Permission permission) {
-        if (permission == Permission.MANAGE_PERMISSIONS || permission == Permission.MANAGE_ROLES) {
-            return guild.getSelfMember().hasPermission(Permission.ADMINISTRATOR);
-        } else {
-            return guild.getSelfMember().hasPermission(permission);
+    public static boolean canInteract(GuildChannel channel, Permission permission) {
+        if (channel.getGuild().getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
+            return true;
         }
+
+        return permission.getOffset() != Permission.MANAGE_PERMISSIONS.getOffset() &&
+                (channel.getParent() == null || channel.getGuild().getSelfMember().hasPermission(channel.getParent(), permission)) &&
+                channel.getGuild().getSelfMember().hasPermission(permission);
     }
 
     public static List<Role> getMemberRoles(Guild guild) {
@@ -210,6 +213,48 @@ public class BotPermissionUtil {
         return channel.getGuild().getRoles().stream()
                 .filter(role -> messageContent.contains(role.getAsMention()))
                 .allMatch(Role::isMentionable);
+    }
+
+    public static <T extends GuildChannel> ChannelAction<T> copyPermissions(GuildChannel parentChannel, ChannelAction<T> channelAction) {
+        for (PermissionOverride permissionOverride : parentChannel.getPermissionOverrides()) {
+            channelAction = addPermission(parentChannel, channelAction, permissionOverride.getPermissionHolder(), true);
+        }
+        return channelAction;
+    }
+
+    public static <T extends GuildChannel> ChannelAction<T> addPermission(GuildChannel parentChannel, ChannelAction<T> channelAction,
+                                                                          IPermissionHolder permissionHolder, boolean allow, Permission... permissions) {
+        PermissionOverride permissionOverride = parentChannel.getPermissionOverride(permissionHolder);
+        long allowRaw = 0L;
+        long denyRaw = 0L;
+
+        if (permissionOverride != null) {
+            allowRaw |= permissionOverride.getAllowedRaw();
+            denyRaw |= permissionOverride.getDeniedRaw();
+        }
+
+        if (allow) {
+            allowRaw |= Permission.getRaw(permissions);
+            denyRaw &= ~Permission.getRaw(permissions);
+        } else {
+            allowRaw &= ~Permission.getRaw(permissions);
+            denyRaw |= Permission.getRaw(permissions);
+        }
+
+        List<Permission> allowList = Permission.getPermissions(allowRaw).stream()
+                .filter(permission -> BotPermissionUtil.canInteract(parentChannel, permission))
+                .collect(Collectors.toList());
+
+        List<Permission> denyList = Permission.getPermissions(denyRaw).stream()
+                .filter(permission -> BotPermissionUtil.canInteract(parentChannel, permission))
+                .collect(Collectors.toList());
+
+        return channelAction.addPermissionOverride(permissionHolder, allowList, denyList);
+    }
+
+    public static <T extends GuildChannel> ChannelAction<T> clearPermissionOverrides(ChannelAction<T> channelAction) {
+        channelAction = channelAction.clearPermissionOverrides();
+        return channelAction.addPermissionOverride(channelAction.getGuild().getPublicRole(), 0L, 0L);
     }
 
 }

@@ -272,11 +272,6 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     }
 
     @Override
-    public String titleStartIndicator() {
-        return getCommandProperties().emoji();
-    }
-
-    @Override
     public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         SurveyData currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         if (slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get())) {

@@ -54,7 +54,7 @@ public class WordFilterCommand extends NavigationAbstract {
         ignoredUsers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getIgnoredUserIds());
         logReceivers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getLogReceiverUserIds());
         wordsNavigationHelper = new NavigationHelper<>(this, bannedWordsBean.getWords(), String.class, MAX_WORDS);
-        registerNavigationListener(12);
+        registerNavigationListener(7);
         return true;
     }
 

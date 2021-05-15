@@ -7,6 +7,4 @@ public interface OnStaticReactionRemoveListener {
 
     void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) throws Throwable;
 
-    String titleStartIndicator();
-
 }

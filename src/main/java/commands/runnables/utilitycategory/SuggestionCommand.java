@@ -156,9 +156,4 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                 });
     }
 
-    @Override
-    public String titleStartIndicator() {
-        return getCommandProperties().emoji();
-    }
-
 }

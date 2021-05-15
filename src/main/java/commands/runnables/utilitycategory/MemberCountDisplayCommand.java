@@ -210,7 +210,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                         .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<MemberCountDisplaySlot>()
                                 .getList(memberCountBean.getMemberCountBeanSlots().values(), getLocale(), bean -> {
                                     if (bean.getVoiceChannel().isPresent()) {
-                                        return getString("state0_displays", StringUtil.escapeMarkdown(bean.getVoiceChannel().get().getName()), StringUtil.escapeMarkdown(bean.getMask()));
+                                        return getString("state0_displays", StringUtil.escapeMarkdown(bean.getVoiceChannel().get().getAsMention()), StringUtil.escapeMarkdown(bean.getMask()));
                                     } else {
                                         return getString("state0_displays", TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(bean.getVoiceChannelId())), StringUtil.escapeMarkdown(bean.getMask()));
                                     }
@@ -218,7 +218,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
 
             case 1:
                 if (currentName != null && currentVC != null) setOptions(new String[] { getString("state1_options") });
-                return EmbedFactory.getEmbedDefault(this, getString("state1_description", StringUtil.escapeMarkdown(Optional.ofNullable(currentVC).flatMap(AtomicVoiceChannel::get).map(GuildChannel::getName).orElse(notSet)), highlightVariables(StringUtil.escapeMarkdown(Optional.ofNullable(currentName).orElse(notSet)))), getString("state1_title"));
+                return EmbedFactory.getEmbedDefault(this, getString("state1_description", StringUtil.escapeMarkdown(Optional.ofNullable(currentVC).flatMap(AtomicVoiceChannel::get).map(GuildChannel::getAsMention).orElse(notSet)), highlightVariables(StringUtil.escapeMarkdown(Optional.ofNullable(currentName).orElse(notSet)))), getString("state1_title"));
 
             case 2:
                 ArrayList<MemberCountDisplaySlot> channelNames = new ArrayList<>(memberCountBean.getMemberCountBeanSlots().values());

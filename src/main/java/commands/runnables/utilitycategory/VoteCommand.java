@@ -160,9 +160,4 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 });
     }
 
-    @Override
-    public String titleStartIndicator() {
-        return getCommandProperties().emoji();
-    }
-
 }

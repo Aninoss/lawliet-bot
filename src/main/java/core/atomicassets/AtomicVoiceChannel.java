@@ -1,15 +1,17 @@
 package core.atomicassets;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.ShardManager;
+import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
-public class AtomicVoiceChannel implements AtomicAsset<VoiceChannel> {
+public class AtomicVoiceChannel implements MentionableAtomicAsset<VoiceChannel> {
 
     private final long guildId;
     private final long channelId;
@@ -33,6 +35,11 @@ public class AtomicVoiceChannel implements AtomicAsset<VoiceChannel> {
     public Optional<VoiceChannel> get() {
         return ShardManager.getInstance().getLocalGuildById(guildId)
                 .map(guild -> guild.getVoiceChannelById(channelId));
+    }
+
+    @Override
+    public Locale getLocale() {
+        return DBGuild.getInstance().retrieve(guildId).getLocale();
     }
 
     @Override

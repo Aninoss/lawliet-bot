@@ -174,6 +174,7 @@ public class MentionUtil {
                 message.getGuild().getVoiceChannels(),
                 list,
                 input,
+                c -> "<#" + ((VoiceChannel) c).getId() + ">",
                 c -> ((VoiceChannel) c).getId(),
                 c -> "#" + ((VoiceChannel) c).getName(),
                 c -> ((VoiceChannel) c).getName()

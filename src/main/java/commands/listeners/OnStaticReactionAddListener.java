@@ -7,6 +7,4 @@ public interface OnStaticReactionAddListener {
 
     void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) throws Throwable;
 
-    String titleStartIndicator();
-
 }

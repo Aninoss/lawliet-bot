@@ -43,8 +43,8 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
                     serverId,
                     null,
                     0,
-                    new ArrayList<>(),
-                    new HashMap<>()
+                    getStaffRoles(serverId),
+                    getTicketChannels(serverId)
             );
         }
 

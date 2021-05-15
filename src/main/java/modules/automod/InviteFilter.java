@@ -55,7 +55,7 @@ public class InviteFilter extends AutoModAbstract {
     protected void designEmbed(Message message, Locale locale, EmbedBuilder eb) {
         String content = message.getContentRaw();
         for (String invite : message.getInvites()) {
-            content = content.replace(invite, "*".repeat(6));
+            content = content.replace(invite, "█".repeat(6));
         }
 
         eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log", message.getAuthor().getAsTag()))

@@ -45,7 +45,7 @@ public class WhiteListCommand extends NavigationAbstract {
         WhiteListedChannelsData whiteListedChannelsBean = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
         whiteListedChannels = AtomicTextChannel.transformIdList(event.getGuild(), whiteListedChannelsBean.getChannelIds());
         channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, AtomicTextChannel.class, MAX_CHANNELS);
-        registerNavigationListener(12);
+        registerNavigationListener(7);
         return true;
     }
 

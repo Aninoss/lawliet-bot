@@ -52,7 +52,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
         fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
 
         checkRolesWithLog(event.getGuild(), fisheryGuildBean.getRoles());
-        registerNavigationListener(12);
+        registerNavigationListener(7);
         return true;
     }
 

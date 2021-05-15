@@ -235,9 +235,4 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
         }
     }
 
-    @Override
-    public String titleStartIndicator() {
-        return EMOJI_TREASURE;
-    }
-
 }

@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 
 @CommandProperties(
         trigger = "autochannel",
-        botGuildPermissions = { Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT },
+        botGuildPermissions = { Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL },
         userGuildPermissions = { Permission.MANAGE_CHANNEL },
         emoji = "🔊",
         executableWithoutArgs = true,
@@ -63,7 +63,7 @@ public class AutoChannelCommand extends NavigationAbstract {
 
                     Category parent = voiceChannel.getParent();
                     if (parent != null) {
-                        String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT);
+                        String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL);
                         if (categoryMissingPerms != null) {
                             setLog(LogStatus.FAILURE, categoryMissingPerms);
                             return Response.FALSE;
@@ -148,7 +148,7 @@ public class AutoChannelCommand extends NavigationAbstract {
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
-                        .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(autoChannelBean.getParentChannel().map(GuildChannel::getName).orElse(notSet)), true)
+                        .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(autoChannelBean.getParentChannel().map(GuildChannel::getAsMention).orElse(notSet)), true)
                         .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(
                                 StringUtil.escapeMarkdown(autoChannelBean.getNameMask()),
                                 "`%VCNAME`",
