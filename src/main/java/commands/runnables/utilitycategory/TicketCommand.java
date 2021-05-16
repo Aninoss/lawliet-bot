@@ -1,26 +1,29 @@
 package commands.runnables.utilitycategory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.NavigationAbstract;
+import constants.Emojis;
 import constants.LogStatus;
 import constants.Response;
-import core.CustomObservableList;
-import core.EmbedFactory;
-import core.ListGen;
-import core.TextManager;
+import core.*;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.MentionableAtomicAsset;
 import core.utils.BotPermissionUtil;
+import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Ticket;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.ticket.DBTicket;
+import mysql.modules.ticket.TicketChannel;
 import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -33,12 +36,15 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
         trigger = "ticket",
         botGuildPermissions = { Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL },
         userGuildPermissions = { Permission.MANAGE_CHANNEL },
+        releaseDate = { 2021, 5, 23 },
         emoji = "🎟️",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        aliases = { "tickets" }
 )
 public class TicketCommand extends NavigationAbstract implements OnStaticReactionAddListener {
 
     private final static int MAX_ROLES = 10;
+    private final static String TICKET_CLOSE_EMOJI = Emojis.X;
     private final static int
             MAIN = 0,
             ANNOUNCEMENT_CHANNEL = 1,
@@ -172,7 +178,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             tempPostChannel = tempPostChannel.getGuild().getTextChannelById(tempPostChannel.getIdLong());
             if (tempPostChannel != null) {
                 String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), tempPostChannel,
-                        Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY);
+                        Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY
+                );
                 if (channelMissingPerms != null) {
                     setLog(LogStatus.FAILURE, channelMissingPerms);
                     return true;
@@ -236,7 +243,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         if (tempPostChannel != null) {
             setOptions(getString("state4_options").split("\n"));
         }
-        return EmbedFactory.getEmbedDefault(this,
+        return EmbedFactory.getEmbedDefault(
+                this,
                 getString("state4_description", tempPostChannel != null ? tempPostChannel.getAsMention() : notSet),
                 getString("state4_title")
         );
@@ -244,7 +252,107 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) throws Throwable {
-        Ticket.createTicketChannel(event.getChannel(), event.getMember());
+        TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
+        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
+
+        if (ticketChannel == null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), getCommandProperties().emoji())) {
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+                message.removeReaction(getCommandProperties().emoji(), event.getUser()).queue();
+            }
+            Optional<TextChannel> existingTicketChannelOpt = findTicketChannelOfUser(ticketData, event.getMember());
+            if (existingTicketChannelOpt.isEmpty()) {
+                Ticket.createTicketChannel(event.getChannel(), event.getMember(), ticketData).ifPresent(channelAction -> {
+                    channelAction.queue(textChannel -> setupNewTicketChannel(ticketData, textChannel, event.getMember()));
+                });
+            } else {
+                TextChannel existingTicketChannel = existingTicketChannelOpt.get();
+                if (PermissionCheckRuntime.getInstance().botHasPermission(ticketData.getGuildBean().getLocale(), getClass(), existingTicketChannel, Permission.MESSAGE_WRITE)) {
+                    existingTicketChannel.sendMessage(event.getMember().getAsMention()).queue();
+                }
+            }
+        } else if (ticketChannel != null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), TICKET_CLOSE_EMOJI)) {
+            event.getChannel().delete()
+                    .reason(getCommandLanguage().getTitle())
+                    .queue();
+        }
+    }
+
+    private void setupNewTicketChannel(TicketData ticketData, TextChannel textChannel, Member member) {
+        /* member greeting */
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("greeting", TICKET_CLOSE_EMOJI));
+        textChannel.sendMessage(member.getAsMention())
+                .embed(eb.build())
+                .queue(m -> {
+                    m.addReaction(TICKET_CLOSE_EMOJI).queue();
+                    DBStaticReactionMessages.getInstance().retrieve(textChannel.getGuild().getIdLong())
+                            .put(m.getIdLong(), new StaticReactionMessageData(m, getTrigger()));
+                });
+
+        /* post announcement to staff channel */
+        AtomicBoolean announcementNotPosted = new AtomicBoolean(true);
+        ticketData.getAnnouncementTextChannel().ifPresent(announcementChannel -> {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(ticketData.getGuildBean().getLocale(), getClass(), announcementChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+                announcementNotPosted.set(false);
+                EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault(this, getString("announcement_open", member.getAsMention(), textChannel.getAsMention()));
+                announcementChannel.sendMessage(getRolePing(textChannel.getGuild(), ticketData))
+                        .embed(ebAnnouncement.build())
+                        .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
+                        .queue(m -> {
+                            ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
+                                    textChannel.getGuild().getIdLong(),
+                                    textChannel.getIdLong(),
+                                    member.getIdLong(),
+                                    announcementChannel.getIdLong(),
+                                    m.getIdLong()
+                            ));
+                        }, e -> {
+                            MainLogger.get().error("Ticket announcement error", e);
+                            ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
+                                    textChannel.getGuild().getIdLong(),
+                                    textChannel.getIdLong(),
+                                    member.getIdLong(),
+                                    0L,
+                                    0L
+                            ));
+                        });
+            }
+        });
+
+        if (announcementNotPosted.get()) {
+            ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
+                    textChannel.getGuild().getIdLong(),
+                    textChannel.getIdLong(),
+                    member.getIdLong(),
+                    0L,
+                    0L
+            ));
+        }
+    }
+
+    private Optional<TextChannel> findTicketChannelOfUser(TicketData ticketData, Member member) {
+        for (TicketChannel ticketChannel : ticketData.getTicketChannels().values()) {
+            if (ticketChannel.getMemberId() == member.getIdLong()) {
+                Optional<TextChannel> textChannelOpt = ticketChannel.getTextChannel();
+                if (textChannelOpt.isPresent()) {
+                    return textChannelOpt;
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private String getRolePing(Guild guild, TicketData ticketData) {
+        StringBuilder pings = new StringBuilder();
+        ticketData.getStaffRoleIds()
+                .transform(guild::getRoleById, ISnowflake::getIdLong)
+                .forEach(role -> {
+                    pings.append(role.getAsMention()).append(" ");
+                });
+
+        if (pings.isEmpty()) {
+            return " ";
+        }
+        return pings.toString();
     }
 
 }

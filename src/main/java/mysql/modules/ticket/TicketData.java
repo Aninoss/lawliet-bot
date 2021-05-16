@@ -42,6 +42,9 @@ public class TicketData extends DataWithGuild {
 
     public int increaseCounterAndGet() {
         counter++;
+        if (counter > 9999) {
+            counter = 1;
+        }
         setChanged();
         notifyObservers();
         return counter;

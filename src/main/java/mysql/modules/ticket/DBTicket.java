@@ -79,32 +79,34 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
     }
 
     private HashMap<Long, TicketChannel> getTicketChannels(long serverId) {
-        return new DBDataLoad<TicketChannel>("TicketOpenChannel", "channelId, messageChannelId, messageMessageId", "serverId = ?",
+        return new DBDataLoad<TicketChannel>("TicketOpenChannel", "channelId, userId, messageChannelId, messageMessageId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getHashMap(
-                TicketChannel::getChannelId,
+                TicketChannel::getTextChannelId,
                 resultSet -> new TicketChannel(
                         serverId,
                         resultSet.getLong(1),
                         resultSet.getLong(2),
-                        resultSet.getLong(3)
+                        resultSet.getLong(3),
+                        resultSet.getLong(4)
                 )
         );
     }
 
     private void addTicketChannel(TicketChannel ticketChannel) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO TicketOpenChannel (serverId, channelId, messageChannelId, messageMessageId) VALUES (?, ?, ?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO TicketOpenChannel (serverId, channelId, userId, messageChannelId, messageMessageId) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, ticketChannel.getGuildId());
-            preparedStatement.setLong(2, ticketChannel.getChannelId());
-            preparedStatement.setLong(3, ticketChannel.getMessageChannelId());
-            preparedStatement.setLong(4, ticketChannel.getMessageMessageId());
+            preparedStatement.setLong(2, ticketChannel.getTextChannelId());
+            preparedStatement.setLong(3, ticketChannel.getMemberId());
+            preparedStatement.setLong(4, ticketChannel.getAnnouncementChannelId());
+            preparedStatement.setLong(5, ticketChannel.getAnnouncementMessageId());
         });
     }
 
     private void removeTicketChannel(TicketChannel ticketChannel) {
         DBMain.getInstance().asyncUpdate("DELETE FROM TicketOpenChannel WHERE serverId = ? AND channelId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, ticketChannel.getGuildId());
-            preparedStatement.setLong(2, ticketChannel.getChannelId());
+            preparedStatement.setLong(2, ticketChannel.getTextChannelId());
         });
     }
 
