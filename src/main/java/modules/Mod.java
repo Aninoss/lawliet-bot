@@ -101,7 +101,9 @@ public class Mod {
                 postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                     guild.kick(target.getId(), TextManager.getString(locale, Category.MODERATION, "mod_autokick")).queue();
                 });
-            } else if (autoMute &&
+            }
+
+            if (autoMute &&
                     muteRole != null &&
                     PermissionCheckRuntime.getInstance().botCanManageRoles(locale, ModSettingsCommand.class, muteRole) &&
                     (member == null || !BotPermissionUtil.can(member, Permission.ADMINISTRATOR))
