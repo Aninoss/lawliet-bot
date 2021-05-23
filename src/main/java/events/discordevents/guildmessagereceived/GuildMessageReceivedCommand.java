@@ -120,22 +120,25 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
     }
 
     private boolean manageMessageInput(GuildMessageReceivedEvent event) {
-        List<CommandListenerMeta<?>> listeners = CommandContainer.getInstance().getListeners(OnMessageInputListener.class).stream()
-                .filter(listener -> listener.check(event))
-                .sorted((l1, l2) -> l2.getCreationTime().compareTo(l1.getCreationTime()))
-                .collect(Collectors.toList());
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+            List<CommandListenerMeta<?>> listeners = CommandContainer.getInstance().getListeners(OnMessageInputListener.class).stream()
+                    .filter(listener -> listener.check(event))
+                    .sorted((l1, l2) -> l2.getCreationTime().compareTo(l1.getCreationTime()))
+                    .collect(Collectors.toList());
 
-        if (listeners.size() > 0) {
-            for (CommandListenerMeta<?> listener : listeners) {
-                Response response = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event);
-                if (response != null) {
-                    return true;
+            if (listeners.size() > 0) {
+                for (CommandListenerMeta<?> listener : listeners) {
+                    Response response = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event);
+                    if (response != null) {
+                        return true;
+                    }
                 }
+                return true;
+            } else {
+                return false;
             }
-            return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
 }

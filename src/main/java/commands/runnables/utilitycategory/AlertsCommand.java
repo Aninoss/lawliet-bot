@@ -238,7 +238,7 @@ public class AlertsCommand extends NavigationAbstract {
         slotRemove.delete();
         setLog(LogStatus.SUCCESS, getString("state2_removed", slotRemove.getCommandTrigger()));
         if (getTrackersInChannel().size() == 0) {
-            setState(0);
+            setState(DEFAULT_STATE);
         }
 
         return Response.FALSE;

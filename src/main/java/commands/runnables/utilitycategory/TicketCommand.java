@@ -36,7 +36,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
         trigger = "ticket",
         botGuildPermissions = { Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL },
         userGuildPermissions = { Permission.MANAGE_CHANNEL },
-        releaseDate = { 2021, 5, 23 },
+        releaseDate = { 2021, 5, 24 },
         emoji = "🎟️",
         executableWithoutArgs = true,
         aliases = { "tickets" }

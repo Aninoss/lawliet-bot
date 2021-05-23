@@ -64,9 +64,13 @@ public class BanCommand extends WarnCommand {
     }
 
     @Override
-    protected boolean canProcess(Member executor, User target) {
-        return BotPermissionUtil.canInteract(executor.getGuild(), target) &&
-                BotPermissionUtil.canInteract(executor, target);
+    protected boolean canProcessMember(Member executor, User target) throws Throwable {
+        return BotPermissionUtil.canInteract(executor, target);
+    }
+
+    @Override
+    protected boolean canProcessBot(Guild guild, User target) throws Throwable {
+        return BotPermissionUtil.canInteract(guild, target);
     }
 
     @Override

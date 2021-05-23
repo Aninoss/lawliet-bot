@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnReactionListener;
+import constants.Category;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
@@ -38,7 +39,8 @@ public class WarnCommand extends Command implements OnReactionListener {
     private String reason;
     private ModerationData moderationBean;
     private Status status = Status.PENDING;
-    private final ArrayList<User> usersErrorList = new ArrayList<>();
+    private final ArrayList<User> memberMissingAccessList = new ArrayList<>();
+    private final ArrayList<User> botMissingAcccessList = new ArrayList<>();
     private final boolean sendWarning;
     private final boolean autoActions;
     private final boolean includeNotInGuild;
@@ -77,9 +79,12 @@ public class WarnCommand extends Command implements OnReactionListener {
     protected void process(Guild guild, User target, String reason) throws Throwable {
     }
 
-    protected boolean canProcess(Member executor, User target) throws Throwable {
-        return BotPermissionUtil.canInteract(executor.getGuild(), target) &&
-                BotPermissionUtil.canInteract(executor, target);
+    protected boolean canProcessMember(Member executor, User target) throws Throwable {
+        return BotPermissionUtil.canInteract(executor, target);
+    }
+
+    protected boolean canProcessBot(Guild guild, User target) throws Throwable {
+        return BotPermissionUtil.canInteract(guild, target);
     }
 
     @Override
@@ -89,7 +94,7 @@ public class WarnCommand extends Command implements OnReactionListener {
         }
 
         checkAllProcess(event.getMember());
-        if (usersErrorList.size() > 0) {
+        if (memberMissingAccessList.size() > 0 || botMissingAcccessList.size() > 0) {
             status = Status.ERROR;
             drawMessage(draw());
             return false;
@@ -109,8 +114,10 @@ public class WarnCommand extends Command implements OnReactionListener {
 
     private void checkAllProcess(Member executor) throws Throwable {
         for (User user : userList) {
-            if (!canProcess(executor, user)) {
-                usersErrorList.add(user);
+            if (!canProcessBot(executor.getGuild(), user)) {
+                botMissingAcccessList.add(user);
+            } else if (!canProcessMember(executor, user)) {
+                memberMissingAccessList.add(user);
             }
         }
     }
@@ -135,7 +142,7 @@ public class WarnCommand extends Command implements OnReactionListener {
 
     private boolean execute(TextChannel channel, Member executor) throws Throwable {
         checkAllProcess(executor);
-        if (usersErrorList.size() > 0) {
+        if (memberMissingAccessList.size() > 0 || botMissingAcccessList.size() > 0) {
             status = Status.ERROR;
             return false;
         }
@@ -202,8 +209,19 @@ public class WarnCommand extends Command implements OnReactionListener {
                 return EmbedFactory.getAbortEmbed(this);
 
             case ERROR:
-                Mention mentionError = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), usersErrorList);
-                return EmbedFactory.getEmbedError(this, getString("usererror_description", mentionError.isMultiple(), mentionError.getMentionText()), TextManager.getString(getLocale(), TextManager.GENERAL, "wrong_args"));
+                Mention mentionError;
+                int i;
+                if (botMissingAcccessList.size() > 0) {
+                    i = 0;
+                    mentionError = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), botMissingAcccessList);
+                } else {
+                    i = 1;
+                    mentionError = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), memberMissingAccessList);
+                }
+                return EmbedFactory.getEmbedError(this,
+                        TextManager.getString(getLocale(), Category.MODERATION, "warn_usererror_description", i, mentionError.getMentionText()),
+                        TextManager.getString(getLocale(), TextManager.GENERAL, "wrong_args")
+                );
 
             default:
                 eb = getConfirmationEmbed();
