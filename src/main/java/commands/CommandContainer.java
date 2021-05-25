@@ -392,8 +392,12 @@ public class CommandContainer {
             MainLogger.get().error("Command \"{}\" stuck (stuck counter: {})", command.getTrigger(), ++commandStuckCounter, e);
             commandThread.interrupt();
         } else {
-            commandStuckCounter = 0;
+            commandStuckCounter = Math.max(0, commandStuckCounter - 1);
         }
+    }
+
+    public int getCommandStuckCounter() {
+        return commandStuckCounter;
     }
 
 }

@@ -53,6 +53,7 @@ public class Console {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
+        tasks.put("stuck", this::onStuck);
         tasks.put("routes", this::onRoutes);
         tasks.put("patreon_fetch", this::onPatreonFetch);
         tasks.put("survey", this::onSurvey);
@@ -86,6 +87,10 @@ public class Console {
         tasks.put("internet", this::onInternetConnection);
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_channel", this::onSendChannel);
+    }
+
+    private void onStuck(String[] args) {
+        MainLogger.get().info("Cluster {} command stuck counter: {}", Program.getClusterId(), CommandContainer.getInstance().getCommandStuckCounter());
     }
 
     private void onRoutes(String[] args) {
