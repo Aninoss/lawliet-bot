@@ -57,10 +57,11 @@ public class DiscordConnector {
             .setActivity(Activity.watching(getActivityText()))
             .setHttpClient(IOUtil.newHttpClientBuilder().addInterceptor(interceptor).build())
             .setWebsocketFactory(new WebSocketFactory())
-            .setRateLimitPool(ThreadingConfig.newScheduler(16, () -> "JDA", "RateLimit", false))
-            .setGatewayPool(ThreadingConfig.newScheduler(8, () -> "JDA", "Gateway", true))
+            .setRateLimitPool(ThreadingConfig.newScheduler(32, () -> "JDA", "RateLimit", false))
+            .setGatewayPool(ThreadingConfig.newScheduler(16, () -> "JDA", "Gateway", true))
             .setCallbackPool(ForkJoinPool.commonPool())
-            .setAudioPool(ThreadingConfig.newScheduler(2, () -> "JDA", "Audio", true))
+            .setAudioPool(ThreadingConfig.newScheduler(4, () -> "JDA", "Audio", true))
+            .setRawEventsEnabled(true)
             .addEventListeners(new DiscordEventAdapter());
 
     private DiscordConnector() {
