@@ -11,14 +11,15 @@ import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
-import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "blackjack",
@@ -31,9 +32,10 @@ public class BlackjackCommand extends CasinoAbstract {
 
     private enum PlayerType { PLAYER, DEALER }
 
-    private final String[] ACTION_EMOJIS = { "📥", "✋" };
-    private final int TIME_BETWEEN_EVENTS = 2500;
-    private final int TIME_BEFORE_END = 1500;
+    private static final int TIME_BETWEEN_EVENTS = 2500;
+    private static final int TIME_BEFORE_END = 1500;
+    private static final String BUTTON_ID_HIT = "hit";
+    private static final String BUTTON_ID_STAND = "stand";
 
     private final HashMap<Integer, ArrayList<GameCard>> gameCards = new HashMap<>();
     private PlayerType cardRecentDrawn = null;
@@ -44,7 +46,7 @@ public class BlackjackCommand extends CasinoAbstract {
     }
 
     @Override
-    public String[] onGameStart(GuildMessageReceivedEvent event, String args) {
+    public boolean onGameStart(GuildMessageReceivedEvent event, String args) {
         for (PlayerType value : PlayerType.values()) {
             ArrayList<GameCard> cards = getCardsForPlayer(value);
             for (int i = 0; i < 2 - value.ordinal(); i++) {
@@ -52,13 +54,17 @@ public class BlackjackCommand extends CasinoAbstract {
             }
         }
 
-        return ACTION_EMOJIS;
+        setButtons(
+                new MessageButton(ButtonStyle.PRIMARY, getString("hit"), BUTTON_ID_HIT),
+                new MessageButton(ButtonStyle.SECONDARY, getString("stand"), BUTTON_ID_STAND)
+        );
+        return true;
     }
 
     @Override
-    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
+    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
         if (turnForPlayer) {
-            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), ACTION_EMOJIS[0])) {
+            if (event.getCustomId().equals(BUTTON_ID_HIT)) {
                 getCardsForPlayer(PlayerType.PLAYER).add(new GameCard());
                 cardRecentDrawn = PlayerType.PLAYER;
                 setLog(LogStatus.SUCCESS, getString("getcard", 0));
@@ -72,9 +78,10 @@ public class BlackjackCommand extends CasinoAbstract {
                     });
                 }
                 return true;
-            } else if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), ACTION_EMOJIS[1])) {
+            } else if (event.getCustomId().equals(BUTTON_ID_STAND)) {
                 turnForPlayer = false;
-                deregisterListenersWithReactions();
+                setButtons();
+                deregisterListeners();
 
                 setLog(LogStatus.SUCCESS, getString("stopcard", 0));
                 onCPUTurn();

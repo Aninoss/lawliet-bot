@@ -8,6 +8,9 @@ import constants.Category;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
@@ -15,7 +18,6 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "coinflip",
@@ -25,7 +27,6 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class CoinFlipCommand extends CasinoAbstract {
 
-    private final String[] EMOJIS = { "🇭", "🇹", Emojis.X };
     private final int[] selection = { -1, -1 };
 
     public CoinFlipCommand(Locale locale, String prefix) {
@@ -33,28 +34,29 @@ public class CoinFlipCommand extends CasinoAbstract {
     }
 
     @Override
-    public String[] onGameStart(GuildMessageReceivedEvent event, String args) {
+    public boolean onGameStart(GuildMessageReceivedEvent event, String args) {
         int coinSideSelection = getCoinValue(args);
         if (coinSideSelection >= 0) selection[0] = coinSideSelection;
 
         if (selection[0] != -1) {
             manageEnd();
-            return new String[] {};
+            return true;
         }
 
-        return EMOJIS;
+        setButtons(
+                new MessageButton(ButtonStyle.PRIMARY, getString("heads"), "0"),
+                new MessageButton(ButtonStyle.PRIMARY, getString("tails"), "1"),
+                BUTTON_CANCEL
+        );
+        return true;
     }
 
     @Override
-    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
-        for (int i = 0; i < 2; i++) {
-            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJIS[i])) {
-                selection[0] = i;
-                manageEnd();
-                return true;
-            }
-        }
-        return false;
+    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
+        int i = Integer.parseInt(event.getCustomId());
+        selection[0] = i;
+        manageEnd();
+        return true;
     }
 
     @Override
@@ -65,7 +67,7 @@ public class CoinFlipCommand extends CasinoAbstract {
         eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("template", playerName, StringUtil.numToString(coinsInput)), false);
 
         if (selection[0] == -1) {
-            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("expl", EMOJIS[0], EMOJIS[1]), false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("expl"), false);
         }
 
         if (coinsInput != 0) {
@@ -96,15 +98,16 @@ public class CoinFlipCommand extends CasinoAbstract {
         }
 
         return switch (selection[pos]) {
-            case 0 -> EMOJIS[0];
-            case 1 -> EMOJIS[1];
+            case 0 -> getString("heads");
+            case 1 -> getString("tails");
             default -> EmojiUtil.getLoadingEmojiMention(channel);
         };
     }
 
     private void manageEnd() {
         if (selection[0] == -1) return;
-        deregisterListenersWithReactions();
+        setButtons();
+        deregisterListeners();
 
         MainScheduler.getInstance().schedule(3000, "coinflip_cputhrow", () -> {
             selection[1] = new Random().nextBoolean() ? 1 : 0;

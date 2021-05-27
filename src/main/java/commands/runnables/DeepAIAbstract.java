@@ -7,6 +7,9 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.MessageButton;
+import core.buttons.MessageSendActionAdvanced;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.utils.MentionUtil;
@@ -41,7 +44,10 @@ public abstract class DeepAIAbstract extends Command {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("success", result))
                     .setImage(result);
 
-            event.getChannel().sendMessage(eb.build()).queue();
+            new MessageSendActionAdvanced(event.getChannel())
+                    .appendButtons(new MessageButton(ButtonStyle.LINK, getString("download"), result))
+                    .embed(eb.build())
+                    .queue();
             return true;
         }
 

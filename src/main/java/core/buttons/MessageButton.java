@@ -28,7 +28,9 @@ public class MessageButton implements MessageComponent {
         this.label = label;
         this.value = value;
         this.disabled = disabled;
-        setEmoji(unicodeEmoji);
+        if (unicodeEmoji != null) {
+            setEmoji(unicodeEmoji);
+        }
     }
 
     public MessageButton(ButtonStyle buttonStyle, String label, String value, Emote emote, boolean disabled) {
@@ -36,7 +38,9 @@ public class MessageButton implements MessageComponent {
         this.label = label;
         this.value = value;
         this.disabled = disabled;
-        setEmote(emote);
+        if (emote != null) {
+            setEmote(emote);
+        }
     }
 
     public void setButtonStyle(ButtonStyle buttonStyle) {

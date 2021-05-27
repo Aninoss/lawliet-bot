@@ -7,12 +7,13 @@ import commands.runnables.CasinoAbstract;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.utils.EmojiUtil;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "tower",
@@ -23,7 +24,6 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 )
 public class TowerCommand extends CasinoAbstract {
 
-    private final String[] ACTION_EMOJIS = { "🛠️", "💰" };
     private final double MULTIPLIER_STEP = 0.5;
 
     private boolean showMoreText = false;
@@ -38,30 +38,29 @@ public class TowerCommand extends CasinoAbstract {
     }
 
     @Override
-    public String[] onGameStart(GuildMessageReceivedEvent event, String args) {
+    public boolean onGameStart(GuildMessageReceivedEvent event, String args) {
         showMoreText = true;
-
-        return ACTION_EMOJIS;
+        setButtons(
+                new MessageButton(ButtonStyle.PRIMARY, getString("raise", StringUtil.doubleToString(MULTIPLIER_STEP, 2, getLocale())), "0"),
+                new MessageButton(ButtonStyle.SECONDARY, getString("sell"), "1")
+        );
+        return true;
     }
 
     @Override
-    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
-        for (int i = 0; i < 2; i++) {
-            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), ACTION_EMOJIS[i])) {
-                if (i == 0) {
-                    if (towerMultiplier < 10.0) {
-                        onRaise();
-                    } else {
-                        setLog(LogStatus.FAILURE, getString("cap"));
-                        showMoreText = true;
-                    }
-                } else {
-                    onSell();
-                }
-                return true;
+    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
+        int i = Integer.parseInt(event.getCustomId());
+        if (i == 0) {
+            if (towerMultiplier < 10.0) {
+                onRaise();
+            } else {
+                setLog(LogStatus.FAILURE, getString("cap"));
+                showMoreText = true;
             }
+        } else {
+            onSell();
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -97,10 +96,7 @@ public class TowerCommand extends CasinoAbstract {
         eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("template_start", showMoreText,
                 playerName,
                 StringUtil.numToString(coinsInput),
-                StringUtil.doubleToString(towerMultiplier, 2, getLocale()),
-                ACTION_EMOJIS[0],
-                StringUtil.doubleToString(MULTIPLIER_STEP, 2, getLocale()),
-                ACTION_EMOJIS[1]
+                StringUtil.doubleToString(towerMultiplier, 2, getLocale())
         ), false);
 
         showMoreText = false;

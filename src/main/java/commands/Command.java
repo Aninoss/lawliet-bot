@@ -44,7 +44,7 @@ public abstract class Command implements OnTriggerListener {
     private AtomicGuild atomicGuild;
     private AtomicTextChannel atomicTextChannel;
     private AtomicMember atomicMember;
-    private long drawMessageId = 0;
+    private Message drawMessage = null;
     private LogStatus logStatus = null;
     private String log = "";
     private GuildMessageReceivedEvent event = null;
@@ -95,8 +95,21 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
+    public void setButtons(MessageButton... buttons) {
+        this.buttons = List.of(buttons);
+    }
+
+    public List<MessageButton> getButtons() {
+        return this.buttons;
+    }
+
     public void setButtons(List<MessageButton> buttons) {
         this.buttons = buttons;
+    }
+
+    public synchronized CompletableFuture<Void> redrawMessageWithoutButtons() {
+        setButtons();
+        return drawMessage(new EmbedBuilder(drawMessage.getEmbeds().get(0))).thenApply(m -> null);
     }
 
     public synchronized CompletableFuture<Long> drawMessage(EmbedBuilder eb) {
@@ -122,18 +135,18 @@ public abstract class Command implements OnTriggerListener {
                 }
 
                 MessageActionAdvanced action;
-                if (drawMessageId == 0) {
+                if (drawMessage == null) {
                     action = new MessageSendActionAdvanced(channel);
                 } else {
-                    action = new MessageEditActionAdvanced(channel, drawMessageId);
+                    action = new MessageEditActionAdvanced(channel, drawMessage.getIdLong());
                 }
                 if (buttons != null && buttons.size() > 0) {
                     action = action.appendButtons(buttons);
                 }
                 action.embed(messageEmbed)
                         .queue(message -> {
-                            drawMessageId = message.getIdLong();
-                            future.complete(drawMessageId);
+                            drawMessage = message;
+                            future.complete(drawMessage.getIdLong());
                         }, future::completeExceptionally);
             } else {
                 future.completeExceptionally(new PermissionException("Missing permissions"));
@@ -145,15 +158,19 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public void resetDrawMessage() {
-        drawMessageId = 0;
+        drawMessage = null;
     }
 
-    public void setDrawMessageId(long drawMessageId) {
-        this.drawMessageId = drawMessageId;
+    public void setDrawMessage(Message drawMessage) {
+        this.drawMessage = drawMessage;
+    }
+
+    public Optional<Message> getDrawMessage() {
+        return Optional.ofNullable(drawMessage);
     }
 
     public Optional<Long> getDrawMessageId() {
-        return drawMessageId == 0 ? Optional.empty() : Optional.of(drawMessageId);
+        return getDrawMessage().map(ISnowflake::getIdLong);
     }
 
     public LogStatus getLogStatus() {

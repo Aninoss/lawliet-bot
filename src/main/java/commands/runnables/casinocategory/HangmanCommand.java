@@ -7,13 +7,16 @@ import commands.runnables.CasinoAbstract;
 import constants.Category;
 import constants.LogStatus;
 import constants.Response;
-import core.*;
+import core.EmbedFactory;
+import core.FileManager;
+import core.LocalFile;
+import core.TextManager;
+import core.buttons.GuildComponentInteractionEvent;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "hangman",
@@ -38,17 +41,17 @@ public class HangmanCommand extends CasinoAbstract {
     }
 
     @Override
-    public String[] onGameStart(GuildMessageReceivedEvent event, String args) throws IOException {
+    public boolean onGameStart(GuildMessageReceivedEvent event, String args) throws IOException {
         Random r = new Random();
         List<String> wordList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "hangman_" + getLocale().getDisplayName() + ".txt"));
         answer = wordList.get(r.nextInt(wordList.size()));
         progress = new boolean[answer.length()];
-        return new String[] { "🛑" };
+        setButtons(BUTTON_CANCEL);
+        return true;
     }
 
     @Override
-    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
-        cancel(true, true);
+    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
         return true;
     }
 

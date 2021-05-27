@@ -17,7 +17,7 @@ public abstract class MessageActionAdvanced extends MessageActionImpl {
     public MessageActionAdvanced(MessageChannel channel, Route.CompiledRoute compiledRoute) {
         super(
                 channel.getJDA(),
-                Route.Messages.SEND_MESSAGE.compile(channel.getId()),
+                compiledRoute,
                 channel
         );
     }
@@ -62,11 +62,9 @@ public abstract class MessageActionAdvanced extends MessageActionImpl {
     @Override
     protected DataObject getJSON() {
         DataObject dataObject = super.getJSON();
-        if (rows.size() > 0) {
-            List<DataObject> rowDataObjects = this.rows.stream().map(MessageComponent::getJSON).collect(Collectors.toList());
-            DataArray rows = DataArray.fromCollection(rowDataObjects);
-            dataObject.put("components", rows);
-        }
+        List<DataObject> rowDataObjects = this.rows.stream().map(MessageComponent::getJSON).collect(Collectors.toList());
+        DataArray rows = DataArray.fromCollection(rowDataObjects);
+        dataObject.put("components", rows);
         return dataObject;
     }
 

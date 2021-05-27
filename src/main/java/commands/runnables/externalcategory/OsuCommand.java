@@ -101,7 +101,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
     protected void sendMessage(TextChannel channel, MessageEmbed eb) {
         channel.sendMessage(eb).queue(message -> {
             if (memberIsAuthor) {
-                setDrawMessageId(message.getIdLong());
+                setDrawMessage(message);
                 registerReactionListener();
                 message.getTextChannel().addReactionById(message.getIdLong(), EMOJI_CONNECT).queue();
             }

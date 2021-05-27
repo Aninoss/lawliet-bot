@@ -2,7 +2,6 @@ package commands.runnables.casinocategory;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -14,15 +13,16 @@ import constants.LogStatus;
 import constants.Settings;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.internet.HttpRequest;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
-import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -52,7 +52,7 @@ public class QuizCommand extends CasinoAbstract {
     }
 
     @Override
-    public String[] onGameStart(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onGameStart(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         String dataString, diffString;
         JSONObject data;
         addLoadingReactionInstantly();
@@ -88,25 +88,21 @@ public class QuizCommand extends CasinoAbstract {
 
         setCompareKey("quiz_" + answers.length + "_" + difficulty);
         MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "quiz_timeup", this::onTimeUp);
-        return Arrays.copyOf(Emojis.LETTERS, answers.length);
+        return true;
     }
 
     @Override
-    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
-        for (int i = 0; i < answers.length; i++) {
-            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), Emojis.LETTERS[i])) {
-                onAnswerSelected(i);
-                return true;
-            }
-        }
-        return false;
+    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
+        int i = Integer.parseInt(event.getCustomId());
+        onAnswerSelected(i);
+        return true;
     }
 
     @Override
     public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .addField(getString("question"), question, false)
-                .addField(getString("answers"), getAnswersString(), false);
+                .addField(getString("question"), question, false);
+        setAnswersButtons();
 
         if (coinsInput != 0) {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
@@ -121,20 +117,24 @@ public class QuizCommand extends CasinoAbstract {
         return eb;
     }
 
-    private String getAnswersString() {
-        StringBuilder sb = new StringBuilder();
+    private void setAnswersButtons() {
+        ArrayList<MessageButton> buttons = new ArrayList<>();
         for (int i = 0; i < answers.length; i++) {
+            ButtonStyle style;
             if (getStatus() != Status.ACTIVE && correctAnswer == i) {
-                sb.append(Emojis.CHECKMARK);
+                style = ButtonStyle.SUCCESS;
             } else if (getStatus() != Status.ACTIVE && answerSelected == i) {
-                sb.append(Emojis.X);
+                style = ButtonStyle.DANGER;
             } else {
-                sb.append(Emojis.LETTERS[i]);
+                style = ButtonStyle.SECONDARY;
             }
-            sb.append(" | ").append(answers[i]).append("\n");
+            buttons.add(new MessageButton(style, answers[i], String.valueOf(i), (String)null, getStatus() != Status.ACTIVE));
         }
 
-        return sb.toString();
+        if (getStatus() != Status.ACTIVE) {
+            buttons.add(new MessageButton(ButtonStyle.PRIMARY, TextManager.getString(getLocale(), Category.CASINO, "casino_retry"), BUTTON_ID_RETRY));
+        }
+        setButtons(buttons);
     }
 
     private void onTimeUp() {

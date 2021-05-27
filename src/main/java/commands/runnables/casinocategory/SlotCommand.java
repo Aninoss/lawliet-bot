@@ -9,13 +9,15 @@ import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "slot",
@@ -29,7 +31,6 @@ public class SlotCommand extends CasinoAbstract {
     private final String[] FRUITS_CONTAINER = { "🍇", "🍈", "🍉", "🍊", "🍋", "🍌", "🍍", "🍎", "🍐", "🍑", "🍒", "🍓", "🆒" };
     private final double[] WIN_POSSIBILITIES = { 10, 20, 100, 200 };
     private final double[] WIN_AMOUNT_ADJUSTMENT = { 1.4, 1.15, 0.85, 0.6 };
-    private final String ALL_EMOJI = Emojis.CHECKMARK;
 
     private int winLevel;
     private int progress = 0;
@@ -41,7 +42,7 @@ public class SlotCommand extends CasinoAbstract {
     }
 
     @Override
-    public String[] onGameStart(GuildMessageReceivedEvent event, String args) {
+    public boolean onGameStart(GuildMessageReceivedEvent event, String args) {
         double n = new Random().nextDouble();
 
         winLevel = 0;
@@ -54,7 +55,11 @@ public class SlotCommand extends CasinoAbstract {
         }
 
         setFruits();
-        return new String[] { ALL_EMOJI, Emojis.X };
+        setButtons(
+                new MessageButton(ButtonStyle.PRIMARY, getString("go"), "go"),
+                BUTTON_CANCEL
+        );
+        return true;
     }
 
     private void setFruits() {
@@ -120,8 +125,9 @@ public class SlotCommand extends CasinoAbstract {
     }
 
     @Override
-    public boolean onReactionCasino(GenericGuildMessageReactionEvent event) {
-        deregisterListenersWithReactions();
+    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
+        setButtons();
+        deregisterListeners();
 
         MainScheduler.getInstance().schedule(1000, "slot_0", () -> unlockFruit(0));
         MainScheduler.getInstance().schedule(2000, "slot_1", () -> unlockFruit(1));
@@ -157,7 +163,6 @@ public class SlotCommand extends CasinoAbstract {
                 Emojis.SLOT_LR2,
                 Emojis.SLOT_LR3,
                 Emojis.SLOT_UL,
-                ALL_EMOJI,
                 Emojis.SPACEHOLDER
         ));
 
@@ -184,7 +189,7 @@ public class SlotCommand extends CasinoAbstract {
     private void manageEnd() {
         if (progress < 3) return;
 
-        deregisterListenersWithReactions();
+        deregisterListeners();
         if (winLevel == 0) {
             lose();
             setLog(LogStatus.LOSE, getString("end", 0));
