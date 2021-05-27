@@ -1,6 +1,5 @@
 package commands.listeners;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -10,41 +9,28 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import core.MainLogger;
-import core.RestActionQueue;
+import core.buttons.GuildComponentInteractionEvent;
 import core.utils.BotPermissionUtil;
-import core.utils.EmojiUtil;
 import core.utils.ExceptionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
-import net.dv8tion.jda.api.exceptions.PermissionException;
 
-public interface OnReactionListener {
+public interface OnButtonListener {
 
-    boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable;
+    boolean onButton(GuildComponentInteractionEvent event) throws Throwable;
 
     EmbedBuilder draw() throws Throwable;
 
-    default CompletableFuture<Long> registerReactionListener(String... emojis) {
+    default CompletableFuture<Long> registerButtonListener() {
         Command command = (Command) this;
         return command.getMember().map(member ->
-                registerReactionListener(member.getIdLong(), event -> event.getUserIdLong() == member.getIdLong() &&
-                        event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
-                        (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)))
-                ).thenApply(messageId -> {
-                    command.getTextChannel().ifPresent(channel -> {
-                        RestActionQueue restActionQueue = new RestActionQueue();
-                        Arrays.stream(emojis).forEach(emoji -> restActionQueue.attach(channel.addReactionById(messageId, EmojiUtil.emojiAsReactionTag(emoji))));
-                        if (restActionQueue.isSet()) {
-                            restActionQueue.getCurrentRestAction().queue();
-                        }
-                    });
-                    return messageId;
-                })
+                registerButtonListener(member.getIdLong(), event -> event.getMember().getIdLong() == member.getIdLong() &&
+                        event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L)
+                )
         ).orElse(null);
     }
 
-    default CompletableFuture<Long> registerReactionListener(long authorId, Function<GenericGuildMessageReactionEvent, Boolean> validityChecker) {
+    default CompletableFuture<Long> registerButtonListener(long authorId, Function<GuildComponentInteractionEvent, Boolean> validityChecker) {
         Command command = (Command) this;
 
         Runnable onTimeOut = () -> {
@@ -58,15 +44,15 @@ public interface OnReactionListener {
 
         Runnable onOverridden = () -> {
             try {
-                onReactionOverridden();
+                onButtonOverridden();
             } catch (Throwable throwable) {
                 MainLogger.get().error("Exception on overridden", throwable);
             }
         };
 
-        CommandListenerMeta<GenericGuildMessageReactionEvent> commandListenerMeta =
+        CommandListenerMeta<GuildComponentInteractionEvent> commandListenerMeta =
                 new CommandListenerMeta<>(authorId, validityChecker, onTimeOut, onOverridden, command);
-        CommandContainer.getInstance().registerListener(OnReactionListener.class, commandListenerMeta);
+        CommandContainer.getInstance().registerListener(OnButtonListener.class, commandListenerMeta);
 
         try {
             if (command.getDrawMessageId().isEmpty()) {
@@ -101,28 +87,11 @@ public interface OnReactionListener {
         command.deregisterListeners();
     }
 
-    default CompletableFuture<Void> deregisterListenersWithReactions() {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        Command command = (Command) this;
-        command.getDrawMessageId().ifPresentOrElse(messageId -> {
-            command.getTextChannel().ifPresentOrElse(channel -> {
-                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE)) {
-                    channel.clearReactionsById(messageId)
-                            .queue(v -> future.complete(null), future::completeExceptionally);
-                } else {
-                    future.completeExceptionally(new PermissionException("Missing permissions"));
-                }
-            }, () -> future.completeExceptionally(new NoSuchElementException("No such text channel")));
-        }, () -> future.completeExceptionally(new NoSuchElementException("No such draw message id")));
-        command.deregisterListeners();
-        return future;
-    }
-
-    default void processReaction(GenericGuildMessageReactionEvent event) {
+    default void processButton(GuildComponentInteractionEvent event) {
         Command command = (Command) this;
 
         try {
-            if (onReaction(event)) {
+            if (onButton(event)) {
                 CommandContainer.getInstance().refreshListeners(command);
                 EmbedBuilder eb = draw();
                 if (eb != null) {
@@ -134,7 +103,7 @@ public interface OnReactionListener {
         }
     }
 
-    default void onReactionOverridden() throws Throwable {
+    default void onButtonOverridden() throws Throwable {
     }
 
 }

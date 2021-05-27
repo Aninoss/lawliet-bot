@@ -16,8 +16,6 @@ import core.RatelimitManager;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
-import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
-import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.suggestions.DBSuggestions;
 import mysql.modules.suggestions.SuggestionsData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -63,7 +61,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     }
 
                     messageAction.queue(message -> {
-                        DBStaticReactionMessages.getInstance().retrieve(message.getGuild().getIdLong()).put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
+                        registerStaticReactionMessage(message);
                         message.addReaction(Emojis.LIKE)
                                 .queue(v -> message.addReaction(Emojis.DISLIKE).queue());
 

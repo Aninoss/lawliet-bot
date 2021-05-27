@@ -13,10 +13,16 @@ import core.TextManager;
 import core.atomicassets.AtomicGuild;
 import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
+import core.buttons.MessageActionAdvanced;
+import core.buttons.MessageButton;
+import core.buttons.MessageEditActionAdvanced;
+import core.buttons.MessageSendActionAdvanced;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
+import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -43,6 +49,7 @@ public abstract class Command implements OnTriggerListener {
     private String log = "";
     private GuildMessageReceivedEvent event = null;
     private boolean canHaveTimeOut = true;
+    private List<MessageButton> buttons;
 
     public Command(Locale locale, String prefix) {
         this.locale = locale;
@@ -88,6 +95,10 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
+    public void setButtons(List<MessageButton> buttons) {
+        this.buttons = buttons;
+    }
+
     public synchronized CompletableFuture<Long> drawMessage(EmbedBuilder eb) {
         EmbedUtil.addLog(eb, logStatus, log);
 
@@ -110,16 +121,20 @@ public abstract class Command implements OnTriggerListener {
                     throw e;
                 }
 
+                MessageActionAdvanced action;
                 if (drawMessageId == 0) {
-                    channel.sendMessage(messageEmbed)
-                            .queue(message -> {
-                                drawMessageId = message.getIdLong();
-                                future.complete(drawMessageId);
-                            }, future::completeExceptionally);
+                    action = new MessageSendActionAdvanced(channel);
                 } else {
-                    channel.editMessageById(drawMessageId, messageEmbed)
-                            .queue(v -> future.complete(drawMessageId), future::completeExceptionally);
+                    action = new MessageEditActionAdvanced(channel, drawMessageId);
                 }
+                if (buttons != null && buttons.size() > 0) {
+                    action = action.appendButtons(buttons);
+                }
+                action.embed(messageEmbed)
+                        .queue(message -> {
+                            drawMessageId = message.getIdLong();
+                            future.complete(drawMessageId);
+                        }, future::completeExceptionally);
             } else {
                 future.completeExceptionally(new PermissionException("Missing permissions"));
             }
@@ -159,9 +174,25 @@ public abstract class Command implements OnTriggerListener {
         this.logStatus = null;
     }
 
+    public void registerStaticReactionMessage(Message message) {
+        DBStaticReactionMessages.getInstance()
+                .retrieve(message.getGuild().getIdLong())
+                .put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
+    }
+
+    public void registerStaticReactionMessage(TextChannel channel, long messageId) {
+        DBStaticReactionMessages.getInstance()
+                .retrieve(channel.getGuild().getIdLong())
+                .put(messageId, new StaticReactionMessageData(
+                        channel.getGuild().getIdLong(),
+                        channel.getIdLong(),
+                        messageId,
+                        getTrigger()
+                ));
+    }
+
     public void deregisterListeners() {
-        CommandContainer.getInstance().deregisterListener(OnReactionListener.class, this);
-        CommandContainer.getInstance().deregisterListener(OnMessageInputListener.class, this);
+        CommandContainer.getInstance().deregisterListeners(this);
     }
 
     public synchronized void onListenerTimeOutSuper() throws Throwable {

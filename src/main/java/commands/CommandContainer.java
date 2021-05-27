@@ -345,9 +345,8 @@ public class CommandContainer {
         cache.put(commandListenerMeta.getCommand().getId(), commandListenerMeta);
     }
 
-    public synchronized void deregisterListener(Class<?> clazz, Command command) {
-        if (listenerMap.containsKey(clazz)) {
-            Cache<Long, CommandListenerMeta<?>> cache = listenerMap.get(clazz);
+    public synchronized void deregisterListeners(Command command) {
+        for (Cache<Long, CommandListenerMeta<?>> cache : listenerMap.values()) {
             cache.invalidate(command.getId());
         }
     }
@@ -370,14 +369,17 @@ public class CommandContainer {
         listenerMap.values().forEach(Cache::cleanUp);
     }
 
-    public synchronized void refreshListener(Class<?> clazz, Command command) {
-        if (listenerMap.containsKey(clazz)) {
-            Cache<Long, CommandListenerMeta<?>> cache = listenerMap.get(clazz);
+    public synchronized void refreshListeners(Command command) {
+        for (Cache<Long, CommandListenerMeta<?>> cache : listenerMap.values()) {
             CommandListenerMeta<?> meta = cache.getIfPresent(command.getId());
             if (meta != null) {
                 cache.put(command.getId(), meta);
             }
         }
+    }
+
+    public synchronized Collection<Class<?>> getListenerClasses() {
+        return listenerMap.keySet();
     }
 
     public synchronized int getListenerSize() {

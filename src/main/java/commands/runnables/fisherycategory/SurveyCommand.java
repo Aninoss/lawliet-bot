@@ -21,8 +21,6 @@ import core.ShardManager;
 import core.TextManager;
 import core.utils.*;
 import javafx.util.Pair;
-import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
-import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.survey.*;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -162,7 +160,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
     }
 
-    private long sendMessages(TextChannel channel, Member member, boolean tracker, BiFunction<Integer, MessageEmbed, Long> messageFunction) throws IOException, InterruptedException {
+    private long sendMessages(TextChannel channel, Member member, boolean tracker, BiFunction<Integer, MessageEmbed, Long> messageFunction) throws IOException {
         SurveyData currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         SurveyData lastSurvey = DBSurvey.getInstance().retrieve(currentSurvey.getSurveyId() - 1);
 
@@ -176,12 +174,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         long messageId = messageFunction.apply(1, eb.build());
-        DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong()).put(messageId, new StaticReactionMessageData(
-                channel.getGuild().getIdLong(),
-                channel.getIdLong(),
-                messageId,
-                getTrigger()
-        ));
+        registerStaticReactionMessage(channel, messageId);
 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {

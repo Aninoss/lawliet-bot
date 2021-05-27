@@ -438,7 +438,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             TextChannel textChannel = channelOpt.get();
             if (!editMode) {
                 Message message = textChannel.sendMessage(getMessageEmbed(false).build()).complete();
-                DBStaticReactionMessages.getInstance().retrieve(message.getGuild().getIdLong()).put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
+                registerStaticReactionMessage(message);
                 ReactionMessagesCache.getInstance().put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
                 if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
                     RestActionQueue restActionQueue = new RestActionQueue();

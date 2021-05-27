@@ -390,21 +390,18 @@ public class CommandManager {
     }
 
     private static void cleanPreviousListeners(Command command, Member member) {
-        cleanPreviousListeners(command, member, OnReactionListener.class);
-        cleanPreviousListeners(command, member, OnMessageInputListener.class);
-    }
+        for (Class<?> clazz : CommandContainer.getInstance().getListenerClasses()) {
+            if (clazz.isInstance(command)) {
+                ArrayList<CommandListenerMeta<?>> metaList = CommandContainer.getInstance().getListeners(clazz).stream()
+                        .filter(meta -> meta.getAuthorId() == member.getIdLong())
+                        .sorted(Comparator.comparing(CommandListenerMeta::getCreationTime))
+                        .collect(Collectors.toCollection(ArrayList::new));
 
-    private static void cleanPreviousListeners(Command command, Member member, Class<?> clazz) {
-        if (clazz.isInstance(command)) {
-            ArrayList<CommandListenerMeta<?>> metaList = CommandContainer.getInstance().getListeners(clazz).stream()
-                    .filter(meta -> meta.getAuthorId() == member.getIdLong())
-                    .sorted(Comparator.comparing(CommandListenerMeta::getCreationTime))
-                    .collect(Collectors.toCollection(ArrayList::new));
-
-            while (metaList.size() >= 2) {
-                CommandListenerMeta<?> meta = metaList.remove(0);
-                CommandContainer.getInstance().deregisterListener(clazz, meta.getCommand());
-                meta.timeOut();
+                while (metaList.size() >= 2) {
+                    CommandListenerMeta<?> meta = metaList.remove(0);
+                    CommandContainer.getInstance().deregisterListeners(meta.getCommand());
+                    meta.timeOut();
+                }
             }
         }
     }

@@ -20,8 +20,6 @@ import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Ticket;
-import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
-import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
 import mysql.modules.ticket.TicketData;
@@ -200,8 +198,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
                 tempPostChannel.sendMessage(eb.build()).queue(message -> {
                     message.addReaction(emoji).queue();
-                    DBStaticReactionMessages.getInstance().retrieve(message.getGuild().getIdLong())
-                            .put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
+                    registerStaticReactionMessage(message);
                 });
 
                 setLog(LogStatus.SUCCESS, getString("message_sent"));
@@ -284,8 +281,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 .embed(eb.build())
                 .queue(m -> {
                     m.addReaction(TICKET_CLOSE_EMOJI).queue();
-                    DBStaticReactionMessages.getInstance().retrieve(textChannel.getGuild().getIdLong())
-                            .put(m.getIdLong(), new StaticReactionMessageData(m, getTrigger()));
+                    registerStaticReactionMessage(m);
                 });
 
         /* post announcement to staff channel */

@@ -10,11 +10,11 @@ import net.dv8tion.jda.api.utils.data.DataObject;
 import net.dv8tion.jda.internal.requests.Route;
 import net.dv8tion.jda.internal.requests.restaction.MessageActionImpl;
 
-public class MessageActionAdvanced extends MessageActionImpl {
+public abstract class MessageActionAdvanced extends MessageActionImpl {
 
     private final List<MessageRow> rows = new ArrayList<>();
 
-    public MessageActionAdvanced(MessageChannel channel) {
+    public MessageActionAdvanced(MessageChannel channel, Route.CompiledRoute compiledRoute) {
         super(
                 channel.getJDA(),
                 Route.Messages.SEND_MESSAGE.compile(channel.getId()),

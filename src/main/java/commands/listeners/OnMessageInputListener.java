@@ -79,8 +79,7 @@ public interface OnMessageInputListener {
             Response response = onMessageInput(event, event.getMessage().getContentRaw());
             if (response != null) {
                 if (response == Response.TRUE) {
-                    CommandContainer.getInstance().refreshListener(OnReactionListener.class, command);
-                    CommandContainer.getInstance().refreshListener(OnMessageInputListener.class, command);
+                    CommandContainer.getInstance().refreshListeners(command);
                     if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                         event.getMessage().delete().queue();
                     }

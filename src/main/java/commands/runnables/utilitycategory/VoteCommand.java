@@ -19,7 +19,6 @@ import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
-import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -66,7 +65,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMember().getIdLong());
                 EmbedBuilder eb = getEmbed(voteInfo, true);
                 Message message = event.getChannel().sendMessage(eb.build()).complete();
-                DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
+                registerStaticReactionMessage(message);
                 VoteCache.getInstance().put(message.getIdLong(), voteInfo);
 
                 RestActionQueue restActionQueue = new RestActionQueue();
