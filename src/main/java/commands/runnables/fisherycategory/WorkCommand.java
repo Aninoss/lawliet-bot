@@ -6,8 +6,8 @@ import java.util.Optional;
 import java.util.Random;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
-import commands.listeners.OnReactionListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.FisheryGear;
@@ -15,6 +15,9 @@ import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.utils.EmbedUtil;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
@@ -26,7 +29,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "work",
@@ -35,7 +37,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         executableWithoutArgs = true,
         aliases = { "working", "salary", "w" }
 )
-public class WorkCommand extends Command implements FisheryInterface, OnReactionListener, OnMessageInputListener {
+public class WorkCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {
 
     private final String[] EMOJIS = new String[] { "🐟", "🐠", "🐡", Emojis.EMPTY_EMOJI + Emojis.EMPTY_EMOJI };
 
@@ -55,7 +57,8 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
         Optional<Instant> nextWork = fisheryMemberBean.checkNextWork();
         if (nextWork.isEmpty()) {
             setArea();
-            registerReactionListener(Emojis.X);
+            setButtons(new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "cancel"));
+            registerButtonListener();
             registerMessageInputListener(false);
             return true;
         } else {
@@ -80,7 +83,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
             int number = Integer.parseInt(input);
             if (number >= 0 && number <= area.length * area[0].length) {
                 if (number == fishCounter) {
-                    deregisterListenersWithReactions();
+                    deregisterListenersWithButtons();
                     active = false;
                     long coins = fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect();
                     event.getChannel().sendMessage(fisheryMemberBean.changeValuesEmbed(0, coins).build()).queue();
@@ -99,8 +102,8 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) {
-        deregisterListenersWithReactions();
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        deregisterListenersWithButtons();
         active = false;
         fisheryMemberBean.setWorkCanceled();
         setLog(null, getString("canceled"));
@@ -109,36 +112,11 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
 
     @Override
     public EmbedBuilder draw() throws Throwable {
-        int width = area[0].length + 2;
-        int height = area.length + 2;
-
         StringBuilder areaBuilder = new StringBuilder();
 
-        for (int y = 1; y < height - 1; y++) { //TODO: border removed temporarily
-            for (int x = 1; x < width - 1; x++) {
-                if (y == 0) {
-                    if (x == 0) {
-                        areaBuilder.append(Emojis.SLOT_DR);
-                    } else if (x == width - 1) {
-                        areaBuilder.append(Emojis.SLOT_DL);
-                    } else {
-                        areaBuilder.append(Emojis.SLOT_LR);
-                    }
-                } else if (y == height - 1) {
-                    if (x == 0) {
-                        areaBuilder.append(Emojis.SLOT_UR);
-                    } else if (x == width - 1) {
-                        areaBuilder.append(Emojis.SLOT_UL);
-                    } else {
-                        areaBuilder.append(Emojis.SLOT_LR);
-                    }
-                } else {
-                    if (x == 0 || x == width - 1) {
-                        areaBuilder.append(Emojis.SLOT_UD);
-                    } else {
-                        areaBuilder.append(area[y - 1][x - 1]);
-                    }
-                }
+        for (int y = 0; y < area.length; y++) {
+            for (int x = 0; x < area[0].length; x++) {
+                areaBuilder.append(area[y][x]);
             }
 
             areaBuilder.append("\n");
@@ -161,13 +139,13 @@ public class WorkCommand extends Command implements FisheryInterface, OnReaction
 
     private void setArea() {
         do {
-            area = new String[7][7];
+            area = new String[15][10];
             fishFocus = new Random().nextInt(EMOJIS.length - 1);
             fishCounter = 0;
 
             for (int y = 0; y < area.length; y++) {
                 for (int x = 0; x < area[0].length; x++) {
-                    int i = RandomUtil.pickWithProbabilities(1.0 / 8, 1.0 / 10, 1.0 / 12);
+                    int i = RandomUtil.pickWithProbabilities(1.0 / 16, 1.0 / 20, 1.0 / 24);
                     if (i == fishFocus) {
                         fishCounter++;
                     }

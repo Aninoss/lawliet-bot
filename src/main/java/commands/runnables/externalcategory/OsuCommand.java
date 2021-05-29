@@ -3,14 +3,16 @@ package commands.runnables.externalcategory;
 import java.util.Locale;
 import java.util.Optional;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionListener;
+import commands.listeners.OnButtonListener;
 import commands.runnables.MemberAccountAbstract;
-import constants.Emojis;
 import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
-import core.utils.BotPermissionUtil;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
+import core.buttons.MessageSendActionAdvanced;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
@@ -21,12 +23,10 @@ import modules.osu.OsuAccountSync;
 import mysql.modules.osuaccounts.DBOsuAccounts;
 import mysql.modules.osuaccounts.OsuAccountData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "osu",
@@ -35,12 +35,12 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         releaseDate = { 2020, 11, 28 },
         aliases = { "osu!" }
 )
-public class OsuCommand extends MemberAccountAbstract implements OnReactionListener {
+public class OsuCommand extends MemberAccountAbstract implements OnButtonListener {
 
     private enum Status { DEFAULT, CONNECTING, ABORTED }
 
-    private final static String EMOJI_CONNECT = "🔍";
-    private final static String EMOJI_CANCEL = Emojis.X;
+    private final static String BUTTON_ID_CONNECT = "connect";
+    private final static String BUTTON_ID_CANCEL = "cancel";
     private final static String GUEST = "Guest";
 
     private boolean memberIsAuthor;
@@ -73,7 +73,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
         }
 
         if (memberIsAuthor && OsuAccountSync.getInstance().getUserInCache(member.getIdLong()).isEmpty()) {
-            EmbedUtil.addLog(eb, getString("react", userExists, EMOJI_CONNECT));
+            setButtons(new MessageButton(ButtonStyle.PRIMARY, getString("connect", userExists), BUTTON_ID_CONNECT));
         }
 
         return eb;
@@ -99,22 +99,22 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
 
     @Override
     protected void sendMessage(TextChannel channel, MessageEmbed eb) {
-        channel.sendMessage(eb).queue(message -> {
-            if (memberIsAuthor) {
-                setDrawMessage(message);
-                registerReactionListener();
-                message.getTextChannel().addReactionById(message.getIdLong(), EMOJI_CONNECT).queue();
-            }
-        });
+        new MessageSendActionAdvanced(channel)
+                .appendButtons(getButtons())
+                .embed(eb)
+                .queue(message -> {
+                    if (memberIsAuthor) {
+                        setDrawMessage(message);
+                        registerButtonListener();
+                    }
+                });
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CONNECT) &&
-                status == Status.DEFAULT
-        ) {
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        if (event.getCustomId().equals(BUTTON_ID_CONNECT)) {
             this.status = Status.CONNECTING;
-            DBOsuAccounts.getInstance().retrieve().remove(event.getUserIdLong());
+            DBOsuAccounts.getInstance().retrieve().remove(event.getMember().getIdLong());
 
             Optional<String> osuUsernameOpt = event.getMember().getActivities().stream()
                     .map(OsuAccountCheck::getOsuUsernameFromActivity)
@@ -125,7 +125,8 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
             if (osuUsernameOpt.isPresent()) {
                 String osuUsername = osuUsernameOpt.get();
                 if (!osuUsername.equals(GUEST)) {
-                    deregisterListenersWithReactions();
+                    setButtons();
+                    deregisterListeners();
                     Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode).get();
                     this.osuName = osuUsername;
                     this.osuAccount = osuAccountOptional.orElse(null);
@@ -135,18 +136,11 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
                 }
             }
 
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
-                event.getChannel().clearReactionsById(getDrawMessageId().get())
-                        .queue(v -> event.getChannel().addReactionById(getDrawMessageId().get(), EMOJI_CANCEL).queue());
-            } else {
-                event.getChannel().removeReactionById(getDrawMessageId().get(), EMOJI_CONNECT)
-                        .queue(v -> event.getChannel().addReactionById(getDrawMessageId().get(), EMOJI_CANCEL).queue());
-            }
-
-            OsuAccountSync.getInstance().add(event.getUserIdLong(), osuUsername -> {
+            OsuAccountSync.getInstance().add(event.getMember().getIdLong(), osuUsername -> {
                 if (!osuUsername.equals(GUEST)) {
-                    deregisterListenersWithReactions();
-                    OsuAccountSync.getInstance().remove(event.getUserIdLong());
+                    setButtons();
+                    deregisterListeners();
+                    OsuAccountSync.getInstance().remove(event.getMember().getIdLong());
                     OsuAccountDownloader.download(osuUsername, gameMode)
                             .thenAccept(osuAccountOptional -> {
                                 this.osuName = osuUsername;
@@ -159,11 +153,10 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
                 }
             });
             return true;
-        } else if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
-                status == Status.CONNECTING
-        ) {
-            deregisterListenersWithReactions();
-            OsuAccountSync.getInstance().remove(event.getUserIdLong());
+        } else if (event.getCustomId().equals(BUTTON_ID_CANCEL) && status == Status.CONNECTING) {
+            setButtons();
+            deregisterListeners();
+            OsuAccountSync.getInstance().remove(event.getMember().getIdLong());
             this.osuAccount = null;
             this.status = Status.ABORTED;
             return true;
@@ -175,8 +168,11 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
     public EmbedBuilder draw() {
         switch (status) {
             case CONNECTING:
+                setButtons(
+                        new MessageButton(ButtonStyle.PRIMARY, getString("refresh"), BUTTON_ID_CONNECT),
+                        new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), BUTTON_ID_CANCEL)
+                );
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
-                setLog(null, getString("synch_abort", EMOJI_CANCEL));
                 return eb;
 
             case ABORTED:
@@ -184,6 +180,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnReactionListe
 
             default:
                 if (osuAccount != null) {
+                    setButtons(new MessageButton(ButtonStyle.PRIMARY, getString("connect", 1), BUTTON_ID_CONNECT));
                     eb = generateAccountEmbed(getMember().get(), osuAccount);
                     EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("connected"));
                 } else {

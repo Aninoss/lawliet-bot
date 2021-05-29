@@ -72,6 +72,12 @@ public interface OnButtonListener {
         return CompletableFuture.failedFuture(new NoSuchElementException("No message sent"));
     }
 
+    default void deregisterListenersWithButtons() {
+        Command command = (Command) this;
+        command.setButtons();
+        command.deregisterListeners();
+    }
+
     default void deregisterListenersWithMessage() {
         Command command = (Command) this;
         command.getDrawMessageId().ifPresent(messageId -> {

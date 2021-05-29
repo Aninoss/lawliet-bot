@@ -3,13 +3,15 @@ package commands.runnables.fisherycategory;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
-import commands.listeners.OnReactionListener;
 import commands.runnables.FisheryInterface;
-import constants.Emojis;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.ExchangeRate;
@@ -19,7 +21,6 @@ import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "sell",
@@ -28,7 +29,10 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         executableWithoutArgs = true,
         aliases = { "s" }
 )
-public class SellCommand extends Command implements FisheryInterface, OnReactionListener, OnMessageInputListener {
+public class SellCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {
+
+    private static final String BUTTON_ID_SELLALL = "sell_all";
+    private static final String BUTTON_ID_CANCEL = "cancel";
 
     private FisheryMemberData userBean;
     private EmbedBuilder eb;
@@ -56,7 +60,11 @@ public class SellCommand extends Command implements FisheryInterface, OnReaction
                             Fishery.getChangeEmoji()
                     )
             );
-            registerReactionListener(Emojis.X);
+            setButtons(
+                    new MessageButton(ButtonStyle.PRIMARY, getString("sellall"), BUTTON_ID_SELLALL),
+                    new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), BUTTON_ID_CANCEL)
+            );
+            registerButtonListener();
             registerMessageInputListener(false);
             return true;
         }
@@ -64,14 +72,18 @@ public class SellCommand extends Command implements FisheryInterface, OnReaction
 
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
-        deregisterListenersWithReactions();
+        deregisterListenersWithButtons();
         return process(event, input) ? Response.TRUE : Response.FALSE;
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        deregisterListenersWithReactions();
-        markNoInterest();
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        deregisterListenersWithButtons();
+        if (event.getCustomId().equals(BUTTON_ID_CANCEL)) {
+            markNoInterest();
+        } else if (event.getCustomId().equals(BUTTON_ID_SELLALL)){
+            process(event, "all");
+        }
         return true;
     }
 
@@ -82,7 +94,7 @@ public class SellCommand extends Command implements FisheryInterface, OnReaction
 
     @Override
     public void onMessageInputOverridden() throws Throwable {
-        deregisterListenersWithReactions();
+        deregisterListenersWithButtons();
     }
 
     private boolean process(GuildMessageReceivedEvent event, String args) {

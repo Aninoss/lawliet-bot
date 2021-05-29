@@ -126,8 +126,7 @@ public class SlotCommand extends CasinoAbstract {
 
     @Override
     public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
-        setButtons();
-        deregisterListeners();
+        deregisterListenersWithButtons();
 
         MainScheduler.getInstance().schedule(1000, "slot_0", () -> unlockFruit(0));
         MainScheduler.getInstance().schedule(2000, "slot_1", () -> unlockFruit(1));

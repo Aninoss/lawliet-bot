@@ -5,10 +5,13 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
-import commands.listeners.OnReactionListener;
+import commands.listeners.OnButtonListener;
 import constants.LogStatus;
 import constants.TrackerResult;
 import core.EmbedFactory;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.JDAUtil;
@@ -20,7 +23,6 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "exch",
@@ -29,7 +31,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         executableWithoutArgs = true,
         aliases = { "exchangerate", "er", "exchr", "exchange", "exchf", "exchforecast", "exchangerateforecast", "erforecast", "exchrforecast", "exchangeforecast" }
 )
-public class ExchangeRateCommand extends Command implements OnReactionListener, OnAlertListener {
+public class ExchangeRateCommand extends Command implements OnButtonListener, OnAlertListener {
 
     private String textInclude = null;
 
@@ -40,9 +42,8 @@ public class ExchangeRateCommand extends Command implements OnReactionListener, 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false) >= 2) {
-            String emojiForecast = "🔮";
-            textInclude = getString("forecast_react", emojiForecast);
-            registerReactionListener(emojiForecast);
+            setButtons(new MessageButton(ButtonStyle.PRIMARY, getString("forecast_button"), "forecast"));
+            registerButtonListener();
         } else {
             textInclude = getString("forecast_patreon");
             drawMessage(generateEmbed(false));
@@ -76,8 +77,8 @@ public class ExchangeRateCommand extends Command implements OnReactionListener, 
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) {
-        deregisterListenersWithReactions();
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        deregisterListenersWithButtons();
         try {
             JDAUtil.sendPrivateMessage(event.getMember(), generateUserEmbed().build())
                     .complete();

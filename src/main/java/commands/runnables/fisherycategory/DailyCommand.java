@@ -12,6 +12,9 @@ import constants.FisheryGear;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.MessageButton;
+import core.buttons.MessageSendActionAdvanced;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -64,10 +67,14 @@ public class DailyCommand extends Command implements FisheryInterface {
             }
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("codeblock", sb.toString()));
-            eb.addField(getString("didyouknow_title"), getString("didyouknow_desc", ExternalLinks.PATREON_PAGE, ExternalLinks.UPVOTE_URL), false);
+            eb.addField(getString("didyouknow_title"), getString("didyouknow_desc"), false);
             if (breakStreak) EmbedUtil.addLog(eb, LogStatus.LOSE, getString("combobreak"));
 
-            event.getChannel().sendMessage(eb.build()).queue();
+            new MessageSendActionAdvanced(event.getChannel())
+                    .appendButtons(new MessageButton(ButtonStyle.LINK, getString("upvote"), ExternalLinks.UPVOTE_URL))
+                    .appendButtons(new MessageButton(ButtonStyle.LINK, getString("patreon"), ExternalLinks.PATREON_PAGE))
+                    .embed(eb.build())
+                    .queue();
             event.getChannel().sendMessage(userBean.changeValuesEmbed(fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build()).queue();
 
             return true;

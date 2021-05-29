@@ -2,17 +2,21 @@ package commands.runnables;
 
 import java.util.Locale;
 import commands.Command;
-import commands.listeners.OnReactionListener;
+import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.utils.EmbedUtil;
-import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
-public abstract class ListAbstract extends Command implements OnReactionListener {
+public abstract class ListAbstract extends Command implements OnButtonListener {
+
+    private static final String BUTTON_ID_PREVIOUS = "prev";
+    private static final String BUTTON_ID_NEXT = "next";
 
     private int page = 0;
     private final int entriesPerPage;
@@ -34,16 +38,20 @@ public abstract class ListAbstract extends Command implements OnReactionListener
                 page = Math.min(getPageSize(), pageStart) - 1;
             }
         }
-        registerReactionListener(SCROLL_EMOJIS);
+        setButtons(
+                new MessageButton(ButtonStyle.PRIMARY, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous"), BUTTON_ID_PREVIOUS),
+                new MessageButton(ButtonStyle.PRIMARY, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"), BUTTON_ID_NEXT)
+        );
+        registerButtonListener();
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) {
-        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), SCROLL_EMOJIS[0])) {
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        if (event.getCustomId().equals(BUTTON_ID_PREVIOUS)) {
             page--;
             if (page < 0) page = getPageSize() - 1;
             return true;
-        } else if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), SCROLL_EMOJIS[1])) {
+        } else if (event.getCustomId().equals(BUTTON_ID_NEXT)) {
             page++;
             if (page > getPageSize() - 1) page = 0;
             return true;

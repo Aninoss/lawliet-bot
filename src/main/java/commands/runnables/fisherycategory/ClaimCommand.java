@@ -9,6 +9,9 @@ import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.buttons.ButtonStyle;
+import core.buttons.MessageButton;
+import core.buttons.MessageSendActionAdvanced;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -42,25 +45,32 @@ public class ClaimCommand extends Command implements FisheryInterface {
         int upvotesUnclaimed = userBean.getUpvoteStack();
         userBean.clearUpvoteStack();
 
+        MessageButton upvoteButton = new MessageButton(ButtonStyle.LINK, getString("button"), ExternalLinks.UPVOTE_URL);
         if (upvotesUnclaimed == 0) {
             EmbedBuilder eb;
             if (DBAutoClaim.getInstance().retrieve().isActive(event.getMember().getIdLong())) {
-                eb = EmbedFactory.getEmbedDefault(this, getString("autoclaim", ExternalLinks.UPVOTE_URL));
+                eb = EmbedFactory.getEmbedDefault(this, getString("autoclaim"));
             } else {
-                eb = EmbedFactory.getEmbedDefault(this, getString("nothing_description", ExternalLinks.UPVOTE_URL))
+                eb = EmbedFactory.getEmbedDefault(this, getString("nothing_description"))
                         .setColor(EmbedFactory.FAILED_EMBED_COLOR);
             }
 
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
-            event.getChannel().sendMessage(eb.build()).queue();
+            new MessageSendActionAdvanced(event.getChannel())
+                    .appendButtons(upvoteButton)
+                    .embed(eb.build())
+                    .queue();
             return false;
         } else {
             long fishes = Fishery.getClaimValue(userBean);
 
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(upvotesUnclaimed), StringUtil.numToString(Math.round(fishes * upvotesUnclaimed)), ExternalLinks.UPVOTE_URL));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(upvotesUnclaimed), StringUtil.numToString(Math.round(fishes * upvotesUnclaimed))));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
-            event.getChannel().sendMessage(eb.build()).queue();
+            new MessageSendActionAdvanced(event.getChannel())
+                    .appendButtons(upvoteButton)
+                    .embed(eb.build())
+                    .queue();
             event.getChannel().sendMessage(userBean.changeValuesEmbed(fishes * upvotesUnclaimed, 0).build()).queue();
             return true;
         }

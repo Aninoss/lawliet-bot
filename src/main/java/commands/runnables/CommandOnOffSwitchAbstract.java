@@ -2,17 +2,17 @@ package commands.runnables;
 
 import java.util.Locale;
 import commands.Command;
-import commands.listeners.OnReactionListener;
-import constants.Emojis;
+import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.TextManager;
-import core.utils.EmojiUtil;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
-public abstract class CommandOnOffSwitchAbstract extends Command implements OnReactionListener {
+public abstract class CommandOnOffSwitchAbstract extends Command implements OnButtonListener {
 
     private enum Mode { PENDING, SET, ERROR }
 
@@ -59,27 +59,25 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnRe
             event.getChannel().sendMessage((eb).build())
                     .queue();
         } else {
-            registerReactionListener(Emojis.CHECKMARK, Emojis.X);
+            setButtons(
+                    new MessageButton(ButtonStyle.SUCCESS, TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 1), "true"),
+                    new MessageButton(ButtonStyle.DANGER, TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 0), "false")
+            );
+            registerButtonListener();
         }
         return true;
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) {
-        for (int i = 0; i < 2; i++) {
-            String str = StringUtil.getEmojiForBoolean(i == 1);
-            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), str)) {
-                deregisterListenersWithReactions();
-                boolean active = i == 1;
-                if (setActive(active)) {
-                    mode = Mode.SET;
-                } else {
-                    mode = Mode.ERROR;
-                }
-                return true;
-            }
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        deregisterListenersWithButtons();
+        boolean active = Boolean.parseBoolean(event.getCustomId());
+        if (setActive(active)) {
+            mode = Mode.SET;
+        } else {
+            mode = Mode.ERROR;
         }
-        return false;
+        return true;
     }
 
     @Override

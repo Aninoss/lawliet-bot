@@ -19,6 +19,9 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.Settings;
 import core.*;
+import core.buttons.ButtonStyle;
+import core.buttons.MessageButton;
+import core.buttons.MessageSendActionAdvanced;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
 import core.schedule.MainScheduler;
@@ -98,9 +101,12 @@ public class CommandManager {
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setThumbnail(ShardManager.getInstance().getSelf().getAvatarUrl())
-                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite", ExternalLinks.BOT_INVITE_REMINDER_URL));
+                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite"));
 
-            event.getChannel().sendMessage(eb.build()).queue();
+            new MessageSendActionAdvanced(event.getChannel())
+                    .appendButtons(new MessageButton(ButtonStyle.LINK, TextManager.getString(locale, TextManager.GENERAL, "invite_button"), ExternalLinks.BOT_INVITE_REMINDER_URL))
+                    .embed(eb.build())
+                    .queue();
         }
     }
 
@@ -168,7 +174,7 @@ public class CommandManager {
             return true;
         }
 
-        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description", ExternalLinks.PATREON_PAGE, ExternalLinks.UNLOCK_SERVER_WEBSITE);
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description");
         String waitTime = TextManager.getString(command.getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(command.getLocale(), Instant.now(), TimeUtil.localDateToInstant(releaseDate), false));
 
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
@@ -177,9 +183,9 @@ public class CommandManager {
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);
             EmbedUtil.addLog(eb, LogStatus.TIME, waitTime);
-            sendError(event, command.getLocale(), eb, false);
+            sendError(event, command.getLocale(), eb, false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         } else if (BotPermissionUtil.canWrite(event.getChannel())) {
-            sendErrorNoEmbed(event, command.getLocale(), desc + "\n\n`" + waitTime + "`", false);
+            sendErrorNoEmbed(event, command.getLocale(), desc + "\n\n`" + waitTime + "`", false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         }
 
         return false;
@@ -194,9 +200,9 @@ public class CommandManager {
         }
 
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            sendError(event, command.getLocale(), EmbedFactory.getPatreonBlockEmbed(command.getLocale()), false);
+            sendError(event, command.getLocale(), EmbedFactory.getPatreonBlockEmbed(command.getLocale()), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         } else if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            sendErrorNoEmbed(event, command.getLocale(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description_noembed"), false);
+            sendErrorNoEmbed(event, command.getLocale(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description_noembed"), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         }
 
         return false;
@@ -266,17 +272,15 @@ public class CommandManager {
         return false;
     }
 
-    private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text, boolean autoDelete) {
+    private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text, boolean autoDelete, MessageButton... buttons) {
         if (BotPermissionUtil.canWrite(event.getChannel())) {
-            MessageAction messageAction;
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
-                messageAction = event.getMessage()
-                        .reply(TextManager.getString(locale, TextManager.GENERAL, "command_block", text));
-            } else {
-                messageAction = event.getChannel()
-                        .sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text));
-            }
+            MessageAction messageAction = new MessageSendActionAdvanced(event.getChannel())
+                    .appendButtons(buttons)
+                    .content(TextManager.getString(locale, TextManager.GENERAL, "command_block", text));
 
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
+                messageAction = messageAction.reference(event.getMessage());
+            }
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
             } else {
@@ -285,21 +289,19 @@ public class CommandManager {
         }
     }
 
-    private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb, boolean autoDelete) {
+    private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb, boolean autoDelete, MessageButton... buttons) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             if (autoDelete) {
                 eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
             }
 
-            MessageAction messageAction;
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
-                messageAction = event.getMessage()
-                        .reply(eb.build());
-            } else {
-                messageAction = event.getChannel()
-                        .sendMessage(eb.build());
-            }
+            MessageAction messageAction = new MessageSendActionAdvanced(event.getChannel())
+                    .appendButtons(buttons)
+                    .embed(eb.build());
 
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
+                messageAction = messageAction.reference(event.getMessage());
+            }
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
             } else {

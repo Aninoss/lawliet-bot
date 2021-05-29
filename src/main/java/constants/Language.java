@@ -5,10 +5,10 @@ import java.util.NoSuchElementException;
 
 public enum Language {
 
-    EN(new Locale("en_us"), "🇬🇧"),
-    DE(new Locale("de_de"), "🇩🇪"),
-    ES(new Locale("es_es"), "🇪🇸"),
-    RU(new Locale("ru_ru"), "🇷🇺");
+    EN(new Locale("en_us"), "🇬🇧", false),
+    DE(new Locale("de_de"), "🇩🇪", false),
+    ES(new Locale("es_es"), "🇪🇸", true),
+    RU(new Locale("ru_ru"), "🇷🇺", false);
 
     public static Language from(Locale locale) {
         for (Language value : Language.values()) {
@@ -21,10 +21,12 @@ public enum Language {
 
     private final Locale locale;
     private final String flag;
+    private final boolean deepLGenerated;
 
-    Language(Locale locale, String flag) {
+    Language(Locale locale, String flag, boolean deepLGenerated) {
         this.locale = locale;
         this.flag = flag;
+        this.deepLGenerated = deepLGenerated;
     }
 
     public Locale getLocale() {
@@ -33,5 +35,9 @@ public enum Language {
 
     public String getFlag() {
         return flag;
+    }
+
+    public boolean isDeepLGenerated() {
+        return deepLGenerated;
     }
 }

@@ -3,20 +3,20 @@ package commands.runnables.fisherysettingscategory;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
-import commands.listeners.OnReactionListener;
-import constants.Emojis;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.utils.EmojiUtil;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.utils.StringUtil;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "vctime",
@@ -27,10 +27,10 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         patreonRequired = true,
         aliases = { "voicechanneltime", "vccap", "voicechannelcap", "vccaps", "vclimit", "vclimits", "vctimeout" }
 )
-public class VCTimeCommand extends Command implements OnReactionListener, OnMessageInputListener {
+public class VCTimeCommand extends Command implements OnButtonListener, OnMessageInputListener {
 
-    private static final String CLEAR_EMOJI = "\uD83D\uDDD1️";
-    private static final String QUIT_EMOJI = Emojis.X;
+    private static final String BUTTON_ID_UNLIMITED = "unlimited";
+    private static final String BUTTON_ID_CANCEL = "cancel";
 
     private GuildData guildBean;
     private EmbedBuilder eb;
@@ -50,13 +50,15 @@ public class VCTimeCommand extends Command implements OnReactionListener, OnMess
                     getString(
                             "status",
                             guildBean.getFisheryVcHoursCap().isPresent(),
-                            guildBean.getFisheryVcHoursCap().map(StringUtil::numToString).orElse(getString("unlimited")),
-                            CLEAR_EMOJI,
-                            QUIT_EMOJI
+                            guildBean.getFisheryVcHoursCap().map(StringUtil::numToString).orElse(getString("unlimited"))
                     )
             );
 
-            registerReactionListener(CLEAR_EMOJI, QUIT_EMOJI);
+            setButtons(
+                    new MessageButton(ButtonStyle.PRIMARY, getString("setunlimited"), BUTTON_ID_UNLIMITED),
+                    new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), BUTTON_ID_CANCEL)
+            );
+            registerButtonListener();
             registerMessageInputListener(false);
         }
         return true;
@@ -95,18 +97,18 @@ public class VCTimeCommand extends Command implements OnReactionListener, OnMess
 
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
-        deregisterListenersWithReactions();
+        deregisterListenersWithButtons();
         this.eb = mainExecution(event, input);
         return Response.TRUE;
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), CLEAR_EMOJI)) {
-            deregisterListenersWithReactions();
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        if (event.getCustomId().equals(BUTTON_ID_UNLIMITED)) {
+            deregisterListenersWithButtons();
             this.eb = markUnlimited();
             return true;
-        } else if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), QUIT_EMOJI)) {
+        } else if (event.getCustomId().equals(BUTTON_ID_CANCEL)) {
             deregisterListenersWithMessage();
             return true;
         }
