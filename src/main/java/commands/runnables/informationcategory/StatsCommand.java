@@ -8,6 +8,9 @@ import constants.ExternalLinks;
 import core.EmbedFactory;
 import core.Program;
 import core.ShardManager;
+import core.buttons.ButtonStyle;
+import core.buttons.MessageButton;
+import core.buttons.MessageSendActionAdvanced;
 import core.utils.BotUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -67,7 +70,10 @@ public class StatsCommand extends Command {
                 ) + "\n\n" + getString("translator", dephordName, neverCookFirstName, laleName)
         );
 
-        event.getChannel().sendMessage(eb.build()).queue();
+        new MessageSendActionAdvanced(event.getChannel())
+                .appendButtons(new MessageButton(ButtonStyle.LINK, getString("invite"), ExternalLinks.BOT_INVITE_URL))
+                .embed(eb.build())
+                .queue();
         return true;
     }
 

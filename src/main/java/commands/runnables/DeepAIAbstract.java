@@ -45,7 +45,7 @@ public abstract class DeepAIAbstract extends Command {
                     .setImage(result);
 
             new MessageSendActionAdvanced(event.getChannel())
-                    .appendButtons(new MessageButton(ButtonStyle.LINK, getString("download"), result))
+                    .appendButtons(new MessageButton(ButtonStyle.LINK, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"), result))
                     .embed(eb.build())
                     .queue();
             return true;

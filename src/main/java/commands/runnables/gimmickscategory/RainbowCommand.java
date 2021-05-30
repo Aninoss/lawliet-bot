@@ -6,7 +6,10 @@ import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
-import core.utils.EmbedUtil;
+import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.MessageButton;
+import core.buttons.MessageEditActionAdvanced;
 import core.utils.StringUtil;
 import modules.graphics.RainbowGraphics;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -53,10 +56,10 @@ public class RainbowCommand extends MemberAccountAbstract {
         channel.sendMessage(eb)
                 .addFile(inputStream, "avatar.png")
                 .queue(message -> {
-                    EmbedBuilder eb2 = EmbedFactory.getEmbedDefault()
-                            .setDescription(getString("template2", message.getEmbeds().get(0).getImage().getProxyUrl()));
-                    EmbedUtil.setFooter(eb2, this);
-                    message.getTextChannel().sendMessage(eb2.build()).queue();
+                    new MessageEditActionAdvanced(message)
+                            .appendButtons(new MessageButton(ButtonStyle.LINK, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"), message.getEmbeds().get(0).getImage().getUrl()))
+                            .embed(eb)
+                            .queue();
                 });
     }
 

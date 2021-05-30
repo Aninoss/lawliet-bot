@@ -10,10 +10,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionListener;
-import constants.Emojis;
+import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
@@ -25,7 +27,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "clear",
@@ -37,7 +38,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         turnOffLoadingReaction = true,
         aliases = { "clean", "purge" }
 )
-public class ClearCommand extends Command implements OnReactionListener {
+public class ClearCommand extends Command implements OnButtonListener {
 
     private boolean interrupt = false;
 
@@ -51,7 +52,7 @@ public class ClearCommand extends Command implements OnReactionListener {
             boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 ||
                     PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
-            long messageId = registerReactionListener(Emojis.X).get();
+            long messageId = registerButtonListener().get();
             TimeUnit.SECONDS.sleep(1);
             ClearResults clearResults = clear(event.getChannel(), patreon, Integer.parseInt(args), event.getMessage().getIdLong(), messageId);
 
@@ -60,7 +61,7 @@ public class ClearCommand extends Command implements OnReactionListener {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
 
             if (!interrupt) {
-                deregisterListenersWithReactions();
+                deregisterListenersWithButtons();
                 drawMessage(eb);
             }
 
@@ -136,8 +137,8 @@ public class ClearCommand extends Command implements OnReactionListener {
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) {
-        deregisterListenersWithReactions();
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        deregisterListenersWithButtons();
         interrupt = true;
         return true;
     }
@@ -145,7 +146,8 @@ public class ClearCommand extends Command implements OnReactionListener {
     @Override
     public EmbedBuilder draw() throws Throwable {
         if (!interrupt) {
-            return EmbedFactory.getEmbedDefault(this, getString("progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get()), Emojis.X));
+            setButtons(new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "cancel"));
+            return EmbedFactory.getEmbedDefault(this, getString("progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));

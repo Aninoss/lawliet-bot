@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionListener;
+import commands.listeners.OnButtonListener;
 import constants.Emojis;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.mention.MentionList;
 import core.mention.MentionValue;
 import core.utils.BotPermissionUtil;
@@ -24,7 +27,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "reminder",
@@ -34,7 +36,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         releaseDate = { 2020, 10, 21 },
         aliases = { "remindme", "remind", "reminders", "schedule", "scheduler", "schedulers" }
 )
-public class ReminderCommand extends Command implements OnReactionListener {
+public class ReminderCommand extends Command implements OnButtonListener {
 
     private ReminderData remindersBean = null;
     private boolean active = true;
@@ -114,7 +116,8 @@ public class ReminderCommand extends Command implements OnReactionListener {
                 .addField(getString("content"), StringUtil.shortenString(messageText, 1024), false);
 
         insertReminderBean(channel, minutes, messageText);
-        registerReactionListener(CANCEL_EMOJI);
+        setButtons(new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "cancel"));
+        registerButtonListener();
         return true;
     }
 
@@ -128,7 +131,13 @@ public class ReminderCommand extends Command implements OnReactionListener {
                 channel.getIdLong(),
                 Instant.now().plus(minutes, ChronoUnit.MINUTES),
                 messageText,
-                () -> cancel(channel.getGuild().getIdLong())
+                () -> {
+                    if (active) {
+                        cancel(channel.getGuild().getIdLong());
+                        setButtons();
+                        drawMessage(draw());
+                    }
+                }
         );
 
         remindersMap.put(remindersBean.getId(), remindersBean);
@@ -136,17 +145,17 @@ public class ReminderCommand extends Command implements OnReactionListener {
     }
 
     private void cancel(long guildId) {
-        if (active) {
-            canceled = true;
-            deregisterListenersWithReactions();
-            DBReminders.getInstance().retrieve(guildId)
-                    .remove(remindersBean.getId(), remindersBean);
-        }
+        canceled = true;
+        DBReminders.getInstance().retrieve(guildId)
+                .remove(remindersBean.getId(), remindersBean);
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) {
-        cancel(event.getGuild().getIdLong());
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        if (active) {
+            deregisterListenersWithButtons();
+            cancel(event.getGuild().getIdLong());
+        }
         return true;
     }
 
@@ -161,7 +170,7 @@ public class ReminderCommand extends Command implements OnReactionListener {
 
     @Override
     public void onListenerTimeOut() {
-        deregisterListenersWithReactions();
+        redrawMessageWithoutButtons();
         active = false;
     }
 

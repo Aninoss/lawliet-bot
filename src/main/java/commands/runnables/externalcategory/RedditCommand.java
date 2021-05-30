@@ -148,8 +148,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 }
 
                 if (embedList.size() > 0) {
-                    MessageEmbed[] embedArray = embedList.toArray(new MessageEmbed[0]);
-                    slot.sendMessage(true, embedArray);
+                    slot.sendMessage(true, embedList);
                 }
 
                 slot.setArgs(postBundle.getNewestPost());

@@ -6,7 +6,6 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.BiFunction;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
@@ -45,7 +44,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     @Override
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws IOException, InterruptedException {
-        sendMessages(event.getChannel(), event.getMember(), false, (i, eb) -> event.getChannel().sendMessage(eb).complete().getIdLong());
+        sendMessages(event.getChannel(), event.getMember(), false);
         return true;
     }
 
@@ -160,12 +159,12 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
     }
 
-    private long sendMessages(TextChannel channel, Member member, boolean tracker, BiFunction<Integer, MessageEmbed, Long> messageFunction) throws IOException {
+    private long sendMessages(TextChannel channel, Member member, boolean tracker) throws IOException {
         SurveyData currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         SurveyData lastSurvey = DBSurvey.getInstance().retrieve(currentSurvey.getSurveyId() - 1);
 
         //Results Message
-        messageFunction.apply(0, getResultsEmbed(lastSurvey, member).build());
+        channel.sendMessage(getResultsEmbed(lastSurvey, member).build()).complete();
 
         //Survey Message
         EmbedBuilder eb = getSurveyEmbed(currentSurvey, tracker);
@@ -173,19 +172,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
         }
 
-        long messageId = messageFunction.apply(1, eb.build());
+        long messageId = channel.sendMessage(eb.build()).complete().getIdLong();
         registerStaticReactionMessage(channel, messageId);
-
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 2; j++) {
-                if (i == 0) {
-                    channel.addReactionById(messageId, Emojis.LETTERS[j]).complete();
-                } else {
-                    channel.addReactionById(messageId, Emojis.RED_LETTERS[j]).complete();
-                }
-            }
-        }
-        channel.addReactionById(messageId, BELL_EMOJI).complete();
 
         return messageId;
     }
@@ -247,13 +235,10 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
                 .setFooter("");
 
         StringBuilder personalString = new StringBuilder();
-        StringBuilder majorityString = new StringBuilder();
         for (int i = 0; i < 2; i++) {
             personalString.append(Emojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
-            majorityString.append(Emojis.RED_LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
         }
         eb.addField(surveyQuestion.getQuestion(), personalString.toString(), false);
-        eb.addField(getString("majority"), majorityString.toString(), false);
 
         Instant after = TimeUtil.localDateToInstant(surveyData.getNextDate());
         if (!tracker) {
@@ -277,7 +262,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).queue());
-        slot.setMessageId(sendMessages(channel, null, true, (i, eb) -> slot.sendMessage(i == 0, eb).get()));
+        slot.setMessageId(sendMessages(channel, null, true));
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 

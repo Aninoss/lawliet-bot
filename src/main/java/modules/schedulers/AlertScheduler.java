@@ -60,7 +60,7 @@ public class AlertScheduler {
             CustomObservableMap<Integer, TrackerData> map = DBTracker.getInstance().retrieve(guildId);
             if (map.containsKey(hash)) {
                 TrackerData slot = map.get(hash);
-                if (slot.isActive() && manageAlert(slot)) {
+                if (slot.isActive() && !slot.getNextRequest().isAfter(Instant.now()) && manageAlert(slot)) {
                     loadAlert(slot);
                 }
             }

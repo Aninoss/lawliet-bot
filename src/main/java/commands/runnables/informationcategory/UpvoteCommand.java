@@ -5,6 +5,10 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.ExternalLinks;
 import core.EmbedFactory;
+import core.buttons.ButtonStyle;
+import core.buttons.MessageButton;
+import core.buttons.MessageSendActionAdvanced;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
@@ -21,9 +25,11 @@ public class UpvoteCommand extends Command {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        event.getChannel().sendMessage(
-                EmbedFactory.getEmbedDefault(this, getString("template", ExternalLinks.UPVOTE_URL)).build()
-        ).queue();
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", ExternalLinks.UPVOTE_URL));
+        new MessageSendActionAdvanced(event.getChannel())
+                .appendButtons(new MessageButton(ButtonStyle.LINK, getString("button"), ExternalLinks.UPVOTE_URL))
+                .embed(eb.build())
+                .queue();
         return true;
     }
 

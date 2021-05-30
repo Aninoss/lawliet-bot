@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnStaticButtonListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
@@ -15,6 +16,10 @@ import constants.Response;
 import core.*;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.MentionableAtomicAsset;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
+import core.buttons.MessageSendActionAdvanced;
 import core.utils.BotPermissionUtil;
 import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
@@ -39,7 +44,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
         executableWithoutArgs = true,
         aliases = { "tickets" }
 )
-public class TicketCommand extends NavigationAbstract implements OnStaticReactionAddListener {
+public class TicketCommand extends NavigationAbstract implements OnStaticReactionAddListener, OnStaticButtonListener {
 
     private final static int MAX_ROLES = 10;
     private final static String TICKET_CLOSE_EMOJI = Emojis.X;
@@ -49,6 +54,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             ADD_STAFF_ROLE = 2,
             REMOVE_STAFF_ROLE = 3,
             CREATE_TICKET_MESSAGE = 4;
+    private final static String BUTTON_ID_CREATE = "create";
+    private final static String BUTTON_ID_CLOSE = "close";
 
     private TicketData ticketData;
     private NavigationHelper<AtomicRole> staffRoleNavigationHelper;
@@ -196,10 +203,10 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("message_content", emoji));
                 eb.setFooter(null);
 
-                tempPostChannel.sendMessage(eb.build()).queue(message -> {
-                    message.addReaction(emoji).queue();
-                    registerStaticReactionMessage(message);
-                });
+                new MessageSendActionAdvanced(tempPostChannel)
+                        .appendButtons(new MessageButton(ButtonStyle.PRIMARY, getString("button_create"), BUTTON_ID_CREATE))
+                        .embed(eb.build())
+                        .queue(this::registerStaticReactionMessage);
 
                 setLog(LogStatus.SUCCESS, getString("message_sent"));
                 setState(MAIN);
@@ -256,33 +263,52 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                 message.removeReaction(getCommandProperties().emoji(), event.getUser()).queue();
             }
-            Optional<TextChannel> existingTicketChannelOpt = findTicketChannelOfUser(ticketData, event.getMember());
-            if (existingTicketChannelOpt.isEmpty()) {
-                Ticket.createTicketChannel(event.getChannel(), event.getMember(), ticketData).ifPresent(channelAction -> {
-                    channelAction.queue(textChannel -> setupNewTicketChannel(ticketData, textChannel, event.getMember()));
-                });
-            } else {
-                TextChannel existingTicketChannel = existingTicketChannelOpt.get();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(ticketData.getGuildBean().getLocale(), getClass(), existingTicketChannel, Permission.MESSAGE_WRITE)) {
-                    existingTicketChannel.sendMessage(event.getMember().getAsMention()).queue();
-                }
-            }
+            onTicketCreate(ticketData, event.getChannel(), event.getMember());
         } else if (ticketChannel != null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), TICKET_CLOSE_EMOJI)) {
-            event.getChannel().delete()
-                    .reason(getCommandLanguage().getTitle())
-                    .queue();
+            onTicketRemove(event.getChannel());
         }
+    }
+
+    @Override
+    public void onStaticButton(GuildComponentInteractionEvent event) {
+        TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
+        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
+
+        if (ticketChannel == null && event.getCustomId().equals(BUTTON_ID_CREATE)) {
+            onTicketCreate(ticketData, event.getChannel(), event.getMember());
+        } else if (ticketChannel != null && event.getCustomId().equals(BUTTON_ID_CLOSE)) {
+            onTicketRemove(event.getChannel());
+        }
+    }
+
+    private void onTicketCreate(TicketData ticketData, TextChannel channel, Member member) {
+        Optional<TextChannel> existingTicketChannelOpt = findTicketChannelOfUser(ticketData, member);
+        if (existingTicketChannelOpt.isEmpty()) {
+            Ticket.createTicketChannel(channel, member, ticketData).ifPresent(channelAction -> {
+                channelAction.queue(textChannel -> setupNewTicketChannel(ticketData, textChannel, member));
+            });
+        } else {
+            TextChannel existingTicketChannel = existingTicketChannelOpt.get();
+            if (PermissionCheckRuntime.getInstance().botHasPermission(ticketData.getGuildBean().getLocale(), getClass(), existingTicketChannel, Permission.MESSAGE_WRITE)) {
+                existingTicketChannel.sendMessage(member.getAsMention()).queue();
+            }
+        }
+    }
+
+    private void onTicketRemove(TextChannel channel) {
+        channel.delete()
+                .reason(getCommandLanguage().getTitle())
+                .queue();
     }
 
     private void setupNewTicketChannel(TicketData ticketData, TextChannel textChannel, Member member) {
         /* member greeting */
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("greeting", TICKET_CLOSE_EMOJI));
-        textChannel.sendMessage(member.getAsMention())
+        new MessageSendActionAdvanced(textChannel)
+                .appendButtons(new MessageButton(ButtonStyle.DANGER, getString("button_close"), BUTTON_ID_CLOSE))
+                .content(member.getAsMention())
                 .embed(eb.build())
-                .queue(m -> {
-                    m.addReaction(TICKET_CLOSE_EMOJI).queue();
-                    registerStaticReactionMessage(m);
-                });
+                .queue(this::registerStaticReactionMessage);
 
         /* post announcement to staff channel */
         AtomicBoolean announcementNotPosted = new AtomicBoolean(true);

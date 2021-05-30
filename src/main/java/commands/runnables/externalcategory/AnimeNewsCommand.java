@@ -62,21 +62,20 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
         }
 
         String thresholdString = slot.getArgs().orElse(null);
-        MessageEmbed[] embeds;
+        List<MessageEmbed> embedList;
         if (thresholdString != null) {
             Instant threshold = Instant.parse(thresholdString);
-            ArrayList<MessageEmbed> embedList = articles.stream()
+            embedList = articles.stream()
                     .filter(article -> article.getPublicationTime().isAfter(threshold))
                     .map(post -> getEmbed(post).build())
                     .collect(Collectors.toCollection(ArrayList::new));
 
             Collections.reverse(embedList);
-            embeds = embedList.toArray(new MessageEmbed[0]);
         } else {
-            embeds = new MessageEmbed[] { getEmbed(articles.get(0)).build() };
+            embedList = List.of(getEmbed(articles.get(0)).build());
         }
 
-        slot.sendMessage(true, embeds);
+        slot.sendMessage(true, embedList);
         slot.setArgs(articles.get(0).getPublicationTime().toString());
         return TrackerResult.CONTINUE_AND_SAVE;
     }

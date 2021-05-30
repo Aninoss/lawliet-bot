@@ -2,15 +2,11 @@ package commands.runnables;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -20,6 +16,9 @@ import constants.*;
 import core.EmbedFactory;
 import core.MainLogger;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.MessageButton;
+import core.buttons.MessageSendActionAdvanced;
 import core.cache.PatreonCache;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
@@ -128,20 +127,40 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                     BotPermissionUtil.canWriteEmbed(event.getChannel());
 
             amount -= pornImages.size();
+            long finalAmount = amount;
             first = false;
 
-            long finalAmount = amount;
-            post(pornImages, args, event.getChannel(), embed, 3, messageTemplate -> {
-                MessageAction messageAction = event.getChannel().sendMessage(messageTemplate);
-                if (finalAmount <= 0) {
-                    messageAction.complete();
-                } else{
-                    messageAction.queue();
+            MessageAction messageAction = new MessageSendActionAdvanced(event.getChannel())
+                    .appendButtons(generateMessageButtons(pornImages));
+            if (embed) {
+                Optional<Message> messageTemplateOpt = generatePostMessagesEmbed(pornImages.get(0), event.getChannel());
+                if (messageTemplateOpt.isPresent()) {
+                    messageAction = messageAction.embed(messageTemplateOpt.get().getEmbeds().get(0));
                 }
-            });
+            } else {
+                Optional<Message> messageTemplateOpt = generatePostMessagesText(pornImages, args, event.getChannel(), 3);
+                if (messageTemplateOpt.isPresent()) {
+                    messageAction = messageAction.content(messageTemplateOpt.get().getContentRaw());
+                }
+            }
+
+            if (finalAmount <= 0) {
+                messageAction.complete();
+            } else {
+                messageAction.queue();
+            }
         } while (amount > 0);
 
         return true;
+    }
+
+    private List<MessageButton> generateMessageButtons(List<PornImage> pornImages) {
+        ArrayList<MessageButton> buttons = new ArrayList<>();
+        String tag = pornImages.size() > 1 ? "porn_source" : "porn_source_single";
+        for (int i = 0; i < pornImages.size(); i++) {
+            buttons.add(new MessageButton(ButtonStyle.LINK, TextManager.getString(getLocale(), Category.NSFW, tag, String.valueOf(i + 1)), pornImages.get(i).getPageUrl()));
+        }
+        return buttons;
     }
 
     private boolean checkServiceAvailable() {
@@ -200,49 +219,54 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             }
         }
 
-        post(pornImages, slot.getCommandKey(), channel, !pornImages.get(0).isVideo(), 1, message -> {
-            if (message.getEmbeds().size() > 0) {
-                slot.sendMessage(true, message.getEmbeds().get(0));
-            } else {
-                slot.sendMessage(true, message.getContentRaw());
-            }
-        });
+        MessageButton messageButton = generateMessageButtons(pornImages).get(0);
+        if (!pornImages.get(0).isVideo()) {
+            Optional<Message> messageTemplateOpt = generatePostMessagesEmbed(pornImages.get(0), channel);
+            messageTemplateOpt.ifPresent(message -> {
+                slot.sendMessage(true, message.getEmbeds().get(0), messageButton);
+            });
+        } else {
+            Optional<Message> messageTemplateOpt = generatePostMessagesText(pornImages, slot.getCommandKey(), channel, 1);
+            messageTemplateOpt.ifPresent(message -> {
+                slot.sendMessage(true, message.getContentRaw(), messageButton);
+            });
+        }
 
         slot.setArgs("found");
         slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         return TrackerResult.CONTINUE_AND_SAVE;
     }
 
-    protected void post(ArrayList<PornImage> pornImages, String search, TextChannel channel, boolean embed, int max, Consumer<Message> embedConsumer) {
-        if (embed) {
-            PornImage pornImage = pornImages.get(0);
+    private Optional<Message> generatePostMessagesEmbed(PornImage pornImage, TextChannel channel) {
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
+                .setImage(pornImage.getImageUrl())
+                .setTimestamp(pornImage.getInstant());
+        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.NSFW, "porn_footer", StringUtil.numToString(pornImage.getScore())));
 
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), Category.NSFW, "porn_link", pornImage.getPageUrl()))
-                    .setImage(pornImage.getImageUrl())
-                    .setTimestamp(pornImage.getInstant());
-            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.NSFW, "porn_footer", StringUtil.numToString(pornImage.getScore())));
+        getNoticeOptional().ifPresent(notice -> EmbedUtil.addLog(eb, LogStatus.WARNING, notice));
+        if (BotPermissionUtil.canWriteEmbed(channel)) {
+            Message message = new MessageBuilder(eb.build()).build();
+            return Optional.of(message);
+        }
+        return Optional.empty();
+    }
 
-            getNoticeOptional().ifPresent(notice -> EmbedUtil.addLog(eb, LogStatus.WARNING, notice));
-            if (BotPermissionUtil.canWriteEmbed(channel)) {
-                Message message = new MessageBuilder(eb.build()).build();
-                embedConsumer.accept(message);
-            }
-        } else {
-            StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getCommandProperties().emoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
-            for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
-                if (pornImages.get(i) != null) {
-                    sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_link_template", pornImages.get(i).getImageUrl()))
-                            .append(' ');
-                }
-            }
-
-            getNoticeOptional().ifPresent(notice -> sb.append("\n\n").append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice)));
-
-            if (BotPermissionUtil.canWrite(channel)) {
-                Message message = new MessageBuilder(sb.toString()).build();
-                embedConsumer.accept(message);
+    private Optional<Message> generatePostMessagesText(ArrayList<PornImage> pornImages, String search, TextChannel channel, int max) {
+        StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getCommandProperties().emoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
+        for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
+            if (pornImages.get(i) != null) {
+                sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_link_template", pornImages.get(i).getImageUrl()))
+                        .append(' ');
             }
         }
+
+        getNoticeOptional().ifPresent(notice -> sb.append("\n\n").append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice)));
+
+        if (BotPermissionUtil.canWrite(channel)) {
+            Message message = new MessageBuilder(sb.toString()).build();
+            return Optional.of(message);
+        }
+        return Optional.empty();
     }
 
     protected ArrayList<PornImage> downloadPorn(ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly, boolean explicit, ArrayList<String> usedResults) {

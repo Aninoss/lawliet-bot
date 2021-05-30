@@ -8,13 +8,16 @@ import java.util.concurrent.TimeUnit;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
-import commands.listeners.OnReactionListener;
+import commands.listeners.OnButtonListener;
 import constants.Category;
 import constants.Emojis;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
@@ -26,7 +29,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "fullclear",
@@ -38,7 +40,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         maxCalculationTimeSec = 20 * 60,
         aliases = { "fclear", "allclear", "clearall" }
 )
-public class FullClearCommand extends Command implements OnAlertListener, OnReactionListener {
+public class FullClearCommand extends Command implements OnAlertListener, OnButtonListener {
 
     private boolean interrupt = false;
 
@@ -50,7 +52,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnReac
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws InterruptedException, ExecutionException {
         Optional<Integer> hoursMin = extractHoursMin(event.getChannel(), args);
         if (hoursMin.isPresent()) {
-            long messageId = registerReactionListener(Emojis.X).get();
+            long messageId = registerButtonListener().get();
             TimeUnit.SECONDS.sleep(1);
             ClearResults clearResults = fullClear(event.getChannel(), hoursMin.get(), event.getMessage().getIdLong(), messageId);
 
@@ -59,7 +61,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnReac
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
 
             if (!interrupt) {
-                deregisterListenersWithReactions();
+                deregisterListenersWithButtons();
                 drawMessage(eb);
             }
 
@@ -152,8 +154,8 @@ public class FullClearCommand extends Command implements OnAlertListener, OnReac
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        deregisterListenersWithReactions();
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        deregisterListenersWithButtons();
         interrupt = true;
         return true;
     }
@@ -161,6 +163,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnReac
     @Override
     public EmbedBuilder draw() throws Throwable {
         if (!interrupt) {
+            setButtons(new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "cancel"));
             return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), Category.MODERATION, "clear_progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get()), Emojis.X));
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));

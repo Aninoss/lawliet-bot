@@ -5,11 +5,11 @@ import java.util.Locale;
 import java.util.Objects;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.ExternalLinks;
 import constants.Settings;
 import core.EmbedFactory;
 import core.PatreonData;
 import core.ShardManager;
+import core.buttons.MessageSendActionAdvanced;
 import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -39,8 +39,6 @@ public class PatreonCommand extends Command {
         patreonData = PatreonCache.getInstance().getAsync();
 
         String content = getString("info",
-                ExternalLinks.PATREON_PAGE,
-                ExternalLinks.UNLOCK_SERVER_WEBSITE,
                 getString("status", PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false)),
                 StringUtil.getEmojiForBoolean(PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong()))
         );
@@ -57,7 +55,10 @@ public class PatreonCommand extends Command {
         sb.append(getString("andmanymore"));
 
         eb.addField(getString("slot_title"), sb.toString(), false);
-        event.getChannel().sendMessage(eb.build()).queue();
+        new MessageSendActionAdvanced(event.getChannel())
+                .appendButtons(EmbedFactory.getPatreonBlockButtons(getLocale()))
+                .embed(eb.build())
+                .queue();
         return true;
     }
 

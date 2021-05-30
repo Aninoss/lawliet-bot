@@ -6,14 +6,19 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionListener;
+import commands.listeners.OnButtonListener;
 import constants.Category;
-import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.mention.Mention;
 import core.mention.MentionList;
-import core.utils.*;
+import core.utils.BotPermissionUtil;
+import core.utils.JDAUtil;
+import core.utils.MentionUtil;
+import core.utils.StringUtil;
 import modules.Mod;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
@@ -21,7 +26,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "warn",
@@ -29,7 +33,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         emoji = "\uD83D\uDEA8",
         executableWithoutArgs = false
 )
-public class WarnCommand extends Command implements OnReactionListener {
+public class WarnCommand extends Command implements OnButtonListener {
 
     private enum Status { PENDING, CANCELED, COMPLETED, ERROR }
 
@@ -102,7 +106,11 @@ public class WarnCommand extends Command implements OnReactionListener {
 
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         if (userList.size() > 1 || moderationBean.isQuestion()) {
-            registerReactionListener(Emojis.CHECKMARK, Emojis.X);
+            setButtons(
+                    new MessageButton(ButtonStyle.SUCCESS, TextManager.getString(getLocale(), Category.MODERATION, "warn_button_confirm"), "true"),
+                    new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "false")
+            );
+            registerButtonListener();
         } else {
             boolean success = execute(event.getChannel(), event.getMember());
             drawMessage(draw());
@@ -180,19 +188,15 @@ public class WarnCommand extends Command implements OnReactionListener {
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        for (int i = 0; i < 2; i++) {
-            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), StringUtil.getEmojiForBoolean(i == 0))) {
-                deregisterListenersWithReactions();
-                if (i == 0) {
-                    execute(event.getChannel(), event.getMember());
-                } else {
-                    status = Status.CANCELED;
-                }
-                return true;
-            }
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        deregisterListenersWithButtons();
+        boolean confirm = Boolean.parseBoolean(event.getCustomId());
+        if (confirm) {
+            execute(event.getChannel(), event.getMember());
+        } else {
+            status = Status.CANCELED;
         }
-        return false;
+        return true;
     }
 
     @Override

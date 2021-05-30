@@ -1,9 +1,7 @@
 package core;
 
 import java.util.EnumSet;
-import java.util.concurrent.ForkJoinPool;
 import javax.security.auth.login.LoginException;
-import com.neovisionaries.ws.client.WebSocketFactory;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
@@ -22,7 +20,6 @@ import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.utils.IOUtil;
-import net.dv8tion.jda.internal.utils.config.ThreadingConfig;
 import okhttp3.Interceptor;
 import websockets.syncserver.SyncManager;
 
@@ -55,12 +52,7 @@ public class DiscordConnector {
             .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)
             .setActivity(Activity.watching(getActivityText()))
-            .setHttpClient(IOUtil.newHttpClientBuilder().addInterceptor(interceptor).build())
-            .setWebsocketFactory(new WebSocketFactory())
-            .setRateLimitPool(ThreadingConfig.newScheduler(32, () -> "JDA", "RateLimit", false))
-            .setGatewayPool(ThreadingConfig.newScheduler(16, () -> "JDA", "Gateway", true))
-            .setCallbackPool(ForkJoinPool.commonPool())
-            .setAudioPool(ThreadingConfig.newScheduler(4, () -> "JDA", "Audio", true))
+            .setHttpClientBuilder(IOUtil.newHttpClientBuilder().addInterceptor(interceptor))
             .setRawEventsEnabled(true)
             .addEventListeners(new DiscordEventAdapter());
 

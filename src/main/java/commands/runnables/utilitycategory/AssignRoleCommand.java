@@ -6,11 +6,14 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionListener;
+import commands.listeners.OnButtonListener;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
 import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import modules.RoleAssigner;
@@ -18,7 +21,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "assignrole",
@@ -30,11 +32,10 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         turnOffTimeout = true,
         aliases = { "giverole", "assign" }
 )
-public class AssignRoleCommand extends Command implements OnReactionListener {
+public class AssignRoleCommand extends Command implements OnButtonListener {
 
     private static final String CANCEL_EMOJI = Emojis.X;
 
-    private CompletableFuture<Boolean> future = null;
     private AtomicRole atomicRole;
 
     public AssignRoleCommand(Locale locale, String prefix) {
@@ -81,10 +82,11 @@ public class AssignRoleCommand extends Command implements OnReactionListener {
             return false;
         }
 
-        future = futureOpt.get();
+        CompletableFuture<Boolean> future = futureOpt.get();
         future.thenAccept(this::onAssignmentFinished);
 
-        registerReactionListener(CANCEL_EMOJI);
+        setButtons(new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "quit"));
+        registerButtonListener();
         return true;
     }
 
@@ -93,7 +95,7 @@ public class AssignRoleCommand extends Command implements OnReactionListener {
     }
 
     private void onAssignmentFinished(boolean success) {
-        deregisterListenersWithReactions();
+        deregisterListenersWithButtons();
         if (success) {
             drawMessage(EmbedFactory.getEmbedDefault(this, getString("success_desc", atomicRole.getAsMention())));
         } else {
@@ -102,8 +104,8 @@ public class AssignRoleCommand extends Command implements OnReactionListener {
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
-        deregisterListenersWithReactions();
+    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+        deregisterListenersWithButtons();
         RoleAssigner.getInstance().cancel(event.getGuild().getIdLong());
         return false;
     }
