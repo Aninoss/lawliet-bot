@@ -9,6 +9,9 @@ import constants.FisheryStatus;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.MessageButton;
+import core.buttons.MessageSendActionAdvanced;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -69,16 +72,17 @@ public class Fishery {
         Locale locale = guildBean.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title"))
-                .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription", FisheryCommand.EMOJI_KEY))
+                .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription"))
                 .setImage("https://cdn.discordapp.com/attachments/711665837114654781/711665915355201576/treasure_closed.png");
 
-        channel.sendMessage(eb.build())
-                .flatMap(m -> {
+        MessageButton button = new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_button"), "open", FisheryCommand.EMOJI_KEY);
+        new MessageSendActionAdvanced(channel)
+                .appendButtons(button)
+                .embed(eb.build())
+                .queue(m -> {
                     DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong())
                             .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger()));
-                    return m.addReaction(FisheryCommand.EMOJI_KEY);
-                })
-                .queue();
+                });
     }
 
     public static String getChangeEmoji() {

@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.Random;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnStaticReactionAddListener;
+import commands.listeners.OnStaticButtonListener;
 import commands.runnables.NavigationAbstract;
 import constants.*;
 import core.CustomObservableList;
@@ -14,9 +14,10 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicTextChannel;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageEditActionAdvanced;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
-import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -32,7 +33,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 
 @CommandProperties(
         trigger = "fishery",
@@ -42,7 +42,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
         executableWithoutArgs = true,
         aliases = { "fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings" }
 )
-public class FisheryCommand extends NavigationAbstract implements OnStaticReactionAddListener {
+public class FisheryCommand extends NavigationAbstract implements OnStaticButtonListener {
 
     private static final int MAX_CHANNELS = 50;
 
@@ -175,64 +175,60 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticReacti
     }
 
     @Override
-    public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
-        DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(message.getIdLong());
-        if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_KEY)) {
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
-                message.clearReactions().queue();
+    public void onStaticButton(GuildComponentInteractionEvent event) throws Throwable {
+        DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMessage().getIdLong());
+        Message message = event.getMessage();
+
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
+                .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getMember().getAsMention()));
+
+        new MessageEditActionAdvanced(message)
+                .embed(eb.build())
+                .queue();
+
+        FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
+        MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
+            Random r = new Random();
+            String[] winLose = new String[] { "win", "lose" };
+            int resultInt = r.nextInt(2);
+            String result = winLose[resultInt];
+
+            long won = Math.round(userBean.getMemberGear(FisheryGear.TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
+
+            String treasureImage;
+            if (resultInt == 0) {
+                treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
+            } else {
+                treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
             }
 
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
-                    .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getMember().getAsMention()));
-            message.editMessage(eb.build()).queue();
+            EmbedBuilder eb2 = EmbedFactory.getEmbedDefault()
+                    .setTitle(FisheryCommand.EMOJI_TREASURE + " " + getString("treasure_title"))
+                    .setDescription(getString("treasure_opened_" + result, event.getMember().getAsMention(), StringUtil.numToString(won)))
+                    .setImage(treasureImage)
+                    .setFooter(getString("treasure_footer"));
 
-            FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getUserIdLong());
-            MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
-                Random r = new Random();
-                String[] winLose = new String[] { "win", "lose" };
-                int resultInt = r.nextInt(2);
-                String result = winLose[resultInt];
+            message.editMessage(eb2.build()).queue();
 
-                long won = Math.round(userBean.getMemberGear(FisheryGear.TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
-
-                String treasureImage;
-                if (resultInt == 0) {
-                    treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
-                } else {
-                    treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
-                }
-
-                EmbedBuilder eb2 = EmbedFactory.getEmbedDefault()
-                        .setTitle(FisheryCommand.EMOJI_TREASURE + " " + getString("treasure_title"))
-                        .setDescription(getString("treasure_opened_" + result, event.getMember().getAsMention(), StringUtil.numToString(won)))
-                        .setImage(treasureImage)
-                        .setFooter(getString("treasure_footer"));
-
-                message.editMessage(eb2.build()).queue();
-                if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
-                    message.clearReactions().queue();
-                }
-
-                TextChannel channel = event.getChannel();
-                if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
-                    channel.sendMessage(userBean.changeValuesEmbed(0, won).build())
-                            .queue(m -> {
-                                MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove_account_change", () -> {
-                                    if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
-                                        m.delete().queue();
-                                    }
-                                });
+            TextChannel channel = event.getChannel();
+            if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
+                channel.sendMessage(userBean.changeValuesEmbed(0, won).build())
+                        .queue(m -> {
+                            MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove_account_change", () -> {
+                                if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
+                                    m.delete().queue();
+                                }
                             });
-                }
+                        });
+            }
 
-                MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
-                    if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
-                        message.delete().queue();
-                    }
-                });
+            MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
+                if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
+                    message.delete().queue();
+                }
             });
-        }
+        });
     }
 
 }
