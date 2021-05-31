@@ -24,7 +24,12 @@ public class YuriKissCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736281091534618674/736281165736181860/yurikiss.gif",
                 "https://cdn.discordapp.com/attachments/736281091534618674/736281173185265794/yurikiss.gif",
                 "https://cdn.discordapp.com/attachments/736281091534618674/736281183738003456/yurikiss.gif",
-                "https://cdn.discordapp.com/attachments/736281091534618674/736281204617248848/yurikiss.gif"
+                "https://cdn.discordapp.com/attachments/736281091534618674/736281204617248848/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849779824853023/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849792659947520/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849805246660608/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849818278887435/yurikiss.gif",
+                "https://cdn.discordapp.com/attachments/736281091534618674/834849832022704158/yurikiss.gif"
         );
     }
 
