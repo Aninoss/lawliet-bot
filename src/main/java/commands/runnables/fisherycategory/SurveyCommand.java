@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
+import commands.listeners.OnStaticButtonListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
@@ -18,6 +18,10 @@ import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.ShardManager;
 import core.TextManager;
+import core.buttons.ButtonStyle;
+import core.buttons.GuildComponentInteractionEvent;
+import core.buttons.MessageButton;
+import core.buttons.MessageSendActionAdvanced;
 import core.utils.*;
 import javafx.util.Pair;
 import mysql.modules.survey.*;
@@ -34,8 +38,13 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
         emoji = Emojis.CHECKMARK,
         executableWithoutArgs = true
 )
-public class SurveyCommand extends Command implements FisheryInterface, OnStaticReactionAddListener, OnAlertListener {
+public class SurveyCommand extends Command implements FisheryInterface, OnStaticReactionAddListener, OnStaticButtonListener, OnAlertListener {
 
+    private static final String BUTTON_ID_VOTE_FIRST_A = "vote_1_0";
+    private static final String BUTTON_ID_VOTE_FIRST_B = "vote_1_1";
+    private static final String BUTTON_ID_VOTE_SECOND_A = "vote_2_0";
+    private static final String BUTTON_ID_VOTE_SECOND_B = "vote_2_1";
+    private static final String BUTTON_ID_NOTIFICATIONS = "notifications";
     private static final String BELL_EMOJI = "🔔";
 
     public SurveyCommand(Locale locale, String prefix) {
@@ -44,7 +53,13 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     @Override
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws IOException, InterruptedException {
-        sendMessages(event.getChannel(), event.getMember(), false);
+        SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(event.getMember());
+
+        event.getChannel().sendMessage(surveyEmbeds.resultEmbed.build()).queue();
+        new MessageSendActionAdvanced(event.getChannel())
+                .appendButtons(surveyEmbeds.buttons)
+                .embed(surveyEmbeds.newEmbed.build())
+                .queue(this::registerStaticReactionMessage);
         return true;
     }
 
@@ -67,9 +82,10 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             if (type > 0) {
                 SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
 
-                if (message.getTimeCreated().toInstant().isAfter(surveyData.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
-                    if (!registerVote(event, surveyData, type, i)) return;
-                    EmbedBuilder eb = getVoteStatusEmbed(event, surveyData);
+                if (message.getTimeCreated().toInstant().isAfter(surveyData.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant()) &&
+                        registerVote(event.getMember(), surveyData, type, i)
+                ) {
+                    EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
                     JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
                 }
                 break;
@@ -77,28 +93,49 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
     }
 
-    private EmbedBuilder getVoteStatusEmbed(GuildMessageReactionAddEvent event, SurveyData surveyData) throws IOException {
+    @Override
+    public void onStaticButton(GuildComponentInteractionEvent event) throws Throwable {
+        SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
+        if (event.getMessage().getTimeCreated().toInstant().isAfter(surveyData.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
+            if (event.getCustomId().equals(BUTTON_ID_NOTIFICATIONS)) {
+                if (surveyData.getFirstVotes().containsKey(event.getMember().getIdLong())) {
+                    surveyData.toggleNotificationUserId(event.getMember().getIdLong());
+                    EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
+                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
+                } else {
+                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
+                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
+                }
+            } else {
+                String[] parts = event.getCustomId().split("_");
+                byte type = Byte.parseByte(parts[1]);
+                byte vote = Byte.parseByte(parts[2]);
+
+                if (registerVote(event.getMember(), surveyData, type, vote)) {
+                    EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
+                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
+                }
+            }
+        }
+    }
+
+    private EmbedBuilder getVoteStatusEmbed(Member member, SurveyData surveyData) throws IOException {
         SurveyQuestion surveyQuestion = surveyData.getSurveyQuestionAndAnswers(getLocale());
         String[] voteStrings = new String[2];
 
-        voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyData.getFirstVotes().get(event.getUserIdLong()).getVote()];
+        voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyData.getFirstVotes().get(member.getIdLong()).getVote()];
 
-        List<SurveySecondVote> surveySecondVotes = surveyData.getSurveySecondVotesForUserId(event.getUserIdLong());
-
-        if (surveySecondVotes.size() == 0) {
+        SurveySecondVote surveySecondVote = surveyData.getSecondVotes().get(new Pair<>(member.getGuild().getIdLong(), member.getIdLong()));
+        if (surveySecondVote == null) {
             voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         } else {
-            voteStrings[1] = "";
-        }
-
-        for (SurveySecondVote surveySecondVote : surveySecondVotes) {
-            voteStrings[1] += "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getInstance().getGuildName(surveySecondVote.getGuildId()).orElse(String.valueOf(surveySecondVote.getGuildId()))) + ")\n";
+            voteStrings[1] = "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getInstance().getGuildName(surveySecondVote.getGuildId()).orElse(String.valueOf(surveySecondVote.getGuildId()))) + ")\n";
         }
 
         return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.ZERO_WIDTH_SPACE)
                 .addField(surveyQuestion.getQuestion(), voteStrings[0], false)
                 .addField(getString("majority"), StringUtil.shortenStringLine(voteStrings[1], 1024), false)
-                .addField(Emojis.ZERO_WIDTH_SPACE, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyData.hasNotificationUserId(event.getUserIdLong()))), false);
+                .addField(Emojis.ZERO_WIDTH_SPACE, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyData.hasNotificationUserId(member.getIdLong()))), false);
     }
 
     private void removeUserReactions(Message message, String addedEmoji) {
@@ -125,32 +162,32 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
     }
 
-    private boolean registerVote(GuildMessageReactionAddEvent event, SurveyData surveyData, int type, byte i) {
+    private boolean registerVote(Member member, SurveyData surveyData, int type, byte i) {
         switch (type) {
             case 1:
-                surveyData.getFirstVotes().put(event.getUserIdLong(), new SurveyFirstVote(event.getUserIdLong(), i, getLocale()));
+                surveyData.getFirstVotes().put(member.getIdLong(), new SurveyFirstVote(member.getIdLong(), i, getLocale()));
                 return true;
 
             case 2:
-                if (surveyData.getFirstVotes().containsKey(event.getUserIdLong())) {
+                if (surveyData.getFirstVotes().containsKey(member.getIdLong())) {
                     surveyData.getSecondVotes().put(
-                            new Pair<>(event.getGuild().getIdLong(), event.getUserIdLong()),
-                            new SurveySecondVote(event.getGuild().getIdLong(), event.getUserIdLong(), i)
+                            new Pair<>(member.getGuild().getIdLong(), member.getIdLong()),
+                            new SurveySecondVote(member.getGuild().getIdLong(), member.getIdLong(), i)
                     );
                     return true;
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
+                    JDAUtil.sendPrivateMessage(member, eb.build()).queue();
                     return false;
                 }
 
             case 3:
-                if (surveyData.getFirstVotes().containsKey(event.getUserIdLong())) {
-                    surveyData.toggleNotificationUserId(event.getUserIdLong());
+                if (surveyData.getFirstVotes().containsKey(member.getIdLong())) {
+                    surveyData.toggleNotificationUserId(member.getIdLong());
                     return true;
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
+                    JDAUtil.sendPrivateMessage(member, eb.build()).queue();
                     return false;
                 }
 
@@ -159,26 +196,32 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
     }
 
-    private long sendMessages(TextChannel channel, Member member, boolean tracker) throws IOException {
+    private SurveyEmbeds generateSurveyEmbeds(Member member) throws IOException {
         SurveyData currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         SurveyData lastSurvey = DBSurvey.getInstance().retrieve(currentSurvey.getSurveyId() - 1);
 
-        //Results Message
-        channel.sendMessage(getResultsEmbed(lastSurvey, member).build()).complete();
-
-        //Survey Message
-        EmbedBuilder eb = getSurveyEmbed(currentSurvey, tracker);
-        if (!tracker) {
-            EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
+        EmbedBuilder newEmbed = generateNewEmbed(currentSurvey, member == null);
+        if (member != null) {
+            EmbedUtil.addTrackerNoteLog(getLocale(), member, newEmbed, getPrefix(), getTrigger());
         }
 
-        long messageId = channel.sendMessage(eb.build()).complete().getIdLong();
-        registerStaticReactionMessage(channel, messageId);
+        String[] answers = currentSurvey.getSurveyQuestionAndAnswers(getLocale()).getAnswers();
+        MessageButton[] buttons = new MessageButton[] {
+                new MessageButton(ButtonStyle.PRIMARY, getString("button_first", answers[0]), BUTTON_ID_VOTE_FIRST_A),
+                new MessageButton(ButtonStyle.PRIMARY, getString("button_first", answers[1]), BUTTON_ID_VOTE_FIRST_B),
+                new MessageButton(ButtonStyle.SUCCESS, getString("button_second", answers[0]), BUTTON_ID_VOTE_SECOND_A),
+                new MessageButton(ButtonStyle.SUCCESS, getString("button_second", answers[1]), BUTTON_ID_VOTE_SECOND_B),
+                new MessageButton(ButtonStyle.SECONDARY, getString("button_noti"), BUTTON_ID_NOTIFICATIONS)
+        };
 
-        return messageId;
+        return new SurveyEmbeds(
+                generateResultEmbed(lastSurvey, member),
+                newEmbed,
+                buttons
+        );
     }
 
-    private EmbedBuilder getResultsEmbed(SurveyData lastSurvey, Member member) throws IOException {
+    private EmbedBuilder generateResultEmbed(SurveyData lastSurvey, Member member) throws IOException {
         SurveyQuestion surveyQuestion = lastSurvey.getSurveyQuestionAndAnswers(getLocale());
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("results_title"));
@@ -229,7 +272,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         return eb;
     }
 
-    private EmbedBuilder getSurveyEmbed(SurveyData surveyData, boolean tracker) throws IOException {
+    private EmbedBuilder generateNewEmbed(SurveyData surveyData, boolean tracker) throws IOException {
         SurveyQuestion surveyQuestion = surveyData.getSurveyQuestionAndAnswers(getLocale());
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("sdescription", BELL_EMOJI), getString("title"))
                 .setFooter("");
@@ -262,7 +305,13 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).queue());
-        slot.setMessageId(sendMessages(channel, null, true));
+
+        SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(null);
+        slot.sendMessage(true, surveyEmbeds.resultEmbed.build()).get();
+        long messageId = slot.sendMessage(false, surveyEmbeds.newEmbed.build(), surveyEmbeds.buttons).get();
+        registerStaticReactionMessage(slot.getTextChannel().get(), messageId);
+
+        slot.setMessageId(messageId);
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 
@@ -279,6 +328,20 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     @Override
     public boolean trackerUsesKey() {
         return false;
+    }
+
+    private static class SurveyEmbeds {
+
+        private final EmbedBuilder resultEmbed;
+        private final EmbedBuilder newEmbed;
+        private final MessageButton[] buttons;
+
+        public SurveyEmbeds(EmbedBuilder resultEmbed, EmbedBuilder newEmbed, MessageButton[] buttons) {
+            this.resultEmbed = resultEmbed;
+            this.newEmbed = newEmbed;
+            this.buttons = buttons;
+        }
+
     }
 
 }
