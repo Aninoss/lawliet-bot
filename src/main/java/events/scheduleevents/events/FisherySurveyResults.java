@@ -2,7 +2,6 @@ package events.scheduleevents.events;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -13,7 +12,7 @@ import constants.FisheryStatus;
 import core.*;
 import core.schedule.ScheduleInterface;
 import core.utils.JDAUtil;
-import events.scheduleevents.ScheduleEventFixedRate;
+import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
@@ -21,19 +20,17 @@ import mysql.modules.survey.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 
-@ScheduleEventFixedRate(rateValue = 30, rateUnit = ChronoUnit.SECONDS)
+@ScheduleEventDaily
 public class FisherySurveyResults implements ScheduleInterface {
 
     @Override
-    public void run() throws Throwable {
+    public void run() {
         if (Program.isProductionMode()) {
             GlobalThreadPool.getExecutorService().submit(() -> {
-                synchronized (this) {
-                    SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
-                    LocalDate today = LocalDate.now();
-                    if (!today.isBefore(surveyData.getNextDate())) {
-                        processCurrentResults();
-                    }
+                SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
+                LocalDate today = LocalDate.now();
+                if (!today.isBefore(surveyData.getNextDate())) {
+                    processCurrentResults();
                 }
             });
         }
@@ -43,7 +40,7 @@ public class FisherySurveyResults implements ScheduleInterface {
         DBSurvey.getInstance().clear();
         SurveyData lastSurvey = DBSurvey.getInstance().getCurrentSurvey();
         try {
-            TimeUnit.SECONDS.sleep(40);
+            TimeUnit.SECONDS.sleep(30);
         } catch (InterruptedException ignored) {
             //Ignore
         }
