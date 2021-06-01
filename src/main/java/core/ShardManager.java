@@ -17,6 +17,7 @@ import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -271,6 +272,16 @@ public class ShardManager {
     public Optional<String> getGuildName(long guildId) {
         Optional<String> guildNameOpt = getLocalGuildById(guildId).map(Guild::getName);
         return guildNameOpt.or(() -> ExternalGuildNameCache.getInstance().getGuildNameById(guildId));
+    }
+
+    public Optional<GuildChannel> getLocalGuildChannelById(long channelId) {
+        for (Guild guild : getLocalGuilds()) {
+            GuildChannel channel = guild.getGuildChannelById(channelId);
+            if (channel != null) {
+                return Optional.of(channel);
+            }
+        }
+        return Optional.empty();
     }
 
     public Optional<User> getCachedUserById(long userId) {

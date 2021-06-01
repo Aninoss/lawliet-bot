@@ -1,15 +1,13 @@
 package events.discordevents;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import core.*;
 import core.buttons.GuildComponentInteractionEvent;
 import core.cache.MessageCache;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import events.discordevents.eventtypeabstracts.*;
+import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.RawGatewayEvent;
@@ -221,13 +219,37 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onHttpRequest(@NotNull HttpRequestEvent event) {
-        String route = event.getRoute().getMethod().toString() + " " + event.getRoute().getBaseRoute().getRoute();
+        String routeBased = event.getRequest().getRoute().getBaseRoute().getRoute();
+        String[] routeBasedParts = routeBased.split("/");
+        String[] routeCompiledParts = event.getRoute().getCompiledRoute().split("/");
+
+        String route = event.getRoute().getMethod().toString() + " " + routeBased;
         RequestRouteLogger.getInstance().logRoute(route, event.isRateLimit());
+
+        Long guildId = null;
+        for (int i = 0; i < routeBasedParts.length; i++) {
+            if (routeBasedParts[i].equals("{channel_id}")) {
+                long channelId = Long.parseLong(routeCompiledParts[i]);
+                Optional<GuildChannel> channelOpt = ShardManager.getInstance().getLocalGuildChannelById(channelId);
+                if (channelOpt.isPresent()) {
+                    guildId = channelOpt.get().getGuild().getIdLong();
+                }
+                break;
+            } else if (routeBasedParts[i].equals("{guild_id}")) {
+                guildId = Long.parseLong(routeCompiledParts[i]);
+                break;
+            }
+        }
+
+        RestLogger.getInstance().insert(guildId);
     }
 
     @Override
     public void onRawGateway(@NotNull RawGatewayEvent event) {
-        if (event.getPackage().getString("t").equals("INTERACTION_CREATE") && event.getPayload().getInt("type") == 3) {
+        if (event.getPackage().getString("t").equals("INTERACTION_CREATE") &&
+                event.getPayload().getInt("type") == 3 &&
+                event.getPayload().getObject("message").getInt("flags") == 0
+        ) {
             DataObject payload = event.getPayload();
             DataObject data = payload.getObject("data");
             Message message = ((JDAImpl) event.getJDA()).getEntityBuilder().createMessage(payload.getObject("message"), true);

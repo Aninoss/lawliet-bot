@@ -2,10 +2,7 @@ package core;
 
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
@@ -17,6 +14,7 @@ import core.utils.JDAUtil;
 import core.utils.TimeUtil;
 import events.scheduleevents.events.FisherySurveyResults;
 import events.scheduleevents.events.FisheryVoiceChannelObserver;
+import javafx.util.Pair;
 import modules.repair.MainRepair;
 import mysql.DBMain;
 import mysql.modules.bannedusers.DBBannedUsers;
@@ -53,6 +51,8 @@ public class Console {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
+        tasks.put("actions_servers", this::onActionsServers);
+        tasks.put("actions", this::onActions);
         tasks.put("stuck", this::onStuck);
         tasks.put("routes", this::onRoutes);
         tasks.put("patreon_fetch", this::onPatreonFetch);
@@ -87,6 +87,17 @@ public class Console {
         tasks.put("internet", this::onInternetConnection);
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_channel", this::onSendChannel);
+    }
+
+    private void onActionsServers(String[] args) {
+        List<Pair<Long, Integer>> guildActionCounts = RestLogger.getInstance().countGuilds(20);
+        for (Pair<Long, Integer> guildActionCount : guildActionCounts) {
+            MainLogger.get().info("{}: {} requests", guildActionCount.getKey(), guildActionCount.getValue());
+        }
+    }
+
+    private void onActions(String[] args) {
+        MainLogger.get().info("Recent actions in cluster {}: {} requests", Program.getClusterId(), RestLogger.getInstance().count());
     }
 
     private void onStuck(String[] args) {
