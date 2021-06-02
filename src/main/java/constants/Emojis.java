@@ -12,6 +12,7 @@ public interface Emojis {
     String BACK_EMOJI = "<:back:511165137202446346>";
     String BACK_EMOJI_UNICODE = "⏪";
     String LOADING = "<a:loading:407189379749117981>";
+    String LOADING_UNICODE = "⏳";
     String EMPTY_EMOJI = "⠀";
     String ZERO_WIDTH_SPACE = "\u200E";
 

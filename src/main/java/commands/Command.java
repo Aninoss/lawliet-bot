@@ -25,8 +25,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.RestAction;
 import org.json.JSONObject;
 
 public abstract class Command implements OnTriggerListener {
@@ -46,7 +47,8 @@ public abstract class Command implements OnTriggerListener {
     private Message drawMessage = null;
     private LogStatus logStatus = null;
     private String log = "";
-    private GuildMessageReceivedEvent event = null;
+    private GuildMessageReceivedEvent guildMessageReceivedEvent = null;
+    private InteractionHook hook = null;
     private boolean canHaveTimeOut = true;
     private List<Button> buttons;
 
@@ -68,7 +70,7 @@ public abstract class Command implements OnTriggerListener {
 
     public void addLoadingReactionInstantly() {
         if (isProcessing != null) {
-            addLoadingReactionInstantly(event.getMessage(), isProcessing);
+            addLoadingReactionInstantly(guildMessageReceivedEvent.getMessage(), isProcessing);
         }
     }
 
@@ -133,17 +135,22 @@ public abstract class Command implements OnTriggerListener {
                     throw e;
                 }
 
-                MessageAction action;
+                RestAction<Message> action;
                 if (drawMessage == null) {
-                    action = channel.sendMessage(messageEmbed);
+                    action = channel.sendMessage(messageEmbed)
+                            .setActionRows(ActionRows.of(buttons));
                 } else {
-                    action = channel.editMessageById(drawMessage.getIdLong(), messageEmbed);
+                    if (hook != null &&
+                            Arrays.stream(getAdjustedBotChannelPermissions()).noneMatch(p -> p == Permission.MESSAGE_EXT_EMOJI)
+                    ) {
+                        action = hook.editOriginalEmbeds(messageEmbed)
+                                .setActionRows(ActionRows.of(buttons));
+                    } else {
+                        action = channel.editMessageById(drawMessage.getIdLong(), messageEmbed)
+                                .setActionRows(ActionRows.of(buttons));
+                    }
                 }
-                if (buttons != null) {
-                    action = action.setActionRows(ActionRows.of(buttons));
-                }
-                action.embed(messageEmbed)
-                        .queue(message -> {
+                action.queue(message -> {
                             drawMessage = message;
                             future.complete(drawMessage.getIdLong());
                         }, future::completeExceptionally);
@@ -367,11 +374,19 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public Optional<GuildMessageReceivedEvent> getGuildMessageReceivedEvent() {
-        return Optional.ofNullable(event);
+        return Optional.ofNullable(guildMessageReceivedEvent);
     }
 
     public void setGuildMessageReceivedEvent(GuildMessageReceivedEvent event) {
-        this.event = event;
+        this.guildMessageReceivedEvent = event;
+    }
+
+    public Optional<InteractionHook> getInteractionHook() {
+        return Optional.ofNullable(hook);
+    }
+
+    public void setInteractionHook(InteractionHook hook) {
+        this.hook = hook;
     }
 
     public Optional<Guild> getGuild() {

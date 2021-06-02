@@ -100,10 +100,10 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
                 if (surveyData.getFirstVotes().containsKey(event.getMember().getIdLong())) {
                     surveyData.toggleNotificationUserId(event.getMember().getIdLong());
                     EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
-                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
+                    event.getHook().sendMessageEmbeds(eb.build()).setEphemeral(true).queue();
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
+                    event.getHook().sendMessageEmbeds(eb.build()).setEphemeral(true).queue();
                 }
             } else {
                 String[] parts = event.getComponentId().split("_");
@@ -112,7 +112,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
                 if (registerVote(event.getMember(), surveyData, type, vote)) {
                     EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
-                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
+                    event.getHook().sendMessageEmbeds(eb.build()).setEphemeral(true).queue();
                 }
             }
         }

@@ -1,6 +1,7 @@
 package core.components;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -15,6 +16,10 @@ public class ActionRows {
     }
 
     public static List<ActionRow> of(List<? extends Component> components) {
+        if (components == null) {
+            return Collections.emptyList();
+        }
+
         ArrayList<DataObject> rows = new ArrayList<>();
         ArrayList<Component> buttonsRemovable = new ArrayList<>(components);
         int rowIndex = 0;

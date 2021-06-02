@@ -95,6 +95,7 @@ public interface OnButtonListener {
 
     default void processButton(ButtonClickEvent event) {
         Command command = (Command) this;
+        command.setInteractionHook(event.getHook());
 
         try {
             if (onButton(event)) {

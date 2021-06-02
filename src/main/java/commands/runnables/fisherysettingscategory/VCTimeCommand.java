@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "vctime",
-        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "⏲️",
         executableWithoutArgs = true,

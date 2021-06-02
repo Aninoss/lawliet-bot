@@ -5,13 +5,13 @@ import java.util.Optional;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import commands.runnables.MemberAccountAbstract;
+import constants.Emojis;
 import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
 import core.components.ActionRows;
 import core.utils.EmbedUtil;
-import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.osu.OsuAccount;
 import modules.osu.OsuAccountCheck;
@@ -171,7 +171,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
                         Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("refresh")),
                         Button.of(ButtonStyle.SECONDARY, BUTTON_ID_CANCEL, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
                 );
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", Emojis.LOADING_UNICODE));
                 return eb;
 
             case ABORTED:

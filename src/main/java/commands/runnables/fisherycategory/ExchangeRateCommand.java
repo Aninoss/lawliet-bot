@@ -6,12 +6,10 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
-import constants.LogStatus;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
-import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.ExchangeRate;
@@ -79,12 +77,9 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
-        try {
-            JDAUtil.sendPrivateMessage(event.getMember(), generateUserEmbed().build())
-                    .complete();
-        } catch (Throwable e) {
-            setLog(LogStatus.FAILURE, getString("failed"));
-        }
+        event.getHook().sendMessageEmbeds(generateUserEmbed().build())
+                .setEphemeral(true)
+                .queue();
         return true;
     }
 
