@@ -9,8 +9,8 @@ import constants.Settings;
 import core.EmbedFactory;
 import core.PatreonData;
 import core.ShardManager;
-import core.buttons.MessageSendActionAdvanced;
 import core.cache.PatreonCache;
+import core.components.ActionRows;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -55,9 +55,8 @@ public class PatreonCommand extends Command {
         sb.append(getString("andmanymore"));
 
         eb.addField(getString("slot_title"), sb.toString(), false);
-        new MessageSendActionAdvanced(event.getChannel())
-                .appendButtons(EmbedFactory.getPatreonBlockButtons(getLocale()))
-                .embed(eb.build())
+        event.getChannel().sendMessage(eb.build())
+                .setActionRows(ActionRows.of(EmbedFactory.getPatreonBlockButtons(getLocale())))
                 .queue();
         return true;
     }

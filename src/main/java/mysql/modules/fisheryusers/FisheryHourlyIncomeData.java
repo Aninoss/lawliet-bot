@@ -6,15 +6,16 @@ import core.assets.MemberAsset;
 
 public class FisheryHourlyIncomeData implements MemberAsset {
 
-    private final Instant time;
+    private final long timeEpochSecond;
     private long fishIncome;
     private boolean changed = false;
-    private final long guildId, memberId;
+    private final long guildId;
+    private final long memberId;
 
     public FisheryHourlyIncomeData(long guildId, long memberId, Instant time, long fishIncome) {
         this.guildId = guildId;
         this.memberId = memberId;
-        this.time = time;
+        this.timeEpochSecond = time.getEpochSecond();
         this.fishIncome = fishIncome;
     }
 
@@ -29,7 +30,7 @@ public class FisheryHourlyIncomeData implements MemberAsset {
     }
 
     public Instant getTime() {
-        return time;
+        return Instant.ofEpochSecond(timeEpochSecond);
     }
 
     public long getFishIncome() {

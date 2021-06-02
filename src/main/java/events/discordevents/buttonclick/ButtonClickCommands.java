@@ -1,18 +1,18 @@
-package events.discordevents.guildcomponentinteraction;
+package events.discordevents.buttonclick;
 
 import commands.CommandContainer;
 import commands.listeners.OnButtonListener;
-import core.buttons.GuildComponentInteractionEvent;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
-import events.discordevents.eventtypeabstracts.GuildComponentInteractionAbstract;
+import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
 @DiscordEvent
-public class GuildComponentInteractionCommands extends GuildComponentInteractionAbstract {
+public class ButtonClickCommands extends ButtonClickAbstract {
 
     @Override
-    public boolean onGuildComponentInteraction(GuildComponentInteractionEvent event) throws Throwable {
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+    public boolean onButtonClick(ButtonClickEvent event) throws Throwable {
+        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
             CommandContainer.getInstance().getListeners(OnButtonListener.class).stream()
                     .filter(listener -> listener.check(event))
                     .forEach(listener -> ((OnButtonListener) listener.getCommand()).processButton(event));

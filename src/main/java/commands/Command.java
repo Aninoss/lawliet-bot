@@ -13,10 +13,7 @@ import core.TextManager;
 import core.atomicassets.AtomicGuild;
 import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
-import core.buttons.MessageActionAdvanced;
-import core.buttons.MessageButton;
-import core.buttons.MessageEditActionAdvanced;
-import core.buttons.MessageSendActionAdvanced;
+import core.components.ActionRows;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
@@ -28,6 +25,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.json.JSONObject;
 
 public abstract class Command implements OnTriggerListener {
@@ -49,7 +48,7 @@ public abstract class Command implements OnTriggerListener {
     private String log = "";
     private GuildMessageReceivedEvent event = null;
     private boolean canHaveTimeOut = true;
-    private List<MessageButton> buttons;
+    private List<Button> buttons;
 
     public Command(Locale locale, String prefix) {
         this.locale = locale;
@@ -95,15 +94,15 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
-    public void setButtons(MessageButton... buttons) {
+    public void setButtons(Button... buttons) {
         this.buttons = List.of(buttons);
     }
 
-    public List<MessageButton> getButtons() {
+    public List<Button> getButtons() {
         return this.buttons;
     }
 
-    public void setButtons(List<MessageButton> buttons) {
+    public void setButtons(List<Button> buttons) {
         this.buttons = buttons;
     }
 
@@ -134,14 +133,14 @@ public abstract class Command implements OnTriggerListener {
                     throw e;
                 }
 
-                MessageActionAdvanced action;
+                MessageAction action;
                 if (drawMessage == null) {
-                    action = new MessageSendActionAdvanced(channel);
+                    action = channel.sendMessage(messageEmbed);
                 } else {
-                    action = new MessageEditActionAdvanced(channel, drawMessage.getIdLong());
+                    action = channel.editMessageById(drawMessage.getIdLong(), messageEmbed);
                 }
-                if (buttons != null && buttons.size() > 0) {
-                    action = action.appendButtons(buttons);
+                if (buttons != null) {
+                    action = action.setActionRows(ActionRows.of(buttons));
                 }
                 action.embed(messageEmbed)
                         .queue(message -> {

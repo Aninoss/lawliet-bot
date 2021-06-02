@@ -11,16 +11,16 @@ import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import modules.RoleAssigner;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "assignrole",
@@ -85,7 +85,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
         CompletableFuture<Boolean> future = futureOpt.get();
         future.thenAccept(this::onAssignmentFinished);
 
-        setButtons(new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "quit"));
+        setButtons(Button.of(ButtonStyle.SECONDARY, "quit", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
         registerButtonListener();
         return true;
     }
@@ -104,7 +104,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
         RoleAssigner.getInstance().cancel(event.getGuild().getIdLong());
         return false;

@@ -9,15 +9,15 @@ import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "slot",
@@ -56,7 +56,7 @@ public class SlotCommand extends CasinoAbstract {
 
         setFruits();
         setButtons(
-                new MessageButton(ButtonStyle.PRIMARY, getString("go"), "go"),
+                Button.of(ButtonStyle.PRIMARY, "go", getString("go")),
                 BUTTON_CANCEL
         );
         return true;
@@ -125,7 +125,7 @@ public class SlotCommand extends CasinoAbstract {
     }
 
     @Override
-    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButtonCasino(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
 
         MainScheduler.getInstance().schedule(1000, "slot_0", () -> unlockFruit(0));

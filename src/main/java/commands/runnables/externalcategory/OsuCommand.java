@@ -9,10 +9,7 @@ import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
-import core.buttons.MessageSendActionAdvanced;
+import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
@@ -26,7 +23,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "osu",
@@ -73,7 +73,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
         }
 
         if (memberIsAuthor && OsuAccountSync.getInstance().getUserInCache(member.getIdLong()).isEmpty()) {
-            setButtons(new MessageButton(ButtonStyle.PRIMARY, getString("connect", userExists), BUTTON_ID_CONNECT));
+            setButtons(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("connect", userExists)));
         }
 
         return eb;
@@ -99,9 +99,8 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
 
     @Override
     protected void sendMessage(TextChannel channel, MessageEmbed eb) {
-        new MessageSendActionAdvanced(channel)
-                .appendButtons(getButtons())
-                .embed(eb)
+        channel.sendMessage(eb)
+                .setActionRows(ActionRows.of(getButtons()))
                 .queue(message -> {
                     if (memberIsAuthor) {
                         setDrawMessage(message);
@@ -111,8 +110,8 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
-        if (event.getCustomId().equals(BUTTON_ID_CONNECT)) {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
+        if (event.getComponentId().equals(BUTTON_ID_CONNECT)) {
             this.status = Status.CONNECTING;
             DBOsuAccounts.getInstance().retrieve().remove(event.getMember().getIdLong());
 
@@ -153,7 +152,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
                 }
             });
             return true;
-        } else if (event.getCustomId().equals(BUTTON_ID_CANCEL) && status == Status.CONNECTING) {
+        } else if (event.getComponentId().equals(BUTTON_ID_CANCEL) && status == Status.CONNECTING) {
             setButtons();
             deregisterListeners();
             OsuAccountSync.getInstance().remove(event.getMember().getIdLong());
@@ -169,8 +168,8 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
         switch (status) {
             case CONNECTING:
                 setButtons(
-                        new MessageButton(ButtonStyle.PRIMARY, getString("refresh"), BUTTON_ID_CONNECT),
-                        new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), BUTTON_ID_CANCEL)
+                        Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("refresh")),
+                        Button.of(ButtonStyle.SECONDARY, BUTTON_ID_CANCEL, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
                 );
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
                 return eb;
@@ -180,7 +179,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
 
             default:
                 if (osuAccount != null) {
-                    setButtons(new MessageButton(ButtonStyle.PRIMARY, getString("connect", 1), BUTTON_ID_CONNECT));
+                    setButtons(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("connect", 1)));
                     eb = generateAccountEmbed(getMember().get(), osuAccount);
                     EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("connected"));
                 } else {

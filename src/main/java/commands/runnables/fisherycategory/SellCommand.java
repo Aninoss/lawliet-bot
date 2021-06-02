@@ -9,9 +9,6 @@ import commands.runnables.FisheryInterface;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.ExchangeRate;
@@ -20,7 +17,11 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "sell",
@@ -46,7 +47,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
         userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
                 .getMemberBean(event.getMember().getIdLong());
         if (args.length() > 0) {
-            boolean success = process(event, args);
+            boolean success = process(event.getChannel(), args);
             drawMessage(eb);
             return success;
         } else {
@@ -61,8 +62,8 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
                     )
             );
             setButtons(
-                    new MessageButton(ButtonStyle.PRIMARY, getString("sellall"), BUTTON_ID_SELLALL),
-                    new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), BUTTON_ID_CANCEL)
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_SELLALL, getString("sellall")),
+                    Button.of(ButtonStyle.SECONDARY, BUTTON_ID_CANCEL, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
             );
             registerButtonListener();
             registerMessageInputListener(false);
@@ -73,16 +74,16 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
         deregisterListenersWithButtons();
-        return process(event, input) ? Response.TRUE : Response.FALSE;
+        return process(event.getChannel(), input) ? Response.TRUE : Response.FALSE;
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
-        if (event.getCustomId().equals(BUTTON_ID_CANCEL)) {
+        if (event.getComponentId().equals(BUTTON_ID_CANCEL)) {
             markNoInterest();
-        } else if (event.getCustomId().equals(BUTTON_ID_SELLALL)){
-            process(event, "all");
+        } else if (event.getComponentId().equals(BUTTON_ID_SELLALL)){
+            process(event.getTextChannel(), "all");
         }
         return true;
     }
@@ -97,7 +98,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
         deregisterListenersWithButtons();
     }
 
-    private boolean process(GuildMessageReceivedEvent event, String args) {
+    private boolean process(TextChannel textChannel, String args) {
         long value = Math.min(MentionUtil.getAmountExt(args, userBean.getFish()), userBean.getFish());
 
         if (args.equalsIgnoreCase("no")) {
@@ -108,7 +109,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
         if (value >= 1) {
             long coins = ExchangeRate.getInstance().get(0) * value;
             this.eb = EmbedFactory.getEmbedDefault(this, getString("done"));
-            event.getChannel().sendMessage(userBean.changeValuesEmbed(-value, coins).build()).queue();
+            textChannel.sendMessage(userBean.changeValuesEmbed(-value, coins).build()).queue();
             return true;
         } else if (value == 0) {
             if (userBean.getFish() <= 0) {

@@ -1,4 +1,4 @@
-package core.buttons;
+package core.components;
 
 import java.util.List;
 import club.minnced.discord.webhook.IOUtil;
@@ -6,6 +6,7 @@ import club.minnced.discord.webhook.send.AllowedMentions;
 import club.minnced.discord.webhook.send.MessageAttachment;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookMessage;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.jetbrains.annotations.NotNull;
@@ -14,13 +15,13 @@ import org.json.JSONObject;
 
 public class WebhookMessageAdvanced extends WebhookMessage {
 
-    private final List<MessageRow> rows;
+    private final List<ActionRow> components;
 
     public WebhookMessageAdvanced(String username, String avatarUrl, String content, List<WebhookEmbed> embeds,
                                   boolean isTTS, MessageAttachment[] files, AllowedMentions allowedMentions,
-                                  List<MessageRow> rows) {
+                                  List<ActionRow> components) {
         super(username, avatarUrl, content, embeds, isTTS, files, allowedMentions);
-        this.rows = rows;
+        this.components = components;
     }
 
     @Override
@@ -42,10 +43,10 @@ public class WebhookMessageAdvanced extends WebhookMessage {
             payload.put("username", username);
         payload.put("tts", isTTS);
         payload.put("allowed_mentions", allowedMentions);
-        if (rows.size() > 0) {
+        if (components.size() > 0) {
             JSONArray components = new JSONArray();
-            for (MessageRow row : rows) {
-                JSONObject component = new JSONObject(row.getJSON().toString());
+            for (ActionRow row : this.components) {
+                JSONObject component = new JSONObject(row.toData().toString());
                 components.put(component);
             }
             payload.put("components", components);

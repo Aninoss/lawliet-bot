@@ -7,15 +7,15 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.MessageButton;
-import core.buttons.MessageSendActionAdvanced;
+import core.components.ActionRows;
 import core.internet.HttpProperty;
 import core.internet.HttpRequest;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import org.json.JSONObject;
 
 public abstract class DeepAIAbstract extends Command {
@@ -44,9 +44,9 @@ public abstract class DeepAIAbstract extends Command {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("success", result))
                     .setImage(result);
 
-            new MessageSendActionAdvanced(event.getChannel())
-                    .appendButtons(new MessageButton(ButtonStyle.LINK, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"), result))
-                    .embed(eb.build())
+            Button button = Button.of(ButtonStyle.LINK, result, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"));
+            event.getChannel().sendMessage(eb.build())
+                    .setActionRows(ActionRows.of(button))
                     .queue();
             return true;
         }

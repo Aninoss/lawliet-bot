@@ -13,9 +13,6 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
@@ -26,7 +23,10 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "clear",
@@ -137,7 +137,7 @@ public class ClearCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
         interrupt = true;
         return true;
@@ -146,7 +146,7 @@ public class ClearCommand extends Command implements OnButtonListener {
     @Override
     public EmbedBuilder draw() throws Throwable {
         if (!interrupt) {
-            setButtons(new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "cancel"));
+            setButtons(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             return EmbedFactory.getEmbedDefault(this, getString("progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));

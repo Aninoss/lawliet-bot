@@ -10,9 +10,6 @@ import commands.listeners.OnButtonListener;
 import constants.Category;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.mention.Mention;
 import core.mention.MentionList;
 import core.utils.BotPermissionUtil;
@@ -25,7 +22,10 @@ import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "warn",
@@ -107,8 +107,8 @@ public class WarnCommand extends Command implements OnButtonListener {
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         if (userList.size() > 1 || moderationBean.isQuestion()) {
             setButtons(
-                    new MessageButton(ButtonStyle.SUCCESS, TextManager.getString(getLocale(), Category.MODERATION, "warn_button_confirm"), "true"),
-                    new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "false")
+                    Button.of(ButtonStyle.SUCCESS, "true", TextManager.getString(getLocale(), Category.MODERATION, "warn_button_confirm")),
+                    Button.of(ButtonStyle.SECONDARY, "false", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
             );
             registerButtonListener();
         } else {
@@ -188,11 +188,11 @@ public class WarnCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
-        boolean confirm = Boolean.parseBoolean(event.getCustomId());
+        boolean confirm = Boolean.parseBoolean(event.getComponentId());
         if (confirm) {
-            execute(event.getChannel(), event.getMember());
+            execute(event.getTextChannel(), event.getMember());
         } else {
             status = Status.CANCELED;
         }

@@ -2,15 +2,8 @@ package events.discordevents;
 
 import java.util.*;
 import core.*;
-import core.buttons.GuildComponentInteractionEvent;
-import core.cache.MessageCache;
-import core.internet.HttpProperty;
-import core.internet.HttpRequest;
 import events.discordevents.eventtypeabstracts.*;
 import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.RawGatewayEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.api.events.channel.voice.VoiceChannelDeleteEvent;
@@ -29,6 +22,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.http.HttpRequestEvent;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
@@ -37,13 +31,8 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemove
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.utils.data.DataObject;
-import net.dv8tion.jda.internal.JDAImpl;
-import net.dv8tion.jda.internal.entities.GuildImpl;
 import net.dv8tion.jda.internal.requests.Route;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 import org.reflections.Reflections;
 
 public class DiscordEventAdapter extends ListenerAdapter {
@@ -99,7 +88,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(@NotNull GuildMessageReceivedEvent event) {
-        MessageCache.getInstance().put(event.getMessage());
         GlobalThreadPool.getExecutorService()
                 .submit(() -> GuildMessageReceivedAbstract.onGuildMessageReceivedStatic(event, getListenerList(GuildMessageReceivedAbstract.class)));
     }
@@ -111,7 +99,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onGuildMessageUpdate(@NotNull GuildMessageUpdateEvent event) {
-        MessageCache.getInstance().put(event.getMessage());
         GlobalThreadPool.getExecutorService()
                 .submit(() -> GuildMessageUpdateAbstract.onGuildMessageUpdateStatic(event, getListenerList(GuildMessageUpdateAbstract.class)));
     }
@@ -213,8 +200,9 @@ public class DiscordEventAdapter extends ListenerAdapter {
         GuildMemberUpdatePendingAbstract.onGuildMemberUpdatePendingStatic(event, getListenerList(GuildMemberUpdatePendingAbstract.class));
     }
 
-    public void onGuildComponentInteraction(@NonNull GuildComponentInteractionEvent event) {
-        GuildComponentInteractionAbstract.onGuildComponentInteractionStatic(event, getListenerList(GuildComponentInteractionAbstract.class));
+    @Override
+    public void onButtonClick(@NotNull ButtonClickEvent event) {
+        ButtonClickAbstract.onButtonClickStatic(event, getListenerList(ButtonClickAbstract.class));
     }
 
     @Override
@@ -242,42 +230,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
         }
 
         RestLogger.getInstance().insert(guildId);
-    }
-
-    @Override
-    public void onRawGateway(@NotNull RawGatewayEvent event) {
-        if (event.getPackage().getString("t").equals("INTERACTION_CREATE") &&
-                event.getPayload().getInt("type") == 3 &&
-                event.getPayload().getObject("message").getInt("flags") == 0
-        ) {
-            DataObject payload = event.getPayload();
-            DataObject data = payload.getObject("data");
-            Message message = ((JDAImpl) event.getJDA()).getEntityBuilder().createMessage(payload.getObject("message"), true);
-            Member member = ((JDAImpl) event.getJDA()).getEntityBuilder().createMember((GuildImpl) message.getGuild(), payload.getObject("member"));
-
-            GuildComponentInteractionEvent interactionEvent = new GuildComponentInteractionEvent(
-                    event.getJDA(),
-                    event.getResponseNumber(),
-                    member,
-                    message,
-                    data.getInt("component_type"),
-                    data.getString("custom_id"),
-                    Long.parseUnsignedLong(payload.getString("id")),
-                    payload.getString("token")
-            );
-
-            sendInteractionResponse(interactionEvent, 6);
-            onGuildComponentInteraction(interactionEvent);
-        }
-    }
-
-    private void sendInteractionResponse(GuildComponentInteractionEvent event, int code) {
-        Route.CompiledRoute route = INTERACTION_CALLBACK_ROUTE.compile(event.getId(), event.getToken());
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("type", code);
-
-        HttpRequest.getData(route.getCompiledRoute(), "POST", jsonObject.toString(), new HttpProperty("Content-Type", "application/json"))
-                .exceptionally(ExceptionLogger.get());
     }
 
 }

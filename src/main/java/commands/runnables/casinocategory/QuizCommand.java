@@ -13,16 +13,16 @@ import constants.LogStatus;
 import constants.Settings;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.internet.HttpRequest;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -92,8 +92,8 @@ public class QuizCommand extends CasinoAbstract {
     }
 
     @Override
-    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
-        int i = Integer.parseInt(event.getCustomId());
+    public boolean onButtonCasino(ButtonClickEvent event) throws Throwable {
+        int i = Integer.parseInt(event.getComponentId());
         onAnswerSelected(i);
         return true;
     }
@@ -118,7 +118,7 @@ public class QuizCommand extends CasinoAbstract {
     }
 
     private void setAnswersButtons() {
-        ArrayList<MessageButton> buttons = new ArrayList<>();
+        ArrayList<Button> buttons = new ArrayList<>();
         for (int i = 0; i < answers.length; i++) {
             ButtonStyle style;
             if (getStatus() != Status.ACTIVE && correctAnswer == i) {
@@ -128,11 +128,13 @@ public class QuizCommand extends CasinoAbstract {
             } else {
                 style = ButtonStyle.SECONDARY;
             }
-            buttons.add(new MessageButton(style, answers[i], String.valueOf(i), (String)null, getStatus() != Status.ACTIVE));
+            Button button = Button.of(style, String.valueOf(i), answers[i])
+                    .withDisabled(getStatus() != Status.ACTIVE);
+            buttons.add(button);
         }
 
         if (getStatus() != Status.ACTIVE) {
-            buttons.add(new MessageButton(ButtonStyle.PRIMARY, TextManager.getString(getLocale(), Category.CASINO, "casino_retry"), BUTTON_ID_RETRY));
+            buttons.add(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_RETRY, TextManager.getString(getLocale(), Category.CASINO, "casino_retry")));
         }
         setButtons(buttons);
     }

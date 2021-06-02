@@ -14,8 +14,6 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicTextChannel;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageEditActionAdvanced;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
@@ -31,6 +29,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
@@ -175,7 +174,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     }
 
     @Override
-    public void onStaticButton(GuildComponentInteractionEvent event) throws Throwable {
+    public void onStaticButton(ButtonClickEvent event) throws Throwable {
         DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMessage().getIdLong());
         Message message = event.getMessage();
 
@@ -183,8 +182,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
                 .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getMember().getAsMention()));
 
-        new MessageEditActionAdvanced(message)
-                .embed(eb.build())
+        message.editMessage(eb.build())
+                .setActionRows()
                 .queue();
 
         FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
@@ -211,7 +210,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
             message.editMessage(eb2.build()).queue();
 
-            TextChannel channel = event.getChannel();
+            TextChannel channel = event.getTextChannel();
             if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
                 channel.sendMessage(userBean.changeValuesEmbed(0, won).build())
                         .queue(m -> {

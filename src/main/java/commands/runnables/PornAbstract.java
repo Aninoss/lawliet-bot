@@ -16,10 +16,8 @@ import constants.*;
 import core.EmbedFactory;
 import core.MainLogger;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.MessageButton;
-import core.buttons.MessageSendActionAdvanced;
 import core.cache.PatreonCache;
+import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
@@ -31,8 +29,11 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public abstract class PornAbstract extends Command implements OnAlertListener {
@@ -121,8 +122,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                 }
             }
 
-            boolean embed = first &&
-                    pornImages.size() == 1 &&
+            boolean embed = pornImages.size() == 1 &&
                     !pornImages.get(0).isVideo() &&
                     BotPermissionUtil.canWriteEmbed(event.getChannel());
 
@@ -130,35 +130,38 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             long finalAmount = amount;
             first = false;
 
-            MessageAction messageAction = new MessageSendActionAdvanced(event.getChannel())
-                    .appendButtons(generateMessageButtons(pornImages));
+            MessageAction messageAction = null;
             if (embed) {
                 Optional<Message> messageTemplateOpt = generatePostMessagesEmbed(pornImages.get(0), event.getChannel());
                 if (messageTemplateOpt.isPresent()) {
-                    messageAction = messageAction.embed(messageTemplateOpt.get().getEmbeds().get(0));
+                    MessageEmbed e = messageTemplateOpt.get().getEmbeds().get(0);
+                    messageAction = event.getChannel().sendMessage(e);
                 }
             } else {
                 Optional<Message> messageTemplateOpt = generatePostMessagesText(pornImages, args, event.getChannel(), 3);
                 if (messageTemplateOpt.isPresent()) {
-                    messageAction = messageAction.content(messageTemplateOpt.get().getContentRaw());
+                    messageAction = event.getChannel().sendMessage(messageTemplateOpt.get().getContentRaw());
                 }
             }
 
-            if (finalAmount <= 0) {
-                messageAction.complete();
-            } else {
-                messageAction.queue();
+            if (messageAction != null) {
+                messageAction = messageAction.setActionRows(ActionRows.of(generateButtons(pornImages)));
+                if (finalAmount <= 0) {
+                    messageAction.complete();
+                } else {
+                    messageAction.queue();
+                }
             }
         } while (amount > 0);
 
         return true;
     }
 
-    private List<MessageButton> generateMessageButtons(List<PornImage> pornImages) {
-        ArrayList<MessageButton> buttons = new ArrayList<>();
+    private List<Button> generateButtons(List<PornImage> pornImages) {
+        ArrayList<Button> buttons = new ArrayList<>();
         String tag = pornImages.size() > 1 ? "porn_source" : "porn_source_single";
         for (int i = 0; i < pornImages.size(); i++) {
-            buttons.add(new MessageButton(ButtonStyle.LINK, TextManager.getString(getLocale(), Category.NSFW, tag, String.valueOf(i + 1)), pornImages.get(i).getPageUrl()));
+            buttons.add(Button.of(ButtonStyle.LINK, pornImages.get(i).getPageUrl(), TextManager.getString(getLocale(), Category.NSFW, tag, String.valueOf(i + 1))));
         }
         return buttons;
     }
@@ -219,7 +222,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             }
         }
 
-        MessageButton messageButton = generateMessageButtons(pornImages).get(0);
+        Button messageButton = generateButtons(pornImages).get(0);
         if (!pornImages.get(0).isVideo()) {
             Optional<Message> messageTemplateOpt = generatePostMessagesEmbed(pornImages.get(0), channel);
             messageTemplateOpt.ifPresent(message -> {

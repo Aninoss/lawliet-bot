@@ -15,9 +15,6 @@ import constants.TrackerResult;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
@@ -28,7 +25,10 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "fullclear",
@@ -154,7 +154,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
         interrupt = true;
         return true;
@@ -163,7 +163,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     @Override
     public EmbedBuilder draw() throws Throwable {
         if (!interrupt) {
-            setButtons(new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "cancel"));
+            setButtons(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), Category.MODERATION, "clear_progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get()), Emojis.X));
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));

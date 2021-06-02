@@ -11,11 +11,11 @@ import core.EmbedFactory;
 import core.FileManager;
 import core.LocalFile;
 import core.TextManager;
-import core.buttons.GuildComponentInteractionEvent;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
@@ -51,7 +51,7 @@ public class HangmanCommand extends CasinoAbstract {
     }
 
     @Override
-    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButtonCasino(ButtonClickEvent event) throws Throwable {
         return true;
     }
 

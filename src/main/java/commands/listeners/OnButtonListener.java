@@ -9,28 +9,28 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import core.MainLogger;
-import core.buttons.GuildComponentInteractionEvent;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
 public interface OnButtonListener {
 
-    boolean onButton(GuildComponentInteractionEvent event) throws Throwable;
+    boolean onButton(ButtonClickEvent event) throws Throwable;
 
     EmbedBuilder draw() throws Throwable;
 
     default CompletableFuture<Long> registerButtonListener() {
         Command command = (Command) this;
         return command.getMember().map(member ->
-                registerButtonListener(member.getIdLong(), event -> event.getMember().getIdLong() == member.getIdLong() &&
+                registerButtonListener(member.getIdLong(), event -> event.getUser().getIdLong() == member.getIdLong() &&
                         event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L)
                 )
         ).orElse(null);
     }
 
-    default CompletableFuture<Long> registerButtonListener(long authorId, Function<GuildComponentInteractionEvent, Boolean> validityChecker) {
+    default CompletableFuture<Long> registerButtonListener(long authorId, Function<ButtonClickEvent, Boolean> validityChecker) {
         Command command = (Command) this;
 
         Runnable onTimeOut = () -> {
@@ -50,7 +50,7 @@ public interface OnButtonListener {
             }
         };
 
-        CommandListenerMeta<GuildComponentInteractionEvent> commandListenerMeta =
+        CommandListenerMeta<ButtonClickEvent> commandListenerMeta =
                 new CommandListenerMeta<>(authorId, validityChecker, onTimeOut, onOverridden, command);
         CommandContainer.getInstance().registerListener(OnButtonListener.class, commandListenerMeta);
 
@@ -93,7 +93,7 @@ public interface OnButtonListener {
         command.deregisterListeners();
     }
 
-    default void processButton(GuildComponentInteractionEvent event) {
+    default void processButton(ButtonClickEvent event) {
         Command command = (Command) this;
 
         try {
@@ -105,7 +105,7 @@ public interface OnButtonListener {
                 }
             }
         } catch (Throwable e) {
-            ExceptionUtil.handleCommandException(e, command, event.getChannel());
+            ExceptionUtil.handleCommandException(e, command, event.getTextChannel());
         }
     }
 

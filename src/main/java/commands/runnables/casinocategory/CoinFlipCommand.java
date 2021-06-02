@@ -8,16 +8,16 @@ import constants.Category;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "coinflip",
@@ -44,16 +44,16 @@ public class CoinFlipCommand extends CasinoAbstract {
         }
 
         setButtons(
-                new MessageButton(ButtonStyle.PRIMARY, getString("heads"), "0"),
-                new MessageButton(ButtonStyle.PRIMARY, getString("tails"), "1"),
+                Button.of(ButtonStyle.PRIMARY, "0", getString("heads")),
+                Button.of(ButtonStyle.PRIMARY, "1", getString("tails")),
                 BUTTON_CANCEL
         );
         return true;
     }
 
     @Override
-    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
-        int i = Integer.parseInt(event.getCustomId());
+    public boolean onButtonCasino(ButtonClickEvent event) throws Throwable {
+        int i = Integer.parseInt(event.getComponentId());
         selection[0] = i;
         manageEnd();
         return true;

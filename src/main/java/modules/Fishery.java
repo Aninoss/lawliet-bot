@@ -9,9 +9,7 @@ import constants.FisheryStatus;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.MessageButton;
-import core.buttons.MessageSendActionAdvanced;
+import core.components.ActionRows;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -20,9 +18,12 @@ import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public class Fishery {
 
@@ -75,10 +76,10 @@ public class Fishery {
                 .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription"))
                 .setImage("https://cdn.discordapp.com/attachments/711665837114654781/711665915355201576/treasure_closed.png");
 
-        MessageButton button = new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_button"), "open", FisheryCommand.EMOJI_KEY);
-        new MessageSendActionAdvanced(channel)
-                .appendButtons(button)
-                .embed(eb.build())
+        Button button = Button.of(ButtonStyle.SECONDARY, "open", TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_button"))
+                .withEmoji(Emoji.fromUnicode(FisheryCommand.EMOJI_KEY));
+        channel.sendMessage(eb.build())
+                .setActionRows(ActionRows.of(button))
                 .queue(m -> {
                     DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong())
                             .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger()));

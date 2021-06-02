@@ -8,15 +8,15 @@ import constants.ExternalLinks;
 import core.EmbedFactory;
 import core.Program;
 import core.ShardManager;
-import core.buttons.ButtonStyle;
-import core.buttons.MessageButton;
-import core.buttons.MessageSendActionAdvanced;
+import core.components.ActionRows;
 import core.utils.BotUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.modules.version.DBVersion;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "stats",
@@ -70,9 +70,8 @@ public class StatsCommand extends Command {
                 ) + "\n\n" + getString("translator", dephordName, neverCookFirstName, laleName)
         );
 
-        new MessageSendActionAdvanced(event.getChannel())
-                .appendButtons(new MessageButton(ButtonStyle.LINK, getString("invite"), ExternalLinks.BOT_INVITE_URL))
-                .embed(eb.build())
+        event.getChannel().sendMessage(eb.build())
+                .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, getString("invite"))))
                 .queue();
         return true;
     }

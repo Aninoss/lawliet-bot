@@ -16,10 +16,7 @@ import constants.Response;
 import core.*;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.MentionableAtomicAsset;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
-import core.buttons.MessageSendActionAdvanced;
+import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
@@ -31,9 +28,12 @@ import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "ticket",
@@ -203,9 +203,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("message_content", emoji));
                 eb.setFooter(null);
 
-                new MessageSendActionAdvanced(tempPostChannel)
-                        .appendButtons(new MessageButton(ButtonStyle.PRIMARY, getString("button_create"), BUTTON_ID_CREATE))
-                        .embed(eb.build())
+                tempPostChannel.sendMessage(eb.build())
+                        .setActionRows(ActionRows.of(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CREATE, getString("button_create"))))
                         .queue(this::registerStaticReactionMessage);
 
                 setLog(LogStatus.SUCCESS, getString("message_sent"));
@@ -270,14 +269,14 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @Override
-    public void onStaticButton(GuildComponentInteractionEvent event) {
+    public void onStaticButton(ButtonClickEvent event) {
         TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
         TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
 
-        if (ticketChannel == null && event.getCustomId().equals(BUTTON_ID_CREATE)) {
-            onTicketCreate(ticketData, event.getChannel(), event.getMember());
-        } else if (ticketChannel != null && event.getCustomId().equals(BUTTON_ID_CLOSE)) {
-            onTicketRemove(event.getChannel());
+        if (ticketChannel == null && event.getComponentId().equals(BUTTON_ID_CREATE)) {
+            onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
+        } else if (ticketChannel != null && event.getComponentId().equals(BUTTON_ID_CLOSE)) {
+            onTicketRemove(event.getTextChannel());
         }
     }
 
@@ -304,10 +303,9 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     private void setupNewTicketChannel(TicketData ticketData, TextChannel textChannel, Member member) {
         /* member greeting */
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("greeting", TICKET_CLOSE_EMOJI));
-        new MessageSendActionAdvanced(textChannel)
-                .appendButtons(new MessageButton(ButtonStyle.DANGER, getString("button_close"), BUTTON_ID_CLOSE))
+        textChannel.sendMessage(eb.build())
+                .setActionRows(ActionRows.of(Button.of(ButtonStyle.DANGER, BUTTON_ID_CLOSE, getString("button_close"))))
                 .content(member.getAsMention())
-                .embed(eb.build())
                 .queue(this::registerStaticReactionMessage);
 
         /* post announcement to staff channel */

@@ -1,24 +1,24 @@
-package events.discordevents.guildcomponentinteraction;
+package events.discordevents.buttonclick;
 
 import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnStaticButtonListener;
 import core.CustomObservableMap;
-import core.buttons.GuildComponentInteractionEvent;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
-import events.discordevents.eventtypeabstracts.GuildComponentInteractionAbstract;
+import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
 @DiscordEvent
-public class GuildComponentInteractionCommandsStatic extends GuildComponentInteractionAbstract {
+public class ButtonClickCommandsStatic extends ButtonClickAbstract {
 
     @Override
-    public boolean onGuildComponentInteraction(GuildComponentInteractionEvent event) throws Throwable {
-        if (!BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+    public boolean onButtonClick(ButtonClickEvent event) throws Throwable {
+        if (!BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
             return true;
         }
 

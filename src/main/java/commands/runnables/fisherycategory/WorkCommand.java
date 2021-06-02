@@ -15,9 +15,6 @@ import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.utils.EmbedUtil;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
@@ -28,7 +25,10 @@ import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "work",
@@ -57,7 +57,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
         Optional<Instant> nextWork = fisheryMemberBean.checkNextWork();
         if (nextWork.isEmpty()) {
             setArea();
-            setButtons(new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "cancel"));
+            setButtons(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             registerButtonListener();
             registerMessageInputListener(false);
             return true;
@@ -102,7 +102,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
         active = false;
         fisheryMemberBean.setWorkCanceled();

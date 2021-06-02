@@ -7,13 +7,13 @@ import commands.runnables.CasinoAbstract;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "tower",
@@ -41,15 +41,15 @@ public class TowerCommand extends CasinoAbstract {
     public boolean onGameStart(GuildMessageReceivedEvent event, String args) {
         showMoreText = true;
         setButtons(
-                new MessageButton(ButtonStyle.PRIMARY, getString("raise", StringUtil.doubleToString(MULTIPLIER_STEP, 2, getLocale())), "0"),
-                new MessageButton(ButtonStyle.SECONDARY, getString("sell"), "1")
+                Button.of(ButtonStyle.PRIMARY, "0", getString("raise", StringUtil.doubleToString(MULTIPLIER_STEP, 2, getLocale()))),
+                Button.of(ButtonStyle.SECONDARY, "1", getString("sell"))
         );
         return true;
     }
 
     @Override
-    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
-        int i = Integer.parseInt(event.getCustomId());
+    public boolean onButtonCasino(ButtonClickEvent event) throws Throwable {
+        int i = Integer.parseInt(event.getComponentId());
         if (i == 0) {
             if (towerMultiplier < 10.0) {
                 onRaise();

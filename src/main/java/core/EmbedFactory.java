@@ -5,10 +5,10 @@ import java.util.Locale;
 import commands.Command;
 import constants.ExternalLinks;
 import constants.Settings;
-import core.buttons.ButtonStyle;
-import core.buttons.MessageButton;
 import core.utils.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public class EmbedFactory {
 
@@ -73,10 +73,10 @@ public class EmbedFactory {
                 .setDescription(TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_description"));
     }
 
-    public static MessageButton[] getPatreonBlockButtons(Locale locale) {
-        return new MessageButton[] {
-                new MessageButton(ButtonStyle.LINK, TextManager.getString(locale, TextManager.GENERAL, "patreon_button_patreon"), ExternalLinks.PATREON_PAGE),
-                new MessageButton(ButtonStyle.LINK, TextManager.getString(locale, TextManager.GENERAL, "patreon_button_unlock"), ExternalLinks.UNLOCK_SERVER_WEBSITE)
+    public static Button[] getPatreonBlockButtons(Locale locale) {
+        return new Button[] {
+                Button.of(ButtonStyle.LINK,ExternalLinks.PATREON_PAGE, TextManager.getString(locale, TextManager.GENERAL, "patreon_button_patreon")),
+                Button.of(ButtonStyle.LINK, ExternalLinks.UNLOCK_SERVER_WEBSITE, TextManager.getString(locale, TextManager.GENERAL, "patreon_button_unlock"))
         };
     }
 

@@ -5,12 +5,12 @@ import commands.Command;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public abstract class CommandOnOffSwitchAbstract extends Command implements OnButtonListener {
 
@@ -60,8 +60,8 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
                     .queue();
         } else {
             setButtons(
-                    new MessageButton(ButtonStyle.SUCCESS, TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 1), "true"),
-                    new MessageButton(ButtonStyle.DANGER, TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 0), "false")
+                    Button.of(ButtonStyle.SUCCESS, "true", TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 1)),
+                    Button.of(ButtonStyle.DANGER, "false", TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 0))
             );
             registerButtonListener();
         }
@@ -69,9 +69,9 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
-        boolean active = Boolean.parseBoolean(event.getCustomId());
+        boolean active = Boolean.parseBoolean(event.getComponentId());
         if (setActive(active)) {
             mode = Mode.SET;
         } else {

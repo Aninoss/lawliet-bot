@@ -19,11 +19,9 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import constants.Settings;
 import core.*;
-import core.buttons.ButtonStyle;
-import core.buttons.MessageButton;
-import core.buttons.MessageSendActionAdvanced;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
+import core.components.ActionRows;
 import core.schedule.MainScheduler;
 import core.utils.*;
 import mysql.modules.commandmanagement.DBCommandManagement;
@@ -33,6 +31,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class CommandManager {
@@ -103,9 +103,9 @@ public class CommandManager {
                     .setThumbnail(ShardManager.getInstance().getSelf().getAvatarUrl())
                     .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite"));
 
-            new MessageSendActionAdvanced(event.getChannel())
-                    .appendButtons(new MessageButton(ButtonStyle.LINK, TextManager.getString(locale, TextManager.GENERAL, "invite_button"), ExternalLinks.BOT_INVITE_REMINDER_URL))
-                    .embed(eb.build())
+            Button button = Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_REMINDER_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"));
+            event.getChannel().sendMessage(eb.build())
+                    .setActionRows(ActionRows.of(button))
                     .queue();
         }
     }
@@ -272,11 +272,10 @@ public class CommandManager {
         return false;
     }
 
-    private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text, boolean autoDelete, MessageButton... buttons) {
+    private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text, boolean autoDelete, Button... buttons) {
         if (BotPermissionUtil.canWrite(event.getChannel())) {
-            MessageAction messageAction = new MessageSendActionAdvanced(event.getChannel())
-                    .appendButtons(buttons)
-                    .content(TextManager.getString(locale, TextManager.GENERAL, "command_block", text));
+            MessageAction messageAction = event.getChannel().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
+                    .setActionRows(ActionRows.of(buttons));
 
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
                 messageAction = messageAction.reference(event.getMessage());
@@ -289,15 +288,14 @@ public class CommandManager {
         }
     }
 
-    private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb, boolean autoDelete, MessageButton... buttons) {
+    private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb, boolean autoDelete, Button... buttons) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             if (autoDelete) {
                 eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
             }
 
-            MessageAction messageAction = new MessageSendActionAdvanced(event.getChannel())
-                    .appendButtons(buttons)
-                    .embed(eb.build());
+            MessageAction messageAction = event.getChannel().sendMessage(eb.build())
+                    .setActionRows(ActionRows.of(buttons));
 
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
                 messageAction = messageAction.reference(event.getMessage());

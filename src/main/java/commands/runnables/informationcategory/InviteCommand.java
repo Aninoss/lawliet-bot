@@ -5,11 +5,11 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.ExternalLinks;
 import core.EmbedFactory;
-import core.buttons.ButtonStyle;
-import core.buttons.MessageButton;
-import core.buttons.MessageSendActionAdvanced;
+import core.components.ActionRows;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "invite",
@@ -27,9 +27,8 @@ public class InviteCommand extends Command {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template"));
-        new MessageSendActionAdvanced(event.getChannel())
-                .appendButtons(new MessageButton(ButtonStyle.LINK, getString("button"), ExternalLinks.BOT_INVITE_URL))
-                .embed(eb.build())
+        event.getChannel().sendMessage(eb.build())
+                .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, getString("button"))))
                 .queue();
         return true;
     }

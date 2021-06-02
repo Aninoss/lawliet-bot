@@ -1,9 +1,9 @@
 package commands.listeners;
 
-import core.buttons.GuildComponentInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
 public interface OnStaticButtonListener {
 
-    void onStaticButton(GuildComponentInteractionEvent event) throws Throwable;
+    void onStaticButton(ButtonClickEvent event) throws Throwable;
 
 }

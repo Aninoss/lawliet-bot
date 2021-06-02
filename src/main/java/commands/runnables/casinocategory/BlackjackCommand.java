@@ -11,15 +11,15 @@ import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "blackjack",
@@ -55,16 +55,16 @@ public class BlackjackCommand extends CasinoAbstract {
         }
 
         setButtons(
-                new MessageButton(ButtonStyle.PRIMARY, getString("hit"), BUTTON_ID_HIT),
-                new MessageButton(ButtonStyle.SECONDARY, getString("stand"), BUTTON_ID_STAND)
+                Button.of(ButtonStyle.PRIMARY, BUTTON_ID_HIT, getString("hit")),
+                Button.of(ButtonStyle.SECONDARY, BUTTON_ID_STAND, getString("stand"))
         );
         return true;
     }
 
     @Override
-    public boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButtonCasino(ButtonClickEvent event) throws Throwable {
         if (turnForPlayer) {
-            if (event.getCustomId().equals(BUTTON_ID_HIT)) {
+            if (event.getComponentId().equals(BUTTON_ID_HIT)) {
                 getCardsForPlayer(PlayerType.PLAYER).add(new GameCard());
                 cardRecentDrawn = PlayerType.PLAYER;
                 setLog(LogStatus.SUCCESS, getString("getcard", 0));
@@ -78,7 +78,7 @@ public class BlackjackCommand extends CasinoAbstract {
                     });
                 }
                 return true;
-            } else if (event.getCustomId().equals(BUTTON_ID_STAND)) {
+            } else if (event.getComponentId().equals(BUTTON_ID_STAND)) {
                 turnForPlayer = false;
                 setButtons();
                 deregisterListeners();

@@ -5,13 +5,13 @@ import commands.Command;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public abstract class ListAbstract extends Command implements OnButtonListener {
 
@@ -39,19 +39,19 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
             }
         }
         setButtons(
-                new MessageButton(ButtonStyle.PRIMARY, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous"), BUTTON_ID_PREVIOUS),
-                new MessageButton(ButtonStyle.PRIMARY, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"), BUTTON_ID_NEXT)
+                Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
+                Button.of(ButtonStyle.PRIMARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"))
         );
         registerButtonListener();
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
-        if (event.getCustomId().equals(BUTTON_ID_PREVIOUS)) {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
+        if (event.getComponentId().equals(BUTTON_ID_PREVIOUS)) {
             page--;
             if (page < 0) page = getPageSize() - 1;
             return true;
-        } else if (event.getCustomId().equals(BUTTON_ID_NEXT)) {
+        } else if (event.getComponentId().equals(BUTTON_ID_NEXT)) {
             page++;
             if (page > getPageSize() - 1) page = 0;
             return true;

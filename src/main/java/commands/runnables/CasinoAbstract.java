@@ -6,12 +6,12 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
-import constants.*;
+import constants.Category;
+import constants.FisheryStatus;
+import constants.LogStatus;
+import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -21,7 +21,10 @@ import mysql.modules.gamestatistics.GameStatisticsData;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public abstract class CasinoAbstract extends Command implements OnButtonListener, OnMessageInputListener {
 
@@ -30,8 +33,8 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     public static final String BUTTON_ID_RETRY = "retry";
     public static final String BUTTON_ID_QUIT = "quit";
 
-    protected final MessageButton BUTTON_RETRY = new MessageButton(ButtonStyle.PRIMARY, TextManager.getString(getLocale(), Category.CASINO, "casino_retry"),  BUTTON_ID_RETRY);
-    protected final MessageButton BUTTON_CANCEL = new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), BUTTON_ID_QUIT);
+    protected final Button BUTTON_RETRY = Button.of(ButtonStyle.PRIMARY,  BUTTON_ID_RETRY, TextManager.getString(getLocale(), Category.CASINO, "casino_retry"));
+    protected final Button BUTTON_CANCEL = Button.of(ButtonStyle.SECONDARY, BUTTON_ID_QUIT, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"));
 
     private static final double BONUS_MULTIPLICATOR = 1;
 
@@ -53,7 +56,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
 
     public abstract boolean onGameStart(GuildMessageReceivedEvent event, String args) throws Throwable;
 
-    public abstract boolean onButtonCasino(GuildComponentInteractionEvent event) throws Throwable;
+    public abstract boolean onButtonCasino(ButtonClickEvent event) throws Throwable;
 
     public abstract EmbedBuilder drawCasino(String playerName, long coinsInput);
 
@@ -200,16 +203,16 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
         if (status == Status.ACTIVE) {
-            if (getButtons().contains(BUTTON_CANCEL) && event.getCustomId().equals(BUTTON_ID_QUIT)) {
+            if (getButtons().contains(BUTTON_CANCEL) && event.getComponentId().equals(BUTTON_ID_QUIT)) {
                 canBeCanceled = false;
                 cancel(false, true);
                 return true;
             } else {
                 return onButtonCasino(event);
             }
-        } else if (event.getCustomId().equals(BUTTON_ID_RETRY)) {
+        } else if (event.getComponentId().equals(BUTTON_ID_RETRY)) {
             deregisterListeners();
             redrawMessageWithoutButtons();
             Command command = CommandManager.createCommandByClass(this.getClass(), getLocale(), getPrefix());

@@ -11,9 +11,6 @@ import constants.Emojis;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.mention.MentionList;
 import core.mention.MentionValue;
 import core.utils.BotPermissionUtil;
@@ -26,7 +23,10 @@ import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "reminder",
@@ -116,7 +116,7 @@ public class ReminderCommand extends Command implements OnButtonListener {
                 .addField(getString("content"), StringUtil.shortenString(messageText, 1024), false);
 
         insertReminderBean(channel, minutes, messageText);
-        setButtons(new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), "cancel"));
+        setButtons(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
         registerButtonListener();
         return true;
     }
@@ -151,7 +151,7 @@ public class ReminderCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
         if (active) {
             deregisterListenersWithButtons();
             cancel(event.getGuild().getIdLong());

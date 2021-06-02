@@ -3,6 +3,7 @@ package commands.runnables.fisherycategory;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
@@ -12,10 +13,8 @@ import constants.FisheryGear;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.MessageButton;
-import core.buttons.MessageSendActionAdvanced;
 import core.cache.PatreonCache;
+import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -24,6 +23,9 @@ import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "daily",
@@ -70,9 +72,12 @@ public class DailyCommand extends Command implements FisheryInterface {
             eb.addField(getString("didyouknow_title"), getString("didyouknow_desc"), false);
             if (breakStreak) EmbedUtil.addLog(eb, LogStatus.LOSE, getString("combobreak"));
 
-            new MessageSendActionAdvanced(event.getChannel())
-                    .appendButtons(new MessageButton(ButtonStyle.LINK, getString("upvote"), ExternalLinks.UPVOTE_URL))
-                    .appendButtons(new MessageButton(ButtonStyle.LINK, getString("patreon"), ExternalLinks.PATREON_PAGE))
+            List<ActionRow> rows = ActionRows.of(
+                    Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, getString("upvote")),
+                    Button.of(ButtonStyle.LINK, ExternalLinks.PATREON_PAGE, getString("patreon"))
+            );
+            event.getChannel().sendMessage(eb.build())
+                    .setActionRows(rows)
                     .embed(eb.build())
                     .queue();
             event.getChannel().sendMessage(userBean.changeValuesEmbed(fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build()).queue();

@@ -18,10 +18,7 @@ import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.ShardManager;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
-import core.buttons.MessageSendActionAdvanced;
+import core.components.ActionRows;
 import core.utils.*;
 import javafx.util.Pair;
 import mysql.modules.survey.*;
@@ -29,8 +26,11 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "survey",
@@ -56,9 +56,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(event.getMember());
 
         event.getChannel().sendMessage(surveyEmbeds.resultEmbed.build()).queue();
-        new MessageSendActionAdvanced(event.getChannel())
-                .appendButtons(surveyEmbeds.buttons)
-                .embed(surveyEmbeds.newEmbed.build())
+        event.getChannel().sendMessage(surveyEmbeds.newEmbed.build())
+                .setActionRows(ActionRows.of(surveyEmbeds.buttons))
                 .queue(this::registerStaticReactionMessage);
         return true;
     }
@@ -94,10 +93,10 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     }
 
     @Override
-    public void onStaticButton(GuildComponentInteractionEvent event) throws Throwable {
+    public void onStaticButton(ButtonClickEvent event) throws Throwable {
         SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
         if (event.getMessage().getTimeCreated().toInstant().isAfter(surveyData.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
-            if (event.getCustomId().equals(BUTTON_ID_NOTIFICATIONS)) {
+            if (event.getComponentId().equals(BUTTON_ID_NOTIFICATIONS)) {
                 if (surveyData.getFirstVotes().containsKey(event.getMember().getIdLong())) {
                     surveyData.toggleNotificationUserId(event.getMember().getIdLong());
                     EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
@@ -107,7 +106,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
                     JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
                 }
             } else {
-                String[] parts = event.getCustomId().split("_");
+                String[] parts = event.getComponentId().split("_");
                 byte type = Byte.parseByte(parts[1]);
                 byte vote = Byte.parseByte(parts[2]);
 
@@ -206,12 +205,12 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         String[] answers = currentSurvey.getSurveyQuestionAndAnswers(getLocale()).getAnswers();
-        MessageButton[] buttons = new MessageButton[] {
-                new MessageButton(ButtonStyle.PRIMARY, getString("button_first", answers[0]), BUTTON_ID_VOTE_FIRST_A),
-                new MessageButton(ButtonStyle.PRIMARY, getString("button_first", answers[1]), BUTTON_ID_VOTE_FIRST_B),
-                new MessageButton(ButtonStyle.SUCCESS, getString("button_second", answers[0]), BUTTON_ID_VOTE_SECOND_A),
-                new MessageButton(ButtonStyle.SUCCESS, getString("button_second", answers[1]), BUTTON_ID_VOTE_SECOND_B),
-                new MessageButton(ButtonStyle.SECONDARY, getString("button_noti"), BUTTON_ID_NOTIFICATIONS)
+        Button[] buttons = new Button[] {
+                Button.of(ButtonStyle.PRIMARY, BUTTON_ID_VOTE_FIRST_A, getString("button_first", answers[0])),
+                Button.of(ButtonStyle.PRIMARY, BUTTON_ID_VOTE_FIRST_B, getString("button_first", answers[1])),
+                Button.of(ButtonStyle.SUCCESS, BUTTON_ID_VOTE_SECOND_A, getString("button_second", answers[0])),
+                Button.of(ButtonStyle.SUCCESS, BUTTON_ID_VOTE_SECOND_B, getString("button_second", answers[1])),
+                Button.of(ButtonStyle.SECONDARY, BUTTON_ID_NOTIFICATIONS, getString("button_noti"))
         };
 
         return new SurveyEmbeds(
@@ -334,9 +333,9 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         private final EmbedBuilder resultEmbed;
         private final EmbedBuilder newEmbed;
-        private final MessageButton[] buttons;
+        private final Button[] buttons;
 
-        public SurveyEmbeds(EmbedBuilder resultEmbed, EmbedBuilder newEmbed, MessageButton[] buttons) {
+        public SurveyEmbeds(EmbedBuilder resultEmbed, EmbedBuilder newEmbed, Button[] buttons) {
             this.resultEmbed = resultEmbed;
             this.newEmbed = newEmbed;
             this.buttons = buttons;

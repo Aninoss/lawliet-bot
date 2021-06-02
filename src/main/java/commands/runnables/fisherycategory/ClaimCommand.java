@@ -9,9 +9,7 @@ import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.buttons.ButtonStyle;
-import core.buttons.MessageButton;
-import core.buttons.MessageSendActionAdvanced;
+import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -23,6 +21,8 @@ import mysql.modules.upvotes.DBUpvotes;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "claim",
@@ -45,7 +45,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
         int upvotesUnclaimed = userBean.getUpvoteStack();
         userBean.clearUpvoteStack();
 
-        MessageButton upvoteButton = new MessageButton(ButtonStyle.LINK, getString("button"), ExternalLinks.UPVOTE_URL);
+        Button upvoteButton = Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, getString("button"));
         if (upvotesUnclaimed == 0) {
             EmbedBuilder eb;
             if (DBAutoClaim.getInstance().retrieve().isActive(event.getMember().getIdLong())) {
@@ -56,9 +56,8 @@ public class ClaimCommand extends Command implements FisheryInterface {
             }
 
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
-            new MessageSendActionAdvanced(event.getChannel())
-                    .appendButtons(upvoteButton)
-                    .embed(eb.build())
+            event.getChannel().sendMessage(eb.build())
+                    .setActionRows(ActionRows.of(upvoteButton))
                     .queue();
             return false;
         } else {
@@ -67,9 +66,8 @@ public class ClaimCommand extends Command implements FisheryInterface {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(upvotesUnclaimed), StringUtil.numToString(Math.round(fishes * upvotesUnclaimed))));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
-            new MessageSendActionAdvanced(event.getChannel())
-                    .appendButtons(upvoteButton)
-                    .embed(eb.build())
+            event.getChannel().sendMessage(eb.build())
+                    .setActionRows(ActionRows.of(upvoteButton))
                     .queue();
             event.getChannel().sendMessage(userBean.changeValuesEmbed(fishes * upvotesUnclaimed, 0).build()).queue();
             return true;

@@ -8,15 +8,15 @@ import commands.listeners.OnMessageInputListener;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.GuildComponentInteractionEvent;
-import core.buttons.MessageButton;
 import core.utils.StringUtil;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "vctime",
@@ -55,8 +55,8 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
             );
 
             setButtons(
-                    new MessageButton(ButtonStyle.PRIMARY, getString("setunlimited"), BUTTON_ID_UNLIMITED),
-                    new MessageButton(ButtonStyle.SECONDARY, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"), BUTTON_ID_CANCEL)
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_UNLIMITED, getString("setunlimited")),
+                    Button.of(ButtonStyle.SECONDARY, BUTTON_ID_CANCEL, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
             );
             registerButtonListener();
             registerMessageInputListener(false);
@@ -103,12 +103,12 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     }
 
     @Override
-    public boolean onButton(GuildComponentInteractionEvent event) throws Throwable {
-        if (event.getCustomId().equals(BUTTON_ID_UNLIMITED)) {
+    public boolean onButton(ButtonClickEvent event) throws Throwable {
+        if (event.getComponentId().equals(BUTTON_ID_UNLIMITED)) {
             deregisterListenersWithButtons();
             this.eb = markUnlimited();
             return true;
-        } else if (event.getCustomId().equals(BUTTON_ID_CANCEL)) {
+        } else if (event.getComponentId().equals(BUTTON_ID_CANCEL)) {
             deregisterListenersWithMessage();
             return true;
         }

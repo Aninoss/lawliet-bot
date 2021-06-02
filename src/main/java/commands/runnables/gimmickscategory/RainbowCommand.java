@@ -7,9 +7,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import core.TextManager;
-import core.buttons.ButtonStyle;
-import core.buttons.MessageButton;
-import core.buttons.MessageEditActionAdvanced;
+import core.components.ActionRows;
 import core.utils.StringUtil;
 import modules.graphics.RainbowGraphics;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -18,6 +16,8 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "rainbow",
@@ -56,9 +56,8 @@ public class RainbowCommand extends MemberAccountAbstract {
         channel.sendMessage(eb)
                 .addFile(inputStream, "avatar.png")
                 .queue(message -> {
-                    new MessageEditActionAdvanced(message)
-                            .appendButtons(new MessageButton(ButtonStyle.LINK, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"), message.getEmbeds().get(0).getImage().getUrl()))
-                            .embed(eb)
+                    message.editMessage(eb)
+                            .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, message.getEmbeds().get(0).getImage().getUrl(), TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"))))
                             .queue();
                 });
     }
