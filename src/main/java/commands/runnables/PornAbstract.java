@@ -145,12 +145,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             }
 
             if (messageAction != null) {
-                messageAction = messageAction.setActionRows(ActionRows.of(generateButtons(pornImages)));
-                if (finalAmount <= 0) {
-                    messageAction.complete();
-                } else {
-                    messageAction.queue();
-                }
+                messageAction.setActionRows(ActionRows.of(generateButtons(pornImages)))
+                        .complete();
+                TimeUnit.SECONDS.sleep(1);
             }
         } while (amount > 0);
 
