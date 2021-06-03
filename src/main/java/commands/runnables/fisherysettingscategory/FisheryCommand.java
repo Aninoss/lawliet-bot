@@ -9,10 +9,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticButtonListener;
 import commands.runnables.NavigationAbstract;
 import constants.*;
-import core.CustomObservableList;
-import core.EmbedFactory;
-import core.ListGen;
-import core.TextManager;
+import core.*;
 import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
@@ -176,15 +173,15 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     @Override
     public void onStaticButton(ButtonClickEvent event) {
         DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMessage().getIdLong());
-        InteractionHook hook = event.getHook();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
                 .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getMember().getAsMention()));
 
-        hook.editOriginalEmbeds(eb.build())
+        event.editMessageEmbeds(eb.build())
                 .setActionRows()
                 .queue();
+        InteractionHook hook = event.getHook();
 
         FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
         MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {

@@ -8,6 +8,7 @@ import java.util.function.Function;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
+import core.InteractionResponse;
 import core.MainLogger;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
@@ -95,7 +96,8 @@ public interface OnButtonListener {
 
     default void processButton(ButtonClickEvent event) {
         Command command = (Command) this;
-        command.setInteractionHook(event.getHook());
+        InteractionResponse interactionResponse = new InteractionResponse(event);
+        command.setInteractionResponse(interactionResponse);
 
         try {
             if (onButton(event)) {
@@ -108,6 +110,8 @@ public interface OnButtonListener {
         } catch (Throwable e) {
             ExceptionUtil.handleCommandException(e, command, event.getTextChannel());
         }
+
+        interactionResponse.complete();
     }
 
     default void onButtonOverridden() throws Throwable {

@@ -192,6 +192,7 @@ public class WarnCommand extends Command implements OnButtonListener {
         deregisterListenersWithButtons();
         boolean confirm = Boolean.parseBoolean(event.getComponentId());
         if (confirm) {
+            getInteractionResponse().deferEdit();
             execute(event.getTextChannel(), event.getMember());
         } else {
             status = Status.CANCELED;

@@ -9,6 +9,7 @@ import commands.listeners.OnButtonListener;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.cache.PatreonCache;
+import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -77,8 +78,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
-        event.getHook().sendMessageEmbeds(generateUserEmbed().build())
-                .setEphemeral(true)
+        getInteractionResponse().replyEmbeds(generateUserEmbed().build(), ActionRows.of(), true)
                 .queue();
         return true;
     }

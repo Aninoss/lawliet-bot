@@ -278,6 +278,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         } else if (ticketChannel != null && event.getComponentId().equals(BUTTON_ID_CLOSE)) {
             onTicketRemove(event.getTextChannel());
         }
+        new InteractionResponse(event).complete();
     }
 
     private void onTicketCreate(TicketData ticketData, TextChannel channel, Member member) {
