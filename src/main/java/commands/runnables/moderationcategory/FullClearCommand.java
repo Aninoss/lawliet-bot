@@ -88,11 +88,11 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         }
     }
 
-    private ClearResults fullClear(TextChannel channel, int hours) {
+    private ClearResults fullClear(TextChannel channel, int hours) throws InterruptedException {
         return fullClear(channel, hours, 0L);
     }
 
-    private ClearResults fullClear(TextChannel channel, int hours, long... messageIdsIgnore) {
+    private ClearResults fullClear(TextChannel channel, int hours, long... messageIdsIgnore) throws InterruptedException {
         int deleted = 0;
         boolean tooOld = false;
 
@@ -125,6 +125,8 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                     channel.deleteMessages(messagesDelete).complete();
                 }
             }
+
+            Thread.sleep(500);
         } while (!tooOld && !interrupt);
 
         return new ClearResults(deleted, tooOld ? 1 : 0);

@@ -110,6 +110,8 @@ public class ClearCommand extends Command implements OnButtonListener {
                     channel.deleteMessages(messagesDelete).complete();
                 }
             }
+
+            Thread.sleep(500);
         }
 
         while (count > 0 && patreon && !interrupt) {
@@ -131,6 +133,8 @@ public class ClearCommand extends Command implements OnButtonListener {
                     }
                 }
             }
+
+            Thread.sleep(500);
         }
 
         return new ClearResults(deleted, count);
