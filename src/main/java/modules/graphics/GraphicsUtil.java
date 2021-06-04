@@ -51,6 +51,26 @@ public class GraphicsUtil {
         return nameIterator;
     }
 
+    private static void drawStringCenter(Graphics2D g2d, Font font, String text, Rectangle2D bounds, int x, int y, double maxWidth, double width) {
+        g2d = (Graphics2D) g2d.create();
+
+        double stringHeight = bounds.getHeight();
+        double stringWidth = bounds.getWidth() * width;
+        double scale;
+
+        scale = Math.min(1, maxWidth / stringWidth);
+        if (maxWidth < 0) scale = 1;
+
+        AffineTransform trans = new AffineTransform();
+        trans.scale(scale * width, 1);
+        trans.translate(x * ((1.0 / scale) - 1), 0);
+        g2d.setTransform(trans);
+
+        g2d.setFont(font);
+        g2d.drawString(text, (int) ((x - stringWidth / 2.0) / width), (int) (y + stringHeight / 2.0));
+        g2d.dispose();
+    }
+
     private static void drawStringCenter(Graphics2D g2d, AttributedCharacterIterator aci, Rectangle2D bounds, int x, int y, double maxWidth, double width) {
         g2d = (Graphics2D) g2d.create();
 
@@ -70,8 +90,10 @@ public class GraphicsUtil {
         g2d.dispose();
     }
 
-    public static void drawStringWithBorder(Graphics2D g2d, AttributedCharacterIterator iterator, Rectangle2D bounds, Color color, int x, int y, int thickness, double maxWidth) {
+    public static void drawStringWithBorder(Graphics2D g2d, Font font, String text, Color color, int x, int y, int thickness, double maxWidth) {
         g2d.setColor(Color.BLACK);
+        FontRenderContext frc = new FontRenderContext(null, true, true);
+        Rectangle2D bounds = font.getStringBounds(text, frc);
         double n = 8;
         for (double i = 0; i < n; i++) {
             double a = (int) ((i / n) * 360);
@@ -84,11 +106,11 @@ public class GraphicsUtil {
             int xNew = (int) Math.round(xT * distanceFactor);
             int yNew = (int) Math.round(yT * distanceFactor);
 
-            drawStringCenter(g2d, iterator, bounds, x + xNew, y + yNew, maxWidth, 1);
+            drawStringCenter(g2d, font, text, bounds, x + xNew, y + yNew, maxWidth, 1);
         }
 
         g2d.setColor(color);
-        drawStringCenter(g2d, iterator, bounds, x, y, maxWidth, 1);
+        drawStringCenter(g2d, font, text, bounds, x, y, maxWidth, 1);
     }
 
     public static BufferedImage getScaledImage(Image srcImg, int w, int h) {

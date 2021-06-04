@@ -13,6 +13,7 @@ import constants.LogStatus;
 import constants.Settings;
 import core.EmbedFactory;
 import core.TextManager;
+import core.components.ActionRows;
 import core.internet.HttpRequest;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
@@ -21,6 +22,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import org.json.JSONArray;
@@ -133,10 +135,12 @@ public class QuizCommand extends CasinoAbstract {
             buttons.add(button);
         }
 
+        ArrayList<ActionRow> actionRows = new ArrayList<>(ActionRows.of(buttons));
         if (getStatus() != Status.ACTIVE) {
-            buttons.add(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_RETRY, TextManager.getString(getLocale(), Category.CASINO, "casino_retry")));
+            Button button = Button.of(ButtonStyle.PRIMARY, BUTTON_ID_RETRY, TextManager.getString(getLocale(), Category.CASINO, "casino_retry"));
+            actionRows.add(ActionRow.of(button));
         }
-        setButtons(buttons);
+        setActionRows(actionRows);
     }
 
     private void onTimeUp() {

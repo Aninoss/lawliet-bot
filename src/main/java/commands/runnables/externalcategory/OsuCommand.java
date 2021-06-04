@@ -10,7 +10,6 @@ import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
-import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.osu.OsuAccount;
@@ -100,7 +99,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     @Override
     protected void sendMessage(TextChannel channel, MessageEmbed eb) {
         channel.sendMessage(eb)
-                .setActionRows(ActionRows.of(getButtons()))
+                .setActionRows(getActionRows())
                 .queue(message -> {
                     if (memberIsAuthor) {
                         setDrawMessage(message);

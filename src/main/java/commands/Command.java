@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.json.JSONObject;
@@ -50,7 +51,7 @@ public abstract class Command implements OnTriggerListener {
     private GuildMessageReceivedEvent guildMessageReceivedEvent = null;
     private InteractionResponse interactionResponse;
     private boolean canHaveTimeOut = true;
-    private List<Button> buttons;
+    private List<ActionRow> actionRows;
 
     public Command(Locale locale, String prefix) {
         this.locale = locale;
@@ -96,16 +97,20 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
-    public void setButtons(Button... buttons) {
-        this.buttons = List.of(buttons);
+    public void setActionRows(List<ActionRow> actionRows) {
+        this.actionRows = actionRows;
     }
 
-    public List<Button> getButtons() {
-        return this.buttons;
+    public void setButtons(Button... buttons) {
+        setButtons(List.of(buttons));
     }
 
     public void setButtons(List<Button> buttons) {
-        this.buttons = buttons;
+        this.actionRows = ActionRows.of(buttons);
+    }
+
+    public List<ActionRow> getActionRows() {
+        return actionRows;
     }
 
     public synchronized CompletableFuture<Void> redrawMessageWithoutButtons() {
@@ -138,15 +143,15 @@ public abstract class Command implements OnTriggerListener {
                 RestAction<Message> action;
                 if (drawMessage == null) {
                     action = channel.sendMessage(messageEmbed)
-                            .setActionRows(ActionRows.of(buttons));
+                            .setActionRows(actionRows);
                 } else {
                     if (interactionResponse != null &&
                             Arrays.stream(getAdjustedBotChannelPermissions()).noneMatch(p -> p == Permission.MESSAGE_EXT_EMOJI)
                     ) {
-                        action = interactionResponse.editMessageEmbeds(messageEmbed, ActionRows.of(buttons));
+                        action = interactionResponse.editMessageEmbeds(messageEmbed, actionRows);
                     } else {
                         action = channel.editMessageById(drawMessage.getIdLong(), messageEmbed)
-                                .setActionRows(ActionRows.of(buttons));
+                                .setActionRows(actionRows);
                     }
                 }
                 action.queue(message -> {

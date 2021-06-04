@@ -205,7 +205,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         if (status == Status.ACTIVE) {
-            if (getButtons().contains(BUTTON_CANCEL) && event.getComponentId().equals(BUTTON_ID_QUIT)) {
+            if (hasCancelButton() && event.getComponentId().equals(BUTTON_ID_QUIT)) {
                 canBeCanceled = false;
                 cancel(false, true);
                 return true;
@@ -220,6 +220,10 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             return false;
         }
         return false;
+    }
+
+    private boolean hasCancelButton() {
+        return getActionRows().stream().anyMatch(b -> b.getButtons().contains(BUTTON_CANCEL));
     }
 
     public Response onMessageInputCasino(GuildMessageReceivedEvent event, String input) throws Throwable {

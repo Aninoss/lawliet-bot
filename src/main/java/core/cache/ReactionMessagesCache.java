@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.Emojis;
+import core.MainLogger;
 import core.emojiconnection.EmojiConnection;
 import modules.ReactionMessage;
 import net.dv8tion.jda.api.entities.Message;
@@ -56,6 +57,7 @@ public class ReactionMessagesCache {
             try {
                 reactionMessageOpt = generateReactionMessage(message);
             } catch (Throwable throwable) {
+                MainLogger.get().error("Reaction roles message error", throwable);
                 reactionMessageOpt = Optional.empty();
             }
             reactionMessageCache.put(message.getIdLong(), reactionMessageOpt);

@@ -34,6 +34,10 @@ public class FontContainer {
         }
     }
 
+    public Font getFirstFont(int size) {
+        return fontList.get(0).deriveFont(Font.PLAIN, size);
+    }
+
     public List<Font> getFontList(int size) {
         return fontList.stream().map(font -> font.deriveFont(Font.PLAIN, size)).collect(Collectors.toList());
     }
