@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnReactionListener;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
@@ -24,6 +25,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
@@ -36,7 +38,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         executableWithoutArgs = true,
         aliases = { "giveaways" }
 )
-public class GiveawayCommand extends NavigationAbstract {
+public class GiveawayCommand extends NavigationAbstract implements OnReactionListener {
 
     private final static int
             ADD_OR_EDIT = 0,
@@ -74,7 +76,8 @@ public class GiveawayCommand extends NavigationAbstract {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         giveawayBeans = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
         title = getString("title");
-        registerNavigationListener(8);
+        registerNavigationListener();
+        registerReactionListener();
         return true;
     }
 
@@ -199,11 +202,11 @@ public class GiveawayCommand extends NavigationAbstract {
         return file.cdnGetUrl();
     }
 
-    @ControllerReaction(state = ADD_OR_EDIT)
-    public boolean onReactionAddOrEdit(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = ADD_OR_EDIT)
+    public boolean onButtonAddOrEdit(ButtonClickEvent event, int i) {
         switch (i) {
             case -1:
-                removeNavigationWithMessage();
+                deregisterListenersWithButtonMessage();
                 return false;
 
             case 0:
@@ -225,8 +228,8 @@ public class GiveawayCommand extends NavigationAbstract {
         }
     }
 
-    @ControllerReaction(state = ADD_MESSAGE)
-    public boolean onReactionAddMessage(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = ADD_MESSAGE)
+    public boolean onButtonAddMessage(ButtonClickEvent event, int i) {
         switch (i) {
             case -1:
                 setState(ADD_OR_EDIT);
@@ -243,8 +246,8 @@ public class GiveawayCommand extends NavigationAbstract {
         }
     }
 
-    @ControllerReaction(state = EDIT_MESSAGE)
-    public boolean onReactionEditMessage(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = EDIT_MESSAGE)
+    public boolean onButtonEditMessage(ButtonClickEvent event, int i) {
         if (i == -1) {
             setState(ADD_OR_EDIT);
             return true;
@@ -270,8 +273,8 @@ public class GiveawayCommand extends NavigationAbstract {
         return false;
     }
 
-    @ControllerReaction(state = CONFIGURE_MESSAGE)
-    public boolean onReactionConfigureMessage(GenericGuildMessageReactionEvent event, int i) throws ExecutionException, InterruptedException {
+    @ControllerButton(state = CONFIGURE_MESSAGE)
+    public boolean onButtonConfigureMessage(ButtonClickEvent event, int i) throws ExecutionException, InterruptedException {
         switch (i) {
             case -1:
                 if (!editMode) {
@@ -321,7 +324,7 @@ public class GiveawayCommand extends NavigationAbstract {
                 Optional<Long> messageIdOpt = sendMessage();
                 if (messageIdOpt.isPresent()) {
                     setState(SENT);
-                    removeNavigation();
+                    deregisterListeners();
                     GiveawayData giveawayData = new GiveawayData(
                             event.getGuild().getIdLong(),
                             channel.getIdLong(),
@@ -350,20 +353,19 @@ public class GiveawayCommand extends NavigationAbstract {
         }
     }
 
-    @ControllerReaction(state = UPDATE_EMOJI)
-    public boolean onReactionUpdateEmoji(GenericGuildMessageReactionEvent event, int i) {
-        if (i == -1) {
-            setState(CONFIGURE_MESSAGE);
-        } else {
+    @Override
+    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+        if (getState() == UPDATE_EMOJI) {
             event.getReaction().removeReaction(event.getUser()).queue();
             processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
+            processDraw().exceptionally(ExceptionLogger.get());
+            return true;
         }
-
-        return true;
+        return false;
     }
 
-    @ControllerReaction(state = UPDATE_IMAGE)
-    public boolean onReactionUpdateImage(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = UPDATE_IMAGE)
+    public boolean onButtonUpdateImage(ButtonClickEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
             return true;
@@ -381,13 +383,13 @@ public class GiveawayCommand extends NavigationAbstract {
         return false;
     }
 
-    @ControllerReaction(state = SENT)
-    public boolean onReactionSent(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = SENT)
+    public boolean onButtonSent(ButtonClickEvent event, int i) {
         return false;
     }
 
-    @ControllerReaction
-    public boolean onReactionDefault(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton
+    public boolean onButtonDefault(ButtonClickEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
             return true;
@@ -425,7 +427,7 @@ public class GiveawayCommand extends NavigationAbstract {
     @Draw(state = EDIT_MESSAGE)
     public EmbedBuilder onDrawEditMessage() {
         String[] options = new ListGen<GiveawayData>()
-                .getList(getActiveGiveawaySlots(), ListGen.SLOT_TYPE_NONE, giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getTextChannel().get().getAsMention()))
+                .getList(getActiveGiveawaySlots(), ListGen.SLOT_TYPE_NONE, giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getTextChannel().get().getName()))
                 .split("\n");
         setOptions(options);
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
@@ -522,7 +524,6 @@ public class GiveawayCommand extends NavigationAbstract {
     }
 
     private EmbedBuilder getMessageEmbed() {
-        String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         Instant startInstant = editMode ? instant : Instant.now();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()

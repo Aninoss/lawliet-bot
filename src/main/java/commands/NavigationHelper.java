@@ -115,7 +115,7 @@ public class NavigationHelper<T> {
         if (type == Type.Unknown) {
             nameFunction = Object::toString;
         } else {
-            nameFunction = obj -> ((MentionableAtomicAsset<?>) obj).getAsMention();
+            nameFunction = obj -> ((MentionableAtomicAsset<?>) obj).getName();
         }
 
         String[] strings = new String[srcList.size()];

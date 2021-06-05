@@ -25,8 +25,8 @@ import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "welcome",
@@ -48,7 +48,7 @@ public class WelcomeCommand extends NavigationAbstract {
         welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(event.getGuild().getIdLong());
         welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteInChannelWithLog);
         welcomeMessageBean.getGoodbyeChannel().ifPresent(this::checkWriteInChannelWithLog);
-        registerNavigationListener(11);
+        registerNavigationListener();
         return true;
     }
 
@@ -163,11 +163,11 @@ public class WelcomeCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
+    public boolean controllerButton(ButtonClickEvent event, int i, int state) {
         if (state == 0) {
             switch (i) {
                 case -1:
-                    removeNavigationWithMessage();
+                    deregisterListenersWithButtonMessage();
                     return false;
 
                 case 0:

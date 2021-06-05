@@ -19,8 +19,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "fisherymanage",
@@ -118,7 +118,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             }
         }
 
-        registerNavigationListener(4);
+        registerNavigationListener();
         return true;
     }
 
@@ -226,10 +226,10 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     }
 
     @Override
-    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
         if (state == 0) {
             if (i == -1) {
-                removeNavigationWithMessage();
+                deregisterListenersWithButtonMessage();
                 return false;
             } else if (i >= 0 && i <= 2) {
                 setState(i + 1);

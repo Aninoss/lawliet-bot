@@ -86,7 +86,7 @@ public interface OnReactionListener {
         return CompletableFuture.failedFuture(new NoSuchElementException("No message sent"));
     }
 
-    default void deregisterListenersWithMessage() {
+    default void deregisterListenersWithReactionMessage() {
         Command command = (Command) this;
         command.getDrawMessageId().ifPresent(messageId -> {
             command.getTextChannel().ifPresent(channel -> {

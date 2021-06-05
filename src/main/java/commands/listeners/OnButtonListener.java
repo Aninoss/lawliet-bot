@@ -79,7 +79,7 @@ public interface OnButtonListener {
         command.deregisterListeners();
     }
 
-    default void deregisterListenersWithMessage() {
+    default void deregisterListenersWithButtonMessage() {
         Command command = (Command) this;
         command.getDrawMessageId().ifPresent(messageId -> {
             command.getTextChannel().ifPresent(channel -> {
@@ -92,6 +92,7 @@ public interface OnButtonListener {
             });
         });
         command.deregisterListeners();
+        command.resetDrawMessage();
     }
 
     default void processButton(ButtonClickEvent event) {
@@ -111,7 +112,9 @@ public interface OnButtonListener {
             ExceptionUtil.handleCommandException(e, command, event.getTextChannel());
         }
 
-        interactionResponse.complete();
+        if (command.getDrawMessage().isPresent()) {
+            interactionResponse.complete();
+        }
     }
 
     default void onButtonOverridden() throws Throwable {

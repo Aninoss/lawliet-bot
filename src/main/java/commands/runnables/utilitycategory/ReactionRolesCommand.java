@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.listeners.CommandProperties;
+import commands.listeners.OnReactionListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
 import commands.runnables.NavigationAbstract;
@@ -28,6 +29,7 @@ import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
@@ -42,7 +44,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemove
         executableWithoutArgs = true,
         aliases = { "rmess", "reactionrole", "rroles", "selfrole", "selfroles", "sroles", "srole" }
 )
-public class ReactionRolesCommand extends NavigationAbstract implements OnStaticReactionAddListener, OnStaticReactionRemoveListener {
+public class ReactionRolesCommand extends NavigationAbstract implements OnReactionListener, OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
     private static final int MAX_LINKS = 20;
     private final static int
@@ -81,7 +83,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        registerNavigationListener(9);
+        registerNavigationListener();
         return true;
     }
 
@@ -212,11 +214,11 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         return true;
     }
 
-    @ControllerReaction(state = ADD_OR_EDIT)
-    public boolean onReactionAddOrEdit(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = ADD_OR_EDIT)
+    public boolean onButtonAddOrEdit(ButtonClickEvent event, int i) {
         switch (i) {
             case -1:
-                removeNavigationWithMessage();
+                deregisterListenersWithButtonMessage();
                 return false;
 
             case 0:
@@ -239,8 +241,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         }
     }
 
-    @ControllerReaction(state = ADD_MESSAGE)
-    public boolean onReactionAddMessage(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = ADD_MESSAGE)
+    public boolean onButtonAddMessage(ButtonClickEvent event, int i) {
         switch (i) {
             case -1:
                 setState(ADD_OR_EDIT);
@@ -257,8 +259,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         }
     }
 
-    @ControllerReaction(state = EDIT_MESSAGE)
-    public boolean onReactionEditMessage(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = EDIT_MESSAGE)
+    public boolean onButtonEditMessage(ButtonClickEvent event, int i) {
         if (i == -1) {
             setState(ADD_OR_EDIT);
             return true;
@@ -280,8 +282,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         return false;
     }
 
-    @ControllerReaction(state = CONFIGURE_MESSAGE)
-    public boolean onReactionConfigureMessage(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = CONFIGURE_MESSAGE)
+    public boolean onButtonConfigureMessage(ButtonClickEvent event, int i) {
         switch (i) {
             case -1:
                 if (!editMode) {
@@ -349,7 +351,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
                     if (getLinkString().length() <= 1024) {
                         if (sendMessage()) {
                             setState(SENT);
-                            removeNavigation();
+                            deregisterListeners();
                         }
                     } else {
                         setLog(LogStatus.FAILURE, getString("shortcutstoolong"));
@@ -364,8 +366,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         }
     }
 
-    @ControllerReaction(state = UPDATE_IMAGE)
-    public boolean onReactionUpdateImage(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = UPDATE_IMAGE)
+    public boolean onButtonUpdateImage(ButtonClickEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
             return true;
@@ -383,8 +385,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         return false;
     }
 
-    @ControllerReaction(state = ADD_SLOT)
-    public boolean onReactionAddSlot(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = ADD_SLOT)
+    public boolean onButtonAddSlot(ButtonClickEvent event, int i) {
         if (i == 0 && roleTemp != null && emojiTemp != null) {
             emojiConnections.add(new EmojiConnection(emojiTemp, roleTemp.getAsMention()));
             setState(CONFIGURE_MESSAGE);
@@ -397,14 +399,27 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
             return true;
         }
 
-        if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
-            event.getReaction().removeReaction(event.getUser()).queue();
-        }
-        return calculateEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
+        return false;
     }
 
-    @ControllerReaction(state = REMOVE_SLOT)
-    public boolean onReactionRemoveSlot(GenericGuildMessageReactionEvent event, int i) {
+    @Override
+    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+        if (getState() == ADD_SLOT) {
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+                event.getReaction().removeReaction(event.getUser()).queue();
+            }
+            boolean success = calculateEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
+            if (success) {
+                processDraw().exceptionally(ExceptionLogger.get());
+            }
+            return success;
+        }
+
+        return false;
+    }
+
+    @ControllerButton(state = REMOVE_SLOT)
+    public boolean onButtonRemoveSlot(ButtonClickEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
             return true;
@@ -418,13 +433,13 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         return false;
     }
 
-    @ControllerReaction(state = SENT)
-    public boolean onReactionSent(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = SENT)
+    public boolean onButtonSent(ButtonClickEvent event, int i) {
         return false;
     }
 
-    @ControllerReaction
-    public boolean onReactionDefault(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton
+    public boolean onButtonDefault(ButtonClickEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
             return true;
@@ -545,7 +560,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
         for (int i = 0; i < reactionMessages.size(); i++) {
             ReactionMessage reactionMessage = reactionMessages.get(i);
             AtomicTextChannel channel = new AtomicTextChannel(reactionMessage.getGuildId(), reactionMessage.getTextChannelId());
-            options[i] = getString("state2_template", reactionMessage.getTitle(), channel.getAsMention());
+            options[i] = getString("state2_template", reactionMessage.getTitle(), channel.getName());
         }
 
         setOptions(options);
@@ -599,7 +614,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnStatic
     public EmbedBuilder onDrawRemoveSlot() {
         ArrayList<String> optionsDelete = new ArrayList<>();
         for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-            optionsDelete.add(emojiConnection.getEmojiTag() + " " + emojiConnection.getConnection());
+            long roleId = StringUtil.filterLongFromString( emojiConnection.getConnection());
+            optionsDelete.add(new AtomicRole(getGuildId().get(), roleId).getName()); //TODO: how to show emoji?
         }
         setOptions(optionsDelete.toArray(new String[0]));
 

@@ -97,6 +97,10 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
+    public void setActionRow(ActionRow actionRow) {
+        setActionRows(List.of(actionRow));
+    }
+
     public void setActionRows(List<ActionRow> actionRows) {
         this.actionRows = actionRows;
     }
@@ -138,6 +142,10 @@ public abstract class Command implements OnTriggerListener {
                     );
                     MainLogger.get().error(sb.toString(), e);
                     throw e;
+                }
+
+                if (actionRows == null) {
+                    actionRows = Collections.emptyList();
                 }
 
                 RestAction<Message> action;

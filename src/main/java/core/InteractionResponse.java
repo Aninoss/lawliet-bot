@@ -1,7 +1,6 @@
 package core;
 
 import java.util.Collection;
-import constants.Emojis;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
@@ -36,7 +35,6 @@ public class InteractionResponse {
             event = null;
             return action;
         } else {
-            System.out.println(1);
             return hook.editOriginalEmbeds(embed)
                     .setActionRows(actionRows);
         }
@@ -53,7 +51,6 @@ public class InteractionResponse {
             event = null;
             return action;
         } else {
-            System.out.println(1);
             return hook.sendMessageEmbeds(embed)
                     .addActionRows(actionRows)
                     .setEphemeral(ephemeral);
@@ -62,8 +59,7 @@ public class InteractionResponse {
 
     public void complete() {
         if (event != null) {
-            String content = event.getMessage().getContentRaw();
-            event.editMessage(content.isEmpty() ? Emojis.ZERO_WIDTH_SPACE : content).queue(); //TODO: temporary fix for android devices
+            event.deferEdit().queue();
         }
     }
 

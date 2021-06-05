@@ -18,8 +18,8 @@ import mysql.modules.autoroles.DBAutoRoles;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "autoroles",
@@ -46,7 +46,7 @@ public class AutoRolesCommand extends NavigationAbstract {
         roles = AtomicRole.transformIdList(event.getGuild(), autoRolesBean.getRoleIds());
         roleNavigationHelper = new NavigationHelper<>(this, roles, AtomicRole.class, MAX_ROLES);
         checkRolesWithLog(event.getMember(), roles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
-        registerNavigationListener(7);
+        registerNavigationListener();
         return true;
     }
 
@@ -61,12 +61,12 @@ public class AutoRolesCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
+    public boolean controllerButton(ButtonClickEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
                     case -1:
-                        removeNavigationWithMessage();
+                        deregisterListenersWithButtonMessage();
                         return false;
 
                     case 0:

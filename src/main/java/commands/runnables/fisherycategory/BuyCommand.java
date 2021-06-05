@@ -1,5 +1,6 @@
 package commands.runnables.fisherycategory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -28,8 +29,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "buy",
@@ -66,7 +67,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                     amount = numbers;
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "100"));
-                    registerNavigationListener(getUpgradableGears().size());
+                    registerNavigationListener();
                     return true;
                 }
             }
@@ -78,14 +79,14 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                     }
                 }
 
-                registerNavigationListener(getUpgradableGears().size());
+                registerNavigationListener();
                 return true;
             }
 
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
         }
 
-        registerNavigationListener(getUpgradableGears().size());
+        registerNavigationListener();
         return true;
     }
 
@@ -153,10 +154,10 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     }
 
     @Override
-    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
         if (state == 0) {
             if (i == -1) {
-                removeNavigationWithMessage();
+                deregisterListenersWithButtonMessage();
                 return false;
             } else if (i >= 0 && i < FisheryGear.values().length) {
                 buy(FisheryGear.values()[i], event.getMember(), true);
@@ -246,6 +247,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
         switch (state) {
             case 0:
+                ArrayList<String> options = new ArrayList<>();
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("beginning") + "\n" + Emojis.ZERO_WIDTH_SPACE);
                 int i = 0;
                 for (FisheryMemberGearData slot : getUpgradableGears()) {
@@ -258,8 +260,10 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                         productDescription = getString("product_des_" + slot.getGear().ordinal(), roles.get(slot.getLevel()).getAsMention());
                     }
 
+                    String title = getString("product_" + slot.getGear().ordinal() + "_0");
+                    options.add(title);
                     eb.addField(
-                            getString("product_title", Emojis.LETTERS[i], slot.getGear().getEmoji(), getString("product_" + slot.getGear().ordinal() + "_0"), StringUtil.numToString(slot.getLevel()), StringUtil.numToString(price)),
+                            getString("product_title", slot.getGear().getEmoji(), title, StringUtil.numToString(slot.getLevel()), StringUtil.numToString(price)),
                             productDescription + "\n" + Emojis.ZERO_WIDTH_SPACE,
                             false
                     );
@@ -283,6 +287,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                 );
 
                 eb.addField(getString("status_title"), StringUtil.shortenStringLine(status, 1024), false);
+                setOptions(options.toArray(new String[0]));
                 return eb;
 
             case 1:

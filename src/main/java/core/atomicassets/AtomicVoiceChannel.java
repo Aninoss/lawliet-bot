@@ -43,6 +43,11 @@ public class AtomicVoiceChannel implements MentionableAtomicAsset<VoiceChannel> 
     }
 
     @Override
+    public Optional<String> getNameRaw() {
+        return get().map(v -> "@" + v.getName());
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

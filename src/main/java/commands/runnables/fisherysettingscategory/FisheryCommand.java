@@ -9,7 +9,10 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticButtonListener;
 import commands.runnables.NavigationAbstract;
 import constants.*;
-import core.*;
+import core.CustomObservableList;
+import core.EmbedFactory;
+import core.ListGen;
+import core.TextManager;
 import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
@@ -27,7 +30,6 @@ import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
 @CommandProperties(
@@ -60,7 +62,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
         ignoredChannels = AtomicTextChannel.transformIdList(event.getGuild(), fisheryGuildBean.getIgnoredChannelIds());
         channelNavigationHelper = new NavigationHelper<>(this, ignoredChannels, AtomicTextChannel.class, MAX_CHANNELS);
-        registerNavigationListener(7);
+        registerNavigationListener();
         return true;
     }
 
@@ -75,12 +77,12 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     }
 
     @Override
-    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
+    public boolean controllerButton(ButtonClickEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
                     case -1:
-                        removeNavigationWithMessage();
+                        deregisterListenersWithButtonMessage();
                         return false;
 
                     case 0:

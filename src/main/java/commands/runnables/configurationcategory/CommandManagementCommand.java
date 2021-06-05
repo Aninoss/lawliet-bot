@@ -19,8 +19,8 @@ import mysql.modules.commandmanagement.CommandManagementData;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "cman",
@@ -41,7 +41,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener(12);
+        registerNavigationListener();
         return true;
     }
 
@@ -51,11 +51,11 @@ public class CommandManagementCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
+    public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
         switch (state) {
             case 0:
                 if (i == -1) {
-                    removeNavigationWithMessage();
+                    deregisterListenersWithButtonMessage();
                     return false;
                 } else if (i >= 0 && i < Category.LIST.length) {
                     category = Category.LIST[i];

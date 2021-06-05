@@ -38,6 +38,11 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
     }
 
     @Override
+    public Optional<String> getNameRaw() {
+        return get().map(u -> "@" + u.getName());
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

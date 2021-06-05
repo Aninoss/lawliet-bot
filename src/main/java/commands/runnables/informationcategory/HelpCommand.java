@@ -2,10 +2,7 @@ package commands.runnables.informationcategory;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.function.Function;
 import commands.Command;
 import commands.CommandContainer;
@@ -21,8 +18,6 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.Program;
 import core.TextManager;
-import core.emojiconnection.BackEmojiConnection;
-import core.emojiconnection.EmojiConnection;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -31,12 +26,13 @@ import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "help",
         emoji = "❕",
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI, //TODO: remove
         executableWithoutArgs = true,
         aliases = { "commands" }
 )
@@ -59,7 +55,7 @@ public class HelpCommand extends NavigationAbstract {
             Category.SPLATOON_2
     };
 
-    private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
+    private final HashMap<Integer, String> buttonMap = new HashMap<>();
     private String searchTerm;
     private CommandManagementData commandManagementBean;
     private String currentCategory = null;
@@ -75,7 +71,7 @@ public class HelpCommand extends NavigationAbstract {
         EmbedBuilder commandEmbed = checkCommand(event.getChannel(), args);
         EmbedBuilder categoryEmbed = checkCategory(event.getChannel(), args);
         if (commandEmbed == null || categoryEmbed != null) {
-            registerNavigationListener(LIST.length);
+            registerNavigationListener();
         } else {
             drawMessage(commandEmbed);
         }
@@ -85,34 +81,33 @@ public class HelpCommand extends NavigationAbstract {
     @ControllerMessage(state = DEFAULT_STATE)
     public Response onMessage(GuildMessageReceivedEvent event, String input) {
         searchTerm = input;
-        if (emojiConnections.stream().anyMatch(c -> c.getConnection().equalsIgnoreCase(input))) {
+        if (buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(input))) {
             searchTerm = input;
             return Response.TRUE;
         }
         return null;
     }
 
-    @ControllerReaction(state = DEFAULT_STATE)
-    public boolean onReaction(GenericGuildMessageReactionEvent event, int i) {
-        for (EmojiConnection emojiConnection : emojiConnections) {
-            if (emojiConnection.isEmoji(event.getReactionEmote()) || (i == -1 && emojiConnection instanceof BackEmojiConnection)) {
-                searchTerm = emojiConnection.getConnection();
+    @ControllerButton(state = DEFAULT_STATE)
+    public boolean onButton(ButtonClickEvent event, int i) {
+        String key = buttonMap.get(i);
+        if (key != null) {
+            searchTerm = key;
 
-                if (searchTerm.equals("quit")) {
-                    removeNavigationWithMessage();
-                    return false;
-                }
-
-                if (searchTerm.startsWith("exec:")) {
-                    String className = searchTerm.split(":")[1];
-                    Command command = CommandManager.createCommandByClassName(className, getLocale(), getPrefix());
-
-                    CommandManager.manage(getGuildMessageReceivedEvent().get(), command, "", Instant.now());
-                    return false;
-                }
-
-                return true;
+            if (searchTerm.equals("quit")) {
+                deregisterListenersWithButtonMessage();
+                return false;
             }
+
+            if (searchTerm.startsWith("exec:")) {
+                String className = searchTerm.split(":")[1];
+                Command command = CommandManager.createCommandByClassName(className, getLocale(), getPrefix());
+
+                CommandManager.manage(getGuildMessageReceivedEvent().get(), command, "", Instant.now());
+                return false;
+            }
+
+            return true;
         }
 
         return false;
@@ -127,9 +122,9 @@ public class HelpCommand extends NavigationAbstract {
         setOptions(null);
 
         EmbedBuilder eb;
-        if ((eb = checkCategory(channel, arg)) == null) {
+        if ((eb = checkCategory(channel, arg)) == null) { //TODO: L.fishery - what to do?
             if ((eb = checkCommand(channel, arg)) == null) {
-                eb = checkMainPage(channel);
+                eb = checkMainPage();
                 if (arg.length() > 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));
                 }
@@ -157,8 +152,8 @@ public class HelpCommand extends NavigationAbstract {
                     currentCategory = command.getCategory();
                 }
 
-                emojiConnections = new ArrayList<>();
-                emojiConnections.add(new BackEmojiConnection(BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI), currentCategory));
+                buttonMap.clear();
+                buttonMap.put(-1, currentCategory);
 
                 StringBuilder usage = new StringBuilder();
                 for (String line : TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_usage").split("\n")) {
@@ -176,7 +171,7 @@ public class HelpCommand extends NavigationAbstract {
                 String addNotExecutable = "";
                 if (command.getCommandProperties().executableWithoutArgs()) {
                     setOptions(getString("command_execute").split("\n"));
-                    emojiConnections.add(new EmojiConnection(Emojis.LETTERS[0], "exec:" + command.getClass().getName()));
+                    buttonMap.put(0, "exec:" + command.getClass().getName());
                 }
 
                 String permissionsList = new ListGen<Permission>().getList(
@@ -223,8 +218,8 @@ public class HelpCommand extends NavigationAbstract {
                             );
                     EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"));
 
-                    emojiConnections = new ArrayList<>();
-                    emojiConnections.add(new BackEmojiConnection(BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI), ""));
+                    buttonMap.clear();
+                    buttonMap.put(-1, "");
 
                     switch (category) {
                         case Category.INTERACTIONS:
@@ -281,7 +276,6 @@ public class HelpCommand extends NavigationAbstract {
                         .append("`")
                         .append("\n");
 
-                emojiConnections.add(new EmojiConnection("", command.getTrigger()));
                 i++;
                 if (i >= 10) {
                     if (stringBuilder.length() > 0) eb.addField(Emojis.ZERO_WIDTH_SPACE, stringBuilder.toString(), true);
@@ -325,7 +319,7 @@ public class HelpCommand extends NavigationAbstract {
                     if (command instanceof OnAlertListener) includeAlerts = true;
                     if (command.getCommandProperties().nsfw()) includeNSFW = true;
 
-                    emojiConnections.add(new EmojiConnection(Emojis.LETTERS[i], command.getTrigger()));
+                    buttonMap.put(i, command.getTrigger());
                     i++;
                     eb.addField(
                             title.toString(),
@@ -370,7 +364,7 @@ public class HelpCommand extends NavigationAbstract {
                 if (command.getCommandProperties().nsfw()) includeNSFW = true;
                 if (command.getCommandProperties().patreonRequired()) includePatreon = true;
 
-                emojiConnections.add(new EmojiConnection(Emojis.LETTERS[i], command.getTrigger()));
+                buttonMap.put(i, command.getTrigger());
                 i++;
                 eb.addField(
                         title.toString(),
@@ -403,8 +397,6 @@ public class HelpCommand extends NavigationAbstract {
                 } else if (command instanceof PornPredefinedAbstract) {
                     withoutSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
                 }
-
-                emojiConnections.add(new EmojiConnection("", command.getTrigger()));
             }
         }
 
@@ -447,27 +439,26 @@ public class HelpCommand extends NavigationAbstract {
         eb.addField(Emojis.ZERO_WIDTH_SPACE, sb.toString(), false);
     }
 
-    private EmbedBuilder checkMainPage(TextChannel channel) {
+    private EmbedBuilder checkMainPage() {
+        ArrayList<String> options = new ArrayList<>();
+
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"));
+                .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"))
+                .setDescription(getString("sp"));
         EmbedUtil.setFooter(eb, this);
 
-        StringBuilder categoriesSB = new StringBuilder();
-        emojiConnections = new ArrayList<>();
-        emojiConnections.add(new BackEmojiConnection(BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI), "quit"));
-
+        buttonMap.clear();
+        buttonMap.put(-1, "quit");
 
         int i = 0;
         for (String string : LIST) {
             if (!commandManagementBean.getSwitchedOffElements().contains(string) || BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR)) {
-                categoriesSB.append(Emojis.LETTERS[i]).append(" → ").append(TextManager.getString(getLocale(), TextManager.COMMANDS, string)).append("\n");
-                emojiConnections.add(new EmojiConnection(Emojis.LETTERS[i], string));
+                String title = TextManager.getString(getLocale(), TextManager.COMMANDS, string);
+                buttonMap.put(i, string);
+                options.add(title);
                 i++;
             }
         }
-
-        categoriesSB.append("\n").append(getString("sp")).append("\n").append(Emojis.ZERO_WIDTH_SPACE);
-        eb.setDescription(categoriesSB.toString());
 
         if (Program.isPublicVersion()) {
             eb.addField(getString("links_title"), getString(
@@ -480,6 +471,8 @@ public class HelpCommand extends NavigationAbstract {
                     ExternalLinks.FEATURE_REQUESTS_WEBSITE
             ), true);
         }
+
+        setOptions(options.toArray(new String[0]));
         return eb;
     }
 

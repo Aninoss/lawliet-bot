@@ -23,8 +23,8 @@ import mysql.modules.bannedwords.DBBannedWords;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "wordfilter",
@@ -54,7 +54,7 @@ public class WordFilterCommand extends NavigationAbstract {
         ignoredUsers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getIgnoredUserIds());
         logReceivers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getLogReceiverUserIds());
         wordsNavigationHelper = new NavigationHelper<>(this, bannedWordsBean.getWords(), String.class, MAX_WORDS);
-        registerNavigationListener(7);
+        registerNavigationListener();
         return true;
     }
 
@@ -102,12 +102,12 @@ public class WordFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
+    public boolean controllerButton(ButtonClickEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
                     case -1:
-                        removeNavigationWithMessage();
+                        deregisterListenersWithButtonMessage();
                         return false;
 
                     case 0:

@@ -24,8 +24,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "fisheryroles",
@@ -52,7 +52,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
         fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
 
         checkRolesWithLog(event.getGuild(), fisheryGuildBean.getRoles());
-        registerNavigationListener(7);
+        registerNavigationListener();
         return true;
     }
 
@@ -141,12 +141,12 @@ public class FisheryRolesCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
+    public boolean controllerButton(ButtonClickEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
                     case -1:
-                        removeNavigationWithMessage();
+                        deregisterListenersWithButtonMessage();
                         return false;
 
                     case 0:
@@ -231,6 +231,14 @@ public class FisheryRolesCommand extends NavigationAbstract {
         );
     }
 
+    private String getRoleString2(Role role) {
+        int n = fisheryGuildBean.getRoles().indexOf(role);
+        return getString(
+                "state2_rolestring",
+                role.getName(), StringUtil.numToString(Fishery.getFisheryRolePrice(role.getGuild(), fisheryGuildBean.getRoles().size(), n))
+        );
+    }
+
     @Override
     public EmbedBuilder draw(int state) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
@@ -252,7 +260,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 CustomObservableList<Role> roles = fisheryGuildBean.getRoles();
                 String[] roleStrings = new String[roles.size()];
                 for (int i = 0; i < roleStrings.length; i++) {
-                    roleStrings[i] = getRoleString(roles.get(i));
+                    roleStrings[i] = getRoleString2(roles.get(i));
                 }
                 setOptions(roleStrings);
 

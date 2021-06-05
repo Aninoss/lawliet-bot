@@ -108,7 +108,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
             this.eb = markUnlimited();
             return true;
         } else if (event.getComponentId().equals(BUTTON_ID_CANCEL)) {
-            deregisterListenersWithMessage();
+            deregisterListenersWithButtonMessage();
             return true;
         }
         return false;

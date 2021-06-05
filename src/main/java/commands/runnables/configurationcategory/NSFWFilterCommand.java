@@ -12,8 +12,8 @@ import core.utils.StringUtil;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "nsfwfilter",
@@ -36,7 +36,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         keywords = DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords();
-        registerNavigationListener(18);
+        registerNavigationListener();
         return true;
     }
 
@@ -84,12 +84,12 @@ public class NSFWFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) throws Throwable {
+    public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
         switch (state) {
             case 0:
                 switch (i) {
                     case -1:
-                        removeNavigationWithMessage();
+                        deregisterListenersWithButtonMessage();
                         return false;
 
                     case 0:

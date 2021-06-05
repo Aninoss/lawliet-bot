@@ -30,7 +30,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
@@ -71,7 +70,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
         staffRoles = AtomicRole.transformIdList(event.getGuild(), ticketData.getStaffRoleIds());
         staffRoleNavigationHelper = new NavigationHelper<>(this, staffRoles, AtomicRole.class, MAX_ROLES);
-        registerNavigationListener(7);
+        registerNavigationListener();
         return true;
     }
 
@@ -115,11 +114,11 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         }
     }
 
-    @ControllerReaction(state = MAIN)
-    public boolean onReactionMain(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = MAIN)
+    public boolean onButtonMain(ButtonClickEvent event, int i) {
         switch (i) {
             case -1:
-                removeNavigationWithMessage();
+                deregisterListenersWithButtonMessage();
                 return false;
 
             case 0:
@@ -143,8 +142,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         }
     }
 
-    @ControllerReaction(state = ANNOUNCEMENT_CHANNEL)
-    public boolean onReactionAnnouncementChannel(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = ANNOUNCEMENT_CHANNEL)
+    public boolean onButtonAnnouncementChannel(ButtonClickEvent event, int i) {
         switch (i) {
             case -1 -> {
                 setState(MAIN);
@@ -160,8 +159,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         return false;
     }
 
-    @ControllerReaction(state = ADD_STAFF_ROLE)
-    public boolean onReactionAddStaffRole(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = ADD_STAFF_ROLE)
+    public boolean onButtonAddStaffRole(ButtonClickEvent event, int i) {
         if (i == -1) {
             setState(0);
             return true;
@@ -169,13 +168,13 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         return false;
     }
 
-    @ControllerReaction(state = REMOVE_STAFF_ROLE)
-    public boolean onReactionRemoveStaffRole(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = REMOVE_STAFF_ROLE)
+    public boolean onButtonRemoveStaffRole(ButtonClickEvent event, int i) {
         return staffRoleNavigationHelper.removeData(i, MAIN);
     }
 
-    @ControllerReaction(state = CREATE_TICKET_MESSAGE)
-    public boolean onReactionCreateTicketMessage(GenericGuildMessageReactionEvent event, int i) {
+    @ControllerButton(state = CREATE_TICKET_MESSAGE)
+    public boolean onButtonCreateTicketMessage(ButtonClickEvent event, int i) {
         if (i == -1) {
             setState(0);
             return true;

@@ -1,7 +1,7 @@
 package commands.runnables.utilitycategory;
 
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -18,8 +18,6 @@ import core.EmbedFactory;
 import core.ShardManager;
 import core.TextManager;
 import core.cache.PatreonCache;
-import core.emojiconnection.BackEmojiConnection;
-import core.emojiconnection.EmojiConnection;
 import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import modules.schedulers.AlertScheduler;
@@ -27,11 +25,12 @@ import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 
 @CommandProperties(
         trigger = "alerts",
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI, //TODO: remove
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "🔔",
         executableWithoutArgs = true,
@@ -49,7 +48,7 @@ public class AlertsCommand extends NavigationAbstract {
     private final int LIMIT_SERVER = 20;
     private final int LIMIT_KEY_LENGTH = 500;
 
-    private ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
+    private final HashMap<Integer, String> buttonMap = new HashMap<>();
     private long serverId;
     private long channelId;
     private boolean patreon;
@@ -71,7 +70,7 @@ public class AlertsCommand extends NavigationAbstract {
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
         controll(args);
-        registerNavigationListener(7);
+        registerNavigationListener();
         return true;
     }
 
@@ -85,33 +84,32 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerReaction(GenericGuildMessageReactionEvent event, int i, int state) {
-        for (EmojiConnection emojiConnection : emojiConnections) {
-            if (emojiConnection.isEmoji(event.getReactionEmote()) || (i == -1 && emojiConnection instanceof BackEmojiConnection)) {
-                if (emojiConnection.getConnection().equalsIgnoreCase("back")) {
-                    switch (state) {
-                        case DEFAULT_STATE:
-                            removeNavigationWithMessage();
-                            return false;
+    public boolean controllerButton(ButtonClickEvent event, int i, int state) {
+        String key = buttonMap.get(i);
+        if (key != null) {
+            if (key.equalsIgnoreCase("back")) {
+                switch (state) {
+                    case DEFAULT_STATE:
+                        deregisterListenersWithButtonMessage();
+                        return false;
 
-                        case STATE_ADD:
-                        case STATE_REMOVE:
-                            setState(DEFAULT_STATE);
-                            return true;
+                    case STATE_ADD:
+                    case STATE_REMOVE:
+                        setState(DEFAULT_STATE);
+                        return true;
 
-                        case STATE_KEY:
-                        case STATE_USERMESSAGE:
-                            setState(STATE_ADD);
-                            return true;
+                    case STATE_KEY:
+                    case STATE_USERMESSAGE:
+                        setState(STATE_ADD);
+                        return true;
 
-                        default:
-                            return false;
-                    }
+                    default:
+                        return false;
                 }
-
-                controll(emojiConnection.getConnection());
-                return true;
             }
+
+            controll(key);
+            return true;
         }
 
         return false;
@@ -292,18 +290,18 @@ public class AlertsCommand extends NavigationAbstract {
     public EmbedBuilder onDrawMain() throws Throwable {
         setOptions(getString("state0_options").split("\n"));
 
-        emojiConnections = new ArrayList<>();
-        emojiConnections.add(new BackEmojiConnection(getTextChannel().get(), "back"));
-        emojiConnections.add(new EmojiConnection(Emojis.LETTERS[0], "add"));
-        emojiConnections.add(new EmojiConnection(Emojis.LETTERS[1], "remove"));
+        buttonMap.clear();
+        buttonMap.put(-1, "back");
+        buttonMap.put(0, "add");
+        buttonMap.put(1, "remove");
 
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
     }
 
     @Draw(state = STATE_ADD)
     public EmbedBuilder onDrawAdd() throws Throwable {
-        emojiConnections = new ArrayList<>();
-        emojiConnections.add(new BackEmojiConnection(getTextChannel().get(), "back"));
+        buttonMap.clear();
+        buttonMap.put(-1, "back");
 
         List<Command> trackerCommands = getAllTrackerCommands();
 
@@ -334,8 +332,8 @@ public class AlertsCommand extends NavigationAbstract {
 
     @Draw(state = STATE_REMOVE)
     public EmbedBuilder onDrawRemove() throws Throwable {
-        emojiConnections = new ArrayList<>();
-        emojiConnections.add(new BackEmojiConnection(getTextChannel().get(), "back"));
+        buttonMap.clear();
+        buttonMap.put(-1, "back");
 
         List<TrackerData> trackerData = getTrackersInChannel();
         setOptions(new String[trackerData.size()]);
@@ -347,7 +345,7 @@ public class AlertsCommand extends NavigationAbstract {
                     trigger,
                     StringUtil.escapeMarkdown(StringUtil.shortenString(trackerData.get(i).getCommandKey(), 200))
             );
-            emojiConnections.add(new EmojiConnection(Emojis.LETTERS[i], String.valueOf(i)));
+            buttonMap.put(i, String.valueOf(i));
         }
 
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
@@ -355,16 +353,16 @@ public class AlertsCommand extends NavigationAbstract {
 
     @Draw(state = STATE_KEY)
     public EmbedBuilder onDrawKey() {
-        emojiConnections = new ArrayList<>();
-        emojiConnections.add(new BackEmojiConnection(getTextChannel().get(), "back"));
+        buttonMap.clear();
+        buttonMap.put(-1, "back");
         return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), commandCache.getCategory(), commandCache.getTrigger() + "_trackerkey"), getString("state3_title"));
     }
 
     @Draw(state = STATE_USERMESSAGE)
     public EmbedBuilder onDrawUserMessage() {
-        emojiConnections = new ArrayList<>();
-        emojiConnections.add(new BackEmojiConnection(getTextChannel().get(), "back"));
-        emojiConnections.add(new EmojiConnection(Emojis.LETTERS[0], "no"));
+        buttonMap.clear();
+        buttonMap.put(-1, "back");
+        buttonMap.put(0, "no");
         setOptions(getString("state4_options").split("\n"));
 
         return EmbedFactory.getEmbedDefault(
