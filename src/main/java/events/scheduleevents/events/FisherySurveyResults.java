@@ -119,7 +119,7 @@ public class FisherySurveyResults implements ScheduleInterface {
                             surveyQuestion.getQuestion(),
                             surveyQuestion.getAnswers()[0],
                             surveyQuestion.getAnswers()[1],
-                            surveyQuestion.getAnswers()[Math.min(1, won)].toUpperCase(),
+                            surveyQuestion.getAnswers()[Math.min(1, won)],
                             String.valueOf(percent)
                     ));
 

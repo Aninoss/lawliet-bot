@@ -221,7 +221,7 @@ public final class StringUtil {
 
         sb.append(TextManager.getString(locale, TextManager.GENERAL, "onoff", bool)).append("**");
 
-        return sb.toString().toUpperCase();
+        return sb.toString();
     }
 
     public static String solveVariablesOfCommandText(String string, Message message, String prefix) {
