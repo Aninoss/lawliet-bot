@@ -438,7 +438,8 @@ public class HelpCommand extends NavigationAbstract {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"))
-                .setDescription(getString("sp"));
+                .setDescription(getString("sp"))
+                .setImage("https://cdn.discordapp.com/attachments/499629904380297226/850825690399899658/help_banner.png");
         EmbedUtil.setFooter(eb, this);
 
         buttonMap.clear();
