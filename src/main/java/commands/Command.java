@@ -153,9 +153,7 @@ public abstract class Command implements OnTriggerListener {
                     action = channel.sendMessage(messageEmbed)
                             .setActionRows(actionRows);
                 } else {
-                    if (interactionResponse != null &&
-                            Arrays.stream(getAdjustedBotChannelPermissions()).noneMatch(p -> p == Permission.MESSAGE_EXT_EMOJI)
-                    ) {
+                    if (interactionResponse != null && !getCommandProperties().usesExtEmotes()) {
                         action = interactionResponse.editMessageEmbeds(messageEmbed, actionRows);
                     } else {
                         action = channel.editMessageById(drawMessage.getIdLong(), messageEmbed)

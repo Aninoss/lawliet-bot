@@ -33,7 +33,8 @@ import org.json.JSONObject;
         emoji = "❔",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         deleteOnTimeOut = true,
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        usesExtEmotes = true
 )
 public class QuizCommand extends CasinoAbstract {
 

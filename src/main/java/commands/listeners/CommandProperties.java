@@ -45,4 +45,6 @@ public @interface CommandProperties {
 
     boolean turnOffLoadingReaction() default false;
 
+    boolean usesExtEmotes() default false;
+
 }

@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         trigger = "survey",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = Emojis.CHECKMARK,
+        usesExtEmotes = true,
         executableWithoutArgs = true
 )
 public class SurveyCommand extends Command implements FisheryInterface, OnStaticReactionAddListener, OnStaticButtonListener, OnAlertListener {

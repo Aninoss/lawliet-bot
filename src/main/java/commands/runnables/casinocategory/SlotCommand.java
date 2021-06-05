@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         emoji = "🎰",
         executableWithoutArgs = true,
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
+        usesExtEmotes = true,
         aliases = { "slots", "slotmachine" }
 )
 public class SlotCommand extends CasinoAbstract {

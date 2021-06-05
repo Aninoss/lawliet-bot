@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "fishery",
@@ -38,6 +39,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "️⚙️️",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings" }
 )
 public class FisheryCommand extends NavigationAbstract implements OnStaticButtonListener {
@@ -153,7 +155,16 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     public EmbedBuilder draw(int state) {
         switch (state) {
             case 0:
-                setOptions(getString("state0_options_" + guildBean.getFisheryStatus().ordinal()).split("\n"));
+                String[] options = getString("state0_options_" + guildBean.getFisheryStatus().ordinal()).split("\n");
+                OptionButton[] buttons = new OptionButton[options.length];
+                for (int i = 0; i < options.length; i++) {
+                    buttons[i] = new OptionButton(
+                            i == 6 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY,
+                            options[i],
+                            null
+                    );
+                }
+                setOptions(buttons);
 
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[guildBean.getFisheryStatus().ordinal()].toUpperCase() + "**\n" + Emojis.ZERO_WIDTH_SPACE, false)

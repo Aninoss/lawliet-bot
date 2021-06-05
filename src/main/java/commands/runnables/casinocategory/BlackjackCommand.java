@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         emoji = "\uD83C\uDCCF",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "bj" }
 )
 public class BlackjackCommand extends CasinoAbstract {

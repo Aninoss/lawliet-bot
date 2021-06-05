@@ -24,6 +24,7 @@ import org.json.JSONObject;
         trigger = "salmon",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83D\uDC1F",
+        usesExtEmotes = true,
         executableWithoutArgs = true
 )
 public class SalmonCommand extends Command implements OnAlertListener {

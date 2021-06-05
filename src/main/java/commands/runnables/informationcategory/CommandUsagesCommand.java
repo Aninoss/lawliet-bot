@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "\uD83D\uDCD3",
         executableWithoutArgs = true,
         onlyPublicVersion = true,
+        usesExtEmotes = true,
         aliases = { "cu", "commandusage" }
 )
 public class CommandUsagesCommand extends ListAbstract {

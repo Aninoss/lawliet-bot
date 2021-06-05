@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83D\uDE4B",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "profile", "profil", "account", "balance", "bal", "a" }
 )
 public class AccountCommand extends FisheryMemberAccountInterface {

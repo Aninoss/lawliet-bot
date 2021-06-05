@@ -32,8 +32,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 @CommandProperties(
         trigger = "help",
         emoji = "❕",
-        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI, //TODO: remove
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "commands" }
 )
 public class HelpCommand extends NavigationAbstract {
@@ -68,13 +68,7 @@ public class HelpCommand extends NavigationAbstract {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         searchTerm = args;
         commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
-        EmbedBuilder commandEmbed = checkCommand(event.getChannel(), args);
-        EmbedBuilder categoryEmbed = checkCategory(event.getChannel(), args);
-        if (commandEmbed == null || categoryEmbed != null) {
-            registerNavigationListener();
-        } else {
-            drawMessage(commandEmbed);
-        }
+        registerNavigationListener();
         return true;
     }
 
@@ -119,11 +113,11 @@ public class HelpCommand extends NavigationAbstract {
         if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1, arg.length() - 1);
 
         TextChannel channel = getTextChannel().get();
-        setOptions(null);
+        setOptions((OptionButton[]) null);
 
         EmbedBuilder eb;
-        if ((eb = checkCategory(channel, arg)) == null) { //TODO: L.fishery - what to do?
-            if ((eb = checkCommand(channel, arg)) == null) {
+        if ((eb = checkCommand(arg)) == null) {
+            if ((eb = checkCategory(channel, arg)) == null) {
                 eb = checkMainPage();
                 if (arg.length() > 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));
@@ -134,7 +128,7 @@ public class HelpCommand extends NavigationAbstract {
         return eb;
     }
 
-    private EmbedBuilder checkCommand(TextChannel channel, String arg) {
+    private EmbedBuilder checkCommand(String arg) {
         boolean noArgs = false;
         if (getAttachments().has("noargs")) {
             getAttachments().remove("noargs");
@@ -227,15 +221,15 @@ public class HelpCommand extends NavigationAbstract {
                             break;
 
                         case Category.NSFW:
-                            categoryNSFW(eb);
+                            categoryNSFW(channel, eb);
                             break;
 
                         case Category.PATREON_ONLY:
-                            categoryPatreon(eb);
+                            categoryPatreon(channel, eb);
                             break;
 
                         default:
-                            categoryDefault(eb, category);
+                            categoryDefault(channel, eb, category);
                     }
 
                     return eb;
@@ -289,7 +283,7 @@ public class HelpCommand extends NavigationAbstract {
         }
     }
 
-    private void categoryPatreon(EmbedBuilder eb) {
+    private void categoryPatreon(TextChannel channel, EmbedBuilder eb) {
         boolean includeLocked = false;
         boolean includeAlerts = false;
         boolean includeNSFW = false;
@@ -313,7 +307,7 @@ public class HelpCommand extends NavigationAbstract {
                     if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) {
                         title.append(" ").append(getString("beta"));
                     }
-                    title.append(generateCommandIcons(command, true, true, false));
+                    title.append(generateCommandIcons(channel, command, true, true, false));
 
                     if (command.isModCommand()) includeLocked = true;
                     if (command instanceof OnAlertListener) includeAlerts = true;
@@ -331,10 +325,10 @@ public class HelpCommand extends NavigationAbstract {
         }
 
         eb.setDescription(getString("premium", ExternalLinks.PATREON_PAGE) + "\n" + Emojis.ZERO_WIDTH_SPACE);
-        addIconDescriptions(eb, includeLocked, includeAlerts, includeNSFW, false);
+        addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, false);
     }
 
-    private void categoryDefault(EmbedBuilder eb, String category) {
+    private void categoryDefault(TextChannel channel, EmbedBuilder eb, String category) {
         boolean includeLocked = false;
         boolean includeAlerts = false;
         boolean includeNSFW = false;
@@ -357,7 +351,7 @@ public class HelpCommand extends NavigationAbstract {
                 if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) {
                     title.append(" ").append(getString("beta"));
                 }
-                title.append(generateCommandIcons(command, true, true, true));
+                title.append(generateCommandIcons(channel, command, true, true, true));
 
                 if (command.isModCommand()) includeLocked = true;
                 if (command instanceof OnAlertListener) includeAlerts = true;
@@ -374,10 +368,10 @@ public class HelpCommand extends NavigationAbstract {
             }
         }
 
-        addIconDescriptions(eb, includeLocked, includeAlerts, includeNSFW, includePatreon);
+        addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, includePatreon);
     }
 
-    private void categoryNSFW(EmbedBuilder eb) {
+    private void categoryNSFW(TextChannel channel, EmbedBuilder eb) {
         eb.setDescription(getString("nsfw"));
 
         StringBuilder withSearchKey = new StringBuilder();
@@ -391,7 +385,7 @@ public class HelpCommand extends NavigationAbstract {
             ) {
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
-                StringBuilder extras = new StringBuilder(generateCommandIcons(command, false, false, true));
+                StringBuilder extras = new StringBuilder(generateCommandIcons(channel, command, false, false, true));
                 if (command instanceof PornSearchAbstract) {
                     withSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
                 } else if (command instanceof PornPredefinedAbstract) {
@@ -409,31 +403,31 @@ public class HelpCommand extends NavigationAbstract {
             eb.addField(getString("nsfw_searchkey_off"), withoutSearchKey.toString(), true);
         }
 
-        addIconDescriptions(eb, false, false, false, true);
+        addIconDescriptions(channel, eb, false, false, false, true);
     }
 
-    private String generateCommandIcons(Command command, boolean includeAlert, boolean includeNsfw, boolean includePatreon) {
+    private String generateCommandIcons(TextChannel channel, Command command, boolean includeAlert, boolean includeNsfw, boolean includePatreon) {
         StringBuilder sb = new StringBuilder();
 
-        if (command.isModCommand()) sb.append(CommandIcon.LOCKED);
-        if (includeAlert && command instanceof OnAlertListener) sb.append(CommandIcon.ALERTS);
-        if (includeNsfw && command.getCommandProperties().nsfw()) sb.append(CommandIcon.NSFW);
-        if (includePatreon && command.getCommandProperties().patreonRequired()) sb.append(CommandIcon.PATREON);
+        if (command.isModCommand()) sb.append(CommandIcon.LOCKED.get(channel));
+        if (includeAlert && command instanceof OnAlertListener) sb.append(CommandIcon.ALERTS.get(channel));
+        if (includeNsfw && command.getCommandProperties().nsfw()) sb.append(CommandIcon.NSFW.get(channel));
+        if (includePatreon && command.getCommandProperties().patreonRequired()) sb.append(CommandIcon.PATREON.get(channel));
 
-        return sb.length() == 0 ? "" : "┊" + sb.toString();
+        return sb.length() == 0 ? "" : "┊" + sb;
     }
 
-    private void addIconDescriptions(EmbedBuilder eb, boolean includeLocked, boolean includeAlerts, boolean includeNSFW, boolean includePatreon) {
+    private void addIconDescriptions(TextChannel channel, EmbedBuilder eb, boolean includeLocked, boolean includeAlerts, boolean includeNSFW, boolean includePatreon) {
         StringBuilder sb = new StringBuilder(getString("commandproperties")).append("\n\n");
         if (includeLocked) {
-            sb.append(getString("commandproperties_LOCKED", CommandIcon.LOCKED.toString())).append("\n");
+            sb.append(getString("commandproperties_LOCKED", CommandIcon.LOCKED.get(channel))).append("\n");
         }
         if (includeAlerts) {
-            sb.append(getString("commandproperties_ALERTS", CommandIcon.ALERTS.toString())).append("\n");
+            sb.append(getString("commandproperties_ALERTS", CommandIcon.ALERTS.get(channel))).append("\n");
         }
-        if (includeNSFW) sb.append(getString("commandproperties_NSFW", CommandIcon.NSFW.toString())).append("\n");
+        if (includeNSFW) sb.append(getString("commandproperties_NSFW", CommandIcon.NSFW.get(channel))).append("\n");
         if (includePatreon) {
-            sb.append(getString("commandproperties_PATREON", CommandIcon.PATREON.toString(), ExternalLinks.PATREON_PAGE)).append("\n");
+            sb.append(getString("commandproperties_PATREON", CommandIcon.PATREON.get(channel), ExternalLinks.PATREON_PAGE)).append("\n");
         }
 
         eb.addField(Emojis.ZERO_WIDTH_SPACE, sb.toString(), false);
@@ -479,20 +473,25 @@ public class HelpCommand extends NavigationAbstract {
 
     private static class CommandIcon {
 
-        public static final CommandIcon LOCKED = new CommandIcon(Emojis.COMMAND_ICON_LOCKED);
-        public static final CommandIcon ALERTS = new CommandIcon(Emojis.COMMAND_ICON_ALERTS);
-        public static final CommandIcon NSFW = new CommandIcon(Emojis.COMMAND_ICON_NSFW);
-        public static final CommandIcon PATREON = new CommandIcon(Emojis.COMMAND_ICON_PATREON);
+        public static final CommandIcon LOCKED = new CommandIcon(Emojis.COMMAND_ICON_LOCKED, "¹");
+        public static final CommandIcon ALERTS = new CommandIcon(Emojis.COMMAND_ICON_ALERTS, "²");
+        public static final CommandIcon NSFW = new CommandIcon(Emojis.COMMAND_ICON_NSFW, "³");
+        public static final CommandIcon PATREON = new CommandIcon(Emojis.COMMAND_ICON_PATREON, "⁴");
 
         private final String emojiTag;
+        private final String unicodeAlternative;
 
-        public CommandIcon(String emojiTag) {
+        public CommandIcon(String emojiTag, String unicodeAlternative) {
             this.emojiTag = emojiTag;
+            this.unicodeAlternative = unicodeAlternative;
         }
 
-        @Override
-        public String toString() {
-            return emojiTag;
+        public String get(TextChannel channel) {
+            if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI)) {
+                return emojiTag;
+            } else {
+                return unicodeAlternative;
+            }
         }
 
     }

@@ -34,6 +34,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "reactionroles",
@@ -42,6 +43,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemove
         userGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "☑️️",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "rmess", "reactionrole", "rroles", "selfrole", "selfroles", "sroles", "srole" }
 )
 public class ReactionRolesCommand extends NavigationAbstract implements OnReactionListener, OnStaticReactionAddListener, OnStaticReactionRemoveListener {
@@ -612,12 +614,17 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Draw(state = REMOVE_SLOT)
     public EmbedBuilder onDrawRemoveSlot() {
-        ArrayList<String> optionsDelete = new ArrayList<>();
+        ArrayList<OptionButton> optionsDelete = new ArrayList<>();
         for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
             long roleId = StringUtil.filterLongFromString( emojiConnection.getConnection());
-            optionsDelete.add(new AtomicRole(getGuildId().get(), roleId).getName()); //TODO: how to show emoji?
+            OptionButton optionButton = new OptionButton(
+                    ButtonStyle.PRIMARY,
+                    new AtomicRole(getGuildId().get(), roleId).getName(),
+                    Emoji.fromMarkdown(emojiConnection.getEmojiTag())
+            );
+            optionsDelete.add(optionButton);
         }
-        setOptions(optionsDelete.toArray(new String[0]));
+        setOptions(optionsDelete.toArray(new OptionButton[0]));
 
         return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
     }

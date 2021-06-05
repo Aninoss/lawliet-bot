@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         emoji = "🏗️️",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "crash" }
 )
 public class TowerCommand extends CasinoAbstract {

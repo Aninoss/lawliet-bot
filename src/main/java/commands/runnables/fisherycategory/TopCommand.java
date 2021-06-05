@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83C\uDFC6",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "rankings", "ranking", "rank", "ranks", "leaderboard", "t" }
 )
 public class TopCommand extends ListAbstract implements FisheryInterface {

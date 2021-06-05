@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83C\uDF81",
         executableWithoutArgs = false,
+        usesExtEmotes = true,
         aliases = { "gift", "pay" }
 )
 public class GiveCommand extends Command implements FisheryInterface {

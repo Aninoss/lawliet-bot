@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         emoji = "\uD83C\uDF80",
         executableWithoutArgs = true,
         onlyPublicVersion = true,
+        usesExtEmotes = true,
         aliases = { "c" }
 )
 public class ClaimCommand extends Command implements FisheryInterface {

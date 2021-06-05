@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "\uD83D\uDD21",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "hm" }
 )
 public class HangmanCommand extends CasinoAbstract {

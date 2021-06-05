@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "📜",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "fishingroles", "fishroles", "fisheryr", "fisheryrole" }
 )
 public class FisheryRolesCommand extends NavigationAbstract {

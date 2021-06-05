@@ -9,7 +9,8 @@ import net.dv8tion.jda.api.Permission;
         emoji = "❔",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         deleteOnTimeOut = true,
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        usesExtEmotes = true
 )
 public class AnimeQuizCommand extends QuizCommand {
 

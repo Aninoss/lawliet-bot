@@ -4,9 +4,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import commands.Command;
 import commands.CommandContainer;
@@ -38,7 +36,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
     protected final int DEFAULT_STATE = 0;
 
-    private String[] options;
+    private OptionButton[] options;
     private int state = DEFAULT_STATE;
     private int page = 0;
     private int pageMax = 0;
@@ -196,7 +194,13 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             ArrayList<Button> buttonList = new ArrayList<>();
             page = Math.min(page, pageMax);
             for (int i = page * MAX_OPTIONS; i <= Math.min(page * MAX_OPTIONS + MAX_OPTIONS - 1, options.length - 1); i++) {
-                buttonList.add(Button.of(ButtonStyle.PRIMARY, String.valueOf(i), options[i]));
+                OptionButton optionButton = options[i];
+                Button button = Button.of(optionButton.getButtonStyle(), String.valueOf(i), optionButton.getLabel());
+                Emoji emoji = optionButton.getEmoji().orElse(null);
+                if (emoji != null) {
+                    button = button.withEmoji(emoji);
+                }
+                buttonList.add(button);
             }
 
             if (options.length > MAX_OPTIONS) {
@@ -298,14 +302,25 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return state;
     }
 
-    public String[] getOptions() {
+    public OptionButton[] getOptions() {
         return options;
     }
 
-    public void setOptions(String[] options) {
+    public void setOptions(OptionButton[] options) {
         this.options = options;
         if (options != null) {
             this.pageMax = Math.max(0, options.length - 1) / MAX_OPTIONS;
+        }
+    }
+
+    public void setOptions(String[] options) {
+        if (options != null) {
+            this.options = Arrays.stream(options)
+                    .map(l -> new OptionButton(ButtonStyle.PRIMARY, l, null))
+                    .toArray(OptionButton[]::new);
+            this.pageMax = Math.max(0, options.length - 1) / MAX_OPTIONS;
+        } else {
+            this.options = null;
         }
     }
 
@@ -331,6 +346,33 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     protected @interface Draw {
 
         int state() default -1;
+
+    }
+
+
+    public static class OptionButton {
+
+        private final ButtonStyle buttonStyle;
+        private final String label;
+        private final Emoji emoji;
+
+        public OptionButton(ButtonStyle buttonStyle, String label, Emoji emoji) {
+            this.buttonStyle = buttonStyle;
+            this.label = label;
+            this.emoji = emoji;
+        }
+
+        public ButtonStyle getButtonStyle() {
+            return buttonStyle;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public Optional<Emoji> getEmoji() {
+            return Optional.ofNullable(emoji);
+        }
 
     }
 

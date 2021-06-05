@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         userGuildPermissions = { Permission.MANAGE_SERVER },
         emoji = "🙋",
+        usesExtEmotes = true,
         executableWithoutArgs = true
 )
 public class WelcomeCommand extends NavigationAbstract {

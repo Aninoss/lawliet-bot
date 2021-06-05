@@ -26,6 +26,7 @@ import org.json.JSONObject;
         trigger = "maps",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83D\uDDFA",
+        usesExtEmotes = true,
         executableWithoutArgs = true
 )
 public class MapsCommand extends Command implements OnAlertListener {

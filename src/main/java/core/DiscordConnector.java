@@ -53,7 +53,6 @@ public class DiscordConnector {
             .disableCache(CacheFlag.ROLE_TAGS)
             .setActivity(Activity.watching(getActivityText()))
             .setHttpClientBuilder(IOUtil.newHttpClientBuilder().addInterceptor(interceptor))
-            .setRawEventsEnabled(true)
             .addEventListeners(new DiscordEventAdapter());
 
     private DiscordConnector() {

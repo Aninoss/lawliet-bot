@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83C\uDFA3",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "equip", "equipment", "inventory", "level", "g" }
 )
 public class GearCommand extends FisheryMemberAccountInterface {

@@ -30,10 +30,11 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "alerts",
-        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI, //TODO: remove
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "🔔",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "tracker", "track", "tracking", "alert", "auto", "automate", "automize", "feed", "feeds" }
 )
 public class AlertsCommand extends NavigationAbstract {
@@ -336,18 +337,19 @@ public class AlertsCommand extends NavigationAbstract {
         buttonMap.put(-1, "back");
 
         List<TrackerData> trackerData = getTrackersInChannel();
-        setOptions(new String[trackerData.size()]);
+        String[] options = new String[trackerData.size()];
 
-        for (int i = 0; i < getOptions().length; i++) {
+        for (int i = 0; i < options.length; i++) {
             String trigger = trackerData.get(i).getCommandTrigger();
 
-            getOptions()[i] = getString("slot_remove", trackerData.get(i).getCommandKey().length() > 0,
+            options[i] = getString("slot_remove", trackerData.get(i).getCommandKey().length() > 0,
                     trigger,
                     StringUtil.escapeMarkdown(StringUtil.shortenString(trackerData.get(i).getCommandKey(), 200))
             );
             buttonMap.put(i, String.valueOf(i));
         }
 
+        setOptions(options);
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
     }
 

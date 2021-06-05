@@ -37,6 +37,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "📥",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "shop", "upgrade", "invest", "levelup", "b" }
 )
 public class BuyCommand extends NavigationAbstract implements FisheryInterface {

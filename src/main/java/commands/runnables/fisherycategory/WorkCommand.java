@@ -35,6 +35,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "💼",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "working", "salary", "w" }
 )
 public class WorkCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {

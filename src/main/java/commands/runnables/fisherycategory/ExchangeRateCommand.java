@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         emoji = "\uD83D\uDD01",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "exchangerate", "er", "exchr", "exchange", "exchf", "exchforecast", "exchangerateforecast", "erforecast", "exchrforecast", "exchangeforecast" }
 )
 public class ExchangeRateCommand extends Command implements OnButtonListener, OnAlertListener {

@@ -36,6 +36,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
         emoji = "🎆",
         releaseDate = { 2020, 10, 28 },
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "giveaways" }
 )
 public class GiveawayCommand extends NavigationAbstract implements OnReactionListener {

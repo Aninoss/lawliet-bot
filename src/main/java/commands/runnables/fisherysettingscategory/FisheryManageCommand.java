@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
+import constants.Emojis;
 import constants.LogStatus;
 import constants.Response;
 import constants.Settings;
@@ -17,10 +18,12 @@ import modules.FisheryMemberGroup;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "fisherymanage",
@@ -29,6 +32,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "💰",
         executableWithoutArgs = false,
         patreonRequired = true,
+        usesExtEmotes = true,
         aliases = { "fishingmanage", "fishmanage", "fisheryusermanage", "fisherymanager" }
 )
 public class FisheryManageCommand extends NavigationAbstract implements FisheryInterface {
@@ -263,7 +267,21 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         };
 
         if (state == 0) {
-            setOptions(getString("state0_options", values).split("\n"));
+            OptionButton[] buttons = new OptionButton[4];
+            Emoji[] emojis = new Emoji[] {
+                    Emoji.fromMarkdown(Emojis.CURRENCY),
+                    Emoji.fromMarkdown(Emojis.COINS),
+                    Emoji.fromMarkdown(Emojis.DAILY_STREAK),
+                    null
+            };
+            for (int i = 0; i < buttons.length; i++) {
+                buttons[i] = new OptionButton(
+                        i == 3 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY,
+                        i <= 2 ? values[i] : getString("state0_reset"),
+                        emojis[i]
+                );
+            }
+            setOptions(buttons);
 
             String desc = getString("state0_description", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag());
             return EmbedFactory.getEmbedDefault(this, desc);

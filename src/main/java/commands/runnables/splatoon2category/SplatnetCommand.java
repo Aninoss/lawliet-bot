@@ -24,6 +24,7 @@ import org.json.JSONObject;
         trigger = "splatnet",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83D\uDED2",
+        usesExtEmotes = true,
         executableWithoutArgs = true
 )
 public class SplatnetCommand extends Command implements OnAlertListener {
