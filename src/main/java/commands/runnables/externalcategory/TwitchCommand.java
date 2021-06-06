@@ -94,12 +94,16 @@ public class TwitchCommand extends Command implements OnAlertListener {
         }
 
         if (streamOpt.isEmpty()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
-            EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-            channel.sendMessage(eb.build()).complete();
-            return TrackerResult.STOP_AND_DELETE;
+            if (slot.getArgs().isEmpty()) {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this)
+                        .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                        .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
+                EmbedUtil.addTrackerRemoveLog(eb, getLocale());
+                channel.sendMessage(eb.build()).complete();
+                return TrackerResult.STOP_AND_DELETE;
+            } else {
+                return TrackerResult.CONTINUE;
+            }
         }
 
         TwitchStream twitchStream = streamOpt.get();

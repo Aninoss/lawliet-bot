@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         trigger = "coinflip",
         emoji = "\uD83D\uDCB0",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "coin", "coins", "cf", "cointoss", "flip" }
 )
 public class CoinFlipCommand extends CasinoAbstract {
