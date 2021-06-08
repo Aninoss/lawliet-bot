@@ -13,5 +13,6 @@ public interface RegexPatterns {
     Pattern TEXT_PLACEHOLDER_PATTERN = Pattern.compile("\\{(?<inner>[^}]*)}");
     Pattern TEXT_MULTIOPTION_PATTERN = Pattern.compile("(?<!\\\\)\\[(?<inner>[^]]*)]");
     Pattern EMOTE = Pattern.compile("<a?:(?<name>[^:]*):(?<id>[0-9]*)>");
+    Pattern INTERACTION = Pattern.compile("^/api/v[0-9]*/interactions/.*");
 
 }

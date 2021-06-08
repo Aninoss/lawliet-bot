@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.utils.IOUtil;
-import okhttp3.Interceptor;
 import websockets.syncserver.SyncManager;
 
 public class DiscordConnector {
@@ -32,17 +31,7 @@ public class DiscordConnector {
     }
 
     private boolean started = false;
-    private final CustomLocalRatelimiter customLocalRatelimiter = new CustomLocalRatelimiter(21);
     private final ConcurrentSessionController concurrentSessionController = new ConcurrentSessionController();
-
-    private final Interceptor interceptor = chain -> {
-        try {
-            customLocalRatelimiter.requestQuota();
-        } catch (InterruptedException e) {
-            MainLogger.get().error("Interrupted", e);
-        }
-        return chain.proceed(chain.request());
-    };
 
     private final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
             .setSessionController(concurrentSessionController)
@@ -52,7 +41,7 @@ public class DiscordConnector {
             .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)
             .setActivity(Activity.watching(getActivityText()))
-            .setHttpClientBuilder(IOUtil.newHttpClientBuilder().addInterceptor(interceptor))
+            .setHttpClient(IOUtil.newHttpClientBuilder().addInterceptor(new CustomInterceptor()).build())
             .addEventListeners(new DiscordEventAdapter());
 
     private DiscordConnector() {
