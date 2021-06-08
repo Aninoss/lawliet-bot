@@ -54,7 +54,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
             guildBean = new GuildData(
                     serverId,
                     resultSet.getString(1),
-                    new Locale(resultSet.getString(2)),
+                    new Locale(resultSet.getString(2).toLowerCase()),
                     FisheryStatus.valueOf(resultSet.getString(3)),
                     resultSet.getBoolean(4),
                     resultSet.getLong(5),

@@ -1,6 +1,8 @@
 package core;
 
 import java.time.Instant;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import core.emoji.EmojiTable;
 import core.utils.BotUtil;
 import mysql.DBMain;
@@ -12,6 +14,18 @@ import websockets.syncserver.SyncManager;
 public class Main {
 
     public static void main(String[] args) {
+        try {
+            TextManager.getString(new Locale("en_US"), "casino", "casino_retry");
+        } catch (Throwable e) {
+            MainLogger.get().error("Error", e);
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+            System.exit(1);
+        }
+
         try {
             Program.init();
             createTempDir();

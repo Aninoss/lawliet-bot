@@ -40,7 +40,7 @@ public class TextManager {
     public static String getString(Locale locale, String category, String key, int option, String... args) {
         ResourceBundle texts;
         try {
-            texts = bundles.get(new Pair<>(category, locale));
+            texts = bundles.get(new Pair<>(category, new Locale(locale.toString().toLowerCase())));
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }

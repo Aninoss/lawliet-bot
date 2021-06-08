@@ -113,7 +113,7 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
                 new SurveyFirstVote(
                         resultSet.getLong(1),
                         resultSet.getByte(2),
-                        new Locale(resultSet.getString(3))
+                        new Locale(resultSet.getString(3).toLowerCase())
                 )
         );
     }
