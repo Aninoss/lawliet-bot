@@ -3,6 +3,7 @@ package commands.runnables.informationcategory;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import commands.Command;
 import commands.CommandContainer;
@@ -74,7 +75,6 @@ public class HelpCommand extends NavigationAbstract {
 
     @ControllerMessage(state = DEFAULT_STATE)
     public Response onMessage(GuildMessageReceivedEvent event, String input) {
-        searchTerm = input;
         if (buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(input))) {
             searchTerm = input;
             return Response.TRUE;
@@ -245,18 +245,19 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     private void categoryRolePlay(EmbedBuilder eb) {
-        addRolePlayCommandList(eb, command -> !command.isInteractive() && !command.getCommandProperties().nsfw());
+        AtomicInteger counter = new AtomicInteger(0);
+        addRolePlayCommandList(eb, command -> !command.isInteractive() && !command.getCommandProperties().nsfw(), counter);
         eb.addBlankField(false);
 
         eb.addField(getString("roleplay_interactive_title"), getString("roleplay_interactive_desc"), false);
-        addRolePlayCommandList(eb, command -> command.isInteractive() && !command.getCommandProperties().nsfw());
+        addRolePlayCommandList(eb, command -> command.isInteractive() && !command.getCommandProperties().nsfw(), counter);
         eb.addBlankField(false);
 
         eb.addField(getString("roleplay_nsfwinteractive_title"), getString("interaction_nsfw_desc"), false);
-        addRolePlayCommandList(eb, command -> command.isInteractive() && command.getCommandProperties().nsfw());
+        addRolePlayCommandList(eb, command -> command.isInteractive() && command.getCommandProperties().nsfw(), counter);
     }
 
-    private void addRolePlayCommandList(EmbedBuilder eb, Function<RolePlayAbstract, Boolean> rolePlayAbstractFilter) {
+    private void addRolePlayCommandList(EmbedBuilder eb, Function<RolePlayAbstract, Boolean> rolePlayAbstractFilter, AtomicInteger counter) {
         StringBuilder stringBuilder = new StringBuilder();
         int i = 0;
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(Category.INTERACTIONS)) {
@@ -265,6 +266,7 @@ public class HelpCommand extends NavigationAbstract {
             if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) &&
                     (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR))
             ) {
+                buttonMap.put(counter.getAndIncrement(), command.getTrigger());
                 stringBuilder
                         .append("• `")
                         .append(command.getCommandProperties().emoji())
@@ -381,12 +383,14 @@ public class HelpCommand extends NavigationAbstract {
         StringBuilder withSearchKey = new StringBuilder();
         StringBuilder withoutSearchKey = new StringBuilder();
 
+        int i = 0;
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(Category.NSFW)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
             if (commandManagementBean.commandIsTurnedOn(command) ||
                     BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR)
             ) {
+                buttonMap.put(i++, command.getTrigger());
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
                 StringBuilder extras = new StringBuilder(generateCommandIcons(channel, command, false, false, true));
