@@ -14,8 +14,10 @@ import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.LogStatus;
 import constants.TrackerResult;
-import core.*;
-import core.components.ActionRows;
+import core.EmbedFactory;
+import core.PermissionCheckRuntime;
+import core.ShardManager;
+import core.TextManager;
 import core.utils.*;
 import javafx.util.Pair;
 import mysql.modules.survey.*;
@@ -26,6 +28,7 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
@@ -55,7 +58,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         event.getChannel().sendMessage(surveyEmbeds.resultEmbed.build()).queue();
         event.getChannel().sendMessage(surveyEmbeds.newEmbed.build())
-                .setActionRows(ActionRows.of(surveyEmbeds.buttons))
+                .setActionRows(surveyEmbeds.actionRows)
                 .queue(this::registerStaticReactionMessage);
         return true;
     }
@@ -203,18 +206,22 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         String[] answers = currentSurvey.getSurveyQuestionAndAnswers(getLocale()).getAnswers();
-        Button[] buttons = new Button[] {
-                Button.of(ButtonStyle.PRIMARY, BUTTON_ID_VOTE_FIRST_A, getString("button_first", answers[0])),
-                Button.of(ButtonStyle.PRIMARY, BUTTON_ID_VOTE_FIRST_B, getString("button_first", answers[1])),
-                Button.of(ButtonStyle.SUCCESS, BUTTON_ID_VOTE_SECOND_A, getString("button_second", answers[0])),
-                Button.of(ButtonStyle.SUCCESS, BUTTON_ID_VOTE_SECOND_B, getString("button_second", answers[1])),
-                Button.of(ButtonStyle.SECONDARY, BUTTON_ID_NOTIFICATIONS, getString("button_noti"))
+        ActionRow[] actionRows = new ActionRow[] {
+                ActionRow.of(
+                        Button.of(ButtonStyle.PRIMARY, BUTTON_ID_VOTE_FIRST_A, getString("button_first", answers[0])),
+                        Button.of(ButtonStyle.PRIMARY, BUTTON_ID_VOTE_FIRST_B, getString("button_first", answers[1]))
+                ),
+                ActionRow.of(
+                        Button.of(ButtonStyle.SUCCESS, BUTTON_ID_VOTE_SECOND_A, getString("button_second", answers[0])),
+                        Button.of(ButtonStyle.SUCCESS, BUTTON_ID_VOTE_SECOND_B, getString("button_second", answers[1]))
+                ),
+                ActionRow.of(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_NOTIFICATIONS, getString("button_noti")))
         };
 
         return new SurveyEmbeds(
                 generateResultEmbed(lastSurvey, member),
                 newEmbed,
-                buttons
+                actionRows
         );
     }
 
@@ -305,7 +312,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(null);
         slot.sendMessage(true, surveyEmbeds.resultEmbed.build()).get();
-        long messageId = slot.sendMessage(false, surveyEmbeds.newEmbed.build(), surveyEmbeds.buttons).get();
+        long messageId = slot.sendMessage(false, surveyEmbeds.newEmbed.build(), surveyEmbeds.actionRows).get();
         registerStaticReactionMessage(slot.getTextChannel().get(), messageId);
 
         slot.setMessageId(messageId);
@@ -331,12 +338,12 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         private final EmbedBuilder resultEmbed;
         private final EmbedBuilder newEmbed;
-        private final Button[] buttons;
+        private final ActionRow[] actionRows;
 
-        public SurveyEmbeds(EmbedBuilder resultEmbed, EmbedBuilder newEmbed, Button[] buttons) {
+        public SurveyEmbeds(EmbedBuilder resultEmbed, EmbedBuilder newEmbed, ActionRow[] actionRows) {
             this.resultEmbed = resultEmbed;
             this.newEmbed = newEmbed;
-            this.buttons = buttons;
+            this.actionRows = actionRows;
         }
 
     }

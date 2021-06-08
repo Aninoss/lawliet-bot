@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
@@ -223,12 +224,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         if (!pornImages.get(0).isVideo()) {
             Optional<Message> messageTemplateOpt = generatePostMessagesEmbed(pornImages.get(0), channel);
             messageTemplateOpt.ifPresent(message -> {
-                slot.sendMessage(true, message.getEmbeds().get(0), messageButton);
+                slot.sendMessage(true, message.getEmbeds().get(0), ActionRow.of(messageButton));
             });
         } else {
             Optional<Message> messageTemplateOpt = generatePostMessagesText(pornImages, slot.getCommandKey(), channel, 1);
             messageTemplateOpt.ifPresent(message -> {
-                slot.sendMessage(true, message.getContentRaw(), messageButton);
+                slot.sendMessage(true, message.getContentRaw(), ActionRow.of(messageButton));
             });
         }
 

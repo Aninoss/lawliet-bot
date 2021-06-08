@@ -18,9 +18,8 @@ import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import core.MainLogger;
 import core.ShardManager;
 import core.assets.TextChannelAsset;
-import core.components.ActionRows;
-import core.components.WebhookMessageBuilderAdvanced;
 import core.cache.ServerPatreonBoostCache;
+import core.components.WebhookMessageBuilderAdvanced;
 import core.utils.BotPermissionUtil;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.Permission;
@@ -28,7 +27,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.Webhook;
-import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
@@ -118,44 +117,44 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
         }
     }
 
-    public Optional<Long> sendMessage(boolean acceptUserMessage, String content, Component... components) {
+    public Optional<Long> sendMessage(boolean acceptUserMessage, String content, ActionRow... actionRows) {
         if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
             content = getEffectiveUserMessage().get() + "\n" + content;
         }
-        return processMessage(true, acceptUserMessage, content, Collections.emptyList(), components);
+        return processMessage(true, acceptUserMessage, content, Collections.emptyList(), actionRows);
     }
 
-    public Optional<Long> editMessage(boolean acceptUserMessage, String content, Component... components) {
+    public Optional<Long> editMessage(boolean acceptUserMessage, String content, ActionRow... actionRows) {
         if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
             content = getEffectiveUserMessage().get() + "\n" + content;
         }
-        return processMessage(false, acceptUserMessage, content, Collections.emptyList(), components);
+        return processMessage(false, acceptUserMessage, content, Collections.emptyList(), actionRows);
     }
 
-    public Optional<Long> sendMessage(boolean acceptUserMessage, MessageEmbed embed, Component... components) {
-        return sendMessage(acceptUserMessage, Collections.singletonList(embed), components);
+    public Optional<Long> sendMessage(boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) {
+        return sendMessage(acceptUserMessage, Collections.singletonList(embed), actionRows);
     }
 
-    public Optional<Long> editMessage(boolean acceptUserMessage, MessageEmbed embed, Component... components) {
-        return editMessage(acceptUserMessage, Collections.singletonList(embed), components);
+    public Optional<Long> editMessage(boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) {
+        return editMessage(acceptUserMessage, Collections.singletonList(embed), actionRows);
     }
 
-    public Optional<Long> sendMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, Component... components) {
+    public Optional<Long> sendMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) {
         if (embeds.isEmpty()) {
             return Optional.empty();
         }
-        return processMessage(true, acceptUserMessage, null, embeds, components);
+        return processMessage(true, acceptUserMessage, null, embeds, actionRows);
     }
 
-    public Optional<Long> editMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, Component... components) {
+    public Optional<Long> editMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) {
         if (embeds.isEmpty()) {
             return Optional.empty();
         }
-        return processMessage(false, acceptUserMessage, null, embeds, components);
+        return processMessage(false, acceptUserMessage, null, embeds, actionRows);
     }
 
     private Optional<Long> processMessage(boolean newMessage, boolean acceptUserMessage, String content,
-                                          List<MessageEmbed> embeds, Component... components) {
+                                          List<MessageEmbed> embeds, ActionRow... actionRows) {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
             TextChannel channel = channelOpt.get();
@@ -166,7 +165,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                         Member webhookOwner = webhook.getOwner();
                         if (webhookOwner != null && webhookOwner.getIdLong() == ShardManager.getInstance().getSelfId()) {
                             webhookUrl = webhook.getUrl();
-                            return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds, components);
+                            return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds, actionRows);
                         }
                     }
                     if (webhooks.size() < 10) {
@@ -181,21 +180,21 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                                 .complete();
 
                         webhookUrl = webhook.getUrl();
-                        return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds, components);
+                        return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds, actionRows);
                     } else {
                         preferWebhook = false;
-                        getTextChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, components));
+                        getTextChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows));
                     }
                 } catch (Throwable e) {
                     MainLogger.get().error("Could not process webhooks", e);
-                    getTextChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, components));
+                    getTextChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows));
                 }
             }
 
             if (webhookUrl != null) {
-                return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds, components);
+                return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds, actionRows);
             } else {
-                return processMessageViaRest(newMessage, acceptUserMessage, content, embeds, components);
+                return processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows);
             }
         } else {
             return Optional.empty();
@@ -203,7 +202,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
     }
 
     private Optional<Long> processMessageViaWebhook(boolean newMessage, boolean acceptUserMessage, String content,
-                                                    List<MessageEmbed> embeds, Component... components) {
+                                                    List<MessageEmbed> embeds, ActionRow... actionRows) {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
             if (webhookClient == null) {
@@ -221,7 +220,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
 
             try {
                 WebhookMessageBuilder wmb = new WebhookMessageBuilderAdvanced()
-                        .setActionRows(ActionRows.of(components))
+                        .setActionRows(actionRows)
                         .setAvatarUrl(channelOpt.get().getGuild().getSelfMember().getUser().getEffectiveAvatarUrl());
 
                 if (embeds.size() > 0) {
@@ -248,10 +247,10 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                     MainLogger.get().error("Could not send webhook message", e);
                     this.webhookClient = null;
                     this.webhookUrl = null;
-                    return processMessageViaRest(newMessage, acceptUserMessage, content, embeds, components);
+                    return processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows);
                 } else {
                     MainLogger.get().error("Could not edit webhook message", e);
-                    return processMessageViaWebhook(true, acceptUserMessage, content, embeds, components)
+                    return processMessageViaWebhook(true, acceptUserMessage, content, embeds, actionRows)
                             .map(messageId -> {
                                 this.messageId = messageId;
                                 return messageId;
@@ -264,7 +263,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
     }
 
     private Optional<Long> processMessageViaRest(boolean newMessage, boolean acceptUserMessage, String content,
-                                                 List<MessageEmbed> embeds, Component... components) {
+                                                 List<MessageEmbed> embeds, ActionRow... actionRows) {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
             TextChannel channel = channelOpt.get();
@@ -274,7 +273,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                     for (int i = 0; i < embeds.size(); i++) {
                         MessageEmbed embed = embeds.get(i);
                         MessageAction messageAction = channel.sendMessage(embed)
-                                .setActionRows(ActionRows.of(components));
+                                .setActionRows(actionRows);
                         if (acceptUserMessage && i == 0 && getEffectiveUserMessage().isPresent()) {
                             messageAction = messageAction.content(getEffectiveUserMessage().get());
                         }
@@ -286,7 +285,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                     return Optional.of(newMessageId);
                 } else {
                     MessageAction messageAction = channel.editMessageById(messageId, embeds.get(0))
-                            .setActionRows(ActionRows.of(components));
+                            .setActionRows(actionRows);
                     if (getEffectiveUserMessage().isPresent()) {
                         messageAction = messageAction.content(getEffectiveUserMessage().get());
                     }
@@ -295,16 +294,16 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
             } else {
                 if (newMessage) {
                     MessageAction messageAction = channel.sendMessage(content)
-                            .setActionRows(ActionRows.of(components));
+                            .setActionRows(actionRows);
                     return Optional.of(messageAction.complete().getIdLong());
                 } else {
                     try {
                         MessageAction messageAction = channel.editMessageById(messageId, content)
-                                .setActionRows(ActionRows.of(components));
+                                .setActionRows(actionRows);
                         return Optional.of(messageAction.complete().getIdLong());
                     } catch (Throwable e) {
                         MainLogger.get().error("Could not edit rest message", e);
-                        return processMessageViaRest(true, acceptUserMessage, content, embeds, components)
+                        return processMessageViaRest(true, acceptUserMessage, content, embeds, actionRows)
                                 .map(messageId -> {
                                     this.messageId = messageId;
                                     return messageId;
