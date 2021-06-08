@@ -118,14 +118,16 @@ public class GiveawayScheduler {
         } else {
             eb.setDescription(TextManager.getString(guildBean.getLocale(), "utility", "giveaway_results_empty"));
         }
-
         giveawayData.stop();
-        message.editMessage(eb.build())
-                .content(winners.size() > 0 ? mentions.toString() : null)
-                .queue();
 
-        if (winners.size() > 0 && PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE)) {
-            channel.sendMessage(mentions.toString()).flatMap(Message::delete).queue();
+        if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+            message.editMessage(eb.build())
+                    .content(winners.size() > 0 ? mentions.toString() : null)
+                    .queue();
+
+            if (winners.size() > 0) {
+                channel.sendMessage(mentions.toString()).flatMap(Message::delete).queue();
+            }
         }
     }
 
