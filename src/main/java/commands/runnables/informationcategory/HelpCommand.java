@@ -147,7 +147,7 @@ public class HelpCommand extends NavigationAbstract {
                 }
 
                 buttonMap.clear();
-                buttonMap.put(-1, currentCategory);
+                buttonMap.put(-1, "cat:" + currentCategory);
 
                 StringBuilder usage = new StringBuilder();
                 for (String line : TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_usage").split("\n")) {
@@ -200,6 +200,10 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     private EmbedBuilder checkCategory(TextChannel channel, String arg) {
+        if (arg.startsWith("cat:")) {
+            arg = arg.substring(4);
+        }
+
         if (arg.length() > 0) {
             for (String category : LIST) {
                 if ((category.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, category).toLowerCase().contains(arg.toLowerCase()))) {
@@ -449,7 +453,7 @@ public class HelpCommand extends NavigationAbstract {
         for (String string : LIST) {
             if (!commandManagementBean.getSwitchedOffElements().contains(string) || BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR)) {
                 String title = TextManager.getString(getLocale(), TextManager.COMMANDS, string);
-                buttonMap.put(i, string);
+                buttonMap.put(i, "cat:" + string);
                 options.add(title);
                 i++;
             }

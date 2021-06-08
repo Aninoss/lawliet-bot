@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import constants.RegexPatterns;
 import core.schedule.MainScheduler;
+import core.utils.ExceptionUtil;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -25,9 +26,10 @@ public class CustomInterceptor implements Interceptor {
         }
 
         AtomicBoolean pending = new AtomicBoolean(true);
-        MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "Rest Stuck", () -> {
+        Thread t = Thread.currentThread();
+        MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "Rest Stuck", () -> {
             if (pending.get()) {
-                MainLogger.get().error("Rest API stuck: {}", request.method() + " " + request.url());
+                MainLogger.get().error("Rest API stuck: {}", request.method() + " " + request.url(), ExceptionUtil.generateForStack(t));
             }
         });
 
