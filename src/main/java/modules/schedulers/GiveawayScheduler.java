@@ -78,6 +78,10 @@ public class GiveawayScheduler {
 
     private void processGiveawayUsers(TextChannel channel, GuildData guildBean, GiveawayData giveawayData) {
         giveawayData.retrieveMessage()
+                .exceptionally(e -> {
+                    giveawayData.stop();
+                    return null;
+                })
                 .thenAccept(message -> {
                     for (MessageReaction reaction : message.getReactions()) {
                         if (EmojiUtil.reactionEmoteEqualsEmoji(reaction.getReactionEmote(), giveawayData.getEmoji())) {
