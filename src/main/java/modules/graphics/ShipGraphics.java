@@ -1,11 +1,13 @@
 package modules.graphics;
 
 import java.awt.*;
+import java.awt.font.FontRenderContext;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
+import java.text.AttributedCharacterIterator;
 import javax.imageio.ImageIO;
-import core.FontContainer;
+import core.AttributedStringGenerator;
 import core.LocalFile;
 import net.dv8tion.jda.api.entities.User;
 
@@ -48,11 +50,13 @@ public class ShipGraphics {
         }
 
         g.drawImage(image, 0, 0, null);
+        AttributedStringGenerator fontSimilarity = new AttributedStringGenerator(fsize);
+        AttributedCharacterIterator simIterator = fontSimilarity.getIterator(percentage + "%");
         Color mainColor = new Color((int) Math.min((510.0 - (percentage / 100.0 * 255.0 * 2.0)), 255), (int) Math.min((percentage / 100.0 * 255.0 * 2.0), 255), 0);
+        FontRenderContext frc = new FontRenderContext(null, true, true);
 
-        Font font = FontContainer.getInstance().getFirstFont(fsize);
         int y = (int) (image.getHeight() / 5.0 * 4.0);
-        GraphicsUtil.drawStringWithBorder(g, font, percentage + "%", mainColor, image.getWidth() / 2, y - (int) (0.252 * fsize), 4, -1);
+        GraphicsUtil.drawStringWithBorder(g, simIterator, fontSimilarity.getStringBounds(percentage + "%", frc), mainColor, image.getWidth() / 2, y - (int) (0.252 * fsize), 4, -1);
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ImageIO.write(result, "png", os);
