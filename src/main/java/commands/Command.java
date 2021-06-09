@@ -51,7 +51,7 @@ public abstract class Command implements OnTriggerListener {
     private GuildMessageReceivedEvent guildMessageReceivedEvent = null;
     private InteractionResponse interactionResponse;
     private boolean canHaveTimeOut = true;
-    private List<ActionRow> actionRows;
+    private List<ActionRow> actionRows = Collections.emptyList();
 
     public Command(Locale locale, String prefix) {
         this.locale = locale;

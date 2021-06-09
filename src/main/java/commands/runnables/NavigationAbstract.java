@@ -367,7 +367,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         }
 
         public String getLabel() {
-            return label;
+            return StringUtil.shortenString(label, 80);
         }
 
         public Optional<Emoji> getEmoji() {

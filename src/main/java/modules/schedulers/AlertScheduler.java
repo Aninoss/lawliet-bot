@@ -35,7 +35,7 @@ public class AlertScheduler {
     private AlertScheduler() {
     }
 
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(new CountingThreadFactory(() -> "Main", "Alerts", true));
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(new CountingThreadFactory(() -> "Main", "Alerts", false));
 
     private boolean started = false;
 
@@ -60,7 +60,7 @@ public class AlertScheduler {
             CustomObservableMap<Integer, TrackerData> map = DBTracker.getInstance().retrieve(guildId);
             if (map.containsKey(hash)) {
                 TrackerData slot = map.get(hash);
-                if (slot.isActive() && !slot.getNextRequest().isAfter(Instant.now()) && manageAlert(slot)) {
+                if (slot.isActive() && manageAlert(slot)) {
                     loadAlert(slot);
                 }
             }

@@ -15,7 +15,7 @@ import websockets.syncserver.SendEvent;
 
 public class CustomInterceptor implements Interceptor {
 
-    private volatile long nextRequest = 0;
+    private long nextRequest = 0;
 
     @Override
     public @NotNull Response intercept(Chain chain) throws IOException {
@@ -27,9 +27,10 @@ public class CustomInterceptor implements Interceptor {
 
         AtomicBoolean pending = new AtomicBoolean(true);
         Thread t = Thread.currentThread();
-        MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "Rest Stuck", () -> {
+        MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "Rest Stuck", () -> {
             if (pending.get()) {
                 MainLogger.get().error("Rest API stuck: {}", request.method() + " " + request.url(), ExceptionUtil.generateForStack(t));
+                t.interrupt();
             }
         });
 
@@ -39,12 +40,11 @@ public class CustomInterceptor implements Interceptor {
             MainLogger.get().error("Interrupted", e);
         }
 
-        Response response = chain.proceed(request);
         pending.set(false);
-        return response;
+        return chain.proceed(request);
     }
 
-    public synchronized void requestQuota() throws InterruptedException {
+    private synchronized void requestQuota() throws InterruptedException {
         if (System.nanoTime() < nextRequest) {
             long sleepTime;
             while ((sleepTime = calculateLocalSleepTime()) > 0) { // Sleep is unreliable, so we have to loop
