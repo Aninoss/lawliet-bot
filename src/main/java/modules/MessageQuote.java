@@ -6,6 +6,7 @@ import commands.runnables.gimmickscategory.QuoteCommand;
 import constants.Category;
 import core.EmbedFactory;
 import core.TextManager;
+import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -21,7 +22,9 @@ public class MessageQuote {
         }
 
         if (searchedMessage.getTextChannel().isNSFW() && !channel.isNSFW()) {
-            channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(locale).build()).queue();
+            channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(locale).build())
+                    .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(locale)))
+                    .queue();
             return;
         }
 

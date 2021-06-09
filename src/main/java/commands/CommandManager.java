@@ -268,7 +268,7 @@ public class CommandManager {
         }
 
         EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
-        sendError(event, command.getLocale(), eb, true);
+        sendError(event, command.getLocale(), eb, true, EmbedFactory.getNSFWBlockButton(command.getLocale()));
         return false;
     }
 

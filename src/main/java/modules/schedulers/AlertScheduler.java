@@ -15,6 +15,7 @@ import core.EmbedFactory;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
 import core.cache.ServerPatreonBoostCache;
+import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.DBTracker;
@@ -140,7 +141,9 @@ public class AlertScheduler {
         if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            channel.sendMessage(eb.build()).complete();
+            channel.sendMessage(eb.build())
+                    .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(command.getLocale())))
+                    .complete();
             slot.delete();
             return true;
         }

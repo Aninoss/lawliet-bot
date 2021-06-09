@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.Locale;
 import commands.Command;
 import constants.ExternalLinks;
+import constants.Language;
 import constants.Settings;
 import core.utils.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -65,6 +66,17 @@ public class EmbedFactory {
     public static EmbedBuilder getEmbedError() {
         return new EmbedBuilder()
                 .setColor(FAILED_EMBED_COLOR);
+    }
+
+    public static Button getNSFWBlockButton(Locale locale) {
+        String link = switch (Language.from(locale)) {
+            case DE -> "https://support.discord.com/hc/de/articles/115000084051#h_adc93a2c-8fc3-4775-be02-bbdbfcde5010";
+            case ES -> "https://support.discord.com/hc/es/articles/115000084051-Canales-y-contenido-de-NAPW-NSFW-por-sus-siglas-en-ingl%C3%A9s-#h_66a0d66a-562d-4f19-92ec-f16e2ba3cca3";
+            case RU -> "https://support.discord.com/hc/ru/articles/115000084051";
+            default -> "https://support.discord.com/hc/en-us/articles/115000084051#h_adc93a2c-8fc3-4775-be02-bbdbfcde5010";
+        };
+
+        return Button.of(ButtonStyle.LINK, link, TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_button"));
     }
 
     public static EmbedBuilder getNSFWBlockEmbed(Locale locale) {

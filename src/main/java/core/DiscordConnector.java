@@ -89,8 +89,10 @@ public class DiscordConnector {
         ShardManager.getInstance().addJDA(jda);
         MainLogger.get().info("Shard {} connection established", jda.getShardInfo().getShardId());
 
-        if (ShardManager.getInstance().isEverythingConnected() && !ShardManager.getInstance().isReady()) {
-            onConnectionCompleted();
+        synchronized (this) {
+            if (ShardManager.getInstance().isEverythingConnected() && !ShardManager.getInstance().isReady()) {
+                onConnectionCompleted();
+            }
         }
 
         MainRepair.start(jda, 5);

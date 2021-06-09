@@ -15,6 +15,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "10008",    /* Unknown Message */
             "10011",    /* Unknown Role */
             "10014",    /* Unknown Emoji */
+            "10062",    /* Unknown Interaction */
             "30007",    /* Maximum Number of Webhook Reached */
             "50001",    /* Missing Access */
             "50007",    /* Cannot Send Messages to This User */

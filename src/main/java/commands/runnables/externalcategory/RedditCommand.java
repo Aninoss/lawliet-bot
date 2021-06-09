@@ -12,6 +12,7 @@ import constants.Category;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
+import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
@@ -63,7 +64,9 @@ public class RedditCommand extends Command implements OnAlertListener {
 
             if (post != null) {
                 if (post.isNsfw() && !event.getChannel().isNSFW()) {
-                    event.getChannel().sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale()).build()).queue();
+                    event.getChannel().sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale()).build())
+                            .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())))
+                            .queue();
                     return false;
                 }
 
@@ -143,7 +146,9 @@ public class RedditCommand extends Command implements OnAlertListener {
                 if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    channel.sendMessage(eb.build()).complete();
+                    channel.sendMessage(eb.build())
+                            .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())))
+                            .complete();
                     return TrackerResult.STOP_AND_DELETE;
                 }
 
