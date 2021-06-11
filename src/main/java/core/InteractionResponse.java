@@ -4,61 +4,45 @@ import java.util.Collection;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 
 public class InteractionResponse {
 
-    private ButtonClickEvent event;
-    private InteractionHook hook = null;
+    private final ButtonClickEvent event;
 
     public InteractionResponse(ButtonClickEvent buttonClickEvent) {
         this.event = buttonClickEvent;
     }
 
-    public void deferEdit() {
-        if (event != null) {
-            event.deferEdit().queue();
-            hook = event.getHook();
-            event = null;
-        }
-    }
-
     public RestAction<Message> editMessageEmbeds(MessageEmbed embed, Collection<ActionRow> actionRows) {
-        if (event != null) {
-            hook = event.getHook();
+        if (!event.isAcknowledged()) {
             Message message = event.getMessage();
-            RestAction<Message> action = event.editMessageEmbeds(embed)
+            return event.editMessageEmbeds(embed)
                     .setActionRows(actionRows)
                     .map(h -> message);
-            event = null;
-            return action;
         } else {
-            return hook.editOriginalEmbeds(embed)
+            return event.getHook().editOriginalEmbeds(embed)
                     .setActionRows(actionRows);
         }
     }
 
     public RestAction<Message> replyEmbeds(MessageEmbed embed, Collection<ActionRow> actionRows, boolean ephemeral) {
-        if (event != null) {
-            hook = event.getHook();
+        if (!event.isAcknowledged()) {
             Message message = event.getMessage();
-            RestAction<Message> action = event.replyEmbeds(embed)
+            return event.replyEmbeds(embed)
                     .addActionRows(actionRows)
                     .setEphemeral(ephemeral)
                     .map(h -> message);
-            event = null;
-            return action;
         } else {
-            return hook.sendMessageEmbeds(embed)
+            return event.getHook().sendMessageEmbeds(embed)
                     .addActionRows(actionRows)
                     .setEphemeral(ephemeral);
         }
     }
 
     public void complete() {
-        if (event != null) {
+        if (!event.isAcknowledged()) {
             event.deferEdit().queue();
         }
     }

@@ -105,7 +105,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
-        getInteractionResponse().deferEdit();
+        event.deferEdit().queue();
         deregisterListenersWithButtons();
         RoleAssigner.getInstance().cancel(event.getGuild().getIdLong());
         return false;
