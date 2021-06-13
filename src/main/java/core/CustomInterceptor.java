@@ -27,7 +27,7 @@ public class CustomInterceptor implements Interceptor {
 
         AtomicBoolean pending = new AtomicBoolean(true);
         Thread t = Thread.currentThread();
-        MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "Rest Stuck", () -> {
+        MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "rest_stuck", () -> {
             if (pending.get()) {
                 MainLogger.get().error("Rest API stuck: {}", request.method() + " " + request.url(), ExceptionUtil.generateForStack(t));
                 t.interrupt();

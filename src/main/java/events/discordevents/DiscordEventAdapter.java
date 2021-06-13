@@ -202,7 +202,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onButtonClick(@NotNull ButtonClickEvent event) {
-        ButtonClickAbstract.onButtonClickStatic(event, getListenerList(ButtonClickAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> ButtonClickAbstract.onButtonClickStatic(event, getListenerList(ButtonClickAbstract.class)));
     }
 
     @Override
