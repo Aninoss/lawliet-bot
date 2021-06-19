@@ -454,7 +454,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         if (channelOpt.isPresent() && checkWriteInChannelWithLog(channelOpt.get())) {
             TextChannel textChannel = channelOpt.get();
             if (!editMode) {
-                Message message = textChannel.sendMessage(getMessageEmbed(false).build()).complete();
+                Message message = textChannel.sendMessageEmbeds(getMessageEmbed(false).build()).complete();
                 registerStaticReactionMessage(message);
                 ReactionMessagesCache.getInstance().put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
                 if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {

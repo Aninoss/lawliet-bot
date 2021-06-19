@@ -149,7 +149,7 @@ public class AlertScheduler {
         if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            channel.sendMessage(eb.build())
+            channel.sendMessageEmbeds(eb.build())
                     .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(command.getLocale())))
                     .complete();
             slot.delete();
@@ -164,7 +164,7 @@ public class AlertScheduler {
         ) {
             EmbedBuilder eb = EmbedFactory.getPatreonBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            channel.sendMessage(eb.build()).complete();
+            channel.sendMessageEmbeds(eb.build()).complete();
             slot.delete();
             return true;
         }

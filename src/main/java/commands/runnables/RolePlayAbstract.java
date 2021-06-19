@@ -42,7 +42,7 @@ public abstract class RolePlayAbstract extends Command {
         boolean mentionPresent = !mention.getMentionText().isEmpty();
 
         if (!mentionPresent && mention.containedBlockedUser()) {
-            message.getChannel().sendMessage(
+            message.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedDefault(
                             this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "alone")
@@ -70,7 +70,7 @@ public abstract class RolePlayAbstract extends Command {
                     .setImage(gifUrl);
         }
 
-        message.getChannel().sendMessage(eb.build()).queue();
+        message.getChannel().sendMessageEmbeds(eb.build()).queue();
         return true;
     }
 
@@ -87,7 +87,7 @@ public abstract class RolePlayAbstract extends Command {
                 getString("template", "**" + StringUtil.escapeMarkdown(event.getMessage().getMember().getEffectiveName()) + "**") + quote
         ).setImage(gifUrl);
 
-        event.getMessage().getChannel().sendMessage(eb.build()).queue();
+        event.getMessage().getChannel().sendMessageEmbeds(eb.build()).queue();
         return true;
     }
 

@@ -501,7 +501,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             TextChannel textChannel = channel.get().get();
             if (!editMode) {
                 instant = Instant.now();
-                message = textChannel.sendMessage(getMessageEmbed().build()).complete();
+                message = textChannel.sendMessageEmbeds(getMessageEmbed().build()).complete();
                 if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_ADD_REACTION)) {
                     message.addReaction(EmojiUtil.emojiAsReactionTag(emoji)).queue();
                 }

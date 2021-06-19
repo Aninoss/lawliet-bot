@@ -135,7 +135,7 @@ public class WarnCommand extends Command implements OnButtonListener {
         MentionList<User> userMention = getUserList(message, args);
         userList = userMention.getList();
         if (userList.size() == 0) {
-            message.getChannel().sendMessage(
+            message.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions")).build()
             ).queue();
             return false;

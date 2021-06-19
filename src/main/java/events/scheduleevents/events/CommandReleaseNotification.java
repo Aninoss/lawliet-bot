@@ -45,7 +45,8 @@ public class CommandReleaseNotification implements ScheduleInterface {
                 Role role = guild.getRoleById(703879430799622155L);
                 channel.sendMessage(role.getAsMention())
                         .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
-                        .flatMap(Message::delete).queue();
+                        .flatMap(Message::delete)
+                        .queue();
             }
         }
     }

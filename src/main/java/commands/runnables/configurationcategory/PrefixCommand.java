@@ -47,17 +47,17 @@ public class PrefixCommand extends Command {
                     }
                 }
 
-                event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("changed", args)).build()).queue();
+                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("changed", args)).build()).queue();
                 return true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
                         this,
                         TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "5")
                 ).build()).queue();
                 return false;
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
                     this,
                     getString("no_arg")
             ).build()).queue();

@@ -56,7 +56,7 @@ public class WeaknessTypeCommand extends Command {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(TextManager.getNoResultsString(getLocale(), args));
-            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }
 
@@ -98,7 +98,7 @@ public class WeaknessTypeCommand extends Command {
         }
 
         EmbedUtil.setFooter(eb, this);
-        event.getChannel().sendMessage(eb.build()).queue();
+        event.getChannel().sendMessageEmbeds(eb.build()).queue();
         return true;
     }
 

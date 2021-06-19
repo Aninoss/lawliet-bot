@@ -42,7 +42,7 @@ public class GiveCommand extends Command implements FisheryInterface {
         list.removeIf(member -> member.getUser().isBot() || member.getIdLong() == event.getMember().getIdLong());
 
         if (list.size() == 0) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("no_mentions")).build()).queue();
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("no_mentions")).build()).queue();
             return false;
         }
 
@@ -62,7 +62,7 @@ public class GiveCommand extends Command implements FisheryInterface {
                 value = cap;
                 limitCapped = true;
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdown(user1.getEffectiveName()))).build())
+                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdown(user1.getEffectiveName()))).build())
                         .queue();
                 return false;
             }
@@ -92,19 +92,19 @@ public class GiveCommand extends Command implements FisheryInterface {
                     EmbedUtil.addLog(eb, LogStatus.WARNING, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getEffectiveName())));
                 }
 
-                event.getChannel().sendMessage(eb.build()).queue();
+                event.getChannel().sendMessageEmbeds(eb.build()).queue();
                 return true;
             } else {
                 if (fisheryUser0.getCoins() <= 0) {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("nocoins")).build())
+                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("nocoins")).build())
                             .queue();
                 } else {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")).build())
+                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")).build())
                             .queue();
                 }
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")).build())
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")).build())
                     .queue();
         }
 

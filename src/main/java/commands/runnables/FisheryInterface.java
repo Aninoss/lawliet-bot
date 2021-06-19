@@ -24,7 +24,7 @@ public interface FisheryInterface extends OnTriggerListener {
             return onFisheryAccess(event, args);
         } else {
             event.getChannel()
-                    .sendMessage(
+                    .sendMessageEmbeds(
                             EmbedFactory.getEmbedError(
                                     command,
                                     TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("{PREFIX}", command.getPrefix()),

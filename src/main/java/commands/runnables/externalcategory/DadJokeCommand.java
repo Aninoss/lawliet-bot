@@ -43,7 +43,7 @@ public class DadJokeCommand extends Command {
                     .getString("text");
         }
 
-        event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, joke).build()).queue();
+        event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, joke).build()).queue();
         return true;
     }
 

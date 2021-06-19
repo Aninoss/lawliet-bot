@@ -70,7 +70,7 @@ public class StatsCommand extends Command {
                 ) + "\n\n" + getString("translator", dephordName, neverCookFirstName, laleName)
         );
 
-        event.getChannel().sendMessage(eb.build())
+        event.getChannel().sendMessageEmbeds(eb.build())
                 .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, getString("invite"))))
                 .queue();
         return true;

@@ -52,7 +52,7 @@ public class RosesCommand extends Command {
         List<Member> userList = userMention.getList();
         if (userList.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions"));
-            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }
         Member user1 = userList.get(0);
@@ -62,14 +62,14 @@ public class RosesCommand extends Command {
                 AssetIds.OWNER_USER_ID != user0.getIdLong()
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_user"));
-            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }
 
         int index = pickRosesIndex(args);
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", index, user0.getEffectiveName(), user1.getEffectiveName()))
                 .setImage(getGifForIndex(index, user0.getIdLong() == SEELE_USER_ID));
-        event.getChannel().sendMessage(eb.build()).queue();
+        event.getChannel().sendMessageEmbeds(eb.build()).queue();
 
         return true;
     }

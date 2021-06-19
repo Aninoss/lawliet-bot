@@ -50,7 +50,7 @@ public class NibbleCommand extends Command {
         List<Member> userList = userMention.getList();
         if (userList.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions"));
-            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }
         Member user1 = userList.get(0);
@@ -60,7 +60,7 @@ public class NibbleCommand extends Command {
                 AssetIds.OWNER_USER_ID != user0.getIdLong()
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_user"));
-            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }
 
@@ -73,7 +73,7 @@ public class NibbleCommand extends Command {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", user0.getEffectiveName(), user1.getEffectiveName(), text))
                 .setImage(gifUrl);
-        event.getChannel().sendMessage(eb.build()).queue();
+        event.getChannel().sendMessageEmbeds(eb.build()).queue();
 
         return true;
     }

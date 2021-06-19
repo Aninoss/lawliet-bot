@@ -38,7 +38,7 @@ public class ExceptionUtil {
         String code = Long.toHexString(Math.abs(transmitStackTrace.hashCode())).toUpperCase();
 
         if (postErrorMessage && BotPermissionUtil.canWriteEmbed(channel)) {
-            channel.sendMessage(EmbedFactory.getEmbedError()
+            channel.sendMessageEmbeds(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code))
                     .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""))
                     .build()

@@ -35,13 +35,13 @@ public class RollCommand extends Command {
         } else {
             border = Double.parseDouble(args);
             if (border < 2) {
-                event.getChannel().sendMessage(
+                event.getChannel().sendMessageEmbeds(
                         EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "2")).build()
                 ).queue();
                 return false;
             }
             if (border > 999999999999999999.0) {
-                event.getChannel().sendMessage(
+                event.getChannel().sendMessageEmbeds(
                         EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_large", "999999999999999999")).build()
                 ).queue();
                 return false;
@@ -55,7 +55,7 @@ public class RollCommand extends Command {
                 getString("result", StringUtil.escapeMarkdown(event.getMember().getEffectiveName()), String.valueOf((long) drawn), String.valueOf((long) border))
         );
         if (!userMentioned) EmbedUtil.setFooter(eb, this, getString("noarg"));
-        event.getChannel().sendMessage(eb.build()).queue();
+        event.getChannel().sendMessageEmbeds(eb.build()).queue();
         return true;
     }
 

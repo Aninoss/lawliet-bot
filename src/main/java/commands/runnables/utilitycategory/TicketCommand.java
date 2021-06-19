@@ -202,7 +202,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("message_content", emoji));
                 eb.setFooter(null);
 
-                tempPostChannel.sendMessage(eb.build())
+                tempPostChannel.sendMessageEmbeds(eb.build())
                         .setActionRows(ActionRows.of(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CREATE, getString("button_create"))))
                         .queue(this::registerStaticReactionMessage);
 
@@ -303,7 +303,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     private void setupNewTicketChannel(TicketData ticketData, TextChannel textChannel, Member member) {
         /* member greeting */
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("greeting", TICKET_CLOSE_EMOJI));
-        textChannel.sendMessage(eb.build())
+        textChannel.sendMessageEmbeds(eb.build())
                 .setActionRows(ActionRows.of(Button.of(ButtonStyle.DANGER, BUTTON_ID_CLOSE, getString("button_close"))))
                 .content(member.getAsMention())
                 .queue(this::registerStaticReactionMessage);
@@ -315,7 +315,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 announcementNotPosted.set(false);
                 EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault(this, getString("announcement_open", member.getAsMention(), textChannel.getAsMention()));
                 announcementChannel.sendMessage(getRolePing(textChannel.getGuild(), ticketData))
-                        .embed(ebAnnouncement.build())
+                        .setEmbeds(ebAnnouncement.build())
                         .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
                         .queue(m -> {
                             ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(

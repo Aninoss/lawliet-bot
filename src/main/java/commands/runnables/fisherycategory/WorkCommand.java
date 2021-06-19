@@ -73,7 +73,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
 
             EmbedUtil.addRemainingTime(eb, nextWork.get());
             EmbedUtil.addLog(eb, LogStatus.TIME, TextManager.getString(getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextWork.get(), false)));
-            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }
     }
@@ -87,7 +87,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
                     deregisterListenersWithButtons();
                     active = false;
                     long coins = fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect();
-                    event.getChannel().sendMessage(fisheryMemberBean.changeValuesEmbed(0, coins).build()).queue();
+                    event.getChannel().sendMessageEmbeds(fisheryMemberBean.changeValuesEmbed(0, coins).build()).queue();
                     fisheryMemberBean.setWorkDone();
                     setLog(LogStatus.SUCCESS, getString("right"));
                     return Response.TRUE;

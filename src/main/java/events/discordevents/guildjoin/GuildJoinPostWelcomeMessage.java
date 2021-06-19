@@ -51,7 +51,7 @@ public class GuildJoinPostWelcomeMessage extends GuildJoinAbstract {
 
         EmbedUtil.setMemberAuthor(eb, channel.getGuild().getSelfMember());
         if (BotPermissionUtil.canWriteEmbed(channel)) {
-            channel.sendMessage(eb.build()).submit()
+            channel.sendMessageEmbeds(eb.build()).submit()
                     .exceptionally(ExceptionLogger.get("50013"));
         }
     }

@@ -42,7 +42,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
         } else {
             eb = EmbedFactory.getApiDownEmbed(getLocale(), getPrefix() + getTrigger());
         }
-        event.getChannel().sendMessage(eb.build()).queue();
+        event.getChannel().sendMessageEmbeds(eb.build()).queue();
         return true;
     }
 

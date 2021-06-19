@@ -78,7 +78,7 @@ public class Fishery {
 
         Button button = Button.of(ButtonStyle.SECONDARY, "open", TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_button"))
                 .withEmoji(Emoji.fromUnicode(FisheryCommand.EMOJI_KEY));
-        channel.sendMessage(eb.build())
+        channel.sendMessageEmbeds(eb.build())
                 .setActionRows(ActionRows.of(button))
                 .queue(m -> {
                     DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong())

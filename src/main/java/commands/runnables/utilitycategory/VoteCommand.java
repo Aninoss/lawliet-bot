@@ -51,7 +51,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
             String topic = argsParts[0].trim();
 
             if (topic.length() == 0) {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("no_topic")).build())
+                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("no_topic")).build())
                         .queue();
                 return false;
             } else {
@@ -64,7 +64,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
                 VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMember().getIdLong());
                 EmbedBuilder eb = getEmbed(voteInfo, true);
-                Message message = event.getChannel().sendMessage(eb.build()).complete();
+                Message message = event.getChannel().sendMessageEmbeds(eb.build()).complete();
                 registerStaticReactionMessage(message);
                 VoteCache.getInstance().put(message.getIdLong(), voteInfo);
 
@@ -78,7 +78,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 return true;
             }
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("wrong_args")).build())
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("wrong_args")).build())
                     .queue();
             return false;
         }

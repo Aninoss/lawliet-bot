@@ -104,7 +104,7 @@ public class CommandManager {
                     .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite"));
 
             Button button = Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_REMINDER_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"));
-            event.getChannel().sendMessage(eb.build())
+            event.getChannel().sendMessageEmbeds(eb.build())
                     .setActionRows(ActionRows.of(button))
                     .queue();
         }
@@ -294,7 +294,7 @@ public class CommandManager {
                 eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
             }
 
-            MessageAction messageAction = event.getChannel().sendMessage(eb.build())
+            MessageAction messageAction = event.getChannel().sendMessageEmbeds(eb.build())
                     .setActionRows(ActionRows.of(buttons));
 
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {

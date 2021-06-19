@@ -43,7 +43,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
 
             if (option == -1) {
                 String invalid = TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", args);
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, invalid).build())
+                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, invalid).build())
                         .queue();
                 return false;
             }
@@ -56,7 +56,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
                 eb = EmbedFactory.getEmbedDefault(this, getErrorText())
                         .setColor(EmbedFactory.FAILED_EMBED_COLOR);
             }
-            event.getChannel().sendMessage((eb).build())
+            event.getChannel().sendMessageEmbeds(eb.build())
                     .queue();
         } else {
             setButtons(

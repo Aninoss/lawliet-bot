@@ -34,7 +34,7 @@ public class PingCommand extends Command {
                 StringUtil.numToString(milisGateway),
                 StringUtil.numToString(milisRest)
         ));
-        event.getChannel().sendMessage(eb.build()).queue();
+        event.getChannel().sendMessageEmbeds(eb.build()).queue();
 
         return true;
     }

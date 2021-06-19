@@ -57,7 +57,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
             }
 
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
-            event.getChannel().sendMessage(eb.build())
+            event.getChannel().sendMessageEmbeds(eb.build())
                     .setActionRows(ActionRows.of(upvoteButton))
                     .queue();
             return false;
@@ -67,10 +67,10 @@ public class ClaimCommand extends Command implements FisheryInterface {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(upvotesUnclaimed), StringUtil.numToString(Math.round(fishes * upvotesUnclaimed))));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
-            event.getChannel().sendMessage(eb.build())
+            event.getChannel().sendMessageEmbeds(eb.build())
                     .setActionRows(ActionRows.of(upvoteButton))
                     .queue();
-            event.getChannel().sendMessage(userBean.changeValuesEmbed(fishes * upvotesUnclaimed, 0).build()).queue();
+            event.getChannel().sendMessageEmbeds(userBean.changeValuesEmbed(fishes * upvotesUnclaimed, 0).build()).queue();
             return true;
         }
     }

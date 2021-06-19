@@ -53,10 +53,10 @@ public class RainbowCommand extends MemberAccountAbstract {
 
     @Override
     protected void sendMessage(TextChannel channel, MessageEmbed eb) {
-        channel.sendMessage(eb)
+        channel.sendMessageEmbeds(eb)
                 .addFile(inputStream, "avatar.png")
                 .queue(message -> {
-                    message.editMessage(eb)
+                    message.editMessageEmbeds(eb)
                             .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, message.getEmbeds().get(0).getImage().getUrl(), TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"))))
                             .queue();
                 });

@@ -98,7 +98,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
 
     @Override
     protected void sendMessage(TextChannel channel, MessageEmbed eb) {
-        channel.sendMessage(eb)
+        channel.sendMessageEmbeds(eb)
                 .setActionRows(getActionRows())
                 .queue(message -> {
                     if (memberIsAuthor) {

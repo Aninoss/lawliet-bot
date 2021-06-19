@@ -42,7 +42,7 @@ public class YouTubeMP3Command extends Command {
         args = args.replace("<", "").replace(">", "");
 
         if (args.isEmpty()) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build())
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build())
                     .queue();
             return false;
         }
@@ -53,17 +53,17 @@ public class YouTubeMP3Command extends Command {
 
         Optional<AudioTrackInfo> metaOpt = YouTubeMeta.getInstance().getFromVideoURL(args);
         if (metaOpt.isEmpty() || metaOpt.get().isStream) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), args)).build()).queue();
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), args)).build()).queue();
             return false;
         }
 
         AudioTrackInfo meta = metaOpt.get();
         if (meta.length >= MINUTES_CAP * 60_000) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("toolong", String.valueOf(MINUTES_CAP))).build()).queue();
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("toolong", String.valueOf(MINUTES_CAP))).build()).queue();
             return false;
         }
 
-        Message message = event.getChannel().sendMessage(
+        Message message = event.getChannel().sendMessageEmbeds(
                 EmbedFactory.getEmbedDefault(
                         this,
                         getString(
@@ -87,7 +87,7 @@ public class YouTubeMP3Command extends Command {
             }
         }
 
-        event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+        event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
                 this,
                 getString("error"),
                 TextManager.getString(getLocale(), TextManager.GENERAL, "error")
@@ -116,11 +116,11 @@ public class YouTubeMP3Command extends Command {
                     .addFile(mp3File);
         }).queue(m -> {
             mp3File.delete();
-            message.editMessage(EmbedFactory.getEmbedDefault(this, getString("success")).build()).queue();
+            message.editMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("success")).build()).queue();
         }, e -> {
             MainLogger.get().error("Ytmp3 Error", e);
             mp3File.delete();
-            message.editMessage(
+            message.editMessageEmbeds(
                     EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_dms"), TextManager.getString(getLocale(), TextManager.GENERAL, "error")).build()
             ).queue();
         });

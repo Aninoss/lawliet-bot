@@ -46,7 +46,7 @@ public class Ticket {
                     .setTitle(title)
                     .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", ticketTextChannel.getName(), atomicMember.getAsMention()));
             textChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), " ")
-                    .embed(eb.build())
+                    .setEmbeds(eb.build())
                     .queue();
         }
     }

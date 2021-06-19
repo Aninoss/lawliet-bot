@@ -26,7 +26,7 @@ public class UpvoteCommand extends Command {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", ExternalLinks.UPVOTE_URL));
-        event.getChannel().sendMessage(eb.build())
+        event.getChannel().sendMessageEmbeds(eb.build())
                 .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, getString("button"))))
                 .queue();
         return true;

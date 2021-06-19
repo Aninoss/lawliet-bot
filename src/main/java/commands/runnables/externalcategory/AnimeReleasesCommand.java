@@ -42,12 +42,12 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
 
         if (posts.getPosts().size() > 0) {
             EmbedBuilder eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), getEmbed(posts.getPosts().get(0)), getPrefix(), getTrigger());
-            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return true;
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                     .setDescription(getString("no_results", false, args));
-            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }
     }
@@ -95,7 +95,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
         if (first && postBundle.getPosts().size() == 0) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                     .setDescription(getString("no_results", true, StringUtil.shortenString(slot.getCommandKey(), 200)));
-            slot.getTextChannel().get().sendMessage(eb.build()).complete();
+            slot.getTextChannel().get().sendMessageEmbeds(eb.build()).complete();
         }
 
         if (postBundle.getNewestPost() != null) {

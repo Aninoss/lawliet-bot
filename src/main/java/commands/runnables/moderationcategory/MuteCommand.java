@@ -49,14 +49,14 @@ public class MuteCommand extends WarnCommand {
         Optional<Role> muteRoleOpt = moderationBean.getMuteRole();
         if (muteRoleOpt.isEmpty()) {
             event.getChannel()
-                    .sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.MODERATION, "mute_norole", getPrefix())).build())
+                    .sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.MODERATION, "mute_norole", getPrefix())).build())
                     .queue();
             return false;
         }
 
         if (!event.getGuild().getSelfMember().canInteract(muteRoleOpt.get())) {
             event.getChannel()
-                    .sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, muteRoleOpt.get().getAsMention())).build())
+                    .sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, muteRoleOpt.get().getAsMention())).build())
                     .queue();
             return false;
         }

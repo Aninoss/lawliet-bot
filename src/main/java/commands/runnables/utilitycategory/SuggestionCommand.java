@@ -54,7 +54,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     String author = event.getMessage().getMember().getUser().getAsTag();
                     String content = StringUtil.shortenString(args, 1024);
 
-                    MessageAction messageAction = channel.sendMessage(generateEmbed(content, StringUtil.escapeMarkdown(author), generateFooter(0, 0)).build());
+                    MessageAction messageAction = channel.sendMessageEmbeds(generateEmbed(content, StringUtil.escapeMarkdown(author), generateFooter(0, 0)).build());
                     if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID) {
                         messageAction = messageAction.content("<@&762314049953988650>")
                                 .allowedMentions(null);
@@ -78,22 +78,22 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                         );
                     });
 
-                    event.getChannel().sendMessage(
+                    event.getChannel().sendMessageEmbeds(
                             EmbedFactory.getEmbedDefault(this, getString("success")).build()
                     ).queue();
                     return true;
                 } else {
-                    event.getChannel().sendMessage(
+                    event.getChannel().sendMessageEmbeds(
                             EmbedFactory.getEmbedError(this, getString("ratelimit"), getString("ratelimit_title")).build()
                     ).queue();
                 }
             } else {
-                event.getChannel().sendMessage(
+                event.getChannel().sendMessageEmbeds(
                         EmbedFactory.getEmbedError(this, getString("channelnotfound"), getString("channelnotfound_title")).build()
                 ).queue();
             }
         } else {
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, getString("notactive"), getString("notactive_title")).build()
             ).queue();
         }

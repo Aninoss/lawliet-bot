@@ -223,7 +223,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
             TextChannel channel = event.getTextChannel();
             if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
-                channel.sendMessage(userBean.changeValuesEmbed(0, won).build())
+                channel.sendMessageEmbeds(userBean.changeValuesEmbed(0, won).build())
                         .queue(m -> {
                             MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove_account_change", () -> {
                                 if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {

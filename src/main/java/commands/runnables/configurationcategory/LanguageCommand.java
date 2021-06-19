@@ -49,7 +49,7 @@ public class LanguageCommand extends Command implements OnButtonListener {
             }
 
             if (language == null) {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("invalid", args)).build()).queue();
+                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("invalid", args)).build()).queue();
                 return false;
             } else {
                 setLocale(language.getLocale());

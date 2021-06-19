@@ -55,7 +55,7 @@ public class RedditCommand extends Command implements OnAlertListener {
         }
 
         if (args.length() == 0) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build()).queue();
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build()).queue();
             return false;
         } else {
             addLoadingReactionInstantly();
@@ -64,7 +64,7 @@ public class RedditCommand extends Command implements OnAlertListener {
 
             if (post != null) {
                 if (post.isNsfw() && !event.getChannel().isNSFW()) {
-                    event.getChannel().sendMessage(EmbedFactory.getNSFWBlockEmbed(getLocale()).build())
+                    event.getChannel().sendMessageEmbeds(EmbedFactory.getNSFWBlockEmbed(getLocale()).build())
                             .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())))
                             .queue();
                     return false;
@@ -72,13 +72,13 @@ public class RedditCommand extends Command implements OnAlertListener {
 
                 EmbedBuilder eb = getEmbed(post);
                 EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
-                event.getChannel().sendMessage(eb.build()).queue();
+                event.getChannel().sendMessageEmbeds(eb.build()).queue();
                 return true;
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                         .setDescription(TextManager.getNoResultsString(getLocale(), args));
-                event.getChannel().sendMessage(eb.build()).queue();
+                event.getChannel().sendMessageEmbeds(eb.build()).queue();
                 return false;
             }
         }
@@ -122,7 +122,7 @@ public class RedditCommand extends Command implements OnAlertListener {
         if (key.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-            slot.getTextChannel().get().sendMessage(eb.build()).complete();
+            slot.getTextChannel().get().sendMessageEmbeds(eb.build()).complete();
             return TrackerResult.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
@@ -146,7 +146,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    channel.sendMessage(eb.build())
+                    channel.sendMessageEmbeds(eb.build())
                             .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())))
                             .complete();
                     return TrackerResult.STOP_AND_DELETE;
@@ -164,7 +164,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                             .setDescription(TextManager.getNoResultsString(getLocale(), key));
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    channel.sendMessage(eb.build()).complete();
+                    channel.sendMessageEmbeds(eb.build()).complete();
                     return TrackerResult.STOP_AND_DELETE;
                 } else {
                     return TrackerResult.CONTINUE;

@@ -54,7 +54,7 @@ public class ReminderCommand extends Command implements OnButtonListener {
 
         List<TextChannel> channels = channelMention.getList();
         if (channels.size() > 1) {
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, getString("twochannels")).build()
             ).queue();
             return false;
@@ -63,7 +63,7 @@ public class ReminderCommand extends Command implements OnButtonListener {
         TextChannel channel = channels.size() == 0 ? event.getChannel() : channels.get(0);
         if (!BotPermissionUtil.canWriteEmbed(channel)) {
             String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, error).build()
             ).queue();
             return false;
@@ -80,12 +80,12 @@ public class ReminderCommand extends Command implements OnButtonListener {
 
         );
         if (missingPermissionsEmbed != null) {
-            event.getChannel().sendMessage(missingPermissionsEmbed.build()).queue();
+            event.getChannel().sendMessageEmbeds(missingPermissionsEmbed.build()).queue();
             return false;
         }
 
         if (!BotPermissionUtil.memberCanMentionRoles(channel, event.getMember(), args)) {
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention")).build()
             ).queue();
             return false;
@@ -96,14 +96,14 @@ public class ReminderCommand extends Command implements OnButtonListener {
         String messageText = timeMention.getFilteredArgs();
 
         if (minutes <= 0 || minutes > 999 * 24 * 60) {
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, getString("notime")).build()
             ).queue();
             return false;
         }
 
         if (messageText.isEmpty()) {
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, getString("notext")).build()
             ).queue();
             return false;

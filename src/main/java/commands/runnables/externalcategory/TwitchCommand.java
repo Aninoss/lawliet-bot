@@ -37,7 +37,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException {
         if (args.isEmpty()) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build())
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build())
                     .queue();
             return false;
         }
@@ -48,12 +48,12 @@ public class TwitchCommand extends Command implements OnAlertListener {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(TextManager.getNoResultsString(getLocale(), args));
-            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }
 
         EmbedBuilder eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), getEmbed(streamOpt.get()), getPrefix(), getTrigger());
-        event.getChannel().sendMessage(eb.build()).queue();
+        event.getChannel().sendMessageEmbeds(eb.build()).queue();
         return true;
     }
 
@@ -99,7 +99,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                         .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                channel.sendMessage(eb.build()).complete();
+                channel.sendMessageEmbeds(eb.build()).complete();
                 return TrackerResult.STOP_AND_DELETE;
             } else {
                 return TrackerResult.CONTINUE;

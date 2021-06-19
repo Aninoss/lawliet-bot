@@ -51,7 +51,7 @@ public class ServerInfoCommand extends Command {
             eb.setThumbnail(guild.getIconUrl());
         }
 
-        event.getChannel().sendMessage(eb.build()).queue();
+        event.getChannel().sendMessageEmbeds(eb.build()).queue();
         return true;
     }
 

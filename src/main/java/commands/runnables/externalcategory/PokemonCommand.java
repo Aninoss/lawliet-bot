@@ -35,11 +35,11 @@ public class PokemonCommand extends Command {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(TextManager.getNoResultsString(getLocale(), args));
-            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }
 
-        event.getChannel().sendMessage(getEmbed(pokemon).build()).queue();
+        event.getChannel().sendMessageEmbeds(getEmbed(pokemon).build()).queue();
         return true;
     }
 

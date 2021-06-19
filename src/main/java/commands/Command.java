@@ -150,7 +150,7 @@ public abstract class Command implements OnTriggerListener {
 
                 RestAction<Message> action;
                 if (drawMessage == null) {
-                    action = channel.sendMessage(messageEmbed)
+                    action = channel.sendMessageEmbeds(messageEmbed)
                             .setActionRows(actionRows);
                 } else {
                     if (interactionResponse != null && !getCommandProperties().usesExtEmotes()) {

@@ -104,7 +104,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 return true;
             } else {
                 event.getChannel()
-                        .sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0")).build())
+                        .sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0")).build())
                         .queue();
                 return false;
             }
@@ -156,7 +156,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get())
                     .changeValuesEmbed(0, -coinsInput);
             if (coinsInput > 0) {
-                getTextChannel().ifPresent(channel -> channel.sendMessage(eb.build()).queue());
+                getTextChannel().ifPresent(channel -> channel.sendMessageEmbeds(eb.build()).queue());
             }
         });
     }
@@ -197,7 +197,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get())
                     .changeValuesEmbed(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
             if (coinsInput > 0) {
-                getTextChannel().ifPresent(channel -> channel.sendMessage(eb.build()).queue());
+                getTextChannel().ifPresent(channel -> channel.sendMessageEmbeds(eb.build()).queue());
             }
         });
     }

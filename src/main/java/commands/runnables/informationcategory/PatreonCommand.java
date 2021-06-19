@@ -55,7 +55,7 @@ public class PatreonCommand extends Command {
         sb.append(getString("andmanymore"));
 
         eb.addField(getString("slot_title"), sb.toString(), false);
-        event.getChannel().sendMessage(eb.build())
+        event.getChannel().sendMessageEmbeds(eb.build())
                 .setActionRows(ActionRows.of(EmbedFactory.getPatreonBlockButtons(getLocale())))
                 .queue();
         return true;

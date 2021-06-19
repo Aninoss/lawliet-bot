@@ -56,8 +56,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws IOException, InterruptedException {
         SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(event.getMember());
 
-        event.getChannel().sendMessage(surveyEmbeds.resultEmbed.build()).queue();
-        event.getChannel().sendMessage(surveyEmbeds.newEmbed.build())
+        event.getChannel().sendMessageEmbeds(surveyEmbeds.resultEmbed.build()).queue();
+        event.getChannel().sendMessageEmbeds(surveyEmbeds.newEmbed.build())
                 .setActionRows(surveyEmbeds.actionRows)
                 .queue(this::registerStaticReactionMessage);
         return true;

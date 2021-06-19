@@ -77,11 +77,10 @@ public class DailyCommand extends Command implements FisheryInterface {
                     Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, getString("upvote")),
                     Button.of(ButtonStyle.LINK, ExternalLinks.PATREON_PAGE, getString("patreon"))
             );
-            event.getChannel().sendMessage(eb.build())
+            event.getChannel().sendMessageEmbeds(eb.build())
                     .setActionRows(rows)
-                    .embed(eb.build())
                     .queue();
-            event.getChannel().sendMessage(userBean.changeValuesEmbed(fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build()).queue();
+            event.getChannel().sendMessageEmbeds(userBean.changeValuesEmbed(fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build()).queue();
 
             return true;
         } else {
@@ -92,7 +91,7 @@ public class DailyCommand extends Command implements FisheryInterface {
 
             EmbedUtil.addRemainingTime(eb, nextDaily);
             EmbedUtil.addLog(eb, LogStatus.TIME, TextManager.getString(getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
-            event.getChannel().sendMessage(eb.build()).queue();
+            event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }
     }

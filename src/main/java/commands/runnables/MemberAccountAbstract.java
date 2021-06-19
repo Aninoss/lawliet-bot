@@ -40,7 +40,7 @@ public abstract class MemberAccountAbstract extends Command {
     }
 
     protected void sendMessage(TextChannel channel, MessageEmbed eb) {
-        channel.sendMessage(eb).queue();
+        channel.sendMessageEmbeds(eb).queue();
     }
 
     @Override

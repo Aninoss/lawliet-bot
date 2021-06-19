@@ -76,7 +76,7 @@ public class CelebrateCommand extends Command {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, text)
                 .setImage(gifUrl);
-        event.getChannel().sendMessage(eb.build()).queue();
+        event.getChannel().sendMessageEmbeds(eb.build()).queue();
     }
 
 }

@@ -45,14 +45,14 @@ public abstract class DeepAIAbstract extends Command {
                     .setImage(result);
 
             Button button = Button.of(ButtonStyle.LINK, result, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"));
-            event.getChannel().sendMessage(eb.build())
+            event.getChannel().sendMessageEmbeds(eb.build())
                     .setActionRows(ActionRows.of(button))
                     .queue();
             return true;
         }
 
         EmbedBuilder notFound = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
-        event.getChannel().sendMessage(notFound.build()).queue();
+        event.getChannel().sendMessageEmbeds(notFound.build()).queue();
         return false;
     }
 

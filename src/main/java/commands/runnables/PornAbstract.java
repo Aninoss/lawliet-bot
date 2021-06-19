@@ -71,7 +71,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
             if (!patreon && (amount < 1 || amount > 20)) {
                 if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
                             this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PATREON_PAGE, "30")
                             ).build()
@@ -84,7 +84,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                 return false;
             } else if (patreon && (amount < 1 || amount > 30)) {
                 if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
                             this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")
                             ).build()
@@ -136,7 +136,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                 Optional<Message> messageTemplateOpt = generatePostMessagesEmbed(pornImages.get(0), event.getChannel());
                 if (messageTemplateOpt.isPresent()) {
                     MessageEmbed e = messageTemplateOpt.get().getEmbeds().get(0);
-                    messageAction = event.getChannel().sendMessage(e);
+                    messageAction = event.getChannel().sendMessageEmbeds(e);
                 }
             } else {
                 Optional<Message> messageTemplateOpt = generatePostMessagesText(pornImages, args, event.getChannel(), 3);
@@ -175,7 +175,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     private void postApiUnavailable(GuildMessageReceivedEvent event) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            event.getChannel().sendMessage(EmbedFactory.getApiDownEmbed(getLocale(), getDomain()).build())
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getApiDownEmbed(getLocale(), getDomain()).build())
                     .queue();
         } else {
             event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "api_down", getDomain()))
@@ -188,7 +188,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(TextManager.getNoResultsString(getLocale(), args));
-            event.getChannel().sendMessage(eb.build())
+            event.getChannel().sendMessageEmbeds(eb.build())
                     .queue();
         } else {
             event.getChannel().sendMessage("❌ " + TextManager.getNoResultsString(getLocale(), args))
@@ -213,7 +213,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                         .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                channel.sendMessage(eb.build()).complete();
+                channel.sendMessageEmbeds(eb.build()).complete();
                 return TrackerResult.STOP_AND_DELETE;
             } else {
                 return TrackerResult.CONTINUE;

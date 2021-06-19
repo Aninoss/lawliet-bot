@@ -69,7 +69,7 @@ public class ClearCommand extends Command implements OnButtonListener {
                     .queueAfter(8, TimeUnit.SECONDS);
             return true;
         } else {
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, getString("wrong_args", "2", "500")).build()
             ).queue();
             return false;

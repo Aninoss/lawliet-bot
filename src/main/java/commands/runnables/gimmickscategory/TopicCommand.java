@@ -31,7 +31,7 @@ public class TopicCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException {
-        event.getChannel().sendMessage(getEmbed(event.getChannel()).build()).queue();
+        event.getChannel().sendMessageEmbeds(getEmbed(event.getChannel()).build()).queue();
         return true;
     }
 
@@ -57,7 +57,7 @@ public class TopicCommand extends Command implements OnAlertListener {
             );
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
 
-            slot.getTextChannel().get().sendMessage(eb.build()).complete();
+            slot.getTextChannel().get().sendMessageEmbeds(eb.build()).complete();
             return TrackerResult.STOP_AND_DELETE;
         }
 

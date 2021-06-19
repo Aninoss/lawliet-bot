@@ -78,7 +78,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
             if (StringUtil.stringIsLong(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
                 return Optional.of(Integer.parseInt(str));
             } else {
-                channel.sendMessage(
+                channel.sendMessageEmbeds(
                         EmbedFactory.getEmbedError(this, getString("wrong_args", "0", "20159")).build()
                 ).queue();
                 return Optional.empty();

@@ -72,7 +72,7 @@ public class JDAUtil {
     @CheckReturnValue
     public static RestAction<Message> sendPrivateMessage(long userId, MessageEmbed eb) {
         return ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
-                channel -> channel.sendMessage(eb)
+                channel -> channel.sendMessageEmbeds(eb)
         );
     }
 

@@ -50,7 +50,7 @@ public class SayCommand extends Command {
             eb.setThumbnail("attachment://" + name);
         }
 
-        AtomicReference<MessageAction> messageAction = new AtomicReference<>(event.getChannel().sendMessage(eb.build()));
+        AtomicReference<MessageAction> messageAction = new AtomicReference<>(event.getChannel().sendMessageEmbeds(eb.build()));
         attachmentMap.forEach((name, is) -> messageAction.set(messageAction.get().addFile(is, name)));
         messageAction.get().queue();
         return true;

@@ -22,7 +22,7 @@ public class MessageQuote {
         }
 
         if (searchedMessage.getTextChannel().isNSFW() && !channel.isNSFW()) {
-            channel.sendMessage(EmbedFactory.getNSFWBlockEmbed(locale).build())
+            channel.sendMessageEmbeds(EmbedFactory.getNSFWBlockEmbed(locale).build())
                     .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(locale)))
                     .queue();
             return;
@@ -69,7 +69,7 @@ public class MessageQuote {
                         searchedMessage.getAuthor().getEffectiveAvatarUrl()
                 );
 
-        channel.sendMessage(eb.build()).queue();
+        channel.sendMessageEmbeds(eb.build()).queue();
     }
 
 }

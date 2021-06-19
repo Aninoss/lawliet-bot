@@ -63,7 +63,7 @@ public class ChannelInfoCommand extends Command {
             }
         }
 
-        event.getChannel().sendMessage(eb.build()).queue();
+        event.getChannel().sendMessageEmbeds(eb.build()).queue();
         return true;
     }
 

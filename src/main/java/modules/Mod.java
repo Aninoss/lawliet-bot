@@ -165,7 +165,7 @@ public class Mod {
 
         moderationBean.getAnnouncementChannel().ifPresent(channel -> {
             if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
-                channel.sendMessage(eb.build()).queue();
+                channel.sendMessageEmbeds(eb.build()).queue();
             }
         });
 

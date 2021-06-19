@@ -63,7 +63,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         });
 
         if (list.isEmpty()) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")).build())
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")).build())
                     .queue();
             return false;
         }
@@ -105,17 +105,17 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
             } else if (type == 3) {
                 fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
-                event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag())).build())
+                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag())).build())
                         .queue();
                 return true;
             } else {
                 String amountString = args.substring(typeString.length()).trim();
                 if (updateValues(type, amountString)) {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedDefault(this, getString("set", type, fisheryMemberGroup.getAsTag(), amountString)).build())
+                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("set", type, fisheryMemberGroup.getAsTag(), amountString)).build())
                             .queue();
                     return true;
                 } else {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")).build())
+                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")).build())
                             .queue();
                     return false;
                 }

@@ -372,7 +372,7 @@ public class FisheryMemberData extends DataWithGuild implements MemberAsset {
                     EmbedUtil.setMemberAuthor(eb, member);
 
                     message.getTextChannel().sendMessage(member.getAsMention())
-                            .embed(eb.build())
+                            .setEmbeds(eb.build())
                             .queue(m -> m.delete().queueAfter(Settings.FISHERY_DESPAWN_MINUTES, TimeUnit.MINUTES));
                 }
 

@@ -40,7 +40,7 @@ public class ShipCommand extends Command {
         }
 
         if (list.size() != 2) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("not_2")).build())
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("not_2")).build())
                     .queue();
             return false;
         }
@@ -63,14 +63,14 @@ public class ShipCommand extends Command {
         addLoadingReactionInstantly();
         InputStream is = ShipGraphics.createImageShip(list.get(0).getUser(), list.get(1).getUser(), n, percentage);
         if (is == null) {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(this, getString("noavatar")).build()).queue();
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("noavatar")).build()).queue();
             return false;
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setImage("attachment://ship.png");
 
-        event.getChannel().sendMessage(eb.build())
+        event.getChannel().sendMessageEmbeds(eb.build())
                 .addFile(is, "ship.png")
                 .queue();
 

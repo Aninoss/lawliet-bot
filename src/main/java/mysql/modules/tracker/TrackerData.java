@@ -278,7 +278,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                         Long newMessageId = null;
                         for (int i = 0; i < embeds.size(); i++) {
                             MessageEmbed embed = embeds.get(i);
-                            MessageAction messageAction = channel.sendMessage(embed)
+                            MessageAction messageAction = channel.sendMessageEmbeds(embed)
                                     .setActionRows(actionRows);
                             if (acceptUserMessage && i == 0 && getEffectiveUserMessage().isPresent()) {
                                 messageAction = messageAction.content(getEffectiveUserMessage().get());

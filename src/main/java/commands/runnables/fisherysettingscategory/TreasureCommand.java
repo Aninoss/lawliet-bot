@@ -40,7 +40,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
 
         if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
             String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, error).build()
             ).queue();
             return false;
@@ -51,7 +51,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
             if (StringUtil.stringIsInt(args)) {
                 amount = Integer.parseInt(args);
                 if (amount < 1 || amount > 30) {
-                    event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
                             this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")
                             ).build()
@@ -59,7 +59,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
                     return false;
                 }
             } else {
-                event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
                         this,
                         TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")
                         ).build()

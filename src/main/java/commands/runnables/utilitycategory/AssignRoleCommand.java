@@ -48,7 +48,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
 
         /* check for no role mention */
         if (roles.isEmpty()) {
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, getString("no_role")).build()
             ).queue();
             return false;
@@ -58,7 +58,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
 
         /* check for missing role manage permissions bot */
         if (!event.getGuild().getSelfMember().canInteract(role)) {
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, role.getAsMention())).build()
             ).queue();
             return false;
@@ -66,7 +66,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
 
         /* check for missing role manage permissions user */
         if (!event.getMember().canInteract(role)) {
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", false, role.getAsMention())).build()
             ).queue();
             return false;
@@ -76,7 +76,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
 
         /* check for busy */
         if (futureOpt.isEmpty()) {
-            event.getChannel().sendMessage(
+            event.getChannel().sendMessageEmbeds(
                     EmbedFactory.getEmbedError(this, getString("busy_desc"), getString("busy_title")).build()
             ).queue();
             return false;

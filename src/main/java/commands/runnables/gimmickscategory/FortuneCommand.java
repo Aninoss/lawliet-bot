@@ -28,10 +28,10 @@ public class FortuneCommand extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         Message message = event.getMessage();
         if (args.length() > 0) {
-            event.getChannel().sendMessage(getEmbed(message, args).build()).queue();
+            event.getChannel().sendMessageEmbeds(getEmbed(message, args).build()).queue();
             return true;
         } else {
-            event.getChannel().sendMessage(EmbedFactory.getEmbedError(
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
                     this,
                     getString("no_arg")
             ).build()).queue();
