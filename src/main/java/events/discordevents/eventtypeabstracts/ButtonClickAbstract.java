@@ -14,9 +14,8 @@ public abstract class ButtonClickAbstract extends DiscordEventAbstract {
     public abstract boolean onButtonClick(ButtonClickEvent event) throws Throwable;
 
     public static void onButtonClickStatic(ButtonClickEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        boolean test = event.isFromGuild() &&
-                event.getGuild().getIdLong() == 751650997993996388L &&
-                event.getUser().getIdLong() == 738800429931954176L; //TODO
+        boolean test = event.getGuild() != null &&
+                (event.getUser().getIdLong() == 738800429931954176L || event.getUser().getIdLong() == 707100505062768651L); //TODO
 
         if (test) {
             MainLogger.get().info("--------------");
@@ -24,6 +23,8 @@ public abstract class ButtonClickAbstract extends DiscordEventAbstract {
             MainLogger.get().info("event.isFromGuild(): {}", event.isFromGuild());
             MainLogger.get().info("event.getMessage() != null: {}", event.getMessage() != null);
             MainLogger.get().info("event.getMessageId(): {}", event.getMessageId());
+            MainLogger.get().info("event.getGuild().getIdLong(): {}", event.getGuild().getIdLong());
+            MainLogger.get().info("event.getUser().getIdLong(): {}", event.getUser().getIdLong());
             MainLogger.get().info("event.getComponentId(): {}", event.getComponentId());
         }
 

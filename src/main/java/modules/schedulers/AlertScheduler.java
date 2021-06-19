@@ -71,6 +71,14 @@ public class AlertScheduler {
     private boolean manageAlert(TrackerData slot) {
         Instant minInstant = Instant.now().plus(1, ChronoUnit.MINUTES);
 
+        if (slot.getTextChannelId() == 744274927527395328L) {
+            MainLogger.get().info(">>> HENTAI ALERT at {}", slot.getNextRequest());
+        }
+
+        if (slot.getTextChannelId() == 744280017181343876L) {
+            MainLogger.get().info(">>> YAOI ALERT at {}", slot.getNextRequest());
+        }
+
         try {
             processAlert(slot);
         } catch (Throwable throwable) {

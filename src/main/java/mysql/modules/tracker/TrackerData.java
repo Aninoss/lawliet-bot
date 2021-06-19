@@ -243,19 +243,24 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                     }
                 }
             } catch (Throwable e) {
-                if (newMessage) {
-                    MainLogger.get().error("Could not send webhook message", e);
+                Optional<Long> messageIdOpt = Optional.empty();
+                if (e.toString().contains("10015")) { /* Unknown Webhook */
                     this.webhookClient = null;
                     this.webhookUrl = null;
-                    return processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows);
-                } else {
-                    MainLogger.get().error("Could not edit webhook message", e);
-                    return processMessageViaWebhook(true, acceptUserMessage, content, embeds, actionRows)
-                            .map(messageId -> {
-                                this.messageId = messageId;
-                                return messageId;
-                            });
+                    messageIdOpt =  processMessageViaRest(true, acceptUserMessage, content, embeds, actionRows);
+                } else if (e.toString().contains("10008") || e.toString().contains("50005")) { /* Unknown Message || Another User */
+                    messageIdOpt = processMessageViaWebhook(true, acceptUserMessage, content, embeds, actionRows);
                 }
+
+                if (messageIdOpt.isPresent()) {
+                    if (!newMessage) {
+                        this.messageId = messageIdOpt.get();
+                    }
+                    return messageIdOpt;
+                }
+
+                MainLogger.get().error("Alert webhook exception", e);
+                return Optional.empty();
             }
         } else {
             return Optional.empty();
@@ -267,49 +272,55 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
             TextChannel channel = channelOpt.get();
-            if (embeds.size() > 0) {
-                if (newMessage) {
-                    Long newMessageId = null;
-                    for (int i = 0; i < embeds.size(); i++) {
-                        MessageEmbed embed = embeds.get(i);
-                        MessageAction messageAction = channel.sendMessage(embed)
+            try {
+                if (embeds.size() > 0) {
+                    if (newMessage) {
+                        Long newMessageId = null;
+                        for (int i = 0; i < embeds.size(); i++) {
+                            MessageEmbed embed = embeds.get(i);
+                            MessageAction messageAction = channel.sendMessage(embed)
+                                    .setActionRows(actionRows);
+                            if (acceptUserMessage && i == 0 && getEffectiveUserMessage().isPresent()) {
+                                messageAction = messageAction.content(getEffectiveUserMessage().get());
+                            }
+                            newMessageId = messageAction
+                                    .allowedMentions(null)
+                                    .complete()
+                                    .getIdLong();
+                        }
+                        return Optional.of(newMessageId);
+                    } else {
+                        MessageAction messageAction = channel.editMessageById(messageId, embeds.get(0))
                                 .setActionRows(actionRows);
-                        if (acceptUserMessage && i == 0 && getEffectiveUserMessage().isPresent()) {
+                        if (getEffectiveUserMessage().isPresent()) {
                             messageAction = messageAction.content(getEffectiveUserMessage().get());
                         }
-                        newMessageId = messageAction
-                                .allowedMentions(null)
-                                .complete()
-                                .getIdLong();
+                        return Optional.of(messageAction.allowedMentions(null).complete().getIdLong());
                     }
-                    return Optional.of(newMessageId);
                 } else {
-                    MessageAction messageAction = channel.editMessageById(messageId, embeds.get(0))
-                            .setActionRows(actionRows);
-                    if (getEffectiveUserMessage().isPresent()) {
-                        messageAction = messageAction.content(getEffectiveUserMessage().get());
-                    }
-                    return Optional.of(messageAction.allowedMentions(null).complete().getIdLong());
-                }
-            } else {
-                if (newMessage) {
-                    MessageAction messageAction = channel.sendMessage(content)
-                            .setActionRows(actionRows);
-                    return Optional.of(messageAction.complete().getIdLong());
-                } else {
-                    try {
+                    if (newMessage) {
+                        MessageAction messageAction = channel.sendMessage(content)
+                                .setActionRows(actionRows);
+                        return Optional.of(messageAction.complete().getIdLong());
+                    } else {
                         MessageAction messageAction = channel.editMessageById(messageId, content)
                                 .setActionRows(actionRows);
                         return Optional.of(messageAction.complete().getIdLong());
-                    } catch (Throwable e) {
-                        MainLogger.get().error("Could not edit rest message", e);
-                        return processMessageViaRest(true, acceptUserMessage, content, embeds, actionRows)
-                                .map(messageId -> {
-                                    this.messageId = messageId;
-                                    return messageId;
-                                });
                     }
                 }
+            } catch (Throwable e) {
+                if (e.toString().contains("10008") || e.toString().contains("50005")) { /* Unknown Message || Another User */
+                    return processMessageViaRest(true, acceptUserMessage, content, embeds, actionRows)
+                            .map(messageId -> {
+                                if (!newMessage) {
+                                    this.messageId = messageId;
+                                }
+                                return messageId;
+                            });
+                }
+
+                MainLogger.get().error("Alert rest exception", e);
+                return Optional.empty();
             }
         } else {
             return Optional.empty();
