@@ -1,6 +1,5 @@
 package core.emoji;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +7,8 @@ import constants.Emojis;
 import core.GlobalThreadPool;
 import core.MainLogger;
 import core.Program;
+import emoji4j.Emoji;
+import emoji4j.EmojiManager;
 
 public class EmojiTable {
 
@@ -22,9 +23,10 @@ public class EmojiTable {
     private EmojiTable() {
     }
 
-    public void load() throws IOException {
+    public void load() {
         if (Program.isProductionMode()) {
             GlobalThreadPool.getExecutorService().submit(() -> {
+                emojis.addAll(List.of(Emojis.LETTERS));
                 try {
                     EmojiUnicodePointAndValueMaker emojiUnicodePointAndValueMaker = new EmojiUnicodePointAndValueMaker();
 
@@ -35,14 +37,39 @@ public class EmojiTable {
                     emojiUnicodePointAndValueMaker.build("https://unicode.org/emoji/charts/full-emoji-list.html")
                             .forEach(emoji -> this.emojis.add(emoji.toEmoji()));
 
-                    emojis.addAll(List.of(Emojis.LETTERS));
                     MainLogger.get().info("Emoji lists completed with {} emojis", emojis.size());
                 } catch (Throwable e) {
-                    MainLogger.get().error("EXIT - Exception on emoji load", e);
-                    System.exit(1);
+                    MainLogger.get().error("Exception on emoji load", e);
+                    loadFromArchive();
                 }
             });
         }
+    }
+
+    public void loadFromArchive() {
+        try {
+            EmojiUnicodePointAndValueMaker emojiUnicodePointAndValueMaker = new EmojiUnicodePointAndValueMaker();
+
+            MainLogger.get().info("Downloading emoji lists from cache...");
+            emojiUnicodePointAndValueMaker.build("https://web.archive.org/web/20210515172234/https://unicode.org/emoji/charts/full-emoji-modifiers.html")
+                    .forEach(emoji -> this.emojis.add(emoji.toEmoji()));
+
+            emojiUnicodePointAndValueMaker.build("https://web.archive.org/web/20210616052941/https://unicode.org/emoji/charts/full-emoji-list.html")
+                    .forEach(emoji -> this.emojis.add(emoji.toEmoji()));
+
+            emojis.addAll(List.of(Emojis.LETTERS));
+            MainLogger.get().info("Emoji lists completed with {} emojis", emojis.size());
+        } catch (Throwable e) {
+            MainLogger.get().error("Exception on emoji cache load", e);
+            loadFromLibrary();
+        }
+    }
+
+    public void loadFromLibrary() {
+        for (Emoji emoji : EmojiManager.data()) {
+            emojis.add(emoji.getEmoji());
+        }
+        MainLogger.get().info("Emoji lists completed with {} emojis", emojis.size());
     }
 
     public Optional<String> extractFirstEmoji(String input) {

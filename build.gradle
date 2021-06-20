@@ -29,6 +29,7 @@ dependencies {
     implementation 'club.minnced:discord-webhooks:0.5.7'
     implementation 'com.sedmelluq:lavaplayer:1.3.60'
     implementation 'mysql:mysql-connector-java:8.0.23'
+    implementation 'com.kcthota:emoji4j:6.0'
     implementation 'commons-io:commons-io:2.6'
     implementation 'org.json:json:20180813'
     implementation 'org.discordbots:DBL-Java-Library:2.0.1'
