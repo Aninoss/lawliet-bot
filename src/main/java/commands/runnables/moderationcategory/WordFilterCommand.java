@@ -36,7 +36,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 )
 public class WordFilterCommand extends NavigationAbstract {
 
-    private static final int MAX_WORDS = 20;
+    private static final int MAX_WORDS = 40;
     private static final int MAX_LETTERS = 20;
 
     private BannedWordsData bannedWordsBean;
