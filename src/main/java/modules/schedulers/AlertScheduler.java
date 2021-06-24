@@ -36,7 +36,8 @@ public class AlertScheduler {
     private AlertScheduler() {
     }
 
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(new CountingThreadFactory(() -> "Main", "Alerts", false));
+    private final ScheduledExecutorService executorService =
+            Executors.newScheduledThreadPool(3, new CountingThreadFactory(() -> "Main", "Alerts", false));
 
     private boolean started = false;
 

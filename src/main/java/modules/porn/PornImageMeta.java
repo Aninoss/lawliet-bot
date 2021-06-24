@@ -17,7 +17,7 @@ public class PornImageMeta {
     }
 
     public long getWeight() {
-        return (long) Math.pow(score + 1, 2.75) * (imageUrl.endsWith("gif") ? 3 : 1);
+        return (long) Math.pow(score + 1, 2.5) * (imageUrl.endsWith("gif") ? 2 : 1);
     }
 
     public int getIndex() {
