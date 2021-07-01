@@ -24,7 +24,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
     }
 
     @Override
-    public ArrayList<PornImage> getPornImages(ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) {
+    public ArrayList<PornImage> getPornImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) {
         String searchAdd = NSFWUtil.getNSFWTagRemoveList(nsfwFilter);
 
         String domain = getDomain();
@@ -39,12 +39,13 @@ public abstract class PornSearchAbstract extends PornAbstract {
             case "hinata":
                 search = "hyuuga_hinata";
                 break;
+
             case "konosuba":
                 search = "kono_subarashii_sekai_ni_shukufuku_wo!";
                 break;
         }
 
-        return downloadPorn(nsfwFilter, amount, domain, search, searchAdd + getAdditionalSearchKey(), imageTemplate, false, isExplicit(), usedResults);
+        return downloadPorn(guildId, nsfwFilter, amount, domain, search, searchAdd + getAdditionalSearchKey(), imageTemplate, false, isExplicit(), usedResults);
     }
 
     protected String getAdditionalSearchKey() {

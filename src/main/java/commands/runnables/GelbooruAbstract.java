@@ -10,7 +10,7 @@ public abstract class GelbooruAbstract extends PornPredefinedAbstract {
 
     @Override
     protected String getSearchExtra() {
-        return " -japanese_(nationality) -asian -photo -interspecies -furry -lowres";
+        return " -japanese_(nationality) -asian -photo -interspecies -furry -lowres -pokemon";
     }
 
     @Override

@@ -1,6 +1,7 @@
 package modules.porn;
 
 import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -18,21 +19,21 @@ public class PornImageCache {
     private PornImageCache() {
     }
 
-    private final LoadingCache<String, PornImageCacheSearchKey> cache = CacheBuilder.newBuilder()
+    private final LoadingCache<Integer, PornImageCacheSearchKey> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(30))
-            .maximumSize(50)
             .build(
                     new CacheLoader<>() {
                         @Override
-                        public PornImageCacheSearchKey load(@NonNull String searchKey) {
+                        public PornImageCacheSearchKey load(@NonNull Integer hash) {
                             return new PornImageCacheSearchKey();
                         }
                     }
             );
 
-    public PornImageCacheSearchKey get(@NonNull String domain, @NonNull String searchKey) {
+    public PornImageCacheSearchKey get(long guildId, @NonNull String domain, @NonNull String searchKey) {
         try {
-            return cache.get(domain + "|" + searchKey.toLowerCase());
+            int hash = Objects.hash(guildId, domain, searchKey.toLowerCase());
+            return cache.get(hash);
         } catch (ExecutionException e) {
             throw new RuntimeException(e);
         }

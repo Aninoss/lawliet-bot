@@ -6,12 +6,12 @@ import java.util.concurrent.ExecutionException;
 
 public class PornFilter {
 
-    public static synchronized PornImageMeta filter(String domain, String searchKey, ArrayList<PornImageMeta> pornImages, ArrayList<String> usedResult) throws ExecutionException {
+    public static synchronized PornImageMeta filter(long guildId, String domain, String searchKey, ArrayList<PornImageMeta> pornImages, ArrayList<String> usedResult, int maxSize) throws ExecutionException {
         if (pornImages.size() == 0) return null;
 
         /* Delete global duplicate images */
-        PornImageCacheSearchKey pornImageCacheSearchKey = PornImageCache.getInstance().get(domain, searchKey);
-        pornImageCacheSearchKey.trim(pornImages.size() - 1);
+        PornImageCacheSearchKey pornImageCacheSearchKey = PornImageCache.getInstance().get(guildId, domain, searchKey);
+        pornImageCacheSearchKey.trim(maxSize);
         pornImages.removeIf(pornImageMeta -> pornImageCacheSearchKey.contains(pornImageMeta.getImageUrl()));
 
         /* Delete duplicate images for this command usage */
