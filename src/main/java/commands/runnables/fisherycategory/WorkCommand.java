@@ -88,7 +88,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
                     event.getChannel().sendMessageEmbeds(fisheryMemberBean.changeValuesEmbed(0, coins).build()).queue();
                     fisheryMemberBean.setWorkDone();
                     setLog(LogStatus.SUCCESS, getString("right"));
-                    return Response.TRUE;
+                    return Response.FALSE;
                 } else {
                     setArea();
                     setLog(LogStatus.FAILURE, getString("wrong"));
