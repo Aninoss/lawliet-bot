@@ -1,5 +1,6 @@
 package modules.schedulers;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -10,13 +11,11 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnAlertListener;
 import commands.runnables.utilitycategory.AlertsCommand;
-import core.CustomObservableMap;
-import core.EmbedFactory;
-import core.MainLogger;
-import core.PermissionCheckRuntime;
+import core.*;
 import core.cache.ServerPatreonBoostCache;
 import core.components.ActionRows;
 import core.utils.EmbedUtil;
+import core.utils.ExceptionUtil;
 import core.utils.TimeUtil;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
@@ -62,7 +61,17 @@ public class AlertScheduler {
             CustomObservableMap<Integer, TrackerData> map = DBTracker.getInstance().retrieve(guildId);
             if (map.containsKey(hash)) {
                 TrackerData slot = map.get(hash);
-                if (slot.isActive() && manageAlert(slot)) {
+                try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofSeconds(20))) {
+                    asyncTimer.setTimeOutListener(t -> {
+                        t.interrupt();
+                        MainLogger.get().error("Alert stuck: {} with key {}", slot.getCommandTrigger(), slot.getCommandKey(), ExceptionUtil.generateForStack(t));
+                    });
+
+                    if (slot.isActive() && manageAlert(slot)) {
+                        loadAlert(slot);
+                    }
+                } catch (Exception exception) {
+                    MainLogger.get().error("Interrupted", exception);
                     loadAlert(slot);
                 }
             }

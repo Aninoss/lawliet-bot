@@ -79,9 +79,9 @@ public class DanceCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736255695296528484/834503337239642125/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/834503348740816936/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/834503359733039214/dance.gif",
-                "https://cdn.discordapp.com/attachments/736255695296528484/834503371116642364/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/834503382953623566/dance.gif",
-                "https://cdn.discordapp.com/attachments/736255695296528484/834503395229302784/dance.gif"
+                "https://cdn.discordapp.com/attachments/736255695296528484/834503395229302784/dance.gif",
+                "https://cdn.discordapp.com/attachments/736255695296528484/859017863280328735/dance.gif"
         );
     }
 

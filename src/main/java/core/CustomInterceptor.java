@@ -1,17 +1,16 @@
 package core;
 
 import java.io.IOException;
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import constants.RegexPatterns;
-import core.schedule.MainScheduler;
 import core.utils.ExceptionUtil;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 import websockets.syncserver.SendEvent;
+import websockets.syncserver.SyncManager;
 
 public class CustomInterceptor implements Interceptor {
 
@@ -25,22 +24,17 @@ public class CustomInterceptor implements Interceptor {
             return chain.proceed(newRequest);
         }
 
-        AtomicBoolean pending = new AtomicBoolean(true);
-        Thread t = Thread.currentThread();
-        MainScheduler.getInstance().schedule(5, ChronoUnit.SECONDS, "rest_stuck", () -> {
-            if (pending.get()) {
-                MainLogger.get().error("Rest API stuck: {}", request.method() + " " + request.url(), ExceptionUtil.generateForStack(t));
+        try (AsyncTimer asyncTimer = new AsyncTimer(Duration.ofSeconds(5))) {
+            asyncTimer.setTimeOutListener(t -> {
                 t.interrupt();
-            }
-        });
-
-        try {
+                MainLogger.get().error("Rest API stuck: {}", request.method() + " " + request.url(), ExceptionUtil.generateForStack(t));
+                SyncManager.getInstance().reconnect();
+            });
             requestQuota();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             MainLogger.get().error("Interrupted", e);
         }
 
-        pending.set(false);
         return chain.proceed(request);
     }
 

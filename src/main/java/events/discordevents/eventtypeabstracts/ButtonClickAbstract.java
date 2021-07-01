@@ -1,10 +1,9 @@
 package events.discordevents.eventtypeabstracts;
 
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 import core.MainLogger;
-import core.schedule.MainScheduler;
+import core.AsyncTimer;
 import core.utils.ExceptionUtil;
 import events.discordevents.DiscordEventAbstract;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
@@ -29,23 +28,20 @@ public abstract class ButtonClickAbstract extends DiscordEventAbstract {
         }
 
         if (event.isFromGuild() && event.getMessage() != null) {
-            Thread t = Thread.currentThread();
-            AtomicBoolean pending = new AtomicBoolean(true);
-
-            MainScheduler.getInstance().schedule(1, ChronoUnit.SECONDS, "button_click_stuck", () -> {
-                if (pending.get()) {
+            try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofSeconds(1)))  {
+                asyncTimer.setTimeOutListener(t -> {
                     MainLogger.get().error("Interaction \"{}\" of guild {} stuck", event.getComponentId(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
                     if (!event.isAcknowledged()) {
                         event.deferEdit().queue();
                     }
-                }
-            });
+                });
 
-            execute(listenerList, event.getUser(), event.getGuild().getIdLong(),
-                    listener -> ((ButtonClickAbstract) listener).onButtonClick(event)
-            );
-
-            pending.set(false);
+                execute(listenerList, event.getUser(), event.getGuild().getIdLong(),
+                        listener -> ((ButtonClickAbstract) listener).onButtonClick(event)
+                );
+            } catch (Exception exception) {
+                MainLogger.get().error("Interrupted", exception);
+            }
         }
 
         if (test) {
