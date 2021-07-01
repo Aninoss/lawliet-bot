@@ -16,7 +16,6 @@ import commands.runnables.informationcategory.PingCommand;
 import commands.runningchecker.RunningCheckerManager;
 import constants.Emojis;
 import constants.ExternalLinks;
-import constants.LogStatus;
 import constants.Settings;
 import core.*;
 import core.cache.PatreonCache;
@@ -34,6 +33,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 public class CommandManager {
 
@@ -175,17 +175,17 @@ public class CommandManager {
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description");
-        String waitTime = TextManager.getString(command.getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(command.getLocale(), Instant.now(), TimeUtil.localDateToInstant(releaseDate), false));
+        String waitTime = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_releaseday", TimeFormat.DATE_TIME_SHORT.atInstant(TimeUtil.localDateToInstant(releaseDate)).toString());
 
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setColor(Settings.PATREON_COLOR)
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
                     .setDescription(desc);
-            EmbedUtil.addLog(eb, LogStatus.TIME, waitTime);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, waitTime, false);
             sendError(event, command.getLocale(), eb, false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         } else if (BotPermissionUtil.canWrite(event.getChannel())) {
-            sendErrorNoEmbed(event, command.getLocale(), desc + "\n\n`" + waitTime + "`", false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
+            sendErrorNoEmbed(event, command.getLocale(), desc + "\n\n" + waitTime, false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         }
 
         return false;

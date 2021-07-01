@@ -12,11 +12,11 @@ import constants.TrackerResult;
 import core.EmbedFactory;
 import core.internet.InternetCache;
 import core.utils.EmbedUtil;
-import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.utils.TimeFormat;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -89,7 +89,7 @@ public class SplatnetCommand extends Command implements OnAlertListener {
                 effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
             }
 
-            String fieldContent = getString("template", alert ? "" : Emojis.SPLATOON_COIN, String.valueOf(price), TimeUtil.getInstantString(getLocale(), endTime, true), TimeUtil.getRemainingTimeString(getLocale(), endTime, Instant.now(), true), mainAbility, String.valueOf(slots), brand, effect);
+            String fieldContent = getString("template", alert ? "" : Emojis.SPLATOON_COIN, String.valueOf(price), "", TimeFormat.RELATIVE.format(endTime), mainAbility, String.valueOf(slots), brand, effect);
             eb.addField(fieldTitle, fieldContent, true);
         }
 

@@ -12,11 +12,11 @@ import constants.TrackerResult;
 import core.EmbedFactory;
 import core.internet.InternetCache;
 import core.utils.EmbedUtil;
-import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.utils.TimeFormat;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -74,10 +74,11 @@ public class SalmonCommand extends Command implements OnAlertListener {
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
-        EmbedUtil.setFooter(eb, this, getString("footer", startTime[0].isBefore(Instant.now()), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), trackingTime, false)));
 
         for (int i = 0; i < datesShown; i++) {
-            String title = (alert ? "" : Emojis.SPLATOON_SALMONRUN) + " __**" + TimeUtil.getInstantString(getLocale(), startTime[i], true) + " - " + TimeUtil.getInstantString(getLocale(), endTime[i], true) + "**__";
+            String startTimeString = TimeFormat.DATE_TIME_SHORT.atInstant(startTime[i]).toString();
+            String endTimeString = TimeFormat.DATE_TIME_SHORT.atInstant(endTime[i]).toString();
+            String title = (alert ? "" : Emojis.SPLATOON_SALMONRUN) + " __**" + startTimeString + " - " + endTimeString + "**__";
             StringBuilder weapons = new StringBuilder();
             for (int j = 0; j < 4; j++) {
                 if (!salmonData.getJSONObject(i).getJSONArray("weapons").isNull(j) && Integer.parseInt(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")) >= 0) {

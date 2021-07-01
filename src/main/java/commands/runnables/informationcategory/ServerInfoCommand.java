@@ -6,11 +6,11 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.utils.StringUtil;
-import core.utils.TimeUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "serverinfo",
@@ -34,7 +34,7 @@ public class ServerInfoCommand extends Command {
                 guild.getId(),
                 Optional.ofNullable(guild.getOwner()).map(owner -> StringUtil.escapeMarkdown(owner.getUser().getAsTag())).orElse("-"),
                 guild.getRegion().getName(),
-                TimeUtil.getInstantString(getLocale(), guild.getTimeCreated().toInstant(), true),
+                TimeFormat.DATE_TIME_SHORT.atInstant(guild.getTimeCreated().toInstant()).toString(),
                 guild.getIconUrl() != null ? guild.getIconUrl() : "-",
                 StringUtil.numToString(guild.getMemberCount()),
                 StringUtil.numToString(guild.getMemberCount() - bots),

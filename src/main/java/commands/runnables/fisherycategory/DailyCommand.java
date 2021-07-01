@@ -8,11 +8,11 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
+import constants.Emojis;
 import constants.ExternalLinks;
 import constants.FisheryGear;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.TextManager;
 import core.cache.PatreonCache;
 import core.components.ActionRows;
 import core.utils.EmbedUtil;
@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "daily",
@@ -89,8 +90,7 @@ public class DailyCommand extends Command implements FisheryInterface {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("claimed_desription"));
             eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
 
-            EmbedUtil.addRemainingTime(eb, nextDaily);
-            EmbedUtil.addLog(eb, LogStatus.TIME, TextManager.getString(getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextDaily, false)));
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("next", TimeFormat.DATE_TIME_SHORT.atInstant(nextDaily).toString()), false);
             event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }

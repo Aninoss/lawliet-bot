@@ -1,5 +1,6 @@
 package commands.runnables.utilitycategory;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -16,7 +17,6 @@ import core.mention.MentionValue;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import core.utils.TimeUtil;
 import modules.schedulers.ReminderScheduler;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.ReminderData;
@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "reminder",
@@ -112,7 +113,7 @@ public class ReminderCommand extends Command implements OnButtonListener {
         String CANCEL_EMOJI = Emojis.X;
         this.eb = EmbedFactory.getEmbedDefault(this, getString("template", CANCEL_EMOJI))
                 .addField(getString("channel"), channel.getAsMention(), true)
-                .addField(getString("timespan"), TimeUtil.getRemainingTimeString(getLocale(), minutes * 60 * 1000, false), true)
+                .addField(getString("timespan"), TimeFormat.RELATIVE.after(Duration.ofMinutes(minutes)).toString(), true)
                 .addField(getString("content"), StringUtil.shortenString(messageText, 1024), false);
 
         insertReminderBean(channel, minutes, messageText);

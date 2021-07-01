@@ -11,12 +11,12 @@ import core.ShardManager;
 import core.components.ActionRows;
 import core.utils.BotUtil;
 import core.utils.StringUtil;
-import core.utils.TimeUtil;
 import mysql.modules.version.DBVersion;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "stats",
@@ -62,7 +62,7 @@ public class StatsCommand extends Command {
                         owner,
                         ExternalLinks.BOT_INVITE_URL,
                         BotUtil.getCurrentVersion(),
-                        TimeUtil.getInstantString(getLocale(), DBVersion.getInstance().retrieve().getCurrentVersion().getDate(), true),
+                        TimeFormat.DATE_TIME_SHORT.atInstant(DBVersion.getInstance().retrieve().getCurrentVersion().getDate()).toString(),
                         ShardManager.getInstance().getGlobalGuildSize().map(StringUtil::numToString).orElse("-"),
                         owner,
                         StringUtil.numToString(event.getJDA().getShardInfo().getShardId()),

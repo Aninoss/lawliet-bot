@@ -1,6 +1,5 @@
 package commands.runnables.moderationcategory;
 
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +10,6 @@ import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
-import core.utils.TimeUtil;
 import javafx.util.Pair;
 import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.ServerWarningSlot;
@@ -21,6 +19,7 @@ import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "warnlog",
@@ -47,7 +46,7 @@ public class WarnLogCommand extends MemberAccountAbstract {
             Optional<Member> requestor = serverWarningsSlot.getRequesterMember();
             Optional<String> reason = serverWarningsSlot.getReason();
             String userString = requestor.map(IMentionable::getAsMention).orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user"));
-            String timeDiffString = TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), serverWarningsSlot.getTime(), true);
+            String timeDiffString = TimeFormat.DATE_TIME_SHORT.atInstant(serverWarningsSlot.getTime()).toString();
             latestWarnings.append(getString("latest_slot", reason.isPresent(), userString, timeDiffString, reason.orElse(getString("noreason"))));
         }
 

@@ -1,6 +1,7 @@
 package commands.runnables.utilitycategory;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -28,6 +29,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "giveaway",
@@ -529,18 +531,19 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(getCommandProperties().emoji() + " " + title)
-                .setDescription(description)
-                .setFooter(getString("endson"))
-                .setTimestamp(startInstant.plus(durationMinutes, ChronoUnit.MINUTES));
+                .setDescription(description);
+
+        String tutText = getString("tutorial",
+                amountOfWinners != 1,
+                emoji,
+                String.valueOf(amountOfWinners),
+                TimeFormat.RELATIVE.atInstant(startInstant.plus(Duration.ofMinutes(durationMinutes))).toString()
+        );
 
         if (description.isEmpty()) {
-            eb.setDescription(getString("tutorial", amountOfWinners != 1, emoji, String.valueOf(amountOfWinners)));
+            eb.setDescription(tutText);
         } else {
-            eb.addField(
-                    Emojis.ZERO_WIDTH_SPACE,
-                    getString("tutorial", amountOfWinners != 1, emoji, String.valueOf(amountOfWinners)),
-                    false
-            );
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, tutText, false);
         }
 
         if (imageLink != null) {

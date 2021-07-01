@@ -6,13 +6,11 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
+import constants.Emojis;
 import constants.ExternalLinks;
-import constants.LogStatus;
 import core.EmbedFactory;
 import core.components.ActionRows;
-import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import core.utils.TimeUtil;
 import modules.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.fisheryusers.DBFishery;
@@ -23,6 +21,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "claim",
@@ -76,12 +75,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
     }
 
     private void addRemainingTimeNotification(EmbedBuilder eb, Instant nextUpvote) {
-        if (nextUpvote.isAfter(Instant.now())) {
-            EmbedUtil.addLog(eb, LogStatus.TIME, getString("next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextUpvote, false)));
-            EmbedUtil.addRemainingTime(eb, nextUpvote);
-        } else {
-            EmbedUtil.addLog(eb, LogStatus.TIME, getString("next_now"));
-        }
+        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("date", nextUpvote.isAfter(Instant.now()), TimeFormat.DATE_TIME_SHORT.atInstant(nextUpvote).toString()), false);
     }
 
 }

@@ -1,5 +1,6 @@
 package commands.runnables.moderationcategory;
 
+import java.time.Duration;
 import java.util.Locale;
 import java.util.Optional;
 import commands.listeners.CommandProperties;
@@ -11,7 +12,6 @@ import core.mention.MentionValue;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import core.utils.TimeUtil;
 import modules.Mute;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "mute",
@@ -94,21 +95,21 @@ public class MuteCommand extends WarnCommand {
 
     @Override
     protected EmbedBuilder getActionEmbed(Member executor, TextChannel channel) {
-        String remaining = TimeUtil.getRemainingTimeString(getLocale(), minutes * 60_000, false);
+        String remaining = TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(minutes)).toString();
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "action" : "action_temp", mention.isMultiple(), mention.getMentionText(), executor.getAsMention(), StringUtil.escapeMarkdown(channel.getGuild().getName()), remaining));
     }
 
     @Override
     protected EmbedBuilder getConfirmationEmbed() {
-        String remaining = TimeUtil.getRemainingTimeString(getLocale(), minutes * 60_000, false);
+        String remaining = TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(minutes)).toString();
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "confirmaion" : "confirmaion_temp", mention.getMentionText(), remaining));
     }
 
     @Override
     protected EmbedBuilder getSuccessEmbed() {
-        String remaining = TimeUtil.getRemainingTimeString(getLocale(), minutes * 60_000, false);
+        String remaining = TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(minutes)).toString();
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "success_description" : "success_description_temp", mention.isMultiple(), mention.getMentionText(), remaining));
     }

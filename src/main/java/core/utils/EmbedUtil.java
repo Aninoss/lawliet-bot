@@ -1,6 +1,5 @@
 package core.utils;
 
-import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import commands.Command;
@@ -72,13 +71,6 @@ public class EmbedUtil {
             eb.addField(Emojis.ZERO_WIDTH_SPACE, "`" + add + log + "`", false);
         }
 
-        return eb;
-    }
-
-    public static EmbedBuilder addRemainingTime(EmbedBuilder eb, Instant instant) {
-        if (instant.isAfter(Instant.now())) {
-            eb.setTimestamp(instant);
-        }
         return eb;
     }
 

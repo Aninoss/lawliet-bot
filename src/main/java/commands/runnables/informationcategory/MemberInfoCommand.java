@@ -6,10 +6,10 @@ import commands.runnables.MemberAccountAbstract;
 import constants.AssetIds;
 import core.EmbedFactory;
 import core.utils.StringUtil;
-import core.utils.TimeUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "userinfo",
@@ -40,8 +40,8 @@ public class MemberInfoCommand extends MemberAccountAbstract {
                 member.getUser().getDiscriminator(),
                 member.getId(),
                 member.getUser().getEffectiveAvatarUrl() + "?size=1024",
-                member.hasTimeJoined() ? TimeUtil.getInstantString(getLocale(), member.getTimeJoined().toInstant(), true) : "-",
-                TimeUtil.getInstantString(getLocale(), member.getTimeCreated().toInstant(), true)
+                member.hasTimeJoined() ? TimeFormat.DATE_TIME_SHORT.atInstant(member.getTimeJoined().toInstant()).toString() : "-",
+                TimeFormat.DATE_TIME_SHORT.atInstant(member.getTimeCreated().toInstant()).toString()
         };
 
         return EmbedFactory.getEmbedDefault(this, getString("template", argsArray)).

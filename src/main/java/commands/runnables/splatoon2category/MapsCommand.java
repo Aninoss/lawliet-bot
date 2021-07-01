@@ -15,11 +15,11 @@ import constants.TrackerResult;
 import core.EmbedFactory;
 import core.internet.InternetCache;
 import core.utils.EmbedUtil;
-import core.utils.TimeUtil;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.utils.TimeFormat;
 import org.json.JSONObject;
 
 @CommandProperties(
@@ -86,7 +86,7 @@ public class MapsCommand extends Command implements OnAlertListener {
 
         DateFormat dateFormat = new SimpleDateFormat("HH:mm");
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
-        EmbedUtil.setFooter(eb, this, getString("footer", dateFormat.format(Date.from(startTime)), dateFormat.format(Date.from(endTime)), TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), endTime, false), region.toUpperCase()));
+        EmbedUtil.setFooter(eb, this, region.toUpperCase());
 
         HashMap<String, String> emojiMap = new HashMap<>();
         emojiMap.put("gachi", Emojis.SPLATOON_GACHI);
@@ -139,6 +139,7 @@ public class MapsCommand extends Command implements OnAlertListener {
         InternetCache.setExpirationDate(endTime, urls);
         trackingTime = endTime;
 
+        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("next", TimeFormat.DATE_TIME_SHORT.atInstant(endTime).toString()), false);
         return eb;
     }
 

@@ -19,7 +19,6 @@ import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
-import core.utils.TimeUtil;
 import javafx.util.Pair;
 import modules.schedulers.TempBanScheduler;
 import mysql.modules.moderation.DBModeration;
@@ -35,6 +34,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 public class Mod {
 
@@ -78,7 +78,7 @@ public class Mod {
                         int duration = moderationBean.getAutoBanDuration();
                         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                                 .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
-                                .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", duration > 0, target.getAsTag(), TimeUtil.getRemainingTimeString(locale, duration * 60_000L, false)));
+                                .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", duration > 0, target.getAsTag(), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
 
                         postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                             guild.ban(target.getId(), 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).queue();
@@ -111,7 +111,7 @@ public class Mod {
                 int duration = moderationBean.getAutoMuteDuration();
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_automute"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_automute_template", duration > 0, target.getAsTag(), TimeUtil.getRemainingTimeString(locale, duration * 60_000L, false)));
+                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_automute_template", duration > 0, target.getAsTag(), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
 
                 postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildBean().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                     Mute.mute(guild, target, duration, TextManager.getString(locale, Category.MODERATION, "mod_automute"));

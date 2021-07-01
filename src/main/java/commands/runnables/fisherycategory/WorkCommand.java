@@ -15,10 +15,8 @@ import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
-import core.utils.EmbedUtil;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
-import core.utils.TimeUtil;
 import mysql.modules.autowork.DBAutoWork;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -29,6 +27,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "work",
@@ -71,8 +70,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
                 eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
             }
 
-            EmbedUtil.addRemainingTime(eb, nextWork.get());
-            EmbedUtil.addLog(eb, LogStatus.TIME, TextManager.getString(getLocale(), TextManager.GENERAL, "next", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), nextWork.get(), false)));
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("next", TimeFormat.RELATIVE.atInstant(nextWork.get()).toString()), false);
             event.getChannel().sendMessageEmbeds(eb.build()).queue();
             return false;
         }

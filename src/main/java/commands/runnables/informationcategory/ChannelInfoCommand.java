@@ -10,12 +10,12 @@ import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import core.utils.TimeUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "channelinfo",
@@ -45,7 +45,7 @@ public class ChannelInfoCommand extends Command {
         String[] argsArray = {
                 StringUtil.escapeMarkdown(channel.getName()),
                 channel.getId(),
-                TimeUtil.getInstantString(getLocale(), channel.getTimeCreated().toInstant(), true),
+                TimeFormat.DATE_TIME_SHORT.atInstant(channel.getTimeCreated().toInstant()).toString(),
                 StringUtil.numToString(members.size()),
                 StringUtil.numToString(members.stream().filter(member -> !member.getUser().isBot()).count()),
                 StringUtil.numToString(members.stream().filter(member -> member.getUser().isBot()).count())

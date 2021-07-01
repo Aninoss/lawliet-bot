@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
         trigger = "survey",
@@ -288,10 +289,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         eb.addField(surveyQuestion.getQuestion(), personalString.toString(), false);
 
         Instant after = TimeUtil.localDateToInstant(surveyData.getNextDate());
-        if (!tracker) {
-            EmbedUtil.addLog(eb, LogStatus.TIME, getString("nextdate", TimeUtil.getRemainingTimeString(getLocale(), Instant.now(), after, false)));
-        }
-        EmbedUtil.addRemainingTime(eb, after);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("nextdate", TimeFormat.DATE_TIME_LONG.atInstant(after).toString()), false);
 
         return eb;
     }
