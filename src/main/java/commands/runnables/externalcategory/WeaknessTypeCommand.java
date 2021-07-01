@@ -118,11 +118,12 @@ public class WeaknessTypeCommand extends Command {
 
 
     protected List<Integer> retrieveTypes(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+        args = " " + args + " ";
         ArrayList<Integer> types = new ArrayList<>();
         for (Language l : Language.values()) {
             String[] typesCheck = TextManager.getString(l.getLocale(), Category.EXTERNAL, "weaknesstype_types").split("\n");
             for (int i = 0; i < typesCheck.length; i++) {
-                if (args.toLowerCase().contains(typesCheck[i].toLowerCase()) &&
+                if (args.toLowerCase().contains(" " + typesCheck[i].toLowerCase() + " ") &&
                         !types.contains(i) &&
                         types.size() < 2
                 ) {

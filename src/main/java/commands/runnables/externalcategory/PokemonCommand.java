@@ -73,9 +73,10 @@ public class PokemonCommand extends Command {
                 boolean found = false;
                 String[] groups = StringUtil.extractGroups(line, "<span class=\"ic_icon\">", "</span>");
                 for (String group : groups) {
+                    group = " " + group + " ";
                     String[] typesString = TextManager.getString(Language.DE.getLocale(), Category.EXTERNAL, "weaknesstype_types").split("\n");
                     for (int i = 0; i < typesString.length; i++) {
-                        if (group.contains(typesString[i]) && !types.contains(i) && types.size() < 2) {
+                        if (group.contains(" " + typesString[i] + " ") && !types.contains(i) && types.size() < 2) {
                             types.add(i);
                             found = true;
                         }
