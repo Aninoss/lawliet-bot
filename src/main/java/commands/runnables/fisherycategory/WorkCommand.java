@@ -85,10 +85,10 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
                     deregisterListenersWithButtons();
                     active = false;
                     long coins = fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect();
-                    event.getChannel().sendMessageEmbeds(fisheryMemberBean.changeValuesEmbed(0, coins).build()).queue();
+                    setAdditionalEmbeds(fisheryMemberBean.changeValuesEmbed(0, coins).build());
                     fisheryMemberBean.setWorkDone();
                     setLog(LogStatus.SUCCESS, getString("right"));
-                    return Response.FALSE;
+                    return Response.TRUE;
                 } else {
                     setArea();
                     setLog(LogStatus.FAILURE, getString("wrong"));

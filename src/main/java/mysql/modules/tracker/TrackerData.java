@@ -275,22 +275,18 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
             try {
                 if (embeds.size() > 0) {
                     if (newMessage) {
-                        Long newMessageId = null;
-                        for (int i = 0; i < embeds.size(); i++) {
-                            MessageEmbed embed = embeds.get(i);
-                            MessageAction messageAction = channel.sendMessageEmbeds(embed)
-                                    .setActionRows(actionRows);
-                            if (acceptUserMessage && i == 0 && getEffectiveUserMessage().isPresent()) {
-                                messageAction = messageAction.content(getEffectiveUserMessage().get());
-                            }
-                            newMessageId = messageAction
-                                    .allowedMentions(null)
-                                    .complete()
-                                    .getIdLong();
+                        MessageAction messageAction = channel.sendMessageEmbeds(embeds)
+                                .setActionRows(actionRows);
+                        if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
+                            messageAction = messageAction.content(getEffectiveUserMessage().get());
                         }
+                        long newMessageId = messageAction
+                                .allowedMentions(null)
+                                .complete()
+                                .getIdLong();
                         return Optional.of(newMessageId);
                     } else {
-                        MessageAction messageAction = channel.editMessageById(messageId, embeds.get(0))
+                        MessageAction messageAction = channel.editMessageEmbedsById(messageId, embeds)
                                 .setActionRows(actionRows);
                         if (getEffectiveUserMessage().isPresent()) {
                             messageAction = messageAction.content(getEffectiveUserMessage().get());

@@ -52,6 +52,7 @@ public abstract class Command implements OnTriggerListener {
     private InteractionResponse interactionResponse;
     private boolean canHaveTimeOut = true;
     private List<ActionRow> actionRows = Collections.emptyList();
+    private List<MessageEmbed> additionalEmbeds = Collections.emptyList();
 
     public Command(Locale locale, String prefix) {
         this.locale = locale;
@@ -97,6 +98,14 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
+    public void setAdditionalEmbeds(MessageEmbed... additionalEmbeds) {
+        this.additionalEmbeds = List.of(additionalEmbeds);
+    }
+
+    public void setAdditionalEmbeds(List<MessageEmbed> additionalEmbeds) {
+        this.additionalEmbeds = additionalEmbeds;
+    }
+
     public void setActionRow(ActionRow actionRow) {
         setActionRows(List.of(actionRow));
     }
@@ -119,6 +128,13 @@ public abstract class Command implements OnTriggerListener {
 
     public synchronized CompletableFuture<Void> redrawMessageWithoutButtons() {
         setButtons();
+        if (drawMessage.getEmbeds().size() > 1) {
+            ArrayList<MessageEmbed> embeds = new ArrayList<>();
+            for (int i = 1; i < drawMessage.getEmbeds().size(); i++) {
+                embeds.add(drawMessage.getEmbeds().get(i));
+            }
+            setAdditionalEmbeds(embeds);
+        }
         return drawMessage(new EmbedBuilder(drawMessage.getEmbeds().get(0))).thenApply(m -> null);
     }
 
@@ -128,9 +144,11 @@ public abstract class Command implements OnTriggerListener {
         CompletableFuture<Long> future = new CompletableFuture<>();
         getTextChannel().ifPresentOrElse(channel -> {
             if (BotPermissionUtil.canWriteEmbed(channel)) {
-                MessageEmbed messageEmbed;
+                ArrayList<MessageEmbed> embeds = new ArrayList<>();
                 try {
-                    messageEmbed = eb.build();
+                    embeds.add(eb.build());
+                    embeds.addAll(additionalEmbeds);
+                    additionalEmbeds = Collections.emptyList();
                 } catch (Throwable e) {
                     StringBuilder sb = new StringBuilder("Embed exception with fields:");
                     eb.getFields().forEach(field -> sb
@@ -150,13 +168,13 @@ public abstract class Command implements OnTriggerListener {
 
                 RestAction<Message> action;
                 if (drawMessage == null) {
-                    action = channel.sendMessageEmbeds(messageEmbed)
+                    action = channel.sendMessageEmbeds(embeds)
                             .setActionRows(actionRows);
                 } else {
                     if (interactionResponse != null && !getCommandProperties().usesExtEmotes()) {
-                        action = interactionResponse.editMessageEmbeds(messageEmbed, actionRows);
+                        action = interactionResponse.editMessageEmbeds(embeds, actionRows);
                     } else {
-                        action = channel.editMessageById(drawMessage.getIdLong(), messageEmbed)
+                        action = channel.editMessageEmbedsById(drawMessage.getIdLong(), embeds)
                                 .setActionRows(actionRows);
                     }
                 }

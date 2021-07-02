@@ -469,7 +469,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 }
                 return true;
             } else {
-                Message message = textChannel.editMessageById(editMessageId, getMessageEmbed(false).build()).complete();
+                Message message = textChannel.editMessageEmbedsById(editMessageId, getMessageEmbed(false).build()).complete();
                 ReactionMessagesCache.getInstance().put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
                 if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
                     RestActionQueue restActionQueue = new RestActionQueue();

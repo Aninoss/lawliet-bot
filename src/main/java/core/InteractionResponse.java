@@ -1,6 +1,7 @@
 package core;
 
 import java.util.Collection;
+import java.util.List;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
@@ -15,27 +16,27 @@ public class InteractionResponse {
         this.event = buttonClickEvent;
     }
 
-    public RestAction<Message> editMessageEmbeds(MessageEmbed embed, Collection<ActionRow> actionRows) {
+    public RestAction<Message> editMessageEmbeds(List<MessageEmbed> embeds, Collection<ActionRow> actionRows) {
         if (!event.isAcknowledged()) {
             Message message = event.getMessage();
-            return event.editMessageEmbeds(embed)
+            return event.editMessageEmbeds(embeds)
                     .setActionRows(actionRows)
                     .map(h -> message);
         } else {
-            return event.getHook().editOriginalEmbeds(embed)
+            return event.getHook().editOriginalEmbeds(embeds)
                     .setActionRows(actionRows);
         }
     }
 
-    public RestAction<Message> replyEmbeds(MessageEmbed embed, Collection<ActionRow> actionRows, boolean ephemeral) {
+    public RestAction<Message> replyEmbeds(List<MessageEmbed> embeds, Collection<ActionRow> actionRows, boolean ephemeral) {
         if (!event.isAcknowledged()) {
             Message message = event.getMessage();
-            return event.replyEmbeds(embed)
+            return event.replyEmbeds(embeds)
                     .addActionRows(actionRows)
                     .setEphemeral(ephemeral)
                     .map(h -> message);
         } else {
-            return event.getHook().sendMessageEmbeds(embed)
+            return event.getHook().sendMessageEmbeds(embeds)
                     .addActionRows(actionRows)
                     .setEphemeral(ephemeral);
         }

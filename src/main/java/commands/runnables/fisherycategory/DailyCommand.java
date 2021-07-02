@@ -22,6 +22,7 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -78,10 +79,11 @@ public class DailyCommand extends Command implements FisheryInterface {
                     Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, getString("upvote")),
                     Button.of(ButtonStyle.LINK, ExternalLinks.PATREON_PAGE, getString("patreon"))
             );
-            event.getChannel().sendMessageEmbeds(eb.build())
+
+            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build();
+            event.getChannel().sendMessageEmbeds(eb.build(), userChangeValueEmbed)
                     .setActionRows(rows)
                     .queue();
-            event.getChannel().sendMessageEmbeds(userBean.changeValuesEmbed(fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build()).queue();
 
             return true;
         } else {

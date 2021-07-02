@@ -146,8 +146,10 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
                         quickUpdater.update(
                                 messageId,
-                                event.getChannel()
-                                        .editMessageById(messageId, generateEmbed(suggestionMessage.getContent(), StringUtil.escapeMarkdown(suggestionMessage.getAuthor()), footer).build())
+                                event.getChannel().editMessageEmbedsById(
+                                        messageId,
+                                        generateEmbed(suggestionMessage.getContent(), StringUtil.escapeMarkdown(suggestionMessage.getAuthor()), footer).build()
+                                )
                         );
                     }
                     return suggestionMessage;

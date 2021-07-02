@@ -513,7 +513,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                     return Optional.empty();
                 }
                 try {
-                    textChannel.editMessageById(messageId, getMessageEmbed().build()).complete();
+                    textChannel.editMessageEmbedsById(messageId, getMessageEmbed().build()).complete();
                     return Optional.of(messageId);
                 } catch (Throwable e) {
                     //Ignore

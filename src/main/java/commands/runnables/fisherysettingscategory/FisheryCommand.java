@@ -218,19 +218,11 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     .setImage(treasureImage)
                     .setFooter(getString("treasure_footer"));
 
-            hook.editOriginalEmbeds(eb2.build())
-                    .queue();
-
             TextChannel channel = event.getTextChannel();
             if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
-                channel.sendMessageEmbeds(userBean.changeValuesEmbed(0, won).build())
-                        .queue(m -> {
-                            MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove_account_change", () -> {
-                                if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
-                                    m.delete().queue();
-                                }
-                            });
-                        });
+                event.getMessage().editMessageEmbeds(eb2.build(), userBean.changeValuesEmbed(0, won).build()).queue();
+            } else {
+                hook.editOriginalEmbeds(eb2.build()).queue();
             }
 
             MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {

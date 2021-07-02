@@ -119,7 +119,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
                     quickUpdater.update(
                             event.getMessageIdLong(),
-                            event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, false).build())
+                            event.getChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, false).build())
                     );
                 }
                 if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
@@ -138,7 +138,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
             if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
                 quickUpdater.update(
                         event.getMessageIdLong(),
-                        event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
+                        event.getChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
                 );
             }
         });
@@ -152,7 +152,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
                             quickUpdater.update(
                                     event.getMessageIdLong(),
-                                    event.getChannel().editMessageById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
+                                    event.getChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
                             );
                         }
                     }

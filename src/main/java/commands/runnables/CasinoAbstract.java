@@ -156,7 +156,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get())
                     .changeValuesEmbed(0, -coinsInput);
             if (coinsInput > 0) {
-                getTextChannel().ifPresent(channel -> channel.sendMessageEmbeds(eb.build()).queue());
+                setAdditionalEmbeds(eb.build());
             }
         });
     }
@@ -197,7 +197,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get())
                     .changeValuesEmbed(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
             if (coinsInput > 0) {
-                getTextChannel().ifPresent(channel -> channel.sendMessageEmbeds(eb.build()).queue());
+                setAdditionalEmbeds(eb.build());
             }
         });
     }

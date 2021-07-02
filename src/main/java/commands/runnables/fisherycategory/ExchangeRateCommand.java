@@ -1,6 +1,7 @@
 package commands.runnables.fisherycategory;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
@@ -79,7 +80,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
-        getInteractionResponse().replyEmbeds(generateUserEmbed().build(), ActionRows.of(), true)
+        getInteractionResponse().replyEmbeds(List.of(generateUserEmbed().build()), ActionRows.of(), true)
                 .queue();
         return true;
     }
