@@ -86,6 +86,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         registerNavigationListener();
+        registerReactionListener();
         return true;
     }
 
