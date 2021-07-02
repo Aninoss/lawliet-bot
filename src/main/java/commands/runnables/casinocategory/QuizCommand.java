@@ -131,7 +131,7 @@ public class QuizCommand extends CasinoAbstract {
             } else {
                 style = ButtonStyle.SECONDARY;
             }
-            Button button = Button.of(style, String.valueOf(i), answers[i])
+            Button button = Button.of(style, String.valueOf(i), StringUtil.shortenString(answers[i], 80))
                     .withDisabled(getStatus() != Status.ACTIVE);
             buttons.add(button);
         }
