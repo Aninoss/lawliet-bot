@@ -22,7 +22,6 @@ public class DanceCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736255695296528484/736255733183676506/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/736255736828395571/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/736255741056253993/dance.gif",
-                "https://cdn.discordapp.com/attachments/736255695296528484/736255748463525958/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/736255753236643890/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/736255762107596810/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/736255767702798447/dance.gif",
@@ -81,7 +80,8 @@ public class DanceCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736255695296528484/834503359733039214/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/834503382953623566/dance.gif",
                 "https://cdn.discordapp.com/attachments/736255695296528484/834503395229302784/dance.gif",
-                "https://cdn.discordapp.com/attachments/736255695296528484/859017863280328735/dance.gif"
+                "https://cdn.discordapp.com/attachments/736255695296528484/859017863280328735/dance.gif",
+                "https://cdn.discordapp.com/attachments/736255695296528484/860572361849569310/dance.gif"
         );
     }
 

@@ -163,6 +163,7 @@ public class CommandContainer {
         commandList.add(CryCommand.class);
         commandList.add(DabCommand.class);
         commandList.add(DanceCommand.class);
+        commandList.add(DrinkCommand.class);
         commandList.add(FacepalmCommand.class);
         commandList.add(JumpCommand.class);
         commandList.add(LaughCommand.class);
@@ -197,6 +198,7 @@ public class CommandContainer {
         commandList.add(PokeCommand.class);
         commandList.add(PunchCommand.class);
         commandList.add(RewardCommand.class);
+        commandList.add(ShootCommand.class);
         commandList.add(SlapCommand.class);
         commandList.add(StealCommand.class);
         commandList.add(ThrowCommand.class);

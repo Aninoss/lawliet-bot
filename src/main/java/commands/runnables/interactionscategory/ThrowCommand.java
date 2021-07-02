@@ -21,7 +21,8 @@ public class ThrowCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736272093900963923/736272137224060959/throw.gif",
                 "https://cdn.discordapp.com/attachments/736272093900963923/736272144731734056/throw.gif",
                 "https://cdn.discordapp.com/attachments/736272093900963923/736272152646647918/throw.gif",
-                "https://cdn.discordapp.com/attachments/736272093900963923/736272157025501295/throw.gif"
+                "https://cdn.discordapp.com/attachments/736272093900963923/736272157025501295/throw.gif",
+                "https://cdn.discordapp.com/attachments/736272093900963923/860571381597863946/throw.gif"
         );
     }
 
