@@ -1,7 +1,5 @@
 package commands.runnables.splatoon2category;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
@@ -84,7 +82,6 @@ public class MapsCommand extends Command implements OnAlertListener {
             endTime = new Date(mapData.getJSONArray("regular").getJSONObject(index).getInt("end_time") * 1000L).toInstant();
         } while (endTime.isBefore(new Date().toInstant()));
 
-        DateFormat dateFormat = new SimpleDateFormat("HH:mm");
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         EmbedUtil.setFooter(eb, this, region.toUpperCase());
 

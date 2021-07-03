@@ -61,7 +61,7 @@ public class AlertScheduler {
             CustomObservableMap<Integer, TrackerData> map = DBTracker.getInstance().retrieve(guildId);
             if (map.containsKey(hash)) {
                 TrackerData slot = map.get(hash);
-                try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofSeconds(20))) {
+                try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMinutes(5))) {
                     asyncTimer.setTimeOutListener(t -> {
                         t.interrupt();
                         MainLogger.get().error("Alert stuck: {} with key {}", slot.getCommandTrigger(), slot.getCommandKey(), ExceptionUtil.generateForStack(t));
@@ -80,14 +80,6 @@ public class AlertScheduler {
 
     private boolean manageAlert(TrackerData slot) {
         Instant minInstant = Instant.now().plus(1, ChronoUnit.MINUTES);
-
-        if (slot.getTextChannelId() == 744274927527395328L) {
-            MainLogger.get().info(">>> HENTAI ALERT at {}", slot.getNextRequest());
-        }
-
-        if (slot.getTextChannelId() == 744280017181343876L) {
-            MainLogger.get().info(">>> YAOI ALERT at {}", slot.getNextRequest());
-        }
 
         try {
             processAlert(slot);

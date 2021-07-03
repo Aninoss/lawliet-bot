@@ -141,6 +141,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
 
     public Optional<Long> sendMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) {
         if (embeds.isEmpty()) {
+            MainLogger.get().info("ALERT: 0"); //TODO
             return Optional.empty();
         }
         return processMessage(true, acceptUserMessage, null, embeds, actionRows);
@@ -148,6 +149,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
 
     public Optional<Long> editMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) {
         if (embeds.isEmpty()) {
+            MainLogger.get().info("ALERT: 1"); //TODO
             return Optional.empty();
         }
         return processMessage(false, acceptUserMessage, null, embeds, actionRows);
@@ -197,6 +199,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                 return processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows);
             }
         } else {
+            MainLogger.get().info("ALERT: 2"); //TODO
             return Optional.empty();
         }
     }
@@ -260,9 +263,11 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                 }
 
                 MainLogger.get().error("Alert webhook exception", e);
+                MainLogger.get().info("ALERT: 3"); //TODO
                 return Optional.empty();
             }
         } else {
+            MainLogger.get().info("ALERT: 4"); //TODO
             return Optional.empty();
         }
     }
@@ -316,9 +321,11 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                 }
 
                 MainLogger.get().error("Alert rest exception", e);
+                MainLogger.get().info("ALERT: 5"); //TODO
                 return Optional.empty();
             }
         } else {
+            MainLogger.get().info("ALERT: 6"); //TODO
             return Optional.empty();
         }
     }
