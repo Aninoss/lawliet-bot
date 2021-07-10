@@ -9,7 +9,6 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnStaticButtonListener;
-import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.LogStatus;
@@ -27,7 +26,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
@@ -40,7 +38,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         usesExtEmotes = true,
         executableWithoutArgs = true
 )
-public class SurveyCommand extends Command implements FisheryInterface, OnStaticReactionAddListener, OnStaticButtonListener, OnAlertListener {
+public class SurveyCommand extends Command implements FisheryInterface, OnStaticButtonListener, OnAlertListener {
 
     private static final String BUTTON_ID_VOTE_FIRST_A = "vote_1_0";
     private static final String BUTTON_ID_VOTE_FIRST_B = "vote_1_1";
@@ -64,36 +62,6 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     }
 
     @Override
-    public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) throws IOException {
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), event.getChannel(), Permission.MESSAGE_MANAGE)) {
-            return;
-        }
-
-        event.getReaction().removeReaction(event.getUser()).queue();
-
-        removeUserReactions(message, EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
-        String emoji = EmojiUtil.reactionEmoteAsMention(event.getReactionEmote());
-        for (byte i = 0; i < 2; i++) {
-            int type = 0;
-            if (emoji.equals(Emojis.LETTERS[i])) type = 1;
-            if (emoji.equals(Emojis.RED_LETTERS[i])) type = 2;
-            if (emoji.equals(BELL_EMOJI)) type = 3;
-
-            if (type > 0) {
-                SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
-
-                if (message.getTimeCreated().toInstant().isAfter(surveyData.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant()) &&
-                        registerVote(event.getMember(), surveyData, type, i)
-                ) {
-                    EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
-                    JDAUtil.sendPrivateMessage(event.getMember(), eb.build()).queue();
-                }
-                break;
-            }
-        }
-    }
-
-    @Override
     public void onStaticButton(ButtonClickEvent event) throws Throwable {
         SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
         if (event.getMessage().getTimeCreated().toInstant().isAfter(surveyData.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
@@ -111,7 +79,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
                 byte type = Byte.parseByte(parts[1]);
                 byte vote = Byte.parseByte(parts[2]);
 
-                if (registerVote(event.getMember(), surveyData, type, vote)) {
+                if (registerVote(event, surveyData, type, vote)) {
                     EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
                     event.replyEmbeds(eb.build()).setEphemeral(true).queue();
                 }
@@ -162,7 +130,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
     }
 
-    private boolean registerVote(Member member, SurveyData surveyData, int type, byte i) {
+    private boolean registerVote(ButtonClickEvent event, SurveyData surveyData, int type, byte i) {
+        Member member = event.getMember();
         switch (type) {
             case 1:
                 surveyData.getFirstVotes().put(member.getIdLong(), new SurveyFirstVote(member.getIdLong(), i, getLocale()));
@@ -177,7 +146,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
                     return true;
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                    JDAUtil.sendPrivateMessage(member, eb.build()).queue();
+                    event.replyEmbeds(eb.build()).setEphemeral(true).queue();
                     return false;
                 }
 
@@ -187,7 +156,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
                     return true;
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                    JDAUtil.sendPrivateMessage(member, eb.build()).queue();
+                    event.replyEmbeds(eb.build()).setEphemeral(true).queue();
                     return false;
                 }
 

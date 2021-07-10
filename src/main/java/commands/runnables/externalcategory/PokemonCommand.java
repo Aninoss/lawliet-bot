@@ -30,7 +30,7 @@ public class PokemonCommand extends Command {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        Pokemon pokemon = fetchPokemon(args.toLowerCase());
+        Pokemon pokemon = fetchPokemon(args);
         if (pokemon == null) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
@@ -44,7 +44,7 @@ public class PokemonCommand extends Command {
     }
 
     public static Pokemon fetchPokemon(String searchKey) throws ExecutionException, InterruptedException {
-        HttpResponse response = InternetCache.getData("https://www.pokewiki.de/" + searchKey, 60 * 60).get();
+        HttpResponse response = InternetCache.getData("https://www.pokewiki.de/" + searchKey.replace(" ", "%20"), 60 * 60).get();
         if (response.getCode() != 200 || response.getContent().isEmpty()) {
             return null;
         }
