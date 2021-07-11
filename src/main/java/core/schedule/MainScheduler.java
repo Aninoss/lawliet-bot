@@ -3,13 +3,11 @@ package core.schedule;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalUnit;
-import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import core.AsyncTimer;
 import core.MainLogger;
 import core.Program;
 import core.utils.ExceptionUtil;
@@ -19,6 +17,7 @@ import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 public class MainScheduler {
 
     private static final MainScheduler ourInstance = new MainScheduler();
+    private static final Duration MAX_TASK_DURATION = Duration.ofSeconds(5);
 
     public static MainScheduler getInstance() {
         return ourInstance;
@@ -26,24 +25,21 @@ public class MainScheduler {
 
     private final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(8, new CountingThreadFactory(() -> "Main", "Scheduler", true));
     private final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(3, new CountingThreadFactory(() -> "Main", "Poller", true));
-    private final ScheduledExecutorService timeOutObserver = Executors.newScheduledThreadPool(1, new CountingThreadFactory(() -> "Main", "Scheduler-TimeOut", true));
-
-    private final Cache<Long, ScheduleSlot> slotCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(Duration.ofMinutes(1))
-            .build();
 
     public void schedule(long millis, String name, Runnable listener) {
         if (Program.isRunning()) {
-            ScheduleSlot slot = new ScheduleSlot(name);
             schedulers.schedule(() -> {
-                try {
-                    slotCache.put(slot.getId(), slot);
-                    monitorTimeOuts(slot);
+                try(AsyncTimer asyncTimer = new AsyncTimer(MAX_TASK_DURATION)) {
+                    asyncTimer.setTimeOutListener(t -> {
+                        t.interrupt();
+                        MainLogger.get().error("Scheduler {} stuck in thread {}", name, t.getName(), ExceptionUtil.generateForStack(t));
+                    });
                     listener.run();
+                } catch (InterruptedException e) {
+                    //ignore
                 } catch (Throwable e) {
                     MainLogger.get().error("Unchecked exception in schedule timer", e);
                 }
-                slotCache.invalidate(slot.getId());
             }, millis, TimeUnit.MILLISECONDS);
         }
     }
@@ -63,18 +59,20 @@ public class MainScheduler {
      */
     public void poll(long millis, String name, Supplier<Boolean> listener) {
         if (Program.isRunning()) {
-            ScheduleSlot slot = new ScheduleSlot(name);
             pollers.schedule(() -> {
-                try {
-                    slotCache.put(slot.getId(), slot);
-                    monitorTimeOuts(slot);
+                try(AsyncTimer asyncTimer = new AsyncTimer(MAX_TASK_DURATION)) {
+                    asyncTimer.setTimeOutListener(t -> {
+                        t.interrupt();
+                        MainLogger.get().error("Scheduler {} stuck in thread {}", name, t.getName(), ExceptionUtil.generateForStack(t));
+                    });
                     if (Program.isRunning() && listener.get()) {
                         poll(millis, name, listener);
                     }
+                } catch (InterruptedException e) {
+                    poll(millis, name, listener);
                 } catch (Throwable e) {
                     MainLogger.get().error("Unchecked exception in schedule timer", e);
                 }
-                slotCache.invalidate(slot.getId());
             }, millis, TimeUnit.MILLISECONDS);
         }
     }
@@ -82,35 +80,6 @@ public class MainScheduler {
     public void poll(long amount, TemporalUnit unit, String name, Supplier<Boolean> listener) {
         long millis = Duration.of(amount, unit).toMillis();
         poll(millis, name, listener);
-    }
-
-    private void monitorTimeOuts(ScheduleSlot slot) {
-        Thread runnerThread = Thread.currentThread();
-        timeOutObserver.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (slotCache.asMap().containsKey(slot.getId())) {
-                    Exception e = ExceptionUtil.generateForStack(runnerThread);
-                    MainLogger.get().error("Task \"{}\" stuck in scheduler {}", slot.name, runnerThread.getName(), e);
-                }
-            }
-        }, 1, TimeUnit.SECONDS);
-    }
-
-
-    private static class ScheduleSlot {
-
-        private final String name;
-        private final long id = System.nanoTime();
-
-        public ScheduleSlot(String name) {
-            this.name = name;
-        }
-
-        public long getId() {
-            return id;
-        }
-
     }
 
 }
