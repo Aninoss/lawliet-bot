@@ -24,8 +24,8 @@ import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
-import modules.porn.PornImage;
-import modules.porn.PornImageDownloader;
+import modules.porn.BooruImage;
+import modules.porn.BooruImageDownloader;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -39,7 +39,9 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public abstract class PornAbstract extends Command implements OnAlertListener {
 
-    private static final Cache<String, ArrayList<PornImage>> alertsCache = CacheBuilder.newBuilder()
+    private static final BooruImageDownloader booruImageDownloader = new BooruImageDownloader();
+    
+    private static final Cache<String, ArrayList<BooruImage>> alertsCache = CacheBuilder.newBuilder()
             .expireAfterWrite(9, TimeUnit.MINUTES)
             .build();
 
@@ -47,7 +49,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         super(locale, prefix);
     }
 
-    public abstract ArrayList<PornImage> getPornImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Exception;
+    public abstract ArrayList<BooruImage> getBooruImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Exception;
 
     public abstract Optional<String> getNoticeOptional();
 
@@ -58,7 +60,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords());
-        args = NSFWUtil.filterPornSearchKey(args, nsfwFilter).replace("`", "");
+        args = args.replace("`", "");
 
         Matcher m = RegexPatterns.BOORU_AMOUNT_PATTERN.matcher(args);
         long amount = 1;
@@ -100,11 +102,10 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
         boolean first = true;
         ArrayList<String> usedResults = new ArrayList<>();
-        addLoadingReactionInstantly();
         do {
-            ArrayList<PornImage> pornImages;
+            List<BooruImage> pornImages;
             try {
-                pornImages = getPornImages(event.getGuild().getIdLong(), nsfwFilter, args, Math.min(3, (int) amount), usedResults);
+                pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilter, args, Math.min(3, (int) amount), usedResults);
             } catch (NoSuchElementException e) {
                 postApiUnavailable(event);
                 return false;
@@ -138,7 +139,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         return true;
     }
 
-    private List<Button> generateButtons(List<PornImage> pornImages) {
+    private List<Button> generateButtons(List<BooruImage> pornImages) {
         ArrayList<Button> buttons = new ArrayList<>();
         String tag = pornImages.size() > 1 ? "porn_source" : "porn_source_single";
         for (int i = 0; i < pornImages.size(); i++) {
@@ -149,7 +150,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     private boolean checkServiceAvailable() {
         try {
-            return PornImageDownloader.getPicture(0L, getDomain(), "", "", "", false, true, isExplicit(), new ArrayList<>(), new ArrayList<>()).get().isPresent();
+            return booruImageDownloader.getPicture(0L, getDomain(), "", "", "", false, true, isExplicit(), Collections.emptyList(), Collections.emptyList()).get().isPresent();
         } catch (InterruptedException | ExecutionException | NoSuchElementException e) {
             //Ignore
             return false;
@@ -184,10 +185,10 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         TextChannel channel = slot.getTextChannel().get();
 
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(slot.getGuildId()).getKeywords());
-        ArrayList<PornImage> pornImages;
+        ArrayList<BooruImage> pornImages;
         pornImages = alertsCache.get(
                 getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFilter),
-                () -> getPornImages(0L, nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>())
+                () -> getBooruImages(0L, nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>())
         );
 
         if (pornImages.size() == 0) {
@@ -214,7 +215,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         return TrackerResult.CONTINUE_AND_SAVE;
     }
 
-    private Optional<Message> generatePostMessagesText(List<PornImage> pornImages, String search, TextChannel channel, int max) {
+    private Optional<Message> generatePostMessagesText(List<BooruImage> pornImages, String search, TextChannel channel, int max) {
         StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getCommandProperties().emoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
         for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
             if (pornImages.get(i) != null) {
@@ -232,14 +233,14 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         return Optional.empty();
     }
 
-    protected ArrayList<PornImage> downloadPorn(long guildId, ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly, boolean explicit, ArrayList<String> usedResults) {
-        ArrayList<CompletableFuture<Optional<PornImage>>> futures = new ArrayList<>();
-        ArrayList<PornImage> pornImages = new ArrayList<>();
+    protected ArrayList<BooruImage> downloadPorn(long guildId, ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly, boolean explicit, ArrayList<String> usedResults) {
+        ArrayList<CompletableFuture<Optional<BooruImage>>> futures = new ArrayList<>();
+        ArrayList<BooruImage> pornImages = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
             try {
                 futures.add(
-                        PornImageDownloader.getPicture(guildId, domain, search, searchAdd, imageTemplate, animatedOnly, true, explicit, nsfwFilter, usedResults)
+                        booruImageDownloader.getPicture(guildId, domain, search, searchAdd, imageTemplate, animatedOnly, true, explicit, nsfwFilter, usedResults)
                 );
             } catch (ExecutionException e) {
                 MainLogger.get().error("Error while downloading porn", e);
@@ -248,9 +249,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
         futures.forEach(future -> {
             try {
-                Optional<PornImage> pornImageOpt = future.get(10, TimeUnit.SECONDS);
+                Optional<BooruImage> pornImageOpt = future.get(10, TimeUnit.SECONDS);
                 synchronized (this) {
-                    pornImageOpt.ifPresent(pornImages::add);
+                    pornImageOpt.ifPresent(pornImage -> {
+                        pornImages.add(pornImage);
+                        usedResults.add(pornImage.getImageUrl());
+                    });
                 }
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 if (!e.toString().contains("java.util.NoSuchElementException") &&

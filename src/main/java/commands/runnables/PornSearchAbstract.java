@@ -6,7 +6,7 @@ import java.util.Optional;
 import constants.Category;
 import core.TextManager;
 import core.utils.NSFWUtil;
-import modules.porn.PornImage;
+import modules.porn.BooruImage;
 
 public abstract class PornSearchAbstract extends PornAbstract {
 
@@ -24,7 +24,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
     }
 
     @Override
-    public ArrayList<PornImage> getPornImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) {
+    public ArrayList<BooruImage> getBooruImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) {
         String searchAdd = NSFWUtil.getNSFWTagRemoveList(nsfwFilter);
 
         String domain = getDomain();

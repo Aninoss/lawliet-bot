@@ -64,7 +64,7 @@ public abstract class Command implements OnTriggerListener {
     public void addLoadingReaction(Message message, AtomicBoolean isProcessing) {
         this.isProcessing = isProcessing;
         MainScheduler.getInstance().schedule(
-                3, ChronoUnit.SECONDS,
+                2, ChronoUnit.SECONDS,
                 getTrigger() + "_idle",
                 () -> addLoadingReactionInstantly(message, isProcessing)
         );

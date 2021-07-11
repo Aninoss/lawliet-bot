@@ -5,7 +5,7 @@ import java.util.Locale;
 import java.util.Optional;
 import constants.Category;
 import core.TextManager;
-import modules.porn.PornImage;
+import modules.porn.BooruImage;
 
 public abstract class PornPredefinedAbstract extends PornAbstract {
 
@@ -29,7 +29,7 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
     }
 
     @Override
-    public ArrayList<PornImage> getPornImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) {
+    public ArrayList<BooruImage> getBooruImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) {
         if (!search.isEmpty()) notice = TextManager.getString(getLocale(), Category.NSFW, "porn_keyforbidden");
 
         search = getSearchKey();

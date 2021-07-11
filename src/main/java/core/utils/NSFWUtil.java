@@ -1,22 +1,11 @@
 package core.utils;
 
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 import constants.Settings;
 
 public final class NSFWUtil {
 
     private NSFWUtil() {
-    }
-
-    public static String filterPornSearchKey(String str, ArrayList<String> additionalFilter) {
-        for (String filter : Settings.NSFW_FILTERS) {
-            str = str.replaceAll("(?i)\\b" + Pattern.quote(filter) + "\\b", "");
-        }
-        for (String filter : additionalFilter) {
-            str = str.replaceAll("(?i)\\b" + Pattern.quote(filter) + "\\b", "");
-        }
-        return str;
     }
 
     public static String getNSFWTagRemoveList(ArrayList<String> additionalFilter) {
@@ -29,10 +18,6 @@ public final class NSFWUtil {
             str.append(" -").append(filter.toLowerCase());
         }
         return str.toString();
-    }
-
-    public static boolean stringContainsBannedTags(String str, ArrayList<String> additionalFilter) {
-        return !(filterPornSearchKey(str, additionalFilter).equalsIgnoreCase(str));
     }
 
 }

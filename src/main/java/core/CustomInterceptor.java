@@ -1,13 +1,9 @@
 package core;
 
 import java.io.IOException;
-import java.net.URI;
 import constants.RegexPatterns;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.UriBuilder;
+import jakarta.ws.rs.core.MediaType;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -15,16 +11,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class CustomInterceptor implements Interceptor {
 
-    WebTarget target;
+    private final RestClient restClient;
 
     public CustomInterceptor() {
-        Client client = ClientBuilder.newClient();
-        URI endpoint = UriBuilder
-                .fromUri(String.format("http://%s/api/", System.getenv("RATELIMITER_HOST")))
-                .port(Integer.parseInt(System.getenv("RATELIMITER_PORT")))
-                .build();
-
-        target = client.target(endpoint);
+        restClient = new RestClient(
+                System.getenv("RATELIMITER_HOST"),
+                Integer.parseInt(System.getenv("RATELIMITER_PORT")),
+                "api/",
+                System.getenv("RATELIMITER_AUTH")
+        );
     }
 
     @Override
@@ -47,9 +42,7 @@ public class CustomInterceptor implements Interceptor {
     private synchronized void requestQuota() throws InterruptedException {
         if (Program.isProductionMode()) {
             try {
-                Invocation.Builder invocationBuilder = target.path("ratelimit")
-                        .request()
-                        .header("Authorization", System.getenv("RATELIMITER_AUTH"));
+                Invocation.Builder invocationBuilder = restClient.request("ratelimit", MediaType.TEXT_PLAIN);
 
                 long nextRequest = invocationBuilder.get().readEntity(Long.class);
                 long sleepTimeMillis = nextRequest * 1_000 - System.currentTimeMillis();
