@@ -8,7 +8,7 @@ import commands.Command;
 import core.EmbedFactory;
 import core.TextManager;
 import core.components.ActionRows;
-import core.internet.HttpProperty;
+import core.internet.HttpHeader;
 import core.internet.HttpRequest;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -66,13 +66,9 @@ public abstract class DeepAIAbstract extends Command {
 
         String query = "image=" + url;
 
-        HttpProperty[] properties = new HttpProperty[] {
-                new HttpProperty("Api-Key", System.getenv("DEEPAI_TOKEN")),
-                new HttpProperty("Content-Type", "application/x-www-form-urlencoded")
-        };
-
         addLoadingReactionInstantly();
-        String data = HttpRequest.getData(getUrl(), query, properties).get().getContent().get();
+        HttpHeader header = new HttpHeader("Api-Key", System.getenv("DEEPAI_TOKEN"));
+        String data = HttpRequest.getData(getUrl(), "application/x-www-form-urlencoded", query, header).get().getBody();
         JSONObject jsonObject = new JSONObject(data);
         return jsonObject.getString("output_url");
     }

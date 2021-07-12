@@ -58,9 +58,9 @@ public class MapsCommand extends Command implements OnAlertListener {
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONObject mapData = new JSONObject(InternetCache.getData(urls[0]).get().getContent().get());
-        JSONObject festData = new JSONObject(InternetCache.getData(urls[1]).get().getContent().get()).getJSONObject(region).getJSONArray("festivals").getJSONObject(0);
-        JSONObject languageData = new JSONObject(InternetCache.getData(urls[2]).get().getContent().get());
+        JSONObject mapData = new JSONObject(InternetCache.getData(urls[0]).get().getBody());
+        JSONObject festData = new JSONObject(InternetCache.getData(urls[1]).get().getBody()).getJSONObject(region).getJSONArray("festivals").getJSONObject(0);
+        JSONObject languageData = new JSONObject(InternetCache.getData(urls[2]).get().getBody());
         boolean isSplatfest = false;
         String festMapName;
         String[] festTeams = new String[2];
@@ -133,7 +133,6 @@ public class MapsCommand extends Command implements OnAlertListener {
             eb.addField(fieldTitle, fieldContent.toString(), false);
         }
 
-        InternetCache.setExpirationDate(endTime, urls);
         trackingTime = endTime;
 
         eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("next", TimeFormat.DATE_TIME_SHORT.atInstant(endTime).toString()), false);

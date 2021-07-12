@@ -12,12 +12,11 @@ public class OsuAccountDownloader {
     public static CompletableFuture<Optional<OsuAccount>> download(String username, String gameMode) {
         return InternetCache.getData("https://osu.ppy.sh/users/" + InternetUtil.escapeForURL(username) + "/" + gameMode)
                 .thenApply(res -> {
-                    Optional<String> contentOpt = res.getContent();
-                    if (contentOpt.isEmpty()) {
+                    String content = res.getBody();
+                    if (content == null) {
                         return Optional.empty();
                     }
 
-                    String content = contentOpt.get();
                     String[] groups = StringUtil.extractGroups(content, "<script id=\"json-user\" type=\"application/json\">", "</script>");
                     if (groups.length == 0) {
                         return Optional.empty();

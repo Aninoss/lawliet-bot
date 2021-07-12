@@ -44,11 +44,11 @@ public class PokemonCommand extends Command {
     }
 
     public static Pokemon fetchPokemon(String searchKey) throws ExecutionException, InterruptedException {
-        HttpResponse response = InternetCache.getData("https://www.pokewiki.de/" + searchKey.replace(" ", "%20"), 60 * 60).get();
-        if (response.getCode() != 200 || response.getContent().isEmpty()) {
+        HttpResponse response = InternetCache.getData("https://www.pokewiki.de/" + searchKey.replace(" ", "%20")).get();
+        if (response.getCode() != 200 || response.getBody() == null) {
             return null;
         }
-        String content = response.getContent().get();
+        String content = response.getBody();
 
         String title = StringUtil.extractGroups(content, "<meta property=\"og:title\" content=\"", "\"/>")[0];
         if (!title.contains(" ")) {

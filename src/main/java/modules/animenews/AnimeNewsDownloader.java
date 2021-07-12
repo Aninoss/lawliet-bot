@@ -43,10 +43,10 @@ public class AnimeNewsDownloader {
     }
 
     private static JSONArray retrieveJSONArray(String downloadUrl) throws ExecutionException, InterruptedException {
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 14).get();
-        if (httpResponse.getContent().isEmpty()) return null;
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl).get();
+        if (httpResponse.getBody() == null) return null;
 
-        String content = httpResponse.getContent().get();
+        String content = httpResponse.getBody();
         return XML.toJSONObject(content)
                 .getJSONObject("rss")
                 .getJSONObject("channel")

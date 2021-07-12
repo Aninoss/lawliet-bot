@@ -2,6 +2,7 @@ package core;
 
 import java.io.IOException;
 import constants.RegexPatterns;
+import core.restclient.RestClient;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.MediaType;
 import okhttp3.Interceptor;
@@ -14,12 +15,7 @@ public class CustomInterceptor implements Interceptor {
     private final RestClient restClient;
 
     public CustomInterceptor() {
-        restClient = new RestClient(
-                System.getenv("RATELIMITER_HOST"),
-                Integer.parseInt(System.getenv("RATELIMITER_PORT")),
-                "api/",
-                System.getenv("RATELIMITER_AUTH")
-        );
+        restClient = RestClient.ratelimiter();
     }
 
     @Override

@@ -23,8 +23,8 @@ public class AnimeReleasesDownloader {
         final List<String> filter = Arrays.stream(filterString.split(",")).map(String::trim).collect(Collectors.toList());
         String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
 
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 9 * 60).get();
-        String postString = httpResponse.getContent().get();
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl).get();
+        String postString = httpResponse.getBody();
 
         JSONArray postArray = XML.toJSONObject(postString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");
         ArrayList<AnimeReleasePost> postList = new ArrayList<>();

@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import constants.Settings;
 import core.GlobalThreadPool;
-import core.RestClient;
+import core.restclient.RestClient;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 
@@ -17,12 +17,7 @@ public class BooruImageDownloader {
     private final RestClient restClient;
 
     public BooruImageDownloader() {
-        restClient = new RestClient(
-                System.getenv("WEBCACHE_HOST"),
-                Integer.parseInt(System.getenv("WEBCACHE_PORT")),
-                "api/",
-                System.getenv("WEBCACHE_AUTH")
-        );
+        restClient = RestClient.webCache();
     }
 
     public CompletableFuture<Optional<BooruImage>> getPicture(long guildId, String domain, String searchTerm, String searchTermExtra,

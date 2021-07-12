@@ -103,9 +103,8 @@ public class YouTubeMP3Command extends Command {
 
     private boolean sendApiRequest(String url) throws ExecutionException, InterruptedException {
         String body = String.format("url=%s&format=mp3", URLEncoder.encode(url, StandardCharsets.UTF_8));
-        HttpResponse response = HttpRequest.getData("http://youtube-dl:8080/youtube-dl/q", body).get();
-        return response
-                .getContent()
+        HttpResponse response = HttpRequest.getData("http://youtube-dl:8080/youtube-dl/q", "application/x-www-form-urlencoded", body).get();
+        return Optional.ofNullable(response.getBody())
                 .map(data -> new JSONObject(data).getBoolean("success"))
                 .orElse(false);
     }

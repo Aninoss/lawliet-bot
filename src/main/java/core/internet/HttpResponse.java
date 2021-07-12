@@ -1,36 +1,24 @@
 package core.internet;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.Serializable;
 
-public class HttpResponse {
+public class HttpResponse implements Serializable {
 
-    private String content;
-    private final int code;
-    private Map<String, List<String>> headerFields;
+    private String body;
+    private int code;
 
-    public HttpResponse(String content, Map<String, List<String>> headerFields, int code) {
-        this.content = content;
-        this.headerFields = headerFields;
+    public HttpResponse setBody(String body) {
+        this.body = body;
+        return this;
+    }
+
+    public HttpResponse setCode(int code) {
         this.code = code;
+        return this;
     }
 
-    public HttpResponse(int code) {
-        this.code = code;
-    }
-
-    public Optional<String> getContent() {
-        return Optional.ofNullable(content);
-    }
-
-    public Optional<Map<String, List<String>>> getHeaderFields() {
-        return Optional.ofNullable(headerFields);
-    }
-
-    public Optional<List<String>> getCookies() {
-        if (headerFields == null) return Optional.empty();
-        return Optional.ofNullable(headerFields.get("Set-Cookie"));
+    public String getBody() {
+        return body;
     }
 
     public int getCode() {

@@ -52,8 +52,8 @@ public class SplatnetCommand extends Command implements OnAlertListener {
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONArray netData = new JSONObject(InternetCache.getData(urls[0]).get().getContent().get()).getJSONArray("merchandises");
-        JSONObject languageData = new JSONObject(InternetCache.getData(urls[1]).get().getContent().get());
+        JSONArray netData = new JSONObject(InternetCache.getData(urls[0]).get().getBody()).getJSONArray("merchandises");
+        JSONObject languageData = new JSONObject(InternetCache.getData(urls[1]).get().getBody());
 
         //Sorgt dafür, dass die aktuellen Daten genommen werden.
         if (netData.length() == 6) {
@@ -95,7 +95,6 @@ public class SplatnetCommand extends Command implements OnAlertListener {
 
         this.trackingTime = trackingTime;
 
-        InternetCache.setExpirationDate(trackingTime, urls);
         return eb;
     }
 

@@ -34,7 +34,6 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        addLoadingReactionInstantly();
         List<AnimeNewsArticle> articles = AnimeNewsDownloader.retrieveArticles(getLocale());
         EmbedBuilder eb;
         if (articles != null && articles.size() > 0) {

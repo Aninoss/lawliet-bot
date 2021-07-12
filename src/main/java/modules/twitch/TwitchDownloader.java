@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutionException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import core.internet.HttpProperty;
+import core.internet.HttpHeader;
 import core.internet.HttpRequest;
 import core.utils.InternetUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -96,13 +96,13 @@ public class TwitchDownloader {
     }
 
     private JSONObject fetchApi(String url) throws ExecutionException, InterruptedException {
-        HttpProperty[] properties = {
-                new HttpProperty("Accept", "application/vnd.twitchtv.v5+json"),
-                new HttpProperty("Client-ID", System.getenv("TWITCH_CLIENTID"))
+        HttpHeader[] properties = {
+                new HttpHeader("Accept", "application/vnd.twitchtv.v5+json"),
+                new HttpHeader("Client-ID", System.getenv("TWITCH_CLIENTID"))
         };
 
-        return HttpRequest.getData(url, properties)
-                .get().getContent().map(JSONObject::new).orElse(new JSONObject());
+        return Optional.ofNullable(HttpRequest.getData(url, properties).get().getBody())
+                .map(JSONObject::new).orElse(new JSONObject());
     }
 
 }

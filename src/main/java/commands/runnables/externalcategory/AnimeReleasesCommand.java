@@ -37,7 +37,6 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        addLoadingReactionInstantly();
         PostBundle<AnimeReleasePost> posts = AnimeReleasesDownloader.getPosts(getLocale(), null, args);
 
         if (posts.getPosts().size() > 0) {

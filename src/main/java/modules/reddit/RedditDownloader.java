@@ -53,7 +53,7 @@ public class RedditDownloader {
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1" + postReference;
 
-        HttpResponse httpResponse = InternetCache.getDataShortLived(downloadUrl).get();
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl).get();
         JSONObject tempData = httpResponseToJson(httpResponse);
         if (tempData == null) {
             return null;
@@ -85,7 +85,7 @@ public class RedditDownloader {
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
 
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl, 60 * 9).get();
+        HttpResponse httpResponse = InternetCache.getData(downloadUrl).get();
         JSONObject tempData = httpResponseToJson(httpResponse);
         if (tempData == null) {
             return null;
@@ -101,11 +101,11 @@ public class RedditDownloader {
     }
 
     private static JSONObject httpResponseToJson(HttpResponse httpResponse) {
-        if (httpResponse.getContent().isEmpty()) {
+        if (httpResponse.getBody() == null) {
             return null;
         }
 
-        String dataString = httpResponse.getContent().get();
+        String dataString = httpResponse.getBody();
         if (!dataString.startsWith("{")) {
             return null;
         }

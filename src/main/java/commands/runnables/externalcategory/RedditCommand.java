@@ -58,7 +58,6 @@ public class RedditCommand extends Command implements OnAlertListener {
             event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build()).queue();
             return false;
         } else {
-            addLoadingReactionInstantly();
             RedditPost post;
             post = RedditDownloader.getPost(getLocale(), args);
 

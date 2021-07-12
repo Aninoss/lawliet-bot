@@ -63,7 +63,6 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
         setGameMode(args);
 
         if (osuMap.containsKey(member.getIdLong())) {
-            addLoadingReactionInstantly();
             Optional<OsuAccount> osuAccountOpt = OsuAccountDownloader.download(String.valueOf(osuMap.get(member.getIdLong()).getOsuId()), gameMode).get();
             if (osuAccountOpt.isPresent()) {
                 userExists = true;

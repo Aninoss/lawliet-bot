@@ -1,11 +1,11 @@
 package core.internet;
 
-public class HttpProperty {
+public class HttpHeader {
 
-    final String key;
-    final String value;
+    private final String key;
+    private final String value;
 
-    public HttpProperty(String key, String value) {
+    public HttpHeader(String key, String value) {
         this.key = key;
         this.value = value;
     }
