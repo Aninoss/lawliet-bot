@@ -69,7 +69,7 @@ public class ShardManager {
         this.totalShards = totalShards;
 
         if (Program.isProductionMode()) {
-            MainScheduler.getInstance().schedule(3, ChronoUnit.MINUTES, "bootup_check", () -> {
+            MainScheduler.getInstance().schedule(2, ChronoUnit.MINUTES, "bootup_check", () -> {
                 if (!ready) {
                     MainLogger.get().error("EXIT - Could not boot up");
                     System.exit(1);

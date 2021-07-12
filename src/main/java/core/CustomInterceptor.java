@@ -42,10 +42,8 @@ public class CustomInterceptor implements Interceptor {
     private synchronized void requestQuota() throws InterruptedException {
         if (Program.isProductionMode()) {
             try {
-                Invocation.Builder invocationBuilder = restClient.request("ratelimit", MediaType.TEXT_PLAIN);
-
-                long nextRequest = invocationBuilder.get().readEntity(Long.class);
-                long sleepTimeMillis = nextRequest * 1_000 - System.currentTimeMillis();
+                Invocation.Builder invocationBuilder = restClient.request("relative", MediaType.TEXT_PLAIN);
+                int sleepTimeMillis = invocationBuilder.get().readEntity(Integer.class);
                 if (sleepTimeMillis > 0) {
                     Thread.sleep(sleepTimeMillis);
                 }
