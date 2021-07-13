@@ -101,7 +101,7 @@ public class RedditDownloader {
     }
 
     private static JSONObject httpResponseToJson(HttpResponse httpResponse) {
-        if (httpResponse.getBody() == null) {
+        if (httpResponse.getCode() / 100 != 2) {
             return null;
         }
 

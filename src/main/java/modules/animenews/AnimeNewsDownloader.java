@@ -44,7 +44,7 @@ public class AnimeNewsDownloader {
 
     private static JSONArray retrieveJSONArray(String downloadUrl) throws ExecutionException, InterruptedException {
         HttpResponse httpResponse = HttpCache.getData(downloadUrl).get();
-        if (httpResponse.getBody() == null) return null;
+        if (httpResponse.getCode() / 100 != 2) return null;
 
         String content = httpResponse.getBody();
         return XML.toJSONObject(content)
@@ -94,7 +94,7 @@ public class AnimeNewsDownloader {
 
         return new AnimeNewsArticle(
                 StringUtil.shortenString(StringUtil.unescapeHtml(jsonPost.getString("title")), 256),
-                StringUtil.unescapeHtml(StringUtil.extractGroups(content, "</p><p>", "</p>")[0]),
+                StringUtil.unescapeHtml(StringUtil.extractGroups(content, "</p>\n<p>", "</p>")[0]),
                 StringUtil.unescapeHtml(StringUtil.extractGroups(content, "src=\"", "\"")[0]),
                 jsonPost.getString("link"),
                 TimeUtil.parseDateStringRSS(jsonPost.getString("pubDate"))
