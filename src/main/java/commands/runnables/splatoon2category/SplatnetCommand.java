@@ -10,7 +10,7 @@ import commands.listeners.OnAlertListener;
 import constants.Emojis;
 import constants.TrackerResult;
 import core.EmbedFactory;
-import core.internet.InternetCache;
+import core.internet.HttpCache;
 import core.utils.EmbedUtil;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -52,8 +52,8 @@ public class SplatnetCommand extends Command implements OnAlertListener {
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONArray netData = new JSONObject(InternetCache.getData(urls[0]).get().getBody()).getJSONArray("merchandises");
-        JSONObject languageData = new JSONObject(InternetCache.getData(urls[1]).get().getBody());
+        JSONArray netData = new JSONObject(HttpCache.getData(urls[0]).get().getBody()).getJSONArray("merchandises");
+        JSONObject languageData = new JSONObject(HttpCache.getData(urls[1]).get().getBody());
 
         //Sorgt dafür, dass die aktuellen Daten genommen werden.
         if (netData.length() == 6) {

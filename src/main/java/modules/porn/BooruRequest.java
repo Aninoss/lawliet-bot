@@ -85,15 +85,15 @@ public class BooruRequest {
         return imageTemplate;
     }
 
-    public boolean isAnimatedOnly() {
+    public boolean getAnimatedOnly() {
         return animatedOnly;
     }
 
-    public boolean canBeVideo() {
+    public boolean getCanBeVideo() {
         return canBeVideo;
     }
 
-    public boolean isExplicit() {
+    public boolean getExplicit() {
         return explicit;
     }
 

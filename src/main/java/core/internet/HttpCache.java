@@ -2,11 +2,12 @@ package core.internet;
 
 import java.util.concurrent.CompletableFuture;
 import core.GlobalThreadPool;
+import core.MainLogger;
 import core.restclient.RestClient;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 
-public class InternetCache {
+public class HttpCache {
 
     private static final RestClient restClient = RestClient.webCache();
 
@@ -18,6 +19,11 @@ public class InternetCache {
                         .post(Entity.text(url))
                         .readEntity(HttpResponse.class);
                 future.complete(httpResponse);
+
+                int code = httpResponse.getCode();
+                if (code / 100 != 2) {
+                    MainLogger.get().warn("Error code {} for URL {}", code, url);
+                }
             } catch (Throwable e) {
                 future.completeExceptionally(e);
             }

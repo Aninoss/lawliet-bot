@@ -2,6 +2,7 @@ package core.internet;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import core.MainLogger;
 import core.utils.BotUtil;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
@@ -32,10 +33,15 @@ public class HttpRequest {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 try(ResponseBody body = response.body()) {
+                    int code = response.code();
                     HttpResponse httpResponse = new HttpResponse()
-                            .setCode(response.code())
+                            .setCode(code)
                             .setBody(body.string());
                     future.complete(httpResponse);
+
+                    if (code / 100 != 2) {
+                        MainLogger.get().warn("Error code {} for URL {}", code, url);
+                    }
                 } catch (Throwable e) {
                     future.completeExceptionally(e);
                 }

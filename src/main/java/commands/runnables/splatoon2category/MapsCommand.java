@@ -11,7 +11,7 @@ import commands.listeners.OnAlertListener;
 import constants.Emojis;
 import constants.TrackerResult;
 import core.EmbedFactory;
-import core.internet.InternetCache;
+import core.internet.HttpCache;
 import core.utils.EmbedUtil;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -58,9 +58,9 @@ public class MapsCommand extends Command implements OnAlertListener {
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONObject mapData = new JSONObject(InternetCache.getData(urls[0]).get().getBody());
-        JSONObject festData = new JSONObject(InternetCache.getData(urls[1]).get().getBody()).getJSONObject(region).getJSONArray("festivals").getJSONObject(0);
-        JSONObject languageData = new JSONObject(InternetCache.getData(urls[2]).get().getBody());
+        JSONObject mapData = new JSONObject(HttpCache.getData(urls[0]).get().getBody());
+        JSONObject festData = new JSONObject(HttpCache.getData(urls[1]).get().getBody()).getJSONObject(region).getJSONArray("festivals").getJSONObject(0);
+        JSONObject languageData = new JSONObject(HttpCache.getData(urls[2]).get().getBody());
         boolean isSplatfest = false;
         String festMapName;
         String[] festTeams = new String[2];

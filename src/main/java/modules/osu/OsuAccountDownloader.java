@@ -2,7 +2,7 @@ package modules.osu;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import core.internet.InternetCache;
+import core.internet.HttpCache;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import org.json.JSONObject;
@@ -10,7 +10,7 @@ import org.json.JSONObject;
 public class OsuAccountDownloader {
 
     public static CompletableFuture<Optional<OsuAccount>> download(String username, String gameMode) {
-        return InternetCache.getData("https://osu.ppy.sh/users/" + InternetUtil.escapeForURL(username) + "/" + gameMode)
+        return HttpCache.getData("https://osu.ppy.sh/users/" + InternetUtil.escapeForURL(username) + "/" + gameMode)
                 .thenApply(res -> {
                     String content = res.getBody();
                     if (content == null) {

@@ -10,7 +10,7 @@ import com.google.common.io.Files;
 import com.google.common.net.UrlEscapers;
 import core.LocalFile;
 import core.MainLogger;
-import core.internet.InternetCache;
+import core.internet.HttpCache;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public final class InternetUtil {
@@ -43,7 +43,7 @@ public final class InternetUtil {
     }
 
     public static CompletableFuture<String> retrieveThumbnailPreview(String url) {
-        return InternetCache.getData(url)
+        return HttpCache.getData(url)
                 .thenApply(data -> {
                     String content = data.getBody();
                     return StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\"")[0];

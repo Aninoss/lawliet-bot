@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutionException;
 import constants.Language;
 import core.MainLogger;
 import core.internet.HttpResponse;
-import core.internet.InternetCache;
+import core.internet.HttpCache;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -43,7 +43,7 @@ public class AnimeNewsDownloader {
     }
 
     private static JSONArray retrieveJSONArray(String downloadUrl) throws ExecutionException, InterruptedException {
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl).get();
+        HttpResponse httpResponse = HttpCache.getData(downloadUrl).get();
         if (httpResponse.getBody() == null) return null;
 
         String content = httpResponse.getBody();

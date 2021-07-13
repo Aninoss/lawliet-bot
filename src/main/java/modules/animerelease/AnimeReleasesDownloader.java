@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import constants.Language;
 import core.internet.HttpResponse;
-import core.internet.InternetCache;
+import core.internet.HttpCache;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.PostBundle;
@@ -23,7 +23,7 @@ public class AnimeReleasesDownloader {
         final List<String> filter = Arrays.stream(filterString.split(",")).map(String::trim).collect(Collectors.toList());
         String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
 
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl).get();
+        HttpResponse httpResponse = HttpCache.getData(downloadUrl).get();
         String postString = httpResponse.getBody();
 
         JSONArray postArray = XML.toJSONObject(postString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");

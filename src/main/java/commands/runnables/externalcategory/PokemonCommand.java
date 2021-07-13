@@ -11,7 +11,7 @@ import constants.Language;
 import core.EmbedFactory;
 import core.TextManager;
 import core.internet.HttpResponse;
-import core.internet.InternetCache;
+import core.internet.HttpCache;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -44,7 +44,7 @@ public class PokemonCommand extends Command {
     }
 
     public static Pokemon fetchPokemon(String searchKey) throws ExecutionException, InterruptedException {
-        HttpResponse response = InternetCache.getData("https://www.pokewiki.de/" + searchKey.replace(" ", "%20")).get();
+        HttpResponse response = HttpCache.getData("https://www.pokewiki.de/" + searchKey.replace(" ", "%20")).get();
         if (response.getCode() != 200 || response.getBody() == null) {
             return null;
         }

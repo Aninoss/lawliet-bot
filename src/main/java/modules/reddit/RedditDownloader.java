@@ -13,7 +13,7 @@ import constants.Language;
 import core.MainLogger;
 import core.TextManager;
 import core.internet.HttpResponse;
-import core.internet.InternetCache;
+import core.internet.HttpCache;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import modules.PostBundle;
@@ -53,7 +53,7 @@ public class RedditDownloader {
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1" + postReference;
 
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl).get();
+        HttpResponse httpResponse = HttpCache.getData(downloadUrl).get();
         JSONObject tempData = httpResponseToJson(httpResponse);
         if (tempData == null) {
             return null;
@@ -85,7 +85,7 @@ public class RedditDownloader {
 
         String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
 
-        HttpResponse httpResponse = InternetCache.getData(downloadUrl).get();
+        HttpResponse httpResponse = HttpCache.getData(downloadUrl).get();
         JSONObject tempData = httpResponseToJson(httpResponse);
         if (tempData == null) {
             return null;

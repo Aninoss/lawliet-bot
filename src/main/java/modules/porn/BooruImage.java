@@ -46,7 +46,7 @@ public class BooruImage {
         return this;
     }
 
-    public boolean isVideo() {
+    public boolean getVideo() {
         return video;
     }
 
