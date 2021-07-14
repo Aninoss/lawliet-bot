@@ -10,14 +10,16 @@ import constants.Settings;
 import core.GlobalThreadPool;
 import core.restclient.RestClient;
 import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 public class BooruImageDownloader {
 
     private final RestClient restClient;
 
     public BooruImageDownloader() {
-        restClient = RestClient.webCache();
+        restClient = RestClient.WEBCACHE;
     }
 
     public CompletableFuture<Optional<BooruImage>> getPicture(long guildId, String domain, String searchTerm, String searchTermExtra,
@@ -41,10 +43,9 @@ public class BooruImageDownloader {
 
         CompletableFuture<Optional<BooruImage>> future = new CompletableFuture<>();
         GlobalThreadPool.getExecutorService().submit(() -> {
-            try {
-                BooruImage booruImage = restClient.request("booru", MediaType.APPLICATION_JSON)
-                        .post(Entity.entity(request, MediaType.APPLICATION_JSON))
-                        .readEntity(BooruImage.class);
+            Invocation.Builder invocationBuilder = restClient.request("booru", MediaType.APPLICATION_JSON);
+            try (Response response = invocationBuilder.post(Entity.entity(request, MediaType.APPLICATION_JSON))) {
+                BooruImage booruImage = response.readEntity(BooruImage.class);
                 future.complete(Optional.ofNullable(booruImage));
             } catch (Throwable e) {
                 future.completeExceptionally(e);

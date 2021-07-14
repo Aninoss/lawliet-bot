@@ -12,6 +12,20 @@ public class RestClient {
     private final WebTarget target;
     private final String auth;
 
+    public static final RestClient RATELIMITER = new RestClient(
+            System.getenv("RATELIMITER_HOST"),
+                Integer.parseInt(System.getenv("RATELIMITER_PORT")),
+                        "api/",
+                        System.getenv("RATELIMITER_AUTH")
+                        );
+
+    public static final RestClient WEBCACHE = new RestClient(
+            System.getenv("WEBCACHE_HOST"),
+            Integer.parseInt(System.getenv("WEBCACHE_PORT")),
+            "api/",
+            System.getenv("WEBCACHE_AUTH")
+    );
+
     private RestClient(String domain, int port, String path, String auth) {
         Client client = ClientBuilder.newClient();
         URI endpoint = UriBuilder
@@ -27,24 +41,6 @@ public class RestClient {
         return target.path(path)
                 .request(mediaType)
                 .header("Authorization", auth);
-    }
-
-    public static RestClient ratelimiter() {
-        return new RestClient(
-                System.getenv("RATELIMITER_HOST"),
-                Integer.parseInt(System.getenv("RATELIMITER_PORT")),
-                "api/",
-                System.getenv("RATELIMITER_AUTH")
-        );
-    }
-
-    public static RestClient webCache() {
-        return new RestClient(
-                System.getenv("WEBCACHE_HOST"),
-                Integer.parseInt(System.getenv("WEBCACHE_PORT")),
-                "api/",
-                System.getenv("WEBCACHE_AUTH")
-        );
     }
 
 }

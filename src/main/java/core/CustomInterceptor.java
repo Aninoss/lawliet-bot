@@ -15,7 +15,7 @@ public class CustomInterceptor implements Interceptor {
     private final RestClient restClient;
 
     public CustomInterceptor() {
-        restClient = RestClient.ratelimiter();
+        restClient = RestClient.RATELIMITER;
     }
 
     @Override
@@ -37,9 +37,9 @@ public class CustomInterceptor implements Interceptor {
 
     private synchronized void requestQuota() throws InterruptedException {
         if (Program.isProductionMode()) {
-            try {
-                Invocation.Builder invocationBuilder = restClient.request("relative", MediaType.TEXT_PLAIN);
-                int sleepTimeMillis = invocationBuilder.get().readEntity(Integer.class);
+            Invocation.Builder invocationBuilder = restClient.request("relative", MediaType.TEXT_PLAIN);
+            try (jakarta.ws.rs.core.Response response = invocationBuilder.get()) {
+                int sleepTimeMillis = response.readEntity(Integer.class);
                 if (sleepTimeMillis > 0) {
                     Thread.sleep(sleepTimeMillis);
                 }
