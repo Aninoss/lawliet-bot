@@ -19,11 +19,13 @@ public final class InternetUtil {
     }
 
     public static String getUrlFromInputStream(InputStream inputStream, String fileExt) throws ExecutionException, InterruptedException, IOException {
-        LocalFile cdnFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%d.%s", System.nanoTime(), fileExt));
-        byte[] buffer = new byte[inputStream.available()];
-        inputStream.read(buffer);
-        Files.write(buffer, cdnFile);
-        return cdnFile.cdnGetUrl();
+        try (inputStream) {
+            LocalFile cdnFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%d.%s", System.nanoTime(), fileExt));
+            byte[] buffer = new byte[inputStream.available()];
+            inputStream.read(buffer);
+            Files.write(buffer, cdnFile);
+            return cdnFile.cdnGetUrl();
+        }
     }
 
     public static boolean urlContainsImage(String url) {

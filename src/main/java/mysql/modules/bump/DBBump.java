@@ -19,15 +19,13 @@ public class DBBump {
         Instant instant = null;
 
         String sql = "SELECT next FROM Bump;";
-        Statement statement = DBMain.getInstance().statementExecuted(sql);
-        ResultSet resultSet = statement.getResultSet();
+        try (Statement statement = DBMain.getInstance().statementExecuted(sql)) {
+            ResultSet resultSet = statement.getResultSet();
 
-        if (resultSet.next()) {
-            instant = resultSet.getTimestamp(1).toInstant();
+            if (resultSet.next()) {
+                instant = resultSet.getTimestamp(1).toInstant();
+            }
         }
-
-        resultSet.close();
-        statement.close();
 
         return instant;
     }

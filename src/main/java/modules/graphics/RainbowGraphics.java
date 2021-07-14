@@ -28,10 +28,11 @@ public class RainbowGraphics {
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (opacity / 100.0)));
         g.drawImage(rainbow, 0, 0, image.getWidth(), image.getHeight(), null);
 
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageIO.write(result, "png", os);
-        g.dispose();
-        return new ByteArrayInputStream(os.toByteArray());
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            ImageIO.write(result, "png", os);
+            g.dispose();
+            return new ByteArrayInputStream(os.toByteArray());
+        }
     }
 
 }

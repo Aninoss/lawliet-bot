@@ -21,25 +21,23 @@ public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesDat
     protected CommandUsagesData load(String command) throws Exception {
         CommandUsagesData commandUsagesData;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT usages FROM CommandUsages WHERE command = ?;");
-        preparedStatement.setString(1, command);
-        preparedStatement.execute();
+        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT usages FROM CommandUsages WHERE command = ?;")) {
+            preparedStatement.setString(1, command);
+            preparedStatement.execute();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            commandUsagesData = new CommandUsagesData(
-                    command,
-                    resultSet.getLong(1)
-            );
-        } else {
-            commandUsagesData = new CommandUsagesData(
-                    command,
-                    0L
-            );
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                commandUsagesData = new CommandUsagesData(
+                        command,
+                        resultSet.getLong(1)
+                );
+            } else {
+                commandUsagesData = new CommandUsagesData(
+                        command,
+                        0L
+                );
+            }
         }
-
-        resultSet.close();
-        preparedStatement.close();
 
         return commandUsagesData;
     }

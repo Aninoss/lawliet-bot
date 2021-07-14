@@ -31,7 +31,7 @@ public class AsyncTimer implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws InterruptedException {
         pending = false;
     }
 

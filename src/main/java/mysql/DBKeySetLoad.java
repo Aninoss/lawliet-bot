@@ -20,10 +20,8 @@ public class DBKeySetLoad<T> {
     }
 
     public ArrayList<T> get(SQLFunction<ResultSet, T> function) {
-        try {
-            ArrayList<T> list = new ArrayList<>();
-
-            ResultSet resultSet = statement.getResultSet();
+        ArrayList<T> list = new ArrayList<>();
+        try (ResultSet resultSet = statement.getResultSet()) {
             while (resultSet.next()) {
                 try {
                     list.add(function.apply(resultSet));
@@ -32,12 +30,15 @@ public class DBKeySetLoad<T> {
                 }
             }
 
-            resultSet.close();
-            statement.close();
-
             return list;
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            try {
+                statement.close();
+            } catch (SQLException throwables) {
+                MainLogger.get().error("Could not close statement", throwables);
+            }
         }
     }
 

@@ -29,31 +29,29 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
     protected SurveyData load(Integer surveyId) throws Exception {
         SurveyData surveyData;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT start FROM SurveyDates WHERE surveyId = ?;");
-        preparedStatement.setInt(1, surveyId);
-        preparedStatement.execute();
+        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT start FROM SurveyDates WHERE surveyId = ?;")) {
+            preparedStatement.setInt(1, surveyId);
+            preparedStatement.execute();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            surveyData = new SurveyData(
-                    surveyId,
-                    resultSet.getDate(1).toLocalDate(),
-                    getFirstVotes(surveyId),
-                    getSecondVotes(surveyId),
-                    getNotificationUserIds()
-            );
-        } else {
-            surveyData = new SurveyData(
-                    surveyId,
-                    resultSet.getDate(1).toLocalDate(),
-                    new HashMap<>(),
-                    new HashMap<>(),
-                    new ArrayList<>()
-            );
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                surveyData = new SurveyData(
+                        surveyId,
+                        resultSet.getDate(1).toLocalDate(),
+                        getFirstVotes(surveyId),
+                        getSecondVotes(surveyId),
+                        getNotificationUserIds()
+                );
+            } else {
+                surveyData = new SurveyData(
+                        surveyId,
+                        resultSet.getDate(1).toLocalDate(),
+                        new HashMap<>(),
+                        new HashMap<>(),
+                        new ArrayList<>()
+                );
+            }
         }
-
-        resultSet.close();
-        preparedStatement.close();
 
         surveyData.getFirstVotes()
                 .addMapAddListener(firstVote -> addFirstVote(surveyId, firstVote))
@@ -74,16 +72,12 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
 
     public synchronized int getCurrentSurveyId() {
         if (currentSurveyId == null) {
-            try {
-                Statement statement = DBMain.getInstance().statementExecuted("SELECT surveyId FROM SurveyDates ORDER BY start DESC, surveyId DESC LIMIT 1;");
+            try (Statement statement = DBMain.getInstance().statementExecuted("SELECT surveyId FROM SurveyDates ORDER BY start DESC, surveyId DESC LIMIT 1;")) {
                 ResultSet resultSet = statement.getResultSet();
 
                 if (resultSet.next()) {
                     currentSurveyId = resultSet.getInt(1);
                 }
-
-                resultSet.close();
-                statement.close();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

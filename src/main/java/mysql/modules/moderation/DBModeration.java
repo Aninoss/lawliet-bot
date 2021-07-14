@@ -22,45 +22,43 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationData> {
     protected ModerationData load(Long serverId) throws Exception {
         ModerationData moderationBean;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question, muteRoleId, autoKick, autoBan, autoMute, autoKickDays, autoBanDays, autoMuteDays, autoBanDuration, autoMuteDuration FROM Moderation WHERE serverId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.execute();
+        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, question, muteRoleId, autoKick, autoBan, autoMute, autoKickDays, autoBanDays, autoMuteDays, autoBanDuration, autoMuteDuration FROM Moderation WHERE serverId = ?;")) {
+            preparedStatement.setLong(1, serverId);
+            preparedStatement.execute();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            moderationBean = new ModerationData(
-                    serverId,
-                    resultSet.getLong(1),
-                    resultSet.getBoolean(2),
-                    resultSet.getLong(3),
-                    resultSet.getInt(4),
-                    resultSet.getInt(5),
-                    resultSet.getInt(6),
-                    resultSet.getInt(7),
-                    resultSet.getInt(8),
-                    resultSet.getInt(9),
-                    resultSet.getInt(10),
-                    resultSet.getInt(11)
-            );
-        } else {
-            moderationBean = new ModerationData(
-                    serverId,
-                    null,
-                    true,
-                    null,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0
-            );
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                moderationBean = new ModerationData(
+                        serverId,
+                        resultSet.getLong(1),
+                        resultSet.getBoolean(2),
+                        resultSet.getLong(3),
+                        resultSet.getInt(4),
+                        resultSet.getInt(5),
+                        resultSet.getInt(6),
+                        resultSet.getInt(7),
+                        resultSet.getInt(8),
+                        resultSet.getInt(9),
+                        resultSet.getInt(10),
+                        resultSet.getInt(11)
+                );
+            } else {
+                moderationBean = new ModerationData(
+                        serverId,
+                        null,
+                        true,
+                        null,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                );
+            }
         }
-
-        resultSet.close();
-        preparedStatement.close();
 
         return moderationBean;
     }

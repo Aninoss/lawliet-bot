@@ -22,33 +22,31 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
     protected SPBlockData load(Long serverId) throws Exception {
         SPBlockData spBlockBean;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active, action FROM SPBlock WHERE serverId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.execute();
+        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active, action FROM SPBlock WHERE serverId = ?;")) {
+            preparedStatement.setLong(1, serverId);
+            preparedStatement.execute();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            spBlockBean = new SPBlockData(
-                    serverId,
-                    resultSet.getBoolean(1),
-                    SPBlockData.ActionList.valueOf(resultSet.getString(2)),
-                    getIgnoredUsers(serverId),
-                    getIgnoredChannels(serverId),
-                    getLogReceivers(serverId)
-            );
-        } else {
-            spBlockBean = new SPBlockData(
-                    serverId,
-                    false,
-                    SPBlockData.ActionList.DELETE_MESSAGE,
-                    getIgnoredUsers(serverId),
-                    getIgnoredChannels(serverId),
-                    getLogReceivers(serverId)
-            );
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                spBlockBean = new SPBlockData(
+                        serverId,
+                        resultSet.getBoolean(1),
+                        SPBlockData.ActionList.valueOf(resultSet.getString(2)),
+                        getIgnoredUsers(serverId),
+                        getIgnoredChannels(serverId),
+                        getLogReceivers(serverId)
+                );
+            } else {
+                spBlockBean = new SPBlockData(
+                        serverId,
+                        false,
+                        SPBlockData.ActionList.DELETE_MESSAGE,
+                        getIgnoredUsers(serverId),
+                        getIgnoredChannels(serverId),
+                        getLogReceivers(serverId)
+                );
+            }
         }
-
-        resultSet.close();
-        preparedStatement.close();
 
         spBlockBean.getIgnoredUserIds()
                 .addListAddListener(list -> list.forEach(userId -> addIgnoredUser(serverId, userId)))

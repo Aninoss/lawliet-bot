@@ -70,8 +70,8 @@ public class AlertScheduler {
                     if (slot.isActive() && manageAlert(slot)) {
                         loadAlert(slot);
                     }
-                } catch (Exception exception) {
-                    MainLogger.get().error("Interrupted", exception);
+                } catch (InterruptedException e) {
+                    MainLogger.get().error("Interrupted", e);
                     loadAlert(slot);
                 }
             }

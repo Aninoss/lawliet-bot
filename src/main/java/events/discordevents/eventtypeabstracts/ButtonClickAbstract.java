@@ -25,8 +25,8 @@ public abstract class ButtonClickAbstract extends DiscordEventAbstract {
                 execute(listenerList, event.getUser(), event.getGuild().getIdLong(),
                         listener -> ((ButtonClickAbstract) listener).onButtonClick(event)
                 );
-            } catch (Exception exception) {
-                MainLogger.get().error("Interrupted", exception);
+            } catch (InterruptedException e) {
+                MainLogger.get().error("Interrupted", e);
             }
         }
     }

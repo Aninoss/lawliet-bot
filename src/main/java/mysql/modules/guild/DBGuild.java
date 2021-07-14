@@ -45,49 +45,47 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
         GuildData guildBean;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit FROM DServer WHERE serverId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.execute();
+        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit FROM DServer WHERE serverId = ?;")) {
+            preparedStatement.setLong(1, serverId);
+            preparedStatement.execute();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            guildBean = new GuildData(
-                    serverId,
-                    resultSet.getString(1),
-                    new Locale(resultSet.getString(2).toLowerCase()),
-                    FisheryStatus.valueOf(resultSet.getString(3)),
-                    resultSet.getBoolean(4),
-                    resultSet.getLong(5),
-                    resultSet.getBoolean(6),
-                    resultSet.getBoolean(7),
-                    resultSet.getLong(8),
-                    resultSet.getLong(9),
-                    resultSet.getInt(10),
-                    resultSet.getBoolean(11),
-                    resultSet.getBoolean(12)
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                guildBean = new GuildData(
+                        serverId,
+                        resultSet.getString(1),
+                        new Locale(resultSet.getString(2).toLowerCase()),
+                        FisheryStatus.valueOf(resultSet.getString(3)),
+                        resultSet.getBoolean(4),
+                        resultSet.getLong(5),
+                        resultSet.getBoolean(6),
+                        resultSet.getBoolean(7),
+                        resultSet.getLong(8),
+                        resultSet.getLong(9),
+                        resultSet.getInt(10),
+                        resultSet.getBoolean(11),
+                        resultSet.getBoolean(12)
 
-            );
-        } else {
-            guildBean = new GuildData(
-                    serverId,
-                    "L.",
-                    Language.EN.getLocale(),
-                    FisheryStatus.STOPPED,
-                    false,
-                    null,
-                    true,
-                    true,
-                    50000,
-                    800000000,
-                    0,
-                    false,
-                    true
-            );
-            insertBean(guildBean);
+                );
+            } else {
+                guildBean = new GuildData(
+                        serverId,
+                        "L.",
+                        Language.EN.getLocale(),
+                        FisheryStatus.STOPPED,
+                        false,
+                        null,
+                        true,
+                        true,
+                        50000,
+                        800000000,
+                        0,
+                        false,
+                        true
+                );
+                insertBean(guildBean);
+            }
         }
-
-        resultSet.close();
-        preparedStatement.close();
 
         return guildBean;
     }

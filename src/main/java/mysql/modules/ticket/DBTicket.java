@@ -25,31 +25,29 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
     protected TicketData load(Long serverId) throws Exception {
         TicketData ticketData;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, counter FROM Ticket WHERE serverId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.execute();
+        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, counter FROM Ticket WHERE serverId = ?;")) {
+            preparedStatement.setLong(1, serverId);
+            preparedStatement.execute();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            ticketData = new TicketData(
-                    serverId,
-                    resultSet.getLong(1),
-                    resultSet.getInt(2),
-                    getStaffRoles(serverId),
-                    getTicketChannels(serverId)
-            );
-        } else {
-            ticketData = new TicketData(
-                    serverId,
-                    null,
-                    0,
-                    getStaffRoles(serverId),
-                    getTicketChannels(serverId)
-            );
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                ticketData = new TicketData(
+                        serverId,
+                        resultSet.getLong(1),
+                        resultSet.getInt(2),
+                        getStaffRoles(serverId),
+                        getTicketChannels(serverId)
+                );
+            } else {
+                ticketData = new TicketData(
+                        serverId,
+                        null,
+                        0,
+                        getStaffRoles(serverId),
+                        getTicketChannels(serverId)
+                );
+            }
         }
-
-        resultSet.close();
-        preparedStatement.close();
 
         ticketData.getTicketChannels()
                 .addMapAddListener(this::addTicketChannel)

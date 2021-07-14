@@ -22,31 +22,29 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
     protected BannedWordsData load(Long serverId) throws Exception {
         BannedWordsData bannedWordsBean;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active FROM BannedWords WHERE serverId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.execute();
+        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active FROM BannedWords WHERE serverId = ?;")) {
+            preparedStatement.setLong(1, serverId);
+            preparedStatement.execute();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            bannedWordsBean = new BannedWordsData(
-                    serverId,
-                    resultSet.getBoolean(1),
-                    getIgnoredUsers(serverId),
-                    getLogReceivers(serverId),
-                    getWords(serverId)
-            );
-        } else {
-            bannedWordsBean = new BannedWordsData(
-                    serverId,
-                    false,
-                    getIgnoredUsers(serverId),
-                    getLogReceivers(serverId),
-                    getWords(serverId)
-            );
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                bannedWordsBean = new BannedWordsData(
+                        serverId,
+                        resultSet.getBoolean(1),
+                        getIgnoredUsers(serverId),
+                        getLogReceivers(serverId),
+                        getWords(serverId)
+                );
+            } else {
+                bannedWordsBean = new BannedWordsData(
+                        serverId,
+                        false,
+                        getIgnoredUsers(serverId),
+                        getLogReceivers(serverId),
+                        getWords(serverId)
+                );
+            }
         }
-
-        resultSet.close();
-        preparedStatement.close();
 
         bannedWordsBean.getIgnoredUserIds()
                 .addListAddListener(list -> list.forEach(userId -> addIgnoredUser(bannedWordsBean.getGuildId(), userId)))

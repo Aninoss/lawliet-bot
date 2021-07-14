@@ -80,13 +80,9 @@ public class DBMain implements DriverAction {
     public int update(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException, InterruptedException {
         SQLException exception = null;
         for (int i = 0; i < 3; i++) {
-            try {
-                PreparedStatement preparedStatement = preparedStatement(sql);
+            try (PreparedStatement preparedStatement = preparedStatement(sql)) {
                 preparedStatementConsumer.accept(preparedStatement);
-                int n = preparedStatement.executeUpdate();
-                preparedStatement.close();
-
-                return n;
+                return preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 //Ignore
                 exception = e;

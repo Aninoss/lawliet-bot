@@ -25,29 +25,27 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
     protected SuggestionsData load(Long serverId) throws Exception {
         SuggestionsData suggestionsBean;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active, channelId FROM SuggestionConfig WHERE serverId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.execute();
+        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active, channelId FROM SuggestionConfig WHERE serverId = ?;")) {
+            preparedStatement.setLong(1, serverId);
+            preparedStatement.execute();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            suggestionsBean = new SuggestionsData(
-                    serverId,
-                    resultSet.getBoolean(1),
-                    resultSet.getLong(2),
-                    getSuggestionMessages(serverId)
-            );
-        } else {
-            suggestionsBean = new SuggestionsData(
-                    serverId,
-                    false,
-                    null,
-                    new HashMap<>()
-            );
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                suggestionsBean = new SuggestionsData(
+                        serverId,
+                        resultSet.getBoolean(1),
+                        resultSet.getLong(2),
+                        getSuggestionMessages(serverId)
+                );
+            } else {
+                suggestionsBean = new SuggestionsData(
+                        serverId,
+                        false,
+                        null,
+                        new HashMap<>()
+                );
+            }
         }
-
-        resultSet.close();
-        preparedStatement.close();
 
         suggestionsBean.getSuggestionMessages()
                 .addMapAddListener(this::addSuggestionMessage)

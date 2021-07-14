@@ -10,13 +10,11 @@ public class FileManager {
     public static List<String> readInList(LocalFile file) throws IOException {
         ArrayList<String> list = new ArrayList<>();
 
-        BufferedReader br = new BufferedReader(
-                new InputStreamReader(
-                        new FileInputStream(file), StandardCharsets.UTF_8));
-
-        String line;
-        while ((line = br.readLine()) != null) {
-            list.add(line);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                list.add(line);
+            }
         }
 
         return list;

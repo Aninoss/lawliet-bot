@@ -25,33 +25,31 @@ public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelData> {
     protected AutoChannelData load(Long serverId) throws Exception {
         AutoChannelData autoChannelBean;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, active, channelName, locked FROM AutoChannel WHERE serverId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.execute();
+        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, active, channelName, locked FROM AutoChannel WHERE serverId = ?;")) {
+            preparedStatement.setLong(1, serverId);
+            preparedStatement.execute();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            autoChannelBean = new AutoChannelData(
-                    serverId,
-                    resultSet.getLong(1),
-                    resultSet.getBoolean(2),
-                    resultSet.getString(3),
-                    resultSet.getBoolean(4),
-                    getChildChannels(serverId)
-            );
-        } else {
-            autoChannelBean = new AutoChannelData(
-                    serverId,
-                    null,
-                    false,
-                    "%VCName [%Creator]",
-                    false,
-                    new ArrayList<>()
-            );
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                autoChannelBean = new AutoChannelData(
+                        serverId,
+                        resultSet.getLong(1),
+                        resultSet.getBoolean(2),
+                        resultSet.getString(3),
+                        resultSet.getBoolean(4),
+                        getChildChannels(serverId)
+                );
+            } else {
+                autoChannelBean = new AutoChannelData(
+                        serverId,
+                        null,
+                        false,
+                        "%VCName [%Creator]",
+                        false,
+                        new ArrayList<>()
+                );
+            }
         }
-
-        resultSet.close();
-        preparedStatement.close();
 
         autoChannelBean.getChildChannelIds()
                 .addListAddListener(list -> list.forEach(channelId -> addChildChannel(autoChannelBean.getGuildId(), channelId)))

@@ -34,8 +34,7 @@ public class DBDataLoad<T> {
     }
 
     public ArrayList<T> getArrayList(SQLFunction<ResultSet, T> function) {
-        try {
-            ResultSet resultSet = preparedStatement.getResultSet();
+        try (ResultSet resultSet = preparedStatement.getResultSet()) {
             ArrayList<T> list = new ArrayList<>();
 
             while (resultSet.next()) {
@@ -47,18 +46,20 @@ public class DBDataLoad<T> {
                 }
             }
 
-            resultSet.close();
-            preparedStatement.close();
-
             return list;
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            try {
+                preparedStatement.close();
+            } catch (SQLException throwables) {
+                MainLogger.get().error("Could not close preparedStatement", throwables);
+            }
         }
     }
 
     public <U> HashMap<U, T> getHashMap(SQLFunction<T, U> getKeyFunction, SQLFunction<ResultSet, T> function) {
-        try {
-            ResultSet resultSet = preparedStatement.getResultSet();
+        try (ResultSet resultSet = preparedStatement.getResultSet()) {
             HashMap<U, T> map = new HashMap<>();
 
             while (resultSet.next()) {
@@ -70,12 +71,15 @@ public class DBDataLoad<T> {
                 }
             }
 
-            resultSet.close();
-            preparedStatement.close();
-
             return map;
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            try {
+                preparedStatement.close();
+            } catch (SQLException throwables) {
+                MainLogger.get().error("Could not close preparedStatement", throwables);
+            }
         }
     }
 

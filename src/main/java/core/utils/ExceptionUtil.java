@@ -1,6 +1,5 @@
 package core.utils;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
@@ -61,15 +60,10 @@ public class ExceptionUtil {
 
     public static String exceptionToString(Throwable throwable) {
         StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        throwable.printStackTrace(pw);
-        String stacktrace = sw.toString();
-
-        pw.close();
-        try {
-            sw.close();
-        } catch (IOException e) {
-            MainLogger.get().error("Could not close String Writer", e);
+        String stacktrace;
+        try (PrintWriter pw = new PrintWriter(sw)) {
+            throwable.printStackTrace(pw);
+            stacktrace = sw.toString();
         }
 
         return stacktrace;

@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import mysql.interfaces.SQLConsumer;
 
-public class DBBatch {
+public class DBBatch implements AutoCloseable {
 
     private final PreparedStatement preparedStatement;
 
@@ -19,6 +19,10 @@ public class DBBatch {
 
     public void execute() throws SQLException {
         preparedStatement.executeBatch();
+    }
+
+    @Override
+    public void close() throws SQLException {
         preparedStatement.close();
     }
 

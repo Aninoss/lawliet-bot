@@ -28,24 +28,25 @@ public class ShipGraphics {
 
         Graphics2D g = GraphicsUtil.createGraphics(result);
         LocalFile localFile = new LocalFile(LocalFile.Directory.RESOURCES, "ship/pos.txt");
-        FileReader fReader = new FileReader(localFile);
-        BufferedReader reader = new BufferedReader(fReader);
 
-        String text;
-        int fsize = 0;
-        while (true) {
-            text = reader.readLine();
-            if (text == null) break;
+        int fsize;
+        try (BufferedReader reader = new BufferedReader(new FileReader(localFile))) {
+            String text;
+            fsize = 0;
+            while (true) {
+                text = reader.readLine();
+                if (text == null) break;
 
-            String[] temp = text.split(";");
-            int[] values = new int[temp.length];
-            for (int i = 0; i < temp.length; i++) {
-                values[i] = Integer.parseInt(temp[i]);
-            }
-            if (values[0] == n) {
-                g.drawImage(image1, values[1], values[2], values[3], values[3], null);
-                g.drawImage(image2, values[4], values[5], values[6], values[6], null);
-                fsize = (int) (values[7] * 1.5);
+                String[] temp = text.split(";");
+                int[] values = new int[temp.length];
+                for (int i = 0; i < temp.length; i++) {
+                    values[i] = Integer.parseInt(temp[i]);
+                }
+                if (values[0] == n) {
+                    g.drawImage(image1, values[1], values[2], values[3], values[3], null);
+                    g.drawImage(image2, values[4], values[5], values[6], values[6], null);
+                    fsize = (int) (values[7] * 1.5);
+                }
             }
         }
 
@@ -58,10 +59,11 @@ public class ShipGraphics {
         int y = (int) (image.getHeight() / 5.0 * 4.0);
         GraphicsUtil.drawStringWithBorder(g, simIterator, fontSimilarity.getStringBounds(percentage + "%", frc), mainColor, image.getWidth() / 2, y - (int) (0.252 * fsize), 4, -1);
 
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageIO.write(result, "png", os);
-        g.dispose();
-        return new ByteArrayInputStream(os.toByteArray());
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            ImageIO.write(result, "png", os);
+            g.dispose();
+            return new ByteArrayInputStream(os.toByteArray());
+        }
     }
 
 }

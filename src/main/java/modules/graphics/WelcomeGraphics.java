@@ -47,10 +47,11 @@ public class WelcomeGraphics {
                 drawAvatar(g2d, avatarImage, shadowOpacity);
                 drawTexts(g2d, welcome, member, shadowOpacity);
 
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                ImageIO.write(GraphicsUtil.makeRoundedCorner(drawImage, BASE_ROUNDED), "png", os);
-                g2d.dispose();
-                return new ByteArrayInputStream(os.toByteArray());
+                try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                    ImageIO.write(GraphicsUtil.makeRoundedCorner(drawImage, BASE_ROUNDED), "png", os);
+                    g2d.dispose();
+                    return new ByteArrayInputStream(os.toByteArray());
+                }
             } catch (IOException e) {
                 MainLogger.get().error("Exception", e);
             }

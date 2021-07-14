@@ -25,44 +25,42 @@ public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageDat
     protected WelcomeMessageData load(Long serverId) throws Exception {
         WelcomeMessageData welcomeMessageBean;
 
-        PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText FROM ServerWelcomeMessage WHERE serverId = ?;");
-        preparedStatement.setLong(1, serverId);
-        preparedStatement.execute();
+        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText FROM ServerWelcomeMessage WHERE serverId = ?;")) {
+            preparedStatement.setLong(1, serverId);
+            preparedStatement.execute();
 
-        ResultSet resultSet = preparedStatement.getResultSet();
-        if (resultSet.next()) {
-            welcomeMessageBean = new WelcomeMessageData(
-                    serverId,
-                    resultSet.getBoolean(1),
-                    resultSet.getString(2),
-                    resultSet.getString(3),
-                    resultSet.getLong(4),
-                    resultSet.getBoolean(5),
-                    resultSet.getString(6),
-                    resultSet.getLong(7),
-                    resultSet.getBoolean(8),
-                    resultSet.getString(9)
-            );
-        } else {
-            GuildData guildBean = DBGuild.getInstance().retrieve(serverId);
-            Locale locale = guildBean.getLocale();
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                welcomeMessageBean = new WelcomeMessageData(
+                        serverId,
+                        resultSet.getBoolean(1),
+                        resultSet.getString(2),
+                        resultSet.getString(3),
+                        resultSet.getLong(4),
+                        resultSet.getBoolean(5),
+                        resultSet.getString(6),
+                        resultSet.getLong(7),
+                        resultSet.getBoolean(8),
+                        resultSet.getString(9)
+                );
+            } else {
+                GuildData guildBean = DBGuild.getInstance().retrieve(serverId);
+                Locale locale = guildBean.getLocale();
 
-            welcomeMessageBean = new WelcomeMessageData(
-                    serverId,
-                    false,
-                    TextManager.getString(locale, Category.UTILITY, "welcome_standard_title"),
-                    TextManager.getString(locale, Category.UTILITY, "welcome_standard_description"),
-                    0L,
-                    false,
-                    TextManager.getString(locale, Category.UTILITY, "welcome_standard_goodbye"),
-                    0L,
-                    false,
-                    ""
-            );
+                welcomeMessageBean = new WelcomeMessageData(
+                        serverId,
+                        false,
+                        TextManager.getString(locale, Category.UTILITY, "welcome_standard_title"),
+                        TextManager.getString(locale, Category.UTILITY, "welcome_standard_description"),
+                        0L,
+                        false,
+                        TextManager.getString(locale, Category.UTILITY, "welcome_standard_goodbye"),
+                        0L,
+                        false,
+                        ""
+                );
+            }
         }
-
-        resultSet.close();
-        preparedStatement.close();
 
         return welcomeMessageBean;
     }
