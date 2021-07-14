@@ -34,7 +34,8 @@ public class DBDataLoad<T> {
     }
 
     public ArrayList<T> getArrayList(SQLFunction<ResultSet, T> function) {
-        try (ResultSet resultSet = preparedStatement.getResultSet()) {
+        try {
+            ResultSet resultSet = preparedStatement.getResultSet();
             ArrayList<T> list = new ArrayList<>();
 
             while (resultSet.next()) {

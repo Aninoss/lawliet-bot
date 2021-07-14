@@ -1,6 +1,8 @@
 package core.utils;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 import constants.Settings;
 
 public final class NSFWUtil {
@@ -18,6 +20,20 @@ public final class NSFWUtil {
             str.append(" -").append(filter.toLowerCase());
         }
         return str.toString();
+    }
+
+    public static boolean stringContainsBannedTags(String str, List<String> additionalFilter) {
+        for (String filter : Settings.NSFW_FILTERS) {
+            if (str.matches(".*(?i)\\b(?<!-)" + Pattern.quote(filter) + "\\b.*")) {
+                return true;
+            }
+        }
+        for (String filter : additionalFilter) {
+            if (str.matches(".*(?i)\\b(?<!-)" + Pattern.quote(filter) + "\\b.*")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

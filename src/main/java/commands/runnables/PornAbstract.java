@@ -12,10 +12,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
 import commands.listeners.OnAlertListener;
-import constants.Category;
-import constants.ExternalLinks;
-import constants.RegexPatterns;
-import constants.TrackerResult;
+import constants.*;
 import core.EmbedFactory;
 import core.MainLogger;
 import core.TextManager;
@@ -26,6 +23,7 @@ import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
 import modules.porn.BooruImage;
 import modules.porn.BooruImageDownloader;
+import modules.porn.IllegalBooruTagException;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -40,8 +38,8 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 public abstract class PornAbstract extends Command implements OnAlertListener {
 
     private static final BooruImageDownloader booruImageDownloader = new BooruImageDownloader();
-    
-    private static final Cache<String, ArrayList<BooruImage>> alertsCache = CacheBuilder.newBuilder()
+
+    private static final Cache<String, List<BooruImage>> alertsCache = CacheBuilder.newBuilder()
             .expireAfterWrite(9, TimeUnit.MINUTES)
             .build();
 
@@ -49,7 +47,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         super(locale, prefix);
     }
 
-    public abstract ArrayList<BooruImage> getBooruImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Exception;
+    public abstract List<BooruImage> getBooruImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws Exception;
 
     public abstract Optional<String> getNoticeOptional();
 
@@ -100,12 +98,23 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             }
         }
 
+        if (this instanceof PornPredefinedAbstract) {
+            args = "";
+        }
+
         boolean first = true;
         ArrayList<String> usedResults = new ArrayList<>();
         do {
             List<BooruImage> pornImages;
             try {
                 pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilter, args, Math.min(3, (int) amount), usedResults);
+            } catch (IllegalBooruTagException e) {
+                if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                    event.getChannel().sendMessageEmbeds(illegalTagsEmbed().build()).queue();
+                } else {
+                    event.getChannel().sendMessage(illegalTagsString()).queue();
+                }
+                return false;
             } catch (NoSuchElementException e) {
                 postApiUnavailable(event);
                 return false;
@@ -113,10 +122,14 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
             if (pornImages.size() == 0) {
                 if (first) {
-                    if (this instanceof PornPredefinedAbstract || !checkServiceAvailable()) {
+                    if (!checkServiceAvailable()) {
                         postApiUnavailable(event);
                     } else {
-                        postNoResults(event, args);
+                        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                            event.getChannel().sendMessageEmbeds(noResultsEmbed(args).build()).queue();
+                        } else {
+                            event.getChannel().sendMessage(noResultsString(args)).queue();
+                        }
                     }
                     return false;
                 } else {
@@ -159,25 +172,41 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     private void postApiUnavailable(GuildMessageReceivedEvent event) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getApiDownEmbed(getLocale(), getDomain()).build())
-                    .queue();
+            event.getChannel().sendMessageEmbeds(apiUnavailableEmbed().build()).queue();
         } else {
-            event.getChannel().sendMessage("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "api_down", getDomain()))
-                    .queue();
+            event.getChannel().sendMessage(apiUnavailableString()).queue();
         }
     }
 
-    private void postNoResults(GuildMessageReceivedEvent event, String args) {
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getNoResultsString(getLocale(), args));
-            event.getChannel().sendMessageEmbeds(eb.build())
-                    .queue();
-        } else {
-            event.getChannel().sendMessage("❌ " + TextManager.getNoResultsString(getLocale(), args))
-                    .queue();
+    private EmbedBuilder apiUnavailableEmbed() {
+        return EmbedFactory.getApiDownEmbed(getLocale(), getDomain());
+    }
+
+    private String apiUnavailableString() {
+        return "❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "api_down", getDomain());
+    }
+
+    private EmbedBuilder noResultsEmbed(String args) {
+        EmbedBuilder eb = EmbedFactory.getEmbedError(this)
+                .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"));
+        if (args.length() > 0) {
+            eb.setDescription(TextManager.getNoResultsString(getLocale(), args));
         }
+        return eb;
+    }
+
+    private String noResultsString(String args) {
+        return "❌ " + TextManager.getNoResultsString(getLocale(), args);
+    }
+
+    private EmbedBuilder illegalTagsEmbed() {
+        return EmbedFactory.getEmbedError(this)
+                .setTitle(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag"))
+                .setDescription(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc"));
+    }
+
+    private String illegalTagsString() {
+        return "❌ " + TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc");
     }
 
     @Override
@@ -185,17 +214,26 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         TextChannel channel = slot.getTextChannel().get();
 
         ArrayList<String> nsfwFilter = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(slot.getGuildId()).getKeywords());
-        ArrayList<BooruImage> pornImages;
-        pornImages = alertsCache.get(
-                getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFilter),
-                () -> getBooruImages(0L, nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>())
-        );
+        List<BooruImage> pornImages;
+        try {
+            pornImages = alertsCache.get(
+                    getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFilter),
+                    () -> getBooruImages(0L, nsfwFilter, slot.getCommandKey(), 1, new ArrayList<>())
+            );
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof IllegalBooruTagException) {
+                EmbedBuilder eb = illegalTagsEmbed();
+                EmbedUtil.addTrackerRemoveLog(eb, getLocale());
+                channel.sendMessageEmbeds(eb.build()).complete();
+                return TrackerResult.STOP_AND_DELETE;
+            } else {
+                throw e;
+            }
+        }
 
         if (pornImages.size() == 0) {
-            if (slot.getArgs().isEmpty() && this instanceof PornSearchAbstract) {
-                EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                        .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                        .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
+            if (slot.getArgs().isEmpty()) {
+                EmbedBuilder eb = noResultsEmbed(slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessageEmbeds(eb.build()).complete();
                 return TrackerResult.STOP_AND_DELETE;
@@ -233,7 +271,11 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         return Optional.empty();
     }
 
-    protected ArrayList<BooruImage> downloadPorn(long guildId, ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly, boolean explicit, ArrayList<String> usedResults) {
+    protected List<BooruImage> downloadPorn(long guildId, ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly, boolean explicit, ArrayList<String> usedResults) throws IllegalBooruTagException {
+        if (NSFWUtil.stringContainsBannedTags(search + searchAdd, nsfwFilter)) {
+            throw new IllegalBooruTagException();
+        }
+
         ArrayList<CompletableFuture<Optional<BooruImage>>> futures = new ArrayList<>();
         ArrayList<BooruImage> pornImages = new ArrayList<>();
 

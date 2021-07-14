@@ -21,7 +21,8 @@ public class DBKeySetLoad<T> {
 
     public ArrayList<T> get(SQLFunction<ResultSet, T> function) {
         ArrayList<T> list = new ArrayList<>();
-        try (ResultSet resultSet = statement.getResultSet()) {
+        try {
+            ResultSet resultSet = statement.getResultSet();
             while (resultSet.next()) {
                 try {
                     list.add(function.apply(resultSet));

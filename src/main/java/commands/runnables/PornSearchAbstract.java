@@ -1,12 +1,14 @@
 package commands.runnables;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import constants.Category;
 import core.TextManager;
 import core.utils.NSFWUtil;
 import modules.porn.BooruImage;
+import modules.porn.IllegalBooruTagException;
 
 public abstract class PornSearchAbstract extends PornAbstract {
 
@@ -24,7 +26,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
     }
 
     @Override
-    public ArrayList<BooruImage> getBooruImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) {
+    public List<BooruImage> getBooruImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws IllegalBooruTagException {
         String searchAdd = NSFWUtil.getNSFWTagRemoveList(nsfwFilter);
 
         String domain = getDomain();
