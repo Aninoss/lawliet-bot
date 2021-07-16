@@ -1,5 +1,6 @@
 package commands.runnables.splatoon2category;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Locale;
@@ -44,7 +45,6 @@ public class SplatnetCommand extends Command implements OnAlertListener {
     }
 
     private EmbedBuilder getEmbed(boolean alert) throws ExecutionException, InterruptedException {
-        int datesShown = 2;
         String language = getLocale().getLanguage().split("_")[0].toLowerCase();
 
         String[] urls = new String[] {
@@ -60,9 +60,8 @@ public class SplatnetCommand extends Command implements OnAlertListener {
             for (int i = 0; i < netData.length(); i++) {
                 JSONObject data = netData.getJSONObject(i);
                 Instant endTime = new Date(data.getLong("end_time") * 1000L).toInstant();
-                if (endTime.isBefore(Instant.now())) {
-                    Thread.sleep(5000);
-                    return getEmbed(alert);
+                if (alert && endTime.isBefore(Instant.now())) {
+                    return null;
                 }
             }
         }
@@ -100,10 +99,15 @@ public class SplatnetCommand extends Command implements OnAlertListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
-        slot.setMessageId(slot.sendMessage(true, getEmbed(true).build()).get());
-        slot.setNextRequest(trackingTime);
-
-        return TrackerResult.CONTINUE_AND_SAVE;
+        EmbedBuilder eb = getEmbed(true);
+        if (eb != null) {
+            slot.sendMessage(true, eb.build());
+            slot.setNextRequest(trackingTime);
+            return TrackerResult.CONTINUE_AND_SAVE;
+        } else {
+            slot.setNextRequest(Instant.now().plus(Duration.ofMinutes(5)));
+            return TrackerResult.CONTINUE;
+        }
     }
 
     @Override

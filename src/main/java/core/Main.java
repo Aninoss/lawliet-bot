@@ -48,7 +48,7 @@ public class Main {
             }
         } catch (Throwable e) {
             MainLogger.get().error("EXIT - Error on startup", e);
-            System.exit(1);
+            System.exit(4);
         }
     }
 

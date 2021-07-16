@@ -1,5 +1,6 @@
 package commands.runnables.splatoon2category;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Locale;
@@ -62,9 +63,8 @@ public class SalmonCommand extends Command implements OnAlertListener {
             endTime[i] = new Date(salmonData.getJSONObject(i).getInt("end_time") * 1000L).toInstant();
         }
 
-        if (Instant.now().isAfter(endTime[0])) {
-            Thread.sleep(5000);
-            return getEmbed(alert);
+        if (alert && Instant.now().isAfter(endTime[0])) {
+            return null;
         }
 
         trackingTime = startTime[0];
@@ -97,10 +97,15 @@ public class SalmonCommand extends Command implements OnAlertListener {
 
     @Override
     public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
-        slot.setMessageId(slot.sendMessage(true, getEmbed(true).build()).get());
-        slot.setNextRequest(trackingTime);
-
-        return TrackerResult.CONTINUE_AND_SAVE;
+        EmbedBuilder eb = getEmbed(true);
+        if (eb != null) {
+            slot.sendMessage(true, eb.build());
+            slot.setNextRequest(trackingTime);
+            return TrackerResult.CONTINUE_AND_SAVE;
+        } else {
+            slot.setNextRequest(Instant.now().plus(Duration.ofMinutes(5)));
+            return TrackerResult.CONTINUE;
+        }
     }
 
     @Override

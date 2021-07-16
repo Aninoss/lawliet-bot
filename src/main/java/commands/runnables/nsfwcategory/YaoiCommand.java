@@ -20,7 +20,7 @@ public class YaoiCommand extends GelbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated yaoi -trap -shemale";
+        return "animated yaoi -trap -shemale -kirby";
     }
 
     @Override

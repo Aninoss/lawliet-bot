@@ -17,8 +17,7 @@ public class Program {
     }
 
     public static void onStop() {
-        MainLogger.get().info(Console.getInstance().getMemory());
-        MainLogger.get().info("### STOPPING BOT ###");
+        MainLogger.get().info("### STOPPING BOT ###\n{}\nThreads: {}", Console.getInstance().getMemory(), Thread.getAllStackTraces().size());
         stopped = true;
         ShardManager.getInstance().stop();
     }

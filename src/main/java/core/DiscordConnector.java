@@ -67,7 +67,7 @@ public class DiscordConnector {
                             .build();
                 } catch (LoginException e) {
                     MainLogger.get().error("EXIT - Invalid token", e);
-                    System.exit(1);
+                    System.exit(2);
                 }
             }
         }, "Shard-Starter").start();
@@ -81,7 +81,7 @@ public class DiscordConnector {
                     .build();
         } catch (LoginException e) {
             MainLogger.get().error("EXIT - Invalid token", e);
-            System.exit(1);
+            System.exit(3);
         }
     }
 

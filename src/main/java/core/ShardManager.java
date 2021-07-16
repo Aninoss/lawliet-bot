@@ -72,7 +72,7 @@ public class ShardManager {
             MainScheduler.getInstance().schedule(2, ChronoUnit.MINUTES, "bootup_check", () -> {
                 if (!ready) {
                     MainLogger.get().error("EXIT - Could not boot up");
-                    System.exit(1);
+                    System.exit(5);
                 }
             });
         }
@@ -81,7 +81,7 @@ public class ShardManager {
     public void increaseGlobalErrorCounter() {
         if (++globalErrors >= totalShards) {
             MainLogger.get().error("EXIT - Too many shard errors!");
-            System.exit(1);
+            System.exit(6);
         }
     }
 
