@@ -48,11 +48,14 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
         }
 
         final ThrowableProxy throwableProxyImpl = (ThrowableProxy) throwableProxy;
-        if (!shouldBeVisible(throwableProxyImpl.getThrowable().toString())) {
-            return FilterReply.DENY;
+        String message = throwableProxyImpl.getThrowable().toString();
+        if (message.contains("java.lang.OutOfMemoryError")) {
+            System.err.println("EXIT - Out of Memory");
+            System.exit(1);
+            return FilterReply.NEUTRAL;
         }
 
-        return FilterReply.NEUTRAL;
+        return shouldBeVisible(message) ? FilterReply.NEUTRAL : FilterReply.DENY;
     }
 
     public boolean shouldBeVisible(String message) {
