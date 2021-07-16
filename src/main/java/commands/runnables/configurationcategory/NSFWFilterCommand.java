@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 )
 public class NSFWFilterCommand extends NavigationAbstract {
 
-    private static final int MAX_FILTERS = 18;
+    private static final int MAX_FILTERS = 50;
     private final static int MAX_LENGTH = 50;
 
     private CustomObservableList<String> keywords;
@@ -136,7 +136,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mkeywords"), StringUtil.escapeMarkdown(new ListGen<String>().getList(keywords, getLocale(), str -> str)), true);
+                        .addField(getString("state0_mkeywords"), StringUtil.shortenString(StringUtil.escapeMarkdown(new ListGen<String>().getList(keywords, getLocale(), str -> str)), 1024), true);
 
             case 1:
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
