@@ -53,8 +53,8 @@ public class SalmonCommand extends Command implements OnAlertListener {
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONArray salmonData = new JSONObject(HttpCache.getData(urls[0]).get().getBody()).getJSONArray("details");
-        JSONObject languageData = new JSONObject(HttpCache.getData(urls[1]).get().getBody());
+        JSONArray salmonData = new JSONObject(HttpCache.get(urls[0]).get().getBody()).getJSONArray("details");
+        JSONObject languageData = new JSONObject(HttpCache.get(urls[1]).get().getBody());
 
         Instant[] startTime = new Instant[datesShown];
         Instant[] endTime = new Instant[datesShown];

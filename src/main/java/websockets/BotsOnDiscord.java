@@ -13,7 +13,7 @@ public class BotsOnDiscord {
         jsonObject.put("guildCount", serverCount);
 
         HttpHeader httpHeader = new HttpHeader("Authorization", System.getenv("BOTSONDISCORD_TOKEN"));
-        HttpRequest.getData("https://bots.ondiscord.xyz/bot-api/bots/" + ShardManager.getInstance().getSelfId() + "/guilds", "application/json", jsonObject.toString(), httpHeader)
+        HttpRequest.post("https://bots.ondiscord.xyz/bot-api/bots/" + ShardManager.getInstance().getSelfId() + "/guilds", "application/json", jsonObject.toString(), httpHeader)
                 .exceptionally(ExceptionLogger.get());
     }
 

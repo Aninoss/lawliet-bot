@@ -10,7 +10,7 @@ import org.json.JSONObject;
 public class OsuAccountDownloader {
 
     public static CompletableFuture<Optional<OsuAccount>> download(String username, String gameMode) {
-        return HttpCache.getData("https://osu.ppy.sh/users/" + InternetUtil.escapeForURL(username) + "/" + gameMode)
+        return HttpCache.get("https://osu.ppy.sh/users/" + InternetUtil.escapeForURL(username) + "/" + gameMode)
                 .thenApply(res -> {
                     String content = res.getBody();
                     if (content == null) {

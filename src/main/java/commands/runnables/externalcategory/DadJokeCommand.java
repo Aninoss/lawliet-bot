@@ -37,7 +37,7 @@ public class DadJokeCommand extends Command {
             joke = jokeList.get(n);
         } else {
             addLoadingReactionInstantly();
-            joke = new JSONObject(HttpRequest.getData("https://icanhazdadjoke.com/slack").get().getBody())
+            joke = new JSONObject(HttpRequest.get("https://icanhazdadjoke.com/slack").get().getBody())
                     .getJSONArray("attachments")
                     .getJSONObject(0)
                     .getString("text");

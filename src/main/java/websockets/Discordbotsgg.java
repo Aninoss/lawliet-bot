@@ -13,7 +13,7 @@ public class Discordbotsgg {
         jsonObject.put("guildCount", serverCount);
 
         HttpHeader httpHeader = new HttpHeader("Authorization", System.getenv("DISCORDBOTSGG_TOKEN"));
-        HttpRequest.getData(String.format("https://discord.bots.gg/api/v1/bots/%d/stats", ShardManager.getInstance().getSelfId()), "application/json", jsonObject.toString(), httpHeader)
+        HttpRequest.post(String.format("https://discord.bots.gg/api/v1/bots/%d/stats", ShardManager.getInstance().getSelfId()), "application/json", jsonObject.toString(), httpHeader)
                 .exceptionally(ExceptionLogger.get());
     }
 

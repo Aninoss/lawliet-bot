@@ -59,7 +59,7 @@ public class QuizCommand extends CasinoAbstract {
         String dataString, diffString;
         JSONObject data;
         addLoadingReactionInstantly();
-        dataString = HttpRequest.getData(url).get().getBody();
+        dataString = HttpRequest.get(url).get().getBody();
         data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
         diffString = data.getString("difficulty");
 

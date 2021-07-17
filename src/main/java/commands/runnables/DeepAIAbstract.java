@@ -68,7 +68,7 @@ public abstract class DeepAIAbstract extends Command {
 
         addLoadingReactionInstantly();
         HttpHeader header = new HttpHeader("Api-Key", System.getenv("DEEPAI_TOKEN"));
-        String data = HttpRequest.getData(getUrl(), "application/x-www-form-urlencoded", query, header).get().getBody();
+        String data = HttpRequest.post(getUrl(), "application/x-www-form-urlencoded", query, header).get().getBody();
         JSONObject jsonObject = new JSONObject(data);
         return jsonObject.getString("output_url");
     }

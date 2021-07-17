@@ -101,7 +101,7 @@ public class TwitchDownloader {
                 new HttpHeader("Client-ID", System.getenv("TWITCH_CLIENTID"))
         };
 
-        return Optional.ofNullable(HttpRequest.getData(url, properties).get().getBody())
+        return Optional.ofNullable(HttpRequest.get(url, properties).get().getBody())
                 .map(JSONObject::new).orElse(new JSONObject());
     }
 

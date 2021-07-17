@@ -10,13 +10,12 @@ import org.jetbrains.annotations.NotNull;
 public class HttpRequest {
 
     private static final String USER_AGENT = String.format("Lawliet Discord Bot v%s made by Aninoss", BotUtil.getCurrentVersion());
-    private static final OkHttpClient client = new OkHttpClient();
 
-    public static CompletableFuture<HttpResponse> getData(String url, HttpHeader... headers) {
-        return getData(url, null, null, headers);
+    public static CompletableFuture<HttpResponse> get(String url, HttpHeader... headers) {
+        return post(url, null, null, headers);
     }
 
-    public static CompletableFuture<HttpResponse> getData(String url, String mediaType, String body, HttpHeader... headers) {
+    public static CompletableFuture<HttpResponse> post(String url, String mediaType, String body, HttpHeader... headers) {
         Request.Builder requestBuilder = new Request.Builder()
                 .url(url)
                 .header("User-Agent", USER_AGENT);
@@ -29,7 +28,7 @@ public class HttpRequest {
         Request request = requestBuilder.build();
 
         CompletableFuture<HttpResponse> future = new CompletableFuture<>();
-        client.newCall(request).enqueue(new Callback() {
+        HttpClient.getInstance().newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 try(ResponseBody body = response.body()) {

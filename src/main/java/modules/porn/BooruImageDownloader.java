@@ -1,58 +1,58 @@
 package modules.porn;
 
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import constants.Settings;
-import core.GlobalThreadPool;
 import core.restclient.RestClient;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class BooruImageDownloader {
-
-    private final RestClient restClient;
-
-    public BooruImageDownloader() {
-        restClient = RestClient.WEBCACHE;
-    }
 
     public CompletableFuture<Optional<BooruImage>> getPicture(long guildId, String domain, String searchTerm, String searchTermExtra,
                                                               String imageTemplate, boolean animatedOnly, boolean canBeVideo,
                                                               boolean explicit, List<String> filters, List<String> skippedResults
     ) throws ExecutionException {
-        ArrayList<String> newFilters = new ArrayList<>(filters);
-        newFilters.addAll(Arrays.asList(Settings.NSFW_FILTERS));
+        JSONArray filtersJson = new JSONArray();
+        Arrays.asList(Settings.NSFW_FILTERS).forEach(filtersJson::put);
+        filters.forEach(filtersJson::put);
 
-        BooruRequest request = new BooruRequest()
-                .setGuildId(guildId)
-                .setDomain(domain)
-                .setSearchTerm(searchTerm)
-                .setSearchTermExtra(searchTermExtra)
-                .setImageTemplate(imageTemplate)
-                .setAnimatedOnly(animatedOnly)
-                .setCanBeVideo(canBeVideo)
-                .setExplicit(explicit)
-                .setFilters(newFilters)
-                .setSkippedResults(skippedResults);
+        JSONArray skippedResultsJson = new JSONArray();
+        skippedResults.forEach(skippedResultsJson::put);
 
-        CompletableFuture<Optional<BooruImage>> future = new CompletableFuture<>();
-        GlobalThreadPool.getExecutorService().submit(() -> {
-            Invocation.Builder invocationBuilder = restClient.request("booru", MediaType.APPLICATION_JSON);
-            try (Response response = invocationBuilder.post(Entity.entity(request, MediaType.APPLICATION_JSON))) {
-                BooruImage booruImage = response.readEntity(BooruImage.class);
-                future.complete(Optional.ofNullable(booruImage));
-            } catch (Throwable e) {
-                future.completeExceptionally(e);
-            }
-        });
+        JSONObject json = new JSONObject();
+        json.put("guildId", guildId);
+        json.put("domain", domain);
+        json.put("searchTerm", searchTerm);
+        json.put("searchTermExtra", searchTermExtra);
+        json.put("imageTemplate", imageTemplate);
+        json.put("animatedOnly", animatedOnly);
+        json.put("canBeVideo", canBeVideo);
+        json.put("explicit", explicit);
+        json.put("filters", filtersJson);
+        json.put("skippedResults", skippedResultsJson);
 
-        return future;
+        return RestClient.WEBCACHE.post("booru", "application/json", json.toString())
+                .thenApply(response -> {
+                    String content = response.getBody();
+                    if (content.length() > 0 && content.startsWith("{")) {
+                        JSONObject responseJson = new JSONObject(content);
+                        BooruImage booruImage = new BooruImage()
+                                .setScore(responseJson.getInt("score"))
+                                .setImageUrl(responseJson.getString("imageUrl"))
+                                .setPageUrl(responseJson.getString("pageUrl"))
+                                .setVideo(responseJson.getBoolean("video"))
+                                .setInstant(Instant.parse(responseJson.getString("instant")));
+
+                        return Optional.of(booruImage);
+                    } else {
+                        return Optional.empty();
+                    }
+                });
     }
 
 }

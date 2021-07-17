@@ -13,7 +13,7 @@ public class Botsfordiscord {
         jsonObject.put("server_count", String.valueOf(serverCount));
 
         HttpHeader httpHeader =  new HttpHeader("Authorization", System.getenv("BOTSFORDISCORD_TOKEN"));
-        HttpRequest.getData("https://botsfordiscord.com/api/bot/" + ShardManager.getInstance().getSelfId(), "application/json", jsonObject.toString(), httpHeader)
+        HttpRequest.post("https://botsfordiscord.com/api/bot/" + ShardManager.getInstance().getSelfId(), "application/json", jsonObject.toString(), httpHeader)
                 .exceptionally(ExceptionLogger.get());
     }
 

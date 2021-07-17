@@ -44,26 +44,6 @@ dependencies {
     /* logging */
     implementation 'ch.qos.logback:logback-classic:1.2.3'
     implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.13.1'
-
-    /* rest api*/
-    implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.8.+'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.8.+'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.+'
-    implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.8.+'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jaxrs:2.8.+'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.8.+'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.+'
-
-    implementation 'javax.xml.bind:jaxb-api:2.3.1'
-    implementation 'jakarta.xml.bind:jakarta.xml.bind-api:3.0.0'
-    implementation 'com.sun.xml.bind:jaxb-impl:3.0.0'
-    implementation 'org.glassfish.jersey.media:jersey-media-moxy:3.0.0'
-
-    implementation 'org.glassfish.grizzly:grizzly-http-server:3.0.0'
-    implementation 'org.glassfish.jersey.containers:jersey-container-grizzly2-http:3.0.0'
-    implementation 'org.glassfish.jersey.containers:jersey-container-grizzly2-servlet:3.0.0'
-    implementation 'org.glassfish.jersey.inject:jersey-hk2:3.0.0'
-    implementation 'org.glassfish.hk2:hk2-metadata-generator:3.0.0'
 }
 
 application {

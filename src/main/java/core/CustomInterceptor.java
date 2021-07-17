@@ -2,21 +2,14 @@ package core;
 
 import java.io.IOException;
 import constants.RegexPatterns;
+import core.internet.HttpResponse;
 import core.restclient.RestClient;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.core.MediaType;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 public class CustomInterceptor implements Interceptor {
-
-    private final RestClient restClient;
-
-    public CustomInterceptor() {
-        restClient = RestClient.RATELIMITER;
-    }
 
     @Override
     public @NotNull Response intercept(Chain chain) throws IOException {
@@ -37,9 +30,9 @@ public class CustomInterceptor implements Interceptor {
 
     private synchronized void requestQuota() throws InterruptedException {
         if (Program.isProductionMode()) {
-            Invocation.Builder invocationBuilder = restClient.request("relative", MediaType.TEXT_PLAIN);
-            try (jakarta.ws.rs.core.Response response = invocationBuilder.get()) {
-                int sleepTimeMillis = response.readEntity(Integer.class);
+            try {
+                HttpResponse httpResponse = RestClient.RATELIMITER.get("relative").get();
+                int sleepTimeMillis = Integer.parseInt(httpResponse.getBody());
                 if (sleepTimeMillis > 0) {
                     Thread.sleep(sleepTimeMillis);
                 }

@@ -31,13 +31,10 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemove
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.internal.requests.Route;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
 
 public class DiscordEventAdapter extends ListenerAdapter {
-
-    private final static Route INTERACTION_CALLBACK_ROUTE = Route.post("https://discord.com/api/v8/interactions/{interaction_id}/{interaction_token}/callback");
 
     private final HashMap<Class<?>, ArrayList<DiscordEventAbstract>> listenerMap;
 

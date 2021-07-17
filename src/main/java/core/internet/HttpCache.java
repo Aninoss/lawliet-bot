@@ -1,38 +1,29 @@
 package core.internet;
 
 import java.util.concurrent.CompletableFuture;
-import core.GlobalThreadPool;
 import core.MainLogger;
 import core.restclient.RestClient;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.Invocation;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import org.json.JSONObject;
 
 public class HttpCache {
 
-    private static final RestClient restClient = RestClient.WEBCACHE;
-
-    public static CompletableFuture<HttpResponse> getData(String url) {
-        CompletableFuture<HttpResponse> future = new CompletableFuture<>();
-        GlobalThreadPool.getExecutorService().submit(() -> {
-            try {
-                Invocation.Builder invocationBuilder = restClient.request("webcache", MediaType.APPLICATION_JSON);
-                try(Response response = invocationBuilder.post(Entity.text(url))) {
-                    HttpResponse httpResponse = response.readEntity(HttpResponse.class);
-                    future.complete(httpResponse);
+    public static CompletableFuture<HttpResponse> get(String url) {
+        return RestClient.WEBCACHE.post("webcache", "text/plain", url)
+                .thenApply(response -> {
+                    JSONObject json = new JSONObject(response.getBody());
+                    HttpResponse httpResponse = new HttpResponse()
+                            .setCode(json.getInt("code"));
+                    if (json.has("body")) {
+                        httpResponse.setBody(json.getString("body"));
+                    }
 
                     int code = httpResponse.getCode();
                     if (code / 100 != 2) {
                         MainLogger.get().warn("Error code {} for URL {}", code, url);
                     }
-                }
-            } catch (Throwable e) {
-                future.completeExceptionally(e);
-            }
-        });
 
-        return future;
+                    return httpResponse;
+                });
     }
 
 }

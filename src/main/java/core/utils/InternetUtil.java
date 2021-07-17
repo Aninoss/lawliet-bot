@@ -45,7 +45,7 @@ public final class InternetUtil {
     }
 
     public static CompletableFuture<String> retrieveThumbnailPreview(String url) {
-        return HttpCache.getData(url)
+        return HttpCache.get(url)
                 .thenApply(data -> {
                     String content = data.getBody();
                     return StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\"")[0];
