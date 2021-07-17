@@ -33,7 +33,7 @@ public class DadJokeCommand extends Command {
         if (Language.from(getLocale()) == Language.DE) {
             /* taken from https://github.com/derphilipp/Flachwitze */
             List<String> jokeList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "dadjokes_" + getLocale().getDisplayName() + ".txt"));
-            int n = RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), jokeList.size());
+            int n = RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), jokeList.size()).get();
             joke = jokeList.get(n);
         } else {
             addLoadingReactionInstantly();

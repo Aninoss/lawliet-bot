@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
@@ -30,14 +31,14 @@ public class TopicCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException, ExecutionException, InterruptedException {
         event.getChannel().sendMessageEmbeds(getEmbed(event.getChannel()).build()).queue();
         return true;
     }
 
-    private EmbedBuilder getEmbed(TextChannel channel) throws IOException {
+    private EmbedBuilder getEmbed(TextChannel channel) throws IOException, ExecutionException, InterruptedException {
         List<String> topicList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "topics_" + getLocale().getDisplayName() + ".txt"));
-        int n = RandomPicker.getInstance().pick(getTrigger(), channel.getGuild().getIdLong(), topicList.size());
+        int n = RandomPicker.pick(getTrigger(), channel.getGuild().getIdLong(), topicList.size()).get();
         String topic = topicList.get(n);
 
         return EmbedFactory.getEmbedDefault(this, topic);

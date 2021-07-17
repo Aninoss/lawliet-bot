@@ -1,46 +1,19 @@
 package core;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import java.util.concurrent.CompletableFuture;
+import core.restclient.RestClient;
+import org.json.JSONObject;
 
 public class RandomPicker {
 
-    private static final RandomPicker ourInstance = new RandomPicker();
+    public static CompletableFuture<Integer> pick(String tag, long guildId, int size) {
+        JSONObject json = new JSONObject();
+        json.put("tag", tag);
+        json.put("guildId", guildId);
+        json.put("size", size);
 
-    public static RandomPicker getInstance() {
-        return ourInstance;
-    }
-
-    private RandomPicker() {
-    }
-
-    private final HashMap<String, Cache<Long, ArrayList<Integer>>> picks = new HashMap<>();
-
-    public synchronized int pick(String tag, long serverId, int size) {
-        Cache<Long, ArrayList<Integer>> tagPicks = picks.computeIfAbsent(tag, k -> generateCache());
-        ArrayList<Integer> serverPicks = tagPicks.asMap().computeIfAbsent(serverId, k -> new ArrayList<>());
-
-        Random n = new Random();
-        int i;
-        do {
-            i = n.nextInt(size);
-        } while (serverPicks.contains(i));
-        serverPicks.add(i);
-        if (serverPicks.size() == size) {
-            serverPicks.remove(0);
-        }
-
-        return i;
-    }
-
-    private Cache<Long, ArrayList<Integer>> generateCache() {
-        return CacheBuilder.newBuilder()
-                .expireAfterAccess(Duration.ofMinutes(30))
-                .build();
+        return RestClient.WEBCACHE.post("random", "application/json", json.toString())
+                .thenApply(httpResponse -> Integer.parseInt(httpResponse.getBody()));
     }
 
 }

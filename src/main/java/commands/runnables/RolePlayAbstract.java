@@ -1,6 +1,7 @@
 package commands.runnables;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import core.EmbedFactory;
 import core.RandomPicker;
@@ -24,7 +25,7 @@ public abstract class RolePlayAbstract extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         if (interactive) {
             return onTriggerInteractive(event, args);
         } else {
@@ -36,7 +37,7 @@ public abstract class RolePlayAbstract extends Command {
         return interactive;
     }
 
-    public boolean onTriggerInteractive(GuildMessageReceivedEvent event, String args) {
+    public boolean onTriggerInteractive(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         Message message = event.getMessage();
         Mention mention = MentionUtil.getMentionedString(getLocale(), message, args, event.getMember());
         boolean mentionPresent = !mention.getMentionText().isEmpty();
@@ -60,7 +61,7 @@ public abstract class RolePlayAbstract extends Command {
             quote = "\n\n> " + args.replace("\n", "\n> ");
         }
 
-        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), gifs.length)];
+        String gifUrl = gifs[RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), gifs.length).get()];
         EmbedBuilder eb;
         if (mentionPresent) {
             eb = EmbedFactory.getEmbedDefault(this, getString("template", mention.isMultiple(), mention.getMentionText(), "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**") + quote)
@@ -74,8 +75,8 @@ public abstract class RolePlayAbstract extends Command {
         return true;
     }
 
-    public boolean onTriggerNonInteractive(GuildMessageReceivedEvent event, String args) {
-        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), gifs.length)];
+    public boolean onTriggerNonInteractive(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+        String gifUrl = gifs[RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), gifs.length).get()];
 
         String quote = "";
         if (args.length() > 0) {

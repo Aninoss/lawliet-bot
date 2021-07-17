@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
@@ -32,7 +33,7 @@ public class ShipCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException, ExecutionException, InterruptedException {
         Message message = event.getMessage();
         ArrayList<Member> list = new ArrayList<>(MentionUtil.getMembers(message, args).getList());
         if (list.size() == 1 && list.get(0).getIdLong() != event.getMember().getIdLong()) {
@@ -57,7 +58,7 @@ public class ShipCommand extends Command {
             percentage = 100;
         }
 
-        int n = RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), 7);
+        int n = RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), 7).get();
         if (event.getGuild().getIdLong() == 580048842020487180L) n = 7;
 
         addLoadingReactionInstantly();

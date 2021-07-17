@@ -1,6 +1,7 @@
 package commands.runnables.interactionscategory;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
@@ -33,7 +34,7 @@ public class CelebrateCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         Member member0 = event.getMember();
         Mention mention = MentionUtil.getMentionedString(getLocale(), event.getMessage(), args, null);
 
@@ -46,7 +47,7 @@ public class CelebrateCommand extends Command {
         return true;
     }
 
-    private void mentionUsed(GuildMessageReceivedEvent event, String args, Member author, String mention) {
+    private void mentionUsed(GuildMessageReceivedEvent event, String args, Member author, String mention) throws ExecutionException, InterruptedException {
         String text;
         if (args.equalsIgnoreCase("with") || args.equals("mit")) {
             text = getString("template_mention_with", author.getEffectiveName(), mention);
@@ -60,7 +61,7 @@ public class CelebrateCommand extends Command {
         send(event, text);
     }
 
-    private void mentionBlank(GuildMessageReceivedEvent event, String args, Member author) {
+    private void mentionBlank(GuildMessageReceivedEvent event, String args, Member author) throws ExecutionException, InterruptedException {
         String text;
         if (args.isEmpty()) {
             text = getString("template_nomention_notext", author.getEffectiveName());
@@ -70,9 +71,9 @@ public class CelebrateCommand extends Command {
         send(event, text);
     }
 
-    private void send(GuildMessageReceivedEvent event, String text) {
+    private void send(GuildMessageReceivedEvent event, String text) throws ExecutionException, InterruptedException {
         String[] gifs = getGifs();
-        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger(), event.getGuild().getIdLong(), gifs.length)];
+        String gifUrl = gifs[RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), gifs.length).get()];
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, text)
                 .setImage(gifUrl);

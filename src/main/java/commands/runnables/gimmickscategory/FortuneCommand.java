@@ -1,6 +1,7 @@
 package commands.runnables.gimmickscategory;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Emojis;
@@ -25,7 +26,7 @@ public class FortuneCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         Message message = event.getMessage();
         if (args.length() > 0) {
             event.getChannel().sendMessageEmbeds(getEmbed(message, args).build()).queue();
@@ -39,9 +40,9 @@ public class FortuneCommand extends Command {
         }
     }
 
-    private EmbedBuilder getEmbed(Message message, String question) {
+    private EmbedBuilder getEmbed(Message message, String question) throws ExecutionException, InterruptedException {
         question = StringUtil.shortenString(question, 1024);
-        int n = RandomPicker.getInstance().pick(getTrigger(), message.getGuild().getIdLong(), 27);
+        int n = RandomPicker.pick(getTrigger(), message.getGuild().getIdLong(), 27).get();
         String answerRaw = getString("answer_" + n);
 
         String answer = answerRaw;

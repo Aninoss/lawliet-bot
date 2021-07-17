@@ -2,6 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.AssetIds;
@@ -44,7 +45,7 @@ public class RosesCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         Guild guild = event.getGuild();
         Member user0 = event.getMember();
 
@@ -74,7 +75,7 @@ public class RosesCommand extends Command {
         return true;
     }
 
-    private int pickRosesIndex(String args) {
+    private int pickRosesIndex(String args) throws ExecutionException, InterruptedException {
         for (int i = 0; i < ROSE_DATA_ARRAY.length; i++) {
             RoseData roseData = ROSE_DATA_ARRAY[i];
             if (args.toLowerCase().contains(roseData.colorGerman) || args.toLowerCase().contains(roseData.colorEnglish)) {
@@ -82,7 +83,7 @@ public class RosesCommand extends Command {
             }
         }
 
-        return RandomPicker.getInstance().pick(getTrigger(), 0L, ROSE_DATA_ARRAY.length);
+        return RandomPicker.pick(getTrigger(), 0L, ROSE_DATA_ARRAY.length).get();
     }
 
     private String getGifForIndex(int i, boolean himToHer) {

@@ -2,6 +2,7 @@ package commands.runnables.interactionscategory;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.AssetIds;
@@ -42,7 +43,7 @@ public class NibbleCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         Guild guild = event.getGuild();
         Member user0 = event.getMember();
 
@@ -69,7 +70,7 @@ public class NibbleCommand extends Command {
 
         boolean chooseEarGif = text.toLowerCase().contains("ohr") || text.toLowerCase().contains("ear");
         String[] gifs = chooseEarGif ? getGifsEar() : getGifs();
-        String gifUrl = gifs[RandomPicker.getInstance().pick(getTrigger() + chooseEarGif, event.getGuild().getIdLong(), gifs.length)];
+        String gifUrl = gifs[RandomPicker.pick(getTrigger() + chooseEarGif, event.getGuild().getIdLong(), gifs.length).get()];
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", user0.getEffectiveName(), user1.getEffectiveName(), text))
                 .setImage(gifUrl);
