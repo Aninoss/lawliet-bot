@@ -1,7 +1,5 @@
 package mysql.modules.commandusages;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import mysql.DBIntervalMapCache;
 import mysql.DBMain;
 
@@ -19,27 +17,23 @@ public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesDat
 
     @Override
     protected CommandUsagesData load(String command) throws Exception {
-        CommandUsagesData commandUsagesData;
-
-        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT usages FROM CommandUsages WHERE command = ?;")) {
-            preparedStatement.setString(1, command);
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            if (resultSet.next()) {
-                commandUsagesData = new CommandUsagesData(
-                        command,
-                        resultSet.getLong(1)
-                );
-            } else {
-                commandUsagesData = new CommandUsagesData(
-                        command,
-                        0L
-                );
-            }
-        }
-
-        return commandUsagesData;
+        return DBMain.getInstance().get(
+                "SELECT usages FROM CommandUsages WHERE command = ?;",
+                preparedStatement -> preparedStatement.setString(1, command),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return new CommandUsagesData(
+                                command,
+                                resultSet.getLong(1)
+                        );
+                    } else {
+                        return new CommandUsagesData(
+                                command,
+                                0L
+                        );
+                    }
+                }
+        );
     }
 
     @Override

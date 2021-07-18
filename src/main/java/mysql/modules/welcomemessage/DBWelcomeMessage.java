@@ -1,7 +1,5 @@
 package mysql.modules.welcomemessage;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.Locale;
 import constants.Category;
 import core.TextManager;
@@ -23,46 +21,42 @@ public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageDat
 
     @Override
     protected WelcomeMessageData load(Long serverId) throws Exception {
-        WelcomeMessageData welcomeMessageBean;
+        return DBMain.getInstance().get(
+                "SELECT activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText FROM ServerWelcomeMessage WHERE serverId = ?;",
+                preparedStatement -> preparedStatement.setLong(1, serverId),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return new WelcomeMessageData(
+                                serverId,
+                                resultSet.getBoolean(1),
+                                resultSet.getString(2),
+                                resultSet.getString(3),
+                                resultSet.getLong(4),
+                                resultSet.getBoolean(5),
+                                resultSet.getString(6),
+                                resultSet.getLong(7),
+                                resultSet.getBoolean(8),
+                                resultSet.getString(9)
+                        );
+                    } else {
+                        GuildData guildBean = DBGuild.getInstance().retrieve(serverId);
+                        Locale locale = guildBean.getLocale();
 
-        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText FROM ServerWelcomeMessage WHERE serverId = ?;")) {
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            if (resultSet.next()) {
-                welcomeMessageBean = new WelcomeMessageData(
-                        serverId,
-                        resultSet.getBoolean(1),
-                        resultSet.getString(2),
-                        resultSet.getString(3),
-                        resultSet.getLong(4),
-                        resultSet.getBoolean(5),
-                        resultSet.getString(6),
-                        resultSet.getLong(7),
-                        resultSet.getBoolean(8),
-                        resultSet.getString(9)
-                );
-            } else {
-                GuildData guildBean = DBGuild.getInstance().retrieve(serverId);
-                Locale locale = guildBean.getLocale();
-
-                welcomeMessageBean = new WelcomeMessageData(
-                        serverId,
-                        false,
-                        TextManager.getString(locale, Category.UTILITY, "welcome_standard_title"),
-                        TextManager.getString(locale, Category.UTILITY, "welcome_standard_description"),
-                        0L,
-                        false,
-                        TextManager.getString(locale, Category.UTILITY, "welcome_standard_goodbye"),
-                        0L,
-                        false,
-                        ""
-                );
-            }
-        }
-
-        return welcomeMessageBean;
+                        return new WelcomeMessageData(
+                                serverId,
+                                false,
+                                TextManager.getString(locale, Category.UTILITY, "welcome_standard_title"),
+                                TextManager.getString(locale, Category.UTILITY, "welcome_standard_description"),
+                                0L,
+                                false,
+                                TextManager.getString(locale, Category.UTILITY, "welcome_standard_goodbye"),
+                                0L,
+                                false,
+                                ""
+                        );
+                    }
+                }
+        );
     }
 
     @Override

@@ -1,7 +1,5 @@
 package mysql.modules.autochannel;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -23,33 +21,30 @@ public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelData> {
 
     @Override
     protected AutoChannelData load(Long serverId) throws Exception {
-        AutoChannelData autoChannelBean;
-
-        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, active, channelName, locked FROM AutoChannel WHERE serverId = ?;")) {
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            if (resultSet.next()) {
-                autoChannelBean = new AutoChannelData(
-                        serverId,
-                        resultSet.getLong(1),
-                        resultSet.getBoolean(2),
-                        resultSet.getString(3),
-                        resultSet.getBoolean(4),
-                        getChildChannels(serverId)
-                );
-            } else {
-                autoChannelBean = new AutoChannelData(
-                        serverId,
-                        null,
-                        false,
-                        "%VCName [%Creator]",
-                        false,
-                        new ArrayList<>()
-                );
-            }
-        }
+        AutoChannelData autoChannelBean = DBMain.getInstance().get(
+                "SELECT channelId, active, channelName, locked FROM AutoChannel WHERE serverId = ?;",
+                preparedStatement -> preparedStatement.setLong(1, serverId),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return new AutoChannelData(
+                                serverId,
+                                resultSet.getLong(1),
+                                resultSet.getBoolean(2),
+                                resultSet.getString(3),
+                                resultSet.getBoolean(4),
+                                getChildChannels(serverId)
+                        );
+                    } else {
+                        return new AutoChannelData(
+                                serverId,
+                                null,
+                                false,
+                                "%VCName [%Creator]",
+                                false,
+                                new ArrayList<>()
+                        );
+                    }
+                });
 
         autoChannelBean.getChildChannelIds()
                 .addListAddListener(list -> list.forEach(channelId -> addChildChannel(autoChannelBean.getGuildId(), channelId)))

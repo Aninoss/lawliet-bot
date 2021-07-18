@@ -9,7 +9,7 @@ public class DBBatch implements AutoCloseable {
     private final PreparedStatement preparedStatement;
 
     public DBBatch(String sql) throws SQLException {
-        preparedStatement = DBMain.getInstance().preparedStatement(sql);
+        preparedStatement = DBMain.getInstance().getConnection().prepareStatement(sql);
     }
 
     public void add(SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException {

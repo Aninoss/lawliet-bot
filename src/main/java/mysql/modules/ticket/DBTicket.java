@@ -1,7 +1,5 @@
 package mysql.modules.ticket;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,31 +21,29 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
 
     @Override
     protected TicketData load(Long serverId) throws Exception {
-        TicketData ticketData;
-
-        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT channelId, counter FROM Ticket WHERE serverId = ?;")) {
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            if (resultSet.next()) {
-                ticketData = new TicketData(
-                        serverId,
-                        resultSet.getLong(1),
-                        resultSet.getInt(2),
-                        getStaffRoles(serverId),
-                        getTicketChannels(serverId)
-                );
-            } else {
-                ticketData = new TicketData(
-                        serverId,
-                        null,
-                        0,
-                        getStaffRoles(serverId),
-                        getTicketChannels(serverId)
-                );
-            }
-        }
+        TicketData ticketData = DBMain.getInstance().get(
+                "SELECT channelId, counter FROM Ticket WHERE serverId = ?;",
+                preparedStatement -> preparedStatement.setLong(1, serverId),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return new TicketData(
+                                serverId,
+                                resultSet.getLong(1),
+                                resultSet.getInt(2),
+                                getStaffRoles(serverId),
+                                getTicketChannels(serverId)
+                        );
+                    } else {
+                        return new TicketData(
+                                serverId,
+                                null,
+                                0,
+                                getStaffRoles(serverId),
+                                getTicketChannels(serverId)
+                        );
+                    }
+                }
+        );
 
         ticketData.getTicketChannels()
                 .addMapAddListener(this::addTicketChannel)

@@ -1,7 +1,5 @@
 package mysql.modules.suggestions;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Optional;
@@ -23,29 +21,27 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
 
     @Override
     protected SuggestionsData load(Long serverId) throws Exception {
-        SuggestionsData suggestionsBean;
-
-        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active, channelId FROM SuggestionConfig WHERE serverId = ?;")) {
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            if (resultSet.next()) {
-                suggestionsBean = new SuggestionsData(
-                        serverId,
-                        resultSet.getBoolean(1),
-                        resultSet.getLong(2),
-                        getSuggestionMessages(serverId)
-                );
-            } else {
-                suggestionsBean = new SuggestionsData(
-                        serverId,
-                        false,
-                        null,
-                        new HashMap<>()
-                );
-            }
-        }
+        SuggestionsData suggestionsBean = DBMain.getInstance().get(
+                "SELECT active, channelId FROM SuggestionConfig WHERE serverId = ?;",
+                preparedStatement -> preparedStatement.setLong(1, serverId),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return new SuggestionsData(
+                                serverId,
+                                resultSet.getBoolean(1),
+                                resultSet.getLong(2),
+                                getSuggestionMessages(serverId)
+                        );
+                    } else {
+                        return new SuggestionsData(
+                                serverId,
+                                false,
+                                null,
+                                new HashMap<>()
+                        );
+                    }
+                }
+        );
 
         suggestionsBean.getSuggestionMessages()
                 .addMapAddListener(this::addSuggestionMessage)

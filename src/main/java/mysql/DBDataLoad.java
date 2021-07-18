@@ -25,7 +25,7 @@ public class DBDataLoad<T> {
 
             String sqlString = String.format("SELECT %s FROM %s WHERE %s", requiredAttributes, table, where);
 
-            preparedStatement = DBMain.getInstance().preparedStatement(sqlString);
+            preparedStatement = DBMain.getInstance().getConnection().prepareStatement(sqlString);
             wherePreparedStatementConsumer.accept(preparedStatement);
             preparedStatement.execute();
         } catch (SQLException e) {
@@ -34,20 +34,19 @@ public class DBDataLoad<T> {
     }
 
     public ArrayList<T> getArrayList(SQLFunction<ResultSet, T> function) {
-        try {
-            ResultSet resultSet = preparedStatement.getResultSet();
-            ArrayList<T> list = new ArrayList<>();
+        try (ResultSet resultSet = preparedStatement.getResultSet()) {
+                ArrayList<T> list = new ArrayList<>();
 
-            while (resultSet.next()) {
-                try {
-                    T value = function.apply(resultSet);
-                    if (!Objects.isNull(value)) list.add(value);
-                } catch (Throwable e) {
-                    MainLogger.get().error("Exception", e);
+                while (resultSet.next()) {
+                    try {
+                        T value = function.apply(resultSet);
+                        if (!Objects.isNull(value)) list.add(value);
+                    } catch (Throwable e) {
+                        MainLogger.get().error("Exception", e);
+                    }
                 }
-            }
 
-            return list;
+                return list;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {

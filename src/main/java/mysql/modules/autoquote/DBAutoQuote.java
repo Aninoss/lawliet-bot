@@ -1,7 +1,5 @@
 package mysql.modules.autoquote;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import mysql.DBMain;
 import mysql.DBObserverMapCache;
 
@@ -18,27 +16,23 @@ public class DBAutoQuote extends DBObserverMapCache<Long, AutoQuoteData> {
 
     @Override
     protected AutoQuoteData load(Long serverId) throws Exception {
-        AutoQuoteData autoQuoteBean;
-
-        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active FROM AutoQuote WHERE serverId = ?;")) {
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            if (resultSet.next()) {
-                autoQuoteBean = new AutoQuoteData(
-                        serverId,
-                        resultSet.getBoolean(1)
-                );
-            } else {
-                autoQuoteBean = new AutoQuoteData(
-                        serverId,
-                        true
-                );
-            }
-        }
-
-        return autoQuoteBean;
+        return DBMain.getInstance().get(
+                "SELECT active FROM AutoQuote WHERE serverId = ?;",
+                preparedStatement -> preparedStatement.setLong(1, serverId),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return new AutoQuoteData(
+                                serverId,
+                                resultSet.getBoolean(1)
+                        );
+                    } else {
+                        return new AutoQuoteData(
+                                serverId,
+                                true
+                        );
+                    }
+                }
+        );
     }
 
     @Override

@@ -1,7 +1,5 @@
 package mysql.modules.spblock;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
@@ -20,33 +18,31 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
 
     @Override
     protected SPBlockData load(Long serverId) throws Exception {
-        SPBlockData spBlockBean;
-
-        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT active, action FROM SPBlock WHERE serverId = ?;")) {
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            if (resultSet.next()) {
-                spBlockBean = new SPBlockData(
-                        serverId,
-                        resultSet.getBoolean(1),
-                        SPBlockData.ActionList.valueOf(resultSet.getString(2)),
-                        getIgnoredUsers(serverId),
-                        getIgnoredChannels(serverId),
-                        getLogReceivers(serverId)
-                );
-            } else {
-                spBlockBean = new SPBlockData(
-                        serverId,
-                        false,
-                        SPBlockData.ActionList.DELETE_MESSAGE,
-                        getIgnoredUsers(serverId),
-                        getIgnoredChannels(serverId),
-                        getLogReceivers(serverId)
-                );
-            }
-        }
+        SPBlockData spBlockBean = DBMain.getInstance().get(
+                "SELECT active, action FROM SPBlock WHERE serverId = ?;",
+                preparedStatement -> preparedStatement.setLong(1, serverId),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return new SPBlockData(
+                                serverId,
+                                resultSet.getBoolean(1),
+                                SPBlockData.ActionList.valueOf(resultSet.getString(2)),
+                                getIgnoredUsers(serverId),
+                                getIgnoredChannels(serverId),
+                                getLogReceivers(serverId)
+                        );
+                    } else {
+                        return new SPBlockData(
+                                serverId,
+                                false,
+                                SPBlockData.ActionList.DELETE_MESSAGE,
+                                getIgnoredUsers(serverId),
+                                getIgnoredChannels(serverId),
+                                getLogReceivers(serverId)
+                        );
+                    }
+                }
+        );
 
         spBlockBean.getIgnoredUserIds()
                 .addListAddListener(list -> list.forEach(userId -> addIgnoredUser(serverId, userId)))

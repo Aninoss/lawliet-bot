@@ -1,8 +1,6 @@
 package mysql.modules.bump;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Instant;
 import mysql.DBMain;
 
@@ -15,19 +13,17 @@ public class DBBump {
         );
     }
 
-    public static Instant getNextBump() throws SQLException {
-        Instant instant = null;
-
-        String sql = "SELECT next FROM Bump;";
-        try (Statement statement = DBMain.getInstance().statementExecuted(sql)) {
-            ResultSet resultSet = statement.getResultSet();
-
-            if (resultSet.next()) {
-                instant = resultSet.getTimestamp(1).toInstant();
-            }
-        }
-
-        return instant;
+    public static Instant getNextBump() throws SQLException, InterruptedException {
+        return DBMain.getInstance().get(
+                "SELECT next FROM Bump;",
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return resultSet.getTimestamp(1).toInstant();
+                    } else {
+                        return null;
+                    }
+                }
+        );
     }
 
 }

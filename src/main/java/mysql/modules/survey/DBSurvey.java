@@ -1,9 +1,6 @@
 package mysql.modules.survey;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -27,31 +24,29 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
 
     @Override
     protected SurveyData load(Integer surveyId) throws Exception {
-        SurveyData surveyData;
-
-        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT start FROM SurveyDates WHERE surveyId = ?;")) {
-            preparedStatement.setInt(1, surveyId);
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            if (resultSet.next()) {
-                surveyData = new SurveyData(
-                        surveyId,
-                        resultSet.getDate(1).toLocalDate(),
-                        getFirstVotes(surveyId),
-                        getSecondVotes(surveyId),
-                        getNotificationUserIds()
-                );
-            } else {
-                surveyData = new SurveyData(
-                        surveyId,
-                        resultSet.getDate(1).toLocalDate(),
-                        new HashMap<>(),
-                        new HashMap<>(),
-                        new ArrayList<>()
-                );
-            }
-        }
+        SurveyData surveyData = DBMain.getInstance().get(
+                "SELECT start FROM SurveyDates WHERE surveyId = ?;",
+                preparedStatement -> preparedStatement.setInt(1, surveyId),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return new SurveyData(
+                                surveyId,
+                                resultSet.getDate(1).toLocalDate(),
+                                getFirstVotes(surveyId),
+                                getSecondVotes(surveyId),
+                                getNotificationUserIds()
+                        );
+                    } else {
+                        return new SurveyData(
+                                surveyId,
+                                resultSet.getDate(1).toLocalDate(),
+                                new HashMap<>(),
+                                new HashMap<>(),
+                                new ArrayList<>()
+                        );
+                    }
+                }
+        );
 
         surveyData.getFirstVotes()
                 .addMapAddListener(firstVote -> addFirstVote(surveyId, firstVote))
@@ -72,14 +67,18 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
 
     public synchronized int getCurrentSurveyId() {
         if (currentSurveyId == null) {
-            try (Statement statement = DBMain.getInstance().statementExecuted("SELECT surveyId FROM SurveyDates ORDER BY start DESC, surveyId DESC LIMIT 1;")) {
-                ResultSet resultSet = statement.getResultSet();
-
-                if (resultSet.next()) {
-                    currentSurveyId = resultSet.getInt(1);
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            try {
+                currentSurveyId = DBMain.getInstance().get(
+                        "SELECT surveyId FROM SurveyDates ORDER BY start DESC, surveyId DESC LIMIT 1;",
+                        resultSet -> {
+                            if (resultSet.next()) {
+                                return resultSet.getInt(1);
+                            }
+                            return null;
+                        }
+                );
+            } catch (SQLException | InterruptedException throwables) {
+                throw new RuntimeException(throwables);
             }
         }
 

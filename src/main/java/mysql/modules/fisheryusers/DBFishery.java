@@ -1,19 +1,16 @@
 package mysql.modules.fisheryusers;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
 import constants.FisheryGear;
 import constants.FisheryStatus;
-import core.Program;
 import core.MainLogger;
+import core.Program;
 import mysql.DBBatch;
 import mysql.DBDataLoad;
 import mysql.DBIntervalMapCache;
@@ -169,88 +166,82 @@ public class DBFishery extends DBIntervalMapCache<Long, FisheryGuildData> {
         });
     }
 
-    private HashMap<Long, FisheryMemberData> getFisheryUsers(long serverId, HashMap<Long, HashMap<Instant, FisheryHourlyIncomeData>> fisheryHourlyIncomeMap, HashMap<Long, HashMap<Integer, FisheryMemberGearData>> fisheryPowerUpMap) throws SQLException, ExecutionException {
-        HashMap<Long, FisheryMemberData> usersMap = new HashMap<>();
-
-        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed, dailyValuesUpdated, dailyVCMinutes, dailyReceivedCoins, nextWork FROM PowerPlantUsers WHERE serverId = ?;")) {
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            while (resultSet.next()) {
-                long userId = resultSet.getLong(1);
-                FisheryMemberData fisheryMemberBean = new FisheryMemberData(
-                        serverId,
-                        userId,
-                        resultSet.getLong(2),
-                        resultSet.getLong(3),
-                        resultSet.getDate(4).toLocalDate(),
-                        resultSet.getLong(5),
-                        resultSet.getBoolean(6),
-                        resultSet.getInt(7),
-                        resultSet.getDate(8).toLocalDate(),
-                        resultSet.getInt(9),
-                        resultSet.getLong(10),
-                        resultSet.getTimestamp(11).toInstant(),
-                        fisheryHourlyIncomeMap.getOrDefault(userId, new HashMap<>()),
-                        fisheryPowerUpMap.getOrDefault(userId, new HashMap<>())
-                );
-                usersMap.put(userId, fisheryMemberBean);
-            }
-        }
-
-        return usersMap;
+    private HashMap<Long, FisheryMemberData> getFisheryUsers(long serverId, HashMap<Long, HashMap<Instant, FisheryHourlyIncomeData>> fisheryHourlyIncomeMap, HashMap<Long, HashMap<Integer, FisheryMemberGearData>> fisheryPowerUpMap) throws SQLException, InterruptedException {
+        return DBMain.getInstance().get(
+                "SELECT userId, joule, coins, dailyRecieved, dailyStreak, reminderSent, upvotesUnclaimed, dailyValuesUpdated, dailyVCMinutes, dailyReceivedCoins, nextWork FROM PowerPlantUsers WHERE serverId = ?;",
+                preparedStatement -> preparedStatement.setLong(1, serverId),
+                resultSet -> {
+                    HashMap<Long, FisheryMemberData> map = new HashMap<>();
+                    while (resultSet.next()) {
+                        long userId = resultSet.getLong(1);
+                        FisheryMemberData fisheryMemberBean = new FisheryMemberData(
+                                serverId,
+                                userId,
+                                resultSet.getLong(2),
+                                resultSet.getLong(3),
+                                resultSet.getDate(4).toLocalDate(),
+                                resultSet.getLong(5),
+                                resultSet.getBoolean(6),
+                                resultSet.getInt(7),
+                                resultSet.getDate(8).toLocalDate(),
+                                resultSet.getInt(9),
+                                resultSet.getLong(10),
+                                resultSet.getTimestamp(11).toInstant(),
+                                fisheryHourlyIncomeMap.getOrDefault(userId, new HashMap<>()),
+                                fisheryPowerUpMap.getOrDefault(userId, new HashMap<>())
+                        );
+                        map.put(userId, fisheryMemberBean);
+                    }
+                    return map;
+                }
+        );
     }
 
-    private HashMap<Long, HashMap<Instant, FisheryHourlyIncomeData>> getFisheryHourlyIncomeMap(long serverId) throws SQLException {
-        HashMap<Long, HashMap<Instant, FisheryHourlyIncomeData>> hourlyIncomeMap = new HashMap<>();
+    private HashMap<Long, HashMap<Instant, FisheryHourlyIncomeData>> getFisheryHourlyIncomeMap(long serverId) throws SQLException, InterruptedException {
+        return DBMain.getInstance().get(
+                "SELECT userId, time, coinsGrowth FROM PowerPlantUserGained WHERE serverId = ?;",
+                preparedStatement -> preparedStatement.setLong(1, serverId),
+                resultSet -> {
+                    HashMap<Long, HashMap<Instant, FisheryHourlyIncomeData>> map = new HashMap<>();
+                    while (resultSet.next()) {
+                        long userId = resultSet.getLong(1);
+                        Instant time = resultSet.getTimestamp(2).toInstant();
 
-        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId, time, coinsGrowth FROM PowerPlantUserGained WHERE serverId = ?;")) {
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.execute();
+                        FisheryHourlyIncomeData fisheryUserBean = new FisheryHourlyIncomeData(
+                                serverId,
+                                userId,
+                                time,
+                                resultSet.getLong(3)
+                        );
 
-            ResultSet resultSet = preparedStatement.getResultSet();
-            while (resultSet.next()) {
-                long userId = resultSet.getLong(1);
-                Instant time = resultSet.getTimestamp(2).toInstant();
-
-                FisheryHourlyIncomeData fisheryUserBean = new FisheryHourlyIncomeData(
-                        serverId,
-                        userId,
-                        time,
-                        resultSet.getLong(3)
-                );
-
-                hourlyIncomeMap.computeIfAbsent(userId, k -> new HashMap<>()).put(time, fisheryUserBean);
-            }
-        }
-
-        return hourlyIncomeMap;
+                        map.computeIfAbsent(userId, k -> new HashMap<>()).put(time, fisheryUserBean);
+                    }
+                    return map;
+                }
+        );
     }
 
-    private HashMap<Long, HashMap<Integer, FisheryMemberGearData>> getFisheryPowerUpMap(long serverId) throws SQLException {
-        HashMap<Long, HashMap<Integer, FisheryMemberGearData>> powerUpMap = new HashMap<>();
+    private HashMap<Long, HashMap<Integer, FisheryMemberGearData>> getFisheryPowerUpMap(long serverId) throws SQLException, InterruptedException {
+        return DBMain.getInstance().get(
+                "SELECT userId, categoryId, level FROM PowerPlantUserPowerUp WHERE serverId = ?;",
+                preparedStatement -> preparedStatement.setLong(1, serverId),
+                resultSet -> {
+                    HashMap<Long, HashMap<Integer, FisheryMemberGearData>> map = new HashMap<>();
+                    while (resultSet.next()) {
+                        long userId = resultSet.getLong(1);
+                        int powerUpId = resultSet.getInt(2);
+                        FisheryMemberGearData fisheryMemberGearData = new FisheryMemberGearData(
+                                serverId,
+                                userId,
+                                FisheryGear.values()[powerUpId],
+                                resultSet.getInt(3)
+                        );
 
-        try (PreparedStatement preparedStatement = DBMain.getInstance().preparedStatement("SELECT userId, categoryId, level FROM PowerPlantUserPowerUp WHERE serverId = ?;")) {
-            preparedStatement.setLong(1, serverId);
-            preparedStatement.execute();
-
-            ResultSet resultSet = preparedStatement.getResultSet();
-            while (resultSet.next()) {
-                long userId = resultSet.getLong(1);
-                int powerUpId = resultSet.getInt(2);
-                FisheryMemberGearData fisheryMemberGearData = new FisheryMemberGearData(
-                        serverId,
-                        userId,
-                        FisheryGear.values()[powerUpId],
-                        resultSet.getInt(3)
-                );
-
-                powerUpMap.computeIfAbsent(userId, k -> new HashMap<>()).put(powerUpId, fisheryMemberGearData);
-            }
-        }
-
-        return powerUpMap;
+                        map.computeIfAbsent(userId, k -> new HashMap<>()).put(powerUpId, fisheryMemberGearData);
+                    }
+                    return map;
+                }
+        );
     }
 
     private ArrayList<Long> getRoleIds(long serverId) {

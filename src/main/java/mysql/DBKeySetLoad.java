@@ -13,7 +13,8 @@ public class DBKeySetLoad<T> {
 
     public DBKeySetLoad(String table, String keyColumn) {
         try {
-            statement = DBMain.getInstance().statementExecuted(String.format("SELECT %s FROM %s;", keyColumn, table));
+            statement = DBMain.getInstance().getConnection().createStatement();
+            statement.execute(String.format("SELECT %s FROM %s;", keyColumn, table));
         } catch (SQLException exception) {
             throw new RuntimeException(exception);
         }
@@ -21,8 +22,7 @@ public class DBKeySetLoad<T> {
 
     public ArrayList<T> get(SQLFunction<ResultSet, T> function) {
         ArrayList<T> list = new ArrayList<>();
-        try {
-            ResultSet resultSet = statement.getResultSet();
+        try (ResultSet resultSet = statement.getResultSet()) {
             while (resultSet.next()) {
                 try {
                     list.add(function.apply(resultSet));

@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import core.MainLogger;
 import mysql.interfaces.SQLConsumer;
+import mysql.interfaces.SQLFunction;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class DBMain implements DriverAction {
@@ -67,24 +68,97 @@ public class DBMain implements DriverAction {
         return DateTimeFormatter.ofPattern("yyyy-MM-dd").format(localDate);
     }
 
-    public PreparedStatement preparedStatement(String sql) throws SQLException {
-        return connect.prepareStatement(sql);
+    public Connection getConnection() {
+        return connect;
     }
 
-    public Statement statementExecuted(String sql) throws SQLException {
-        Statement statement = connect.createStatement();
-        statement.execute(sql);
-        return statement;
+    public <T> T get(String sql, SQLFunction<ResultSet, T> resultSetFunction) throws SQLException, InterruptedException {
+        SQLException exception = null;
+        for (int i = 0; i < 3; i++) {
+            try (Statement statement = getConnection().createStatement();
+                 ResultSet resultSet = statement.executeQuery(sql)
+            ) {
+                return resultSetFunction.apply(resultSet);
+            } catch (SQLException e) {
+                //ignore
+                exception = e;
+                Thread.sleep(5000);
+            }
+        }
+
+        throw exception;
+    }
+
+    public <T> T get(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer, SQLFunction<ResultSet, T> resultSetFunction) throws SQLException, InterruptedException {
+        SQLException exception = null;
+        for (int i = 0; i < 3; i++) {
+            try (PreparedStatement preparedStatement = getConnection().prepareStatement(sql)) {
+                preparedStatementConsumer.accept(preparedStatement);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    return resultSetFunction.apply(resultSet);
+                }
+            } catch (SQLException e) {
+                exception = e;
+                Thread.sleep(5000);
+            }
+        }
+
+        throw exception;
+    }
+
+    public <T> CompletableFuture<T> asyncGet(String sql, SQLFunction<ResultSet, T> resultSetFunction) {
+        CompletableFuture<T> future = new CompletableFuture<>();
+
+        executorService.submit(() -> {
+            try {
+                T t = get(sql, resultSetFunction);
+                future.complete(t);
+            } catch (Throwable e) {
+                future.completeExceptionally(e);
+                MainLogger.get().error("Exception for query: " + sql, e);
+            }
+        });
+
+        return future;
+    }
+
+    public <T> CompletableFuture<T> asyncGet(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer, SQLFunction<ResultSet, T> resultSetFunction) {
+        CompletableFuture<T> future = new CompletableFuture<>();
+
+        executorService.submit(() -> {
+            try {
+                T t = get(sql, preparedStatementConsumer, resultSetFunction);
+                future.complete(t);
+            } catch (Throwable e) {
+                future.completeExceptionally(e);
+                MainLogger.get().error("Exception for query: " + sql, e);
+            }
+        });
+
+        return future;
+    }
+
+    public int update(String sql) throws SQLException, InterruptedException {
+        SQLException exception = null;
+        for (int i = 0; i < 3; i++) {
+            try (Statement statement = getConnection().createStatement()) {
+                return statement.executeUpdate(sql);
+            } catch (SQLException e) {
+                exception = e;
+                Thread.sleep(5000);
+            }
+        }
+
+        throw exception;
     }
 
     public int update(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException, InterruptedException {
         SQLException exception = null;
         for (int i = 0; i < 3; i++) {
-            try (PreparedStatement preparedStatement = preparedStatement(sql)) {
+            try (PreparedStatement preparedStatement = getConnection().prepareStatement(sql)) {
                 preparedStatementConsumer.accept(preparedStatement);
                 return preparedStatement.executeUpdate();
             } catch (SQLException e) {
-                //Ignore
                 exception = e;
                 Thread.sleep(5000);
             }
@@ -94,8 +168,19 @@ public class DBMain implements DriverAction {
     }
 
     public CompletableFuture<Integer> asyncUpdate(String sql) {
-        return asyncUpdate(sql, preparedStatement -> {
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+
+        executorService.submit(() -> {
+            try {
+                int n = update(sql);
+                future.complete(n);
+            } catch (Throwable e) {
+                future.completeExceptionally(e);
+                MainLogger.get().error("Exception for query: " + sql, e);
+            }
         });
+
+        return future;
     }
 
     public CompletableFuture<Integer> asyncUpdate(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) {
@@ -103,10 +188,11 @@ public class DBMain implements DriverAction {
 
         executorService.submit(() -> {
             try {
-                future.complete(update(sql, preparedStatementConsumer));
-            } catch (SQLException | InterruptedException throwables) {
-                future.completeExceptionally(throwables);
-                MainLogger.get().error("Exception for query: " + sql, throwables);
+                int n = update(sql, preparedStatementConsumer);
+                future.complete(n);
+            } catch (Throwable e) {
+                future.completeExceptionally(e);
+                MainLogger.get().error("Exception for query: " + sql, e);
             }
         });
 
