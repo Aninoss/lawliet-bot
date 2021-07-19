@@ -469,16 +469,20 @@ public class FisheryMemberData implements MemberAsset {
             boolean banned = bannedUntil != null && bannedUntil.isAfter(Instant.now());
 
             /* update values */
-            changeValues(fishAdd, coinsAdd, newDailyStreak);
+            FisheryRecentFishGainsData fisheryRecentFishGainsDataAfterwards = fisheryRecentFishGainsDataPrevious;
+            if (fishAdd != 0 || coinsAdd != 0 || newDailyStreak != null) {
+                changeValues(fishAdd, coinsAdd, newDailyStreak);
+                fisheryRecentFishGainsDataAfterwards = getRecentFishGains();
+            }
 
             /* generate account embed */
-            FisheryRecentFishGainsData fisheryRecentFishGainsDataAfterwards = getRecentFishGains();
             Locale locale = getGuildBean().getLocale();
+            FisheryRecentFishGainsData finalFisheryRecentFishGainsDataAfterwards = fisheryRecentFishGainsDataAfterwards;
             return getGuild()
                     .map(guild -> guild.getMemberById(memberId))
                     .map(member -> generateUserChangeEmbed(member, locale, fishAdd, coinsAdd,
-                            fisheryRecentFishGainsDataAfterwards.getRank(), fisheryRecentFishGainsDataPrevious.getRank(),
-                            fisheryRecentFishGainsDataAfterwards.getRecentFishGains(),
+                            finalFisheryRecentFishGainsDataAfterwards.getRank(), fisheryRecentFishGainsDataPrevious.getRank(),
+                            finalFisheryRecentFishGainsDataAfterwards.getRecentFishGains(),
                             fisheryRecentFishGainsDataPrevious.getRecentFishGains(), fishPrevious, coinsPrevious, newDailyStreak,
                             dailyStreakPrevious, banned
                             )
