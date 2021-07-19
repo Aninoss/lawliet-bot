@@ -53,7 +53,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
 
     @Override
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
-        fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
+        fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         Optional<Instant> nextWork = fisheryMemberBean.checkNextWork();
         if (nextWork.isEmpty()) {
             setArea();

@@ -100,7 +100,7 @@ public class FisherySurveyResults implements ScheduleInterface {
         secondVotes.stream()
                 .filter(secondVote -> won == 2 || secondVote.getVote() == won)
                 .forEach(secondVote -> {
-                    FisheryMemberData userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getMemberBean(user.getIdLong());
+                    FisheryMemberData userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getMemberData(user.getIdLong());
                     long price = userBean.getMemberGear(FisheryGear.SURVEY).getEffect();
                     MainLogger.get().info("Survey: Giving {} coins to {} ({})", price, user, user.getIdLong());
                     userBean.changeValues(0, price);

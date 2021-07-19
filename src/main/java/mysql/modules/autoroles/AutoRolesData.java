@@ -2,20 +2,26 @@ package mysql.modules.autoroles;
 
 import java.util.ArrayList;
 import core.CustomObservableList;
-import mysql.DataWithGuild;
+import core.assets.GuildAsset;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class AutoRolesData extends DataWithGuild {
+public class AutoRolesData implements GuildAsset {
 
+    private final long guildId;
     private final CustomObservableList<Long> roleIds;
 
     public AutoRolesData(long serverId, @NonNull ArrayList<Long> roleIds) {
-        super(serverId);
+        this.guildId = serverId;
         this.roleIds = new CustomObservableList<>(roleIds);
     }
 
     public CustomObservableList<Long> getRoleIds() {
         return roleIds;
+    }
+
+    @Override
+    public long getGuildId() {
+        return guildId;
     }
 
 }

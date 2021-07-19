@@ -257,7 +257,7 @@ public class Console {
         long userId = Long.parseLong(args[2]);
 
         ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().retrieve(serverId).getMemberBean(userId).remove();
+            DBFishery.getInstance().retrieve(serverId).getMemberData(userId).remove();
             MainLogger.get().info("Fishery user {} from server {} removed", userId, serverId);
         });
     }
@@ -268,7 +268,7 @@ public class Console {
         long value = Long.parseLong(args[3]);
 
         ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().retrieve(serverId).getMemberBean(userId).setDailyStreak(value);
+            DBFishery.getInstance().retrieve(serverId).getMemberData(userId).setDailyStreak(value);
             MainLogger.get().info("Changed daily streak value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }
@@ -279,7 +279,7 @@ public class Console {
         long value = Long.parseLong(args[3]);
 
         ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().retrieve(serverId).getMemberBean(userId).setCoinsRaw(value);
+            DBFishery.getInstance().retrieve(serverId).getMemberData(userId).setCoinsRaw(value);
             MainLogger.get().info("Changed coin value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }
@@ -290,7 +290,7 @@ public class Console {
         long value = Long.parseLong(args[3]);
 
         ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().retrieve(serverId).getMemberBean(userId).setFish(value);
+            DBFishery.getInstance().retrieve(serverId).getMemberData(userId).setFish(value);
             MainLogger.get().info("Changed fish value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }

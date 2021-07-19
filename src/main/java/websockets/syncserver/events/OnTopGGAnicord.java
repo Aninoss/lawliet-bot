@@ -22,7 +22,7 @@ public class OnTopGGAnicord extends OnTopGG {
         Optional.ofNullable(guild.getMemberById(userId)).ifPresent(user -> {
             TextChannel bumpChannel = guild.getTextChannelById(713849992611102781L);
 
-            FisheryMemberData userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(userId);
+            FisheryMemberData userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberData(userId);
             long add = Fishery.getClaimValue(userBean);
 
             String desc = MessageFormat.format("✅ | {0} hat auf [top.gg]({3}) für **{1}** geupvotet und dafür **🐟 {2}** (25% der Daily-Fische) erhalten!", user.getAsMention(), guild.getName(), StringUtil.numToString(add), String.format("https://top.gg/servers/%d/vote", AssetIds.ANICORD_SERVER_ID));

@@ -46,7 +46,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
     @Override
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
         userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
-                .getMemberBean(event.getMember().getIdLong());
+                .getMemberData(event.getMember().getIdLong());
         if (args.length() > 0) {
             boolean success = process(event.getChannel(), args);
             drawMessage(eb);

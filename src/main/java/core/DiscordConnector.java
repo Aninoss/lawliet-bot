@@ -8,7 +8,6 @@ import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
 import modules.repair.MainRepair;
 import modules.schedulers.*;
-import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -53,10 +52,8 @@ public class DiscordConnector {
         if (started) return;
         started = true;
 
-        ShardManager.getInstance().init(shardMin, shardMax, totalShards);
-        DBFishery.getInstance().cleanUp();
-
         MainLogger.get().info("Bot is logging in...");
+        ShardManager.getInstance().init(shardMin, shardMax, totalShards);
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageAction.setDefaultMentions(EnumSet.complementOf(deny));
 

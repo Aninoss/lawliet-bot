@@ -85,12 +85,12 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 return true;
             }
 
-            FisheryMemberData memberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
+            FisheryMemberData memberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
             long coins = memberBean.getCoins();
             long value = Math.min(MentionUtil.getAmountExt(args, coins), coins);
             if (value == -1) {
                 coinsInput = (long) Math.ceil(coins * 0.1);
-                memberBean.addHiddenCoins(coinsInput);
+                memberBean.addCoinsHidden(coinsInput);
                 registerButtonListener();
                 registerMessageInputListener(false);
                 return true;
@@ -98,7 +98,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
 
             if (value >= 0) {
                 coinsInput = value;
-                memberBean.addHiddenCoins(coinsInput);
+                memberBean.addCoinsHidden(coinsInput);
                 registerButtonListener();
                 registerMessageInputListener(false);
                 return true;
@@ -130,7 +130,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         getGuild().ifPresent(guild -> {
             status = Status.DRAW;
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.CASINO, "casino_draw"));
-            DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get()).addHiddenCoins(-coinsInput);
+            DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberData(getMemberId().get()).addCoinsHidden(-coinsInput);
             if (requestRetry && !retryRequestAdded) {
                 registerButtonListener();
                 setButtons(BUTTON_RETRY);
@@ -153,7 +153,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             if (coinsInput > 0 && useCalculatedMultiplicator) {
                 DBGameStatistics.getInstance().retrieve(compareKey).addValue(false, 1);
             }
-            EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get())
+            EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberData(getMemberId().get())
                     .changeValuesEmbed(0, -coinsInput);
             if (coinsInput > 0) {
                 setAdditionalEmbeds(eb.build());
@@ -194,7 +194,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 if (won > 0 && lost > 0) multiplicator = lost / won;
             }
 
-            EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(getMemberId().get())
+            EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberData(getMemberId().get())
                     .changeValuesEmbed(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
             if (coinsInput > 0) {
                 setAdditionalEmbeds(eb.build());

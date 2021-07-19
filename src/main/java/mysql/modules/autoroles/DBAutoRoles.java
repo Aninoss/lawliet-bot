@@ -3,9 +3,9 @@ package mysql.modules.autoroles;
 import java.util.ArrayList;
 import mysql.DBDataLoad;
 import mysql.DBMain;
-import mysql.DBObserverMapCache;
+import mysql.DBMapCache;
 
-public class DBAutoRoles extends DBObserverMapCache<Long, AutoRolesData> {
+public class DBAutoRoles extends DBMapCache<Long, AutoRolesData> {
 
     private static final DBAutoRoles ourInstance = new DBAutoRoles();
 
@@ -28,10 +28,6 @@ public class DBAutoRoles extends DBObserverMapCache<Long, AutoRolesData> {
                 .addListRemoveListener(list -> list.forEach(roleId -> removeRoleId(autoRolesBean.getGuildId(), roleId)));
 
         return autoRolesBean;
-    }
-
-    @Override
-    protected void save(AutoRolesData autoRolesBean) {
     }
 
     private ArrayList<Long> getRoleIds(long serverId) {

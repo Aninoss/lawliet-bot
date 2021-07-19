@@ -60,7 +60,7 @@ public class FisheryVoiceChannelObserver implements ScheduleInterface {
                 ) {
                     validMembers.forEach(member -> {
                         try {
-                            serverBean.getMemberBean(member.getIdLong()).registerVC(VC_CHECK_INTERVAL_MIN);
+                            serverBean.getMemberData(member.getIdLong()).registerVoice(VC_CHECK_INTERVAL_MIN);
                             actions.incrementAndGet();
                         } catch (ExecutionException e) {
                             MainLogger.get().error("Exception when registering vc", e);

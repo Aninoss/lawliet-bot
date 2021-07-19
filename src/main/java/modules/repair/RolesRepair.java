@@ -57,7 +57,7 @@ public class RolesRepair {
                             locale,
                             Command.getCommandLanguage(FisheryRolesCommand.class, locale).getTitle(),
                             member,
-                            fisheryGuildBean.getMemberBean(member.getIdLong()).getRoles()
+                            fisheryGuildBean.getMemberData(member.getIdLong()).getRoles()
                     ));
         }
     }

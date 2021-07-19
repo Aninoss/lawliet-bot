@@ -147,4 +147,8 @@ public final class TimeUtil {
         return date.atStartOfDay(ZoneId.systemDefault()).toInstant();
     }
 
+    public static long currentHour() {
+        return System.currentTimeMillis() / 3_600_000L;
+    }
+
 }

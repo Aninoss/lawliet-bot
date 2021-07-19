@@ -51,10 +51,10 @@ public class GiveCommand extends Command implements FisheryInterface {
         Member user0 = event.getMember();
         Member user1 = list.get(0);
 
-        FisheryMemberData fisheryUser0 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user0.getIdLong());
-        FisheryMemberData fisheryUser1 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(user1.getIdLong());
+        FisheryMemberData fisheryUser0 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(user0.getIdLong());
+        FisheryMemberData fisheryUser1 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(user1.getIdLong());
         long value = Math.min(MentionUtil.getAmountExt(args, fisheryUser0.getCoins()), fisheryUser0.getCoins());
-        long cap = fisheryUser1.getCoinsGivenMax() - fisheryUser1.getCoinsGiven();
+        long cap = fisheryUser1.getCoinsGiveReceivedMax() - fisheryUser1.getCoinsGiveReceived();
 
         boolean limitCapped = false;
         if (fisheryUser0.getGuildBean().hasFisheryCoinsGivenLimit() && value >= cap) {
@@ -75,7 +75,7 @@ public class GiveCommand extends Command implements FisheryInterface {
 
                 fisheryUser0.addCoinsRaw(-value);
                 fisheryUser1.addCoinsRaw(value);
-                fisheryUser1.addCoinsGiven(value);
+                fisheryUser1.addCoinsGiveReceived(value);
 
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
                         "successful",

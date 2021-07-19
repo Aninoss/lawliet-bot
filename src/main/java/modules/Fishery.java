@@ -35,7 +35,7 @@ public class Fishery {
             return;
         }
 
-        fisheryGuildBean.getMemberBean(member.getIdLong())
+        fisheryGuildBean.getMemberData(member.getIdLong())
                 .getRoles()
                 .forEach(role -> {
                     if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) {

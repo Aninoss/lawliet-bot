@@ -17,7 +17,7 @@ public class ServerMemberLeaveFisheryOnGuildStatus extends GuildMemberRemoveAbst
             return true;
         }
 
-        fisheryGuildBean.getMemberBean(event.getUser().getIdLong()).setOnServer(false);
+        fisheryGuildBean.getMemberData(event.getUser().getIdLong()).setOnServer(false);
         return true;
     }
 

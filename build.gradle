@@ -40,6 +40,7 @@ dependencies {
     implementation 'net.java.openjfx.backport:openjfx-78-backport:1.8.0-ea-b96.1'
     implementation 'org.reflections:reflections:0.9.11'
     implementation 'org.apache.commons:commons-text:1.9'
+    implementation 'redis.clients:jedis:3.6.0'
 
     /* logging */
     implementation 'ch.qos.logback:logback-classic:1.2.3'

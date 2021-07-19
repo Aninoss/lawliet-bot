@@ -13,7 +13,7 @@ public abstract class DBMapCache<T, U> extends DBCache {
 
     protected CacheBuilder<Object, Object> getCacheBuilder() {
         return CacheBuilder.newBuilder()
-                .expireAfterAccess(Duration.ofMinutes(10));
+                .expireAfterAccess(Duration.ofMinutes(12));
     }
 
     protected DBMapCache() {

@@ -126,7 +126,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                                 stopLock = false;
                                 setLog(LogStatus.WARNING, getString("stoplock"));
                             } else {
-                                DBFishery.getInstance().removePowerPlant(event.getGuild().getIdLong());
+                                DBFishery.getInstance().invalidateGuildId(event.getGuild().getIdLong());
+                                DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setFisheryStatus(FisheryStatus.STOPPED);
                                 setLog(LogStatus.SUCCESS, getString("setstatus"));
                             }
                             return true;
@@ -196,7 +197,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .queue();
         InteractionHook hook = event.getHook();
 
-        FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
+        FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
             Random r = new Random();
             String[] winLose = new String[] { "win", "lose" };

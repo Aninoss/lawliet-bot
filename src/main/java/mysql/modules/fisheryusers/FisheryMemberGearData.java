@@ -3,30 +3,26 @@ package mysql.modules.fisheryusers;
 import constants.FisheryGear;
 import core.assets.MemberAsset;
 import core.utils.NumberUtil;
+import mysql.DBRedis;
 
 public class FisheryMemberGearData implements MemberAsset {
 
-    private final long guildId;
-    private final long memberId;
+    private final FisheryMemberData fisheryMemberData;
     private final FisheryGear gear;
-    private int level;
-    private boolean changed = false;
 
-    public FisheryMemberGearData(long guildId, long memberId, FisheryGear gear, int level) {
-        this.guildId = guildId;
-        this.memberId = memberId;
+    public FisheryMemberGearData(FisheryMemberData fisheryMemberData, FisheryGear gear) {
+        this.fisheryMemberData = fisheryMemberData;
         this.gear = gear;
-        this.level = level;
     }
 
     @Override
     public long getGuildId() {
-        return guildId;
+        return fisheryMemberData.getGuildId();
     }
 
     @Override
     public long getMemberId() {
-        return memberId;
+        return fisheryMemberData.getMemberId();
     }
 
     public FisheryGear getGear() {
@@ -34,33 +30,23 @@ public class FisheryMemberGearData implements MemberAsset {
     }
 
     public int getLevel() {
-        return level;
-    }
-
-    public boolean checkChanged() {
-        boolean changedTemp = changed;
-        changed = false;
-        return changedTemp;
+        return DBRedis.getInstance().getInteger(jedis -> jedis.hget(fisheryMemberData.KEY_ACCOUNT, "gear:" + gear.ordinal()));
     }
 
     void setLevel(int level) {
-        this.level = level;
-        changed = true;
-    }
-
-    public void setChanged() {
-        changed = true;
+        DBRedis.getInstance().update(jedis -> jedis.hset(fisheryMemberData.KEY_ACCOUNT, "gear:" + gear.ordinal(), String.valueOf(level)));
     }
 
     public long getPrice() {
-        return NumberUtil.flattenLong(Math.round(Math.pow(getValue(level), 1.02) * gear.getStartPrice()), 4);
+        return NumberUtil.flattenLong(Math.round(Math.pow(getValue(getLevel()), 1.02) * gear.getStartPrice()), 4);
     }
 
     public long getEffect() {
-        return getValue(level) * gear.getEffect();
+        return getValue(getLevel()) * gear.getEffect();
     }
 
     public long getDeltaEffect() {
+        long level = getLevel();
         return (getValue(level + 1) - getValue(level)) * gear.getEffect();
     }
 

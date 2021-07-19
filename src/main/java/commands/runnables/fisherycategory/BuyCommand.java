@@ -53,8 +53,8 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     @Override
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-        fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberBean(event.getMember().getIdLong());
-        fisheryGuildBean = fisheryMemberBean.getFisheryServerBean();
+        fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
+        fisheryGuildBean = fisheryMemberBean.getFisheryGuildData();
 
         checkRolesWithLog(event.getGuild(), fisheryGuildBean.getRoles());
         if (args.length() > 0) {
@@ -284,7 +284,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                         roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? roles.get(roleLvl - 1).getAsMention() : "**-**",
                         StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.SURVEY).getEffect()),
                         StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect()),
-                        fisheryMemberBean.getGuildBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberBean.getCoinsGivenMax()) : "∞"
+                        fisheryMemberBean.getGuildBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberBean.getCoinsGiveReceivedMax()) : "∞"
                 );
 
                 eb.addField(getString("status_title"), StringUtil.shortenStringLine(status, 1024), false);

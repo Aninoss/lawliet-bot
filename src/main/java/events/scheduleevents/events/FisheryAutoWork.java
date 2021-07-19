@@ -43,7 +43,7 @@ public class FisheryAutoWork implements ScheduleInterface {
         FisheryGuildData serverBean = DBFishery.getInstance().retrieve(guild.getIdLong());
         guild.getMembers().stream()
                 .filter(member -> DBAutoWork.getInstance().retrieve().isActive(member.getIdLong()))
-                .map(member -> serverBean.getMemberBean(member.getIdLong()))
+                .map(member -> serverBean.getMemberData(member.getIdLong()))
                 .filter(fisheryMemberBean -> fisheryMemberBean.checkNextWork().isEmpty())
                 .forEach(fisheryMemberBean -> {
                     long coins = fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect();

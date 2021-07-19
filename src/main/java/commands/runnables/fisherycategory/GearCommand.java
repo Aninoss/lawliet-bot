@@ -38,7 +38,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
     @Override
     protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         List<Role> buyableRoles = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getRoles();
-        FisheryMemberData fisheryMemberBean = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberBean(member.getIdLong());
+        FisheryMemberData fisheryMemberBean = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong());
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(getString("desc", StringUtil.numToString(fisheryMemberBean.getFish()), StringUtil.numToString(fisheryMemberBean.getCoins())));
         EmbedUtil.setFooter(eb, this);
@@ -76,7 +76,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
                 buyableRoles.size() > 0 && roleLvl > 0 && roleLvl <= buyableRoles.size() ? buyableRoles.get(roleLvl - 1).getAsMention() : "**-**",
                 StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.SURVEY).getEffect()),
                 StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect()),
-                fisheryMemberBean.getGuildBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberBean.getCoinsGivenMax()) : "∞"
+                fisheryMemberBean.getGuildBean().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberBean.getCoinsGiveReceivedMax()) : "∞"
         ), false);
 
         return eb;

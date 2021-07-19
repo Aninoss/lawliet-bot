@@ -53,7 +53,7 @@ public class OnTopGG implements SyncServerFunction {
                         .filter(guild -> DBGuild.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE)
                         .forEach(guild -> {
                             int value = isWeekend ? 2 : 1;
-                            FisheryMemberData userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberBean(userId);
+                            FisheryMemberData userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberData(userId);
 
                             if (DBAutoClaim.getInstance().retrieve().isActive(userId)) {
                                 userBean.changeValues(Fishery.getClaimValue(userBean) * value, 0);

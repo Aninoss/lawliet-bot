@@ -1,29 +1,42 @@
 package mysql.modules.fisheryusers;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
+import constants.Settings;
 import core.CustomObservableList;
-import core.CustomObservableMap;
-import mysql.DataWithGuild;
+import core.assets.GuildAsset;
+import core.utils.TimeUtil;
+import mysql.DBRedis;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Tuple;
 
-public class FisheryGuildData extends DataWithGuild {
+public class FisheryGuildData implements GuildAsset {
 
-    private final CustomObservableMap<Long, FisheryMemberData> users;
+    public final String KEY_RECENT_FISH_GAINS_RAW;
+    public final String KEY_RECENT_FISH_GAINS_PROCESSED;
+    public final String KEY_ON_SERVER; //TODO
+
+    private final long guildId;
+    private long recentFishGainsRefreshHour = 0;
+    private final HashMap<Long, Long> coinsHiddenMap = new HashMap<>();
     private final CustomObservableList<Long> ignoredChannelIds;
     private final CustomObservableList<Long> roleIds;
 
-    public FisheryGuildData(long serverId, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds, @NonNull HashMap<Long, FisheryMemberData> users) {
-        super(serverId);
+    public FisheryGuildData(long guildId, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds) {
+        this.guildId = guildId;
         this.ignoredChannelIds = new CustomObservableList<>(ignoredChannelIds);
         this.roleIds = new CustomObservableList<>(roleIds);
-        this.users = new CustomObservableMap<>(users);
-        this.users.forEach((userId, fisheryUser) -> fisheryUser.setFisheryServerBean(this));
+
+        this.KEY_RECENT_FISH_GAINS_RAW = "recent_fish_gains_raw:" + guildId;
+        this.KEY_RECENT_FISH_GAINS_PROCESSED = "recent_fish_gains_processed:" + guildId;
+        this.KEY_ON_SERVER = "on_server:" + guildId;
+    }
+
+    @Override
+    public long getGuildId() {
+        return guildId;
     }
 
     public CustomObservableList<Long> getIgnoredChannelIds() {
@@ -42,33 +55,85 @@ public class FisheryGuildData extends DataWithGuild {
         }).orElse(new CustomObservableList<>(new ArrayList<>()));
     }
 
-    public synchronized CustomObservableMap<Long, FisheryMemberData> getUsers() {
-        return users;
+    public synchronized FisheryMemberData getMemberData(long memberId) {
+        return new FisheryMemberData(this, memberId);
     }
 
-    public synchronized FisheryMemberData getMemberBean(long userId) {
-        return users.computeIfAbsent(userId, k -> new FisheryMemberData(
-                getGuildId(),
-                userId,
-                this,
-                0L,
-                0L,
-                LocalDate.of(2000, 1, 1),
-                0,
-                false,
-                0,
-                LocalDate.now(),
-                0,
-                0,
-                Instant.now(),
-                new HashMap<>(),
-                new HashMap<>()
-        ));
+    public long getCoinsHidden(long memberId) {
+        return coinsHiddenMap.getOrDefault(memberId, 0L);
     }
 
-    public void update() {
-        setChanged();
-        notifyObservers();
+    public void addCoinsHidden(long memberId, long coinsRaw, long amount) {
+        long coinsHidden = getCoinsHidden(memberId);
+        coinsHidden = Math.min(coinsRaw, coinsHidden + amount);
+        if (coinsHidden > 0) {
+            coinsHiddenMap.put(memberId, coinsHidden);
+        } else {
+            coinsHiddenMap.remove(memberId);
+        }
     }
+
+    public synchronized Optional<Map<Long, Long>> refreshRecentFishGains() {
+        long currentHour = TimeUtil.currentHour();
+        if (currentHour > recentFishGainsRefreshHour) {
+            HashMap<Long, Long> processedMap = new HashMap<>();
+
+            DBRedis.getInstance().update(jedis -> {
+                long minHour = currentHour - 24 * 7;
+                List<Map.Entry<String, String>> list = DBRedis.getInstance().hscan(jedis, KEY_RECENT_FISH_GAINS_RAW);
+                ArrayList<String> outdatedEntries = new ArrayList<>();
+
+                for (Map.Entry<String, String> entry : list) {
+                    String[] keyArgs = entry.getKey().split(":");
+                    long hour = Long.parseLong(keyArgs[0]);
+                    if (hour >= minHour) {
+                        long userId = Long.parseLong(keyArgs[1]);
+                        long add = Long.parseLong(entry.getValue());
+                        long recentFishGains = processedMap.computeIfAbsent(userId, k -> 0L);
+                        processedMap.put(userId, Math.min(recentFishGains + add, Settings.FISHERY_MAX));
+                    } else {
+                        outdatedEntries.add(entry.getKey());
+                    }
+                }
+
+                Pipeline pipeline = jedis.pipelined();
+                pipeline.del(KEY_RECENT_FISH_GAINS_PROCESSED);
+                for (Map.Entry<Long, Long> entry : processedMap.entrySet()) {
+                    pipeline.zadd(KEY_RECENT_FISH_GAINS_PROCESSED, entry.getValue(), String.valueOf(entry.getKey()));
+                }
+                pipeline.hdel(KEY_RECENT_FISH_GAINS_RAW, outdatedEntries.toArray(new String[0]));
+                pipeline.sync();
+            });
+
+            recentFishGainsRefreshHour = currentHour;
+            return Optional.of(processedMap);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Map<Long, Long> getAllRecentFishGains() {
+        return refreshRecentFishGains().orElseGet(() -> {
+            return DBRedis.getInstance().get(jedis -> {
+                HashMap<Long, Long> recentFishGains = new HashMap<>();
+                List<Tuple> list = DBRedis.getInstance().zscan(jedis, KEY_RECENT_FISH_GAINS_PROCESSED);
+                for (Tuple tuple : list) {
+                    recentFishGains.put(Long.parseLong(tuple.getElement()), Double.doubleToLongBits(tuple.getScore()));
+                }
+                return recentFishGains;
+            });
+        });
+    }
+
+    public FisheryRecentFishGainsData getRecentFishGainsForMember(long memberId) {
+        refreshRecentFishGains();
+        Double scoreDouble = DBRedis.getInstance().get(jedis -> jedis.zscore(KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId)));
+        long score = DBRedis.parseLong(scoreDouble);
+        return DBRedis.getInstance().get(jedis -> {
+            Long rank = jedis.zcount(KEY_RECENT_FISH_GAINS_PROCESSED, score + 1, Settings.FISHERY_MAX);
+            return new FisheryRecentFishGainsData(guildId, memberId, DBRedis.parseInteger(rank) + 1, score);
+        });
+    }
+
 
 }

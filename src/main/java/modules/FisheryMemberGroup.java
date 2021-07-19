@@ -36,7 +36,7 @@ public class FisheryMemberGroup {
 
     public List<FisheryMemberData> getFisheryMemberList() {
         return members.stream()
-                .map(m -> DBFishery.getInstance().retrieve(guildId).getMemberBean(m.getIdLong()))
+                .map(m -> DBFishery.getInstance().retrieve(guildId).getMemberData(m.getIdLong()))
                 .collect(Collectors.toList());
     }
 
