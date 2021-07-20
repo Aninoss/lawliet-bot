@@ -53,8 +53,6 @@ public class FisheryMemberData implements MemberAsset {
     public final String FIELD_NEXT_WORK = "next_work";
     public final String FIELD_MESSAGES_THIS_HOUR = "messages_this_hour";
     public final String FIELD_MESSAGES_THIS_HOUR_SLOT = "messages_this_hour_slot";
-    public final String FIELD_LAST_MESSAGE_CONTENT = "last_message_content";
-    public final String FIELD_LAST_MESSAGE_SLOT = "last_message_slot";
 
     FisheryMemberData(FisheryGuildData fisheryGuildBean, long memberId) {
         this.fisheryGuildBean = fisheryGuildBean;
@@ -147,17 +145,9 @@ public class FisheryMemberData implements MemberAsset {
             DBRedis.getInstance().update(jedis -> {
                 long coinsGiveReceived = DBRedis.parseLong(jedis.hget(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED));
                 long newCoinsGiveReceived = Math.min(coinsGiveReceived + value, Settings.FISHERY_MAX);
-                jedis.hset(KEY_ACCOUNT, FIELD_COINS, String.valueOf(newCoinsGiveReceived));
+                jedis.hset(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED, String.valueOf(newCoinsGiveReceived));
             });
         }
-    }
-
-    public long getTotalProgressIndex() {
-        long sum = 0;
-        for (FisheryGear gear : FisheryGear.values()) {
-            sum += FisheryMemberGearData.getValue(getMemberGear(gear).getLevel());
-        }
-        return sum;
     }
 
     public long getCoinsGiveReceivedMax() {
@@ -184,7 +174,8 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public LocalDate getDailyReceived() {
-        return DBRedis.getInstance().getLocalDate(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_DAILY_RECEIVED));
+        LocalDate date = DBRedis.getInstance().getLocalDate(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_DAILY_RECEIVED));
+        return date != null ? date : LocalDate.of(2000, 1, 1);
     }
 
     public long getDailyStreak() {
@@ -206,7 +197,7 @@ public class FisheryMemberData implements MemberAsset {
 
     public void cleanDailyValues() {
         LocalDate dailyValuesUpdated = DBRedis.getInstance().getLocalDate(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_DAILY_VALUES_UPDATED));
-        if (LocalDate.now().isAfter(dailyValuesUpdated)) {
+        if (dailyValuesUpdated == null || LocalDate.now().isAfter(dailyValuesUpdated)) {
             DBRedis.getInstance().update(jedis -> {
                 Pipeline pipeline = jedis.pipelined();
                 pipeline.hset(KEY_ACCOUNT, FIELD_DAILY_VALUES_UPDATED, LocalDate.now().toString());
@@ -240,20 +231,20 @@ public class FisheryMemberData implements MemberAsset {
     public boolean registerMessage(Message message) {
         return DBRedis.getInstance().get(jedis -> {
             long hour = TimeUtil.currentHour();
+            FisheryMemberGearData fisheryMemberGearData = getMemberGear(FisheryGear.MESSAGE);
 
             Pipeline pipeline = jedis.pipelined();
             Response<String> bannedUntilResp = pipeline.hget(KEY_ACCOUNT, FIELD_BANNED_UNTIL);
             Response<Long> messagesThisHourResp = pipeline.hincrBy(KEY_ACCOUNT, FIELD_MESSAGES_THIS_HOUR, 1);
             Response<String> messagesThisHourSlotResp = pipeline.hget(KEY_ACCOUNT, FIELD_MESSAGES_THIS_HOUR_SLOT);
-            Response<String> lastMessageContentResp = pipeline.hget(KEY_ACCOUNT, FIELD_LAST_MESSAGE_CONTENT);
-            Response<String> lastMessageSlotResp = pipeline.hget(KEY_ACCOUNT, FIELD_LAST_MESSAGE_SLOT);
             Response<String> fishResp = pipeline.hget(KEY_ACCOUNT, FIELD_FISH);
             Response<String> recentFishGainsRawResp = pipeline.hget(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId);
-            Response<String> recentFishGainsProcessedResp = pipeline.hget(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId));
+            Response<Double> recentFishGainsProcessedResp = pipeline.zscore(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId));
             Response<String> reminderSentResp = pipeline.hget(KEY_ACCOUNT, FIELD_REMINDER_SENT);
+            Response<String> levelResp = pipeline.hget(KEY_ACCOUNT, fisheryMemberGearData.FIELD_GEAR);
             pipeline.sync();
 
-            Instant bannedUntil = Instant.parse(bannedUntilResp.get());
+            Instant bannedUntil = DBRedis.parseInstant(bannedUntilResp.get());
             if (bannedUntil != null && bannedUntil.isAfter(Instant.now())) {
                 return false;
             }
@@ -274,53 +265,44 @@ public class FisheryMemberData implements MemberAsset {
                 return false;
             }
 
-            long lastMessageContent = DBRedis.parseLong(lastMessageContentResp.get());
-            long messageContent = message.getContentRaw().hashCode();
-            if (messageContent != lastMessageContent) {
-                pipeline = jedis.pipelined();
-                pipeline.hset(KEY_ACCOUNT, FIELD_LAST_MESSAGE_CONTENT, String.valueOf(messageContent));
-                int currentMessageSlot = (Calendar.getInstance().get(Calendar.SECOND) + Calendar.getInstance().get(Calendar.MINUTE) * 60) / 20;
-                long lastMessageSlot = DBRedis.parseLong(lastMessageSlotResp.get());
-                if (currentMessageSlot != lastMessageSlot) {
-                    pipeline.hset(KEY_ACCOUNT, FIELD_LAST_MESSAGE_SLOT, String.valueOf(currentMessageSlot));
-                    long effect = getMemberGear(FisheryGear.MESSAGE).getEffect();
+            if (getFisheryGuildData().messageActivityIsValid(memberId, message.getContentRaw())) {
+                long level = DBRedis.parseLong(levelResp.get());
+                long effect = fisheryMemberGearData.getEffect(level);
+                long fish = Math.min(DBRedis.parseLong(fishResp.get()) + effect, Settings.FISHERY_MAX);
+                long recentFishGainsRaw = Math.min(DBRedis.parseLong(recentFishGainsRawResp.get()) + effect, Settings.FISHERY_MAX);
+                long recentFishGainsProcessed = Math.min(DBRedis.parseLong(recentFishGainsProcessedResp.get()) + effect, Settings.FISHERY_MAX);
 
-                    long fish = Math.min(DBRedis.parseLong(fishResp.get()) + effect, Settings.FISHERY_MAX);
-                    long recentFishGainsRaw = Math.min(DBRedis.parseLong(recentFishGainsRawResp.get()) + effect, Settings.FISHERY_MAX);
-                    long recentFishGainsProcessed = Math.min(DBRedis.parseLong(recentFishGainsProcessedResp.get()) + effect, Settings.FISHERY_MAX);
+                pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
+                pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
+                pipeline.zadd(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, recentFishGainsProcessed, String.valueOf(memberId));
 
-                    pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
-                    pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
-                    pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId), String.valueOf(recentFishGainsProcessed));
+                Optional<Member> memberOpt = getMember();
+                if (fish >= 100 &&
+                        !DBRedis.parseBoolean(reminderSentResp.get()) &&
+                        getGuildBean().isFisheryReminders() &&
+                        BotPermissionUtil.canWriteEmbed(message.getTextChannel()) &&
+                        memberOpt.isPresent()
+                ) {
+                    pipeline.hset(KEY_ACCOUNT, FIELD_REMINDER_SENT, "true");
+                    Member member = memberOpt.get();
+                    Locale locale = getGuildBean().getLocale();
+                    String prefix = getGuildBean().getPrefix();
 
-                    Optional<Member> memberOpt = getMember();
-                    if (fish >= 100 &&
-                            !DBRedis.parseBoolean(reminderSentResp.get()) &&
-                            getGuildBean().isFisheryReminders() &&
-                            BotPermissionUtil.canWriteEmbed(message.getTextChannel()) &&
-                            memberOpt.isPresent()
-                    ) {
-                        pipeline.hset(KEY_ACCOUNT, FIELD_REMINDER_SENT, "true");
-                        Member member = memberOpt.get();
-                        Locale locale = getGuildBean().getLocale();
-                        String prefix = getGuildBean().getPrefix();
+                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                            .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
+                            .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("{PREFIX}", prefix))
+                            .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("{PREFIX}", prefix));
+                    EmbedUtil.setMemberAuthor(eb, member);
 
-                        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                                .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
-                                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("{PREFIX}", prefix))
-                                .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("{PREFIX}", prefix));
-                        EmbedUtil.setMemberAuthor(eb, member);
-
-                        message.getTextChannel().sendMessage(member.getAsMention())
-                                .setEmbeds(eb.build())
-                                .queue(m -> m.delete().queueAfter(Settings.FISHERY_DESPAWN_MINUTES, TimeUnit.MINUTES));
-                    }
-
-                    pipeline.sync();
-                    return true;
-                } else {
-                    pipeline.sync();
+                    message.getTextChannel().sendMessage(member.getAsMention())
+                            .setEmbeds(eb.build())
+                            .queue(m -> m.delete().queueAfter(Settings.FISHERY_DESPAWN_MINUTES, TimeUnit.MINUTES));
                 }
+
+                pipeline.sync();
+                return true;
+            } else {
+                pipeline.sync();
             }
             return false;
         });
@@ -330,13 +312,15 @@ public class FisheryMemberData implements MemberAsset {
         DBRedis.getInstance().update(jedis -> {
             long hour = TimeUtil.currentHour();
             int newMinutes = minutes;
+            FisheryMemberGearData fisheryMemberGearData = getMemberGear(FisheryGear.VOICE);
 
             Pipeline pipeline = jedis.pipelined();
             Response<String> bannedUntilResp = pipeline.hget(KEY_ACCOUNT, FIELD_BANNED_UNTIL);
             Response<String> voiceMinutesResp = pipeline.hget(KEY_ACCOUNT, FIELD_VOICE_MINUTES);
             Response<String> fishResp = pipeline.hget(KEY_ACCOUNT, FIELD_FISH);
             Response<String> recentFishGainsRawResp = pipeline.hget(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId);
-            Response<String> recentFishGainsProcessedResp = pipeline.hget(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId));
+            Response<Double> recentFishGainsProcessedResp = pipeline.zscore(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId));
+            Response<String> levelResp = pipeline.hget(KEY_ACCOUNT, fisheryMemberGearData.FIELD_GEAR);
             pipeline.sync();
 
             Instant bannedUntil = DBRedis.parseInstant(bannedUntilResp.get());
@@ -348,7 +332,8 @@ public class FisheryMemberData implements MemberAsset {
                 }
 
                 if (newMinutes > 0) {
-                    long effect = getMemberGear(FisheryGear.VOICE).getEffect() * newMinutes;
+                    long level = DBRedis.parseLong(levelResp.get());
+                    long effect = fisheryMemberGearData.getEffect(level) * newMinutes;
                     long fish = Math.min(DBRedis.parseLong(fishResp.get()) + effect, Settings.FISHERY_MAX);
                     long recentFishGainsRaw = Math.min(DBRedis.parseLong(recentFishGainsRawResp.get()) + effect, Settings.FISHERY_MAX);
                     long recentFishGainsProcessed = Math.min(DBRedis.parseLong(recentFishGainsProcessedResp.get()) + effect, Settings.FISHERY_MAX);
@@ -356,7 +341,7 @@ public class FisheryMemberData implements MemberAsset {
                     pipeline = jedis.pipelined();
                     pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
                     pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
-                    pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId), String.valueOf(recentFishGainsProcessed));
+                    pipeline.zadd(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, recentFishGainsProcessed, String.valueOf(memberId));
                     pipeline.hincrBy(KEY_ACCOUNT, FIELD_VOICE_MINUTES, newMinutes);
                     pipeline.sync();
                 }
@@ -413,7 +398,7 @@ public class FisheryMemberData implements MemberAsset {
             Pipeline pipeline = jedis.pipelined();
             Response<String> fishResp = pipeline.hget(KEY_ACCOUNT, FIELD_FISH);
             Response<String> recentFishGainsRawResp = pipeline.hget(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId);
-            Response<String> recentFishGainsProcessedResp = pipeline.hget(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId));
+            Response<Double> recentFishGainsProcessedResp = pipeline.zscore(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId));
             Response<String> coinsResp = pipeline.hget(KEY_ACCOUNT, FIELD_COINS);
             pipeline.sync();
 
@@ -426,7 +411,7 @@ public class FisheryMemberData implements MemberAsset {
                     long recentFishGainsRaw = Math.min(DBRedis.parseLong(recentFishGainsRawResp.get()) + fishAdd, Settings.FISHERY_MAX);
                     long recentFishGainsProcessed = Math.min(DBRedis.parseLong(recentFishGainsProcessedResp.get()) + fishAdd, Settings.FISHERY_MAX);
                     pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
-                    pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId), String.valueOf(recentFishGainsProcessed));
+                    pipeline.zadd(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, recentFishGainsProcessed, String.valueOf(memberId));
                 }
             }
 
@@ -549,7 +534,7 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public void levelUp(FisheryGear gear) {
-        getMemberGear(gear).setLevel(getMemberGear(gear).getLevel() + 1);
+        getMemberGear(gear).levelUp();
     }
 
     public void setLevel(FisheryGear gear, int level) {

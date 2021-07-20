@@ -1,10 +1,14 @@
 package mysql.modules.fisheryusers;
 
+import java.time.Duration;
 import java.util.*;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import constants.Settings;
 import core.CustomObservableList;
 import core.assets.GuildAsset;
 import core.utils.TimeUtil;
+import javafx.util.Pair;
 import mysql.DBRedis;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
@@ -23,6 +27,10 @@ public class FisheryGuildData implements GuildAsset {
     private final HashMap<Long, Long> coinsHiddenMap = new HashMap<>();
     private final CustomObservableList<Long> ignoredChannelIds;
     private final CustomObservableList<Long> roleIds;
+
+    private final Cache<Long, Pair<Integer, Integer>> messageActivityCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofMinutes(1))
+            .build();
 
     public FisheryGuildData(long guildId, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds) {
         this.guildId = guildId;
@@ -55,7 +63,7 @@ public class FisheryGuildData implements GuildAsset {
         }).orElse(new CustomObservableList<>(new ArrayList<>()));
     }
 
-    public synchronized FisheryMemberData getMemberData(long memberId) {
+    public FisheryMemberData getMemberData(long memberId) {
         return new FisheryMemberData(this, memberId);
     }
 
@@ -76,6 +84,8 @@ public class FisheryGuildData implements GuildAsset {
     public synchronized Optional<Map<Long, Long>> refreshRecentFishGains() {
         long currentHour = TimeUtil.currentHour();
         if (currentHour > recentFishGainsRefreshHour) {
+            System.out.println("Refreshing recent fish gains"); //TODO
+            long millis = System.currentTimeMillis(); //TODO
             HashMap<Long, Long> processedMap = new HashMap<>();
 
             DBRedis.getInstance().update(jedis -> {
@@ -106,6 +116,7 @@ public class FisheryGuildData implements GuildAsset {
             });
 
             recentFishGainsRefreshHour = currentHour;
+            System.out.println("Took " + (System.currentTimeMillis() - millis) + "ms"); //TODO
             return Optional.of(processedMap);
         } else {
             return Optional.empty();
@@ -118,7 +129,7 @@ public class FisheryGuildData implements GuildAsset {
                 HashMap<Long, Long> recentFishGains = new HashMap<>();
                 List<Tuple> list = DBRedis.getInstance().zscan(jedis, KEY_RECENT_FISH_GAINS_PROCESSED);
                 for (Tuple tuple : list) {
-                    recentFishGains.put(Long.parseLong(tuple.getElement()), Double.doubleToLongBits(tuple.getScore()));
+                    recentFishGains.put(Long.parseLong(tuple.getElement()), (long) tuple.getScore());
                 }
                 return recentFishGains;
             });
@@ -133,6 +144,21 @@ public class FisheryGuildData implements GuildAsset {
             Long rank = jedis.zcount(KEY_RECENT_FISH_GAINS_PROCESSED, score + 1, Settings.FISHERY_MAX);
             return new FisheryRecentFishGainsData(guildId, memberId, DBRedis.parseInteger(rank) + 1, score);
         });
+    }
+
+    public boolean messageActivityIsValid(long memberId, String messageContent) {
+        int currentMessageSlot = (Calendar.getInstance().get(Calendar.SECOND) + Calendar.getInstance().get(Calendar.MINUTE) * 60) / 20;
+        int currentMessageContentHash = messageContent.hashCode();
+
+        boolean valid = true;
+        Pair<Integer, Integer> pair = messageActivityCache.getIfPresent(memberId);
+        if (pair != null) {
+            int lastMessageSlot = pair.getKey();
+            int lastMessageContentHash = pair.getValue();
+            valid = currentMessageSlot > lastMessageSlot && currentMessageContentHash != lastMessageContentHash;
+        }
+        messageActivityCache.put(memberId, new Pair<>(currentMessageSlot, currentMessageContentHash));
+        return valid;
     }
 
 

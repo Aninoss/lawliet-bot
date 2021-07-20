@@ -25,9 +25,9 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
         //manage message
         boolean messageRegistered = false;
         FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
-        if (!event.getMessage().getContentRaw().isEmpty()
-                && guildBean.getFisheryStatus() == FisheryStatus.ACTIVE
-                && !fisheryGuildBean.getIgnoredChannelIds().contains(event.getChannel().getIdLong())
+        if (!event.getMessage().getContentRaw().isEmpty() &&
+                guildBean.getFisheryStatus() == FisheryStatus.ACTIVE &&
+                !fisheryGuildBean.getIgnoredChannelIds().contains(event.getChannel().getIdLong())
         ) {
             messageRegistered = fisheryGuildBean.getMemberData(event.getMember().getIdLong())
                     .registerMessage(event.getMessage());

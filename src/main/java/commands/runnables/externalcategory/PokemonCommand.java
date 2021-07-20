@@ -76,7 +76,7 @@ public class PokemonCommand extends Command {
                     group = " " + group + " ";
                     String[] typesString = TextManager.getString(Language.DE.getLocale(), Category.EXTERNAL, "weaknesstype_types").split("\n");
                     for (int i = 0; i < typesString.length; i++) {
-                        if (group.contains(" " + typesString[i] + " ") && !types.contains(i) && types.size() < 2) {
+                        if (group.contains("\"" + typesString[i] + "\"") && !types.contains(i) && types.size() < 2) {
                             types.add(i);
                             found = true;
                         }

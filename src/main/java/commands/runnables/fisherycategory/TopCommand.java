@@ -80,7 +80,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
 
     private int getRank(Collection<Long> recentFishGainsCollection, long recentFishGains) {
         return (int) (recentFishGainsCollection.stream()
-                        .map(slot -> slot > recentFishGains)
+                        .filter(slot -> slot > recentFishGains)
                         .count() + 1);
     }
 

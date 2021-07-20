@@ -75,7 +75,7 @@ public class HelpCommand extends NavigationAbstract {
 
     @ControllerMessage(state = DEFAULT_STATE)
     public Response onMessage(GuildMessageReceivedEvent event, String input) {
-        if (buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(input))) {
+        if (input.length() > 0 && buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(input))) {
             searchTerm = input;
             return Response.TRUE;
         }

@@ -3,6 +3,8 @@ package commands.runnables.fisherycategory;
 import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryMemberAccountInterface;
+import core.EmbedFactory;
+import core.TextManager;
 import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -25,8 +27,12 @@ public class AccountCommand extends FisheryMemberAccountInterface {
 
     @Override
     protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
-        return DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong())
-                .getAccountEmbed();
+        if (!member.getUser().isBot()) {
+            return DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong())
+                    .getAccountEmbed();
+        } else {
+            return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_bots"));
+        }
     }
 
 }

@@ -7,12 +7,15 @@ import mysql.DBRedis;
 
 public class FisheryMemberGearData implements MemberAsset {
 
+    public final String FIELD_GEAR;
+
     private final FisheryMemberData fisheryMemberData;
     private final FisheryGear gear;
 
     public FisheryMemberGearData(FisheryMemberData fisheryMemberData, FisheryGear gear) {
         this.fisheryMemberData = fisheryMemberData;
         this.gear = gear;
+        this.FIELD_GEAR = "gear:" + gear.ordinal();
     }
 
     @Override
@@ -30,11 +33,15 @@ public class FisheryMemberGearData implements MemberAsset {
     }
 
     public int getLevel() {
-        return DBRedis.getInstance().getInteger(jedis -> jedis.hget(fisheryMemberData.KEY_ACCOUNT, "gear:" + gear.ordinal()));
+        return DBRedis.getInstance().getInteger(jedis -> jedis.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR));
     }
 
     void setLevel(int level) {
-        DBRedis.getInstance().update(jedis -> jedis.hset(fisheryMemberData.KEY_ACCOUNT, "gear:" + gear.ordinal(), String.valueOf(level)));
+        DBRedis.getInstance().update(jedis -> jedis.hset(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR, String.valueOf(level)));
+    }
+
+    void levelUp() {
+        DBRedis.getInstance().update(jedis -> jedis.hincrBy(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR, 1));
     }
 
     public long getPrice() {
@@ -42,7 +49,11 @@ public class FisheryMemberGearData implements MemberAsset {
     }
 
     public long getEffect() {
-        return getValue(getLevel()) * gear.getEffect();
+        return getEffect(getLevel());
+    }
+
+    public long getEffect(long level) {
+        return getValue(level) * gear.getEffect();
     }
 
     public long getDeltaEffect() {

@@ -42,7 +42,7 @@ public class GiveCommand extends Command implements FisheryInterface {
         list.removeIf(member -> member.getUser().isBot() || member.getIdLong() == event.getMember().getIdLong());
 
         if (list.size() == 0) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("no_mentions")).build()).queue();
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")).build()).queue();
             return false;
         }
 
