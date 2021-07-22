@@ -85,7 +85,6 @@ public class DBFishery extends DBMapCache<Long, FisheryGuildData> {
             Pipeline pipeline = jedis.pipelined();
             pipeline.del(fisheryGuildData.KEY_RECENT_FISH_GAINS_RAW);
             pipeline.del(fisheryGuildData.KEY_RECENT_FISH_GAINS_PROCESSED);
-            pipeline.del(fisheryGuildData.KEY_ON_SERVER);
             pipeline.del(accountKeys.toArray(new String[0]));
             pipeline.sync();
         });

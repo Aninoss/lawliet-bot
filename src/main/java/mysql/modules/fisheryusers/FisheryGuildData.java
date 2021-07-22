@@ -20,7 +20,6 @@ public class FisheryGuildData implements GuildAsset {
 
     public final String KEY_RECENT_FISH_GAINS_RAW;
     public final String KEY_RECENT_FISH_GAINS_PROCESSED;
-    public final String KEY_ON_SERVER; //TODO
 
     private final long guildId;
     private long recentFishGainsRefreshHour = 0;
@@ -39,7 +38,6 @@ public class FisheryGuildData implements GuildAsset {
 
         this.KEY_RECENT_FISH_GAINS_RAW = "recent_fish_gains_raw:" + guildId;
         this.KEY_RECENT_FISH_GAINS_PROCESSED = "recent_fish_gains_processed:" + guildId;
-        this.KEY_ON_SERVER = "on_server:" + guildId;
     }
 
     @Override
@@ -84,8 +82,6 @@ public class FisheryGuildData implements GuildAsset {
     public synchronized Optional<Map<Long, Long>> refreshRecentFishGains() {
         long currentHour = TimeUtil.currentHour();
         if (currentHour > recentFishGainsRefreshHour) {
-            System.out.println("Refreshing recent fish gains"); //TODO
-            long millis = System.currentTimeMillis(); //TODO
             HashMap<Long, Long> processedMap = new HashMap<>();
 
             DBRedis.getInstance().update(jedis -> {
@@ -116,7 +112,6 @@ public class FisheryGuildData implements GuildAsset {
             });
 
             recentFishGainsRefreshHour = currentHour;
-            System.out.println("Took " + (System.currentTimeMillis() - millis) + "ms"); //TODO
             return Optional.of(processedMap);
         } else {
             return Optional.empty();

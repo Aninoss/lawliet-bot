@@ -13,10 +13,7 @@ import constants.CodeBlockColor;
 import constants.FisheryGear;
 import constants.LogStatus;
 import constants.Settings;
-import core.CustomObservableList;
-import core.EmbedFactory;
-import core.MainLogger;
-import core.TextManager;
+import core.*;
 import core.assets.MemberAsset;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
@@ -558,7 +555,7 @@ public class FisheryMemberData implements MemberAsset {
 
     public void remove() {
         DBRedis.getInstance().update(jedis -> {
-            List<Map.Entry<String, String>> recentFishGainsRaw = DBRedis.getInstance().hscan(jedis, getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW); //TODO
+            List<Map.Entry<String, String>> recentFishGainsRaw = DBRedis.getInstance().hscan(jedis, getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW);
 
             Pipeline pipeline = jedis.pipelined();
             pipeline.del(KEY_ACCOUNT);
