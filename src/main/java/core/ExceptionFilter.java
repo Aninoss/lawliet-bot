@@ -50,7 +50,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
         final ThrowableProxy throwableProxyImpl = (ThrowableProxy) throwableProxy;
         String message = throwableProxyImpl.getThrowable().toString();
         if (message.contains("java.lang.OutOfMemoryError")) {
-            System.err.println("EXIT - Out of Memory");
+            System.err.println("EXIT - Out of Memory (" + Program.getClusterId() + ")");
             System.exit(1);
             return FilterReply.NEUTRAL;
         }

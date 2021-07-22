@@ -79,14 +79,14 @@ public class ShardManager {
     }
 
     public void increaseGlobalErrorCounter() {
-        if (++globalErrors >= totalShards) {
-            MainLogger.get().error("EXIT - Too many shard errors!");
+        if (++globalErrors >= 8) {
+            System.err.println("EXIT - Too many shard errors (" + Program.getClusterId() + ")");
             System.exit(6);
         }
     }
 
-    public void resetGlobalErrorCounter() {
-        globalErrors = 0;
+    public void decreaseGlobalErrorCounter() {
+        globalErrors = Math.max(globalErrors - 1, 0);
     }
 
     public synchronized void initAssetIds(JDA jda) {
@@ -360,7 +360,7 @@ public class ShardManager {
     private static class JDAExtended {
 
         private final JDA jda;
-        private boolean alive = true;
+        private boolean alive = false;
         private boolean active = true;
         private int errors = 0;
 
@@ -388,7 +388,7 @@ public class ShardManager {
 
         public void checkConnection() {
             if (alive) {
-                ShardManager.getInstance().resetGlobalErrorCounter();
+                ShardManager.getInstance().decreaseGlobalErrorCounter();
                 errors = 0;
                 alive = false;
             } else {

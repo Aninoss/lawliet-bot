@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class HttpRequest {
 
-    private static final String USER_AGENT = String.format("Lawliet Discord Bot v%s made by Aninoss", BotUtil.getCurrentVersion());
+    private static final String USER_AGENT = String.format("Lawliet Discord Bot v%s made by Aninoss#7220", BotUtil.getCurrentVersion());
 
     public static CompletableFuture<HttpResponse> get(String url, HttpHeader... headers) {
         return post(url, null, null, headers);
