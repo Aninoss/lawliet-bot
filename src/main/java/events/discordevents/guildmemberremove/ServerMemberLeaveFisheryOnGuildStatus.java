@@ -16,8 +16,7 @@ public class ServerMemberLeaveFisheryOnGuildStatus extends GuildMemberRemoveAbst
         if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED) {
             return true;
         }
-
-        fisheryGuildBean.getMemberData(event.getUser().getIdLong()).setOnServer(false);
+        //TODO: remove processed recent fish gains
         return true;
     }
 

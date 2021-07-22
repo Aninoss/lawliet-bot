@@ -262,7 +262,6 @@ public class FisheryMemberData implements MemberAsset {
                 pipeline.hdel(KEY_ACCOUNT, FIELD_MESSAGES_THIS_HOUR);
                 pipeline.hset(KEY_ACCOUNT, FIELD_MESSAGES_THIS_HOUR_SLOT, String.valueOf(hour));
                 pipeline.sync();
-                return false;
             }
 
             if (getFisheryGuildData().messageActivityIsValid(memberId, message.getContentRaw())) {
@@ -555,14 +554,6 @@ public class FisheryMemberData implements MemberAsset {
 
     public void clearUpvoteStack() {
         DBRedis.getInstance().update(jedis -> jedis.hdel(KEY_ACCOUNT, FIELD_UPVOTE_STACK));
-    }
-
-    public boolean isOnServer() {
-        return true; //TODO
-    }
-
-    public void setOnServer(boolean onServer) {
-        //TODO
     }
 
     public void remove() {

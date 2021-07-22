@@ -16,8 +16,7 @@ public class ServerMemberJoinFisheryOnGuildStatus extends GuildMemberJoinAbstrac
         if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED) {
             return true;
         }
-
-        fisheryGuildBean.getMemberData(event.getUser().getIdLong()).setOnServer(true);
+        //TODO: add processed recent fish gains
         return true;
     }
 
