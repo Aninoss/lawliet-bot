@@ -78,15 +78,18 @@ public class ShardManager {
         }
     }
 
-    public void increaseGlobalErrorCounter() {
-        if (++globalErrors >= 8) {
+    public synchronized void increaseGlobalErrorCounter() {
+        MainLogger.get().warn("Shard error counter: {}", ++globalErrors);
+        if (globalErrors >= 8) {
             System.err.println("EXIT - Too many shard errors (" + Program.getClusterId() + ")");
             System.exit(6);
         }
     }
 
-    public void decreaseGlobalErrorCounter() {
-        globalErrors = Math.max(globalErrors - 1, 0);
+    public synchronized void decreaseGlobalErrorCounter() {
+        if (globalErrors > 0) {
+            MainLogger.get().warn("Shard error counter: {}", --globalErrors);
+        }
     }
 
     public synchronized void initAssetIds(JDA jda) {

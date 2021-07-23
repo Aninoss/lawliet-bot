@@ -81,7 +81,7 @@ public class FisheryGuildData implements GuildAsset {
 
     public synchronized Optional<Map<Long, Long>> refreshRecentFishGains() {
         long currentHour = TimeUtil.currentHour();
-        if (currentHour > recentFishGainsRefreshHour) {
+        if (currentHour > recentFishGainsRefreshHour) { /* TODO: exclude members which are not in the server */
             HashMap<Long, Long> processedMap = new HashMap<>();
 
             DBRedis.getInstance().update(jedis -> {

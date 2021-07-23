@@ -80,7 +80,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        DiscordConnector.getInstance().onJDAJoin(event.getJDA());
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> DiscordConnector.getInstance().onJDAJoin(event.getJDA()));
     }
 
     @Override
@@ -91,7 +92,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onPrivateMessageReceived(@NotNull PrivateMessageReceivedEvent event) {
-        PrivateMessageReceivedAbstract.onPrivateMessageReceivedStatic(event, getListenerList(PrivateMessageReceivedAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> PrivateMessageReceivedAbstract.onPrivateMessageReceivedStatic(event, getListenerList(PrivateMessageReceivedAbstract.class)));
     }
 
     @Override
@@ -102,7 +104,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onGuildMessageDelete(@NotNull GuildMessageDeleteEvent event) {
-        GuildMessageDeleteAbstract.onGuildMessageDeleteStatic(event, getListenerList(GuildMessageDeleteAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildMessageDeleteAbstract.onGuildMessageDeleteStatic(event, getListenerList(GuildMessageDeleteAbstract.class)));
     }
 
     @Override
@@ -119,82 +122,98 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onVoiceChannelDelete(@NotNull VoiceChannelDeleteEvent event) {
-        VoiceChannelDeleteAbstract.onVoiceChannelDeleteStatic(event, getListenerList(VoiceChannelDeleteAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> VoiceChannelDeleteAbstract.onVoiceChannelDeleteStatic(event, getListenerList(VoiceChannelDeleteAbstract.class)));
     }
 
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
-        GuildJoinAbstract.onGuildJoinStatic(event, getListenerList(GuildJoinAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildJoinAbstract.onGuildJoinStatic(event, getListenerList(GuildJoinAbstract.class)));
     }
 
     @Override
     public void onGuildLeave(@NotNull GuildLeaveEvent event) {
-        GuildLeaveAbstract.onGuildLeaveStatic(event, getListenerList(GuildLeaveAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildLeaveAbstract.onGuildLeaveStatic(event, getListenerList(GuildLeaveAbstract.class)));
     }
 
     @Override
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
-        GuildMemberJoinAbstract.onGuildMemberJoinStatic(event, getListenerList(GuildMemberJoinAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildMemberJoinAbstract.onGuildMemberJoinStatic(event, getListenerList(GuildMemberJoinAbstract.class)));
     }
 
     @Override
     public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
-        GuildMemberRemoveAbstract.onGuildMemberRemoveStatic(event, getListenerList(GuildMemberRemoveAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildMemberRemoveAbstract.onGuildMemberRemoveStatic(event, getListenerList(GuildMemberRemoveAbstract.class)));
     }
 
     @Override
     public void onGuildUnban(@NotNull GuildUnbanEvent event) {
-        GuildUnbanAbstract.onGuildUnbanStatic(event, getListenerList(GuildUnbanAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildUnbanAbstract.onGuildUnbanStatic(event, getListenerList(GuildUnbanAbstract.class)));
     }
 
     @Override
     public void onTextChannelDelete(@NotNull TextChannelDeleteEvent event) {
-        TextChannelDeleteAbstract.onTextChannelDeleteStatic(event, getListenerList(TextChannelDeleteAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> TextChannelDeleteAbstract.onTextChannelDeleteStatic(event, getListenerList(TextChannelDeleteAbstract.class)));
     }
 
     @Override
     public void onVoiceChannelUpdateUserLimit(@NotNull VoiceChannelUpdateUserLimitEvent event) {
-        VoiceChannelUpdateUserLimitAbstract.onVoiceChannelUpdateUserLimitStatic(event, getListenerList(VoiceChannelUpdateUserLimitAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> VoiceChannelUpdateUserLimitAbstract.onVoiceChannelUpdateUserLimitStatic(event, getListenerList(VoiceChannelUpdateUserLimitAbstract.class)));
     }
 
     @Override
     public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
-        GuildVoiceJoinAbstract.onGuildVoiceJoinStatic(event, getListenerList(GuildVoiceJoinAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildVoiceJoinAbstract.onGuildVoiceJoinStatic(event, getListenerList(GuildVoiceJoinAbstract.class)));
     }
 
     @Override
     public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
-        GuildVoiceLeaveAbstract.onGuildVoiceLeaveStatic(event, getListenerList(GuildVoiceLeaveAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildVoiceLeaveAbstract.onGuildVoiceLeaveStatic(event, getListenerList(GuildVoiceLeaveAbstract.class)));
     }
 
     @Override
     public void onGuildVoiceMove(@NotNull GuildVoiceMoveEvent event) {
-        GuildVoiceMoveAbstract.onGuildVoiceMoveStatic(event, getListenerList(GuildVoiceMoveAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildVoiceMoveAbstract.onGuildVoiceMoveStatic(event, getListenerList(GuildVoiceMoveAbstract.class)));
     }
 
     @Override
     public void onGuildMemberRoleAdd(@NotNull GuildMemberRoleAddEvent event) {
-        GuildMemberRoleAddAbstract.onGuildMemberRoleAddStatic(event, getListenerList(GuildMemberRoleAddAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildMemberRoleAddAbstract.onGuildMemberRoleAddStatic(event, getListenerList(GuildMemberRoleAddAbstract.class)));
     }
 
     @Override
     public void onGuildMemberRoleRemove(@NotNull GuildMemberRoleRemoveEvent event) {
-        GuildMemberRoleRemoveAbstract.onGuildMemberRoleRemoveStatic(event, getListenerList(GuildMemberRoleRemoveAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildMemberRoleRemoveAbstract.onGuildMemberRoleRemoveStatic(event, getListenerList(GuildMemberRoleRemoveAbstract.class)));
     }
 
     @Override
     public void onGuildUpdateBoostCount(@NotNull GuildUpdateBoostCountEvent event) {
-        GuildUpdateBoostCountAbstract.onGuildUpdateBoostCountStatic(event, getListenerList(GuildUpdateBoostCountAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildUpdateBoostCountAbstract.onGuildUpdateBoostCountStatic(event, getListenerList(GuildUpdateBoostCountAbstract.class)));
     }
 
     @Override
     public void onUserActivityStart(@NotNull UserActivityStartEvent event) {
-        UserActivityStartAbstract.onUserActivityStartStatic(event, getListenerList(UserActivityStartAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> UserActivityStartAbstract.onUserActivityStartStatic(event, getListenerList(UserActivityStartAbstract.class)));
     }
 
     @Override
     public void onGuildMemberUpdatePending(@NotNull GuildMemberUpdatePendingEvent event) {
-        GuildMemberUpdatePendingAbstract.onGuildMemberUpdatePendingStatic(event, getListenerList(GuildMemberUpdatePendingAbstract.class));
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildMemberUpdatePendingAbstract.onGuildMemberUpdatePendingStatic(event, getListenerList(GuildMemberUpdatePendingAbstract.class)));
     }
 
     @Override
