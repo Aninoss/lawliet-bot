@@ -2,7 +2,7 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.GelbooruAbstract;
+import commands.runnables.Rule34HentaiAbstract;
 
 @CommandProperties(
         trigger = "hblowjob",
@@ -14,7 +14,7 @@ import commands.runnables.GelbooruAbstract;
         patreonRequired = true,
         aliases = { "hentaiblowjob", "hbj" }
 )
-public class HentaiBlowjobCommand extends GelbooruAbstract {
+public class HentaiBlowjobCommand extends Rule34HentaiAbstract {
 
     public HentaiBlowjobCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -22,7 +22,7 @@ public class HentaiBlowjobCommand extends GelbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated blowjob -gay -lesbian -trap -shemale -interspecies -furry";
+        return "animated fellatio -yaoi -yuri -shemale -lesbian -gay -futa -trap";
     }
 
     @Override

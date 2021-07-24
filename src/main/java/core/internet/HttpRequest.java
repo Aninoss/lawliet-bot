@@ -48,6 +48,7 @@ public class HttpRequest {
 
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                call.cancel();
                 future.completeExceptionally(e);
             }
         });

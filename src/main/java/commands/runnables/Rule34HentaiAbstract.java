@@ -2,25 +2,25 @@ package commands.runnables;
 
 import java.util.Locale;
 
-public abstract class GelbooruAbstract extends PornPredefinedAbstract {
+public abstract class Rule34HentaiAbstract extends PornPredefinedAbstract {
 
-    public GelbooruAbstract(Locale locale, String prefix) {
+    public Rule34HentaiAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
     protected String getSearchExtra() {
-        return " -japanese_(nationality) -asian -photo -interspecies -furry -lowres -pokemon";
+        return " -human_on_anthro -interspecies -furry -anthro -pony -pokemon -monster -animal_humanoid -no_humans";
     }
 
     @Override
     protected String getDomain() {
-        return "gelbooru.com";
+        return "rule34.xxx";
     }
 
     @Override
     protected String getImageTemplate() {
-        return "https://img2.gelbooru.com/images/%d/%f";
+        return "https://img.rule34.xxx/images/%d/%f";
     }
 
     @Override

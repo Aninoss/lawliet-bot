@@ -2,7 +2,7 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.GelbooruAbstract;
+import commands.runnables.Rule34HentaiAbstract;
 
 @CommandProperties(
         trigger = "futa",
@@ -12,7 +12,7 @@ import commands.runnables.GelbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false
 )
-public class FutaCommand extends GelbooruAbstract {
+public class FutaCommand extends Rule34HentaiAbstract {
 
     public FutaCommand(Locale locale, String prefix) {
         super(locale, prefix);

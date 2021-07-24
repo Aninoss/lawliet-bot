@@ -2,7 +2,7 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.GelbooruAbstract;
+import commands.runnables.Rule34HentaiAbstract;
 
 @CommandProperties(
         trigger = "ahegao",
@@ -13,7 +13,7 @@ import commands.runnables.GelbooruAbstract;
         requiresEmbeds = false,
         patreonRequired = true
 )
-public class AhegaoCommand extends GelbooruAbstract {
+public class AhegaoCommand extends Rule34HentaiAbstract {
 
     public AhegaoCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -21,7 +21,7 @@ public class AhegaoCommand extends GelbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated ahegao -yaoi -yuri";
+        return "animated ahegao -yaoi -yuri -shemale -lesbian -gay -futa -trap";
     }
 
     @Override

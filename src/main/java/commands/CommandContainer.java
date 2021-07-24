@@ -239,7 +239,6 @@ public class CommandContainer {
 
         //NSFW
         commandList.add(Rule34Command.class);
-        commandList.add(GelbooruCommand.class);
         commandList.add(RealbooruCommand.class);
         commandList.add(FurryCommand.class);
         commandList.add(RealLifePornCommand.class);

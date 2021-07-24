@@ -2,8 +2,7 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnAlertListener;
-import commands.runnables.GelbooruAbstract;
+import commands.runnables.Rule34HentaiAbstract;
 
 @CommandProperties(
         trigger = "yuri",
@@ -13,7 +12,7 @@ import commands.runnables.GelbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false
 )
-public class YuriCommand extends GelbooruAbstract {
+public class YuriCommand extends Rule34HentaiAbstract {
 
     public YuriCommand(Locale locale, String prefix) {
         super(locale, prefix);
