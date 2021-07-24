@@ -191,19 +191,6 @@ CREATE TABLE `BasicRole` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Temporary view structure for view `BotActivitiy`
---
-
-DROP TABLE IF EXISTS `BotActivitiy`;
-/*!50001 DROP VIEW IF EXISTS `BotActivitiy`*/;
-SET @saved_cs_client     = @@character_set_client;
-/*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `BotActivitiy` AS SELECT 
- 1 AS `Stundenzahl`,
- 1 AS `Fische`*/;
-SET character_set_client = @saved_cs_client;
-
---
 -- Table structure for table `Bump`
 --
 
@@ -377,7 +364,7 @@ CREATE TABLE `FeatureRequestBoosts` (
   `boostUserId` bigint unsigned NOT NULL,
   PRIMARY KEY (`id`,`boostDatetime`,`boostUserId`),
   CONSTRAINT `FeatureRequestsBase` FOREIGN KEY (`id`) REFERENCES `FeatureRequests` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=263 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=336 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -396,7 +383,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=268 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=340 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -428,7 +415,7 @@ CREATE TABLE `Giveaways` (
   `emoji` varchar(100) NOT NULL,
   `winners` tinyint NOT NULL DEFAULT '0',
   `start` timestamp NOT NULL,
-  `durationMinutes` smallint unsigned NOT NULL,
+  `durationMinutes` mediumint unsigned NOT NULL DEFAULT '0',
   `title` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `imageUrl` varchar(500) DEFAULT NULL,
@@ -493,19 +480,6 @@ CREATE TABLE `Moderation` (
   CONSTRAINT `ModerationServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Temporary view structure for view `MostPopularFisheryPowerUps`
---
-
-DROP TABLE IF EXISTS `MostPopularFisheryPowerUps`;
-/*!50001 DROP VIEW IF EXISTS `MostPopularFisheryPowerUps`*/;
-SET @saved_cs_client     = @@character_set_client;
-/*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `MostPopularFisheryPowerUps` AS SELECT 
- 1 AS `categoryId`,
- 1 AS `SUM(LEVEL)`*/;
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `NSFWFilter`
@@ -593,95 +567,6 @@ CREATE TABLE `PowerPlantRoles` (
   CONSTRAINT `PowerPlantRolesServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `PowerPlantUserGained`
---
-
-DROP TABLE IF EXISTS `PowerPlantUserGained`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `PowerPlantUserGained` (
-  `serverId` bigint unsigned NOT NULL,
-  `userId` bigint unsigned NOT NULL,
-  `time` timestamp NOT NULL,
-  `coinsGrowth` bigint unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`serverId`,`userId`,`time`),
-  KEY `PowerPlantUserGainedUserBase` (`userId`),
-  KEY `serverId` (`serverId`) USING BTREE,
-  CONSTRAINT `PowerPlantUserGainedServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `PowerPlantUserPowerUp`
---
-
-DROP TABLE IF EXISTS `PowerPlantUserPowerUp`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `PowerPlantUserPowerUp` (
-  `serverId` bigint unsigned NOT NULL,
-  `userId` bigint unsigned NOT NULL,
-  `categoryId` int unsigned NOT NULL,
-  `powerUpId` int unsigned NOT NULL DEFAULT '0',
-  `level` int unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`serverId`,`userId`,`categoryId`,`powerUpId`),
-  KEY `PowerPlantUserPowerUpCategoryBase2` (`categoryId`),
-  KEY `PowerPlantUserPowerUpUserBase` (`userId`),
-  KEY `serverId_userId` (`serverId`,`userId`),
-  KEY `serverId` (`serverId`),
-  CONSTRAINT `PowerPlantUserPowerUpServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `PowerPlantUsers`
---
-
-DROP TABLE IF EXISTS `PowerPlantUsers`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `PowerPlantUsers` (
-  `serverId` bigint unsigned NOT NULL,
-  `userId` bigint unsigned NOT NULL,
-  `joule` bigint NOT NULL DEFAULT '0',
-  `coins` bigint NOT NULL DEFAULT '0',
-  `dailyRecieved` date NOT NULL DEFAULT '1000-01-01',
-  `dailyStreak` bigint unsigned NOT NULL DEFAULT '0',
-  `reminderSent` tinyint(1) NOT NULL DEFAULT '0',
-  `onServer` tinyint(1) NOT NULL DEFAULT '1',
-  `upvotesUnclaimed` int unsigned NOT NULL DEFAULT '0',
-  `dailyValuesUpdated` date NOT NULL DEFAULT '1000-01-01',
-  `dailyVCMinutes` int unsigned NOT NULL DEFAULT '0',
-  `dailyReceivedCoins` bigint unsigned NOT NULL DEFAULT '0',
-  `nextWork` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`serverId`,`userId`),
-  KEY `PowerPlantUsersUserBase` (`userId`),
-  KEY `serverId` (`serverId`),
-  CONSTRAINT `PowerPlantUsersServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Temporary view structure for view `PowerPlantUsersExtended`
---
-
-DROP TABLE IF EXISTS `PowerPlantUsersExtended`;
-/*!50001 DROP VIEW IF EXISTS `PowerPlantUsersExtended`*/;
-SET @saved_cs_client     = @@character_set_client;
-/*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `PowerPlantUsersExtended` AS SELECT 
- 1 AS `serverId`,
- 1 AS `userId`,
- 1 AS `joule`,
- 1 AS `coins`,
- 1 AS `dailyRecieved`,
- 1 AS `reminderSent`,
- 1 AS `growth`,
- 1 AS `dailyStreak`,
- 1 AS `onServer`*/;
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `Premium`
@@ -1232,14 +1117,10 @@ CREATE DEFINER=`Aninoss`@`%` PROCEDURE `RemoveUser`(
 )
     MODIFIES SQL DATA
 BEGIN
-	DELETE FROM PowerPlantUserGained WHERE userId = userIdRemove;
-	DELETE FROM PowerPlantUserPowerUp WHERE userId = userIdRemove;
-	DELETE FROM PowerPlantUsers WHERE userId = userIdRemove;
 	DELETE FROM AutoClaim WHERE userId = userIdRemove;
 	DELETE FROM BannedWordsIgnoredUsers WHERE userId = userIdRemove;
 	DELETE FROM BannedWordsLogRecievers WHERE userId = userIdRemove;
 	DELETE FROM Donators WHERE userId = userIdRemove;
-	DELETE FROM Giveaway WHERE userId = userIdRemove;
 	DELETE FROM SPBlockIgnoredUsers WHERE userId = userIdRemove;
 	DELETE FROM SPBlockLogRecievers WHERE userId = userIdRemove;
 	DELETE FROM SurveyMajorityVotes WHERE userId = userIdRemove;
@@ -1252,103 +1133,12 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `TransferServerFishery` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`Aninoss`@`%` PROCEDURE `TransferServerFishery`(
-	IN `serverId0` BIGINT,
-	IN `serverId1` BIGINT
-)
-    MODIFIES SQL DATA
-BEGIN
-
-START TRANSACTION;
-
-DELETE FROM PowerPlantUserGained WHERE serverId = serverId1;
-DELETE FROM PowerPlantUserPowerUp WHERE serverId = serverId1;
-DELETE FROM PowerPlantUsers WHERE serverId = serverId1;
-DELETE FROM PowerPlantRoles WHERE serverId = serverId1;
-
-UPDATE PowerPlantUserGained SET serverId = serverId1 WHERE serverId = serverId0;
-UPDATE PowerPlantUserPowerUp SET serverId = serverId1 WHERE serverId = serverId0;
-UPDATE PowerPlantUsers SET serverId = serverId1 WHERE serverId = serverId0;
-UPDATE PowerPlantRoles SET serverId = serverId1 WHERE serverId = serverId0;
-
-COMMIT;
-
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Current Database: `Lawliet`
 --
 
 USE `Lawliet`;
-
---
--- Final view structure for view `BotActivitiy`
---
-
-/*!50001 DROP VIEW IF EXISTS `BotActivitiy`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `BotActivitiy` AS select hour(`PowerPlantUserGained`.`time`) AS `Stundenzahl`,count(`PowerPlantUserGained`.`coinsGrowth`) AS `Fische` from `PowerPlantUserGained` group by hour(`PowerPlantUserGained`.`time`) order by `Fische` */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
--- Final view structure for view `MostPopularFisheryPowerUps`
---
-
-/*!50001 DROP VIEW IF EXISTS `MostPopularFisheryPowerUps`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `MostPopularFisheryPowerUps` AS select `PowerPlantUserPowerUp`.`categoryId` AS `categoryId`,sum(`PowerPlantUserPowerUp`.`level`) AS `SUM(LEVEL)` from `PowerPlantUserPowerUp` where (`PowerPlantUserPowerUp`.`level` <= 100) group by `PowerPlantUserPowerUp`.`categoryId` */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
--- Final view structure for view `PowerPlantUsersExtended`
---
-
-/*!50001 DROP VIEW IF EXISTS `PowerPlantUsersExtended`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`Aninoss`@`%` SQL SECURITY DEFINER */
-/*!50001 VIEW `PowerPlantUsersExtended` AS select `a`.`serverId` AS `serverId`,`a`.`userId` AS `userId`,`a`.`joule` AS `joule`,`a`.`coins` AS `coins`,`a`.`dailyRecieved` AS `dailyRecieved`,`a`.`reminderSent` AS `reminderSent`,ifnull(sum(`b`.`coinsGrowth`),0) AS `growth`,`a`.`dailyStreak` AS `dailyStreak`,`a`.`onServer` AS `onServer` from (`PowerPlantUsers` `a` left join `PowerPlantUserGained` `b` on(((`a`.`serverId` = `b`.`serverId`) and (`a`.`userId` = `b`.`userId`) and (timestampdiff(HOUR,`b`.`time`,now()) <= 168)))) group by `a`.`serverId`,`a`.`userId` */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
 -- Final view structure for view `StatsCommandUsagesExt`
@@ -1449,4 +1239,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-05-16 12:03:14
+-- Dump completed on 2021-07-24 10:18:30
