@@ -18,8 +18,6 @@ public abstract class PornSearchAbstract extends PornAbstract {
         super(locale, prefix);
     }
 
-    protected abstract String getImageTemplate();
-
     @Override
     public Optional<String> getNoticeOptional() {
         return Optional.ofNullable(notice);
@@ -30,7 +28,6 @@ public abstract class PornSearchAbstract extends PornAbstract {
         String searchAdd = NSFWUtil.getNSFWTagRemoveList(nsfwFilter);
 
         String domain = getDomain();
-        String imageTemplate = getImageTemplate();
 
         if (search.isEmpty()) {
             search = "animated";
@@ -47,7 +44,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
                 break;
         }
 
-        return downloadPorn(guildId, nsfwFilter, amount, domain, search, searchAdd + getAdditionalSearchKey(), imageTemplate, false, isExplicit(), usedResults);
+        return downloadPorn(guildId, nsfwFilter, amount, domain, search, searchAdd + getAdditionalSearchKey(), false, isExplicit(), usedResults);
     }
 
     protected String getAdditionalSearchKey() {

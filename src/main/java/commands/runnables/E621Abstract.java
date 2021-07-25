@@ -2,20 +2,20 @@ package commands.runnables;
 
 import java.util.Locale;
 
-public abstract class Rule34HentaiAbstract extends PornPredefinedAbstract {
+public abstract class E621Abstract extends PornPredefinedAbstract {
 
-    public Rule34HentaiAbstract(Locale locale, String prefix) {
+    public E621Abstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
     protected String getSearchExtra() {
-        return " -human_on_anthro -interspecies -furry -anthro -pony -pokemon -monster -animal_humanoid -no_humans";
+        return "";
     }
 
     @Override
     protected String getDomain() {
-        return "rule34.xxx";
+        return "e621.net";
     }
 
     @Override

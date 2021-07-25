@@ -23,8 +23,6 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
 
     protected abstract boolean isAnimatedOnly();
 
-    protected abstract String getImageTemplate();
-
     @Override
     public Optional<String> getNoticeOptional() {
         return Optional.ofNullable(notice);
@@ -38,9 +36,8 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
         String searchAdd = getSearchExtra();
         boolean animatedOnly = isAnimatedOnly();
         String domain = getDomain();
-        String imageTemplate = getImageTemplate();
 
-        return downloadPorn(guildId, nsfwFilter, amount, domain, search, searchAdd, imageTemplate, animatedOnly, isExplicit(), usedResults);
+        return downloadPorn(guildId, nsfwFilter, amount, domain, search, searchAdd, animatedOnly, isExplicit(), usedResults);
     }
 
     public boolean trackerUsesKey() {

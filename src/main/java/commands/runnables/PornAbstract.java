@@ -163,7 +163,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     private boolean checkServiceAvailable() {
         try {
-            return booruImageDownloader.getPicture(0L, getDomain(), "", "", "", false, true, isExplicit(), Collections.emptyList(), Collections.emptyList()).get().isPresent();
+            return booruImageDownloader.getPicture(0L, getDomain(), "", "", false, isExplicit(), Collections.emptyList(), Collections.emptyList()).get().isPresent();
         } catch (InterruptedException | ExecutionException | NoSuchElementException e) {
             //Ignore
             return false;
@@ -271,7 +271,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         return Optional.empty();
     }
 
-    protected List<BooruImage> downloadPorn(long guildId, ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, String imageTemplate, boolean animatedOnly, boolean explicit, ArrayList<String> usedResults) throws IllegalBooruTagException {
+    protected List<BooruImage> downloadPorn(long guildId, ArrayList<String> nsfwFilter, int amount, String domain, String search, String searchAdd, boolean animatedOnly, boolean explicit, ArrayList<String> usedResults) throws IllegalBooruTagException {
         if (NSFWUtil.stringContainsBannedTags(search + searchAdd, nsfwFilter)) {
             throw new IllegalBooruTagException();
         }
@@ -282,7 +282,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         for (int i = 0; i < amount; i++) {
             try {
                 futures.add(
-                        booruImageDownloader.getPicture(guildId, domain, search, searchAdd, imageTemplate, animatedOnly, true, explicit, nsfwFilter, usedResults)
+                        booruImageDownloader.getPicture(guildId, domain, search, searchAdd, animatedOnly, explicit, nsfwFilter, usedResults)
                 );
             } catch (ExecutionException e) {
                 MainLogger.get().error("Error while downloading porn", e);

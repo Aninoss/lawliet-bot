@@ -240,7 +240,7 @@ public class CommandContainer {
         //NSFW
         commandList.add(Rule34Command.class);
         commandList.add(RealbooruCommand.class);
-        commandList.add(FurryCommand.class);
+        commandList.add(E621Command.class);
         commandList.add(RealLifePornCommand.class);
         commandList.add(RealLifeBoobsCommand.class);
         commandList.add(RealLifeAssCommand.class);
@@ -252,6 +252,7 @@ public class CommandContainer {
         commandList.add(NekoCommand.class);
         commandList.add(YaoiCommand.class);
         commandList.add(YuriCommand.class);
+        commandList.add(FurryCommand.class);
 
         //SPLATOON
         commandList.add(MapsCommand.class);

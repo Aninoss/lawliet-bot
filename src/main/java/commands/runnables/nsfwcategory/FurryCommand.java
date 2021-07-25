@@ -2,7 +2,7 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.PornSearchAbstract;
+import commands.runnables.E621Abstract;
 
 @CommandProperties(
         trigger = "furry",
@@ -11,46 +11,22 @@ import commands.runnables.PornSearchAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "furrybooru", "yiff" }
+        aliases = { "yiff", "furryporn", "fporn" }
 )
-public class FurryCommand extends PornSearchAbstract {
+public class FurryCommand extends E621Abstract {
 
     public FurryCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
-    //TODO: go back to furry.booru.org yeet
-    /*@Override WHILE furry.booru.org is down
-    protected String getDomain() {
-        return "furry.booru.org";
+    @Override
+    protected String getSearchKey() {
+        return "animated";
     }
 
     @Override
-    protected String getImageTemplate() {
-        return "https://furry.booru.org/images/%d/%f";
-    }
-
-    @Override
-    public boolean isExplicit() { return true; }*/
-
-    @Override
-    protected String getDomain() {
-        return "rule34.xxx";
-    }
-
-    @Override
-    protected String getImageTemplate() {
-        return "https://img.rule34.xxx/images/%d/%f";
-    }
-
-    @Override
-    public boolean isExplicit() {
+    protected boolean isAnimatedOnly() {
         return true;
-    }
-
-    @Override
-    protected String getAdditionalSearchKey() {
-        return " furry";
     }
 
 }

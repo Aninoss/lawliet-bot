@@ -13,9 +13,10 @@ import org.json.JSONObject;
 
 public class BooruImageDownloader {
 
-    public CompletableFuture<Optional<BooruImage>> getPicture(long guildId, String domain, String searchTerm, String searchTermExtra,
-                                                              String imageTemplate, boolean animatedOnly, boolean canBeVideo,
-                                                              boolean explicit, List<String> filters, List<String> skippedResults
+    public CompletableFuture<Optional<BooruImage>> getPicture(long guildId, String domain, String searchTerm,
+                                                              String searchTermExtra, boolean animatedOnly,
+                                                              boolean explicit, List<String> filters,
+                                                              List<String> skippedResults
     ) throws ExecutionException {
         JSONArray filtersJson = new JSONArray();
         Arrays.asList(Settings.NSFW_FILTERS).forEach(filtersJson::put);
@@ -29,9 +30,7 @@ public class BooruImageDownloader {
         json.put("domain", domain);
         json.put("searchTerm", searchTerm);
         json.put("searchTermExtra", searchTermExtra);
-        json.put("imageTemplate", imageTemplate);
         json.put("animatedOnly", animatedOnly);
-        json.put("canBeVideo", canBeVideo);
         json.put("explicit", explicit);
         json.put("filters", filtersJson);
         json.put("skippedResults", skippedResultsJson);

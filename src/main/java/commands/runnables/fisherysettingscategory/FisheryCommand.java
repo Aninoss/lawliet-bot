@@ -9,10 +9,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticButtonListener;
 import commands.runnables.NavigationAbstract;
 import constants.*;
-import core.CustomObservableList;
-import core.EmbedFactory;
-import core.ListGen;
-import core.TextManager;
+import core.*;
 import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
@@ -126,7 +123,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                                 stopLock = false;
                                 setLog(LogStatus.WARNING, getString("stoplock"));
                             } else {
-                                DBFishery.getInstance().invalidateGuildId(event.getGuild().getIdLong());
+                                GlobalThreadPool.getExecutorService()
+                                        .submit(() -> DBFishery.getInstance().invalidateGuildId(event.getGuild().getIdLong()));
                                 DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setFisheryStatus(FisheryStatus.STOPPED);
                                 setLog(LogStatus.SUCCESS, getString("setstatus"));
                             }

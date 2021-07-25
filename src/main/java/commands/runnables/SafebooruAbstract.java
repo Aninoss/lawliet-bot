@@ -19,11 +19,6 @@ public abstract class SafebooruAbstract extends PornPredefinedAbstract {
     }
 
     @Override
-    protected String getImageTemplate() {
-        return "https://safebooru.org/images/%d/%f";
-    }
-
-    @Override
     public boolean isExplicit() {
         return false;
     }

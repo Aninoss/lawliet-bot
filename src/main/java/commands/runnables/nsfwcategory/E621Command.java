@@ -5,23 +5,23 @@ import commands.listeners.CommandProperties;
 import commands.runnables.PornSearchAbstract;
 
 @CommandProperties(
-        trigger = "realb",
+        trigger = "e621",
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "rbooru", "realbooru", "rlbooru" }
+        aliases = { "furryb", "furrybooru", "furrb" }
 )
-public class RealbooruCommand extends PornSearchAbstract {
+public class E621Command extends PornSearchAbstract {
 
-    public RealbooruCommand(Locale locale, String prefix) {
+    public E621Command(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
     protected String getDomain() {
-        return "realbooru.com";
+        return "e621.net";
     }
 
     @Override

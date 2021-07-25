@@ -25,11 +25,6 @@ public class Rule34Command extends PornSearchAbstract {
     }
 
     @Override
-    protected String getImageTemplate() {
-        return "https://img.rule34.xxx/images/%d/%f";
-    }
-
-    @Override
     public boolean isExplicit() {
         return true;
     }
