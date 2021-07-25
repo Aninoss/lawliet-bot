@@ -200,6 +200,7 @@ public class CommandContainer {
         commandList.add(RewardCommand.class);
         commandList.add(ShootCommand.class);
         commandList.add(SlapCommand.class);
+        commandList.add(StabCommand.class);
         commandList.add(StealCommand.class);
         commandList.add(ThrowCommand.class);
         commandList.add(TickleCommand.class);
