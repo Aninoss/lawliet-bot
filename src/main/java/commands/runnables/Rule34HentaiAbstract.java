@@ -10,7 +10,7 @@ public abstract class Rule34HentaiAbstract extends PornPredefinedAbstract {
 
     @Override
     protected String getSearchExtra() {
-        return " -human_on_anthro -interspecies -furry -anthro -pony -pokemon -monster -animal_humanoid -no_humans";
+        return " -human_on_anthro -interspecies -furry -anthro -pony -pokemon -monster -animal_humanoid -no_humans -feral -knot -animal_genitalia";
     }
 
     @Override
