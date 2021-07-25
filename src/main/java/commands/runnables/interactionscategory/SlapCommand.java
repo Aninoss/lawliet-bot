@@ -41,7 +41,8 @@ public class SlapCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736271623098990792/834837815417634866/slap.gif",
                 "https://cdn.discordapp.com/attachments/736271623098990792/834837830919782431/slap.gif",
                 "https://cdn.discordapp.com/attachments/736271623098990792/834837844664123462/slap.gif",
-                "https://cdn.discordapp.com/attachments/736271623098990792/834837861491802203/slap.gif"
+                "https://cdn.discordapp.com/attachments/736271623098990792/834837861491802203/slap.gif",
+                "https://cdn.discordapp.com/attachments/736271623098990792/868914264692363304/slap.gif"
         );
     }
 
