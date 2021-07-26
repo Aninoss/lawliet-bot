@@ -1,6 +1,8 @@
 package commands.runnables.nsfwcategory;
 
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import commands.listeners.CommandProperties;
 import commands.runnables.Rule34HentaiAbstract;
 
@@ -21,7 +23,14 @@ public class AhegaoCommand extends Rule34HentaiAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated ahegao -yaoi -yuri -shemale -lesbian -gay -futa -trap";
+        return "animated ahegao";
+    }
+
+    @Override
+    protected Set<String> getAdditionalFilters() {
+        HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
+        filters.addAll(Set.of("yaoi", "yuri", "shemale", "lesbian", "gay", "futa", "trap"));
+        return filters;
     }
 
     @Override

@@ -1,9 +1,7 @@
 package modules.porn;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import constants.Settings;
@@ -14,12 +12,12 @@ import org.json.JSONObject;
 public class BooruImageDownloader {
 
     public CompletableFuture<Optional<BooruImage>> getPicture(long guildId, String domain, String searchTerm,
-                                                              String searchTermExtra, boolean animatedOnly,
-                                                              boolean explicit, List<String> filters,
-                                                              List<String> skippedResults
+                                                              boolean animatedOnly, boolean explicit,
+                                                              Set<String> filters, List<String> skippedResults
     ) throws ExecutionException {
         JSONArray filtersJson = new JSONArray();
-        Arrays.asList(Settings.NSFW_FILTERS).forEach(filtersJson::put);
+        filters = new HashSet<>(filters);
+        filters.addAll(Arrays.asList(Settings.NSFW_FILTERS));
         filters.forEach(filtersJson::put);
 
         JSONArray skippedResultsJson = new JSONArray();
@@ -29,7 +27,7 @@ public class BooruImageDownloader {
         json.put("guildId", guildId);
         json.put("domain", domain);
         json.put("searchTerm", searchTerm);
-        json.put("searchTermExtra", searchTermExtra);
+        json.put("searchTermExtra", ""); //TODO: remove
         json.put("animatedOnly", animatedOnly);
         json.put("explicit", explicit);
         json.put("filters", filtersJson);

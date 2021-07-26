@@ -1,7 +1,7 @@
 package core.utils;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import constants.Settings;
 
@@ -22,7 +22,7 @@ public final class NSFWUtil {
         return str.toString();
     }
 
-    public static boolean stringContainsBannedTags(String str, List<String> additionalFilter) {
+    public static boolean stringContainsBannedTags(String str, Set<String> additionalFilter) {
         for (String filter : Settings.NSFW_FILTERS) {
             if (str.matches(".*(?i)\\b(?<!-)" + Pattern.quote(filter) + "\\b.*")) {
                 return true;

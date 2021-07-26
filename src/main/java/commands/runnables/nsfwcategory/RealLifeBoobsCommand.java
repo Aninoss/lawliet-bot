@@ -1,6 +1,8 @@
 package commands.runnables.nsfwcategory;
 
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import commands.listeners.CommandProperties;
 import commands.runnables.RealbooruAbstract;
 
@@ -22,7 +24,14 @@ public class RealLifeBoobsCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "boobs -gay -lesbian -trap -shemale";
+        return "boobs";
+    }
+
+    @Override
+    protected Set<String> getAdditionalFilters() {
+        HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
+        filters.addAll(Set.of("lesbian", "gay", "shemale", "trap"));
+        return filters;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package commands.runnables;
 
 import java.util.Locale;
+import java.util.Set;
 
 public abstract class Rule34HentaiAbstract extends PornPredefinedAbstract {
 
@@ -9,8 +10,8 @@ public abstract class Rule34HentaiAbstract extends PornPredefinedAbstract {
     }
 
     @Override
-    protected String getSearchExtra() {
-        return " -human_on_anthro -interspecies -furry -anthro -pony -pokemon -monster -animal_humanoid -no_humans -feral -knot -animal_genitalia";
+    protected Set<String> getAdditionalFilters() {
+        return Set.of("human_on_anthro", "interspecies", "furry", "anthro", "pony", "monster", "animal_humanoid", "no_humans", "feral", "knot", "animal_genitalia");
     }
 
     @Override

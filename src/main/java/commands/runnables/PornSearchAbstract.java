@@ -1,12 +1,8 @@
 package commands.runnables;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import constants.Category;
 import core.TextManager;
-import core.utils.NSFWUtil;
 import modules.porn.BooruImage;
 import modules.porn.IllegalBooruTagException;
 
@@ -24,11 +20,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
     }
 
     @Override
-    public List<BooruImage> getBooruImages(long guildId, ArrayList<String> nsfwFilter, String search, int amount, ArrayList<String> usedResults) throws IllegalBooruTagException {
-        String searchAdd = NSFWUtil.getNSFWTagRemoveList(nsfwFilter);
-
-        String domain = getDomain();
-
+    public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults) throws IllegalBooruTagException {
         if (search.isEmpty()) {
             search = "animated";
             notice = TextManager.getString(getLocale(), Category.NSFW, "porn_nokey");
@@ -44,11 +36,11 @@ public abstract class PornSearchAbstract extends PornAbstract {
                 break;
         }
 
-        return downloadPorn(guildId, nsfwFilter, amount, domain, search, searchAdd + getAdditionalSearchKey(), false, isExplicit(), usedResults);
-    }
+        nsfwFilters = new HashSet<>(nsfwFilters);
+        nsfwFilters.addAll(getAdditionalFilters());
 
-    protected String getAdditionalSearchKey() {
-        return "";
+        return downloadPorn(guildId, nsfwFilters, amount, getDomain(), search, false, isExplicit(),
+                usedResults);
     }
 
     public boolean trackerUsesKey() {

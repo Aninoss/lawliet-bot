@@ -9,11 +9,6 @@ public abstract class E621Abstract extends PornPredefinedAbstract {
     }
 
     @Override
-    protected String getSearchExtra() {
-        return "";
-    }
-
-    @Override
     protected String getDomain() {
         return "e621.net";
     }
