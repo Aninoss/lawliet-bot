@@ -23,7 +23,7 @@ public class AhegaoCommand extends Rule34HentaiAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated ahegao";
+        return "animated ahe_gao";
     }
 
     @Override

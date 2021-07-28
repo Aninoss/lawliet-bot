@@ -1,6 +1,8 @@
 package commands.runnables.nsfwcategory;
 
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import commands.listeners.CommandProperties;
 import commands.runnables.Rule34HentaiAbstract;
 
@@ -21,6 +23,13 @@ public class YuriCommand extends Rule34HentaiAbstract {
     @Override
     protected String getSearchKey() {
         return "animated yuri";
+    }
+
+    @Override
+    protected Set<String> getAdditionalFilters() {
+        HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
+        filters.addAll(Set.of("futa"));
+        return filters;
     }
 
     @Override
