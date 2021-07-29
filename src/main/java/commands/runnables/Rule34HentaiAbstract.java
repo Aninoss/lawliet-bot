@@ -11,7 +11,7 @@ public abstract class Rule34HentaiAbstract extends PornPredefinedAbstract {
 
     @Override
     protected Set<String> getAdditionalFilters() {
-        return Set.of("human_on_anthro", "interspecies", "furry", "anthro", "pony", "monster", "animal_humanoid", "no_humans", "feral", "knot", "animal_genitalia");
+        return Set.of("human_on_anthro", "interspecies", "furry", "anthro", "pony", "monster", "animal_humanoid", "no_humans", "feral", "knot", "animal_genitalia", "sonic_the_hedgehog");
     }
 
     @Override

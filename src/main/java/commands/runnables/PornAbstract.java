@@ -265,8 +265,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getCommandProperties().emoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
         for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
             if (pornImages.get(i) != null) {
-                sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_link_template", pornImages.get(i).getImageUrl()))
-                        .append(' ');
+                sb.append(pornImages.size() > 1 ? "[" + (i + 1) + "] " : "")
+                        .append(pornImages.get(i).getImageUrl())
+                        .append('\n');
             }
         }
 

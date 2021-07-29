@@ -27,7 +27,6 @@ public class BooruImageDownloader {
         json.put("guildId", guildId);
         json.put("domain", domain);
         json.put("searchTerm", searchTerm);
-        json.put("searchTermExtra", ""); //TODO: remove
         json.put("animatedOnly", animatedOnly);
         json.put("explicit", explicit);
         json.put("filters", filtersJson);
