@@ -65,6 +65,7 @@ public class Ticket {
     }
 
     private static ChannelAction<TextChannel> addPermissions(TextChannel parentChannel, ChannelAction<TextChannel> channelAction, List<Role> staffRoles, Member member) {
+        channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, member.getGuild().getPublicRole(), false, Permission.VIEW_CHANNEL);
         for (PermissionOverride permissionOverride : parentChannel.getPermissionOverrides()) {
             channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, permissionOverride.getPermissionHolder(), false, Permission.VIEW_CHANNEL);
         }
