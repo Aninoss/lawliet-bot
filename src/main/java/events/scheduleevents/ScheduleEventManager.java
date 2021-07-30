@@ -10,27 +10,25 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import core.MainLogger;
+import core.Startable;
 import core.schedule.ScheduleAdapter;
 import core.schedule.ScheduleInterface;
 import core.utils.TimeUtil;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 import org.reflections.Reflections;
 
-public class ScheduleEventManager {
+public class ScheduleEventManager extends Startable {
 
     private final int DELAY = 1000;
 
-    private boolean started = false;
     private final Reflections reflections = new Reflections("events/scheduleevents");
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2, new CountingThreadFactory(() -> "Main", "ScheduleEvent", true));
 
     public ScheduleEventManager() {
     }
 
-    public void start() {
-        if (started) return;
-        started = true;
-
+    @Override
+    protected void run() {
         processAnnotations(ScheduleEventFixedRate.class, this::attachFixedRate);
         processAnnotations(ScheduleEventHourly.class, this::attachHourly);
         processAnnotations(ScheduleEventDaily.class, this::attachDaily);

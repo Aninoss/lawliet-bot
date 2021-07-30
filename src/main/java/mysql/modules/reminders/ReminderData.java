@@ -8,21 +8,17 @@ public class ReminderData extends DataWithGuild implements TextChannelAsset {
 
     private final long id;
     private final long channelId;
+    private final long messageId;
     private final Instant time;
     private final String message;
-    private final Runnable completedRunnable;
 
-    public ReminderData(long serverId, long id, long channelId, Instant time, String message) {
-        this(serverId, id, channelId, time, message, null);
-    }
-
-    public ReminderData(long serverId, long id, long channelId, Instant time, String message, Runnable completedRunnable) {
+    public ReminderData(long serverId, long id, long channelId, long messageId, Instant time, String message) {
         super(serverId);
         this.id = id;
         this.channelId = channelId;
+        this.messageId = messageId;
         this.time = time;
         this.message = message;
-        this.completedRunnable = completedRunnable;
     }
 
     public long getId() {
@@ -34,16 +30,16 @@ public class ReminderData extends DataWithGuild implements TextChannelAsset {
         return channelId;
     }
 
+    public long getMessageId() {
+        return messageId;
+    }
+
     public Instant getTime() {
         return time;
     }
 
     public String getMessage() {
         return message;
-    }
-
-    public Runnable getCompletedRunnable() {
-        return completedRunnable;
     }
 
 }

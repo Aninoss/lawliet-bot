@@ -1,18 +1,15 @@
 package modules.schedulers;
 
 import java.time.Instant;
-import java.util.Optional;
 import commands.runnables.utilitycategory.ReminderCommand;
-import core.CustomObservableMap;
-import core.MainLogger;
-import core.PermissionCheckRuntime;
-import core.ShardManager;
+import core.*;
 import core.schedule.MainScheduler;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 
-public class ReminderScheduler {
+public class ReminderScheduler extends Startable {
 
     private static final ReminderScheduler ourInstance = new ReminderScheduler();
 
@@ -23,12 +20,8 @@ public class ReminderScheduler {
     private ReminderScheduler() {
     }
 
-    private boolean started = false;
-
-    public void start() {
-        if (started) return;
-        started = true;
-
+    @Override
+    protected void run() {
         try {
             DBReminders.getInstance().retrieveAll()
                     .forEach(this::loadReminderBean);
@@ -52,12 +45,19 @@ public class ReminderScheduler {
 
     private void onReminderDue(ReminderData reminderData) {
         DBReminders.getInstance().retrieve(reminderData.getGuildId())
-                .remove(reminderData.getId(), reminderData);
+                .remove(reminderData.getId());
 
-        long channelId = reminderData.getTextChannelId();
         reminderData.getGuild()
-                .map(guild -> guild.getTextChannelById(channelId))
+                .map(guild -> guild.getTextChannelById(reminderData.getTextChannelId()))
                 .ifPresent(channel -> {
+                    if (reminderData.getMessageId() != 0) {
+                        try {
+                            channel.deleteMessageById(reminderData.getMessageId()).complete();
+                        } catch (ErrorResponseException e) {
+                            //ignore
+                            return;
+                        }
+                    }
                     if (PermissionCheckRuntime.getInstance().botHasPermission(
                             reminderData.getGuildBean().getLocale(),
                             ReminderCommand.class,
@@ -69,9 +69,6 @@ public class ReminderScheduler {
                                 .queue();
                     }
                 });
-
-        Optional.ofNullable(reminderData.getCompletedRunnable())
-                .ifPresent(Runnable::run);
     }
 
 }

@@ -7,14 +7,16 @@ import java.util.List;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnButtonListener;
+import commands.listeners.OnStaticButtonListener;
 import constants.Emojis;
+import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.MentionList;
 import core.mention.MentionValue;
 import core.utils.BotPermissionUtil;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.schedulers.ReminderScheduler;
@@ -22,9 +24,11 @@ import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -37,12 +41,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         releaseDate = { 2020, 10, 21 },
         aliases = { "remindme", "remind", "reminders", "schedule", "scheduler", "schedulers" }
 )
-public class ReminderCommand extends Command implements OnButtonListener {
-
-    private ReminderData remindersBean = null;
-    private boolean active = true;
-    private boolean canceled = false;
-    private EmbedBuilder eb;
+public class ReminderCommand extends Command implements OnStaticButtonListener {
 
     public ReminderCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -78,7 +77,6 @@ public class ReminderCommand extends Command implements OnButtonListener {
                 new Permission[] { Permission.MESSAGE_WRITE },
                 new Permission[0],
                 new Permission[] { Permission.MESSAGE_WRITE }
-
         );
         if (missingPermissionsEmbed != null) {
             event.getChannel().sendMessageEmbeds(missingPermissionsEmbed.build()).queue();
@@ -110,69 +108,63 @@ public class ReminderCommand extends Command implements OnButtonListener {
             return false;
         }
 
-        String CANCEL_EMOJI = Emojis.X;
-        this.eb = EmbedFactory.getEmbedDefault(this, getString("template", CANCEL_EMOJI))
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", Emojis.X))
                 .addField(getString("channel"), channel.getAsMention(), true)
                 .addField(getString("timespan"), TimeFormat.RELATIVE.after(Duration.ofMinutes(minutes)).toString(), true)
                 .addField(getString("content"), StringUtil.shortenString(messageText, 1024), false);
+        EmbedUtil.addLog(eb, LogStatus.WARNING, getString("dontremovemessage"));
 
-        insertReminderBean(channel, minutes, messageText);
-        setButtons(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
-        registerButtonListener();
+        event.getChannel().sendMessageEmbeds(eb.build())
+                .setActionRows(ActionRow.of(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))))
+                .queue(message -> insertReminderBean(channel, minutes, messageText, message));
+
         return true;
     }
 
-    private void insertReminderBean(TextChannel channel, long minutes, String messageText) {
+    private void insertReminderBean(TextChannel channel, long minutes, String messageText, Message message) {
         CustomObservableMap<Long, ReminderData> remindersMap = DBReminders.getInstance()
                 .retrieve(channel.getGuild().getIdLong());
 
-        remindersBean = new ReminderData(
+        ReminderData remindersData = new ReminderData(
                 channel.getGuild().getIdLong(),
                 System.nanoTime(),
                 channel.getIdLong(),
+                message.getIdLong(),
                 Instant.now().plus(minutes, ChronoUnit.MINUTES),
-                messageText,
-                () -> {
-                    if (active) {
-                        cancel(channel.getGuild().getIdLong());
-                        setButtons();
-                        drawMessage(draw());
-                    }
-                }
+                messageText
         );
 
-        remindersMap.put(remindersBean.getId(), remindersBean);
-        ReminderScheduler.getInstance().loadReminderBean(remindersBean);
-    }
-
-    private void cancel(long guildId) {
-        canceled = true;
-        DBReminders.getInstance().retrieve(guildId)
-                .remove(remindersBean.getId(), remindersBean);
+        remindersMap.put(remindersData.getId(), remindersData);
+        ReminderScheduler.getInstance().loadReminderBean(remindersData);
+        registerStaticReactionMessage(message);
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
-        if (active) {
-            deregisterListenersWithButtons();
-            cancel(event.getGuild().getIdLong());
-        }
-        return true;
-    }
+    public void onStaticButton(ButtonClickEvent event) {
+        EmbedBuilder eb = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+                getLocale(),
+                event.getTextChannel(),
+                event.getMember(),
+                new Permission[]{ Permission.MANAGE_SERVER },
+                new Permission[0],
+                new Permission[0],
+                new Permission[0]
+        );
 
-    @Override
-    public EmbedBuilder draw() {
-        if (canceled) {
-            return EmbedFactory.getEmbedDefault(this, getString("canceled"));
+        if (eb == null) {
+            CustomObservableMap<Long, ReminderData> remindersMap = DBReminders.getInstance()
+                    .retrieve(event.getGuild().getIdLong());
+
+            event.getMessage().delete().queue();
+            remindersMap.values().stream()
+                    .filter(reminder -> reminder.getMessageId() == event.getMessageIdLong())
+                    .findFirst()
+                    .ifPresent(reminderData -> remindersMap.remove(reminderData.getId()));
         } else {
-            return eb;
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
         }
-    }
-
-    @Override
-    public void onListenerTimeOut() {
-        redrawMessageWithoutButtons();
-        active = false;
     }
 
 }

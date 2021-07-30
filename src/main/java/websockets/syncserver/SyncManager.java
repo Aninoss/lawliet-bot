@@ -5,15 +5,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
-import core.Program;
-import core.ExceptionLogger;
-import core.MainLogger;
-import core.ShardManager;
+import core.*;
 import core.schedule.MainScheduler;
 import org.java_websocket.client.WebSocketJsonClient;
 import org.reflections.Reflections;
 
-public class SyncManager {
+public class SyncManager extends Startable {
 
     private static final SyncManager ourInstance = new SyncManager();
 
@@ -22,7 +19,6 @@ public class SyncManager {
     }
 
     private final WebSocketJsonClient client;
-    private boolean started = false;
     private int errors = 0;
 
     private SyncManager() {
@@ -55,12 +51,8 @@ public class SyncManager {
                 .forEach(this::addEvent);
     }
 
-    public synchronized void start() {
-        if (started) {
-            return;
-        }
-        started = true;
-
+    @Override
+    protected void run() {
         if (Program.isProductionMode()) {
             startConnectionChecker();
         }

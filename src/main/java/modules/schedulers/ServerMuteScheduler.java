@@ -15,7 +15,7 @@ import mysql.modules.servermute.ServerMuteData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 
-public class ServerMuteScheduler {
+public class ServerMuteScheduler extends Startable {
 
     private static final ServerMuteScheduler ourInstance = new ServerMuteScheduler();
 
@@ -26,12 +26,8 @@ public class ServerMuteScheduler {
     private ServerMuteScheduler() {
     }
 
-    private boolean started = false;
-
-    public void start() {
-        if (started) return;
-        started = true;
-
+    @Override
+    protected void run() {
         try {
             DBServerMute.getInstance().retrieveAll()
                     .forEach(this::loadServerMute);

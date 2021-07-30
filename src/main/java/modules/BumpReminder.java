@@ -5,12 +5,13 @@ import java.util.Collections;
 import constants.AssetIds;
 import core.MainLogger;
 import core.ShardManager;
+import core.Startable;
 import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
 import mysql.modules.bump.DBBump;
 import net.dv8tion.jda.api.entities.Message;
 
-public class BumpReminder {
+public class BumpReminder extends Startable {
 
     private static final BumpReminder ourInstance = new BumpReminder();
 
@@ -21,13 +22,10 @@ public class BumpReminder {
     private BumpReminder() {
     }
 
-    private boolean started = false;
     private boolean countdownRunning = false;
 
-    public void start() {
-        if (started) return;
-        started = true;
-
+    @Override
+    protected void run() {
         try {
             Instant nextBump = DBBump.getNextBump();
             long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), nextBump);

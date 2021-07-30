@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
-public class AlertScheduler {
+public class AlertScheduler extends Startable {
 
     private static final AlertScheduler ourInstance = new AlertScheduler();
 
@@ -38,12 +38,8 @@ public class AlertScheduler {
     private final ScheduledExecutorService executorService =
             Executors.newScheduledThreadPool(3, new CountingThreadFactory(() -> "Main", "Alerts", false));
 
-    private boolean started = false;
-
-    public void start() {
-        if (started) return;
-        started = true;
-
+    @Override
+    protected void run() {
         try {
             DBTracker.getInstance().retrieveAll().forEach(this::loadAlert);
         } catch (Throwable e) {

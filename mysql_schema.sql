@@ -595,6 +595,7 @@ CREATE TABLE `Reminders` (
   `id` bigint unsigned NOT NULL DEFAULT '0',
   `serverId` bigint unsigned NOT NULL,
   `channelId` bigint unsigned NOT NULL,
+  `messageId` bigint unsigned NOT NULL DEFAULT '0',
   `time` timestamp NOT NULL,
   `message` varchar(2048) NOT NULL,
   PRIMARY KEY (`id`),
@@ -1240,4 +1241,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-07-30 19:59:30
+-- Dump completed on 2021-07-30 21:51:08

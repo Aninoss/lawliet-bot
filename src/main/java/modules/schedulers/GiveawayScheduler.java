@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
-public class GiveawayScheduler {
+public class GiveawayScheduler extends Startable {
 
     private static final GiveawayScheduler ourInstance = new GiveawayScheduler();
 
@@ -34,12 +34,8 @@ public class GiveawayScheduler {
     private GiveawayScheduler() {
     }
 
-    private boolean started = false;
-
-    public void start() {
-        if (started) return;
-        started = true;
-
+    @Override
+    protected void run() {
         try {
             DBGiveaway.getInstance().retrieveAll().stream()
                     .filter(GiveawayData::isActive)

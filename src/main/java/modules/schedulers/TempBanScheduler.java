@@ -14,7 +14,7 @@ import mysql.modules.tempban.TempBanData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 
-public class TempBanScheduler {
+public class TempBanScheduler extends Startable {
 
     private static final TempBanScheduler ourInstance = new TempBanScheduler();
 
@@ -25,12 +25,8 @@ public class TempBanScheduler {
     private TempBanScheduler() {
     }
 
-    private boolean started = false;
-
-    public void start() {
-        if (started) return;
-        started = true;
-
+    @Override
+    protected void run() {
         try {
             DBTempBan.getInstance().retrieveAll()
                     .forEach(this::loadTempBan);

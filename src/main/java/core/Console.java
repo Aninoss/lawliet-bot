@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import websockets.syncserver.SyncManager;
 
-public class Console {
+public class Console extends Startable {
 
     private static final Console instance = new Console();
 
@@ -36,13 +36,10 @@ public class Console {
         registerTasks();
     }
 
-    private boolean started = false;
     private final HashMap<String, ConsoleTask> tasks = new HashMap<>();
 
-    public void start() {
-        if (started) return;
-        started = true;
-
+    @Override
+    protected void run() {
         Thread t = new Thread(this::manageConsole, "Console");
         t.setDaemon(true);
         t.start();

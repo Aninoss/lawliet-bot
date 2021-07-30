@@ -21,7 +21,7 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
 
     @Override
     protected CustomObservableMap<Long, ReminderData> load(Long guildId) throws Exception {
-        HashMap<Long, ReminderData> remindersMap = new DBDataLoad<ReminderData>("Reminders", "id, serverId, channelId, time, message", "serverId = ?",
+        HashMap<Long, ReminderData> remindersMap = new DBDataLoad<ReminderData>("Reminders", "id, serverId, channelId, time, message, messageId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getHashMap(
                 ReminderData::getId,
@@ -31,6 +31,7 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
                             serverId,
                             resultSet.getLong(1),
                             resultSet.getLong(3),
+                            resultSet.getLong(6),
                             resultSet.getTimestamp(4).toInstant(),
                             resultSet.getString(5)
                     );
@@ -46,7 +47,7 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
     }
 
     public List<ReminderData> retrieveAll() {
-        return new DBDataLoadAll<ReminderData>("Reminders", "id, serverId, channelId, time, message")
+        return new DBDataLoadAll<ReminderData>("Reminders", "id, serverId, channelId, time, message, messageId")
                 .getArrayList(
                         resultSet -> {
                             long serverId = resultSet.getLong(2);
@@ -54,6 +55,7 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
                                     serverId,
                                     resultSet.getLong(1),
                                     resultSet.getLong(3),
+                                    resultSet.getLong(6),
                                     resultSet.getTimestamp(4).toInstant(),
                                     resultSet.getString(5)
                             );
@@ -62,12 +64,13 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
     }
 
     private void addRemindersBean(ReminderData remindersBean) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Reminders (id, serverId, channelId, time, message) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Reminders (id, serverId, channelId, time, message, messageId) VALUES (?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, remindersBean.getId());
             preparedStatement.setLong(2, remindersBean.getGuildId());
             preparedStatement.setLong(3, remindersBean.getTextChannelId());
             preparedStatement.setString(4, DBMain.instantToDateTimeString(remindersBean.getTime()));
             preparedStatement.setString(5, remindersBean.getMessage());
+            preparedStatement.setLong(6, remindersBean.getMessageId());
         });
     }
 
