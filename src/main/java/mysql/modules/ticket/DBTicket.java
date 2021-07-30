@@ -22,7 +22,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
     @Override
     protected TicketData load(Long serverId) throws Exception {
         TicketData ticketData = DBMain.getInstance().get(
-                "SELECT channelId, counter FROM Ticket WHERE serverId = ?;",
+                "SELECT channelId, counter, memberCanClose FROM Ticket WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
                     if (resultSet.next()) {
@@ -30,6 +30,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
                                 serverId,
                                 resultSet.getLong(1),
                                 resultSet.getInt(2),
+                                resultSet.getBoolean(3),
                                 getStaffRoles(serverId),
                                 getTicketChannels(serverId)
                         );
@@ -38,6 +39,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
                                 serverId,
                                 null,
                                 0,
+                                true,
                                 getStaffRoles(serverId),
                                 getTicketChannels(serverId)
                         );
@@ -58,7 +60,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
 
     @Override
     protected void save(TicketData ticketData) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Ticket (serverId, channelId, counter) VALUES (?, ?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("REPLACE INTO Ticket (serverId, channelId, counter, memberCanClose) VALUES (?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, ticketData.getGuildId());
 
             Optional<Long> channelIdOpt = ticketData.getAnnouncementTextChannelId();
@@ -69,6 +71,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
             }
 
             preparedStatement.setInt(3, ticketData.getCounter());
+            preparedStatement.setBoolean(4, ticketData.memberCanClose());
         });
     }
 

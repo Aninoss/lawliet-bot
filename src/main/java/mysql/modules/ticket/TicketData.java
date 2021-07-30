@@ -13,13 +13,15 @@ public class TicketData extends DataWithGuild {
 
     private Long channelId;
     private int counter;
+    private boolean memberCanClose;
     private final CustomObservableList<Long> staffRoleIds;
     private final CustomObservableMap<Long, TicketChannel> ticketChannels;
 
-    public TicketData(long serverId, Long channelId, int counter, @NonNull ArrayList<Long> staffRoleIds, @NonNull HashMap<Long, TicketChannel> ticketChannels) {
+    public TicketData(long serverId, Long channelId, int counter, boolean memberCanClose, @NonNull ArrayList<Long> staffRoleIds, @NonNull HashMap<Long, TicketChannel> ticketChannels) {
         super(serverId);
         this.channelId = channelId;
         this.counter = counter;
+        this.memberCanClose = memberCanClose;
         this.staffRoleIds = new CustomObservableList<>(staffRoleIds);
         this.ticketChannels = new CustomObservableMap<>(ticketChannels);
     }
@@ -60,6 +62,16 @@ public class TicketData extends DataWithGuild {
 
     public CustomObservableMap<Long, TicketChannel> getTicketChannels() {
         return ticketChannels;
+    }
+
+    public void toggleMemberCanClose() {
+        this.memberCanClose = !this.memberCanClose;
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean memberCanClose() {
+        return memberCanClose;
     }
 
 }

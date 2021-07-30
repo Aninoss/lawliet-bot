@@ -134,6 +134,11 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return true;
 
             case 3:
+                ticketData.toggleMemberCanClose();
+                setLog(LogStatus.SUCCESS, getString("membercanclose_set", ticketData.memberCanClose()));
+                return true;
+
+            case 4:
                 setState(CREATE_TICKET_MESSAGE);
                 return true;
 
@@ -220,7 +225,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         setOptions(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mannouncement"), StringUtil.escapeMarkdown(ticketData.getAnnouncementTextChannel().map(GuildChannel::getAsMention).orElse(notSet)), true)
-                .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true);
+                .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                .addField(getString("state0_mmembercanclose"), StringUtil.getOnOffForBoolean(getLocale(), ticketData.memberCanClose()), true);
     }
 
     @Draw(state = ANNOUNCEMENT_CHANNEL)
@@ -263,7 +269,14 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             }
             onTicketCreate(ticketData, event.getChannel(), event.getMember());
         } else if (ticketChannel != null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), TICKET_CLOSE_EMOJI)) {
-            onTicketRemove(event.getChannel());
+            boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
+            if (isStaff || ticketData.memberCanClose()) {
+                onTicketRemove(event.getChannel());
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
+                event.getChannel().sendMessageEmbeds(eb.build())
+                        .queue();
+            }
         }
     }
 
@@ -275,9 +288,22 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         if (ticketChannel == null && event.getComponentId().equals(BUTTON_ID_CREATE)) {
             onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
         } else if (ticketChannel != null && event.getComponentId().equals(BUTTON_ID_CLOSE)) {
-            onTicketRemove(event.getTextChannel());
+            boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
+            if (isStaff || ticketData.memberCanClose()) {
+                onTicketRemove(event.getTextChannel());
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
+                event.replyEmbeds(eb.build())
+                        .setEphemeral(true)
+                        .queue();
+            }
         }
         new InteractionResponse(event).complete();
+    }
+
+    private boolean memberIsStaff(Member member, List<Long> staffRoleIds) {
+        return BotPermissionUtil.can(member, Permission.ADMINISTRATOR) ||
+                staffRoleIds.stream().anyMatch(roleId -> member.getRoles().stream().anyMatch(r -> roleId == r.getIdLong()));
     }
 
     private void onTicketCreate(TicketData ticketData, TextChannel channel, Member member) {
