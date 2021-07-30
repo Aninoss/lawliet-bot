@@ -1,5 +1,6 @@
 package modules;
 
+import java.util.List;
 import java.util.Locale;
 import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
@@ -18,16 +19,13 @@ import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public class Fishery {
 
-    public static void giveRoles(Member member) {
+    public static void synchronizeRoles(Member member) {
         Guild guild = member.getGuild();
         FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
         Locale locale = fisheryGuildBean.getGuildBean().getLocale();
@@ -35,15 +33,15 @@ public class Fishery {
             return;
         }
 
-        fisheryGuildBean.getMemberData(member.getIdLong())
-                .getRoles()
-                .forEach(role -> {
-                    if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role)) {
-                        guild.addRoleToMember(member, role)
-                                .reason(Command.getCommandLanguage(FisheryCommand.class, locale).getTitle())
-                                .queue();
-                    }
-                });
+        List<Role> memberRoles = fisheryGuildBean.getMemberData(member.getIdLong()).getRoles();
+        for (Role role : fisheryGuildBean.getRoles()) {
+            boolean give = memberRoles.contains(role);
+            if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role) && give != member.getRoles().contains(role)) {
+                (give ? guild.addRoleToMember(member, role) : guild.removeRoleFromMember(member, role))
+                        .reason(Command.getCommandLanguage(FisheryCommand.class, locale).getTitle())
+                        .queue();
+            }
+        }
     }
 
     public static long getFisheryRolePrice(Guild guild, int size, int n) {

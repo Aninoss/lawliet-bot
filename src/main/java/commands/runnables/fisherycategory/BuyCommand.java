@@ -60,7 +60,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         if (args.length() > 0) {
             String letters = StringUtil.filterLettersFromString(args).toLowerCase().replace(" ", "");
             long numbers = StringUtil.filterLongFromString(args);
-            FisheryGear fisheryGear = getFisheryCategory(letters);
+            FisheryGear fisheryGear = FisheryGear.parse(letters);
 
             long amount = 1;
             if (numbers != -1) {
@@ -89,64 +89,6 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
         registerNavigationListener();
         return true;
-    }
-
-    private FisheryGear getFisheryCategory(String letters) {
-        switch (letters) {
-            case "fishingrod":
-            case "rod":
-            case "message":
-            case "messages":
-                return FisheryGear.MESSAGE;
-
-            case "fishingrobot":
-            case "robot":
-            case "fishingbot":
-            case "bot":
-            case "day":
-            case "daily":
-            case "dailies":
-                return FisheryGear.DAILY;
-
-            case "fishingnet":
-            case "net":
-            case "vc":
-            case "voice":
-            case "voicechannel":
-            case "voicechannels":
-                return FisheryGear.VOICE;
-
-            case "metal":
-            case "detector":
-            case "detectors":
-            case "metaldetector":
-            case "metaldetectors":
-            case "treasurechest":
-            case "treasurechests":
-            case "chest":
-            case "chests":
-                return FisheryGear.TREASURE;
-
-            case "role":
-            case "roles":
-            case "buyablerole":
-            case "buyableroles":
-            case "fisheryrole":
-            case "fisheryroles":
-                return FisheryGear.ROLE;
-
-            case "survey":
-            case "surveys":
-                return FisheryGear.SURVEY;
-
-            case "work":
-            case "working":
-            case "salary":
-                return FisheryGear.WORK;
-
-            default:
-                return null;
-        }
     }
 
     @Override
@@ -210,30 +152,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         fisheryMemberBean.levelUp(slot.getGear());
 
         if (slot.getGear() == FisheryGear.ROLE) {
-            Role role = roles.get(slot.getLevel() - 1);
-            role.getGuild().addRoleToMember(member, role)
-                    .reason(getCommandLanguage().getTitle())
-                    .queue();
-            if (slot.getLevel() > 1) {
-                if (guildBean.isFisherySingleRoles()) {
-                    for (int j = slot.getLevel() - 2; j >= 0; j--) {
-                        if (member.getRoles().contains(roles.get(j))) {
-                            member.getGuild().removeRoleFromMember(member, roles.get(j))
-                                    .reason(getCommandLanguage().getTitle())
-                                    .queue();
-                        }
-                    }
-                } else {
-                    for (int j = slot.getLevel() - 2; j >= 0; j--) {
-                        if (!member.getRoles().contains(roles.get(j))) {
-                            member.getGuild().addRoleToMember(member, roles.get(j))
-                                    .reason(getCommandLanguage().getTitle())
-                                    .queue();
-                        }
-                    }
-                }
-            }
-
+            Fishery.synchronizeRoles(member);
             Optional<TextChannel> announcementChannelOpt = guildBean.getFisheryAnnouncementChannel();
             if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.MESSAGE_WRITE)) {
                 String announcementText = getString("newrole", member.getUser().getAsMention(), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));

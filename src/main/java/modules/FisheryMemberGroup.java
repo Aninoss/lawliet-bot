@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
+import constants.FisheryGear;
 import core.TextManager;
+import core.assets.GuildAsset;
 import core.atomicassets.AtomicMember;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
@@ -12,7 +14,7 @@ import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Member;
 
-public class FisheryMemberGroup {
+public class FisheryMemberGroup implements GuildAsset {
 
     private final long guildId;
     private final List<AtomicMember> members;
@@ -52,6 +54,10 @@ public class FisheryMemberGroup {
         return getValueString(FisheryMemberData::getDailyStreak);
     }
 
+    public String getGearString(FisheryGear gear) {
+        return getValueString(fisheryMemberData -> fisheryMemberData.getMemberGear(gear).getLevel());
+    }
+
     public boolean containsMultiple() {
         return members.size() != 1;
     }
@@ -72,6 +78,11 @@ public class FisheryMemberGroup {
         } else {
             return StringUtil.numToString(min) + " - " + StringUtil.numToString(max);
         }
+    }
+
+    @Override
+    public long getGuildId() {
+        return guildId;
     }
 
 }

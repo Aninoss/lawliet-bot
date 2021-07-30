@@ -31,4 +31,18 @@ public enum FisheryGear {
     public int getEffect() {
         return effect;
     }
+
+    public static FisheryGear parse(String str) {
+        return switch (str.toLowerCase()) {
+            case "fishingrod", "rod", "message", "messages" -> FisheryGear.MESSAGE;
+            case "fishingrobot", "robot", "fishingbot", "bot", "day", "daily", "dailies" -> FisheryGear.DAILY;
+            case "fishingnet", "net", "vc", "voice", "voicechannel", "voicechannels" -> FisheryGear.VOICE;
+            case "metal", "detector", "detectors", "metaldetector", "metaldetectors", "treasurechest", "treasurechests", "chest", "chests" -> FisheryGear.TREASURE;
+            case "role", "roles", "buyablerole", "buyableroles", "fisheryrole", "fisheryroles" -> FisheryGear.ROLE;
+            case "survey", "surveys" -> FisheryGear.SURVEY;
+            case "work", "working", "salary" -> FisheryGear.WORK;
+            default -> null;
+        };
+    }
+
 }

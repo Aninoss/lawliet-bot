@@ -11,7 +11,7 @@ public class GuildMemberUpdatePendingFisheryRoles extends GuildMemberUpdatePendi
     @Override
     public boolean onGuildMemberUpdatePending(GuildMemberUpdatePendingEvent event) throws Throwable {
         if (!event.getMember().isPending()) {
-            Fishery.giveRoles(event.getMember());
+            Fishery.synchronizeRoles(event.getMember());
         }
 
         return true;

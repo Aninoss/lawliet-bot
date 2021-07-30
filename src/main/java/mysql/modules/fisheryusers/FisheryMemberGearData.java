@@ -1,6 +1,7 @@
 package mysql.modules.fisheryusers;
 
 import constants.FisheryGear;
+import constants.Settings;
 import core.assets.MemberAsset;
 import core.utils.NumberUtil;
 import mysql.DBRedis;
@@ -37,11 +38,12 @@ public class FisheryMemberGearData implements MemberAsset {
     }
 
     void setLevel(int level) {
-        DBRedis.getInstance().update(jedis -> jedis.hset(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR, String.valueOf(level)));
+        int newLevel = Math.min(level, Settings.FISHERY_GEAR_MAX);
+        DBRedis.getInstance().update(jedis -> jedis.hset(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR, String.valueOf(newLevel)));
     }
 
     void levelUp() {
-        DBRedis.getInstance().update(jedis -> jedis.hincrBy(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR, 1));
+        setLevel(getLevel() + 1);
     }
 
     public long getPrice() {

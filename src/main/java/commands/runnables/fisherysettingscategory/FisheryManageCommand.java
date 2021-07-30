@@ -6,19 +6,17 @@ import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
-import constants.Emojis;
-import constants.LogStatus;
-import constants.Response;
-import constants.Settings;
+import constants.*;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
+import modules.Fishery;
 import modules.FisheryMemberGroup;
+import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
@@ -76,29 +74,16 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
             int type = -1;
             switch (typeString.toLowerCase()) {
-                case "fish":
-                    type = 0;
-                    break;
-
-                case "coins":
-                case "coin":
-                    type = 1;
-                    break;
-
-                case "daily":
-                case "dailystreak":
-                case "streak":
-                    type = 2;
-                    break;
-
-                case "reset":
-                case "remove":
-                case "delete":
-                case "clear":
-                    type = 3;
-                    break;
-
-                default:
+                case "fish", "fishes" -> type = 0;
+                case "coins", "coin" -> type = 1;
+                case "daily", "dailystreak", "streak" -> type = 2;
+                case "reset", "remove", "delete", "clear" -> type = 3;
+                default -> {
+                    FisheryGear gear = FisheryGear.parse(typeString);
+                    if (gear != null) {
+                        type = gear.ordinal() + 3;
+                    }
+                }
             }
 
             if (type == -1) {
@@ -111,7 +96,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             } else {
                 String amountString = args.substring(typeString.length()).trim();
                 if (updateValues(type, amountString)) {
-                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("set", type, fisheryMemberGroup.getAsTag(), amountString)).build())
+                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("set", fisheryMemberGroup.getAsTag(), amountString, emojiOfProperty(type), nameOfProperty(type))).build())
                             .queue();
                     return true;
                 } else {
@@ -134,7 +119,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 return Response.FALSE;
             }
 
-            setLog(LogStatus.SUCCESS, getString("set_log", state - 1, fisheryMemberGroup.getAsTag(), input).replace("*", ""));
+            setLog(LogStatus.SUCCESS, getString("set_log", fisheryMemberGroup.getAsTag(), input, nameOfProperty(state - 1)));
             resetLog = true;
             setState(0);
 
@@ -166,7 +151,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 continue;
             }
 
-            newValue = calculateNewValue(baseValue, newValue, valueProcedure);
+            newValue = calculateNewValue(baseValue, newValue, valueProcedure, type);
             setNewValues(fisheryMemberBean, newValue, type);
             success = true;
         }
@@ -176,26 +161,26 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
     private void setNewValues(FisheryMemberData fisheryMemberBean, long newValue, int type) {
         switch (type) {
-            /* Fish */
-            case 0:
-                fisheryMemberBean.setFish(newValue);
-                break;
+            /* fish */
+            case 0 -> fisheryMemberBean.setFish(newValue);
 
-            /* Coins */
-            case 1:
-                fisheryMemberBean.setCoinsRaw(newValue + fisheryMemberBean.getCoinsHidden());
-                break;
+            /* coins */
+            case 1 -> fisheryMemberBean.setCoinsRaw(newValue + fisheryMemberBean.getCoinsHidden());
 
-            /* Daily Streak */
-            case 2:
-                fisheryMemberBean.setDailyStreak(newValue);
-                break;
+            /* daily streak */
+            case 2 -> fisheryMemberBean.setDailyStreak(newValue);
 
-            default:
+            /* gear */
+            default -> {
+                fisheryMemberBean.setLevel(FisheryGear.values()[type - 3], (int) newValue);
+                if (type == FisheryGear.ROLE.ordinal() + 3) {
+                    Fishery.synchronizeRoles(fisheryMemberBean.getMember().get());
+                }
+            }
         }
     }
 
-    private long calculateNewValue(long baseValue, long newValue, ValueProcedure valueProcedure) {
+    private long calculateNewValue(long baseValue, long newValue, ValueProcedure valueProcedure, int type) {
         switch (valueProcedure) {
             case ADD:
                 newValue = baseValue + newValue;
@@ -207,38 +192,33 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
             default:
         }
+        long maxValue = maxValueOfProperty(type);
         if (newValue < 0) newValue = 0;
-        if (newValue > Settings.FISHERY_MAX) newValue = Settings.FISHERY_MAX;
+        if (newValue > maxValue) newValue = maxValue;
 
         return newValue;
     }
 
     private long getBaseValueByType(FisheryMemberData fisheryMemberBean, int type) {
-        switch (type) {
-            case 0:
-                return fisheryMemberBean.getFish();
-
-            case 1:
-                return fisheryMemberBean.getCoins();
-
-            case 2:
-                return fisheryMemberBean.getDailyStreak();
-
-            default:
-                throw new IndexOutOfBoundsException("invalid type");
-        }
+        return switch (type) {
+            case 0 -> fisheryMemberBean.getFish();
+            case 1 -> fisheryMemberBean.getCoins();
+            case 2 -> fisheryMemberBean.getDailyStreak();
+            default -> fisheryMemberBean.getMemberGear(FisheryGear.values()[type - 3]).getLevel();
+        };
     }
 
     @Override
     public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
         if (state == 0) {
+            int posDelete = 3 + FisheryGear.values().length;
             if (i == -1) {
                 deregisterListenersWithButtonMessage();
                 return false;
-            } else if (i >= 0 && i <= 2) {
+            } else if (i >= 0 && i < posDelete) {
                 setState(i + 1);
                 return true;
-            } else if (i == 3) {
+            } else if (i == posDelete) {
                 if (resetLog) {
                     resetLog = false;
                     setLog(LogStatus.WARNING, getString("state0_confirm"));
@@ -260,37 +240,83 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
     @Override
     public EmbedBuilder draw(int state) throws Throwable {
-        String[] values = new String[] {
-                fisheryMemberGroup.getFishString(),
-                fisheryMemberGroup.getCoinsString(),
-                fisheryMemberGroup.getDailyStreakString()
-        };
-
         if (state == 0) {
-            OptionButton[] buttons = new OptionButton[4];
-            Emoji[] emojis = new Emoji[] {
-                    Emoji.fromMarkdown(Emojis.CURRENCY),
-                    Emoji.fromMarkdown(Emojis.COINS),
-                    Emoji.fromMarkdown(Emojis.DAILY_STREAK),
-                    null
-            };
-            for (int i = 0; i < buttons.length; i++) {
+            String desc = getString("state0_description", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag());
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, desc);
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 3 + FisheryGear.values().length; i++) {
+                String tag = getString(
+                        "state0_var",
+                        nameOfProperty(i),
+                        emojiOfProperty(i),
+                        valueOfProperty(i)
+                );
+                sb.append(tag).append("\n");
+                if (i == 2) {
+                    sb.append("\n");
+                }
+            }
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, sb.toString(), false);
+
+            OptionButton[] buttons = new OptionButton[4 + FisheryGear.values().length];
+            for (int i = 0; i < 3 + FisheryGear.values().length; i++) {
                 buttons[i] = new OptionButton(
-                        i == 3 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY,
-                        i <= 2 ? values[i] : getString("state0_reset"),
-                        emojis[i]
+                        ButtonStyle.PRIMARY,
+                        nameOfProperty(i),
+                        null
                 );
             }
-            setOptions(buttons);
+            buttons[buttons.length - 1] = new OptionButton(
+                    ButtonStyle.DANGER,
+                    getString("state0_reset"),
+                    null
+            );
 
-            String desc = getString("state0_description", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag());
-            return EmbedFactory.getEmbedDefault(this, desc);
+            setOptions(buttons);
+            return eb;
         } else {
             return EmbedFactory.getEmbedDefault(
                     this,
-                    getString("state1_description", state - 1, values),
-                    getString("state1_title", state - 1)
+                    getString("state1_description", emojiOfProperty(state - 1), nameOfProperty(state - 1), valueOfProperty(state - 1)),
+                    getString("state1_title", nameOfProperty(state - 1))
             );
+        }
+    }
+
+    private String emojiOfProperty(int i) {
+        return switch (i) {
+            case 0 -> Emojis.CURRENCY;
+            case 1 -> Emojis.COINS;
+            case 2 -> Emojis.DAILY_STREAK;
+            default -> FisheryGear.values()[i - 3].getEmoji();
+        };
+    }
+
+    private String nameOfProperty(int i) {
+        if (i <= 2) {
+            return getString("options").split("\n")[i];
+        } else {
+            return TextManager.getString(getLocale(), Category.FISHERY, "buy_product_" + (i - 3) + "_0");
+        }
+    }
+
+    private String valueOfProperty(int i) {
+        return switch (i) {
+            case 0 -> fisheryMemberGroup.getFishString();
+            case 1 -> fisheryMemberGroup.getCoinsString();
+            case 2 -> fisheryMemberGroup.getDailyStreakString();
+            default -> getString("gearlevel", fisheryMemberGroup.getGearString(FisheryGear.values()[i - 3]));
+        };
+    }
+
+    private long maxValueOfProperty(int i) {
+        if (i <= 2) {
+            return Settings.FISHERY_MAX;
+        } else if (i == FisheryGear.ROLE.ordinal() + 3) {
+            return DBFishery.getInstance().retrieve(fisheryMemberGroup.getGuildId()).getRoles().size();
+        } else {
+            return Settings.FISHERY_GEAR_MAX;
         }
     }
 
