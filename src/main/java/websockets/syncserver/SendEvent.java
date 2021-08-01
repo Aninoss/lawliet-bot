@@ -17,7 +17,7 @@ public class SendEvent {
 
     public static CompletableFuture<JSONObject> sendFullyConnected() {
         CompletableFuture<JSONObject> future = SyncManager.getInstance().getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
-        if (Program.isProductionMode()) {
+        if (Program.productionMode()) {
             return future;
         } else {
             return CompletableFuture.completedFuture(new JSONObject());
@@ -25,7 +25,7 @@ public class SendEvent {
     }
 
     public static CompletableFuture<Optional<Long>> sendRequestGlobalGuildSize(long localServerSize) {
-        if (!Program.isProductionMode()) {
+        if (!Program.productionMode()) {
             return CompletableFuture.completedFuture(ShardManager.getInstance().getLocalGuildSize());
         }
 

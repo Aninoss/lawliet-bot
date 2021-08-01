@@ -35,7 +35,7 @@ public class MemberCacheController implements MemberCachePolicy {
         if (guild.isLoaded()) {
             future.complete(guild.getMembers());
         } else {
-            MainLogger.get().error("Loading Members", ExceptionUtil.generateForStack(Thread.currentThread()));
+            MainLogger.get().error("Loading Members", ExceptionUtil.generateForStack(Thread.currentThread())); //TODO
             guild.loadMembers()
                     .onError(future::completeExceptionally)
                     .onSuccess(future::complete);

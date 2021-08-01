@@ -24,7 +24,7 @@ public class EmojiTable {
     }
 
     public void load() {
-        if (Program.isProductionMode()) {
+        if (Program.productionMode()) {
             GlobalThreadPool.getExecutorService().submit(() -> {
                 emojis.addAll(List.of(Emojis.LETTERS));
                 try {

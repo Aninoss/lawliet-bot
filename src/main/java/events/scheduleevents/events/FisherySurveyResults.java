@@ -25,7 +25,7 @@ public class FisherySurveyResults implements ScheduleInterface {
 
     @Override
     public void run() {
-        if (Program.isProductionMode()) {
+        if (Program.productionMode()) {
             GlobalThreadPool.getExecutorService().submit(() -> {
                 SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
                 LocalDate today = LocalDate.now();

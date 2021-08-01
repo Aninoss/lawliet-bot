@@ -53,7 +53,7 @@ public class SyncManager extends Startable {
 
     @Override
     protected void run() {
-        if (Program.isProductionMode()) {
+        if (Program.productionMode()) {
             startConnectionChecker();
         }
         this.client.connect();

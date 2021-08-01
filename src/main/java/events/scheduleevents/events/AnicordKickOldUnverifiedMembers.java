@@ -16,7 +16,7 @@ public class AnicordKickOldUnverifiedMembers implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Program.isProductionMode() && Program.isPublicVersion()) {
+        if (Program.productionMode() && Program.isPublicVersion()) {
             ShardManager.getInstance().getLocalGuildById(AssetIds.ANICORD_SERVER_ID).ifPresent(guild -> {
                 Role memberRole = guild.getRoleById(462410205288726531L);
                 AtomicInteger counter = new AtomicInteger(0);

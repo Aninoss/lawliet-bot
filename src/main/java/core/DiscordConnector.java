@@ -95,7 +95,7 @@ public class DiscordConnector {
 
     private void onConnectionCompleted() {
         new ScheduleEventManager().start();
-        if (Program.isProductionMode() && Program.isPublicVersion()) BumpReminder.getInstance().start();
+        if (Program.productionMode() && Program.isPublicVersion()) BumpReminder.getInstance().start();
         AlertScheduler.getInstance().start();
         ReminderScheduler.getInstance().start();
         GiveawayScheduler.getInstance().start();

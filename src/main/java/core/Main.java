@@ -41,7 +41,7 @@ public class Main {
             MainLogger.get().info("Waiting for sync server");
             SyncManager.getInstance().start();
 
-            if (!Program.isProductionMode()) {
+            if (!Program.productionMode()) {
                 DiscordConnector.getInstance().connect(0, 0, 1);
             } else {
                 Runtime.getRuntime().addShutdownHook(new Thread(Program::onStop, "Shutdown Bot-Stop"));

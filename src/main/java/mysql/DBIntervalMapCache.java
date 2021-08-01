@@ -23,7 +23,7 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
         }, "Shutdown DBInterval"));
 
         Thread t = new Thread(() -> {
-            IntervalBlock intervalBlock = new IntervalBlock(Program.isProductionMode() ? minutes : 1, ChronoUnit.MINUTES);
+            IntervalBlock intervalBlock = new IntervalBlock(Program.productionMode() ? minutes : 1, ChronoUnit.MINUTES);
             while (intervalBlock.block()) {
                 if (changed.size() > 0) {
                     try {

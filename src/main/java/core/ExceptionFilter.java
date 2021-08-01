@@ -59,7 +59,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
     }
 
     public boolean shouldBeVisible(String message) {
-        return !Program.isProductionMode() || Arrays.stream(FILTERS).noneMatch(filter -> message.toLowerCase().contains(filter.toLowerCase()));
+        return !Program.productionMode() || Arrays.stream(FILTERS).noneMatch(filter -> message.toLowerCase().contains(filter.toLowerCase()));
     }
 
 }

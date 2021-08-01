@@ -10,7 +10,7 @@ public class SaveBotStatsCommandUsages implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Program.isProductionMode() && Program.isPublicVersion() && Program.getClusterId() == 1) {
+        if (Program.productionMode() && Program.isPublicVersion() && Program.getClusterId() == 1) {
             DBBotStats.saveStatsCommandUsages();
         }
     }

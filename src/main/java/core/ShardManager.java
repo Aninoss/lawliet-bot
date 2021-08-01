@@ -33,7 +33,7 @@ public class ShardManager {
     }
 
     private ShardManager() {
-        if (Program.isProductionMode()) {
+        if (Program.productionMode()) {
             startJDAPoller();
         }
     }
@@ -68,7 +68,7 @@ public class ShardManager {
         this.shardIntervalMax = shardIntervalMax;
         this.totalShards = totalShards;
 
-        if (Program.isProductionMode()) {
+        if (Program.productionMode()) {
             MainScheduler.getInstance().schedule(2, ChronoUnit.MINUTES, "bootup_check", () -> {
                 if (!ready) {
                     MainLogger.get().error("EXIT - Could not boot up");
