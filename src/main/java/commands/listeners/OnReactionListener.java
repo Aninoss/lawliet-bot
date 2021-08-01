@@ -17,6 +17,7 @@ import core.utils.EmojiUtil;
 import core.utils.ExceptionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
@@ -25,28 +26,26 @@ public interface OnReactionListener {
 
     boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable;
 
-    EmbedBuilder draw() throws Throwable;
+    EmbedBuilder draw(Member member) throws Throwable;
 
-    default CompletableFuture<Long> registerReactionListener(String... emojis) {
+    default CompletableFuture<Long> registerReactionListener(Member member, String... emojis) {
         Command command = (Command) this;
-        return command.getMemberId().map(memberId ->
-                registerReactionListener(memberId, event -> event.getUserIdLong() == memberId &&
-                        event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
-                        (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)))
-                ).thenApply(messageId -> {
-                    command.getTextChannel().ifPresent(channel -> {
-                        RestActionQueue restActionQueue = new RestActionQueue();
-                        Arrays.stream(emojis).forEach(emoji -> restActionQueue.attach(channel.addReactionById(messageId, EmojiUtil.emojiAsReactionTag(emoji))));
-                        if (restActionQueue.isSet()) {
-                            restActionQueue.getCurrentRestAction().queue();
-                        }
-                    });
-                    return messageId;
-                })
-        ).orElse(null);
+        return registerReactionListener(member, event -> event.getUserIdLong() == member.getIdLong() &&
+                event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
+                (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)))
+        ).thenApply(messageId -> {
+            command.getTextChannel().ifPresent(channel -> {
+                RestActionQueue restActionQueue = new RestActionQueue();
+                Arrays.stream(emojis).forEach(emoji -> restActionQueue.attach(channel.addReactionById(messageId, EmojiUtil.emojiAsReactionTag(emoji))));
+                if (restActionQueue.isSet()) {
+                    restActionQueue.getCurrentRestAction().queue();
+                }
+            });
+            return messageId;
+        });
     }
 
-    default CompletableFuture<Long> registerReactionListener(long authorId, Function<GenericGuildMessageReactionEvent, Boolean> validityChecker) {
+    default CompletableFuture<Long> registerReactionListener(Member member, Function<GenericGuildMessageReactionEvent, Boolean> validityChecker) {
         Command command = (Command) this;
 
         Runnable onTimeOut = () -> {
@@ -67,12 +66,12 @@ public interface OnReactionListener {
         };
 
         CommandListenerMeta<GenericGuildMessageReactionEvent> commandListenerMeta =
-                new CommandListenerMeta<>(authorId, validityChecker, onTimeOut, onOverridden, command);
+                new CommandListenerMeta<>(member.getIdLong(), validityChecker, onTimeOut, onOverridden, command);
         CommandContainer.getInstance().registerListener(OnReactionListener.class, commandListenerMeta);
 
         try {
             if (command.getDrawMessageId().isEmpty()) {
-                EmbedBuilder eb = draw();
+                EmbedBuilder eb = draw(member);
                 if (eb != null) {
                     return command.drawMessage(eb);
                 }
@@ -132,7 +131,7 @@ public interface OnReactionListener {
             }
             if (onReaction(event)) {
                 CommandContainer.getInstance().refreshListeners(command);
-                EmbedBuilder eb = draw();
+                EmbedBuilder eb = draw(event.getMember());
                 if (eb != null) {
                     ((Command) this).drawMessage(eb);
                 }

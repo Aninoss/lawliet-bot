@@ -41,7 +41,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
             rankingSlots.add(new FisheryRecentFishGainsData(event.getGuild().getIdLong(), memberId, rank, recentFishGains));
         });
         rankingSlots.sort((s1, s2) -> Long.compare(s2.getRecentFishGains(), s1.getRecentFishGains()));
-        registerList(rankingSlots.size(), args);
+        registerList(event.getMember(), rankingSlots.size(), args);
         return true;
     }
 

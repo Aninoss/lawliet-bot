@@ -51,7 +51,7 @@ public class InviteFilterCommand extends NavigationAbstract {
         ignoredUsers = AtomicMember.transformIdList(event.getGuild(), spBlockBean.getIgnoredUserIds());
         logReceivers = AtomicMember.transformIdList(event.getGuild(), spBlockBean.getLogReceiverUserIds());
         ignoredChannels = AtomicTextChannel.transformIdList(event.getGuild(), spBlockBean.getIgnoredChannelIds());
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -191,7 +191,7 @@ public class InviteFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public EmbedBuilder draw(int state) {
+    public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));

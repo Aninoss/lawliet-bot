@@ -72,7 +72,7 @@ public class AlertsCommand extends NavigationAbstract {
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
         controll(args, event.getMember());
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -289,7 +289,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     @Draw(state = DEFAULT_STATE)
-    public EmbedBuilder onDrawMain() throws Throwable {
+    public EmbedBuilder onDrawMain(Member member) throws Throwable {
         setOptions(getString("state0_options").split("\n"));
 
         buttonMap.clear();
@@ -301,7 +301,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     @Draw(state = STATE_ADD)
-    public EmbedBuilder onDrawAdd() throws Throwable {
+    public EmbedBuilder onDrawAdd(Member member) throws Throwable {
         buttonMap.clear();
         buttonMap.put(-1, "back");
 
@@ -333,7 +333,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     @Draw(state = STATE_REMOVE)
-    public EmbedBuilder onDrawRemove() throws Throwable {
+    public EmbedBuilder onDrawRemove(Member member) throws Throwable {
         buttonMap.clear();
         buttonMap.put(-1, "back");
 
@@ -355,14 +355,14 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     @Draw(state = STATE_KEY)
-    public EmbedBuilder onDrawKey() {
+    public EmbedBuilder onDrawKey(Member member) {
         buttonMap.clear();
         buttonMap.put(-1, "back");
         return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), commandCache.getCategory(), commandCache.getTrigger() + "_trackerkey"), getString("state3_title"));
     }
 
     @Draw(state = STATE_USERMESSAGE)
-    public EmbedBuilder onDrawUserMessage() {
+    public EmbedBuilder onDrawUserMessage(Member member) {
         buttonMap.clear();
         buttonMap.put(-1, "back");
         buttonMap.put(0, "no");

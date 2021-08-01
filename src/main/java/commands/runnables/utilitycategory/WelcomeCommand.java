@@ -49,7 +49,7 @@ public class WelcomeCommand extends NavigationAbstract {
         welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(event.getGuild().getIdLong());
         welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteInChannelWithLog);
         welcomeMessageBean.getGoodbyeChannel().ifPresent(this::checkWriteInChannelWithLog);
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -229,7 +229,7 @@ public class WelcomeCommand extends NavigationAbstract {
     }
 
     @Override
-    public EmbedBuilder draw(int state) throws ExecutionException, InterruptedException, IOException {
+    public EmbedBuilder draw(Member member, int state) throws ExecutionException, InterruptedException, IOException {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         if (state == 0) {
@@ -252,7 +252,7 @@ public class WelcomeCommand extends NavigationAbstract {
                     .addField(getString("state0_mgoodbyeText"), stressVariables(welcomeMessageBean.getGoodbyeText()), true)
                     .addField(getString("state0_mfarewellchannel"), welcomeMessageBean.getGoodbyeChannel().map(IMentionable::getAsMention).orElse(notSet), true);
         } else if (state == 5) {
-            return getWelcomeMessageTest(getMember().get());
+            return getWelcomeMessageTest(member);
         }
         return EmbedFactory.getEmbedDefault(this, getString("state" + state + "_description"), getString("state" + state + "_title"));
     }

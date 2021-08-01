@@ -9,8 +9,8 @@ import constants.Category;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
-import core.atomicassets.AtomicMember;
 import core.utils.BotPermissionUtil;
+import core.utils.MentionUtil;
 import mysql.modules.guild.GuildData;
 import mysql.modules.ticket.TicketChannel;
 import mysql.modules.ticket.TicketData;
@@ -41,10 +41,10 @@ public class Ticket {
             Class<TicketCommand> clazz = TicketCommand.class;
             Locale locale = ticketChannel.getGuildBean().getLocale();
             String title = Command.getCommandProperties(clazz).emoji() + " " + Command.getCommandLanguage(clazz, locale).getTitle();
-            AtomicMember atomicMember = new AtomicMember(ticketChannel.getGuildId(), ticketChannel.getMemberId());
+            String memberMention = MentionUtil.getUserAsMention(ticketChannel.getMemberId(), true);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
-                    .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", ticketTextChannel.getName(), atomicMember.getAsMention()));
+                    .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", ticketTextChannel.getName(), memberMention));
             textChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), " ")
                     .setEmbeds(eb.build())
                     .queue();

@@ -14,6 +14,7 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -130,10 +131,11 @@ public class SlotCommand extends CasinoAbstract {
     public boolean onButtonCasino(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
 
-        MainScheduler.getInstance().schedule(1000, "slot_0", () -> unlockFruit(0));
-        MainScheduler.getInstance().schedule(2000, "slot_1", () -> unlockFruit(1));
-        MainScheduler.getInstance().schedule(3000, "slot_2", () -> unlockFruit(2));
-        MainScheduler.getInstance().schedule(4000, "slot_results", this::manageEnd);
+        Member member = event.getMember();
+        MainScheduler.getInstance().schedule(1000, "slot_0", () -> unlockFruit(member, 0));
+        MainScheduler.getInstance().schedule(2000, "slot_1", () -> unlockFruit(member, 1));
+        MainScheduler.getInstance().schedule(3000, "slot_2", () -> unlockFruit(member, 2));
+        MainScheduler.getInstance().schedule(4000, "slot_results", () -> manageEnd(member));
 
         return true;
     }
@@ -174,9 +176,9 @@ public class SlotCommand extends CasinoAbstract {
         return eb;
     }
 
-    private void unlockFruit(int i) {
+    private void unlockFruit(Member member, int i) {
         progress = i + 1;
-        drawMessage(draw());
+        drawMessage(draw(member));
     }
 
     private String getSpinningWheel(int i) {
@@ -187,18 +189,18 @@ public class SlotCommand extends CasinoAbstract {
         }
     }
 
-    private void manageEnd() {
+    private void manageEnd(Member member) {
         if (progress < 3) return;
 
         deregisterListeners();
         if (winLevel == 0) {
-            lose();
+            lose(member);
             setLog(LogStatus.LOSE, getString("end", 0));
         } else {
-            win(WIN_POSSIBILITIES[winLevel - 1] / WIN_POSSIBILITIES.length * WIN_AMOUNT_ADJUSTMENT[winLevel - 1] - 1);
+            win(member, WIN_POSSIBILITIES[winLevel - 1] / WIN_POSSIBILITIES.length * WIN_AMOUNT_ADJUSTMENT[winLevel - 1] - 1);
             setLog(LogStatus.WIN, getString("end", winLevel));
         }
-        drawMessage(draw());
+        drawMessage(draw(member));
     }
 
 }

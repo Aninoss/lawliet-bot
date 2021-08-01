@@ -13,6 +13,7 @@ import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -41,7 +42,7 @@ public class CoinFlipCommand extends CasinoAbstract {
         if (coinSideSelection >= 0) selection[0] = coinSideSelection;
 
         if (selection[0] != -1) {
-            manageEnd();
+            manageEnd(event.getMember());
             return true;
         }
 
@@ -57,7 +58,7 @@ public class CoinFlipCommand extends CasinoAbstract {
     public boolean onButtonCasino(ButtonClickEvent event) throws Throwable {
         int i = Integer.parseInt(event.getComponentId());
         selection[0] = i;
-        manageEnd();
+        manageEnd(event.getMember());
         return true;
     }
 
@@ -106,22 +107,22 @@ public class CoinFlipCommand extends CasinoAbstract {
         };
     }
 
-    private void manageEnd() {
+    private void manageEnd(Member member) {
         if (selection[0] == -1) return;
         deregisterListenersWithButtons();
 
         MainScheduler.getInstance().schedule(3000, "coinflip_cputhrow", () -> {
             selection[1] = new Random().nextBoolean() ? 1 : 0;
-            drawMessage(draw());
+            drawMessage(draw(member));
 
             MainScheduler.getInstance().schedule(1000, "coinflip_results", () -> {
                 if (selection[0] == selection[1]) {
-                    win();
+                    win(member);
                 } else {
-                    lose();
+                    lose(member);
                 }
 
-                drawMessage(draw());
+                drawMessage(draw(member));
             });
         });
     }

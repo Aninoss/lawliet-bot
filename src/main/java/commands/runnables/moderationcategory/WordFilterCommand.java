@@ -55,7 +55,7 @@ public class WordFilterCommand extends NavigationAbstract {
         ignoredUsers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getIgnoredUserIds());
         logReceivers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getLogReceiverUserIds());
         wordsNavigationHelper = new NavigationHelper<>(this, bannedWordsBean.getWords(), String.class, MAX_WORDS);
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -176,7 +176,7 @@ public class WordFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public EmbedBuilder draw(int state) {
+    public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));

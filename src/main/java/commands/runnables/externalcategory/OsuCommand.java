@@ -97,13 +97,13 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     }
 
     @Override
-    protected void sendMessage(TextChannel channel, MessageEmbed eb) {
+    protected void sendMessage(Member member, TextChannel channel, MessageEmbed eb) {
         channel.sendMessageEmbeds(eb)
                 .setActionRows(getActionRows())
                 .queue(message -> {
                     if (memberIsAuthor) {
                         setDrawMessage(message);
-                        registerButtonListener();
+                        registerButtonListener(member);
                     }
                 });
     }
@@ -146,7 +146,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
                                 osuAccountOptional
                                         .ifPresent(o -> DBOsuAccounts.getInstance().retrieve().put(getMemberId().get(), new OsuAccountData(getMemberId().get(), o.getOsuId())));
                                 this.status = Status.DEFAULT;
-                                drawMessage(draw());
+                                drawMessage(draw(event.getMember()));
                             });
                 }
             });
@@ -163,7 +163,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     }
 
     @Override
-    public EmbedBuilder draw() {
+    public EmbedBuilder draw(Member member) {
         switch (status) {
             case CONNECTING:
                 setButtons(
@@ -179,7 +179,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
             default:
                 if (osuAccount != null) {
                     setButtons(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("connect", 1)));
-                    eb = generateAccountEmbed(getMember().get(), osuAccount);
+                    eb = generateAccountEmbed(member, osuAccount);
                     EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("connected"));
                 } else {
                     eb = EmbedFactory.getEmbedError(this)

@@ -53,7 +53,7 @@ public class RainbowCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected void sendMessage(TextChannel channel, MessageEmbed eb) {
+    protected void sendMessage(Member member, TextChannel channel, MessageEmbed eb) {
         channel.sendMessageEmbeds(eb)
                 .addFile(inputStream, "avatar.png")
                 .queue(message -> {

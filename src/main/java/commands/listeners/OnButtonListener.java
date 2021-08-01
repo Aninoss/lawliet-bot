@@ -15,24 +15,22 @@ import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
 public interface OnButtonListener {
 
     boolean onButton(ButtonClickEvent event) throws Throwable;
 
-    EmbedBuilder draw() throws Throwable;
+    EmbedBuilder draw(Member member) throws Throwable;
 
-    default CompletableFuture<Long> registerButtonListener() {
-        Command command = (Command) this;
-        return command.getMemberId().map(memberId ->
-                registerButtonListener(memberId, event -> event.getUser().getIdLong() == memberId &&
-                        event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L)
-                )
-        ).orElse(null);
+    default CompletableFuture<Long> registerButtonListener(Member member) {
+        return registerButtonListener(member, event -> event.getUser().getIdLong() == member.getIdLong() &&
+                event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L)
+        );
     }
 
-    default CompletableFuture<Long> registerButtonListener(long authorId, Function<ButtonClickEvent, Boolean> validityChecker) {
+    default CompletableFuture<Long> registerButtonListener(Member member, Function<ButtonClickEvent, Boolean> validityChecker) {
         Command command = (Command) this;
 
         Runnable onTimeOut = () -> {
@@ -53,12 +51,12 @@ public interface OnButtonListener {
         };
 
         CommandListenerMeta<ButtonClickEvent> commandListenerMeta =
-                new CommandListenerMeta<>(authorId, validityChecker, onTimeOut, onOverridden, command);
+                new CommandListenerMeta<>(member.getIdLong(), validityChecker, onTimeOut, onOverridden, command);
         CommandContainer.getInstance().registerListener(OnButtonListener.class, commandListenerMeta);
 
         try {
             if (command.getDrawMessageId().isEmpty()) {
-                EmbedBuilder eb = draw();
+                EmbedBuilder eb = draw(member);
                 if (eb != null) {
                     return command.drawMessage(eb);
                 }
@@ -107,7 +105,7 @@ public interface OnButtonListener {
             }
             if (onButton(event)) {
                 CommandContainer.getInstance().refreshListeners(command);
-                EmbedBuilder eb = draw();
+                EmbedBuilder eb = draw(event.getMember());
                 if (eb != null) {
                     ((Command) this).drawMessage(eb);
                 }

@@ -26,6 +26,7 @@ import mysql.modules.commandmanagement.CommandManagementData;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -35,7 +36,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "❕",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        requiresMemberCache = true,
         aliases = { "commands" }
 )
 public class HelpCommand extends NavigationAbstract {
@@ -70,7 +70,7 @@ public class HelpCommand extends NavigationAbstract {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         searchTerm = args;
         commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -109,7 +109,7 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     @Draw(state = DEFAULT_STATE)
-    public EmbedBuilder onDraw() {
+    public EmbedBuilder onDraw(Member member) {
         String arg = searchTerm.trim();
         if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1, arg.length() - 1);
 
@@ -118,8 +118,8 @@ public class HelpCommand extends NavigationAbstract {
 
         EmbedBuilder eb;
         if ((eb = checkCommand(arg)) == null) {
-            if ((eb = checkCategory(channel, arg)) == null) {
-                eb = checkMainPage();
+            if ((eb = checkCategory(member, channel, arg)) == null) {
+                eb = checkMainPage(member);
                 if (arg.length() > 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));
                 }
@@ -200,7 +200,7 @@ public class HelpCommand extends NavigationAbstract {
         return null;
     }
 
-    private EmbedBuilder checkCategory(TextChannel channel, String arg) {
+    private EmbedBuilder checkCategory(Member member, TextChannel channel, String arg) {
         if (arg.startsWith("cat:")) {
             arg = arg.substring(4);
         }
@@ -221,20 +221,10 @@ public class HelpCommand extends NavigationAbstract {
                     buttonMap.put(-1, "");
 
                     switch (category) {
-                        case Category.INTERACTIONS:
-                            categoryRolePlay(eb);
-                            break;
-
-                        case Category.NSFW:
-                            categoryNSFW(channel, eb);
-                            break;
-
-                        case Category.PATREON_ONLY:
-                            categoryPatreon(channel, eb);
-                            break;
-
-                        default:
-                            categoryDefault(channel, eb, category);
+                        case Category.INTERACTIONS -> categoryRolePlay(member, eb);
+                        case Category.NSFW -> categoryNSFW(member, channel, eb);
+                        case Category.PATREON_ONLY -> categoryPatreon(member, channel, eb);
+                        default -> categoryDefault(member, channel, eb, category);
                     }
 
                     return eb;
@@ -245,27 +235,27 @@ public class HelpCommand extends NavigationAbstract {
         return null;
     }
 
-    private void categoryRolePlay(EmbedBuilder eb) {
+    private void categoryRolePlay(Member member, EmbedBuilder eb) {
         AtomicInteger counter = new AtomicInteger(0);
-        addRolePlayCommandList(eb, command -> !command.isInteractive() && !command.getCommandProperties().nsfw(), counter);
+        addRolePlayCommandList(member, eb, command -> !command.isInteractive() && !command.getCommandProperties().nsfw(), counter);
         eb.addBlankField(false);
 
         eb.addField(getString("roleplay_interactive_title"), getString("roleplay_interactive_desc"), false);
-        addRolePlayCommandList(eb, command -> command.isInteractive() && !command.getCommandProperties().nsfw(), counter);
+        addRolePlayCommandList(member, eb, command -> command.isInteractive() && !command.getCommandProperties().nsfw(), counter);
         eb.addBlankField(false);
 
         eb.addField(getString("roleplay_nsfwinteractive_title"), getString("interaction_nsfw_desc"), false);
-        addRolePlayCommandList(eb, command -> command.isInteractive() && command.getCommandProperties().nsfw(), counter);
+        addRolePlayCommandList(member, eb, command -> command.isInteractive() && command.getCommandProperties().nsfw(), counter);
     }
 
-    private void addRolePlayCommandList(EmbedBuilder eb, Function<RolePlayAbstract, Boolean> rolePlayAbstractFilter, AtomicInteger counter) {
+    private void addRolePlayCommandList(Member member, EmbedBuilder eb, Function<RolePlayAbstract, Boolean> rolePlayAbstractFilter, AtomicInteger counter) {
         StringBuilder stringBuilder = new StringBuilder();
         int i = 0;
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(Category.INTERACTIONS)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) &&
-                    (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR))
+                    (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.can(member, Permission.ADMINISTRATOR))
             ) {
                 buttonMap.put(counter.getAndIncrement(), command.getTrigger());
                 stringBuilder
@@ -290,7 +280,7 @@ public class HelpCommand extends NavigationAbstract {
         }
     }
 
-    private void categoryPatreon(TextChannel channel, EmbedBuilder eb) {
+    private void categoryPatreon(Member member, TextChannel channel, EmbedBuilder eb) {
         boolean includeLocked = false;
         boolean includeAlerts = false;
         boolean includeNSFW = false;
@@ -302,7 +292,7 @@ public class HelpCommand extends NavigationAbstract {
                 String commandTrigger = command.getTrigger();
                 if (command.getCommandProperties().patreonRequired() &&
                         !commandTrigger.equals(getTrigger()) &&
-                        (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR))
+                        (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.can(member, Permission.ADMINISTRATOR))
                 ) {
                     StringBuilder title = new StringBuilder();
                     title.append(command.getCommandProperties().emoji())
@@ -335,7 +325,7 @@ public class HelpCommand extends NavigationAbstract {
         addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, false);
     }
 
-    private void categoryDefault(TextChannel channel, EmbedBuilder eb, String category) {
+    private void categoryDefault(Member member, TextChannel channel, EmbedBuilder eb, String category) {
         boolean includeLocked = false;
         boolean includeAlerts = false;
         boolean includeNSFW = false;
@@ -346,7 +336,7 @@ public class HelpCommand extends NavigationAbstract {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (!commandTrigger.equals(getTrigger()) &&
-                    (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR))
+                    (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.can(member, Permission.ADMINISTRATOR))
             ) {
                 StringBuilder title = new StringBuilder();
                 title.append(command.getCommandProperties().emoji())
@@ -378,7 +368,7 @@ public class HelpCommand extends NavigationAbstract {
         addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, includePatreon);
     }
 
-    private void categoryNSFW(TextChannel channel, EmbedBuilder eb) {
+    private void categoryNSFW(Member member, TextChannel channel, EmbedBuilder eb) {
         eb.setDescription(getString("nsfw"));
 
         StringBuilder withSearchKey = new StringBuilder();
@@ -389,7 +379,7 @@ public class HelpCommand extends NavigationAbstract {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
             if (commandManagementBean.commandIsTurnedOn(command) ||
-                    BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR)
+                    BotPermissionUtil.can(member, Permission.ADMINISTRATOR)
             ) {
                 buttonMap.put(i++, command.getTrigger());
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
@@ -442,7 +432,7 @@ public class HelpCommand extends NavigationAbstract {
         eb.addField(Emojis.ZERO_WIDTH_SPACE, sb.toString(), false);
     }
 
-    private EmbedBuilder checkMainPage() {
+    private EmbedBuilder checkMainPage(Member member) {
         ArrayList<String> options = new ArrayList<>();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
@@ -456,7 +446,7 @@ public class HelpCommand extends NavigationAbstract {
 
         int i = 0;
         for (String string : LIST) {
-            if (!commandManagementBean.getSwitchedOffElements().contains(string) || BotPermissionUtil.can(getMember().get(), Permission.ADMINISTRATOR)) {
+            if (!commandManagementBean.getSwitchedOffElements().contains(string) || BotPermissionUtil.can(member, Permission.ADMINISTRATOR)) {
                 String title = TextManager.getString(getLocale(), TextManager.COMMANDS, string);
                 buttonMap.put(i, "cat:" + string);
                 options.add(title);

@@ -39,7 +39,7 @@ public abstract class MemberAccountAbstract extends Command {
         return null;
     }
 
-    protected void sendMessage(TextChannel channel, MessageEmbed eb) {
+    protected void sendMessage(Member member, TextChannel channel, MessageEmbed eb) {
         channel.sendMessageEmbeds(eb).queue();
     }
 
@@ -84,7 +84,7 @@ public abstract class MemberAccountAbstract extends Command {
                 }
             }
 
-            sendMessage(event.getChannel(), eb.build());
+            sendMessage(event.getMember(), event.getChannel(), eb.build());
         }
 
         return true;

@@ -12,6 +12,7 @@ import core.utils.StringUtil;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -36,7 +37,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         keywords = DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords();
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -131,7 +132,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public EmbedBuilder draw(int state) {
+    public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));

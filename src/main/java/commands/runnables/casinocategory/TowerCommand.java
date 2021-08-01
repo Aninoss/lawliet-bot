@@ -10,6 +10,7 @@ import core.EmbedFactory;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -54,13 +55,13 @@ public class TowerCommand extends CasinoAbstract {
         int i = Integer.parseInt(event.getComponentId());
         if (i == 0) {
             if (towerMultiplier < 10.0) {
-                onRaise();
+                onRaise(event.getMember());
             } else {
                 setLog(LogStatus.FAILURE, getString("cap"));
                 showMoreText = true;
             }
         } else {
-            onSell();
+            onSell(event.getMember());
         }
         return true;
     }
@@ -107,25 +108,25 @@ public class TowerCommand extends CasinoAbstract {
         return eb;
     }
 
-    private void onRaise() {
+    private void onRaise(Member member) {
         if (r.nextDouble() <= (towerMultiplier / (towerMultiplier + MULTIPLIER_STEP))) {
             towerLevel++;
             towerMultiplier += MULTIPLIER_STEP;
             showMoreText = true;
             falling = true;
         } else {
-            lose();
+            lose(member);
             setLog(LogStatus.LOSE, getString("lost"));
             towerLevel = 0;
             crashed = true;
         }
     }
 
-    private void onSell() {
+    private void onSell(Member member) {
         if (towerMultiplier > 1) {
-            win(towerMultiplier - 1);
+            win(member, towerMultiplier - 1);
         } else {
-            endGame();
+            endGame(member);
         }
         setLog(LogStatus.WIN, getString("win", StringUtil.doubleToString(towerMultiplier, 2, getLocale())));
     }

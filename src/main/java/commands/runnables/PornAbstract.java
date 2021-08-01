@@ -153,7 +153,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                         .complete();
                 TimeUnit.SECONDS.sleep(1);
             }
-        } while (amount > 0);
+        } while (amount > 0 && BotPermissionUtil.canWrite(event.getChannel()));
 
         return true;
     }

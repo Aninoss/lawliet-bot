@@ -101,7 +101,7 @@ public class WarnCommand extends Command implements OnButtonListener {
         checkAllProcess(event.getMember());
         if (memberMissingAccessList.size() > 0 || botMissingAcccessList.size() > 0) {
             status = Status.ERROR;
-            drawMessage(draw());
+            drawMessage(draw(event.getMember()));
             return false;
         }
 
@@ -111,10 +111,10 @@ public class WarnCommand extends Command implements OnButtonListener {
                     Button.of(ButtonStyle.SUCCESS, "true", TextManager.getString(getLocale(), Category.MODERATION, "warn_button_confirm")),
                     Button.of(ButtonStyle.SECONDARY, "false", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
             );
-            registerButtonListener();
+            registerButtonListener(event.getMember());
         } else {
             boolean success = execute(event.getChannel(), event.getMember());
-            drawMessage(draw());
+            drawMessage(draw(event.getMember()));
             return success;
         }
 
@@ -202,7 +202,7 @@ public class WarnCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw() {
+    public EmbedBuilder draw(Member member) {
         switch (status) {
             case COMPLETED:
                 EmbedBuilder eb = getSuccessEmbed();

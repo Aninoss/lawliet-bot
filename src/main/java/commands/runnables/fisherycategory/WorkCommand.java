@@ -59,8 +59,8 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
         if (nextWork.isEmpty()) {
             setArea();
             setButtons(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
-            registerButtonListener();
-            registerMessageInputListener(false);
+            registerButtonListener(event.getMember());
+            registerMessageInputListener(event.getMember(), false);
             return true;
         } else {
             EmbedBuilder eb;
@@ -111,7 +111,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public EmbedBuilder draw() throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         StringBuilder areaBuilder = new StringBuilder();
 
         for (int y = 0; y < area.length; y++) {
@@ -124,8 +124,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, areaBuilder.toString());
         if (active) {
-            String unknownMember = TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()));
-            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("instructions", StringUtil.escapeMarkdown(getMember().map(Member::getEffectiveName).orElse(unknownMember)), EMOJIS[fishFocus]), false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("instructions", StringUtil.escapeMarkdown(member.getEffectiveName()), EMOJIS[fishFocus]), false);
         }
 
         return eb;

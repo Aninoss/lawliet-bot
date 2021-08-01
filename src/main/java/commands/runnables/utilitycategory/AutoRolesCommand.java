@@ -17,6 +17,7 @@ import mysql.modules.autoroles.AutoRolesData;
 import mysql.modules.autoroles.DBAutoRoles;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -46,7 +47,7 @@ public class AutoRolesCommand extends NavigationAbstract {
         roles = AtomicRole.transformIdList(event.getGuild(), autoRolesBean.getRoleIds());
         roleNavigationHelper = new NavigationHelper<>(this, roles, AtomicRole.class, MAX_ROLES);
         checkRolesWithLog(event.getMember(), roles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -97,7 +98,7 @@ public class AutoRolesCommand extends NavigationAbstract {
     }
 
     @Override
-    public EmbedBuilder draw(int state) {
+    public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));

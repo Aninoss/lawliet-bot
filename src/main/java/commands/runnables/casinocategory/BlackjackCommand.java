@@ -16,6 +16,7 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -74,9 +75,9 @@ public class BlackjackCommand extends CasinoAbstract {
                 if (getCardsValue(PlayerType.PLAYER) > 21) {
                     turnForPlayer = false;
                     MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_player_overdrew", () -> {
-                        lose();
+                        lose(event.getMember());
                         setLog(LogStatus.LOSE, getString("toomany", 0));
-                        drawMessage(draw());
+                        drawMessage(draw(event.getMember()));
                     });
                 }
                 return true;
@@ -86,29 +87,29 @@ public class BlackjackCommand extends CasinoAbstract {
                 deregisterListeners();
 
                 setLog(LogStatus.SUCCESS, getString("stopcard", 0));
-                onCPUTurn();
+                onCPUTurn(event.getMember());
                 return true;
             }
         }
         return false;
     }
 
-    private void onCPUTurn() {
-        MainScheduler.getInstance().poll(TIME_BETWEEN_EVENTS, "blackjack_cpu", this::onCPUTurnStep);
+    private void onCPUTurn(Member member) {
+        MainScheduler.getInstance().poll(TIME_BETWEEN_EVENTS, "blackjack_cpu", () -> onCPUTurnStep(member));
     }
 
-    private boolean onCPUTurnStep() {
+    private boolean onCPUTurnStep(Member member) {
         getCardsForPlayer(PlayerType.DEALER).add(new GameCard());
         setLog(LogStatus.SUCCESS, getString("getcard", 1));
         cardRecentDrawn = PlayerType.DEALER;
-        drawMessage(draw());
+        drawMessage(draw(member));
 
         int cardsValue = getCardsValue(PlayerType.DEALER);
         if (cardsValue >= 17) {
             if (cardsValue <= 21) {
                 MainScheduler.getInstance().schedule(TIME_BETWEEN_EVENTS, "blackjack_cpu_stop", () -> {
                     setLog(LogStatus.SUCCESS, getString("stopcard", 1));
-                    drawMessage(draw());
+                    drawMessage(draw(member));
 
                     MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_checkresults", () -> {
                         HashMap<PlayerType, Boolean> hasBlackJackMap = new HashMap<>();
@@ -120,14 +121,14 @@ public class BlackjackCommand extends CasinoAbstract {
                         }
 
                         if (hasBlackJackMap.get(PlayerType.PLAYER) && !hasBlackJackMap.get(PlayerType.DEALER)) {
-                            win();
+                            win(member);
                             setLog(LogStatus.WIN, getString("blackjack", 0));
-                            drawMessage(draw());
+                            drawMessage(draw(member));
                             return;
                         } else if (hasBlackJackMap.get(PlayerType.DEALER) && !hasBlackJackMap.get(PlayerType.PLAYER)) {
-                            lose();
+                            lose(member);
                             setLog(LogStatus.LOSE, getString("blackjack", 1));
-                            drawMessage(draw());
+                            drawMessage(draw(member));
                             return;
                         }
 
@@ -137,24 +138,24 @@ public class BlackjackCommand extends CasinoAbstract {
                         };
 
                         if (points[0] == points[1]) {
-                            endGame();
-                            drawMessage(draw());
+                            endGame(member);
+                            drawMessage(draw(member));
                         } else if (points[0] < points[1]) {
-                            win();
+                            win(member);
                             setLog(LogStatus.WIN, getString("21", 0));
-                            drawMessage(draw());
+                            drawMessage(draw(member));
                         } else if (points[0] > points[1]) {
-                            lose();
+                            lose(member);
                             setLog(LogStatus.LOSE, getString("21", 1));
-                            drawMessage(draw());
+                            drawMessage(draw(member));
                         }
                     });
                 });
             } else {
                 MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_cpu_overdrew", () -> {
-                    win();
+                    win(member);
                     setLog(LogStatus.WIN, getString("toomany", 1));
-                    drawMessage(draw());
+                    drawMessage(draw(member));
                 });
             }
             return false;

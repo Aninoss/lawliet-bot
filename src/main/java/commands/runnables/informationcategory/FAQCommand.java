@@ -30,7 +30,7 @@ public class FAQCommand extends ListAbstract {
             slots.add(new Pair<>(question, answer));
         }
 
-        registerList(slots.size(), args);
+        registerList(event.getMember(), slots.size(), args);
         return true;
     }
 

@@ -19,6 +19,7 @@ import mysql.modules.commandmanagement.CommandManagementData;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -41,7 +42,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -149,7 +150,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     }
 
     @Override
-    public EmbedBuilder draw(int state) {
+    public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
                 String[] options = Arrays.stream(Category.LIST)

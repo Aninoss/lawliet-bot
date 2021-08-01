@@ -16,6 +16,7 @@ import core.utils.MentionUtil;
 import modules.RoleAssigner;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -87,7 +88,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
         future.thenAccept(this::onAssignmentFinished);
 
         setButtons(Button.of(ButtonStyle.SECONDARY, "quit", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
-        registerButtonListener();
+        registerButtonListener(event.getMember());
         return true;
     }
 
@@ -113,7 +114,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw() throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         return EmbedFactory.getEmbedDefault(
                 this,
                 getString("loading", atomicRole.getAsMention(), EmojiUtil.getLoadingEmojiMention(getTextChannel().orElse(null)), CANCEL_EMOJI)

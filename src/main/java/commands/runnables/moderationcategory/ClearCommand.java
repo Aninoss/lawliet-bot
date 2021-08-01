@@ -20,6 +20,7 @@ import core.utils.StringUtil;
 import modules.ClearResults;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -52,7 +53,7 @@ public class ClearCommand extends Command implements OnButtonListener {
             boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 ||
                     PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
-            long messageId = registerButtonListener().get();
+            long messageId = registerButtonListener(event.getMember()).get();
             TimeUnit.SECONDS.sleep(1);
             ClearResults clearResults = clear(event.getChannel(), patreon, Integer.parseInt(args), event.getMessage().getIdLong(), messageId);
 
@@ -148,7 +149,7 @@ public class ClearCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw() throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         if (!interrupt) {
             setButtons(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             return EmbedFactory.getEmbedDefault(this, getString("progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));

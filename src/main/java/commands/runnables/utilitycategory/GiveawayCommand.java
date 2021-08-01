@@ -24,6 +24,7 @@ import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
@@ -79,8 +80,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         giveawayBeans = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
         title = getString("title");
-        registerNavigationListener();
-        registerReactionListener();
+        registerNavigationListener(event.getMember());
+        registerReactionListener(event.getMember());
         return true;
     }
 
@@ -361,7 +362,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         if (getState() == UPDATE_EMOJI) {
             event.getReaction().removeReaction(event.getUser()).queue();
             processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
-            processDraw().exceptionally(ExceptionLogger.get());
+            processDraw(event.getMember()).exceptionally(ExceptionLogger.get());
             return true;
         }
         return false;
@@ -413,13 +414,13 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @Draw(state = ADD_OR_EDIT)
-    public EmbedBuilder onDrawAddOrEdit() {
+    public EmbedBuilder onDrawAddOrEdit(Member member) {
         setOptions(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
     }
 
     @Draw(state = ADD_MESSAGE)
-    public EmbedBuilder onDrawAddMessage() {
+    public EmbedBuilder onDrawAddMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (channel != null) {
             setOptions(new String[] { TextManager.getString(getLocale(), TextManager.GENERAL, "continue") });
@@ -428,7 +429,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @Draw(state = EDIT_MESSAGE)
-    public EmbedBuilder onDrawEditMessage() {
+    public EmbedBuilder onDrawEditMessage(Member member) {
         String[] options = new ListGen<GiveawayData>()
                 .getList(getActiveGiveawaySlots(), ListGen.SLOT_TYPE_NONE, giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getTextChannel().get().getName()))
                 .split("\n");
@@ -437,7 +438,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @Draw(state = CONFIGURE_MESSAGE)
-    public EmbedBuilder onDrawConfigureMessage() {
+    public EmbedBuilder onDrawConfigureMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         setOptions(getString("state3_options").split("\n"));
 
@@ -451,43 +452,43 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @Draw(state = UPDATE_TITLE)
-    public EmbedBuilder onDrawUpdateTitle() {
+    public EmbedBuilder onDrawUpdateTitle(Member member) {
         return EmbedFactory.getEmbedDefault(this, getString("state11_description"), getString("state11_title"));
     }
 
     @Draw(state = UPDATE_DESC)
-    public EmbedBuilder onDrawUpdateDesc() {
+    public EmbedBuilder onDrawUpdateDesc(Member member) {
         return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"));
     }
 
     @Draw(state = UPDATE_DURATION)
-    public EmbedBuilder onDrawUpdateDuration() {
+    public EmbedBuilder onDrawUpdateDuration(Member member) {
         return EmbedFactory.getEmbedDefault(this, getString("state5_description"), getString("state5_title"));
     }
 
     @Draw(state = UPDATE_WINNERS)
-    public EmbedBuilder onDrawUpdateWinners() {
+    public EmbedBuilder onDrawUpdateWinners(Member member) {
         return EmbedFactory.getEmbedDefault(this, getString("state6_description"), getString("state6_title"));
     }
 
     @Draw(state = UPDATE_EMOJI)
-    public EmbedBuilder onDrawUpdateEmoji() {
+    public EmbedBuilder onDrawUpdateEmoji(Member member) {
         return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
     }
 
     @Draw(state = UPDATE_IMAGE)
-    public EmbedBuilder onDrawUpdateImage() {
+    public EmbedBuilder onDrawUpdateImage(Member member) {
         setOptions(getString("state8_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state8_description"), getString("state8_title"));
     }
 
     @Draw(state = EXAMPLE)
-    public EmbedBuilder onDrawExample() {
+    public EmbedBuilder onDrawExample(Member member) {
         return getMessageEmbed();
     }
 
     @Draw(state = SENT)
-    public EmbedBuilder onDrawSent() {
+    public EmbedBuilder onDrawSent(Member member) {
         return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
     }
 

@@ -17,6 +17,7 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -67,8 +68,8 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_SELLALL, getString("sellall")),
                     Button.of(ButtonStyle.SECONDARY, BUTTON_ID_CANCEL, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
             );
-            registerButtonListener();
-            registerMessageInputListener(false);
+            registerButtonListener(event.getMember());
+            registerMessageInputListener(event.getMember(), false);
             return true;
         }
     }
@@ -91,7 +92,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public EmbedBuilder draw() throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         return this.eb;
     }
 

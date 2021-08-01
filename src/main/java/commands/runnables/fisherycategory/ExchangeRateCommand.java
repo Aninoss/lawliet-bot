@@ -19,6 +19,7 @@ import modules.Fishery;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -30,7 +31,6 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        requiresMemberCache = true,
         aliases = { "exchangerate", "er", "exchr", "exchange", "exchf", "exchforecast", "exchangerateforecast", "erforecast", "exchrforecast", "exchangeforecast" }
 )
 public class ExchangeRateCommand extends Command implements OnButtonListener, OnAlertListener {
@@ -45,7 +45,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false) >= 2) {
             setButtons(Button.of(ButtonStyle.PRIMARY, "forecast", getString("forecast_button")));
-            registerButtonListener();
+            registerButtonListener(event.getMember());
         } else {
             textInclude = getString("forecast_patreon");
             drawMessage(generateEmbed(false));
@@ -87,9 +87,9 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     }
 
     @Override
-    public EmbedBuilder draw() {
+    public EmbedBuilder draw(Member member) {
         EmbedBuilder eb = generateEmbed(false);
-        getMember().ifPresent(member -> EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger()));
+        EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
         return eb;
     }
 

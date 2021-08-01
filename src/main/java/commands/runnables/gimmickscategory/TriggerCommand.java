@@ -38,7 +38,7 @@ public class TriggerCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected void sendMessage(TextChannel channel, MessageEmbed eb) {
+    protected void sendMessage(Member member, TextChannel channel, MessageEmbed eb) {
         channel.sendMessageEmbeds(eb)
                 .addFile(inputStream, "trigger.gif")
                 .queue();

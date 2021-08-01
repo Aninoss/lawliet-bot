@@ -85,8 +85,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        registerNavigationListener();
-        registerReactionListener();
+        registerNavigationListener(event.getMember());
+        registerReactionListener(event.getMember());
         return true;
     }
 
@@ -413,7 +413,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             }
             boolean success = calculateEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
             if (success) {
-                processDraw().exceptionally(ExceptionLogger.get());
+                processDraw(event.getMember()).exceptionally(ExceptionLogger.get());
             }
             return success;
         }
@@ -542,13 +542,13 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Draw(state = ADD_OR_EDIT)
-    public EmbedBuilder onDrawAddOrEdit() {
+    public EmbedBuilder onDrawAddOrEdit(Member member) {
         setOptions(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
     }
 
     @Draw(state = ADD_MESSAGE)
-    public EmbedBuilder onDrawAddMessage() {
+    public EmbedBuilder onDrawAddMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (atomicTextChannel != null) {
             setOptions(new String[] { TextManager.getString(getLocale(), TextManager.GENERAL, "continue") });
@@ -557,8 +557,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Draw(state = EDIT_MESSAGE)
-    public EmbedBuilder onDrawEditMessage() {
-        List<ReactionMessage> reactionMessages = getReactionMessagesInGuild(getGuild().get());
+    public EmbedBuilder onDrawEditMessage(Member member) {
+        List<ReactionMessage> reactionMessages = getReactionMessagesInGuild(member.getGuild());
         String[] options = new String[reactionMessages.size()];
         for (int i = 0; i < reactionMessages.size(); i++) {
             ReactionMessage reactionMessage = reactionMessages.get(i);
@@ -571,7 +571,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Draw(state = CONFIGURE_MESSAGE)
-    public EmbedBuilder onDrawConfigureMessage() {
+    public EmbedBuilder onDrawConfigureMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         setOptions(getString("state3_options").split("\n"));
 
@@ -591,30 +591,30 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Draw(state = UPDATE_TITLE)
-    public EmbedBuilder onDrawUpdateTitle() {
+    public EmbedBuilder onDrawUpdateTitle(Member member) {
         return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"));
     }
 
     @Draw(state = UPDATE_DESC)
-    public EmbedBuilder onDrawUpdateDesc() {
+    public EmbedBuilder onDrawUpdateDesc(Member member) {
         return EmbedFactory.getEmbedDefault(this, getString("state5_description"), getString("state5_title"));
     }
 
     @Draw(state = UPDATE_IMAGE)
-    public EmbedBuilder onDrawUpdateImage() {
+    public EmbedBuilder onDrawUpdateImage(Member member) {
         setOptions(getString("state10_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
     }
 
     @Draw(state = ADD_SLOT)
-    public EmbedBuilder onDrawAddSlot() {
+    public EmbedBuilder onDrawAddSlot(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (roleTemp != null && emojiTemp != null) setOptions(new String[] { getString("state6_options") });
         return EmbedFactory.getEmbedDefault(this, getString("state6_description", Optional.ofNullable(emojiTemp).orElse(notSet), Optional.ofNullable(roleTemp).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state6_title"));
     }
 
     @Draw(state = REMOVE_SLOT)
-    public EmbedBuilder onDrawRemoveSlot() {
+    public EmbedBuilder onDrawRemoveSlot(Member member) {
         ArrayList<OptionButton> optionsDelete = new ArrayList<>();
         for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
             long roleId = StringUtil.filterLongFromString( emojiConnection.getConnection());
@@ -631,12 +631,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Draw(state = EXAMPLE)
-    public EmbedBuilder onDrawExample() {
+    public EmbedBuilder onDrawExample(Member member) {
         return getMessageEmbed(true);
     }
 
     @Draw(state = SENT)
-    public EmbedBuilder onDrawSent() {
+    public EmbedBuilder onDrawSent(Member member) {
         return EmbedFactory.getEmbedDefault(this, getString("state9_description"), getString("state9_title"));
     }
 

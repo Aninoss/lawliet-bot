@@ -108,7 +108,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             }
         }
 
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -240,7 +240,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     }
 
     @Override
-    public EmbedBuilder draw(int state) throws Throwable {
+    public EmbedBuilder draw(Member member, int state) throws Throwable {
         if (state == 0) {
             String desc = getString("state0_description", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag());
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, desc);

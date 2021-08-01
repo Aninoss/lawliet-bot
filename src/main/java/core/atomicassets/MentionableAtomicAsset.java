@@ -5,6 +5,7 @@ import java.util.Optional;
 import core.TextManager;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.entities.IMentionable;
+import org.jetbrains.annotations.NotNull;
 
 public interface MentionableAtomicAsset<T extends IMentionable> extends IMentionable {
 
@@ -22,6 +23,7 @@ public interface MentionableAtomicAsset<T extends IMentionable> extends IMention
     }
 
     @Override
+    @NotNull
     default String getAsMention() {
         return get()
                 .map(IMentionable::getAsMention)

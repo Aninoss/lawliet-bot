@@ -14,6 +14,7 @@ import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -68,7 +69,7 @@ public class LanguageCommand extends Command implements OnButtonListener {
                 buttons.add(button);
             }
             setButtons(buttons);
-            registerButtonListener();
+            registerButtonListener(event.getMember());
             return true;
         }
     }
@@ -84,7 +85,7 @@ public class LanguageCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw() throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         Language language = Language.from(getLocale());
         if (set && language.isDeepLGenerated()) {
             setButtons(Button.of(ButtonStyle.LINK, ExternalLinks.GITHUB, getString("github")));

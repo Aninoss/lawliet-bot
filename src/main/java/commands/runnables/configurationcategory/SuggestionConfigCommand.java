@@ -16,6 +16,7 @@ import mysql.modules.suggestions.SuggestionsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -39,7 +40,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -101,7 +102,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
     }
 
     @Override
-    public EmbedBuilder draw(int state) {
+    public EmbedBuilder draw(Member member, int state) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         switch (state) {
             case 0:

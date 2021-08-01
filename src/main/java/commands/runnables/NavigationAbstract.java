@@ -45,17 +45,17 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         super(locale, prefix);
     }
 
-    protected void registerNavigationListener() {
-        registerButtonListener();
-        registerMessageInputListener(false);
-        processDraw().exceptionally(ExceptionLogger.get());
+    protected void registerNavigationListener(Member member) {
+        registerButtonListener(member);
+        registerMessageInputListener(member, false);
+        processDraw(member).exceptionally(ExceptionLogger.get());
     }
 
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
         Response response = controllerMessage(event, input, state);
         if (response != null) {
-            processDraw().exceptionally(ExceptionLogger.get());
+            processDraw(event.getMember()).exceptionally(ExceptionLogger.get());
         }
 
         return response;
@@ -86,7 +86,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             }
 
             if (changed) {
-                processDraw().exceptionally(ExceptionLogger.get());
+                processDraw(event.getMember()).exceptionally(ExceptionLogger.get());
             }
         } catch (Throwable throwable) {
             ExceptionUtil.handleCommandException(throwable, this, event.getTextChannel());
@@ -147,16 +147,16 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Override
-    public EmbedBuilder draw() {
+    public EmbedBuilder draw(Member member) {
         return null;
     }
 
-    public EmbedBuilder draw(int state) throws Throwable {
+    public EmbedBuilder draw(Member member, int state) throws Throwable {
         for (Method method : getClass().getDeclaredMethods()) {
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == state) {
                 try {
-                    return ((EmbedBuilder) method.invoke(this));
+                    return ((EmbedBuilder) method.invoke(this, member));
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     MainLogger.get().error("Navigation draw exception", e);
                 }
@@ -167,7 +167,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == -1) {
                 try {
-                    return ((EmbedBuilder) method.invoke(this));
+                    return ((EmbedBuilder) method.invoke(this, member));
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     MainLogger.get().error("Navigation draw exception", e);
                 }
@@ -177,11 +177,11 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return null;
     }
 
-    protected CompletableFuture<Long> processDraw() {
+    protected CompletableFuture<Long> processDraw(Member member) {
         Locale locale = getLocale();
         EmbedBuilder eb;
         try {
-            eb = draw(state);
+            eb = draw(member, state);
         } catch (Throwable throwable) {
             return CompletableFuture.failedFuture(throwable);
         }

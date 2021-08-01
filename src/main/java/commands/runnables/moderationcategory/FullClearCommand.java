@@ -22,6 +22,7 @@ import modules.ClearResults;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -52,7 +53,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws InterruptedException, ExecutionException {
         Optional<Integer> hoursMin = extractHoursMin(event.getChannel(), args);
         if (hoursMin.isPresent()) {
-            long messageId = registerButtonListener().get();
+            long messageId = registerButtonListener(event.getMember()).get();
             TimeUnit.SECONDS.sleep(1);
             ClearResults clearResults = fullClear(event.getChannel(), hoursMin.get(), event.getMessage().getIdLong(), messageId);
 
@@ -163,7 +164,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     }
 
     @Override
-    public EmbedBuilder draw() throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         if (!interrupt) {
             setButtons(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), Category.MODERATION, "clear_progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get()), Emojis.X));

@@ -17,6 +17,7 @@ import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
@@ -46,7 +47,7 @@ public class ModSettingsCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -419,14 +420,14 @@ public class ModSettingsCommand extends NavigationAbstract {
     }
 
     @Override
-    public EmbedBuilder draw(int state) {
+    public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
                 String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
                 setOptions(getString("state0_options").split("\n"));
 
                 String content = getString("state0_description");
-                List<TextChannel> leakedChannels = ServerMute.getLeakedChannels(getGuild().get());
+                List<TextChannel> leakedChannels = ServerMute.getLeakedChannels(member.getGuild());
                 if (leakedChannels.size() > 0) {
                     content += "\n\n" + getString("state0_noteffective", leakedChannels.size() != 1, StringUtil.numToString(leakedChannels.size()), "https://discordhelp.net/mute-user");
                 }

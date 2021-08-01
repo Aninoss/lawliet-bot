@@ -20,6 +20,7 @@ import mysql.modules.gamestatistics.DBGameStatistics;
 import mysql.modules.gamestatistics.GameStatisticsData;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -71,16 +72,16 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
 
             if (!allowBet) {
                 coinsInput = 0;
-                registerButtonListener();
-                registerMessageInputListener(false);
+                registerButtonListener(event.getMember());
+                registerMessageInputListener(event.getMember(), false);
                 return true;
             }
 
             FisheryStatus status = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getFisheryStatus();
             if (status != FisheryStatus.ACTIVE) {
                 coinsInput = 0;
-                registerButtonListener();
-                registerMessageInputListener(false);
+                registerButtonListener(event.getMember());
+                registerMessageInputListener(event.getMember(), false);
                 return true;
             }
 
@@ -90,16 +91,16 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             if (value == -1) {
                 coinsInput = (long) Math.ceil(coins * 0.1);
                 memberBean.addCoinsHidden(coinsInput);
-                registerButtonListener();
-                registerMessageInputListener(false);
+                registerButtonListener(event.getMember());
+                registerMessageInputListener(event.getMember(), false);
                 return true;
             }
 
             if (value >= 0) {
                 coinsInput = value;
                 memberBean.addCoinsHidden(coinsInput);
-                registerButtonListener();
-                registerMessageInputListener(false);
+                registerButtonListener(event.getMember());
+                registerMessageInputListener(event.getMember(), false);
                 return true;
             } else {
                 event.getChannel()
@@ -108,7 +109,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 return false;
             }
         } catch (Throwable e) {
-            endGame();
+            endGame(event.getMember());
             throw e;
         }
     }
@@ -121,84 +122,78 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         return status;
     }
 
-    protected void endGame() {
-        endGame(true);
+    protected void endGame(Member member) {
+        endGame(member, true);
     }
 
-    protected void endGame(boolean requestRetry) {
-        getGuild().ifPresent(guild -> {
-            status = Status.DRAW;
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.CASINO, "casino_draw"));
-            DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberData(getMemberId().get()).addCoinsHidden(-coinsInput);
-            if (requestRetry && !retryRequestAdded) {
-                registerButtonListener();
-                setButtons(BUTTON_RETRY);
-                retryRequestAdded = true;
-            } else {
-                setButtons();
-            }
-        });
-    }
-
-    protected void lose() {
-        lose(true);
-    }
-
-    protected void lose(boolean requestRetry) {
-        getGuild().ifPresent(guild -> {
-            endGame(requestRetry);
-            status = Status.LOST;
-            setLog(LogStatus.LOSE, TextManager.getString(getLocale(), Category.CASINO, "casino_lose"));
-            if (coinsInput > 0 && useCalculatedMultiplicator) {
-                DBGameStatistics.getInstance().retrieve(compareKey).addValue(false, 1);
-            }
-            EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberData(getMemberId().get())
-                    .changeValuesEmbed(0, -coinsInput);
-            if (coinsInput > 0) {
-                setAdditionalEmbeds(eb.build());
-            }
-        });
-    }
-
-    protected void cancel(boolean loseBet, boolean requestRetry) {
-        if (loseBet) {
-            lose(requestRetry);
+    protected void endGame(Member member, boolean requestRetry) {
+        status = Status.DRAW;
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.CASINO, "casino_draw"));
+        DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(getMemberId().get()).addCoinsHidden(-coinsInput);
+        if (requestRetry && !retryRequestAdded) {
+            registerButtonListener(member);
+            setButtons(BUTTON_RETRY);
+            retryRequestAdded = true;
         } else {
-            endGame(requestRetry);
+            setButtons();
+        }
+    }
+
+    protected void lose(Member member) {
+        lose(member, true);
+    }
+
+    protected void lose(Member member, boolean requestRetry) {
+        endGame(member, requestRetry);
+        status = Status.LOST;
+        setLog(LogStatus.LOSE, TextManager.getString(getLocale(), Category.CASINO, "casino_lose"));
+        if (coinsInput > 0 && useCalculatedMultiplicator) {
+            DBGameStatistics.getInstance().retrieve(compareKey).addValue(false, 1);
+        }
+        EmbedBuilder eb = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
+                .changeValuesEmbed(0, -coinsInput);
+        if (coinsInput > 0) {
+            setAdditionalEmbeds(eb.build());
+        }
+    }
+
+    protected void cancel(Member member, boolean loseBet, boolean requestRetry) {
+        if (loseBet) {
+            lose(member, requestRetry);
+        } else {
+            endGame(member, requestRetry);
         }
         status = Status.CANCELED;
         setLog(LogStatus.LOSE, TextManager.getString(getLocale(), Category.CASINO, "casino_abort"));
     }
 
-    protected void win(double winMultiplicator) {
+    protected void win(Member member, double winMultiplicator) {
         this.winMultiplicator = winMultiplicator;
-        win();
+        win(member);
     }
 
-    protected void win() {
-        getGuild().ifPresent(guild -> {
-            endGame();
-            status = Status.WON;
-            setLog(LogStatus.WIN, TextManager.getString(getLocale(), Category.CASINO, "casino_win"));
+    protected void win(Member member) {
+        endGame(member);
+        status = Status.WON;
+        setLog(LogStatus.WIN, TextManager.getString(getLocale(), Category.CASINO, "casino_win"));
 
-            long coinsWon = (long) Math.ceil(coinsInput * winMultiplicator);
+        long coinsWon = (long) Math.ceil(coinsInput * winMultiplicator);
 
-            double multiplicator = 1;
-            if (coinsInput != 0 && useCalculatedMultiplicator) {
-                GameStatisticsData gameStatisticsData = DBGameStatistics.getInstance().retrieve(compareKey);
-                gameStatisticsData.addValue(true, winMultiplicator);
+        double multiplicator = 1;
+        if (coinsInput != 0 && useCalculatedMultiplicator) {
+            GameStatisticsData gameStatisticsData = DBGameStatistics.getInstance().retrieve(compareKey);
+            gameStatisticsData.addValue(true, winMultiplicator);
 
-                double won = gameStatisticsData.getValue(true);
-                double lost = gameStatisticsData.getValue(false);
-                if (won > 0 && lost > 0) multiplicator = lost / won;
-            }
+            double won = gameStatisticsData.getValue(true);
+            double lost = gameStatisticsData.getValue(false);
+            if (won > 0 && lost > 0) multiplicator = lost / won;
+        }
 
-            EmbedBuilder eb = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberData(getMemberId().get())
-                    .changeValuesEmbed(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
-            if (coinsInput > 0) {
-                setAdditionalEmbeds(eb.build());
-            }
-        });
+        EmbedBuilder eb = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
+                .changeValuesEmbed(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
+        if (coinsInput > 0) {
+            setAdditionalEmbeds(eb.build());
+        }
     }
 
     @Override
@@ -206,7 +201,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         if (status == Status.ACTIVE) {
             if (hasCancelButton() && event.getComponentId().equals(BUTTON_ID_QUIT)) {
                 canBeCanceled = false;
-                cancel(false, true);
+                cancel(event.getMember(), false, true);
                 return true;
             } else {
                 return onButtonCasino(event);
@@ -238,15 +233,15 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     }
 
     @Override
-    public EmbedBuilder draw() {
+    public EmbedBuilder draw(Member member) {
         return drawCasino(getMemberEffectiveName().orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()))), coinsInput);
     }
 
     @Override
     public void onListenerTimeOut() {
         if (status == Status.ACTIVE) {
-            cancel(true, false);
-            EmbedBuilder eb = draw();
+            cancel(getMember().get(), true, false);
+            EmbedBuilder eb = draw(getMember().get());
             if (eb != null) {
                 drawMessage(eb);
             }

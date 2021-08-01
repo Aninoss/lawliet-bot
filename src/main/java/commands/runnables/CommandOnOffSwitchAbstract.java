@@ -7,6 +7,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -63,7 +64,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
                     Button.of(ButtonStyle.SUCCESS, "true", TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 1)),
                     Button.of(ButtonStyle.DANGER, "false", TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 0))
             );
-            registerButtonListener();
+            registerButtonListener(event.getMember());
         }
         return true;
     }
@@ -81,7 +82,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
     }
 
     @Override
-    public EmbedBuilder draw() {
+    public EmbedBuilder draw(Member member) {
         switch (mode) {
             case SET:
                 return EmbedFactory.getEmbedDefault(this, getSetText());

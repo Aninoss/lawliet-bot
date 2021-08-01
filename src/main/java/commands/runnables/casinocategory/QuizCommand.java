@@ -20,6 +20,7 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -91,14 +92,14 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         setCompareKey("quiz_" + answers.length + "_" + difficulty);
-        MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "quiz_timeup", this::onTimeUp);
+        MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "quiz_timeup", () -> onTimeUp(event.getMember()));
         return true;
     }
 
     @Override
     public boolean onButtonCasino(ButtonClickEvent event) throws Throwable {
         int i = Integer.parseInt(event.getComponentId());
-        onAnswerSelected(i);
+        onAnswerSelected(event.getMember(), i);
         return true;
     }
 
@@ -145,19 +146,19 @@ public class QuizCommand extends CasinoAbstract {
         setActionRows(actionRows);
     }
 
-    private void onTimeUp() {
+    private void onTimeUp(Member member) {
         if (getStatus() == Status.ACTIVE) {
-            onAnswerSelected(-1);
-            drawMessage(draw());
+            onAnswerSelected(member, -1);
+            drawMessage(draw(member));
         }
     }
 
-    private void onAnswerSelected(int selected) {
+    private void onAnswerSelected(Member member, int selected) {
         if (selected == correctAnswer) {
-            win(answers.length * (difficulty + 1) / 8.0);
+            win(member, answers.length * (difficulty + 1) / 8.0);
             setLog(LogStatus.WIN, getString("correct"));
         } else {
-            lose();
+            lose(member);
             setLog(LogStatus.LOSE, selected == -1 ? getString("timeup") : getString("wrong"));
         }
 

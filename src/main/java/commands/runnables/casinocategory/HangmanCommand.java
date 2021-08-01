@@ -15,6 +15,7 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -125,9 +126,9 @@ public class HangmanCommand extends CasinoAbstract {
             used.add(input);
             if (answer.equals(input)) { //if input is right win game
                 Arrays.fill(progress, true);
-                onRight(input);
+                onRight(event.getMember(), input);
             } else { //input is wrong
-                onWrong(input);
+                onWrong(event.getMember(), input);
             }
             return Response.TRUE;
         }
@@ -148,9 +149,9 @@ public class HangmanCommand extends CasinoAbstract {
             }
 
             if (!successful) {
-                onWrong(String.valueOf(inputChar));
+                onWrong(event.getMember(), String.valueOf(inputChar));
             } else {
-                onRight(String.valueOf(inputChar));
+                onRight(event.getMember(), String.valueOf(inputChar));
             }
         } else {
             setLog(LogStatus.FAILURE, getString("used", input));
@@ -158,18 +159,18 @@ public class HangmanCommand extends CasinoAbstract {
         return Response.TRUE;
     }
 
-    private void onWrong(String input) {
+    private void onWrong(Member member, String input) {
         health--;
         wrongAnswer = true;
 
         if (health > 0) {
             setLog(LogStatus.FAILURE, getString("wrong", input));
         } else {
-            lose();
+            lose(member);
         }
     }
 
-    private void onRight(String input) {
+    private void onRight(Member member, String input) {
         boolean finished = true;
         for (boolean set : progress) {
             if (!set) {
@@ -181,7 +182,7 @@ public class HangmanCommand extends CasinoAbstract {
         if (!finished) {
             setLog(LogStatus.SUCCESS, getString("right", input));
         } else {
-            win((double) health / (double) MAX_HEALTH);
+            win(member, (double) health / (double) MAX_HEALTH);
         }
     }
 

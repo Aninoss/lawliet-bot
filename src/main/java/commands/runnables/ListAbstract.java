@@ -9,6 +9,7 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
@@ -30,7 +31,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
 
     protected abstract Pair<String, String> getEntry(int i) throws Throwable;
 
-    protected void registerList(int size, String args) {
+    protected void registerList(Member member, int size, String args) {
         this.size = size;
         if (StringUtil.stringIsInt(args)) {
             int pageStart = Integer.parseInt(args);
@@ -42,7 +43,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
                 Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
                 Button.of(ButtonStyle.PRIMARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"))
         );
-        registerButtonListener();
+        registerButtonListener(member);
     }
 
     @Override
@@ -60,7 +61,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw() throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(getPageSize())));
 

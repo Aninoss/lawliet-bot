@@ -48,7 +48,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         memberCountBean = DBMemberCountDisplays.getInstance().retrieve(event.getGuild().getIdLong());
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -200,7 +200,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
     }
 
     @Override
-    public EmbedBuilder draw(int state) {
+    public EmbedBuilder draw(Member member, int state) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         switch (state) {

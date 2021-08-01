@@ -13,6 +13,7 @@ import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -57,8 +58,8 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_UNLIMITED, getString("setunlimited")),
                     Button.of(ButtonStyle.SECONDARY, BUTTON_ID_CANCEL, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
             );
-            registerButtonListener();
-            registerMessageInputListener(false);
+            registerButtonListener(event.getMember());
+            registerMessageInputListener(event.getMember(), false);
         }
         return true;
     }
@@ -115,7 +116,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     }
 
     @Override
-    public EmbedBuilder draw() throws Throwable {
+    public EmbedBuilder draw(Member member) throws Throwable {
         return this.eb;
     }
 

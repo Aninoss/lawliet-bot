@@ -18,6 +18,7 @@ import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
 import mysql.modules.whitelistedchannels.WhiteListedChannelsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -45,7 +46,7 @@ public class WhiteListCommand extends NavigationAbstract {
         WhiteListedChannelsData whiteListedChannelsBean = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
         whiteListedChannels = AtomicTextChannel.transformIdList(event.getGuild(), whiteListedChannelsBean.getChannelIds());
         channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, AtomicTextChannel.class, MAX_CHANNELS);
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -101,7 +102,7 @@ public class WhiteListCommand extends NavigationAbstract {
     }
 
     @Override
-    public EmbedBuilder draw(int state) {
+    public EmbedBuilder draw(Member member, int state) {
         String everyChannel = getString("all");
         switch (state) {
             case 0:

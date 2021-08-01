@@ -70,7 +70,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
         staffRoles = AtomicRole.transformIdList(event.getGuild(), ticketData.getStaffRoleIds());
         staffRoleNavigationHelper = new NavigationHelper<>(this, staffRoles, AtomicRole.class, MAX_ROLES);
-        registerNavigationListener();
+        registerNavigationListener(event.getMember());
         return true;
     }
 
@@ -220,7 +220,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @Draw(state = MAIN)
-    public EmbedBuilder onDrawMain() {
+    public EmbedBuilder onDrawMain(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         setOptions(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
@@ -230,23 +230,23 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @Draw(state = ANNOUNCEMENT_CHANNEL)
-    public EmbedBuilder onDrawAnnouncementChannel() {
+    public EmbedBuilder onDrawAnnouncementChannel(Member member) {
         setOptions(getString("state1_options").split("\n"));
         return staffRoleNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
     }
 
     @Draw(state = ADD_STAFF_ROLE)
-    public EmbedBuilder onDrawAddStaffRole() {
+    public EmbedBuilder onDrawAddStaffRole(Member member) {
         return staffRoleNavigationHelper.drawDataAdd(getString("state2_title"), getString("state2_description"));
     }
 
     @Draw(state = REMOVE_STAFF_ROLE)
-    public EmbedBuilder onDrawRemoveStaffRole() {
+    public EmbedBuilder onDrawRemoveStaffRole(Member member) {
         return staffRoleNavigationHelper.drawDataRemove(getString("state3_title"), getString("state3_description"));
     }
 
     @Draw(state = CREATE_TICKET_MESSAGE)
-    public EmbedBuilder onDrawCreateTicketMessage() {
+    public EmbedBuilder onDrawCreateTicketMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (tempPostChannel != null) {
             setOptions(getString("state4_options").split("\n"));

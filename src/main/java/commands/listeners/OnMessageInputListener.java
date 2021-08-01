@@ -12,28 +12,27 @@ import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public interface OnMessageInputListener {
 
     Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable;
 
-    EmbedBuilder draw() throws Throwable;
+    EmbedBuilder draw(Member member) throws Throwable;
 
-    default void registerMessageInputListener() {
-        registerMessageInputListener(true);
+    default void registerMessageInputListener(Member member) {
+        registerMessageInputListener(member, true);
     }
 
-    default void registerMessageInputListener(boolean draw) {
+    default void registerMessageInputListener(Member member, boolean draw) {
         Command command = (Command) this;
-        command.getMemberId().ifPresent(memberId -> {
-            registerMessageInputListener(memberId, event -> event.getMember().getIdLong() == memberId &&
-                    event.getChannel().getIdLong() == command.getTextChannelId().orElse(0L), draw
-            );
-        });
+        registerMessageInputListener(member, event -> event.getMember().getIdLong() == member.getIdLong() &&
+                event.getChannel().getIdLong() == command.getTextChannelId().orElse(0L), draw
+        );
     }
 
-    default void registerMessageInputListener(long authorId, Function<GuildMessageReceivedEvent, Boolean> validityChecker, boolean draw) {
+    default void registerMessageInputListener(Member member, Function<GuildMessageReceivedEvent, Boolean> validityChecker, boolean draw) {
         Command command = (Command) this;
 
         Runnable onTimeOut = () -> {
@@ -54,12 +53,12 @@ public interface OnMessageInputListener {
         };
 
         CommandListenerMeta<GuildMessageReceivedEvent> commandListenerMeta =
-                new CommandListenerMeta<>(authorId, validityChecker, onTimeOut, onOverridden, command);
+                new CommandListenerMeta<>(member.getIdLong(), validityChecker, onTimeOut, onOverridden, command);
         CommandContainer.getInstance().registerListener(OnMessageInputListener.class, commandListenerMeta);
 
         try {
             if (draw && command.getDrawMessageId().isEmpty()) {
-                EmbedBuilder eb = draw();
+                EmbedBuilder eb = draw(member);
                 if (eb != null) {
                     command.drawMessage(eb);
                 }
@@ -89,7 +88,7 @@ public interface OnMessageInputListener {
                     }
                 }
 
-                EmbedBuilder eb = draw();
+                EmbedBuilder eb = draw(event.getMember());
                 if (eb != null) {
                     ((Command) this).drawMessage(eb);
                 }

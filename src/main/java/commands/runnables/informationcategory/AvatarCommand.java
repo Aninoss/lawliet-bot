@@ -37,7 +37,7 @@ public class AvatarCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected void sendMessage(TextChannel channel, MessageEmbed eb) {
+    protected void sendMessage(Member member, TextChannel channel, MessageEmbed eb) {
         channel.sendMessageEmbeds(eb)
                 .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, avatarUrl, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"))))
                 .queue();
