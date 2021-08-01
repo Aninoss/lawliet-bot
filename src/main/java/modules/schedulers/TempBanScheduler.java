@@ -55,7 +55,7 @@ public class TempBanScheduler extends Startable {
         DBTempBan.getInstance().retrieve(tempBanData.getGuildId())
                 .remove(tempBanData.getMemberId(), tempBanData);
 
-        Locale locale = tempBanData.getGuildBean().getLocale();
+        Locale locale = tempBanData.getGuildData().getLocale();
         tempBanData.getGuild()
                 .ifPresent(guild -> {
                     if (PermissionCheckRuntime.getInstance().botHasPermission(
@@ -69,7 +69,7 @@ public class TempBanScheduler extends Startable {
                                 .queue();
 
                         ShardManager.getInstance().fetchUserById(tempBanData.getMemberId()).thenAccept(user -> {
-                            Command command = CommandManager.createCommandByClass(BanCommand.class, locale, tempBanData.getGuildBean().getPrefix());
+                            Command command = CommandManager.createCommandByClass(BanCommand.class, locale, tempBanData.getGuildData().getPrefix());
                             EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "ban_expired", user.getAsTag()));
                             Mod.postLogUsers(command, eb, guild, user);
                         });

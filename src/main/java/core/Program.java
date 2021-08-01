@@ -6,7 +6,7 @@ import core.utils.BotUtil;
 public class Program {
 
     private static boolean stopped = false;
-    private static boolean cacheAllMembers = true;
+    private static boolean cacheAllMembers = false; //TODO
     private final static Instant startTime = Instant.now();
 
     public static void init() {

@@ -95,7 +95,7 @@ public class AlertScheduler extends Startable {
     }
 
     private void processAlert(TrackerData slot) throws Throwable {
-        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getGuildBean().getLocale(), slot.getGuildBean().getPrefix());
+        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getGuildData().getLocale(), slot.getGuildData().getPrefix());
         if (commandOpt.isEmpty()) {
             MainLogger.get().error("Invalid alert for command: {}", slot.getCommandTrigger());
             slot.delete();

@@ -23,7 +23,7 @@ public class Ticket {
 
     public static Optional<ChannelAction<TextChannel>> createTicketChannel(TextChannel textChannel, Member member, TicketData ticketData) {
         Guild guild = textChannel.getGuild();
-        GuildData guildBean = ticketData.getGuildBean();
+        GuildData guildBean = ticketData.getGuildData();
         if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), TicketCommand.class, guild, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL) &&
                 PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), TicketCommand.class, textChannel.getParent(), Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL)
         ) {
@@ -39,7 +39,7 @@ public class Ticket {
         TextChannel textChannel = ticketTextChannel.getGuild().getTextChannelById(ticketChannel.getAnnouncementChannelId());
         if (textChannel != null) {
             Class<TicketCommand> clazz = TicketCommand.class;
-            Locale locale = ticketChannel.getGuildBean().getLocale();
+            Locale locale = ticketChannel.getGuildData().getLocale();
             String title = Command.getCommandProperties(clazz).emoji() + " " + Command.getCommandLanguage(clazz, locale).getTitle();
             String memberMention = MentionUtil.getUserAsMention(ticketChannel.getMemberId(), true);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()

@@ -59,7 +59,7 @@ public class ReminderScheduler extends Startable {
                         }
                     }
                     if (PermissionCheckRuntime.getInstance().botHasPermission(
-                            reminderData.getGuildBean().getLocale(),
+                            reminderData.getGuildData().getLocale(),
                             ReminderCommand.class,
                             channel,
                             Permission.MESSAGE_WRITE

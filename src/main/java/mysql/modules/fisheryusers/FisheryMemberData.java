@@ -83,7 +83,7 @@ public class FisheryMemberData implements MemberAsset {
         }
 
         if (level > 0) {
-            if (fisheryGuildBean.getGuildBean().isFisherySingleRoles()) {
+            if (fisheryGuildBean.getGuildData().isFisherySingleRoles()) {
                 Role role = allRoles.get(level - 1);
                 if (role != null) {
                     userRoles.add(role);
@@ -275,14 +275,14 @@ public class FisheryMemberData implements MemberAsset {
                 Optional<Member> memberOpt;
                 if (fish >= 100 &&
                         !DBRedis.parseBoolean(reminderSentResp.get()) &&
-                        getGuildBean().isFisheryReminders() &&
+                        getGuildData().isFisheryReminders() &&
                         BotPermissionUtil.canWriteEmbed(message.getTextChannel()) &&
                         (memberOpt = getMember()).isPresent()
                 ) {
                     pipeline.hset(KEY_ACCOUNT, FIELD_REMINDER_SENT, "true");
                     Member member = memberOpt.get();
-                    Locale locale = getGuildBean().getLocale();
-                    String prefix = getGuildBean().getPrefix();
+                    Locale locale = getGuildData().getLocale();
+                    String prefix = getGuildData().getPrefix();
 
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
@@ -321,7 +321,7 @@ public class FisheryMemberData implements MemberAsset {
 
             Instant bannedUntil = DBRedis.parseInstant(bannedUntilResp.get());
             if (bannedUntil == null || bannedUntil.isBefore(Instant.now())) {
-                Optional<Integer> limitOpt = getGuildBean().getFisheryVcHoursCap();
+                Optional<Integer> limitOpt = getGuildData().getFisheryVcHoursCap();
                 if (limitOpt.isPresent() && ServerPatreonBoostCache.getInstance().get(getGuildId())) {
                     cleanDailyValues();
                     newMinutes = Math.min(newMinutes, limitOpt.get() * 60 - DBRedis.parseInteger(voiceMinutesResp.get()));
@@ -457,7 +457,7 @@ public class FisheryMemberData implements MemberAsset {
             }
 
             /* generate account embed */
-            Locale locale = getGuildBean().getLocale();
+            Locale locale = getGuildData().getLocale();
             FisheryRecentFishGainsData finalFisheryRecentFishGainsDataAfterwards = fisheryRecentFishGainsDataAfterwards;
             return getGuild()
                     .map(guild -> {

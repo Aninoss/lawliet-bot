@@ -13,6 +13,7 @@ import commands.runnables.fisherysettingscategory.FisheryRolesCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
 import core.MainLogger;
+import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import mysql.modules.autoroles.AutoRolesData;
 import mysql.modules.autoroles.DBAutoRoles;
@@ -50,25 +51,27 @@ public class RolesRepair {
     }
 
     private void processFisheryRoles(Guild guild, int minutes) {
-        FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
-        Locale locale = fisheryGuildBean.getGuildBean().getLocale();
-        if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.ACTIVE && fisheryGuildBean.getRoleIds().size() > 0) {
+        FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guild.getIdLong());
+        Locale locale = fisheryGuildData.getGuildData().getLocale();
+        if (fisheryGuildData.getGuildData().getFisheryStatus() == FisheryStatus.ACTIVE && fisheryGuildData.getRoleIds().size() > 0) {
+            MemberCacheController.getInstance().loadMembers(guild).join();
             guild.getMembers().stream()
                     .filter(member -> !member.getUser().isBot() && userJoinedRecently(member, minutes))
                     .forEach(member -> checkRoles(
                             locale,
                             Command.getCommandLanguage(FisheryRolesCommand.class, locale).getTitle(),
                             member,
-                            fisheryGuildBean.getMemberData(member.getIdLong()).getRoles()
+                            fisheryGuildData.getMemberData(member.getIdLong()).getRoles()
                     ));
         }
     }
 
     private void processAutoRoles(Guild guild, int minutes) {
-        AutoRolesData autoRolesBean = DBAutoRoles.getInstance().retrieve(guild.getIdLong());
-        Locale locale = autoRolesBean.getGuildBean().getLocale();
-        if (autoRolesBean.getRoleIds().size() > 0) {
-            List<Role> roles = autoRolesBean.getRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
+        AutoRolesData autoRolesData = DBAutoRoles.getInstance().retrieve(guild.getIdLong());
+        Locale locale = autoRolesData.getGuildData().getLocale();
+        List<Role> roles = autoRolesData.getRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
+        if (roles.size() > 0) {
+            MemberCacheController.getInstance().loadMembers(guild).join();
             guild.getMembers().stream()
                     .filter(member -> userJoinedRecently(member, minutes) && !member.isPending())
                     .forEach(member -> checkRoles(

@@ -58,7 +58,7 @@ public class GiveCommand extends Command implements FisheryInterface {
         long cap = fisheryUser1.getCoinsGiveReceivedMax() - fisheryUser1.getCoinsGiveReceived();
 
         boolean limitCapped = false;
-        if (fisheryUser0.getGuildBean().hasFisheryCoinsGivenLimit() && value >= cap) {
+        if (fisheryUser0.getGuildData().hasFisheryCoinsGivenLimit() && value >= cap) {
             if (cap > 0) {
                 value = cap;
                 limitCapped = true;

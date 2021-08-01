@@ -314,7 +314,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             });
         } else {
             TextChannel existingTicketChannel = existingTicketChannelOpt.get();
-            if (PermissionCheckRuntime.getInstance().botHasPermission(ticketData.getGuildBean().getLocale(), getClass(), existingTicketChannel, Permission.MESSAGE_WRITE)) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(ticketData.getGuildData().getLocale(), getClass(), existingTicketChannel, Permission.MESSAGE_WRITE)) {
                 existingTicketChannel.sendMessage(member.getAsMention()).queue();
             }
         }
@@ -337,7 +337,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         /* post announcement to staff channel */
         AtomicBoolean announcementNotPosted = new AtomicBoolean(true);
         ticketData.getAnnouncementTextChannel().ifPresent(announcementChannel -> {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(ticketData.getGuildBean().getLocale(), getClass(), announcementChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+            if (PermissionCheckRuntime.getInstance().botHasPermission(ticketData.getGuildData().getLocale(), getClass(), announcementChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
                 announcementNotPosted.set(false);
                 EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault(this, getString("announcement_open", member.getAsMention(), textChannel.getAsMention()));
                 announcementChannel.sendMessage(getRolePing(textChannel.getGuild(), ticketData))

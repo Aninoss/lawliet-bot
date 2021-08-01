@@ -32,7 +32,7 @@ public class VoiceChannelChangeUserLimitAutoChannel extends VoiceChannelUpdateUs
 
                         if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL)) {
                             event.getChannel().getManager().setUserLimit(parentUserLimit)
-                                    .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildBean().getLocale()).getTitle())
+                                    .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildData().getLocale()).getTitle())
                                     .queue();
                         }
                     }

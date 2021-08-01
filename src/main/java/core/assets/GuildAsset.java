@@ -14,7 +14,7 @@ public interface GuildAsset {
         return ShardManager.getInstance().getLocalGuildById(getGuildId());
     }
 
-    default GuildData getGuildBean() {
+    default GuildData getGuildData() {
         return DBGuild.getInstance().retrieve(getGuildId());
     }
 

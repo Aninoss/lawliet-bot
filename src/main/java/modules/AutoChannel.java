@@ -32,7 +32,7 @@ public class AutoChannel {
         Guild guild = voiceChannel.getGuild();
         AutoChannelData autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
         if (autoChannelBean.isActive() && voiceChannel.getIdLong() == autoChannelBean.getParentChannelId().orElse(0L)) {
-            GuildData guildBean = autoChannelBean.getGuildBean();
+            GuildData guildBean = autoChannelBean.getGuildData();
             if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, guild, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL) &&
                     PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParent(), Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL) &&
                     PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
@@ -65,7 +65,7 @@ public class AutoChannel {
 
         for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (voiceChannel.getIdLong() == childChannelId) {
-                if (PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getGuildBean().getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
+                if (PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getGuildData().getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
                     if (voiceChannel.getMembers().size() == 0) {
                         voiceChannel.delete().queue();
                     }
@@ -81,13 +81,13 @@ public class AutoChannel {
                 autoChannelBean.getChildChannelIds().add(voiceChannel.getIdLong());
                 if (!voiceChannel.getMembers().contains(member)) {
                     voiceChannel.delete()
-                            .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildBean().getLocale()).getTitle())
+                            .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildData().getLocale()).getTitle())
                             .queue();
                     autoChannelBean.getChildChannelIds().remove(voiceChannel.getIdLong());
                 }
             }, e -> {
                 voiceChannel.delete()
-                        .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildBean().getLocale()).getTitle())
+                        .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildData().getLocale()).getTitle())
                         .queue();
             });
         }

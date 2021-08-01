@@ -29,8 +29,8 @@ public class Fishery {
     public static void synchronizeRoles(Member member) {
         Guild guild = member.getGuild();
         FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
-        Locale locale = fisheryGuildBean.getGuildBean().getLocale();
-        if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.STOPPED) {
+        Locale locale = fisheryGuildBean.getGuildData().getLocale();
+        if (fisheryGuildBean.getGuildData().getFisheryStatus() == FisheryStatus.STOPPED) {
             return;
         }
 

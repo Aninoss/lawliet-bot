@@ -59,7 +59,7 @@ public class ServerMuteScheduler extends Startable {
 
         MemberCacheController.getInstance().loadMembers(serverMuteData.getGuild().get()).thenAccept(members -> {
             serverMuteData.getMember().ifPresent(member -> {
-                Locale locale = serverMuteData.getGuildBean().getLocale();
+                Locale locale = serverMuteData.getGuildData().getLocale();
                 Role muteRole = DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().orElse(null);
                 if (muteRole != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, MuteCommand.class, muteRole)) {
                     member.getGuild().removeRoleFromMember(member, muteRole)
@@ -67,7 +67,7 @@ public class ServerMuteScheduler extends Startable {
                             .queue();
                 }
 
-                Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildBean().getPrefix());
+                Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildData().getPrefix());
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", member.getUser().getAsTag()));
                 Mod.postLogMembers(command, eb, member.getGuild(), member);
             });
