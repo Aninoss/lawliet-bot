@@ -133,6 +133,10 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     private boolean updateValues(int type, String inputString) {
         boolean success = false;
         ValueProcedure valueProcedure = ValueProcedure.ABSOLUTE;
+        inputString = inputString
+                .replace(" ", "")
+                .replaceAll("(?i)lv\\.", "");
+
         if (inputString.startsWith("+")) {
             valueProcedure = ValueProcedure.ADD;
             inputString = inputString.substring(1);
