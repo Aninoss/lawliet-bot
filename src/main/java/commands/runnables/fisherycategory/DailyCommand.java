@@ -35,7 +35,6 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         emoji = "\uD83D\uDDD3",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        requiresMemberCache = true,
         aliases = { "d", "day" }
 )
 public class DailyCommand extends Command implements FisheryInterface {
@@ -81,7 +80,7 @@ public class DailyCommand extends Command implements FisheryInterface {
                     Button.of(ButtonStyle.LINK, ExternalLinks.PATREON_PAGE, getString("patreon"))
             );
 
-            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build();
+            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build();
             event.getChannel().sendMessageEmbeds(eb.build(), userChangeValueEmbed)
                     .setActionRows(rows)
                     .queue();

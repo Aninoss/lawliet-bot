@@ -18,7 +18,6 @@ import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -30,7 +29,6 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         emoji = "\uD83D\uDCE4",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        requiresMemberCache = true,
         aliases = { "s" }
 )
 public class SellCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {
@@ -50,7 +48,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
         userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
         if (args.length() > 0) {
-            boolean success = process(event.getChannel(), args);
+            boolean success = process(event.getMember(), args);
             drawMessage(eb);
             return success;
         } else {
@@ -77,7 +75,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
     @Override
     public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
         deregisterListenersWithButtons();
-        return process(event.getChannel(), input) ? Response.TRUE : Response.FALSE;
+        return process(event.getMember(), input) ? Response.TRUE : Response.FALSE;
     }
 
     @Override
@@ -86,7 +84,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
         if (event.getComponentId().equals(BUTTON_ID_CANCEL)) {
             markNoInterest();
         } else if (event.getComponentId().equals(BUTTON_ID_SELLALL)){
-            process(event.getTextChannel(), "all");
+            process(event.getMember(), "all");
         }
         return true;
     }
@@ -101,7 +99,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
         deregisterListenersWithButtons();
     }
 
-    private boolean process(TextChannel textChannel, String args) {
+    private boolean process(Member member, String args) {
         long value = Math.min(MentionUtil.getAmountExt(args, userBean.getFish()), userBean.getFish());
 
         if (args.equalsIgnoreCase("no")) {
@@ -112,7 +110,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
         if (value >= 1) {
             long coins = ExchangeRate.getInstance().get(0) * value;
             this.eb = EmbedFactory.getEmbedDefault(this, getString("done"));
-            setAdditionalEmbeds(userBean.changeValuesEmbed(-value, coins).build());
+            setAdditionalEmbeds(userBean.changeValuesEmbed(member, -value, coins).build());
             return true;
         } else if (value == 0) {
             if (userBean.getFish() <= 0) {

@@ -10,8 +10,7 @@ import net.dv8tion.jda.api.Permission;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         deleteOnTimeOut = true,
         executableWithoutArgs = true,
-        usesExtEmotes = true,
-        requiresMemberCache = true
+        usesExtEmotes = true
 )
 public class AnimeQuizCommand extends QuizCommand {
 

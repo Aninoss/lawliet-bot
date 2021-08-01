@@ -34,7 +34,7 @@ public class Main {
             FontContainer.getInstance().init();
             DBMain.getInstance().connect();
             EmojiTable.getInstance().load();
-            if (Program.isPublicVersion()) {
+            if (Program.publicVersion()) {
                 initializeUpdate();
             }
 

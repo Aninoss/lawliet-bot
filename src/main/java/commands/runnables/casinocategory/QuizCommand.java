@@ -35,8 +35,7 @@ import org.json.JSONObject;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         deleteOnTimeOut = true,
         executableWithoutArgs = true,
-        usesExtEmotes = true,
-        requiresMemberCache = true
+        usesExtEmotes = true
 )
 public class QuizCommand extends CasinoAbstract {
 

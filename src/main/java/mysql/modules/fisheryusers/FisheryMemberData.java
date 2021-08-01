@@ -345,10 +345,6 @@ public class FisheryMemberData implements MemberAsset {
         });
     }
 
-    public EmbedBuilder getAccountEmbed() {
-        return changeValuesEmbed(0, 0);
-    }
-
     public void setFish(long fish) {
         long newFish = Math.max(Math.min(fish, Settings.FISHERY_MAX), 0);
         DBRedis.getInstance().update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(newFish)));
@@ -426,11 +422,15 @@ public class FisheryMemberData implements MemberAsset {
         });
     }
 
-    public EmbedBuilder changeValuesEmbed(long fishAdd, long coinsAdd) {
-        return changeValuesEmbed(fishAdd, coinsAdd, null);
+    public EmbedBuilder getAccountEmbed(Member member) {
+        return changeValuesEmbed(member, 0, 0);
     }
 
-    public synchronized EmbedBuilder changeValuesEmbed(long fishAdd, long coinsAdd, Long newDailyStreak) {
+    public EmbedBuilder changeValuesEmbed(Member member, long fishAdd, long coinsAdd) {
+        return changeValuesEmbed(member, fishAdd, coinsAdd, null);
+    }
+
+    public synchronized EmbedBuilder changeValuesEmbed(Member member, long fishAdd, long coinsAdd, Long newDailyStreak) {
         return DBRedis.getInstance().get(jedis -> {
             long coinsHidden = getCoinsHidden();
 
@@ -459,18 +459,12 @@ public class FisheryMemberData implements MemberAsset {
             /* generate account embed */
             Locale locale = getGuildData().getLocale();
             FisheryRecentFishGainsData finalFisheryRecentFishGainsDataAfterwards = fisheryRecentFishGainsDataAfterwards;
-            return getGuild()
-                    .map(guild -> {
-                        MemberCacheController.getInstance().loadMembers(guild).join();
-                        return guild.getMemberById(memberId);
-                    })
-                    .map(member -> generateUserChangeEmbed(member, locale, fishAdd, coinsAdd,
-                            finalFisheryRecentFishGainsDataAfterwards.getRank(), fisheryRecentFishGainsDataPrevious.getRank(),
-                            finalFisheryRecentFishGainsDataAfterwards.getRecentFishGains(),
-                            fisheryRecentFishGainsDataPrevious.getRecentFishGains(), fishPrevious, coinsPrevious, newDailyStreak,
-                            dailyStreakPrevious, banned
-                            )
-                    ).orElse(null);
+            return generateUserChangeEmbed(member, locale, fishAdd, coinsAdd,
+                    finalFisheryRecentFishGainsDataAfterwards.getRank(), fisheryRecentFishGainsDataPrevious.getRank(),
+                    finalFisheryRecentFishGainsDataAfterwards.getRecentFishGains(),
+                    fisheryRecentFishGainsDataPrevious.getRecentFishGains(), fishPrevious, coinsPrevious, newDailyStreak,
+                    dailyStreakPrevious, banned
+            );
         });
     }
 

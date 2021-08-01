@@ -35,7 +35,6 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         emoji = "💼",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        requiresMemberCache = true,
         aliases = { "working", "salary", "w" }
 )
 public class WorkCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {
@@ -86,7 +85,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
                     deregisterListenersWithButtons();
                     active = false;
                     long coins = fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect();
-                    setAdditionalEmbeds(fisheryMemberBean.changeValuesEmbed(0, coins).build());
+                    setAdditionalEmbeds(fisheryMemberBean.changeValuesEmbed(event.getMember(), 0, coins).build());
                     fisheryMemberBean.setWorkDone();
                     setLog(LogStatus.SUCCESS, getString("right"));
                     return Response.TRUE;

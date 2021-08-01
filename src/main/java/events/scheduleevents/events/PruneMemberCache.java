@@ -6,7 +6,7 @@ import core.MemberCacheController;
 import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventFixedRate;
 
-@ScheduleEventFixedRate(rateValue = 10, rateUnit = ChronoUnit.SECONDS)
+@ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.MINUTES)
 public class PruneMemberCache implements ScheduleInterface {
 
     @Override

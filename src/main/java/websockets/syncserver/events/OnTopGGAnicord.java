@@ -28,7 +28,7 @@ public class OnTopGGAnicord extends OnTopGG {
             String desc = MessageFormat.format("✅ | {0} hat auf [top.gg]({3}) für **{1}** geupvotet und dafür **🐟 {2}** (25% der Daily-Fische) erhalten!", user.getAsMention(), guild.getName(), StringUtil.numToString(add), String.format("https://top.gg/servers/%d/vote", AssetIds.ANICORD_SERVER_ID));
             bumpChannel.sendMessageEmbeds(
                     EmbedFactory.getEmbedDefault().setDescription(desc).build(),
-                    userBean.changeValuesEmbed(add, 0).build()
+                    userBean.changeValuesEmbed(userBean.getMember().get(), add, 0).build()
             ).queue();
         });
     }

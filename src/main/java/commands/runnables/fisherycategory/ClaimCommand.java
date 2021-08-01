@@ -31,7 +31,6 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         executableWithoutArgs = true,
         onlyPublicVersion = true,
         usesExtEmotes = true,
-        requiresMemberCache = true,
         aliases = { "c" }
 )
 public class ClaimCommand extends Command implements FisheryInterface {
@@ -68,7 +67,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(upvotesUnclaimed), StringUtil.numToString(Math.round(fishes * upvotesUnclaimed))));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
 
-            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(fishes * upvotesUnclaimed, 0).build();
+            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fishes * upvotesUnclaimed, 0).build();
             event.getChannel().sendMessageEmbeds(eb.build(), userChangeValueEmbed)
                     .setActionRows(ActionRows.of(upvoteButton))
                     .queue();

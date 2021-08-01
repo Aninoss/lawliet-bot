@@ -26,7 +26,6 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         executableWithoutArgs = true,
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         usesExtEmotes = true,
-        requiresMemberCache = true,
         aliases = { "slots", "slotmachine" }
 )
 public class SlotCommand extends CasinoAbstract {

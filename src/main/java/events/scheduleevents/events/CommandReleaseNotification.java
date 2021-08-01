@@ -22,7 +22,7 @@ public class CommandReleaseNotification implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (Program.isPublicVersion()) {
+        if (Program.publicVersion()) {
             AtomicBoolean newRelease = new AtomicBoolean(false);
             CommandContainer.getInstance().getCommandCategoryMap().values().forEach(list -> list.forEach(clazz -> {
                 Command command = CommandManager.createCommandByClass(clazz, Language.EN.getLocale(), "L.");

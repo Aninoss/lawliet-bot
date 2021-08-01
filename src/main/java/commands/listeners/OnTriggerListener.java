@@ -27,7 +27,7 @@ public interface OnTriggerListener {
         command.setAtomicAssets(event.getChannel(), event.getMember());
         command.setGuildMessageReceivedEvent(event);
 
-        if (Program.isPublicVersion()) {
+        if (Program.publicVersion()) {
             DBCommandUsages.getInstance().retrieve(command.getTrigger()).increase();
         }
 

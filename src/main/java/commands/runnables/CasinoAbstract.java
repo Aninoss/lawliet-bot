@@ -151,7 +151,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             DBGameStatistics.getInstance().retrieve(compareKey).addValue(false, 1);
         }
         EmbedBuilder eb = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
-                .changeValuesEmbed(0, -coinsInput);
+                .changeValuesEmbed(member, 0, -coinsInput);
         if (coinsInput > 0) {
             setAdditionalEmbeds(eb.build());
         }
@@ -190,7 +190,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         }
 
         EmbedBuilder eb = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
-                .changeValuesEmbed(0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
+                .changeValuesEmbed(member, 0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
         if (coinsInput > 0) {
             setAdditionalEmbeds(eb.build());
         }

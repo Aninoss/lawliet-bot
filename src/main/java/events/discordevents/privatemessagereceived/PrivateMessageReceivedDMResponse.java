@@ -32,7 +32,7 @@ public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbst
             usersDmNotified.put(user.getIdLong(), true);
             EmbedBuilder eb;
             List<ActionRow> actionRowList = Collections.emptyList();
-            if (Program.isPublicVersion()) {
+            if (Program.publicVersion()) {
                 eb = EmbedFactory.getEmbedError()
                         .setTitle("❌ Not Supported")
                         .setDescription("Commands via dm are not supported, you need to invite Lawliet into a server!");

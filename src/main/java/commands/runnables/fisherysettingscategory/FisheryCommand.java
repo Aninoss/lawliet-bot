@@ -221,7 +221,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
             TextChannel channel = event.getTextChannel();
             if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
-                event.getMessage().editMessageEmbeds(eb2.build(), userBean.changeValuesEmbed(0, won).build()).queue();
+                event.getMessage().editMessageEmbeds(eb2.build(), userBean.changeValuesEmbed(event.getMember(), 0, won).build()).queue();
             } else {
                 hook.editOriginalEmbeds(eb2.build()).queue();
             }

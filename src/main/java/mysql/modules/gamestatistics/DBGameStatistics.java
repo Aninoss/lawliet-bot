@@ -33,7 +33,7 @@ public class DBGameStatistics extends DBObserverMapCache<String, GameStatisticsD
 
     @Override
     protected void save(GameStatisticsData gameStatisticsData) {
-        if (Program.isPublicVersion()) {
+        if (Program.publicVersion()) {
             DBMain.getInstance().asyncUpdate("REPLACE INTO GameStatistics (game, won, value) VALUES (?, ?, ?), (?, ?, ?);", preparedStatement -> {
                 preparedStatement.setString(1, gameStatisticsData.getCommand());
                 preparedStatement.setBoolean(2, false);

@@ -82,7 +82,7 @@ public class CommandManager {
                 }
 
                 boolean success = command.processTrigger(event, args);
-                if (success && Program.isPublicVersion()) {
+                if (success && Program.publicVersion()) {
                     maybeSendBotInvite(event, command.getLocale());
                 }
             } catch (Throwable e) {

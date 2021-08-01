@@ -355,7 +355,7 @@ public abstract class Command implements OnTriggerListener {
 
         return ((allowedServerIds.length == 0) || Arrays.stream(allowedServerIds).anyMatch(checkServerId -> checkServerId == guildId)) &&
                 ((allowedUserIds.length == 0) || Arrays.stream(allowedUserIds).anyMatch(checkUserId -> checkUserId == userId)) &&
-                (!commandProperties.onlyPublicVersion() || Program.isPublicVersion());
+                (!commandProperties.onlyPublicVersion() || Program.publicVersion());
     }
 
     public Optional<LocalDate> getReleaseDate() {
