@@ -7,7 +7,8 @@ import commands.runnables.RolePlayAbstract;
 @CommandProperties(
         trigger = "bite",
         emoji = "\uD83E\uDE78",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        requiresMemberCache = true
 )
 public class BiteCommand extends RolePlayAbstract {
 

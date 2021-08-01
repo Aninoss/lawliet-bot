@@ -9,6 +9,7 @@ import commands.runnables.RolePlayAbstract;
         emoji = "\uD83D\uDC68\uD83D\uDECF\uD83D\uDC68️",
         executableWithoutArgs = true,
         nsfw = true,
+        requiresMemberCache = true,
         aliases = { "gayfuck" }
 )
 public class YaoiFuckCommand extends RolePlayAbstract {

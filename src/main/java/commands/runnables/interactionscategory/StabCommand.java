@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "stab",
         emoji = "\uD83D\uDD2A️",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "knife" }
 )
 public class StabCommand extends RolePlayAbstract {

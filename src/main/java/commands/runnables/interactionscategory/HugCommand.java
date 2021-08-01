@@ -7,7 +7,8 @@ import commands.runnables.RolePlayAbstract;
 @CommandProperties(
         trigger = "hug",
         emoji = "\uD83D\uDC50",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        requiresMemberCache = true
 )
 public class HugCommand extends RolePlayAbstract {
 
@@ -92,7 +93,8 @@ public class HugCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736277561373491265/834508808033665034/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/834508820084293652/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/834508831765430342/hug.gif",
-                "https://cdn.discordapp.com/attachments/736277561373491265/840657468051816510/hug.gif"
+                "https://cdn.discordapp.com/attachments/736277561373491265/840657468051816510/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/871035982810603540/hug.gif"
         );
     }
 

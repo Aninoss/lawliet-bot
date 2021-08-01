@@ -7,7 +7,8 @@ import commands.runnables.RolePlayAbstract;
 @CommandProperties(
         trigger = "massage",
         emoji = "\uD83D\uDC86",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        requiresMemberCache = true
 )
 public class MassageCommand extends RolePlayAbstract {
 

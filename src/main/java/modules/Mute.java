@@ -11,7 +11,6 @@ import mysql.modules.servermute.ServerMuteData;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 public class Mute {
 
@@ -25,8 +24,8 @@ public class Mute {
 
             Optional.ofNullable(guild.getMemberById(target.getIdLong())).ifPresent(member -> {
                 moderationBean.getMuteRole().ifPresent(muteRole -> {
-                    AuditableRestAction<Void> restAction = guild.addRoleToMember(member, muteRole);
-                    restAction.reason(reason)
+                    guild.addRoleToMember(member, muteRole)
+                            .reason(reason)
                             .queue();
                 });
             });
@@ -41,8 +40,8 @@ public class Mute {
 
             Optional.ofNullable(guild.getMemberById(target.getIdLong())).ifPresent(member -> {
                 moderationBean.getMuteRole().ifPresent(muteRole -> {
-                    AuditableRestAction<Void> restAction = guild.removeRoleFromMember(member, muteRole);
-                    restAction.reason(reason)
+                    guild.removeRoleFromMember(member, muteRole)
+                            .reason(reason)
                             .queue();
                 });
             });

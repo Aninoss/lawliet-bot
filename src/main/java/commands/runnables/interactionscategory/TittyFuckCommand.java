@@ -9,6 +9,7 @@ import commands.runnables.RolePlayAbstract;
         emoji = "\uD83E\uDD65️",
         executableWithoutArgs = true,
         nsfw = true,
+        requiresMemberCache = true,
         aliases = { "titjob", "titfuck", "boobfuck", "boobsfuck" }
 )
 public class TittyFuckCommand extends RolePlayAbstract {

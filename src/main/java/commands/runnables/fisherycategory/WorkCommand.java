@@ -35,6 +35,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         emoji = "💼",
         executableWithoutArgs = true,
         usesExtEmotes = true,
+        requiresMemberCache = true,
         aliases = { "working", "salary", "w" }
 )
 public class WorkCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {

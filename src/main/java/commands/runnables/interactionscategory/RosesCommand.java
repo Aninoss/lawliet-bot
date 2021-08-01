@@ -20,7 +20,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "roses",
         emoji = "🌹",
         exclusiveUsers = { 397209883793162240L, 381156056660967426L },
-        executableWithoutArgs = false
+        executableWithoutArgs = false,
+        requiresMemberCache = true
 )
 public class RosesCommand extends Command {
 

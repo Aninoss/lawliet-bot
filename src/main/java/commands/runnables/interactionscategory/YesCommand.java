@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "yes",
         emoji = "\uD83D\uDC4D",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "thumbsup", "thumpsup" }
 )
 public class YesCommand extends RolePlayAbstract {

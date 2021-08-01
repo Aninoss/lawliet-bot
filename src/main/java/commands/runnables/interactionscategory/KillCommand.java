@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "kill",
         emoji = "☠️",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "die" }
 )
 public class KillCommand extends RolePlayAbstract {

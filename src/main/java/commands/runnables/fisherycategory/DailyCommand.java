@@ -35,6 +35,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         emoji = "\uD83D\uDDD3",
         executableWithoutArgs = true,
         usesExtEmotes = true,
+        requiresMemberCache = true,
         aliases = { "d", "day" }
 )
 public class DailyCommand extends Command implements FisheryInterface {

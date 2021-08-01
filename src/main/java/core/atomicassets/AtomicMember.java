@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import core.CustomObservableList;
+import core.MemberCacheController;
 import core.ShardManager;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Guild;
@@ -34,7 +35,10 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
     @Override
     public Optional<Member> get() {
         return ShardManager.getInstance().getLocalGuildById(guildId)
-                .map(guild -> guild.getMemberById(memberId));
+                .map(guild -> {
+                    MemberCacheController.getInstance().loadMembers(guild).join();
+                    return guild.getMemberById(memberId);
+                });
     }
 
     @Override

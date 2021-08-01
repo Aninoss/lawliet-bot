@@ -50,7 +50,7 @@ public class RolesRepair {
     private void processFisheryRoles(Guild guild, int minutes) {
         FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
         Locale locale = fisheryGuildBean.getGuildBean().getLocale();
-        if (fisheryGuildBean.getGuildBean().getFisheryStatus() != FisheryStatus.STOPPED && fisheryGuildBean.getRoleIds().size() > 0) {
+        if (fisheryGuildBean.getGuildBean().getFisheryStatus() == FisheryStatus.ACTIVE && fisheryGuildBean.getRoleIds().size() > 0) {
             guild.getMembers().stream()
                     .filter(member -> !member.getUser().isBot() && userJoinedRecently(member, minutes))
                     .forEach(member -> checkRoles(

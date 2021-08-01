@@ -9,6 +9,7 @@ import commands.runnables.RolePlayAbstract;
         emoji = "\uD83C\uDF51️",
         executableWithoutArgs = true,
         nsfw = true,
+        requiresMemberCache = true,
         aliases = "grabass"
 )
 public class AssGrabCommand extends RolePlayAbstract {

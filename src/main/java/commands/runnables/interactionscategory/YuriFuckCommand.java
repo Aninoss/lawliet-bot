@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "yurifuck",
         emoji = "\uD83D\uDC69\uD83D\uDECF\uD83D\uDC69️",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         nsfw = true
 )
 public class YuriFuckCommand extends RolePlayAbstract {

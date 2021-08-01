@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "wave",
         emoji = "\uD83D\uDC4B",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "greet", "bye", "hi", "cya" }
 )
 public class WaveCommand extends RolePlayAbstract {

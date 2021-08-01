@@ -272,12 +272,12 @@ public class FisheryMemberData implements MemberAsset {
                 pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
                 pipeline.zadd(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, recentFishGainsProcessed, String.valueOf(memberId));
 
-                Optional<Member> memberOpt = getMember();
+                Optional<Member> memberOpt;
                 if (fish >= 100 &&
                         !DBRedis.parseBoolean(reminderSentResp.get()) &&
                         getGuildBean().isFisheryReminders() &&
                         BotPermissionUtil.canWriteEmbed(message.getTextChannel()) &&
-                        memberOpt.isPresent()
+                        (memberOpt = getMember()).isPresent()
                 ) {
                     pipeline.hset(KEY_ACCOUNT, FIELD_REMINDER_SENT, "true");
                     Member member = memberOpt.get();
@@ -460,7 +460,10 @@ public class FisheryMemberData implements MemberAsset {
             Locale locale = getGuildBean().getLocale();
             FisheryRecentFishGainsData finalFisheryRecentFishGainsDataAfterwards = fisheryRecentFishGainsDataAfterwards;
             return getGuild()
-                    .map(guild -> guild.getMemberById(memberId))
+                    .map(guild -> {
+                        MemberCacheController.getInstance().loadMembers(guild).join();
+                        return guild.getMemberById(memberId);
+                    })
                     .map(member -> generateUserChangeEmbed(member, locale, fishAdd, coinsAdd,
                             finalFisheryRecentFishGainsDataAfterwards.getRank(), fisheryRecentFishGainsDataPrevious.getRank(),
                             finalFisheryRecentFishGainsDataAfterwards.getRecentFishGains(),

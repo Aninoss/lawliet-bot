@@ -5,6 +5,7 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnStaticReactionRemoveListener;
 import core.CustomObservableMap;
+import core.MemberCacheController;
 import core.cache.MessageCache;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
@@ -43,7 +44,10 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
                 }
 
                 if (map.containsKey(event.getMessageIdLong())) {
-                    ((OnStaticReactionRemoveListener) command).onStaticReactionRemove(message, event);
+                    MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+                    if (!event.getUser().isBot()) {
+                        ((OnStaticReactionRemoveListener) command).onStaticReactionRemove(message, event);
+                    }
                 }
             }
         }

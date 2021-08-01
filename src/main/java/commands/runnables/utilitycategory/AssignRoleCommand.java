@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         executableWithoutArgs = false,
         patreonRequired = true,
         turnOffTimeout = true,
+        requiresMemberCache = true,
         aliases = { "giverole", "assign" }
 )
 public class AssignRoleCommand extends Command implements OnButtonListener {

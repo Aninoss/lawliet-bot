@@ -53,6 +53,10 @@ public abstract class Command implements OnTriggerListener {
     private boolean canHaveTimeOut = true;
     private List<ActionRow> actionRows = Collections.emptyList();
     private List<MessageEmbed> additionalEmbeds = Collections.emptyList();
+    private String memberEffectiveName;
+    private String memberMention;
+    private String memberEffectiveAvatarUrl;
+    private String memberTag;
 
     public Command(Locale locale, String prefix) {
         this.locale = locale;
@@ -399,6 +403,10 @@ public abstract class Command implements OnTriggerListener {
         atomicGuild = new AtomicGuild(textChannel.getGuild());
         atomicTextChannel = new AtomicTextChannel(textChannel);
         atomicMember = new AtomicMember(member);
+        memberEffectiveName = member.getEffectiveName();
+        memberMention = member.getAsMention();
+        memberEffectiveAvatarUrl = member.getUser().getEffectiveAvatarUrl();
+        memberTag = member.getUser().getAsTag();
     }
 
     public Optional<GuildMessageReceivedEvent> getGuildMessageReceivedEvent() {
@@ -430,6 +438,22 @@ public abstract class Command implements OnTriggerListener {
     public Optional<Member> getMember() {
         return Optional.ofNullable(atomicMember)
                 .flatMap(AtomicMember::get);
+    }
+
+    public Optional<String> getMemberEffectiveName() {
+        return Optional.ofNullable(memberEffectiveName);
+    }
+
+    public Optional<String> getMemberAsMention() {
+        return Optional.ofNullable(memberMention);
+    }
+
+    public Optional<String> getMemberEffectiveAvatarUrl() {
+        return Optional.ofNullable(memberEffectiveAvatarUrl);
+    }
+
+    public Optional<String> getMemberAsTag() {
+        return Optional.ofNullable(memberTag);
     }
 
     public Optional<Long> getGuildId() {

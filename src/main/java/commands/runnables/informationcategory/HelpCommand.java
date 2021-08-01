@@ -35,6 +35,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "❕",
         executableWithoutArgs = true,
         usesExtEmotes = true,
+        requiresMemberCache = true,
         aliases = { "commands" }
 )
 public class HelpCommand extends NavigationAbstract {

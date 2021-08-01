@@ -13,11 +13,9 @@ import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
 import constants.Category;
-import core.EmbedFactory;
-import core.MainLogger;
-import core.PermissionCheckRuntime;
-import core.TextManager;
+import core.*;
 import core.utils.BotPermissionUtil;
+import core.utils.FutureUtil;
 import core.utils.JDAUtil;
 import javafx.util.Pair;
 import modules.schedulers.TempBanScheduler;
@@ -56,6 +54,8 @@ public class Mod {
         );
 
         if (withAutoActions) {
+            MemberCacheController.getInstance().loadMembers(guild).join();
+
             ModerationData moderationBean = DBModeration.getInstance().retrieve(guild.getIdLong());
             Role muteRole = moderationBean.getMuteRole().orElse(null);
             Member member = guild.getMember(target);
@@ -150,7 +150,9 @@ public class Mod {
 
     public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationData moderationBean, List<User> users) {
         eb.setFooter("");
-        CompletableFuture<Void> future = CompletableFuture.supplyAsync(() -> {
+
+        CompletableFuture<Void> future = FutureUtil.supplyAsync(() -> {
+            MemberCacheController.getInstance().loadMembers(guild).join();
             users.forEach(user -> {
                 if (!user.isBot() && guild.isMember(user)) {
                     try {

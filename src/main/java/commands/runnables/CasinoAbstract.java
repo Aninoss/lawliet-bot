@@ -20,7 +20,6 @@ import mysql.modules.gamestatistics.DBGameStatistics;
 import mysql.modules.gamestatistics.GameStatisticsData;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -240,7 +239,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
 
     @Override
     public EmbedBuilder draw() {
-        return drawCasino(getMember().map(Member::getEffectiveName).orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()))), coinsInput);
+        return drawCasino(getMemberEffectiveName().orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()))), coinsInput);
     }
 
     @Override

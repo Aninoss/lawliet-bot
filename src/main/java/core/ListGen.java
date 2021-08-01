@@ -40,13 +40,8 @@ public class ListGen<T> {
             try {
                 String value = getNames.apply(obj);
                 switch (slotType) {
-                    case SLOT_TYPE_BULLET:
-                        sb.append("• ");
-                        break;
-
-                    case SLOT_TYPE_NUMBERED:
-                        sb.append(i).append(") ");
-                        break;
+                    case SLOT_TYPE_BULLET -> sb.append("• ");
+                    case SLOT_TYPE_NUMBERED -> sb.append(i).append(") ");
                 }
                 sb.append(value);
                 sb.append("\n");

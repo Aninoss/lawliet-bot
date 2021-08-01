@@ -63,7 +63,7 @@ public class TempBanScheduler extends Startable {
                             BanCommand.class,
                             guild,
                             Permission.BAN_MEMBERS
-                    ) && guild.getMemberById(tempBanData.getMemberId()) == null) {
+                    )) {
                         guild.unban(String.valueOf(tempBanData.getMemberId()))
                                 .reason(TextManager.getString(locale, Category.MODERATION, "ban_expired_title"))
                                 .queue();

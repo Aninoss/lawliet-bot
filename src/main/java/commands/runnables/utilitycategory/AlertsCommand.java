@@ -25,6 +25,7 @@ import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -70,7 +71,7 @@ public class AlertsCommand extends NavigationAbstract {
         patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 ||
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
-        controll(args);
+        controll(args, event.getMember());
         registerNavigationListener();
         return true;
     }
@@ -79,7 +80,7 @@ public class AlertsCommand extends NavigationAbstract {
     public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state != STATE_REMOVE) {
             cont = true;
-            return controll(input);
+            return controll(input, event.getMember());
         }
         return null;
     }
@@ -109,21 +110,21 @@ public class AlertsCommand extends NavigationAbstract {
                 }
             }
 
-            controll(key);
+            controll(key, event.getMember());
             return true;
         }
 
         return false;
     }
 
-    private Response controll(String searchTerm) {
+    private Response controll(String searchTerm, Member member) {
         while (true) {
             if (searchTerm.replace(" ", "").isEmpty()) {
                 return Response.TRUE;
             }
 
             String arg = searchTerm.split(" ")[0].toLowerCase();
-            Response currentResponse = processArg(arg, searchTerm);
+            Response currentResponse = processArg(arg, searchTerm, member);
             if (currentResponse != Response.TRUE || !cont) {
                 return currentResponse;
             }
@@ -132,7 +133,7 @@ public class AlertsCommand extends NavigationAbstract {
         }
     }
 
-    private Response processArg(String arg, String argComplete) {
+    private Response processArg(String arg, String argComplete, Member member) {
         int state = getState();
         switch (state) {
             case DEFAULT_STATE:
@@ -148,7 +149,7 @@ public class AlertsCommand extends NavigationAbstract {
                 return processKey(argComplete);
 
             case STATE_USERMESSAGE:
-                return processUserMessage(argComplete);
+                return processUserMessage(argComplete, member);
 
             default:
                 return null;
@@ -264,7 +265,7 @@ public class AlertsCommand extends NavigationAbstract {
         return Response.TRUE;
     }
 
-    private Response processUserMessage(String args) {
+    private Response processUserMessage(String args, Member member) {
         cont = false;
         if (args.equals("no")) {
             addTracker(null);
@@ -273,7 +274,7 @@ public class AlertsCommand extends NavigationAbstract {
             if (PatreonCache.getInstance().isUnlocked(getGuildId().get()) ||
                     PatreonCache.getInstance().getUserTier(getMemberId().get(), true) >= 3
             ) {
-                if (!BotPermissionUtil.memberCanMentionRoles(getTextChannel().get(), getMember().get(), args)) {
+                if (!BotPermissionUtil.memberCanMentionRoles(getTextChannel().get(), member, args)) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention"));
                     return Response.FALSE;
                 }

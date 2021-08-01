@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "angry",
         emoji = "\uD83D\uDCA2",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "rage", "mad" }
 )
 public class AngryCommand extends RolePlayAbstract {

@@ -15,6 +15,7 @@ import javax.imageio.ImageIO;
 import core.AttributedStringGenerator;
 import core.LocalFile;
 import core.MainLogger;
+import core.utils.FutureUtil;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -33,7 +34,7 @@ public class WelcomeGraphics {
     private static final double SHADOW_OPACITY = 0.18;
 
     public static CompletableFuture<InputStream> createImageWelcome(Member member, String welcome) {
-        return CompletableFuture.supplyAsync(() -> {
+        return FutureUtil.supplyAsync(() -> {
             try {
                 BufferedImage backgroundImage = getBackgroundImage(member.getGuild());
                 BufferedImage avatarImage = getAvatarImage(member.getUser());

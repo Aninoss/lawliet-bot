@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         userGuildPermissions = { Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS },
         emoji = "✉️",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "invitesfilter", "spblock", "inviteblock", "spfilter", "invitesblock" }
 )
 public class InviteFilterCommand extends NavigationAbstract {

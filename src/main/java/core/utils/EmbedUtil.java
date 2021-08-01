@@ -14,7 +14,11 @@ import net.dv8tion.jda.api.entities.Member;
 public class EmbedUtil {
 
     public static EmbedBuilder setMemberAuthor(EmbedBuilder eb, Member member) {
-        return eb.setAuthor(member.getEffectiveName(), null, member.getUser().getEffectiveAvatarUrl());
+        return setMemberAuthor(eb, member.getEffectiveName(), member.getUser().getEffectiveAvatarUrl());
+    }
+
+    public static EmbedBuilder setMemberAuthor(EmbedBuilder eb, String memberName, String memberAvatarUrl) {
+        return eb.setAuthor(memberName, null, memberAvatarUrl);
     }
 
     public static EmbedBuilder addNoResultsLog(EmbedBuilder eb, Locale locale, String searchString) {
@@ -75,9 +79,9 @@ public class EmbedUtil {
     }
 
     public static EmbedBuilder setFooter(EmbedBuilder eb, Command command) {
-        Optional<Member> memberOpt = command.getMember();
-        if (memberOpt.isPresent()) {
-            eb.setFooter(memberOpt.get().getUser().getAsTag());
+        Optional<String> userTagOpt = command.getMemberAsTag();
+        if (userTagOpt.isPresent()) {
+            eb.setFooter(userTagOpt.get());
         } else {
             eb.setFooter(null);
         }
@@ -90,9 +94,9 @@ public class EmbedUtil {
             return setFooter(eb, command);
         }
 
-        Optional<Member> memberOpt = command.getMember();
-        if (memberOpt.isPresent()) {
-            eb = eb.setFooter(memberOpt.get().getUser().getAsTag() + "｜" + footer);
+        Optional<String> userTagOpt = command.getMemberAsTag();
+        if (userTagOpt.isPresent()) {
+            eb = eb.setFooter(userTagOpt.get() + "｜" + footer);
         } else {
             eb.setFooter(footer);
         }

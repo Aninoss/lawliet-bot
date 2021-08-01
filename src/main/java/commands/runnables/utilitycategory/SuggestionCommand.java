@@ -117,15 +117,15 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
-        onReactionStatic(message, event, true);
+        onReactionStatic(event, true);
     }
 
     @Override
     public void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) {
-        onReactionStatic(message, event, false);
+        onReactionStatic(event, false);
     }
 
-    private void onReactionStatic(Message message, GenericGuildMessageReactionEvent event, boolean add) {
+    private void onReactionStatic(GenericGuildMessageReactionEvent event, boolean add) {
         DBSuggestions.getInstance()
                 .retrieve(event.getGuild().getIdLong())
                 .getSuggestionMessages()

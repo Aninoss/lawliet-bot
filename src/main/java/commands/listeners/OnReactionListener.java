@@ -10,6 +10,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import core.MainLogger;
+import core.MemberCacheController;
 import core.RestActionQueue;
 import core.utils.BotPermissionUtil;
 import core.utils.EmojiUtil;
@@ -17,6 +18,7 @@ import core.utils.ExceptionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 
 public interface OnReactionListener {
@@ -27,8 +29,8 @@ public interface OnReactionListener {
 
     default CompletableFuture<Long> registerReactionListener(String... emojis) {
         Command command = (Command) this;
-        return command.getMember().map(member ->
-                registerReactionListener(member.getIdLong(), event -> event.getUserIdLong() == member.getIdLong() &&
+        return command.getMemberId().map(memberId ->
+                registerReactionListener(memberId, event -> event.getUserIdLong() == memberId &&
                         event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
                         (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)))
                 ).thenApply(messageId -> {
@@ -122,6 +124,12 @@ public interface OnReactionListener {
         Command command = (Command) this;
 
         try {
+            if (command.getCommandProperties().requiresMemberCache() || event instanceof GuildMessageReactionRemoveEvent) {
+                MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+                if (event.getUser().isBot()) {
+                    return;
+                }
+            }
             if (onReaction(event)) {
                 CommandContainer.getInstance().refreshListeners(command);
                 EmbedBuilder eb = draw();

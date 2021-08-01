@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import core.EmbedFactory;
+import core.MemberCacheController;
 import core.TextManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -169,6 +170,7 @@ public class BotPermissionUtil {
     }
 
     public static boolean canInteract(Member member, long targetUserId) {
+        MemberCacheController.getInstance().loadMembers(member.getGuild()).join();
         Member target = member.getGuild().getMemberById(targetUserId);
         if (target != null) {
             return member.canInteract(target);
@@ -188,6 +190,7 @@ public class BotPermissionUtil {
     }
 
     public static List<Role> getMemberRoles(Guild guild) {
+        MemberCacheController.getInstance().loadMembers(guild).join();
         int min = (int) (guild.getMemberCount() * 0.75);
         return guild.getRoles().stream()
                 .filter(role -> role.getGuild().getMembersWithRoles(role).size() >= min)
@@ -196,6 +199,7 @@ public class BotPermissionUtil {
 
     public static boolean channelIsPublic(GuildChannel channel) {
         Guild guild = channel.getGuild();
+        MemberCacheController.getInstance().loadMembers(guild).join();
         return guild.getMembers().stream()
                 .filter(member -> member.hasAccess(channel))
                 .count() >= guild.getMemberCount() * 0.75;
@@ -217,14 +221,29 @@ public class BotPermissionUtil {
 
     public static <T extends GuildChannel> ChannelAction<T> copyPermissions(GuildChannel parentChannel, ChannelAction<T> channelAction) {
         for (PermissionOverride permissionOverride : parentChannel.getPermissionOverrides()) {
-            channelAction = addPermission(parentChannel, channelAction, permissionOverride.getPermissionHolder(), true);
+            channelAction = addPermission(parentChannel, channelAction, permissionOverride, true);
         }
         return channelAction;
     }
 
     public static <T extends GuildChannel> ChannelAction<T> addPermission(GuildChannel parentChannel, ChannelAction<T> channelAction,
-                                                                          IPermissionHolder permissionHolder, boolean allow, Permission... permissions) {
-        PermissionOverride permissionOverride = parentChannel.getPermissionOverride(permissionHolder);
+                                                                          IPermissionHolder permissionHolder, boolean allow, Permission... permissions
+    ) {
+        return addPermission(parentChannel, channelAction, parentChannel.getPermissionOverride(permissionHolder), allow,
+                permissionHolder instanceof Member, permissionHolder.getIdLong(), permissions);
+    }
+
+    public static <T extends GuildChannel> ChannelAction<T> addPermission(GuildChannel parentChannel, ChannelAction<T> channelAction,
+                                                                          PermissionOverride permissionOverride, boolean allow, Permission... permissions
+    ) {
+        return addPermission(parentChannel, channelAction, permissionOverride, allow,
+                permissionOverride.isMemberOverride(), permissionOverride.getIdLong(), permissions);
+    }
+
+    private static <T extends GuildChannel> ChannelAction<T> addPermission(GuildChannel parentChannel, ChannelAction<T> channelAction,
+                                                                          PermissionOverride permissionOverride, boolean allow, boolean memberOverride,
+                                                                          long id, Permission... permissions
+    ) {
         long allowRaw = 0L;
         long denyRaw = 0L;
 
@@ -249,7 +268,11 @@ public class BotPermissionUtil {
                 .filter(permission -> BotPermissionUtil.canInteract(parentChannel, permission))
                 .collect(Collectors.toList());
 
-        return channelAction.addPermissionOverride(permissionHolder, allowList, denyList);
+        if (memberOverride) {
+            return channelAction.addMemberPermissionOverride(id, allowList, denyList);
+        } else {
+            return channelAction.addRolePermissionOverride(id, allowList, denyList);
+        }
     }
 
     public static <T extends GuildChannel> ChannelAction<T> clearPermissionOverrides(ChannelAction<T> channelAction) {

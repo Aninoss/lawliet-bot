@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         trigger = "warnlog",
         emoji = "\uD83D\uDCDD",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "warns" }
 )
 public class WarnLogCommand extends MemberAccountAbstract {

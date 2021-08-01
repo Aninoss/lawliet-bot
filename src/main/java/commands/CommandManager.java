@@ -60,7 +60,7 @@ public class CommandManager {
         if (botCanPost(event, command) &&
                 isWhiteListed(event, command) &&
                 botCanUseEmbeds(event, command) &&
-                canRunOnServer(event, command) &&
+                canRunOnGuild(event, command) &&
                 isNSFWCompliant(event, command) &&
                 checkTurnedOn(event, command) &&
                 checkPermissions(event, command) &&
@@ -248,7 +248,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean canRunOnServer(GuildMessageReceivedEvent event, Command command) {
+    private static boolean canRunOnGuild(GuildMessageReceivedEvent event, Command command) {
         return command.canRunOnGuild(event.getGuild().getIdLong(), event.getMember().getIdLong());
     }
 
@@ -369,7 +369,8 @@ public class CommandManager {
         if (command instanceof HelpCommand) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, command.getString("dm", ExternalLinks.COMMANDS_WEBSITE))
                     .setTitle(null);
-            EmbedUtil.setMemberAuthor(eb, member.getGuild().getSelfMember());
+            Member lawliet = member.getGuild().getSelfMember();
+            EmbedUtil.setMemberAuthor(eb, lawliet);
             JDAUtil.sendPrivateMessage(member, eb.build()).queue();
             return true;
         }

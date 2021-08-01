@@ -8,7 +8,8 @@ import commands.runnables.RolePlayAbstract;
         trigger = "blowjob",
         emoji = "\uD83C\uDF46",
         executableWithoutArgs = true,
-        nsfw = true
+        nsfw = true,
+        requiresMemberCache = true
 )
 public class BlowjobCommand extends RolePlayAbstract {
 

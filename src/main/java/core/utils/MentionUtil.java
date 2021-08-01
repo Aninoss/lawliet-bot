@@ -88,7 +88,7 @@ public class MentionUtil {
     }
 
     public static CompletableFuture<MentionList<User>> getUsersFromString(String input, boolean onlyOne) {
-        return CompletableFuture.supplyAsync(() -> {
+        return FutureUtil.supplyAsync(() -> {
             String newInput = input;
             ArrayList<User> userList = new ArrayList<>();
             ArrayList<Long> usedIds = new ArrayList<>();
@@ -294,7 +294,7 @@ public class MentionUtil {
     }
 
     public static CompletableFuture<MentionList<Message>> getMessageWithLinks(Message message, String link) {
-        return CompletableFuture.supplyAsync(() -> {
+        return FutureUtil.supplyAsync(() -> {
             ArrayList<Message> list = new ArrayList<>();
             Guild guild = message.getGuild();
             String guildId = guild.getId();

@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "cuddle",
         emoji = "\uD83D\uDC50",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "snuggle" }
 )
 public class CuddleCommand extends RolePlayAbstract {

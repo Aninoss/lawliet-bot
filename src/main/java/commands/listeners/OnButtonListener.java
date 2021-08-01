@@ -10,6 +10,7 @@ import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import core.InteractionResponse;
 import core.MainLogger;
+import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -24,8 +25,8 @@ public interface OnButtonListener {
 
     default CompletableFuture<Long> registerButtonListener() {
         Command command = (Command) this;
-        return command.getMember().map(member ->
-                registerButtonListener(member.getIdLong(), event -> event.getUser().getIdLong() == member.getIdLong() &&
+        return command.getMemberId().map(memberId ->
+                registerButtonListener(memberId, event -> event.getUser().getIdLong() == memberId &&
                         event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L)
                 )
         ).orElse(null);
@@ -101,6 +102,9 @@ public interface OnButtonListener {
         command.setInteractionResponse(interactionResponse);
 
         try {
+            if (command.getCommandProperties().requiresMemberCache()) {
+                MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+            }
             if (onButton(event)) {
                 CommandContainer.getInstance().refreshListeners(command);
                 EmbedBuilder eb = draw();

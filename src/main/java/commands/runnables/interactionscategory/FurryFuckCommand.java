@@ -8,7 +8,8 @@ import commands.runnables.RolePlayAbstract;
         trigger = "furryfuck",
         emoji = "\uD83E\uDD8A",
         executableWithoutArgs = true,
-        nsfw = true
+        nsfw = true,
+        requiresMemberCache = true
 )
 public class FurryFuckCommand extends RolePlayAbstract {
 

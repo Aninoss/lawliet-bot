@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         emoji = "\uD83D\uDCE4",
         executableWithoutArgs = true,
         usesExtEmotes = true,
+        requiresMemberCache = true,
         aliases = { "s" }
 )
 public class SellCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {

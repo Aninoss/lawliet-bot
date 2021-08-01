@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         trigger = "avatar",
         emoji = "\uD83D\uDDBC️️",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "profilepic" }
 )
 public class AvatarCommand extends MemberAccountAbstract {

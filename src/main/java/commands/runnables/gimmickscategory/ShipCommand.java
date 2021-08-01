@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "ship",
         botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
         emoji = "\uD83D\uDC6B",
+        requiresMemberCache = true,
         executableWithoutArgs = false
 )
 public class ShipCommand extends Command {

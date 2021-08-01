@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "spank",
         emoji = "\uD83C\uDF51",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         nsfw = true
 )
 public class SpankCommand extends RolePlayAbstract {

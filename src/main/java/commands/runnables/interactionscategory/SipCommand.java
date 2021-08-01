@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "sip",
         emoji = "☕",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "teasip", "tea" }
 )
 public class SipCommand extends RolePlayAbstract {

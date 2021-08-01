@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
         usesExtEmotes = true,
+        requiresMemberCache = true,
         aliases = { "crash" }
 )
 public class TowerCommand extends CasinoAbstract {

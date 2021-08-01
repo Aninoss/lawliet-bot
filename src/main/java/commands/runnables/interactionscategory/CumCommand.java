@@ -9,7 +9,8 @@ import commands.runnables.RolePlayAbstract;
         emoji = "\uD83D\uDCA6",
         executableWithoutArgs = true,
         nsfw = true,
-        aliases = "semen"
+        aliases = "semen",
+        requiresMemberCache = true
 )
 public class CumCommand extends RolePlayAbstract {
 

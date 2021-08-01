@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         trigger = "userinfo",
         emoji = "\uD83D\uDC81",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "userinfos", "userstat", "userstats", "accountinfo", "whois", "memberinfo", "user", "member" }
 )
 public class MemberInfoCommand extends MemberAccountAbstract {

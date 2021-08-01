@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "dab",
         emoji = "\uD83C\uDD92",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "dap" }
 )
 public class DabCommand extends RolePlayAbstract {

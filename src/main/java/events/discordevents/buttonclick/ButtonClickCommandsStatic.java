@@ -4,6 +4,7 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnStaticButtonListener;
 import core.CustomObservableMap;
+import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
@@ -30,6 +31,9 @@ public class ButtonClickCommandsStatic extends ButtonClickAbstract {
             GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
             Command command = CommandManager.createCommandByTrigger(messageData.getCommand(), guildBean.getLocale(), guildBean.getPrefix()).get();
             if (command instanceof OnStaticButtonListener && map.containsKey(event.getMessageIdLong())) {
+                if (command.getCommandProperties().requiresMemberCache()) {
+                    MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+                }
                 ((OnStaticButtonListener) command).onStaticButton(event);
             }
         }

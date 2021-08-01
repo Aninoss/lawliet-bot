@@ -4,7 +4,8 @@ import core.assets.VoiceChannelAsset;
 
 public class MemberCountDisplaySlot implements VoiceChannelAsset {
 
-    private final long guildId, voiceChannelId;
+    private final long guildId;
+    private final long voiceChannelId;
     private final String mask;
 
     public MemberCountDisplaySlot(long guildId, long voiceChannelId, String mask) {

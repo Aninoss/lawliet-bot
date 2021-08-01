@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import commands.Command;
 import commands.CommandContainer;
 import commands.runnables.utilitycategory.TriggerDeleteCommand;
+import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import core.Program;
 import core.cache.ServerPatreonBoostCache;
@@ -34,6 +35,9 @@ public interface OnTriggerListener {
         addKillTimer(isProcessing);
         processTriggerDelete(event);
         try {
+            if (command.getCommandProperties().requiresMemberCache()) {
+                MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+            }
             return onTrigger(event, args);
         } catch (Throwable e) {
             ExceptionUtil.handleCommandException(e, command, event.getChannel());

@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "dance",
         emoji = "\uD83D\uDD7A",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "party" }
 )
 public class DanceCommand extends RolePlayAbstract {

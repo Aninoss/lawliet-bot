@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.runnables.utilitycategory.MemberCountDisplayCommand;
+import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import core.RatelimitUpdater;
 import core.utils.StringUtil;
@@ -69,6 +70,7 @@ public class MemberCountDisplay {
     }
 
     public static String generateNewVCName(Guild guild, String name) {
+        MemberCacheController.getInstance().loadMembers(guild).join();
         long members = guild.getMemberCount();
         long botMembers = guild.getMembers().stream().filter(m -> m.getUser().isBot()).count();
         int boosts = guild.getBoostCount();

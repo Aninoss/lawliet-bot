@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         trigger = "serverinfo",
         emoji = "\uD83D\uDC6A",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "serverinfos", "serverstat", "serverstats", "guild", "server" }
 )
 public class ServerInfoCommand extends Command {

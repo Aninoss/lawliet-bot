@@ -9,6 +9,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.ShardManager;
+import core.utils.FutureUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Invite;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -37,7 +38,7 @@ public class InviteCache {
             );
 
     public CompletableFuture<Invite> getInviteByCode(String code) {
-        return CompletableFuture.supplyAsync(() -> {
+        return FutureUtil.supplyAsync(() -> {
             try {
                 Optional<Invite> inviteOpt = cache.get(code);
                 if (inviteOpt.isPresent()) {

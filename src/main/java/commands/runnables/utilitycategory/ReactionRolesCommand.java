@@ -765,10 +765,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 if (emojiConnection.isEmoji(event.getReactionEmote())) {
                     Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getGuild(), emojiConnection.getConnection());
                     if (rOpt.isEmpty()) return;
-                    Role r = rOpt.get();
-                    Member member = event.getMember();
-                    if (event.getGuild().getMembers().contains(member) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) {
-                        event.getGuild().removeRoleFromMember(member, r)
+
+                    Role role = rOpt.get();
+                    if (event.getGuild().getMembers().stream().anyMatch(m -> m.getIdLong() == event.getUserIdLong()) &&
+                            PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), role)
+                    ) {
+                        event.getGuild().removeRoleFromMember(event.getUserId(), role)
                                 .reason(getCommandLanguage().getTitle())
                                 .queue();
                     }

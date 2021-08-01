@@ -7,7 +7,8 @@ import commands.runnables.RolePlayAbstract;
 @CommandProperties(
         trigger = "awkward",
         emoji = "\uD83D\uDE05",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        requiresMemberCache = true
 )
 public class AwkwardCommand extends RolePlayAbstract {
 

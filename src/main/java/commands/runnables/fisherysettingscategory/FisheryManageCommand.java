@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         executableWithoutArgs = false,
         patreonRequired = true,
         usesExtEmotes = true,
+        requiresMemberCache = true,
         aliases = { "fishingmanage", "fishmanage", "fisheryusermanage", "fisherymanager" }
 )
 public class FisheryManageCommand extends NavigationAbstract implements FisheryInterface {

@@ -5,6 +5,7 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnStaticReactionAddListener;
 import core.CustomObservableMap;
+import core.MemberCacheController;
 import core.cache.MessageCache;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
@@ -43,6 +44,9 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
                 }
 
                 if (map.containsKey(event.getMessageIdLong())) {
+                    if (command.getCommandProperties().requiresMemberCache()) {
+                        MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+                    }
                     ((OnStaticReactionAddListener) command).onStaticReactionAdd(message, event);
                 }
             }

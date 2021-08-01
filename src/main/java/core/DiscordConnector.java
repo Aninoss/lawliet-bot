@@ -14,9 +14,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.ConcurrentSessionController;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.utils.IOUtil;
 import websockets.syncserver.SyncManager;
@@ -34,8 +32,8 @@ public class DiscordConnector {
 
     private final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
             .setSessionController(concurrentSessionController)
-            .setMemberCachePolicy(MemberCachePolicy.ALL)
-            .setChunkingFilter(ChunkingFilter.ALL)
+            .setMemberCachePolicy(MemberCacheController.getInstance())
+            .setChunkingFilter(ChunkingFilterController.getInstance())
             .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
             .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)

@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         userGuildPermissions = { Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS },
         emoji = "️🚧️",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "wordsfilter", "badwordfilter", "badwordsfilter", "bannedwords" }
 )
 public class WordFilterCommand extends NavigationAbstract {

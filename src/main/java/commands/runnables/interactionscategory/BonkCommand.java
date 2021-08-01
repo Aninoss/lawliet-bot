@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "bonk",
         emoji = "🏏",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "lewd", "hornyjail", "horny", "jail" }
 )
 public class BonkCommand extends RolePlayAbstract {

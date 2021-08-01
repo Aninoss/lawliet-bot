@@ -8,7 +8,7 @@ public interface UserAsset {
 
     long getUserId();
 
-    default Optional<User> getGuild() {
+    default Optional<User> getUser() {
         return ShardManager.getInstance().getCachedUserById(getUserId());
     }
 

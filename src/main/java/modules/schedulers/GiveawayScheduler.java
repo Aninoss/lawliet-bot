@@ -91,40 +91,42 @@ public class GiveawayScheduler extends Startable {
     }
 
     private void processGiveaway(TextChannel channel, GuildData guildBean, GiveawayData giveawayData, Message message, ArrayList<User> users) {
-        users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user));
-        Collections.shuffle(users);
-        List<User> winners = users.subList(0, Math.min(users.size(), giveawayData.getWinners()));
+        MemberCacheController.getInstance().loadMembers(channel.getGuild()).thenAccept(members -> {
+            users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user));
+            Collections.shuffle(users);
+            List<User> winners = users.subList(0, Math.min(users.size(), giveawayData.getWinners()));
 
-        StringBuilder mentions = new StringBuilder();
-        for (User user : winners) {
-            mentions.append(user.getAsMention()).append(" ");
-        }
-
-        CommandProperties commandProps = Command.getCommandProperties(GiveawayCommand.class);
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(commandProps.emoji() + " " + giveawayData.getTitle())
-                .setDescription(TextManager.getString(guildBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
-        giveawayData.getImageUrl().ifPresent(eb::setImage);
-        if (winners.size() > 0) {
-            eb.addField(
-                    Emojis.ZERO_WIDTH_SPACE,
-                    new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getAsTag()) + "**"),
-                    false
-            );
-        } else {
-            eb.setDescription(TextManager.getString(guildBean.getLocale(), "utility", "giveaway_results_empty"));
-        }
-        giveawayData.stop();
-
-        if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
-            message.editMessageEmbeds(eb.build())
-                    .content(winners.size() > 0 ? mentions.toString() : null)
-                    .queue();
-
-            if (winners.size() > 0) {
-                channel.sendMessage(mentions.toString()).flatMap(Message::delete).queue();
+            StringBuilder mentions = new StringBuilder();
+            for (User user : winners) {
+                mentions.append(user.getAsMention()).append(" ");
             }
-        }
+
+            CommandProperties commandProps = Command.getCommandProperties(GiveawayCommand.class);
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                    .setTitle(commandProps.emoji() + " " + giveawayData.getTitle())
+                    .setDescription(TextManager.getString(guildBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
+            giveawayData.getImageUrl().ifPresent(eb::setImage);
+            if (winners.size() > 0) {
+                eb.addField(
+                        Emojis.ZERO_WIDTH_SPACE,
+                        new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getAsTag()) + "**"),
+                        false
+                );
+            } else {
+                eb.setDescription(TextManager.getString(guildBean.getLocale(), "utility", "giveaway_results_empty"));
+            }
+            giveawayData.stop();
+
+            if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+                message.editMessageEmbeds(eb.build())
+                        .content(winners.size() > 0 ? mentions.toString() : null)
+                        .queue();
+
+                if (winners.size() > 0) {
+                    channel.sendMessage(mentions.toString()).flatMap(Message::delete).queue();
+                }
+            }
+        });
     }
 
 }

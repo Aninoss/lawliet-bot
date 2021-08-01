@@ -47,4 +47,6 @@ public @interface CommandProperties {
 
     boolean usesExtEmotes() default false;
 
+    boolean requiresMemberCache() default false;
+
 }

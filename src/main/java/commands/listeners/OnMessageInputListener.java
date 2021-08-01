@@ -7,6 +7,7 @@ import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import constants.Response;
 import core.MainLogger;
+import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -25,8 +26,8 @@ public interface OnMessageInputListener {
 
     default void registerMessageInputListener(boolean draw) {
         Command command = (Command) this;
-        command.getMember().ifPresent(member -> {
-            registerMessageInputListener(member.getIdLong(), event -> event.getMember().getIdLong() == member.getIdLong() &&
+        command.getMemberId().ifPresent(memberId -> {
+            registerMessageInputListener(memberId, event -> event.getMember().getIdLong() == memberId &&
                     event.getChannel().getIdLong() == command.getTextChannelId().orElse(0L), draw
             );
         });
@@ -76,6 +77,9 @@ public interface OnMessageInputListener {
 
         command.addLoadingReaction(event.getMessage(), isProcessing);
         try {
+            if (command.getCommandProperties().requiresMemberCache()) {
+                MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+            }
             Response response = onMessageInput(event, event.getMessage().getContentRaw());
             if (response != null) {
                 if (response == Response.TRUE) {

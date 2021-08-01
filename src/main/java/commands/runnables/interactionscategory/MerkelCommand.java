@@ -7,7 +7,8 @@ import commands.runnables.RolePlayAbstract;
 @CommandProperties(
         trigger = "merkel",
         emoji = "\uD83C\uDDE9\uD83C\uDDEA",
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        requiresMemberCache = true
 )
 public class MerkelCommand extends RolePlayAbstract {
 

@@ -11,9 +11,15 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 public class WelcomeMessageData extends DataWithGuild {
 
-    private String welcomeTitle, welcomeText, goodbyeText, dmText;
-    private long welcomeChannelId, goodbyeChannelId;
-    private boolean welcomeActive, goodbyeActive, dmActive;
+    private String welcomeTitle;
+    private String welcomeText;
+    private String goodbyeText;
+    private String dmText;
+    private long welcomeChannelId;
+    private long goodbyeChannelId;
+    private boolean welcomeActive;
+    private boolean goodbyeActive;
+    private boolean dmActive;
 
     public WelcomeMessageData(long serverId, boolean welcomeActive, String welcomeTitle, String welcomeText,
                               long welcomeChannelId, boolean goodbyeActive, String goodbyeText, long goodbyeChannelId,

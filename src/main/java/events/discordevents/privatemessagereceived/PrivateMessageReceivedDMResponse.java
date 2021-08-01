@@ -43,7 +43,7 @@ public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbst
                         .setDescription("Commands via dm are not supported!");
             }
             event.getMessage()
-                    .reply(eb.build())
+                    .replyEmbeds(eb.build())
                     .setActionRows(actionRowList)
                     .queue();
         }

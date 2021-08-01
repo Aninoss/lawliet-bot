@@ -110,6 +110,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     case 5:
                         if (guildBean.getFisheryStatus() != FisheryStatus.ACTIVE) {
                             guildBean.setFisheryStatus(FisheryStatus.ACTIVE);
+                            MemberCacheController.getInstance().loadMembers(event.getGuild());
                             stopLock = true;
                         } else {
                             guildBean.setFisheryStatus(FisheryStatus.PAUSED);

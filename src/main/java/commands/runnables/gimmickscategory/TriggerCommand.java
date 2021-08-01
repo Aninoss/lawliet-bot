@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
         emoji = "\uD83D\uDCA2",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "triggered" }
 )
 public class TriggerCommand extends MemberAccountAbstract {

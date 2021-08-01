@@ -16,7 +16,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "celebrate",
         emoji = "\uD83C\uDF89",
         exclusiveUsers = { 397209883793162240L, 381156056660967426L },
-        executableWithoutArgs = true
+        executableWithoutArgs = true,
+        requiresMemberCache = true
 )
 public class CelebrateCommand extends Command {
 

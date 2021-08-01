@@ -57,18 +57,20 @@ public class ServerMuteScheduler extends Startable {
         DBServerMute.getInstance().retrieve(serverMuteData.getGuildId())
                 .remove(serverMuteData.getMemberId(), serverMuteData);
 
-        serverMuteData.getMember().ifPresent(member -> {
-            Locale locale = serverMuteData.getGuildBean().getLocale();
-            Role muteRole = DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().orElse(null);
-            if (muteRole != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, MuteCommand.class, muteRole)) {
-                member.getGuild().removeRoleFromMember(member, muteRole)
-                        .reason(TextManager.getString(locale, Category.MODERATION, "mute_expired_title"))
-                        .queue();
-            }
+        MemberCacheController.getInstance().loadMembers(serverMuteData.getGuild().get()).thenAccept(members -> {
+            serverMuteData.getMember().ifPresent(member -> {
+                Locale locale = serverMuteData.getGuildBean().getLocale();
+                Role muteRole = DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().orElse(null);
+                if (muteRole != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, MuteCommand.class, muteRole)) {
+                    member.getGuild().removeRoleFromMember(member, muteRole)
+                            .reason(TextManager.getString(locale, Category.MODERATION, "mute_expired_title"))
+                            .queue();
+                }
 
-            Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildBean().getPrefix());
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", member.getUser().getAsTag()));
-            Mod.postLogMembers(command, eb, member.getGuild(), member);
+                Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildBean().getPrefix());
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", member.getUser().getAsTag()));
+                Mod.postLogMembers(command, eb, member.getGuild(), member);
+            });
         });
     }
 

@@ -108,7 +108,6 @@ public class DBMain implements DriverAction {
 
     public <T> CompletableFuture<T> asyncGet(String sql, SQLFunction<ResultSet, T> resultSetFunction) {
         CompletableFuture<T> future = new CompletableFuture<>();
-
         executorService.submit(() -> {
             try {
                 T t = get(sql, resultSetFunction);
@@ -124,7 +123,6 @@ public class DBMain implements DriverAction {
 
     public <T> CompletableFuture<T> asyncGet(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer, SQLFunction<ResultSet, T> resultSetFunction) {
         CompletableFuture<T> future = new CompletableFuture<>();
-
         executorService.submit(() -> {
             try {
                 T t = get(sql, preparedStatementConsumer, resultSetFunction);
@@ -169,7 +167,6 @@ public class DBMain implements DriverAction {
 
     public CompletableFuture<Integer> asyncUpdate(String sql) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
-
         executorService.submit(() -> {
             try {
                 int n = update(sql);
@@ -185,7 +182,6 @@ public class DBMain implements DriverAction {
 
     public CompletableFuture<Integer> asyncUpdate(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
-
         executorService.submit(() -> {
             try {
                 int n = update(sql, preparedStatementConsumer);

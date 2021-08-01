@@ -8,6 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "blush",
         emoji = "\uD83D\uDE0A",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         aliases = { "shy" }
 )
 public class BlushCommand extends RolePlayAbstract {

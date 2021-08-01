@@ -31,7 +31,8 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         trigger = "warn",
         userGuildPermissions = Permission.KICK_MEMBERS,
         emoji = "\uD83D\uDEA8",
-        executableWithoutArgs = false
+        executableWithoutArgs = false,
+        requiresMemberCache = true
 )
 public class WarnCommand extends Command implements OnButtonListener {
 

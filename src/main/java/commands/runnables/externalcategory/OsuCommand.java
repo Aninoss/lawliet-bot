@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         trigger = "osu",
         emoji = "✍️",
         executableWithoutArgs = true,
+        requiresMemberCache = true,
         releaseDate = { 2020, 11, 28 },
         aliases = { "osu!" }
 )

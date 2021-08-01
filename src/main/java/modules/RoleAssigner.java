@@ -12,7 +12,9 @@ import commands.Command;
 import commands.runnables.utilitycategory.AssignRoleCommand;
 import commands.runnables.utilitycategory.RevokeRoleCommand;
 import core.MainLogger;
+import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
+import core.utils.FutureUtil;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -44,9 +46,10 @@ public class RoleAssigner {
 
             AtomicBoolean active = new AtomicBoolean(true);
             busyServers.put(guild.getIdLong(), active);
-            return Optional.of(CompletableFuture.supplyAsync(() -> {
+            return Optional.of(FutureUtil.supplyAsync(() -> {
                 try {
                     Thread.sleep(500);
+                    MemberCacheController.getInstance().loadMembers(guild).join();
                     for (Member member : new ArrayList<>(guild.getMembers())) {
                         if (active.get()) {
                             if (member.getRoles().contains(role) != add &&
