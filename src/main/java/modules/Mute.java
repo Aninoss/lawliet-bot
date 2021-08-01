@@ -3,6 +3,7 @@ package modules;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+import core.MemberCacheController;
 import modules.schedulers.ServerMuteScheduler;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
@@ -49,6 +50,7 @@ public class Mute {
     }
 
     private static boolean prerequisites(Guild guild, ModerationData moderationBean) {
+        MemberCacheController.getInstance().loadMembers(guild).join();
         Optional<Role> muteRoleOpt = moderationBean.getMuteRole();
         return muteRoleOpt.isPresent() && guild.getSelfMember().canInteract(muteRoleOpt.get());
     }

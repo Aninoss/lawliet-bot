@@ -767,6 +767,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                     if (rOpt.isEmpty()) return;
 
                     Role role = rOpt.get();
+                    MemberCacheController.getInstance().loadMembers(message.getGuild()).join();
                     if (event.getGuild().getMembers().stream().anyMatch(m -> m.getIdLong() == event.getUserIdLong()) &&
                             PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), role)
                     ) {

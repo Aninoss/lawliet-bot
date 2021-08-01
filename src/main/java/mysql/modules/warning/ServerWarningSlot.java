@@ -2,6 +2,7 @@ package mysql.modules.warning;
 
 import java.time.Instant;
 import java.util.Optional;
+import core.MemberCacheController;
 import core.assets.MemberAsset;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.Member;
@@ -35,7 +36,10 @@ public class ServerWarningSlot extends DataWithGuild implements MemberAsset {
     }
 
     public Optional<Member> getRequesterMember() {
-        return getGuild().map(guild -> guild.getMemberById(requesterUserId));
+        return getGuild().map(guild -> {
+            MemberCacheController.getInstance().loadMembers(guild).join();
+            return guild.getMemberById(requesterUserId);
+        });
     }
 
     public Optional<String> getReason() {

@@ -7,6 +7,7 @@ import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.MainLogger;
+import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import modules.Mod;
 import mysql.modules.guild.DBGuild;
@@ -36,6 +37,7 @@ public abstract class AutoModAbstract {
                 if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), commandClass, message.getTextChannel(), Permission.MESSAGE_MANAGE)) {
                     message.delete().queue();
                 }
+                MemberCacheController.getInstance().loadMembers(message.getGuild()).join();
                 punish(message, guildBean, commandClass);
                 return false;
             } catch (Throwable e) {

@@ -2,6 +2,8 @@ package modules.repair;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -79,14 +81,19 @@ public class RolesRepair {
     }
 
     private void checkRoles(Locale locale, String reason, Member member, List<Role> roles) {
+        HashSet<Role> rolesToAdd = new HashSet<>();
         roles.stream()
                 .filter(role -> !member.getRoles().contains(role) && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role))
                 .forEach(role -> {
                     MainLogger.get().info("Giving role \"{}\" to user \"{}\" on server \"{}\"", role.getName(), member.getUser().getAsTag(), role.getGuild().getName());
-                    role.getGuild().addRoleToMember(member, role)
-                            .reason(reason)
-                            .queue();
+                    rolesToAdd.add(role);
                 });
+
+        if (rolesToAdd.size() > 0) {
+            member.getGuild().modifyMemberRoles(member, rolesToAdd, Collections.emptySet())
+                    .reason(reason)
+                    .queue();
+        }
     }
 
     private boolean userJoinedRecently(Member member, int minutes) {

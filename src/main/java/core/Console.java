@@ -186,6 +186,7 @@ public class Console extends Startable {
     }
 
     private void printGuild(Guild guild) {
+        MemberCacheController.getInstance().loadMembers(guild).join();
         int bots = (int) guild.getMembers().stream().filter(m -> m.getUser().isBot()).count();
         MainLogger.get().info(
                 "Name: {}; ID: {}; Shard: {}; Cluster: {}; Members: {}; Bots {}",

@@ -1,5 +1,6 @@
 package modules;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import commands.Command;
@@ -34,13 +35,24 @@ public class Fishery {
         }
 
         List<Role> memberRoles = fisheryGuildBean.getMemberData(member.getIdLong()).getRoles();
+        HashSet<Role> rolesToAdd = new HashSet<>();
+        HashSet<Role> rolesToRemove = new HashSet<>();
+
         for (Role role : fisheryGuildBean.getRoles()) {
             boolean give = memberRoles.contains(role);
             if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role) && give != member.getRoles().contains(role)) {
-                (give ? guild.addRoleToMember(member, role) : guild.removeRoleFromMember(member, role))
-                        .reason(Command.getCommandLanguage(FisheryCommand.class, locale).getTitle())
-                        .queue();
+                if (give) {
+                    rolesToAdd.add(role);
+                } else {
+                    rolesToRemove.add(role);
+                }
             }
+        }
+
+        if (rolesToAdd.size() > 0 || rolesToRemove.size() > 0) {
+            guild.modifyMemberRoles(member, rolesToAdd, rolesToRemove)
+                    .reason(Command.getCommandLanguage(FisheryCommand.class, locale).getTitle())
+                    .queue();
         }
     }
 
