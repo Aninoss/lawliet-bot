@@ -48,6 +48,7 @@ public class MemberCacheController implements MemberCachePolicy {
         return (voiceState != null && voiceState.getChannel() != null) ||
                 member.isPending() ||
                 member.isOwner() ||
+                member.getGuild().getMemberCount() >= 10_000 ||
                 guildKeepMembers.asMap().containsKey(member.getGuild().getIdLong()) ||
                 (Program.productionMode() && PatreonCache.getInstance().getUserTier(member.getIdLong(), false) >= 2) ||
                 DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().map(muteRole -> member.getRoles().contains(muteRole)).orElse(false);
