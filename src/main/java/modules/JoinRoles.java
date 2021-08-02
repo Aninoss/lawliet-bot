@@ -10,6 +10,7 @@ import commands.runnables.moderationcategory.MuteCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
 import core.PermissionCheckRuntime;
+import core.RestActionQueue;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
@@ -20,22 +21,28 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 public class JoinRoles {
 
     public static void process(Member member) {
         if (!member.isPending()) {
             HashSet<Role> rolesToAdd = new HashSet<>();
-            HashSet<Role> rolesToRemove = new HashSet<>();
 
             Locale locale = DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).getLocale();
             getAutoRoles(locale, member, rolesToAdd);
-            getFisheryRoles(locale, member, rolesToAdd, rolesToRemove);
+            getFisheryRoles(locale, member, rolesToAdd, new HashSet<>());
             getMuteRoles(locale, member, rolesToAdd);
 
-            if (rolesToAdd.size() > 0 || rolesToRemove.size() > 0) {
-                member.getGuild().modifyMemberRoles(member, rolesToAdd, rolesToRemove)
-                        .queue();
+            if (rolesToAdd.size() > 0) {
+                RestActionQueue restActionQueue = new RestActionQueue();
+                for (Role role : rolesToAdd) {
+                    AuditableRestAction<Void> restAction = member.getGuild().addRoleToMember(member, role);
+                    restActionQueue.attach(restAction);
+                }
+                if (restActionQueue.isSet()) {
+                    restActionQueue.getCurrentRestAction().queue();
+                }
             }
         }
     }
