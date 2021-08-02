@@ -25,12 +25,16 @@ public interface OnButtonListener {
     EmbedBuilder draw(Member member) throws Throwable;
 
     default CompletableFuture<Long> registerButtonListener(Member member) {
-        return registerButtonListener(member, event -> event.getUser().getIdLong() == member.getIdLong() &&
-                event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L)
+        return registerButtonListener(member, event -> {
+                    if (event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L)) {
+                        return event.getUser().getIdLong() == member.getIdLong() ? CommandListenerMeta.CheckResponse.ACCEPT : CommandListenerMeta.CheckResponse.DENY;
+                    }
+                    return CommandListenerMeta.CheckResponse.IGNORE;
+                }
         );
     }
 
-    default CompletableFuture<Long> registerButtonListener(Member member, Function<ButtonClickEvent, Boolean> validityChecker) {
+    default CompletableFuture<Long> registerButtonListener(Member member, Function<ButtonClickEvent, CommandListenerMeta.CheckResponse> validityChecker) {
         Command command = (Command) this;
 
         Runnable onTimeOut = () -> {

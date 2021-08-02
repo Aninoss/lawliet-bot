@@ -30,9 +30,12 @@ public interface OnReactionListener {
 
     default CompletableFuture<Long> registerReactionListener(Member member, String... emojis) {
         Command command = (Command) this;
-        return registerReactionListener(member, event -> event.getUserIdLong() == member.getIdLong() &&
-                event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
-                (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)))
+        return registerReactionListener(member, event -> {
+                    boolean ok = event.getUserIdLong() == member.getIdLong() &&
+                            event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L) &&
+                            (emojis.length == 0 || Arrays.stream(emojis).anyMatch(emoji -> EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), emoji)));
+                    return ok ? CommandListenerMeta.CheckResponse.ACCEPT : CommandListenerMeta.CheckResponse.IGNORE;
+                }
         ).thenApply(messageId -> {
             command.getTextChannel().ifPresent(channel -> {
                 RestActionQueue restActionQueue = new RestActionQueue();
@@ -45,7 +48,7 @@ public interface OnReactionListener {
         });
     }
 
-    default CompletableFuture<Long> registerReactionListener(Member member, Function<GenericGuildMessageReactionEvent, Boolean> validityChecker) {
+    default CompletableFuture<Long> registerReactionListener(Member member, Function<GenericGuildMessageReactionEvent, CommandListenerMeta.CheckResponse> validityChecker) {
         Command command = (Command) this;
 
         Runnable onTimeOut = () -> {

@@ -19,7 +19,7 @@ public class MemberCacheController implements MemberCachePolicy {
     private static final MemberCacheController ourInstance = new MemberCacheController();
 
     private final Cache<Long, Boolean> guildKeepMembers = CacheBuilder.newBuilder()
-            .expireAfterWrite(Duration.ofMinutes(30))
+            .expireAfterWrite(Duration.ofHours(1))
             .build();
 
     public static MemberCacheController getInstance() {

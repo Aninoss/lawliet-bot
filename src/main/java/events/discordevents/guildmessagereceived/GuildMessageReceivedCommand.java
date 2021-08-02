@@ -122,7 +122,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
     private boolean manageMessageInput(GuildMessageReceivedEvent event) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             List<CommandListenerMeta<?>> listeners = CommandContainer.getInstance().getListeners(OnMessageInputListener.class).stream()
-                    .filter(listener -> listener.check(event))
+                    .filter(listener -> listener.check(event) == CommandListenerMeta.CheckResponse.ACCEPT)
                     .sorted((l1, l2) -> l2.getCreationTime().compareTo(l1.getCreationTime()))
                     .collect(Collectors.toList());
 

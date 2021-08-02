@@ -27,12 +27,15 @@ public interface OnMessageInputListener {
 
     default void registerMessageInputListener(Member member, boolean draw) {
         Command command = (Command) this;
-        registerMessageInputListener(member, event -> event.getMember().getIdLong() == member.getIdLong() &&
-                event.getChannel().getIdLong() == command.getTextChannelId().orElse(0L), draw
+        registerMessageInputListener(member, draw, event -> {
+                    boolean ok = event.getMember().getIdLong() == member.getIdLong() &&
+                            event.getChannel().getIdLong() == command.getTextChannelId().orElse(0L);
+                    return ok ? CommandListenerMeta.CheckResponse.ACCEPT : CommandListenerMeta.CheckResponse.IGNORE;
+                }
         );
     }
 
-    default void registerMessageInputListener(Member member, Function<GuildMessageReceivedEvent, Boolean> validityChecker, boolean draw) {
+    default void registerMessageInputListener(Member member, boolean draw, Function<GuildMessageReceivedEvent, CommandListenerMeta.CheckResponse> validityChecker) {
         Command command = (Command) this;
 
         Runnable onTimeOut = () -> {

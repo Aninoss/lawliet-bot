@@ -5,14 +5,18 @@ import java.util.function.Function;
 
 public class CommandListenerMeta<T> {
 
+    public enum CheckResponse { IGNORE, DENY, ACCEPT }
+
     private final long authorId;
-    private final Function<T, Boolean> validityChecker;
+    private final Function<T, CheckResponse> validityChecker;
     private final Command command;
     private final Runnable onTimeOut;
     private final Runnable onOverridden;
     private final Instant creationTime = Instant.now();
 
-    public CommandListenerMeta(long authorId, Function<T, Boolean> validityChecker, Runnable onTimeOut, Runnable onOverridden, Command command) {
+    public CommandListenerMeta(long authorId, Function<T, CheckResponse> validityChecker, Runnable onTimeOut,
+                               Runnable onOverridden, Command command
+    ) {
         this.authorId = authorId;
         this.validityChecker = validityChecker;
         this.onTimeOut = onTimeOut;
@@ -24,7 +28,7 @@ public class CommandListenerMeta<T> {
         return authorId;
     }
 
-    public boolean check(Object o) {
+    public CheckResponse check(Object o) {
         return validityChecker.apply((T) o);
     }
 
