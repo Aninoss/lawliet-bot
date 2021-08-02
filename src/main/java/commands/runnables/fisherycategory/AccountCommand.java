@@ -30,7 +30,7 @@ public class AccountCommand extends FisheryMemberAccountInterface {
     protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         if (!member.getUser().isBot()) {
             return DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong())
-                    .getAccountEmbed(event.getMember());
+                    .getAccountEmbed(member);
         } else {
             return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_bots"));
         }
