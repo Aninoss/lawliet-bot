@@ -3,9 +3,9 @@ package core;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
 import core.cache.PatreonCache;
 import mysql.modules.moderation.DBModeration;
 import net.dv8tion.jda.api.entities.Guild;
@@ -20,6 +20,12 @@ public class MemberCacheController implements MemberCachePolicy {
 
     private final Cache<Long, Boolean> guildKeepMembers = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofHours(1))
+            .removalListener(event -> {
+                if (event.getCause() == RemovalCause.EXPIRED) {
+                    long guildId = (long) event.getKey();
+                    ShardManager.getInstance().getLocalGuildById(guildId).ifPresent(Guild::pruneMemberCache);
+                }
+            })
             .build();
 
     public static MemberCacheController getInstance() {
@@ -52,16 +58,6 @@ public class MemberCacheController implements MemberCachePolicy {
                 guildKeepMembers.asMap().containsKey(member.getGuild().getIdLong()) ||
                 (Program.productionMode() && PatreonCache.getInstance().getUserTier(member.getIdLong(), false) >= 2) ||
                 DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().map(muteRole -> member.getRoles().contains(muteRole)).orElse(false);
-    }
-
-    public int pruneAll() {
-        AtomicInteger membersPruned = new AtomicInteger(0);
-        ShardManager.getInstance().getLocalGuilds().forEach(guild -> {
-            int n = guild.getMembers().size();
-            guild.pruneMemberCache();
-            membersPruned.addAndGet(n - guild.getMembers().size());
-        });
-        return membersPruned.get();
     }
 
 }

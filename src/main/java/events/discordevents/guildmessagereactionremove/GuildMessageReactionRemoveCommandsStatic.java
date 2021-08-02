@@ -45,7 +45,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
 
                 if (map.containsKey(event.getMessageIdLong())) {
                     MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
-                    if (!event.getUser().isBot()) {
+                    if (event.getUser() != null && !event.getUser().isBot()) {
                         ((OnStaticReactionRemoveListener) command).onStaticReactionRemove(message, event);
                     }
                 }

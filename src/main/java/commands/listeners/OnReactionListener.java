@@ -128,7 +128,7 @@ public interface OnReactionListener {
         try {
             if (command.getCommandProperties().requiresMemberCache() || event instanceof GuildMessageReactionRemoveEvent) {
                 MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
-                if (event.getUser().isBot()) {
+                if (event.getUser() == null || event.getUser().isBot()) {
                     return;
                 }
             }
