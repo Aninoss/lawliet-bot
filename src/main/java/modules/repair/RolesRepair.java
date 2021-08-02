@@ -95,7 +95,7 @@ public class RolesRepair {
         if (rolesToAdd.size() > 0) {
             member.getGuild().modifyMemberRoles(member, rolesToAdd, Collections.emptySet())
                     .reason(reason)
-                    .queue();
+                    .complete();
         }
     }
 

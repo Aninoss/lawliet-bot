@@ -2,18 +2,15 @@ package events.discordevents.guildmemberjoin;
 
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
-import modules.AutoRoles;
+import modules.JoinRoles;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
-@DiscordEvent(allowBots = true)
-public class GuildMemberJoinAutoRoles extends GuildMemberJoinAbstract {
+@DiscordEvent(allowBots = true, allowBannedUser = true)
+public class GuildMemberJoinRoles extends GuildMemberJoinAbstract {
 
     @Override
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
-        if (!event.getMember().isPending()) {
-            AutoRoles.process(event.getMember());
-        }
-
+        JoinRoles.process(event.getMember());
         return true;
     }
 

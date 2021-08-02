@@ -2,32 +2,13 @@ package modules;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import commands.Command;
-import commands.runnables.moderationcategory.MuteCommand;
-import core.PermissionCheckRuntime;
-import mysql.modules.guild.DBGuild;
 import mysql.modules.moderation.DBModeration;
-import mysql.modules.servermute.DBServerMute;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.PermissionOverride;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class ServerMute {
-
-    public static void process(Member member) {
-        Guild guild = member.getGuild();
-        Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
-
-        if (DBServerMute.getInstance().retrieve(guild.getIdLong()).containsKey(member.getIdLong())) {
-            DBModeration.getInstance().retrieve(guild.getIdLong()).getMuteRole().ifPresent(muteRole -> {
-                if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, MuteCommand.class, muteRole)) {
-                    guild.addRoleToMember(member, muteRole)
-                            .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())
-                            .queue();
-                }
-            });
-        }
-    }
 
     public static List<TextChannel> getLeakedChannels(Guild guild) {
         ArrayList<TextChannel> leakedChannels = new ArrayList<>();
