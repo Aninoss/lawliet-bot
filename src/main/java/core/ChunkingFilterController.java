@@ -19,7 +19,6 @@ public class ChunkingFilterController implements ChunkingFilter {
     @Override
     public boolean filter(long guildId) {
         return guildId == AssetIds.SUPPORT_SERVER_ID ||
-                Program.cacheAllMembers() ||
                 DBGuild.getInstance().retrieve(guildId).getFisheryStatus() == FisheryStatus.ACTIVE;
     }
 

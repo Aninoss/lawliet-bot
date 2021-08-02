@@ -38,7 +38,7 @@ public class DBAutoWork extends DBSingleCache<AutoWorkData> {
 
     @Override
     public Integer getExpirationTimeMinutes() {
-        return 5;
+        return 1;
     }
 
 }

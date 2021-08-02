@@ -48,7 +48,6 @@ public class Console extends Startable {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
-        tasks.put("cache_all", this::onCacheAll);
         tasks.put("actions_servers", this::onActionsServers);
         tasks.put("actions", this::onActions);
         tasks.put("stuck", this::onStuck);
@@ -92,12 +91,6 @@ public class Console extends Startable {
         for (Pair<Long, Integer> guildActionCount : guildActionCounts) {
             MainLogger.get().info("{}: {} requests", guildActionCount.getKey(), guildActionCount.getValue());
         }
-    }
-
-    private void onCacheAll(String[] args) {
-        boolean cacheAll = Boolean.parseBoolean(args[1]);
-        Program.setCacheAllMembers(cacheAll);
-        MainLogger.get().info("Cache All Members: {}", cacheAll);
     }
 
     private void onActions(String[] args) {

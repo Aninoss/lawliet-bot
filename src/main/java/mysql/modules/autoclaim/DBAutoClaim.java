@@ -38,7 +38,7 @@ public class DBAutoClaim extends DBSingleCache<AutoClaimData> {
 
     @Override
     public Integer getExpirationTimeMinutes() {
-        return 5;
+        return 1;
     }
 
 }
