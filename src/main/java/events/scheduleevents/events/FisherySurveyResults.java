@@ -68,6 +68,7 @@ public class FisherySurveyResults implements ScheduleInterface {
         ArrayList<Long> notificationUsers = Program.getClusterId() == 1 ? new ArrayList<>(lastSurvey.getNotificationUserIds()) : new ArrayList<>();
         for (long userId : secondVotesMap.keySet()) {
             try {
+                //TODO
                 ShardManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
                     try {
                         MainLogger.get().info("### SURVEY MANAGE USER {} ###", user.getName());

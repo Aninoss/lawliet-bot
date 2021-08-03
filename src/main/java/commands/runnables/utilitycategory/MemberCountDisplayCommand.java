@@ -10,6 +10,7 @@ import constants.LogStatus;
 import constants.Response;
 import core.EmbedFactory;
 import core.ListGen;
+import core.MemberCacheController;
 import core.TextManager;
 import core.atomicassets.AtomicVoiceChannel;
 import core.utils.BotPermissionUtil;
@@ -133,6 +134,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                             return true;
                         }
 
+                        MemberCacheController.getInstance().loadMembers(event.getGuild()).join();
                         ChannelManager manager = voiceChannel.getManager();
                         try {
                             for (PermissionOverride permissionOverride : voiceChannel.getPermissionOverrides()) {
