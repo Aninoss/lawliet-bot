@@ -10,10 +10,10 @@ public class Botsfordiscord {
 
     public static void updateServerCount(long serverCount) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("server_count", String.valueOf(serverCount));
+        jsonObject.put("server_count", serverCount);
 
         HttpHeader httpHeader =  new HttpHeader("Authorization", System.getenv("BOTSFORDISCORD_TOKEN"));
-        HttpRequest.post("https://botsfordiscord.com/api/bot/" + ShardManager.getInstance().getSelfId(), "application/json", jsonObject.toString(), httpHeader)
+        HttpRequest.post("https://discords.com/bots/api/bot/" + ShardManager.getInstance().getSelfId(), "application/json", jsonObject.toString(), httpHeader)
                 .exceptionally(ExceptionLogger.get());
     }
 
