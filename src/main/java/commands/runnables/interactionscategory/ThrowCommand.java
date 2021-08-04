@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "throw",
         emoji = "\uD83D\uDCA8",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class ThrowCommand extends RolePlayAbstract {
 

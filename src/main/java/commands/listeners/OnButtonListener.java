@@ -104,8 +104,8 @@ public interface OnButtonListener {
         command.setInteractionResponse(interactionResponse);
 
         try {
-            if (command.getCommandProperties().requiresMemberCache()) {
-                MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+            if (command.getCommandProperties().requiresFullMemberCache()) {
+                MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
             }
             if (onButton(event)) {
                 CommandContainer.getInstance().refreshListeners(command);

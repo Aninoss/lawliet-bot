@@ -18,7 +18,6 @@ import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.survey.*;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.User;
 
 @ScheduleEventDaily
 public class FisherySurveyResults implements ScheduleInterface {
@@ -68,19 +67,12 @@ public class FisherySurveyResults implements ScheduleInterface {
         ArrayList<Long> notificationUsers = Program.getClusterId() == 1 ? new ArrayList<>(lastSurvey.getNotificationUserIds()) : new ArrayList<>();
         for (long userId : secondVotesMap.keySet()) {
             try {
-                //TODO
-                ShardManager.getInstance().getCachedUserById(userId).ifPresent(user -> {
-                    try {
-                        MainLogger.get().info("### SURVEY MANAGE USER {} ###", user.getName());
-                        processSurveyUser(secondVotesMap.get(userId), user, won);
-                        if (notificationUsers.contains(userId)) {
-                            notificationUsers.remove(userId);
-                            sendSurveyResult(lastSurvey, user.getIdLong(), won, percent);
-                        }
-                    } catch (Throwable e) {
-                        MainLogger.get().error("Exception while managing user {}", userId, e);
-                    }
-                });
+                MainLogger.get().info("### SURVEY MANAGE USER {} ###", userId);
+                processSurveyUser(secondVotesMap.get(userId), userId, won);
+                if (notificationUsers.contains(userId)) {
+                    notificationUsers.remove(userId);
+                    sendSurveyResult(lastSurvey, userId, won, percent);
+                }
             } catch (Throwable e) {
                 MainLogger.get().error("Exception while managing user {}", userId, e);
             }
@@ -97,13 +89,13 @@ public class FisherySurveyResults implements ScheduleInterface {
         MainLogger.get().info("Survey results finished");
     }
 
-    private static void processSurveyUser(ArrayList<SurveySecondVote> secondVotes, User user, byte won) {
+    private static void processSurveyUser(ArrayList<SurveySecondVote> secondVotes, long userId, byte won) {
         secondVotes.stream()
                 .filter(secondVote -> won == 2 || secondVote.getVote() == won)
                 .forEach(secondVote -> {
-                    FisheryMemberData userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getMemberData(user.getIdLong());
+                    FisheryMemberData userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getMemberData(userId);
                     long price = userBean.getMemberGear(FisheryGear.SURVEY).getEffect();
-                    MainLogger.get().info("Survey: Giving {} coins to {} ({})", price, user, user.getIdLong());
+                    MainLogger.get().info("Survey: Giving {} coins to {}", price, userId);
                     userBean.changeValues(0, price);
                 });
     }

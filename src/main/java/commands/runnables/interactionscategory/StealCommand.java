@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "steal",
         emoji = "❔",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class StealCommand extends RolePlayAbstract {
 

@@ -9,10 +9,8 @@ public interface MemberAsset extends GuildAsset {
     long getMemberId();
 
     default Optional<Member> getMember() {
-        return getGuild().map(guild -> {
-            MemberCacheController.getInstance().loadMembers(guild).join();
-            return guild.getMemberById(getMemberId());
-        });
+        return getGuild()
+                .map(guild -> MemberCacheController.getInstance().loadMember(guild, getMemberId()).join());
     }
 
 }

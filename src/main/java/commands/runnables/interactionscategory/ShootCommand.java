@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "shoot",
         emoji = "\uD83D\uDD2B",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "shot", "bang", "pew" }
 )
 public class ShootCommand extends RolePlayAbstract {

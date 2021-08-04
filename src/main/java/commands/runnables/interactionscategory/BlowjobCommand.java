@@ -9,7 +9,7 @@ import commands.runnables.RolePlayAbstract;
         emoji = "\uD83C\uDF46",
         executableWithoutArgs = true,
         nsfw = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class BlowjobCommand extends RolePlayAbstract {
 

@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.Permission;
         emoji = "🛑",
         executableWithoutArgs = false,
         releaseDate = { 2021, 4, 16 },
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "chunmute", "channelunmute", "demute" }
 )
 public class UnmuteCommand extends MuteCommand {

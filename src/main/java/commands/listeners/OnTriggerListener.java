@@ -35,8 +35,8 @@ public interface OnTriggerListener {
         addKillTimer(isProcessing);
         processTriggerDelete(event);
         try {
-            if (command.getCommandProperties().requiresMemberCache()) {
-                MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+            if (command.getCommandProperties().requiresFullMemberCache()) {
+                MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
             }
             return onTrigger(event, args);
         } catch (Throwable e) {

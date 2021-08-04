@@ -44,8 +44,8 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
                 }
 
                 if (map.containsKey(event.getMessageIdLong())) {
-                    if (command.getCommandProperties().requiresMemberCache()) {
-                        MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+                    if (command.getCommandProperties().requiresFullMemberCache()) {
+                        MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
                     }
                     ((OnStaticReactionAddListener) command).onStaticReactionAdd(message, event);
                 }

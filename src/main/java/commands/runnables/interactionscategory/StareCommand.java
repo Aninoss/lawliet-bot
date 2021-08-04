@@ -8,7 +8,6 @@ import commands.runnables.RolePlayAbstract;
         trigger = "stare",
         emoji = "\uD83D\uDC40",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
         aliases = { "see" }
 )
 public class StareCommand extends RolePlayAbstract {

@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.entities.User;
         userGuildPermissions = Permission.KICK_MEMBERS,
         emoji = "\uD83D\uDEAA",
         executableWithoutArgs = false,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class KickCommand extends WarnCommand {
 

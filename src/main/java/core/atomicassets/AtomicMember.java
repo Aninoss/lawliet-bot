@@ -35,10 +35,7 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
     @Override
     public Optional<Member> get() {
         return ShardManager.getInstance().getLocalGuildById(guildId)
-                .map(guild -> {
-                    MemberCacheController.getInstance().loadMembers(guild).join();
-                    return guild.getMemberById(memberId);
-                });
+                .map(guild -> MemberCacheController.getInstance().loadMember(guild, memberId).join());
     }
 
     @Override

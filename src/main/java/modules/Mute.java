@@ -10,6 +10,7 @@ import mysql.modules.moderation.ModerationData;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.servermute.ServerMuteData;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 
@@ -23,13 +24,14 @@ public class Mute {
             DBServerMute.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), serverMuteData);
             ServerMuteScheduler.getInstance().loadServerMute(serverMuteData);
 
-            Optional.ofNullable(guild.getMemberById(target.getIdLong())).ifPresent(member -> {
+            Member member = MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).join();
+            if (member != null) {
                 moderationBean.getMuteRole().ifPresent(muteRole -> {
                     guild.addRoleToMember(member, muteRole)
                             .reason(reason)
                             .queue();
                 });
-            });
+            }
         }
     }
 
@@ -39,18 +41,18 @@ public class Mute {
             DBServerMute.getInstance().retrieve(guild.getIdLong())
                     .remove(target.getIdLong());
 
-            Optional.ofNullable(guild.getMemberById(target.getIdLong())).ifPresent(member -> {
+            Member member = MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).join();
+            if (member != null) {
                 moderationBean.getMuteRole().ifPresent(muteRole -> {
                     guild.removeRoleFromMember(member, muteRole)
                             .reason(reason)
                             .queue();
                 });
-            });
+            }
         }
     }
 
     private static boolean prerequisites(Guild guild, ModerationData moderationBean) {
-        MemberCacheController.getInstance().loadMembers(guild).join();
         Optional<Role> muteRoleOpt = moderationBean.getMuteRole();
         return muteRoleOpt.isPresent() && guild.getSelfMember().canInteract(muteRoleOpt.get());
     }

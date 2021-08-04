@@ -170,8 +170,7 @@ public class BotPermissionUtil {
     }
 
     public static boolean canInteract(Member member, long targetUserId) {
-        MemberCacheController.getInstance().loadMembers(member.getGuild()).join();
-        Member target = member.getGuild().getMemberById(targetUserId);
+        Member target = MemberCacheController.getInstance().loadMember(member.getGuild(), targetUserId).join();
         if (target != null) {
             return member.canInteract(target);
         } else {
@@ -190,7 +189,7 @@ public class BotPermissionUtil {
     }
 
     public static List<Role> getMemberRoles(Guild guild) {
-        MemberCacheController.getInstance().loadMembers(guild).join();
+        MemberCacheController.getInstance().loadMembersFull(guild).join();
         int min = (int) (guild.getMemberCount() * 0.75);
         return guild.getRoles().stream()
                 .filter(role -> role.getGuild().getMembersWithRoles(role).size() >= min)
@@ -199,7 +198,7 @@ public class BotPermissionUtil {
 
     public static boolean channelIsPublic(GuildChannel channel) {
         Guild guild = channel.getGuild();
-        MemberCacheController.getInstance().loadMembers(guild).join();
+        MemberCacheController.getInstance().loadMembersFull(guild).join();
         return guild.getMembers().stream()
                 .filter(member -> member.hasAccess(channel))
                 .count() >= guild.getMemberCount() * 0.75;

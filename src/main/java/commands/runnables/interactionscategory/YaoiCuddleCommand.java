@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "yaoicuddle",
         emoji = "\uD83D\uDC68\uD83D\uDC50\uD83D\uDC68",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "yaoisnuggle" }
 )
 public class YaoiCuddleCommand extends RolePlayAbstract {

@@ -8,7 +8,6 @@ import commands.runnables.RolePlayAbstract;
         trigger = "smile",
         emoji = "\uD83D\uDE04",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
         aliases = { "happy" }
 )
 public class SmileCommand extends RolePlayAbstract {

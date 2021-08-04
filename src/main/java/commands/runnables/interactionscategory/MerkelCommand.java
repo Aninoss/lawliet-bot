@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "merkel",
         emoji = "\uD83C\uDDE9\uD83C\uDDEA",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class MerkelCommand extends RolePlayAbstract {
 

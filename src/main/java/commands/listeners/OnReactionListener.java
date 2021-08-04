@@ -126,11 +126,13 @@ public interface OnReactionListener {
         Command command = (Command) this;
 
         try {
-            if (command.getCommandProperties().requiresMemberCache() || event instanceof GuildMessageReactionRemoveEvent) {
-                MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
-                if (event.getUser() == null || event.getUser().isBot()) {
-                    return;
-                }
+            if (command.getCommandProperties().requiresFullMemberCache()) {
+                MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
+            } else if (event instanceof GuildMessageReactionRemoveEvent) {
+                MemberCacheController.getInstance().loadMember(event.getGuild(), event.getUserIdLong()).get();
+            }
+            if (event.getUser() == null || event.getUser().isBot()) {
+                return;
             }
             if (onReaction(event)) {
                 CommandContainer.getInstance().refreshListeners(command);

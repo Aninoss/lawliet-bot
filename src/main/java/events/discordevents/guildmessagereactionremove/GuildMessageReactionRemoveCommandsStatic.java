@@ -44,7 +44,11 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
                 }
 
                 if (map.containsKey(event.getMessageIdLong())) {
-                    MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+                    if (command.getCommandProperties().requiresFullMemberCache()) {
+                        MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
+                    } else {
+                        MemberCacheController.getInstance().loadMember(event.getGuild(), event.getUserIdLong()).get();
+                    }
                     if (event.getUser() != null && !event.getUser().isBot()) {
                         ((OnStaticReactionRemoveListener) command).onStaticReactionRemove(message, event);
                     }

@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "kiss",
         emoji = "\uD83D\uDC8B",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class KissCommand extends RolePlayAbstract {
 

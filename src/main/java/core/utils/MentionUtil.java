@@ -28,12 +28,12 @@ import net.dv8tion.jda.api.entities.*;
 public class MentionUtil {
 
     public static MentionList<Member> getMembers(Message message, String input) {
-        MemberCacheController.getInstance().loadMembers(message.getGuild()).join();
+        MemberCacheController.getInstance().loadMembersFull(message.getGuild()).join();
         return getMembers(message, input, message.getGuild().getMembers());
     }
 
     public static MentionList<Member> getMembers(Message message, String input, List<Member> members) {
-        MemberCacheController.getInstance().loadMembers(message.getGuild()).join();
+        MemberCacheController.getInstance().loadMembersFull(message.getGuild()).join();
         ArrayList<Member> list = new ArrayList<>(message.getMentionedMembers());
         if (!input.contains(ShardManager.getInstance().getSelfIdString())) {
             list.remove(message.getGuild().getSelfMember());
@@ -62,7 +62,7 @@ public class MentionUtil {
     }
 
     public static MentionList<User> getUsers(Message message, String input) {
-        MemberCacheController.getInstance().loadMembers(message.getGuild()).join();
+        MemberCacheController.getInstance().loadMembersFull(message.getGuild()).join();
         return getUsers(message, input, message.getGuild().getMembers().stream().map(Member::getUser).collect(Collectors.toList()));
     }
 

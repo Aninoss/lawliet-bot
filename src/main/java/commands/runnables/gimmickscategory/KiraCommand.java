@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "kira",
         emoji = "\u270D\uFE0F️️",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class KiraCommand extends MemberAccountAbstract {
 

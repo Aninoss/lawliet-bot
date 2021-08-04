@@ -9,7 +9,7 @@ import commands.runnables.RolePlayAbstract;
         emoji = "\uD83E\uDD8A",
         executableWithoutArgs = true,
         nsfw = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class FurryFuckCommand extends RolePlayAbstract {
 

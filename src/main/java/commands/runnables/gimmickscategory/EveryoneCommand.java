@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "everyone",
         emoji = "\uD83D\uDE21",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class EveryoneCommand extends RolePlayAbstract {
 

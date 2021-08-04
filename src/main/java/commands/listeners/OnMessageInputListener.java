@@ -79,8 +79,8 @@ public interface OnMessageInputListener {
 
         command.addLoadingReaction(event.getMessage(), isProcessing);
         try {
-            if (command.getCommandProperties().requiresMemberCache()) {
-                MemberCacheController.getInstance().loadMembers(event.getGuild()).get();
+            if (command.getCommandProperties().requiresFullMemberCache()) {
+                MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
             }
             Response response = onMessageInput(event, event.getMessage().getContentRaw());
             if (response != null) {

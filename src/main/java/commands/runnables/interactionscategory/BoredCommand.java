@@ -8,7 +8,6 @@ import commands.runnables.RolePlayAbstract;
         trigger = "bored",
         emoji = "\uD83E\uDD71",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
         aliases = { "boring" }
 )
 public class BoredCommand extends RolePlayAbstract {

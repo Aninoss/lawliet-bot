@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "\uD83C\uDFA3",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "equip", "equipment", "inventory", "level", "g" }
 )
 public class GearCommand extends FisheryMemberAccountInterface {

@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         userGuildPermissions = Permission.BAN_MEMBERS,
         emoji = "\uD83D\uDEAB",
         executableWithoutArgs = false,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "tempban" }
 )
 public class BanCommand extends WarnCommand {

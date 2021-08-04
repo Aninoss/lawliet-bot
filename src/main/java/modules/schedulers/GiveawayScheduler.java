@@ -91,7 +91,7 @@ public class GiveawayScheduler extends Startable {
     }
 
     private void processGiveaway(TextChannel channel, GuildData guildBean, GiveawayData giveawayData, Message message, ArrayList<User> users) {
-        MemberCacheController.getInstance().loadMembers(channel.getGuild()).thenAccept(members -> {
+        MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).thenAccept(members -> {
             users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user));
             Collections.shuffle(users);
             List<User> winners = users.subList(0, Math.min(users.size(), giveawayData.getWinners()));

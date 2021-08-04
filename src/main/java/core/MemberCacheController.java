@@ -2,17 +2,13 @@ package core;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import core.cache.PatreonCache;
 import mysql.modules.moderation.DBModeration;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,8 +25,57 @@ public class MemberCacheController implements MemberCachePolicy {
     private MemberCacheController() {
     }
 
-    public CompletableFuture<List<Member>> loadMembers(Guild guild) {
-        guildAccessMap.put(guild.getIdLong(), Instant.now().plus(Duration.ofMinutes(30)));
+    public CompletableFuture<Member> loadMember(Guild guild, long userId) {
+        return loadMembers(guild, userId)
+                .thenApply(memberList -> {
+                    if (memberList.isEmpty()) {
+                        return null;
+                    } else {
+                        return memberList.get(0);
+                    }
+                });
+    }
+
+    public CompletableFuture<List<Member>> loadMembers(Guild guild, long... userIds) {
+        List<Long> userIdList = Arrays.stream(userIds).boxed().collect(Collectors.toList());
+        return loadMembers(guild, userIdList);
+    }
+
+    public CompletableFuture<List<Member>> loadMembersWithUsers(Guild guild, List<User> users) {
+        List<Long> userIdList = users.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
+        return loadMembers(guild, userIdList);
+    }
+
+    public CompletableFuture<List<Member>> loadMembers(Guild guild, List<Long> userIds) {
+        cacheGuild(guild);
+        CompletableFuture<List<Member>> future = new CompletableFuture<>();
+
+        ArrayList<Long> missingMemberIds = new ArrayList<>();
+        ArrayList<Member> presentMembers = new ArrayList<>();
+        userIds.forEach(userId -> {
+            Member member = guild.getMemberById(userId);
+            if (member != null) {
+                presentMembers.add(member);
+            } else {
+                missingMemberIds.add(userId);
+            }
+        });
+
+        if (missingMemberIds.isEmpty()) {
+            future.complete(presentMembers);
+        } else {
+            guild.retrieveMembersByIds(missingMemberIds)
+                    .onError(future::completeExceptionally)
+                    .onSuccess(members -> {
+                        presentMembers.addAll(members);
+                        future.complete(presentMembers);
+                    });
+        }
+        return future;
+    }
+
+    public CompletableFuture<List<Member>> loadMembersFull(Guild guild) {
+        cacheGuild(guild);
         CompletableFuture<List<Member>> future = new CompletableFuture<>();
         if (guild.isLoaded()) {
             future.complete(guild.getMembers());
@@ -50,9 +95,23 @@ public class MemberCacheController implements MemberCachePolicy {
                 member.isPending() ||
                 member.isOwner() ||
                 guild.getMemberCount() >= 20_000 ||
-                (guildAccessMap.containsKey(guild.getIdLong()) && Instant.now().isBefore(guildAccessMap.get(guild.getIdLong()))) ||
+                guildIsCached(guild) ||
                 (Program.productionMode() && PatreonCache.getInstance().getUserTier(member.getIdLong(), false) >= 2) ||
                 DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().map(muteRole -> member.getRoles().contains(muteRole)).orElse(false);
+    }
+
+    public void cacheGuild(Guild guild) {
+        guildAccessMap.put(guild.getIdLong(), Instant.now().plus(Duration.ofMinutes(30)));
+    }
+
+    public void cacheGuildIfNotExist(Guild guild) {
+        if (!guildAccessMap.containsKey(guild.getIdLong())) {
+            cacheGuild(guild);
+        }
+    }
+
+    private boolean guildIsCached(Guild guild) {
+        return guildAccessMap.containsKey(guild.getIdLong()) && Instant.now().isBefore(guildAccessMap.get(guild.getIdLong()));
     }
 
     public int pruneAll() {

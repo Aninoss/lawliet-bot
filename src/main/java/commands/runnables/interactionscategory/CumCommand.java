@@ -10,7 +10,7 @@ import commands.runnables.RolePlayAbstract;
         executableWithoutArgs = true,
         nsfw = true,
         aliases = "semen",
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class CumCommand extends RolePlayAbstract {
 

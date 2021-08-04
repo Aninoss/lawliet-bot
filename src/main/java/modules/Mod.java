@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
@@ -54,11 +53,9 @@ public class Mod {
         );
 
         if (withAutoActions) {
-            MemberCacheController.getInstance().loadMembers(guild).join();
-
             ModerationData moderationBean = DBModeration.getInstance().retrieve(guild.getIdLong());
             Role muteRole = moderationBean.getMuteRole().orElse(null);
-            Member member = guild.getMember(target);
+            Member member = MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).join();
 
             int autoKickDays = moderationBean.getAutoKickDays();
             int autoBanDays = moderationBean.getAutoBanDays();
@@ -129,34 +126,29 @@ public class Mod {
     }
 
     public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, Guild guild, List<Member> members) {
-        return postLogMembers(command, eb, guild, DBModeration.getInstance().retrieve(guild.getIdLong()), members);
+        return postLogMembers(command, eb, DBModeration.getInstance().retrieve(guild.getIdLong()), members);
     }
 
     public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, List<User> users) {
         return postLogUsers(command, eb, guild, DBModeration.getInstance().retrieve(guild.getIdLong()), users);
     }
 
-    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, Guild guild, ModerationData moderationBean, Member member) {
-        return postLogMembers(command, eb, guild, moderationBean, Collections.singletonList(member));
+    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, ModerationData moderationBean, Member member) {
+        return postLogMembers(command, eb, moderationBean, Collections.singletonList(member));
     }
 
     public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationData moderationBean, User user) {
         return postLogUsers(command, eb, guild, moderationBean, Collections.singletonList(user));
     }
 
-    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, Guild guild, ModerationData moderationBean, List<Member> members) {
-        return Mod.postLogUsers(command, eb, guild, moderationBean, members.stream().map(Member::getUser).collect(Collectors.toList()));
-    }
-
-    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationData moderationBean, List<User> users) {
+    public static CompletableFuture<Void> postLogMembers(Command command, EmbedBuilder eb, ModerationData moderationBean, List<Member> members) {
         eb.setFooter("");
 
         CompletableFuture<Void> future = FutureUtil.supplyAsync(() -> {
-            MemberCacheController.getInstance().loadMembers(guild).join();
-            users.forEach(user -> {
-                if (!user.isBot() && guild.isMember(user)) {
+            members.forEach(member -> {
+                if (!member.getUser().isBot()) {
                     try {
-                        JDAUtil.sendPrivateMessage(user, eb.build()).complete();
+                        JDAUtil.sendPrivateMessage(member, eb.build()).complete();
                     } catch (Throwable e) {
                         MainLogger.get().error("Exception", e);
                     }
@@ -165,13 +157,37 @@ public class Mod {
             return null;
         });
 
+        sendAnnouncement(command, eb, moderationBean);
+        return future;
+    }
+
+    public static CompletableFuture<Void> postLogUsers(Command command, EmbedBuilder eb, Guild guild, ModerationData moderationBean, List<User> users) {
+        eb.setFooter("");
+
+        CompletableFuture<Void> future = FutureUtil.supplyAsync(() -> {
+            MemberCacheController.getInstance().loadMembersWithUsers(guild, users).join()
+                    .forEach(member -> {
+                        if (!member.getUser().isBot()) {
+                            try {
+                                JDAUtil.sendPrivateMessage(member, eb.build()).complete();
+                            } catch (Throwable e) {
+                                MainLogger.get().error("Exception", e);
+                            }
+                        }
+                    });
+            return null;
+        });
+
+        sendAnnouncement(command, eb, moderationBean);
+        return future;
+    }
+
+    private static void sendAnnouncement(Command command, EmbedBuilder eb, ModerationData moderationBean) {
         moderationBean.getAnnouncementChannel().ifPresent(channel -> {
             if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
                 channel.sendMessageEmbeds(eb.build()).queue();
             }
         });
-
-        return future;
     }
 
 }

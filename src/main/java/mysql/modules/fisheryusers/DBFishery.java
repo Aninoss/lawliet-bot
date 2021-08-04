@@ -2,6 +2,7 @@ package mysql.modules.fisheryusers;
 
 import java.util.ArrayList;
 import java.util.List;
+import core.MainLogger;
 import mysql.DBDataLoad;
 import mysql.DBMain;
 import mysql.DBMapCache;
@@ -89,6 +90,24 @@ public class DBFishery extends DBMapCache<Long, FisheryGuildData> {
             pipeline.sync();
         });
         getCache().invalidate(guildId);
+    }
+
+    public List<Long> getGuildIdsForFisheryUser(long userId) {
+        ArrayList<Long> guildIds = new ArrayList<>();
+        DBRedis.getInstance().update(jedis -> {
+            List<String> accountKeys = DBRedis.getInstance().scan(jedis, "fishery_account:*:" + userId);
+            for (String accountKey : accountKeys) {
+                String[] parts = accountKey.split(":");
+                long fisheryGuildId = Long.parseLong(parts[1]);
+                long fisheryUserId = Long.parseLong(parts[2]);
+                if (fisheryUserId == userId) {
+                    guildIds.add(fisheryGuildId);
+                } else {
+                    MainLogger.get().error("Returning wrong entries for fishery user");
+                }
+            }
+        });
+        return guildIds;
     }
 
 }

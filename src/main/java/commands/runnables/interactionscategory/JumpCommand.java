@@ -7,8 +7,7 @@ import commands.runnables.RolePlayAbstract;
 @CommandProperties(
         trigger = "jump",
         emoji = "\uD83D\uDCA8",
-        executableWithoutArgs = true,
-        requiresMemberCache = true
+        executableWithoutArgs = true
 )
 public class JumpCommand extends RolePlayAbstract {
 

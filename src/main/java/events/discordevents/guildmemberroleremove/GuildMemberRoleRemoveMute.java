@@ -1,5 +1,6 @@
 package events.discordevents.guildmemberroleremove;
 
+import core.MemberCacheController;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRoleRemoveAbstract;
 import mysql.modules.moderation.DBModeration;
@@ -13,6 +14,7 @@ public class GuildMemberRoleRemoveMute extends GuildMemberRoleRemoveAbstract {
     public boolean onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) throws Throwable {
         DBModeration.getInstance().retrieve(event.getGuild().getIdLong()).getMuteRole().ifPresent(muteRole -> {
             if (event.getRoles().stream().anyMatch(r -> r.getIdLong() == muteRole.getIdLong())) {
+                MemberCacheController.getInstance().cacheGuildIfNotExist(event.getGuild());
                 DBServerMute.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMember().getIdLong());
             }
         });

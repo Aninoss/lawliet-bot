@@ -7,8 +7,7 @@ import commands.runnables.RolePlayAbstract;
 @CommandProperties(
         trigger = "shrug",
         emoji = "🤷",
-        executableWithoutArgs = true,
-        requiresMemberCache = true
+        executableWithoutArgs = true
 )
 public class ShrugCommand extends RolePlayAbstract {
 

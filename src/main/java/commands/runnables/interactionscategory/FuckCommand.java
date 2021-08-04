@@ -9,7 +9,7 @@ import commands.runnables.RolePlayAbstract;
         emoji = "\uD83D\uDECF️",
         executableWithoutArgs = true,
         nsfw = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class FuckCommand extends RolePlayAbstract {
 

@@ -8,7 +8,6 @@ import commands.runnables.RolePlayAbstract;
         trigger = "cry",
         emoji = "\uD83D\uDE2D",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
         aliases = { "sad", "sob" }
 )
 public class CryCommand extends RolePlayAbstract {

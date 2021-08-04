@@ -7,8 +7,7 @@ import commands.runnables.RolePlayAbstract;
 @CommandProperties(
         trigger = "nosebleed",
         emoji = "\uD83E\uDE78",
-        executableWithoutArgs = true,
-        requiresMemberCache = true
+        executableWithoutArgs = true
 )
 public class NoseBleedCommand extends RolePlayAbstract {
 

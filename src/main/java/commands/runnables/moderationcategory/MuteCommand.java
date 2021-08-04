@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         emoji = "🛑",
         executableWithoutArgs = false,
         releaseDate = { 2021, 4, 16 },
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "chmute", "channelmute" }
 )
 public class MuteCommand extends WarnCommand {

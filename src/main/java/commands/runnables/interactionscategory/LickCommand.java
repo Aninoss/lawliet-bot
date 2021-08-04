@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "lick",
         emoji = "\uD83D\uDE0B",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class LickCommand extends RolePlayAbstract {
 

@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "tickle",
         emoji = "\uD83E\uDD23",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class TickleCommand extends RolePlayAbstract {
 

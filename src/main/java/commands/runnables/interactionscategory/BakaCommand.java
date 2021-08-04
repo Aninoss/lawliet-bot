@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "baka",
         emoji = "\uD83D\uDCA2",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class BakaCommand extends RolePlayAbstract {
 

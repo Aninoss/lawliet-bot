@@ -8,7 +8,6 @@ import commands.runnables.RolePlayAbstract;
         trigger = "drink",
         emoji = "\uD83C\uDF7A",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
         aliases = { "beer", "alcohol", "chug", "drunk", "cheers" }
 )
 public class DrinkCommand extends RolePlayAbstract {

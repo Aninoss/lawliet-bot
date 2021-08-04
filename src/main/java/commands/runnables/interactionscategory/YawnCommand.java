@@ -8,7 +8,6 @@ import commands.runnables.RolePlayAbstract;
         trigger = "yawn",
         emoji = "\uD83E\uDD71",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
         aliases = { "wakeup", "tired", "sleepy" }
 )
 public class YawnCommand extends RolePlayAbstract {

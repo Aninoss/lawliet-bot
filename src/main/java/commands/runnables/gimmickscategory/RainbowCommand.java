@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
         emoji = "\uD83C\uDF08",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "lgbt", "pride" }
 )
 public class RainbowCommand extends MemberAccountAbstract {

@@ -58,7 +58,7 @@ public abstract class RolePlayAbstract extends Command {
             args = mention.getFilteredArgs().get();
         }
         if (args.length() > 0) {
-            quote = "\n\n> " + args.replace("\n", "\n> ");
+            quote = "\n\n>>> " + args;
         }
 
         String gifUrl = gifs[RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), gifs.length).get()];
@@ -80,7 +80,7 @@ public abstract class RolePlayAbstract extends Command {
 
         String quote = "";
         if (args.length() > 0) {
-            quote = "\n\n> " + args.replace("\n", "\n> ");
+            quote = "\n\n>>> " + args;
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(

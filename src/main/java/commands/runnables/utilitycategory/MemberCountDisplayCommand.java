@@ -134,7 +134,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                             return true;
                         }
 
-                        MemberCacheController.getInstance().loadMembers(event.getGuild()).join();
+                        MemberCacheController.getInstance().loadMembersFull(event.getGuild()).join();
                         ChannelManager manager = voiceChannel.getManager();
                         try {
                             for (PermissionOverride permissionOverride : voiceChannel.getPermissionOverrides()) {

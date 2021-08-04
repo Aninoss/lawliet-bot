@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "pat",
         emoji = "\uD83E\uDD1A",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "praise", "yaoipat", "yuripat" }
 )
 public class PatCommand extends RolePlayAbstract {

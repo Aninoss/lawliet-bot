@@ -9,7 +9,7 @@ import commands.runnables.RolePlayAbstract;
         emoji = "\uD83C\uDF52",
         executableWithoutArgs = true,
         nsfw = true,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "grabboobs", "tittygrab", "grabtitty", "titsgrab", "grabtits" }
 )
 public class BoobsGrabCommand extends RolePlayAbstract {

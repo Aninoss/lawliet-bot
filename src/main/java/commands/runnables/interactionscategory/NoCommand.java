@@ -8,7 +8,6 @@ import commands.runnables.RolePlayAbstract;
         trigger = "no",
         emoji = "\uD83D\uDC4E",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
         aliases = { "nope", "thumbsdown", "thumpsdown" }
 )
 public class NoCommand extends RolePlayAbstract {

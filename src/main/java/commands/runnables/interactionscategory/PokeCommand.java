@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "poke",
         emoji = "\uD83D\uDC49",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class PokeCommand extends RolePlayAbstract {
 

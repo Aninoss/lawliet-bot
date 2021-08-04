@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
+import constants.AssetIds;
 import constants.Language;
 import core.cache.PatreonCache;
 import core.utils.ExceptionUtil;
@@ -118,6 +119,7 @@ public class Console extends Startable {
     }
 
     private void onSurvey(String[] args) {
+        MainLogger.get().info("Processing survey results");
         FisherySurveyResults.processCurrentResults();
     }
 
@@ -166,7 +168,7 @@ public class Console extends Startable {
     }
 
     private void onServersMutual(String[] args) {
-        ShardManager.getInstance().getCachedUserById(Long.parseLong(args[1])).ifPresent(user ->
+        ShardManager.getInstance().getCachedUserById(AssetIds.OWNER_USER_ID).ifPresent(user ->
                 ShardManager.getInstance()
                         .getLocalMutualGuilds(user)
                         .stream()
@@ -186,7 +188,7 @@ public class Console extends Startable {
     }
 
     private void printGuild(Guild guild) {
-        MemberCacheController.getInstance().loadMembers(guild).join();
+        MemberCacheController.getInstance().loadMembersFull(guild).join();
         int bots = (int) guild.getMembers().stream().filter(m -> m.getUser().isBot()).count();
         MainLogger.get().info(
                 "Name: {}; ID: {}; Shard: {}; Cluster: {}; Members: {}; Bots {}",

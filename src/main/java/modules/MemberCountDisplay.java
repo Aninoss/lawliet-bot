@@ -70,7 +70,7 @@ public class MemberCountDisplay {
     }
 
     public static String generateNewVCName(Guild guild, String name) {
-        MemberCacheController.getInstance().loadMembers(guild).join();
+        MemberCacheController.getInstance().loadMembersFull(guild).join();
         long members = guild.getMemberCount();
         long botMembers = guild.getMembers().stream().filter(m -> m.getUser().isBot()).count();
         int boosts = guild.getBoostCount();

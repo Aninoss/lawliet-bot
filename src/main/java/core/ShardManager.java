@@ -80,7 +80,7 @@ public class ShardManager {
 
     public synchronized void increaseGlobalErrorCounter() {
         MainLogger.get().warn("Shard error counter: {}", ++globalErrors);
-        if (globalErrors >= 8) {
+        if (globalErrors >= 4) {
             System.err.println("EXIT - Too many shard errors (" + Program.getClusterId() + ")");
             System.exit(6);
         }

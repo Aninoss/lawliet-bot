@@ -18,7 +18,6 @@ import mysql.modules.spblock.DBSPBlock;
 import mysql.modules.spblock.SPBlockData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Message;
 
 public class InviteFilter extends AutoModAbstract {
@@ -63,8 +62,8 @@ public class InviteFilter extends AutoModAbstract {
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getTextChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), StringUtil.shortenString(content, 1024), false);
 
-        spBlockBean.getLogReceiverUserIds().transform(message.getGuild()::getMemberById, ISnowflake::getIdLong)
-                .forEach(member -> JDAUtil.sendPrivateMessage(member, eb.build()).queue());
+        spBlockBean.getLogReceiverUserIds()
+                .forEach(memberId -> JDAUtil.sendPrivateMessage(memberId, eb.build()).queue());
     }
 
     @Override

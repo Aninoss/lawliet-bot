@@ -9,7 +9,7 @@ import commands.runnables.RolePlayAbstract;
         emoji = "✊",
         executableWithoutArgs = true,
         nsfw = true,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "fap", "jerkoff" }
 )
 public class MasturbateCommand extends RolePlayAbstract {

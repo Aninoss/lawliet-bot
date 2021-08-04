@@ -7,8 +7,7 @@ import commands.runnables.RolePlayAbstract;
 @CommandProperties(
         trigger = "facepalm",
         emoji = "\uD83E\uDD26",
-        executableWithoutArgs = true,
-        requiresMemberCache = true
+        executableWithoutArgs = true
 )
 public class FacepalmCommand extends RolePlayAbstract {
 

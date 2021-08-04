@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "hug",
         emoji = "\uD83D\uDC50",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class HugCommand extends RolePlayAbstract {
 

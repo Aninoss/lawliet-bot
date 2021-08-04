@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "highfive",
         emoji = "✋",
         executableWithoutArgs = true,
-        requiresMemberCache = true
+        requiresFullMemberCache = true
 )
 public class HighfiveCommand extends RolePlayAbstract {
 

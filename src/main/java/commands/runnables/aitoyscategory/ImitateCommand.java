@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         executableWithoutArgs = true,
         patreonRequired = true,
         turnOffTimeout = true,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "impersonate" }
 )
 public class ImitateCommand extends Command {

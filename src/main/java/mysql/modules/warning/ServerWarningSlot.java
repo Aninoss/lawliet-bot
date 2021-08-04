@@ -36,10 +36,7 @@ public class ServerWarningSlot extends DataWithGuild implements MemberAsset {
     }
 
     public Optional<Member> getRequesterMember() {
-        return getGuild().map(guild -> {
-            MemberCacheController.getInstance().loadMembers(guild).join();
-            return guild.getMemberById(requesterUserId);
-        });
+        return getGuild().map(guild -> MemberCacheController.getInstance().loadMember(guild, requesterUserId).join());
     }
 
     public Optional<String> getReason() {

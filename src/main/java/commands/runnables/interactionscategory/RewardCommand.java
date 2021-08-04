@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "reward",
         emoji = "\uD83C\uDF53",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "rewards" }
 )
 public class RewardCommand extends RolePlayAbstract {

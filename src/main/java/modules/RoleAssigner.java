@@ -49,7 +49,7 @@ public class RoleAssigner {
             return Optional.of(FutureUtil.supplyAsync(() -> {
                 try {
                     Thread.sleep(500);
-                    MemberCacheController.getInstance().loadMembers(guild).join();
+                    MemberCacheController.getInstance().loadMembersFull(guild).join();
                     for (Member member : new ArrayList<>(guild.getMembers())) {
                         if (active.get()) {
                             if (member.getRoles().contains(role) != add &&

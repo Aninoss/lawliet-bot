@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "\uD83D\uDDD1",
         userGuildPermissions = Permission.KICK_MEMBERS,
         executableWithoutArgs = false,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "unwarn", "removewarn" }
 )
 public class WarnRemoveCommand extends WarnCommand {

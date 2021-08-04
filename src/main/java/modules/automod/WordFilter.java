@@ -14,7 +14,6 @@ import mysql.modules.bannedwords.BannedWordsData;
 import mysql.modules.bannedwords.DBBannedWords;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Message;
 
 public class WordFilter extends AutoModAbstract {
@@ -37,8 +36,8 @@ public class WordFilter extends AutoModAbstract {
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getTextChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), StringUtil.shortenString(message.getContentRaw(), 1024), true);
 
-        bannedWordsBean.getLogReceiverUserIds().transform(message.getGuild()::getMemberById, ISnowflake::getIdLong)
-                .forEach(member -> JDAUtil.sendPrivateMessage(member, eb.build()).queue());
+        bannedWordsBean.getLogReceiverUserIds()
+                .forEach(memberId -> JDAUtil.sendPrivateMessage(memberId, eb.build()).queue());
     }
 
     @Override

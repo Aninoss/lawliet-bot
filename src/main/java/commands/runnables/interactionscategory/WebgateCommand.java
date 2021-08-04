@@ -8,8 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "webgate",
         emoji = "⛩️",
         executableWithoutArgs = true,
-        exclusiveGuilds = { 580048842020487180L },
-        requiresMemberCache = true
+        exclusiveGuilds = { 580048842020487180L }
 )
 public class WebgateCommand extends RolePlayAbstract {
 

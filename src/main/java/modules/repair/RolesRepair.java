@@ -54,7 +54,7 @@ public class RolesRepair {
         FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guild.getIdLong());
         Locale locale = fisheryGuildData.getGuildData().getLocale();
         if (fisheryGuildData.getGuildData().getFisheryStatus() == FisheryStatus.ACTIVE && fisheryGuildData.getRoleIds().size() > 0) {
-            MemberCacheController.getInstance().loadMembers(guild).join();
+            MemberCacheController.getInstance().loadMembersFull(guild).join();
             guild.getMembers().stream()
                     .filter(member -> !member.getUser().isBot() && userJoinedRecently(member, minutes))
                     .forEach(member -> checkRoles(
@@ -71,7 +71,7 @@ public class RolesRepair {
         Locale locale = autoRolesData.getGuildData().getLocale();
         List<Role> roles = autoRolesData.getRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
         if (roles.size() > 0) {
-            MemberCacheController.getInstance().loadMembers(guild).join();
+            MemberCacheController.getInstance().loadMembersFull(guild).join();
             guild.getMembers().stream()
                     .filter(member -> userJoinedRecently(member, minutes) && !member.isPending())
                     .forEach(member -> checkRoles(

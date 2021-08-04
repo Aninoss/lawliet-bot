@@ -8,7 +8,7 @@ import commands.runnables.RolePlayAbstract;
         trigger = "punch",
         emoji = "\uD83D\uDC4A",
         executableWithoutArgs = true,
-        requiresMemberCache = true,
+        requiresFullMemberCache = true,
         aliases = { "hit", "attack" }
 )
 public class PunchCommand extends RolePlayAbstract {
