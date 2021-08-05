@@ -31,11 +31,6 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
     @Override
     protected GuildData load(Long serverId) throws Exception {
-        int shard = ShardManager.getInstance().getResponsibleShard(serverId);
-        if (shard < ShardManager.getInstance().getShardIntervalMin() || shard > ShardManager.getInstance().getShardIntervalMax()) {
-            throw new Exception("Invalid server");
-        }
-
         boolean serverPresent = ShardManager.getInstance().getLocalGuildById(serverId).isPresent();
         if (serverPresent) {
             removedServerIds.invalidate(serverId);
