@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import constants.AssetIds;
 import core.cache.PatreonCache;
 import mysql.modules.moderation.DBModeration;
 import net.dv8tion.jda.api.entities.*;
@@ -61,7 +62,7 @@ public class MemberCacheController implements MemberCachePolicy {
             }
         });
 
-        if (missingMemberIds.isEmpty()) {
+        if (guild.isLoaded() || missingMemberIds.isEmpty()) {
             future.complete(presentMembers);
         } else {
             guild.retrieveMembersByIds(missingMemberIds)
@@ -94,6 +95,7 @@ public class MemberCacheController implements MemberCachePolicy {
         return (voiceState != null && voiceState.getChannel() != null) ||
                 member.isPending() ||
                 member.isOwner() ||
+                member.getIdLong() == AssetIds.OWNER_USER_ID ||
                 guild.getMemberCount() >= 20_000 ||
                 guildIsCached(guild) ||
                 (Program.productionMode() && PatreonCache.getInstance().getUserTier(member.getIdLong(), false) >= 2) ||
