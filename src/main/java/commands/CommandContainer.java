@@ -176,6 +176,7 @@ public class CommandContainer {
         commandList.add(RunCommand.class);
         commandList.add(ShrugCommand.class);
         commandList.add(SipCommand.class);
+        commandList.add(SingCommand.class);
         commandList.add(SleepCommand.class);
         commandList.add(SmileCommand.class);
         commandList.add(SmugCommand.class);

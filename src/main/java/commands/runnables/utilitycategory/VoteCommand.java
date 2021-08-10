@@ -95,7 +95,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("title"))
                 .addField(getString("topic"), voteInfo.getTopic(), false)
-                .addField(getString("choices"), answerText.toString(), false)
+                .addField(getString("choices"), StringUtil.shortenString(answerText.toString(), 1024), false)
                 .addField(getString("results") + " (" + voteInfo.getTotalVotes() + " " + getString("votes", voteInfo.getTotalVotes() != 1) + ")", resultsText.toString(), false);
 
         if (voteInfo.getCreatorId().isPresent() && voteInfo.isActive()) {
