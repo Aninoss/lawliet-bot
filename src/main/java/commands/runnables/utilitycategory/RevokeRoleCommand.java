@@ -5,7 +5,7 @@ import commands.listeners.CommandProperties;
 import net.dv8tion.jda.api.Permission;
 
 @CommandProperties(
-        trigger = "revokerole",
+        trigger = "revokeroles",
         userGuildPermissions = Permission.MANAGE_ROLES,
         botGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDCE4",
@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.Permission;
         patreonRequired = true,
         turnOffTimeout = true,
         requiresFullMemberCache = true,
-        aliases = { "takerole", "revoke" }
+        aliases = { "takerole", "revoke", "revokerole" }
 )
 public class RevokeRoleCommand extends AssignRoleCommand {
 

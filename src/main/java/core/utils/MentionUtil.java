@@ -413,13 +413,6 @@ public class MentionUtil {
         return getMentionStringOfMentions(mentions, locale, null, false, false);
     }
 
-    public static Mention getMentionedStringOfDiscriminatedMembers(Locale locale, List<Member> memberList) {
-        return getMentionedStringOfDiscriminatedUsers(
-                locale,
-                memberList.stream().map(Member::getUser).collect(Collectors.toList())
-        );
-    }
-
     public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, List<User> userList) {
         final ArrayList<String> mentions = new ArrayList<>();
 

@@ -4,13 +4,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
-import core.atomicassets.AtomicRole;
+import core.mention.Mention;
 import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import modules.RoleAssigner;
@@ -24,7 +25,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
-        trigger = "assignrole",
+        trigger = "assignroles",
         userGuildPermissions = Permission.MANAGE_ROLES,
         botGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "\uD83D\uDCE5",
@@ -32,13 +33,13 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         patreonRequired = true,
         turnOffTimeout = true,
         requiresFullMemberCache = true,
-        aliases = { "giverole", "assign" }
+        aliases = { "giverole", "assign", "assignrole" }
 )
 public class AssignRoleCommand extends Command implements OnButtonListener {
 
     private static final String CANCEL_EMOJI = Emojis.X;
 
-    private AtomicRole atomicRole;
+    private Mention rolesMention;
 
     public AssignRoleCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -55,26 +56,33 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
             ).queue();
             return false;
         }
-        Role role = roles.get(0);
-        atomicRole = new AtomicRole(role);
 
         /* check for missing role manage permissions bot */
-        if (!event.getGuild().getSelfMember().canInteract(role)) {
+        List<Role> rolesMissingPermissions = roles.stream()
+                .filter(r -> !event.getGuild().getSelfMember().canInteract(r))
+                .collect(Collectors.toList());
+        if (rolesMissingPermissions.size() > 0) {
+            Mention mention = MentionUtil.getMentionedStringOfRoles(getLocale(), rolesMissingPermissions);
             event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, role.getAsMention())).build()
+                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", mention.isMultiple(), mention.getMentionText())).build()
             ).queue();
             return false;
         }
 
         /* check for missing role manage permissions user */
-        if (!event.getMember().canInteract(role)) {
+        rolesMissingPermissions = roles.stream()
+                .filter(r -> !event.getMember().canInteract(r))
+                .collect(Collectors.toList());
+        if (rolesMissingPermissions.size() > 0) {
+            Mention mention = MentionUtil.getMentionedStringOfRoles(getLocale(), rolesMissingPermissions);
             event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", false, role.getAsMention())).build()
+                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", mention.isMultiple(), mention.getMentionText())).build()
             ).queue();
             return false;
         }
 
-        Optional<CompletableFuture<Boolean>> futureOpt = RoleAssigner.getInstance().assignRoles(role, addRole());
+        rolesMention = MentionUtil.getMentionedStringOfRoles(getLocale(), roles);
+        Optional<CompletableFuture<Boolean>> futureOpt = RoleAssigner.getInstance().assignRoles(event.getGuild(), roles, addRole());
 
         /* check for busy */
         if (futureOpt.isEmpty()) {
@@ -99,9 +107,9 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     private void onAssignmentFinished(boolean success) {
         deregisterListenersWithButtons();
         if (success) {
-            drawMessage(EmbedFactory.getEmbedDefault(this, getString("success_desc", atomicRole.getAsMention())));
+            drawMessage(EmbedFactory.getEmbedDefault(this, getString("success_desc", rolesMention.isMultiple(), rolesMention.getMentionText())));
         } else {
-            drawMessage(EmbedFactory.getEmbedError(this, getString("canceled_desc", atomicRole.getAsMention()), getString("canceled_title")));
+            drawMessage(EmbedFactory.getEmbedError(this, getString("canceled_desc", rolesMention.isMultiple(), rolesMention.getMentionText()), getString("canceled_title")));
         }
     }
 
@@ -117,7 +125,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     public EmbedBuilder draw(Member member) throws Throwable {
         return EmbedFactory.getEmbedDefault(
                 this,
-                getString("loading", atomicRole.getAsMention(), EmojiUtil.getLoadingEmojiMention(getTextChannel().orElse(null)), CANCEL_EMOJI)
+                getString("loading", rolesMention.isMultiple(), rolesMention.getMentionText(), EmojiUtil.getLoadingEmojiMention(getTextChannel().orElse(null)), CANCEL_EMOJI)
         );
     }
 

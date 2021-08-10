@@ -1,9 +1,7 @@
 package modules;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.google.common.cache.Cache;
@@ -20,6 +18,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 public class RoleAssigner {
 
@@ -36,8 +35,7 @@ public class RoleAssigner {
             .expireAfterWrite(Duration.ofHours(1))
             .build();
 
-    public Optional<CompletableFuture<Boolean>> assignRoles(Role role, boolean add) {
-        Guild guild = role.getGuild();
+    public Optional<CompletableFuture<Boolean>> assignRoles(Guild guild, List<Role> roles, boolean add) {
         Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
         synchronized (guild) {
             if (busyServers.asMap().containsKey(guild.getIdLong())) {
@@ -52,20 +50,21 @@ public class RoleAssigner {
                     MemberCacheController.getInstance().loadMembersFull(guild).join();
                     for (Member member : new ArrayList<>(guild.getMembers())) {
                         if (active.get()) {
-                            if (member.getRoles().contains(role) != add &&
-                                    guild.getMembers().contains(member) &&
+                            boolean canInteract = roles.stream().allMatch(role ->
                                     BotPermissionUtil.can(role.getGuild(), Permission.MANAGE_ROLES) &&
-                                    role.getGuild().getSelfMember().canInteract(role)
-                            ) {
+                                            role.getGuild().getSelfMember().canInteract(role)
+                            );
+
+                            if (guild.getMembers().contains(member) && canInteract) {
+                                AuditableRestAction<Void> restAction;
                                 if (add) {
-                                    role.getGuild().addRoleToMember(member, role)
-                                            .reason(Command.getCommandLanguage(AssignRoleCommand.class, locale).getTitle())
-                                            .complete();
+                                    restAction = guild.modifyMemberRoles(member, roles, Collections.emptyList())
+                                            .reason(Command.getCommandLanguage(AssignRoleCommand.class, locale).getTitle());
                                 } else {
-                                    role.getGuild().removeRoleFromMember(member, role)
-                                            .reason(Command.getCommandLanguage(RevokeRoleCommand.class, locale).getTitle())
-                                            .complete();
+                                    restAction = guild.modifyMemberRoles(member, Collections.emptyList(), roles)
+                                            .reason(Command.getCommandLanguage(RevokeRoleCommand.class, locale).getTitle());
                                 }
+                                restAction.complete();
                             }
                         } else {
                             return false;
