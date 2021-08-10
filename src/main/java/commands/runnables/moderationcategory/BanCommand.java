@@ -7,7 +7,6 @@ import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.mention.Mention;
 import core.mention.MentionValue;
-import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.schedulers.TempBanScheduler;
@@ -36,7 +35,7 @@ public class BanCommand extends WarnCommand {
     private long minutes;
 
     public BanCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, false, true);
+        super(locale, prefix, true, false, true, true);
     }
 
     @Override
@@ -62,16 +61,6 @@ public class BanCommand extends WarnCommand {
                     guild.ban(target.getId(), 1).queue();
                     return null;
                 });
-    }
-
-    @Override
-    protected boolean canProcessMember(Member executor, User target) throws Throwable {
-        return BotPermissionUtil.canInteract(executor, target);
-    }
-
-    @Override
-    protected boolean canProcessBot(Guild guild, User target) throws Throwable {
-        return BotPermissionUtil.canInteract(guild, target);
     }
 
     @Override

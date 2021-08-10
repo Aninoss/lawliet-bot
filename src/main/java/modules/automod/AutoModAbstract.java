@@ -57,11 +57,7 @@ public abstract class AutoModAbstract {
 
         Command command = CommandManager.createCommandByClass(commandClass, guildBean.getLocale(), guildBean.getPrefix());
         Mod.postLogMembers(command, eb, guild, member).thenRun(() -> {
-            try {
-                Mod.insertWarning(guildBean.getLocale(), member, guild.getSelfMember(), commandTitle, withAutoActions(message, guildBean.getLocale()));
-            } catch (ExecutionException e) {
-                MainLogger.get().error("Error when creating command instance");
-            }
+            Mod.insertWarning(guildBean.getLocale(), member, guild.getSelfMember(), commandTitle, withAutoActions(message, guildBean.getLocale()));
         });
     }
 

@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.entities.User;
 public class UnbanCommand extends WarnCommand {
 
     public UnbanCommand(Locale locale, String prefix) {
-        super(locale, prefix, false, false, true);
+        super(locale, prefix, false, false, true, true);
     }
 
     @Override

@@ -99,6 +99,8 @@ public class CommandContainer {
         commandList.add(WarnCommand.class);
         commandList.add(KickCommand.class);
         commandList.add(BanCommand.class);
+        commandList.add(NewKickCommand.class);
+        commandList.add(NewBanCommand.class);
         commandList.add(UnbanCommand.class);
         commandList.add(WarnLogCommand.class);
         commandList.add(WarnRemoveCommand.class);

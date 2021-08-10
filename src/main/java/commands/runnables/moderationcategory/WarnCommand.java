@@ -49,16 +49,18 @@ public class WarnCommand extends Command implements OnButtonListener {
     private final boolean sendWarning;
     private final boolean autoActions;
     private final boolean includeNotInGuild;
+    private final boolean sendLogWarnings;
 
     public WarnCommand(Locale locale, String prefix) {
-        this(locale, prefix, true, true, true);
+        this(locale, prefix, true, true, true, true);
     }
 
-    public WarnCommand(Locale locale, String prefix, boolean sendWarning, boolean autoActions, boolean includeNotInGuild) {
+    public WarnCommand(Locale locale, String prefix, boolean sendWarning, boolean autoActions, boolean includeNotInGuild, boolean sendLogWarnings) {
         super(locale, prefix);
         this.sendWarning = sendWarning;
         this.autoActions = autoActions;
         this.includeNotInGuild = includeNotInGuild;
+        this.sendLogWarnings = sendLogWarnings;
     }
 
     protected MentionList<User> getUserList(Message message, String args) throws Throwable {
@@ -136,9 +138,7 @@ public class WarnCommand extends Command implements OnButtonListener {
         MentionList<User> userMention = getUserList(message, args);
         userList = userMention.getList();
         if (userList.size() == 0) {
-            message.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions")).build()
-            ).queue();
+            message.getChannel().sendMessageEmbeds(getNoMentionEmbed().build()).queue();
             return false;
         }
 
@@ -158,10 +158,15 @@ public class WarnCommand extends Command implements OnButtonListener {
 
         EmbedBuilder actionEmbed = getActionEmbed(executor, channel);
         if (reason.length() > 0) {
-            actionEmbed.addField(getString("reason"), "```" + reason + "```", false);
+            actionEmbed.addField(TextManager.getString(getLocale(), Category.MODERATION, "warn_reason"), "```" + reason + "```", false);
         }
 
-        Mod.postLogUsers(this, actionEmbed, channel.getGuild(), moderationBean, userList).join();
+        if (sendLogWarnings) {
+            Mod.postLogUsers(this, actionEmbed, channel.getGuild(), moderationBean, userList).join();
+        } else {
+            Mod.sendAnnouncement(this, actionEmbed, DBModeration.getInstance().retrieve(channel.getGuild().getIdLong()));
+        }
+
         for (User user : userList) {
             if (sendWarning) {
                 Mod.insertWarning(getLocale(), channel.getGuild(), user, executor, reason, autoActions);
@@ -188,6 +193,10 @@ public class WarnCommand extends Command implements OnButtonListener {
         return EmbedFactory.getEmbedDefault(this, getString("success_description", mention.isMultiple(), mention.getMentionText()));
     }
 
+    protected EmbedBuilder getNoMentionEmbed() {
+        return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions"));
+    }
+
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
@@ -207,7 +216,7 @@ public class WarnCommand extends Command implements OnButtonListener {
             case COMPLETED:
                 EmbedBuilder eb = getSuccessEmbed();
                 if (reason.length() > 0) {
-                    eb.addField(getString("reason"), "```" + StringUtil.escapeMarkdownInField(reason) + "```", false);
+                    eb.addField(TextManager.getString(getLocale(), Category.MODERATION, "warn_reason"), "```" + StringUtil.escapeMarkdownInField(reason) + "```", false);
                 }
                 return eb;
 
@@ -232,7 +241,7 @@ public class WarnCommand extends Command implements OnButtonListener {
             default:
                 eb = getConfirmationEmbed();
                 if (reason.length() > 0) {
-                    eb.addField(getString("reason"), "```" + reason + "```", false);
+                    eb.addField(TextManager.getString(getLocale(), Category.MODERATION, "warn_reason"), "```" + reason + "```", false);
                 }
                 return eb;
         }

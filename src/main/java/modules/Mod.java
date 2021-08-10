@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
@@ -37,11 +36,11 @@ public class Mod {
 
     private static final String EMOJI_AUTOMOD = "👷";
 
-    public static void insertWarning(Locale locale, Member target, Member requester, String reason, boolean withAutoActions) throws ExecutionException {
+    public static void insertWarning(Locale locale, Member target, Member requester, String reason, boolean withAutoActions) {
         insertWarning(locale, requester.getGuild(), target.getUser(), requester, reason, withAutoActions);
     }
 
-    public static void insertWarning(Locale locale, Guild guild, User target, Member requester, String reason, boolean withAutoActions) throws ExecutionException {
+    public static void insertWarning(Locale locale, Guild guild, User target, Member requester, String reason, boolean withAutoActions) {
         ServerWarningsData serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(guild.getIdLong(), target.getIdLong()));
         serverWarningsBean.getWarnings().add(new ServerWarningSlot(
                         guild.getIdLong(),
@@ -182,7 +181,9 @@ public class Mod {
         return future;
     }
 
-    private static void sendAnnouncement(Command command, EmbedBuilder eb, ModerationData moderationBean) {
+    public static void sendAnnouncement(Command command, EmbedBuilder eb, ModerationData moderationBean) {
+        eb.setFooter("");
+
         moderationBean.getAnnouncementChannel().ifPresent(channel -> {
             if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
                 channel.sendMessageEmbeds(eb.build()).queue();

@@ -20,7 +20,7 @@ public class GuildLeaveNotifyBotOwner extends GuildLeaveAbstract {
             ).queue();
         }
 
-        MainLogger.get().info("--- {} ({})", event.getGuild().getName(), event.getGuild().getMemberCount());
+        MainLogger.get().info("--- {} ({}; {} members)", event.getGuild().getName(), event.getGuild().getIdLong(), event.getGuild().getMemberCount());
         return true;
     }
 

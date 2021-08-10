@@ -344,15 +344,22 @@ public class MentionUtil {
     private static Mention getMentionStringOfMentions(ArrayList<String> mentions, Locale locale, String filteredOriginalText, boolean multi, boolean containedBlockedUser) {
         if (mentions.size() > 1 && !multi) multi = true;
 
+        int size = Math.min(5, mentions.size());
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < mentions.size(); i++) {
+        for (int i = 0; i < size; i++) {
             if (i >= 1) {
-                sb.append((i < mentions.size() - 1) ?
+                sb.append((i < size - 1) ?
                         ", " :
                         " " + TextManager.getString(locale, TextManager.GENERAL, "and") + " "
                 );
             }
-            sb.append("**").append(mentions.get(i)).append("**");
+            sb.append("**");
+            if (i < 4 || mentions.size() <= 5) {
+                sb.append(mentions.get(i));
+            } else {
+                sb.append(TextManager.getString(locale, TextManager.GENERAL, "and_more", StringUtil.numToString(mentions.size() - 4)));
+            }
+            sb.append("**");
         }
 
         return new Mention(sb.toString(), filteredOriginalText, multi, containedBlockedUser);
