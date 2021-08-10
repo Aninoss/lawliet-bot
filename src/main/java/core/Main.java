@@ -3,6 +3,7 @@ package core;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import com.jockie.jda.memory.MemoryOptimizations;
 import core.emoji.EmojiTable;
 import core.utils.BotUtil;
 import mysql.DBMain;
@@ -24,6 +25,12 @@ public class Main {
                 interruptedException.printStackTrace();
             }
             System.exit(1);
+        }
+
+        try {
+            MemoryOptimizations.installOptimizations();
+        } catch (Throwable e) {
+            MainLogger.get().error("Unable to install byte-buddy", e);
         }
 
         try {

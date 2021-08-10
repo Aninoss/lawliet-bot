@@ -6,7 +6,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import commands.CommandContainer;
 import commands.runningchecker.RunningCheckerManager;
-import constants.AssetIds;
 import constants.Language;
 import core.cache.PatreonCache;
 import core.utils.ExceptionUtil;
@@ -23,6 +22,7 @@ import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import websockets.syncserver.SyncManager;
 
 public class Console extends Startable {
@@ -168,13 +168,12 @@ public class Console extends Startable {
     }
 
     private void onServersMutual(String[] args) {
-        ShardManager.getInstance().getCachedUserById(AssetIds.OWNER_USER_ID).ifPresent(user ->
-                ShardManager.getInstance()
-                        .getLocalMutualGuilds(user)
-                        .stream()
-                        .limit(50)
-                        .forEach(this::printGuild)
-        );
+        User user = ShardManager.getInstance().fetchOwner().join();
+        ShardManager.getInstance()
+                .getLocalMutualGuilds(user)
+                .stream()
+                .limit(50)
+                .forEach(this::printGuild);
     }
 
     private void onServers(String[] args) {
