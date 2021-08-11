@@ -7,7 +7,7 @@ import core.schedule.MainScheduler;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class ReminderScheduler extends Startable {
 
@@ -51,24 +51,24 @@ public class ReminderScheduler extends Startable {
                 .map(guild -> guild.getTextChannelById(reminderData.getTextChannelId()))
                 .ifPresent(channel -> {
                     if (reminderData.getMessageId() != 0) {
-                        try {
-                            channel.deleteMessageById(reminderData.getMessageId()).complete();
-                        } catch (ErrorResponseException e) {
-                            //ignore
-                            return;
-                        }
-                    }
-                    if (PermissionCheckRuntime.getInstance().botHasPermission(
-                            reminderData.getGuildData().getLocale(),
-                            ReminderCommand.class,
-                            channel,
-                            Permission.MESSAGE_WRITE
-                    )) {
-                        channel.sendMessage(reminderData.getMessage())
-                                .allowedMentions(null)
-                                .queue();
+                        channel.deleteMessageById(reminderData.getMessageId()).queue(v -> sendReminder(reminderData, channel));
+                    } else {
+                        sendReminder(reminderData, channel);
                     }
                 });
+    }
+
+    private void sendReminder(ReminderData reminderData, TextChannel channel) {
+        if (PermissionCheckRuntime.getInstance().botHasPermission(
+                reminderData.getGuildData().getLocale(),
+                ReminderCommand.class,
+                channel,
+                Permission.MESSAGE_WRITE
+        )) {
+            channel.sendMessage(reminderData.getMessage())
+                    .allowedMentions(null)
+                    .queue();
+        }
     }
 
 }

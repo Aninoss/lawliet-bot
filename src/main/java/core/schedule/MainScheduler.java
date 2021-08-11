@@ -23,7 +23,7 @@ public class MainScheduler {
         return ourInstance;
     }
 
-    private final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(8, new CountingThreadFactory(() -> "Main", "Scheduler", true));
+    private final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(12, new CountingThreadFactory(() -> "Main", "Scheduler", true));
     private final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(3, new CountingThreadFactory(() -> "Main", "Poller", true));
 
     public void schedule(long millis, String name, Runnable listener) {
