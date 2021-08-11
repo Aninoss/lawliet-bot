@@ -50,6 +50,7 @@ public class RoleAssigner {
                     MemberCacheController.getInstance().loadMembersFull(guild).join();
                     for (Member member : new ArrayList<>(guild.getMembers())) {
                         if (active.get()) {
+                            MemberCacheController.getInstance().loadMembersFull(guild).join();
                             boolean canInteract = roles.stream().allMatch(role ->
                                     BotPermissionUtil.can(role.getGuild(), Permission.MANAGE_ROLES) &&
                                             role.getGuild().getSelfMember().canInteract(role)
