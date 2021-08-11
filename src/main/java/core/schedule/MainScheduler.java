@@ -8,6 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import core.AsyncTimer;
+import core.GlobalThreadPool;
 import core.MainLogger;
 import core.Program;
 import core.utils.ExceptionUtil;
@@ -23,23 +24,25 @@ public class MainScheduler {
         return ourInstance;
     }
 
-    private final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(12, new CountingThreadFactory(() -> "Main", "Scheduler", true));
-    private final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(3, new CountingThreadFactory(() -> "Main", "Poller", true));
+    private final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(1, new CountingThreadFactory(() -> "Main", "Scheduler", true));
+    private final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(1, new CountingThreadFactory(() -> "Main", "Poller", true));
 
     public void schedule(long millis, String name, Runnable listener) {
         if (Program.isRunning()) {
             schedulers.schedule(() -> {
-                try(AsyncTimer asyncTimer = new AsyncTimer(MAX_TASK_DURATION)) {
-                    asyncTimer.setTimeOutListener(t -> {
-                        t.interrupt();
-                        MainLogger.get().error("Scheduler {} stuck in thread {}", name, t.getName(), ExceptionUtil.generateForStack(t));
-                    });
-                    listener.run();
-                } catch (InterruptedException e) {
-                    //ignore
-                } catch (Throwable e) {
-                    MainLogger.get().error("Unchecked exception in schedule timer", e);
-                }
+                GlobalThreadPool.getExecutorService().submit(() -> {
+                    try(AsyncTimer asyncTimer = new AsyncTimer(MAX_TASK_DURATION)) {
+                        asyncTimer.setTimeOutListener(t -> {
+                            t.interrupt();
+                            MainLogger.get().error("Scheduler {} stuck in thread {}", name, t.getName(), ExceptionUtil.generateForStack(t));
+                        });
+                        listener.run();
+                    } catch (InterruptedException e) {
+                        //ignore
+                    } catch (Throwable e) {
+                        MainLogger.get().error("Unchecked exception in schedule timer", e);
+                    }
+                });
             }, millis, TimeUnit.MILLISECONDS);
         }
     }
@@ -60,19 +63,21 @@ public class MainScheduler {
     public void poll(long millis, String name, Supplier<Boolean> listener) {
         if (Program.isRunning()) {
             pollers.schedule(() -> {
-                try(AsyncTimer asyncTimer = new AsyncTimer(MAX_TASK_DURATION)) {
-                    asyncTimer.setTimeOutListener(t -> {
-                        t.interrupt();
-                        MainLogger.get().error("Scheduler {} stuck in thread {}", name, t.getName(), ExceptionUtil.generateForStack(t));
-                    });
-                    if (Program.isRunning() && listener.get()) {
+                GlobalThreadPool.getExecutorService().submit(() -> {
+                    try(AsyncTimer asyncTimer = new AsyncTimer(MAX_TASK_DURATION)) {
+                        asyncTimer.setTimeOutListener(t -> {
+                            t.interrupt();
+                            MainLogger.get().error("Scheduler {} stuck in thread {}", name, t.getName(), ExceptionUtil.generateForStack(t));
+                        });
+                        if (Program.isRunning() && listener.get()) {
+                            poll(millis, name, listener);
+                        }
+                    } catch (InterruptedException e) {
                         poll(millis, name, listener);
+                    } catch (Throwable e) {
+                        MainLogger.get().error("Unchecked exception in schedule timer", e);
                     }
-                } catch (InterruptedException e) {
-                    poll(millis, name, listener);
-                } catch (Throwable e) {
-                    MainLogger.get().error("Unchecked exception in schedule timer", e);
-                }
+                });
             }, millis, TimeUnit.MILLISECONDS);
         }
     }

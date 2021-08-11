@@ -4,9 +4,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.utilitycategory.GiveawayCommand;
+import constants.Category;
 import constants.Emojis;
 import core.*;
 import core.schedule.MainScheduler;
@@ -14,8 +17,6 @@ import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayData;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -64,7 +65,7 @@ public class GiveawayScheduler extends Startable {
                     .map(guild -> guild.getTextChannelById(giveawayData.getTextChannelId()))
                     .ifPresent(channel -> {
                         try {
-                            processGiveawayUsers(channel, DBGuild.getInstance().retrieve(channel.getGuild().getIdLong()), giveawayData);
+                            processGiveawayUsers(giveawayData, giveawayData.getWinners(), false);
                         } catch (Throwable e) {
                             MainLogger.get().error("Error in giveaway", e);
                         }
@@ -72,29 +73,37 @@ public class GiveawayScheduler extends Startable {
         }
     }
 
-    private void processGiveawayUsers(TextChannel channel, GuildData guildBean, GiveawayData giveawayData) {
+    public CompletableFuture<Boolean> processGiveawayUsers(GiveawayData giveawayData, int numberOfWinners, boolean reroll) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
         giveawayData.retrieveMessage()
                 .exceptionally(e -> {
+                    future.complete(false);
                     giveawayData.stop();
                     return null;
                 })
                 .thenAccept(message -> {
+                    future.complete(true);
                     for (MessageReaction reaction : message.getReactions()) {
                         if (EmojiUtil.reactionEmoteEqualsEmoji(reaction.getReactionEmote(), giveawayData.getEmoji())) {
                             reaction.retrieveUsers().queue(users ->
-                                    processGiveaway(channel, guildBean, giveawayData, message, new ArrayList<>(users))
+                                    processGiveaway(giveawayData, message, new ArrayList<>(users), numberOfWinners, reroll)
                             );
                             break;
                         }
                     }
                 });
+        return future;
     }
 
-    private void processGiveaway(TextChannel channel, GuildData guildBean, GiveawayData giveawayData, Message message, ArrayList<User> users) {
+    private void processGiveaway(GiveawayData giveawayData, Message message, ArrayList<User> users, int numberOfWinners,
+                                boolean reroll
+    ) {
+        TextChannel channel = message.getTextChannel();
         MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).thenAccept(members -> {
-            users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user));
+            users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user) || message.getMentionedMembers().stream().anyMatch(m -> m.getIdLong() == user.getIdLong()));
             Collections.shuffle(users);
-            List<User> winners = users.subList(0, Math.min(users.size(), giveawayData.getWinners()));
+            List<User> winners = users.subList(0, Math.min(users.size(), numberOfWinners));
+            Locale locale = giveawayData.getGuildData().getLocale();
 
             StringBuilder mentions = new StringBuilder();
             for (User user : winners) {
@@ -103,8 +112,8 @@ public class GiveawayScheduler extends Startable {
 
             CommandProperties commandProps = Command.getCommandProperties(GiveawayCommand.class);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setTitle(commandProps.emoji() + " " + giveawayData.getTitle())
-                    .setDescription(TextManager.getString(guildBean.getLocale(), "utility", "giveaway_results", winners.size() != 1));
+                    .setTitle(TextManager.getString(locale, Category.UTILITY, "giveaway_results_title", reroll, commandProps.emoji(), giveawayData.getTitle()))
+                    .setDescription(TextManager.getString(locale, "utility", "giveaway_results", winners.size() != 1));
             giveawayData.getImageUrl().ifPresent(eb::setImage);
             if (winners.size() > 0) {
                 eb.addField(
@@ -113,17 +122,25 @@ public class GiveawayScheduler extends Startable {
                         false
                 );
             } else {
-                eb.setDescription(TextManager.getString(guildBean.getLocale(), "utility", "giveaway_results_empty"));
+                eb.setDescription(TextManager.getString(locale, "utility", "giveaway_results_empty"));
             }
             giveawayData.stop();
 
-            if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), GiveawayCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
-                message.editMessageEmbeds(eb.build())
-                        .content(winners.size() > 0 ? mentions.toString() : null)
-                        .queue();
+            if (PermissionCheckRuntime.getInstance().botHasPermission(locale, GiveawayCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+                if (!reroll) {
+                    message.editMessageEmbeds(eb.build())
+                            .content(winners.size() > 0 ? mentions.toString() : null)
+                            .queue();
 
-                if (winners.size() > 0) {
-                    channel.sendMessage(mentions.toString()).flatMap(Message::delete).queue();
+                    if (winners.size() > 0) {
+                        channel.sendMessage(mentions.toString())
+                                .flatMap(Message::delete)
+                                .queue();
+                    }
+                } else {
+                    channel.sendMessageEmbeds(eb.build())
+                            .content(winners.size() > 0 ? mentions.toString() : null)
+                            .queue();
                 }
             }
         });
