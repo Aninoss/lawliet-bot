@@ -14,6 +14,10 @@ import websockets.syncserver.SyncServerEvent;
 @SyncServerEvent(event = "TOPGG_ANICORD")
 public class OnTopGGAnicord extends OnTopGG {
 
+    public OnTopGGAnicord() {
+        super(false);
+    }
+
     @Override
     protected void processUpvote(long userId, boolean isWeekend) {
         MainLogger.get().info("OnTopGGAnicord | 0"); //TODO

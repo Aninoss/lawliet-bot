@@ -23,9 +23,19 @@ import websockets.syncserver.SyncServerFunction;
 @SyncServerEvent(event = "TOPGG")
 public class OnTopGG implements SyncServerFunction {
 
+    private final boolean firstClusterRequired;
+
+    public OnTopGG() {
+        this(true);
+    }
+
+    public OnTopGG(boolean firstClusterRequired) {
+        this.firstClusterRequired = firstClusterRequired;
+    }
+
     @Override
     public JSONObject apply(JSONObject jsonObject) {
-        if (Program.getClusterId() == 1) {
+        if (Program.getClusterId() == 1 || !firstClusterRequired) {
             long userId = jsonObject.getLong("user");
             if (DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId)) {
                 return null;
