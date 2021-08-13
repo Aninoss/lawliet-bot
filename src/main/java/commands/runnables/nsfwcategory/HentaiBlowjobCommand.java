@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.Rule34HentaiAbstract;
+import commands.runnables.DanbooruAbstract;
 
 @CommandProperties(
         trigger = "hblowjob",
@@ -16,7 +16,7 @@ import commands.runnables.Rule34HentaiAbstract;
         patreonRequired = true,
         aliases = { "hentaiblowjob", "hbj" }
 )
-public class HentaiBlowjobCommand extends Rule34HentaiAbstract {
+public class HentaiBlowjobCommand extends DanbooruAbstract {
 
     public HentaiBlowjobCommand(Locale locale, String prefix) {
         super(locale, prefix);

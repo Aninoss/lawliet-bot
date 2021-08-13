@@ -21,9 +21,11 @@ import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
+import core.utils.StringUtil;
 import modules.porn.BooruImage;
 import modules.porn.BooruImageDownloader;
 import modules.porn.IllegalBooruTagException;
+import modules.porn.TooManyTagsException;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -121,6 +123,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                     event.getChannel().sendMessage(illegalTagsString()).queue();
                 }
                 return false;
+            } catch (TooManyTagsException e) {
+                if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                    event.getChannel().sendMessageEmbeds(tooManyTagsEmbed(e.getMaxTags()).build()).queue();
+                } else {
+                    event.getChannel().sendMessage(tooManyTagsString(e.getMaxTags())).queue();
+                }
+                return false;
             } catch (NoSuchElementException e) {
                 postApiUnavailable(event);
                 return false;
@@ -215,6 +224,16 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         return "❌ " + TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc");
     }
 
+    private EmbedBuilder tooManyTagsEmbed(int maxTags) {
+        return EmbedFactory.getEmbedError(this)
+                .setTitle(TextManager.getString(getLocale(), Category.NSFW, "porn_too_many_tags"))
+                .setDescription(TextManager.getString(getLocale(), Category.NSFW, "porn_too_many_tags_desc", StringUtil.numToString(maxTags)));
+    }
+
+    private String tooManyTagsString(int maxTags) {
+        return "❌ " + TextManager.getString(getLocale(), Category.NSFW, "porn_too_many_tags_desc", StringUtil.numToString(maxTags));
+    }
+
     @Override
     public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         TextChannel channel = slot.getTextChannel().get();
@@ -231,6 +250,11 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         } catch (ExecutionException e) {
             if (e.getCause() instanceof IllegalBooruTagException) {
                 EmbedBuilder eb = illegalTagsEmbed();
+                EmbedUtil.addTrackerRemoveLog(eb, getLocale());
+                channel.sendMessageEmbeds(eb.build()).complete();
+                return TrackerResult.STOP_AND_DELETE;
+            } if (e.getCause() instanceof TooManyTagsException) {
+                EmbedBuilder eb = tooManyTagsEmbed(((TooManyTagsException) e.getCause()).getMaxTags());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessageEmbeds(eb.build()).complete();
                 return TrackerResult.STOP_AND_DELETE;

@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.Rule34HentaiAbstract;
+import commands.runnables.DanbooruAbstract;
 
 @CommandProperties(
         trigger = "hentai",
@@ -14,7 +14,7 @@ import commands.runnables.Rule34HentaiAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false
 )
-public class HentaiCommand extends Rule34HentaiAbstract {
+public class HentaiCommand extends DanbooruAbstract {
 
     public HentaiCommand(Locale locale, String prefix) {
         super(locale, prefix);

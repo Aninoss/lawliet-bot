@@ -112,7 +112,6 @@ public class ClearCommand extends Command implements OnButtonListener {
                 }
             }
 
-            System.out.println(0); //TODO
             Thread.sleep(500);
         }
 

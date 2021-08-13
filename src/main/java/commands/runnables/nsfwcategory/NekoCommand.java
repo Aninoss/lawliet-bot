@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.Rule34HentaiAbstract;
+import commands.runnables.DanbooruAbstract;
 
 @CommandProperties(
         trigger = "neko",
@@ -14,7 +14,7 @@ import commands.runnables.Rule34HentaiAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false
 )
-public class NekoCommand extends Rule34HentaiAbstract {
+public class NekoCommand extends DanbooruAbstract {
 
     public NekoCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -22,7 +22,7 @@ public class NekoCommand extends Rule34HentaiAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "cat_ears";
+        return "cat_girl";
     }
 
     @Override
