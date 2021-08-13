@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import core.MainLogger;
+import core.Program;
 import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventFixedRate;
 import websockets.syncserver.SendEvent;
@@ -15,7 +16,7 @@ public class CheckSyncWebsocket implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        if (!isConnected()) {
+        if (Program.productionMode() && !isConnected()) {
             MainLogger.get().error("Sync websocket disconnected, attempting reconnect");
             SyncManager.getInstance().reconnect();
         }

@@ -112,30 +112,34 @@ public class ClearCommand extends Command implements OnButtonListener {
                 }
             }
 
+            System.out.println(0); //TODO
             Thread.sleep(500);
         }
 
-        while (count > 0 && patreon && !interrupt) {
-            List<Message> messageList = messageHistory.retrievePast(100).complete();
-            if (messageList.size() < 100 && messageList.size() < count) {
-                count = messageList.size();
-            }
+        if (count > 0 && patreon) {
+            messageHistory = channel.getHistory();
+            while (count > 0 && !interrupt) {
+                List<Message> messageList = messageHistory.retrievePast(100).complete();
+                if (messageList.size() < 100 && messageList.size() < count) {
+                    count = messageList.size();
+                }
 
-            for (Message message : messageList) {
-                if (!message.isPinned() && Arrays.stream(messageIdsIgnore).noneMatch(mId -> message.getIdLong() == mId)) {
-                    message.delete().complete();
-                    deleted++;
-                    count--;
-                    if (count > 0) {
-                        TimeUnit.SECONDS.sleep(1);
-                    }
-                    if (count <= 0 || interrupt) {
-                        break;
+                for (Message message : messageList) {
+                    if (!message.isPinned() && Arrays.stream(messageIdsIgnore).noneMatch(mId -> message.getIdLong() == mId)) {
+                        message.delete().complete();
+                        deleted++;
+                        count--;
+                        if (count > 0) {
+                            TimeUnit.SECONDS.sleep(1);
+                        }
+                        if (count <= 0 || interrupt) {
+                            break;
+                        }
                     }
                 }
-            }
 
-            Thread.sleep(500);
+                Thread.sleep(500);
+            }
         }
 
         return new ClearResults(deleted, count);
