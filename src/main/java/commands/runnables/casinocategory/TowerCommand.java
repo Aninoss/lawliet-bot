@@ -70,7 +70,7 @@ public class TowerCommand extends CasinoAbstract {
         final int LEVEL_LIMIT = 12;
 
         final String GRASS_EMOJI = Emojis.TOWER_GRAS;
-        final String EMPTY_EMOJI = Emojis.SPACEHOLDER;
+        final String EMPTY_EMOJI = Emojis.FULL_SPACE_EMOTE;
 
         String[] towerEmojis;
         if (crashed) {

@@ -7,20 +7,21 @@ public interface Emojis {
     String LIKE = "👍";
     String DISLIKE = "👎";
     String[] LETTERS = { "🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴", "🇵", "🇶", "🇷", "🇸", "🇹", "🇺", "🇻", "🇼", "🇽", "🇾", "🇿" };
-    String[] RED_LETTERS = { "🅰", "🅱" };
+    String[] SWITCHES = { "<:off:876483971192602645>", "<:on:876483971800760330>" };
+    String[] SWITCHES_DOT = { "<:off:876483971192602645>", "<:on_dot:876484556490956910>" };
 
-    String BACK_EMOJI = "<:back:511165137202446346>";
-    String BACK_EMOJI_UNICODE = "⏪";
+    String BACK_EMOTE = "<:back:511165137202446346>";
+    String BACK_UNICODE = "⏪";
     String LOADING = "<a:loading:407189379749117981>";
     String LOADING_UNICODE = "⏳";
-    String EMPTY_EMOJI = "⠀";
-    String ZERO_WIDTH_SPACE = "\u200E";
+    String ZERO_WIDTH_SPACE = "‎";
+    String FULL_SPACE_UNICODE = "⠀";
+    String FULL_SPACE_EMOTE = "<:_:417016019622559755>";
 
     String CURRENCY = "🐟";
     String COINS = "<a:coin:512684910620835841>";
     String GROWTH = "<:growth:556164492678004741>";
     String DAILY_STREAK = "🔥";
-    String SPACEHOLDER = "<:_:417016019622559755>";
 
     String COUNTDOWN_10 = "<a:countdown_10:729371766119727124>";
     String COUNTDOWN_3 = "<a:countdown_3:799006900753530880>";

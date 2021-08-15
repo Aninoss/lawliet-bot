@@ -251,7 +251,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(fisheryGuildBean.getRoles(), getLocale(), this::getRoleString), false)
-                        .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getLocale(), guildBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
+                        .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), guildBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
                         .addField(getString("state0_mannouncementchannel"), guildBean.getFisheryAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(guildBean.getFisheryRoleMin()), StringUtil.numToString(guildBean.getFisheryRoleMax())), true);
 

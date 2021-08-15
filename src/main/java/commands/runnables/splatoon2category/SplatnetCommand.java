@@ -88,7 +88,7 @@ public class SplatnetCommand extends Command implements OnAlertListener {
                 effect = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("gear").getJSONObject("brand").getJSONObject("frequent_skill").getString("id")).getString("name");
             }
 
-            String fieldContent = getString("template", alert ? "" : Emojis.SPLATOON_COIN, String.valueOf(price), "", TimeFormat.RELATIVE.format(endTime), mainAbility, String.valueOf(slots), brand, effect);
+            String fieldContent = getString("template", "", String.valueOf(price), "", TimeFormat.RELATIVE.format(endTime), mainAbility, String.valueOf(slots), brand, effect);
             eb.addField(fieldTitle, fieldContent, true);
         }
 

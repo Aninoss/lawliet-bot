@@ -16,7 +16,12 @@ import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
-import mysql.modules.survey.*;
+import mysql.modules.subs.DBSubs;
+import mysql.modules.subs.SubSlot;
+import mysql.modules.survey.DBSurvey;
+import mysql.modules.survey.SurveyData;
+import mysql.modules.survey.SurveyQuestion;
+import mysql.modules.survey.SurveySecondVote;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 @ScheduleEventDaily
@@ -63,28 +68,28 @@ public class FisherySurveyResults implements ScheduleInterface {
             }
         }
 
+        /* processing survey results */
         MainLogger.get().info("Survey giving out prices for {} users", secondVotesMap.keySet().size());
-        ArrayList<Long> notificationUsers = Program.getClusterId() == 1 ? new ArrayList<>(lastSurvey.getNotificationUserIds()) : new ArrayList<>();
         for (long userId : secondVotesMap.keySet()) {
             try {
                 MainLogger.get().info("### SURVEY MANAGE USER {} ###", userId);
                 processSurveyUser(secondVotesMap.get(userId), userId, won);
-                if (notificationUsers.contains(userId)) {
-                    notificationUsers.remove(userId);
-                    sendSurveyResult(lastSurvey, userId, won, percent);
-                }
             } catch (Throwable e) {
                 MainLogger.get().error("Exception while managing user {}", userId, e);
             }
         }
 
-        notificationUsers.forEach(userId -> {
-            try {
-                sendSurveyResult(lastSurvey, userId, won, percent);
-            } catch (Throwable e) {
-                MainLogger.get().error("Exception while managing user {}", userId, e);
+        /* sending reminders */
+        if (Program.getClusterId() == 1) {
+            CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.SURVEY);
+            for (SubSlot sub : new ArrayList<>(subMap.values())) {
+                try {
+                    sendSurveyResult(sub.getLocale(), lastSurvey.getSurveyQuestionAndAnswers(sub.getLocale()), sub.getUserId(), won, percent);
+                } catch (IOException e) {
+                    MainLogger.get().error("Survey error", e);
+                }
             }
-        });
+        }
 
         MainLogger.get().info("Survey results finished");
     }
@@ -100,24 +105,19 @@ public class FisherySurveyResults implements ScheduleInterface {
                 });
     }
 
-    private static void sendSurveyResult(SurveyData lastSurvey, long userId, byte won, int percent) throws IOException {
-        SurveyFirstVote surveyFirstVote = lastSurvey.getFirstVotes().get(userId);
-        if (surveyFirstVote != null) {
-            Locale locale = surveyFirstVote.getLocale();
-            SurveyQuestion surveyQuestion = lastSurvey.getSurveyQuestionAndAnswers(locale);
+    private static void sendSurveyResult(Locale locale, SurveyQuestion surveyQuestion, long userId, byte won, int percent) {
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                .setTitle(TextManager.getString(locale, Category.FISHERY, "survey_results_message_title"))
+                .setDescription(TextManager.getString(locale, Category.FISHERY, "survey_results_message_template", won == 2,
+                        surveyQuestion.getQuestion(),
+                        surveyQuestion.getAnswers()[0],
+                        surveyQuestion.getAnswers()[1],
+                        surveyQuestion.getAnswers()[Math.min(1, won)],
+                        String.valueOf(percent)
+                ))
+                .setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
 
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setTitle(TextManager.getString(locale, Category.FISHERY, "survey_results_message_title"))
-                    .setDescription(TextManager.getString(locale, Category.FISHERY, "survey_results_message_template", won == 2,
-                            surveyQuestion.getQuestion(),
-                            surveyQuestion.getAnswers()[0],
-                            surveyQuestion.getAnswers()[1],
-                            surveyQuestion.getAnswers()[Math.min(1, won)],
-                            String.valueOf(percent)
-                    ));
-
-            JDAUtil.sendPrivateMessage(userId, eb.build()).queue();
-        }
+        JDAUtil.sendPrivateMessage(userId, eb.build()).queue();
     }
 
 }

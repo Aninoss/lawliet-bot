@@ -9,6 +9,7 @@ import mysql.modules.autoclaim.DBAutoClaim;
 @CommandProperties(
         trigger = "autoclaim",
         emoji = "\uD83E\uDD16",
+        usesExtEmotes = true,
         executableWithoutArgs = true
 )
 public class AutoClaimCommand extends CommandOnOffSwitchAbstract {

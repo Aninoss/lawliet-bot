@@ -92,7 +92,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
                         .setColor(EmbedFactory.FAILED_EMBED_COLOR);
 
             default:
-                String onOffText = StringUtil.getOnOffForBoolean(getLocale(), isActive());
+                String onOffText = StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), isActive());
                 String status = TextManager.getString(getLocale(), TextManager.GENERAL, "function_status", onOffText);
                 return EmbedFactory.getEmbedDefault(this, getCommandLanguage().getDescLong() + status);
         }

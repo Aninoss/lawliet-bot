@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import constants.AssetIds;
 import core.cache.PatreonCache;
 import mysql.modules.moderation.DBModeration;
+import mysql.modules.subs.DBSubs;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.jetbrains.annotations.NotNull;
@@ -99,7 +100,8 @@ public class MemberCacheController implements MemberCachePolicy {
                 guild.getMemberCount() >= 40_000 ||
                 guildIsCached(guild) ||
                 (Program.productionMode() && PatreonCache.getInstance().getUserTier(member.getIdLong(), false) >= 2) ||
-                DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().map(muteRole -> member.getRoles().contains(muteRole)).orElse(false);
+                DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().map(muteRole -> member.getRoles().contains(muteRole)).orElse(false) ||
+                DBSubs.getInstance().retrieve(DBSubs.Command.WORK).containsKey(member.getIdLong());
     }
 
     public void cacheGuild(Guild guild) {

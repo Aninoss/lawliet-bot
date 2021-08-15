@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "️🚧️",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
+        usesExtEmotes = true,
         aliases = { "wordsfilter", "badwordfilter", "badwordsfilter", "bannedwords" }
 )
 public class WordFilterCommand extends NavigationAbstract {
@@ -181,7 +182,7 @@ public class WordFilterCommand extends NavigationAbstract {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getLocale(), bannedWordsBean.isActive()), true)
+                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), bannedWordsBean.isActive()), true)
                         .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), MentionableAtomicAsset::getAsMention), true)
                         .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(logReceivers, getLocale(), MentionableAtomicAsset::getAsMention), true)
                         .addField(getString("state0_mwords"), getWordsString(), true);

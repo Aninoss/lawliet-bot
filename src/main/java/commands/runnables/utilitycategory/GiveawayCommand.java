@@ -521,7 +521,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 .addField(getString("state3_mduration"), TimeUtil.getRemainingTimeString(getLocale(), durationMinutes * 60_000, false), true)
                 .addField(getString("state3_mwinners"), String.valueOf(amountOfWinners), true)
                 .addField(getString("state3_memoji"), emoji, true)
-                .addField(getString("state3_mimage"), StringUtil.getEmojiForBoolean(imageLink != null), true);
+                .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), imageLink != null), true);
     }
 
     @Draw(state = UPDATE_TITLE)

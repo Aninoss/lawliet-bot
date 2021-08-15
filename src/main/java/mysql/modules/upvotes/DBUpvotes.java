@@ -28,7 +28,8 @@ public class DBUpvotes extends DBSingleCache<UpvotesData> {
                 );
 
         UpvotesData upvotesData = new UpvotesData(upvoteMap);
-        upvotesData.getUpvoteMap().addMapAddListener(this::addUpvote);
+        upvotesData.getUpvoteMap().addMapAddListener(this::addUpvote)
+                .addMapRemoveListener(this::removeUpvote);
 
         return upvotesData;
     }
@@ -40,13 +41,19 @@ public class DBUpvotes extends DBSingleCache<UpvotesData> {
         });
     }
 
+    private void removeUpvote(UpvoteSlot upvoteSlot) {
+        DBMain.getInstance().asyncUpdate("DELETE FROM Upvotes WHERE userId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, upvoteSlot.getUserId());
+        });
+    }
+
     public void cleanUp() {
         DBMain.getInstance().asyncUpdate("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();");
     }
 
     @Override
     public Integer getExpirationTimeMinutes() {
-        return 5;
+        return 1;
     }
 
 }

@@ -39,7 +39,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 )
 public class WorkCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {
 
-    private final String[] EMOJIS = new String[] { "🐟", "🐠", "🐡", Emojis.EMPTY_EMOJI + Emojis.EMPTY_EMOJI };
+    private final String[] EMOJIS = new String[] { "🐟", "🐠", "🐡", Emojis.FULL_SPACE_UNICODE + Emojis.FULL_SPACE_UNICODE };
 
     private FisheryMemberData fisheryMemberBean;
     private String[][] area;
@@ -86,7 +86,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
                     active = false;
                     long coins = fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect();
                     setAdditionalEmbeds(fisheryMemberBean.changeValuesEmbed(event.getMember(), 0, coins).build());
-                    fisheryMemberBean.setWorkDone();
+                    fisheryMemberBean.completeWork();
                     setLog(LogStatus.SUCCESS, getString("right"));
                     return Response.TRUE;
                 } else {
@@ -104,7 +104,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithButtons();
         active = false;
-        fisheryMemberBean.setWorkCanceled();
+        fisheryMemberBean.removeWork();
         setLog(null, getString("canceled"));
         return true;
     }
@@ -132,7 +132,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     @Override
     protected void onListenerTimeOut() {
         active = false;
-        fisheryMemberBean.setWorkCanceled();
+        fisheryMemberBean.removeWork();
     }
 
     private void setArea() {

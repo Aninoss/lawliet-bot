@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.Permission;
         trigger = "autoquote",
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "\uD83D\uDCDD",
+        usesExtEmotes = true,
         executableWithoutArgs = true
 )
 public class AutoQuoteCommand extends CommandOnOffSwitchAbstract {

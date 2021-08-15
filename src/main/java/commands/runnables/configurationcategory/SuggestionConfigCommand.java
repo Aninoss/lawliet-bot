@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "❕",
         executableWithoutArgs = true,
         releaseDate = { 2020, 12, 7 },
+        usesExtEmotes = true,
         aliases = { "suggestionconfig", "suggestionsconfig" }
 )
 public class SuggestionConfigCommand extends NavigationAbstract {
@@ -108,7 +109,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getLocale(), suggestionsBean.isActive()), true)
+                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), suggestionsBean.isActive()), true)
                         .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(suggestionsBean.getTextChannel().map(IMentionable::getAsMention).orElse(notSet)), true);
 
             case 1:

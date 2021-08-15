@@ -16,10 +16,7 @@ import mysql.modules.autochannel.AutoChannelData;
 import mysql.modules.autochannel.DBAutoChannel;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -29,6 +26,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         userGuildPermissions = { Permission.MANAGE_CHANNEL },
         emoji = "🔊",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "tempchannel" }
 )
 public class AutoChannelCommand extends NavigationAbstract {
@@ -147,8 +145,9 @@ public class AutoChannelCommand extends NavigationAbstract {
         switch (state) {
             case 0:
                 setOptions(getString("state0_options").split("\n"));
+                TextChannel textChannel = getTextChannel().get();
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isActive()), true)
+                        .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), autoChannelBean.isActive()), true)
                         .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(autoChannelBean.getParentChannel().map(GuildChannel::getAsMention).orElse(notSet)), true)
                         .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(
                                 StringUtil.escapeMarkdown(autoChannelBean.getNameMask()),
@@ -156,7 +155,7 @@ public class AutoChannelCommand extends NavigationAbstract {
                                 "`%INDEX`",
                                 "`%CREATOR`"
                         ), true)
-                        .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", StringUtil.getOnOffForBoolean(getLocale(), autoChannelBean.isLocked())), true);
+                        .addField(getString("state0_mlocked"), getString("state0_mlocked_desc", StringUtil.getOnOffForBoolean(textChannel, getLocale(), autoChannelBean.isLocked())), true);
 
             case 1:
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));

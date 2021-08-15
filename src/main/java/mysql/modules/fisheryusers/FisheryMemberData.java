@@ -210,18 +210,23 @@ public class FisheryMemberData implements MemberAsset {
         Instant nextWork = DBRedis.getInstance().getInstant(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_NEXT_WORK));
         boolean canWork = nextWork == null || Instant.now().isAfter(nextWork);
         if (canWork) {
-            setWorkDone();
+            completeWork();
             return Optional.empty();
         } else {
             return Optional.of(nextWork);
         }
     }
 
-    public void setWorkDone() {
+    public Optional<Instant> getNextWork() {
+        Instant nextWork = DBRedis.getInstance().getInstant(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_NEXT_WORK));
+        return Optional.ofNullable(nextWork);
+    }
+
+    public void completeWork() {
         DBRedis.getInstance().update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_NEXT_WORK, Instant.now().plus(4, ChronoUnit.HOURS).toString()));
     }
 
-    public void setWorkCanceled() {
+    public void removeWork() {
         DBRedis.getInstance().update(jedis -> jedis.hdel(KEY_ACCOUNT, FIELD_NEXT_WORK));
     }
 

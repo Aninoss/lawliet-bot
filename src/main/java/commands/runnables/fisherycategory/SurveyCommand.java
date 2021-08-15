@@ -66,14 +66,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
         if (event.getMessage().getTimeCreated().toInstant().isAfter(surveyData.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
             if (event.getComponentId().equals(BUTTON_ID_NOTIFICATIONS)) {
-                if (surveyData.getFirstVotes().containsKey(event.getMember().getIdLong())) {
-                    surveyData.toggleNotificationUserId(event.getMember().getIdLong());
-                    EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
-                    event.replyEmbeds(eb.build()).setEphemeral(true).queue();
-                } else {
-                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("vote_error"), TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"));
-                    event.replyEmbeds(eb.build()).setEphemeral(true).queue();
-                }
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("use_cd_instead"));
+                event.replyEmbeds(eb.build()).setEphemeral(true).queue(); //TODO: remove
             } else {
                 String[] parts = event.getComponentId().split("_");
                 byte type = Byte.parseByte(parts[1]);
@@ -102,32 +96,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.ZERO_WIDTH_SPACE)
                 .addField(surveyQuestion.getQuestion(), voteStrings[0], false)
-                .addField(getString("majority"), StringUtil.shortenStringLine(voteStrings[1], 1024), false)
-                .addField(Emojis.ZERO_WIDTH_SPACE, getString("vote_notification", StringUtil.getOnOffForBoolean(getLocale(), surveyData.hasNotificationUserId(member.getIdLong()))), false);
-    }
-
-    private void removeUserReactions(Message message, String addedEmoji) {
-        for (MessageReaction reaction : message.getReactions()) {
-            String emoji = EmojiUtil.reactionEmoteAsMention(reaction.getReactionEmote());
-            boolean correctEmoji = false;
-            for (int i = 0; i < 2; i++) {
-                if (emoji.equals(Emojis.LETTERS[i]) ||
-                        emoji.equals(Emojis.RED_LETTERS[i]) ||
-                        emoji.equals(BELL_EMOJI)
-                ) {
-                    correctEmoji = true;
-                    break;
-                }
-            }
-
-            if (correctEmoji && reaction.getCount() > (addedEmoji.equals(emoji) ? 2 : 1)) {
-                for (User user : reaction.retrieveUsers()) {
-                    if (user.getIdLong() != ShardManager.getInstance().getSelfId()) {
-                        reaction.removeReaction(user).queue();
-                    }
-                }
-            }
-        }
+                .addField(getString("majority"), StringUtil.shortenStringLine(voteStrings[1], 1024), false);
     }
 
     private boolean registerVote(ButtonClickEvent event, SurveyData surveyData, int type, byte i) {
@@ -183,8 +152,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
                 ActionRow.of(
                         Button.of(ButtonStyle.SUCCESS, BUTTON_ID_VOTE_SECOND_A, getString("button_second", answers[0])),
                         Button.of(ButtonStyle.SUCCESS, BUTTON_ID_VOTE_SECOND_B, getString("button_second", answers[1]))
-                ),
-                ActionRow.of(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_NOTIFICATIONS, getString("button_noti")))
+                )
         };
 
         return new SurveyEmbeds(

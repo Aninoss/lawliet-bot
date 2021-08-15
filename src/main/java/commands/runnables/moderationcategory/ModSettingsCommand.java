@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "️⚙️️",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "moderation", "modsettings" }
 )
 public class ModSettingsCommand extends NavigationAbstract {
@@ -424,6 +425,7 @@ public class ModSettingsCommand extends NavigationAbstract {
         switch (state) {
             case 0:
                 String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
+                TextChannel textChannel = getTextChannel().get();
                 setOptions(getString("state0_options").split("\n"));
 
                 String content = getString("state0_description");
@@ -434,12 +436,12 @@ public class ModSettingsCommand extends NavigationAbstract {
 
                 return EmbedFactory.getEmbedDefault(this, content)
                         .addField(getString("state0_mchannel"), moderationBean.getAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
-                        .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(getLocale(), moderationBean.isQuestion()), true)
+                        .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationBean.isQuestion()), true)
                         .addField(getString("state0_mmuterole"), moderationBean.getMuteRole().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc",
-                                getAutoModString(moderationBean.getAutoMute(), moderationBean.getAutoMuteDays(), moderationBean.getAutoMuteDuration()),
-                                getAutoModString(moderationBean.getAutoKick(), moderationBean.getAutoKickDays(), 0),
-                                getAutoModString(moderationBean.getAutoBan(), moderationBean.getAutoBanDays(), moderationBean.getAutoBanDuration())
+                                getAutoModString(textChannel, moderationBean.getAutoMute(), moderationBean.getAutoMuteDays(), moderationBean.getAutoMuteDuration()),
+                                getAutoModString(textChannel, moderationBean.getAutoKick(), moderationBean.getAutoKickDays(), 0),
+                                getAutoModString(textChannel, moderationBean.getAutoBan(), moderationBean.getAutoBanDays(), moderationBean.getAutoBanDuration())
                         ), false);
 
             case 1:
@@ -487,8 +489,8 @@ public class ModSettingsCommand extends NavigationAbstract {
         }
     }
 
-    private String getAutoModString(int value, int days, int duration) {
-        if (value <= 0) return StringUtil.getOnOffForBoolean(getLocale(), false);
+    private String getAutoModString(TextChannel textChannel, int value, int days, int duration) {
+        if (value <= 0) return StringUtil.getOnOffForBoolean(textChannel, getLocale(), false);
         String content = getString("state0_mautomod_templ", value > 1, StringUtil.numToString(value), days > 0 ? getString("days", days > 1, StringUtil.numToString(days)) : getString("total"));
         if (duration > 0) {
             content = content + " " + getString("duration", TimeUtil.getRemainingTimeString(getLocale(), duration * 60_000L, true));

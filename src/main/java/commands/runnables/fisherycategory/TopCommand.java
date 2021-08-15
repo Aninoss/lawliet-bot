@@ -71,7 +71,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
                 ),
                 getString(
                         "template_descritpion",
-                        Emojis.SPACEHOLDER,
+                        Emojis.FULL_SPACE_EMOTE,
                         StringUtil.numToString(fisheryRecentFishGainsData.getRecentFishGains()),
                         StringUtil.numToString(fisheryMemberData.getCoins()),
                         StringUtil.numToString(fisheryMemberData.getFish())

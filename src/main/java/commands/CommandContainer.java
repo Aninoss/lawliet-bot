@@ -138,6 +138,7 @@ public class CommandContainer {
         //FISHERY
         commandList.add(AccountCommand.class);
         commandList.add(GearCommand.class);
+        commandList.add(CooldownsCommand.class);
         commandList.add(DailyCommand.class);
         commandList.add(WorkCommand.class);
         commandList.add(ClaimCommand.class);

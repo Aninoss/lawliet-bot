@@ -404,30 +404,27 @@ public class MentionUtil {
         return getMentionStringOfMentions(mentions, locale, args, multi, containedBlockedUser.get());
     }
 
+    public static Mention getMentionedStringOfGuilds(Locale locale, List<Guild> guildList) {
+        final ArrayList<String> mentions = new ArrayList<>();
+        guildList.forEach(guild -> mentions.add(StringUtil.escapeMarkdown(guild.getName())));
+        return getMentionStringOfMentions(mentions, locale, null, false, false);
+    }
+
     public static Mention getMentionedStringOfMembers(Locale locale, List<Member> memberList) {
         final ArrayList<String> mentions = new ArrayList<>();
-
-        /* add usernames */
         memberList.forEach(member -> mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName())));
-
         return getMentionStringOfMentions(mentions, locale, null, false, false);
     }
 
     public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, List<User> userList) {
         final ArrayList<String> mentions = new ArrayList<>();
-
-        /* add usernames */
         userList.forEach(user -> mentions.add(StringUtil.escapeMarkdown(user.getAsTag())));
-
         return getMentionStringOfMentions(mentions, locale, null, false, false);
     }
 
     public static Mention getMentionedStringOfRoles(Locale locale, List<Role> roleList) {
         final ArrayList<String> mentions = new ArrayList<>();
-
-        /* add usernames */
         roleList.forEach(role -> mentions.add(StringUtil.escapeMarkdown(role.getName())));
-
         return getMentionStringOfMentions(mentions, locale, null, false, false);
     }
 

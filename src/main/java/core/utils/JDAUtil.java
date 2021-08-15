@@ -6,7 +6,9 @@ import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.CheckReturnValue;
 import core.ShardManager;
+import core.components.ActionRows;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.RestAction;
 
 public class JDAUtil {
@@ -60,19 +62,20 @@ public class JDAUtil {
     }
 
     @CheckReturnValue
-    public static RestAction<Message> sendPrivateMessage(Member member, MessageEmbed eb) {
-        return sendPrivateMessage(member.getIdLong(), eb);
+    public static RestAction<Message> sendPrivateMessage(Member member, MessageEmbed eb, Button... buttons) {
+        return sendPrivateMessage(member.getIdLong(), eb, buttons);
     }
 
     @CheckReturnValue
-    public static RestAction<Message> sendPrivateMessage(User user, MessageEmbed eb) {
-        return sendPrivateMessage(user.getIdLong(), eb);
+    public static RestAction<Message> sendPrivateMessage(User user, MessageEmbed eb, Button... buttons) {
+        return sendPrivateMessage(user.getIdLong(), eb, buttons);
     }
 
     @CheckReturnValue
-    public static RestAction<Message> sendPrivateMessage(long userId, MessageEmbed eb) {
+    public static RestAction<Message> sendPrivateMessage(long userId, MessageEmbed eb, Button... buttons) {
         return ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
                 channel -> channel.sendMessageEmbeds(eb)
+                        .setActionRows(ActionRows.of(buttons))
         );
     }
 

@@ -70,7 +70,7 @@ public class ReactionMessagesCache {
         String title = embed.getTitle();
 
         int hiddenNumber = -1;
-        while (title.endsWith(Emojis.EMPTY_EMOJI)) {
+        while (title.endsWith(Emojis.FULL_SPACE_UNICODE)) {
             title = title.substring(0, title.length() - 1);
             hiddenNumber++;
         }

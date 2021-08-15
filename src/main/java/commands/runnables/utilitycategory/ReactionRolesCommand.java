@@ -582,12 +582,13 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             add = "new";
         }
 
+        TextChannel textChannel = getTextChannel().get();
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_" + add))
                 .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(Optional.ofNullable(title).orElse(notSet)), true)
                 .addField(getString("state3_mdescription"), StringUtil.shortenString(StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), 1024), true)
-                .addField(getString("state3_mimage"), StringUtil.getEmojiForBoolean(banner != null), true)
+                .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), banner != null), true)
                 .addField(getString("state3_mshortcuts"), StringUtil.shortenString(Optional.ofNullable(getLinkString()).orElse(notSet), 1024), false)
-                .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringUtil.getOnOffForBoolean(getLocale(), removeRole), StringUtil.getOnOffForBoolean(getLocale(), multipleRoles)), false);
+                .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringUtil.getOnOffForBoolean(textChannel, getLocale(), removeRole), StringUtil.getOnOffForBoolean(textChannel, getLocale(), multipleRoles)), false);
     }
 
     @Draw(state = UPDATE_TITLE)
@@ -643,9 +644,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     private EmbedBuilder getMessageEmbed(boolean test) {
         String titleAdd = "";
         String identity = "";
-        if (!test) identity = Emojis.EMPTY_EMOJI;
-        if (!removeRole && !test) titleAdd = Emojis.EMPTY_EMOJI;
-        if (!multipleRoles && !test) titleAdd += Emojis.EMPTY_EMOJI + Emojis.EMPTY_EMOJI;
+        if (!test) identity = Emojis.FULL_SPACE_UNICODE;
+        if (!removeRole && !test) titleAdd = Emojis.FULL_SPACE_UNICODE;
+        if (!multipleRoles && !test) titleAdd += Emojis.FULL_SPACE_UNICODE + Emojis.FULL_SPACE_UNICODE;
 
         return EmbedFactory.getEmbedDefault()
                 .setTitle(getCommandProperties().emoji() + " " + (title != null ? title : getString("title")) + identity + titleAdd)

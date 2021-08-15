@@ -14,6 +14,7 @@ import core.utils.JDAUtil;
 import core.utils.TimeUtil;
 import events.scheduleevents.events.FisherySurveyResults;
 import events.scheduleevents.events.FisheryVoiceChannelObserver;
+import events.scheduleevents.events.ReminderDaily;
 import javafx.util.Pair;
 import modules.repair.MainRepair;
 import mysql.DBMain;
@@ -49,6 +50,7 @@ public class Console extends Startable {
     private void registerTasks() {
         tasks.put("help", this::onHelp);
 
+        tasks.put("reminder_daily", this::onReminderDaily);
         tasks.put("actions_servers", this::onActionsServers);
         tasks.put("actions", this::onActions);
         tasks.put("stuck", this::onStuck);
@@ -85,6 +87,11 @@ public class Console extends Startable {
         tasks.put("internet", this::onInternetConnection);
         tasks.put("send_user", this::onSendUser);
         tasks.put("send_channel", this::onSendChannel);
+    }
+
+    private void onReminderDaily(String[] args) {
+        MainLogger.get().info("Processing daily reminders");
+        ReminderDaily.execute();
     }
 
     private void onActionsServers(String[] args) {

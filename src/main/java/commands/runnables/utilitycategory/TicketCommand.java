@@ -41,6 +41,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         releaseDate = { 2021, 5, 24 },
         emoji = "🎟️",
         executableWithoutArgs = true,
+        usesExtEmotes = true,
         aliases = { "tickets" }
 )
 public class TicketCommand extends NavigationAbstract implements OnStaticReactionAddListener, OnStaticButtonListener {
@@ -226,7 +227,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mannouncement"), StringUtil.escapeMarkdown(ticketData.getAnnouncementTextChannel().map(GuildChannel::getAsMention).orElse(notSet)), true)
                 .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true)
-                .addField(getString("state0_mmembercanclose"), StringUtil.getOnOffForBoolean(getLocale(), ticketData.memberCanClose()), true);
+                .addField(getString("state0_mmembercanclose"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.memberCanClose()), true);
     }
 
     @Draw(state = ANNOUNCEMENT_CHANNEL)

@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.Permission;
         emoji = "\uD83D\uDDD1",
         executableWithoutArgs = true,
         patreonRequired = true,
+        usesExtEmotes = true,
         aliases = { "triggerremove", "starterremove", "startermessagedelete", "startermessageremove", "messagedelete", "messageremove", "starterdelete" }
 )
 public class TriggerDeleteCommand extends CommandOnOffSwitchAbstract {

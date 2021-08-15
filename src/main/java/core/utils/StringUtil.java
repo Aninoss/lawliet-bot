@@ -8,7 +8,9 @@ import constants.Emojis;
 import constants.Language;
 import core.ShardManager;
 import core.TextManager;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 
@@ -205,23 +207,16 @@ public final class StringUtil {
         return str.substring(0, Math.min(str.length(), limit - postfix.length())) + postfix;
     }
 
-    public static String getEmojiForBoolean(boolean bool) {
-        if (bool) return Emojis.CHECKMARK;
-        return Emojis.X;
+    public static String getEmojiForBoolean(TextChannel channel, boolean bool) {
+        if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI)) {
+            return Emojis.SWITCHES_DOT[bool ? 1 : 0];
+        } else {
+            return bool ? Emojis.CHECKMARK : Emojis.X;
+        }
     }
 
-    public static String getOnOffForBoolean(Locale locale, boolean bool) {
-        StringBuilder sb = new StringBuilder("**");
-
-        if (bool) {
-            sb.append("✅ ");
-        } else {
-            sb.append("❌ ");
-        }
-
-        sb.append(TextManager.getString(locale, TextManager.GENERAL, "onoff", bool)).append("**");
-
-        return sb.toString();
+    public static String getOnOffForBoolean(TextChannel channel, Locale locale, boolean bool) {
+        return "**" + getEmojiForBoolean(channel, bool) + " " + TextManager.getString(locale, TextManager.GENERAL, "onoff", bool) + "**";
     }
 
     public static String solveVariablesOfCommandText(String string, Message message, String prefix) {

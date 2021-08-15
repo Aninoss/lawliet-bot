@@ -165,7 +165,7 @@ public class SlotCommand extends CasinoAbstract {
                 Emojis.SLOT_LR2,
                 Emojis.SLOT_LR3,
                 Emojis.SLOT_UL,
-                Emojis.SPACEHOLDER
+                Emojis.FULL_SPACE_EMOTE
         ));
 
         if (coinsInput != 0) {

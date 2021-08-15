@@ -9,6 +9,7 @@ import mysql.modules.autowork.DBAutoWork;
 @CommandProperties(
         trigger = "autowork",
         emoji = "\uD83E\uDD16",
+        usesExtEmotes = true,
         executableWithoutArgs = true
 )
 public class AutoWorkCommand extends CommandOnOffSwitchAbstract {
