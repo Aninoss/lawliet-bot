@@ -66,26 +66,26 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     }
 
     private EmbedBuilder generateUserEmbed(boolean canUseExternalEmoji) {
-        return EmbedFactory.getEmbedDefault(this, getString(
-                "forecast_template", canUseExternalEmoji,
-                StringUtil.numToString(ExchangeRate.getInstance().get(-1)),
-                Fishery.getChangeEmoji(-1),
-                StringUtil.numToString(ExchangeRate.getInstance().get(0)),
-                Fishery.getChangeEmoji(0),
-                StringUtil.numToString(ExchangeRate.getInstance().get(1)),
-                Fishery.getChangeEmoji(1),
-                StringUtil.numToString(ExchangeRate.getInstance().get(2)),
-                Fishery.getChangeEmoji(2)
-        ));
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 4; i++) {
+            sb.append(
+                    getString("forecast_slot", canUseExternalEmoji,
+                            getString("forecast_day", i),
+                            StringUtil.numToString(ExchangeRate.getInstance().get(i - 1)),
+                            Fishery.getChangeEmoji(i - 1)
+                    )
+            ).append("\n");
+        }
+
+        return EmbedFactory.getEmbedDefault(this, sb.toString());
     }
 
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
-        deregisterListenersWithButtons();
         boolean canUseExternalEmoji = BotPermissionUtil.canUseExternalEmojisInInteraction(event.getGuildChannel());
         getInteractionResponse().replyEmbeds(List.of(generateUserEmbed(canUseExternalEmoji).build()), ActionRows.of(), true)
                 .queue();
-        return true;
+        return false;
     }
 
     @Override
