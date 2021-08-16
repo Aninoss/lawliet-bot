@@ -287,6 +287,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     private Optional<Message> generatePostMessagesText(List<BooruImage> pornImages, String search, TextChannel channel, int max) {
         StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getCommandProperties().emoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
+        getNoticeOptional().ifPresent(notice -> sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice)).append("\n"));
         for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
             if (pornImages.get(i) != null) {
                 sb.append(pornImages.size() > 1 ? "[" + (i + 1) + "] " : "")
@@ -294,8 +295,6 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                         .append('\n');
             }
         }
-
-        getNoticeOptional().ifPresent(notice -> sb.append("\n\n").append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice)));
 
         if (BotPermissionUtil.canWrite(channel)) {
             Message message = new MessageBuilder(sb.toString()).build();

@@ -28,7 +28,7 @@ public class DBAutoQuote extends DBObserverMapCache<Long, AutoQuoteData> {
                     } else {
                         return new AutoQuoteData(
                                 serverId,
-                                true
+                                false
                         );
                     }
                 }

@@ -8,8 +8,10 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.ExternalLinks;
+import constants.LogStatus;
 import core.EmbedFactory;
 import core.components.ActionRows;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
@@ -51,6 +53,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
             EmbedBuilder eb;
             if (DBAutoClaim.getInstance().retrieve().isActive(event.getMember().getIdLong())) {
                 eb = EmbedFactory.getEmbedDefault(this, getString("autoclaim"));
+                EmbedUtil.addLog(eb, LogStatus.WARNING, getString("reminder"));
             } else {
                 eb = EmbedFactory.getEmbedDefault(this, getString("nothing_description"))
                         .setColor(EmbedFactory.FAILED_EMBED_COLOR);
@@ -66,6 +69,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("claim", upvotesUnclaimed != 1, StringUtil.numToString(upvotesUnclaimed), StringUtil.numToString(Math.round(fishes * upvotesUnclaimed))));
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
+            EmbedUtil.addLog(eb, LogStatus.WARNING, getString("reminder"));
 
             MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fishes * upvotesUnclaimed, 0).build();
             event.getChannel().sendMessageEmbeds(eb.build(), userChangeValueEmbed)
