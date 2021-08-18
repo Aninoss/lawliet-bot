@@ -2,6 +2,7 @@ package mysql.modules.fisheryusers;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.function.Function;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.Settings;
@@ -14,6 +15,7 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
 import redis.clients.jedis.Tuple;
 
 public class FisheryGuildData implements GuildAsset {
@@ -128,6 +130,35 @@ public class FisheryGuildData implements GuildAsset {
                 }
                 return recentFishGains;
             });
+        });
+    }
+
+    public Map<Long, Long> getAllFish(Collection<Long> userIds) {
+        return getAllValue(userIds, fisheryMemberData -> fisheryMemberData.FIELD_FISH);
+    }
+
+    public Map<Long, Long> getAllCoins(Collection<Long> userIds) {
+        return getAllValue(userIds, fisheryMemberData -> fisheryMemberData.FIELD_COINS);
+    }
+
+    private Map<Long, Long> getAllValue(Collection<Long> userIds, Function<FisheryMemberData, String> fieldFunction) {
+        return DBRedis.getInstance().get(jedis -> {
+            ArrayList<Pair<Long, Response<String>>> responses = new ArrayList<>();
+            Pipeline pipeline = jedis.pipelined();
+            for (long userId : userIds) {
+                FisheryMemberData fisheryMemberData = getMemberData(userId);
+                Pair<Long, Response<String>> pair = new Pair<>(userId, pipeline.hget(fisheryMemberData.KEY_ACCOUNT, fieldFunction.apply(fisheryMemberData)));
+                responses.add(pair);
+            }
+            pipeline.sync();
+
+            HashMap<Long, Long> fishMap = new HashMap<>();
+            for (Pair<Long, Response<String>> response : responses) {
+                long userId = response.getKey();
+                long fish = DBRedis.parseLong(response.getValue().get());
+                fishMap.put(userId, fish);
+            }
+            return fishMap;
         });
     }
 

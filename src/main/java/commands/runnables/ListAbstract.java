@@ -74,6 +74,11 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
             eb.addField(entry.getKey(), entry.getValue(), false);
         }
 
+        eb = postProcessEmbed(eb);
+        return eb;
+    }
+
+    protected EmbedBuilder postProcessEmbed(EmbedBuilder eb) {
         return eb;
     }
 
