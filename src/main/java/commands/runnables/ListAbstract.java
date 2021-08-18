@@ -22,7 +22,6 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
     private int page = 0;
     private final int entriesPerPage;
     private int size;
-    private final String[] SCROLL_EMOJIS = { "⏪", "⏩" };
 
     public ListAbstract(Locale locale, String prefix, int entriesPerPage) {
         super(locale, prefix);
@@ -31,7 +30,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
 
     protected abstract Pair<String, String> getEntry(int i) throws Throwable;
 
-    protected void registerList(Member member, int size, String args) {
+    protected void registerList(Member member, int size, String args) throws Throwable {
         this.size = size;
         if (StringUtil.stringIsInt(args)) {
             int pageStart = Integer.parseInt(args);
@@ -39,11 +38,16 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
                 page = Math.min(getPageSize(), pageStart) - 1;
             }
         }
-        setButtons(
-                Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
-                Button.of(ButtonStyle.PRIMARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"))
-        );
-        registerButtonListener(member);
+
+        if (size > entriesPerPage) {
+            setButtons(
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"))
+            );
+            registerButtonListener(member);
+        } else {
+            drawMessage(draw(member));
+        }
     }
 
     @Override

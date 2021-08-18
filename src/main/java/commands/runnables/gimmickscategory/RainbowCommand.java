@@ -13,7 +13,6 @@ import modules.graphics.RainbowGraphics;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -53,11 +52,11 @@ public class RainbowCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected void sendMessage(Member member, TextChannel channel, MessageEmbed eb) {
-        channel.sendMessageEmbeds(eb)
+    protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
+        channel.sendMessageEmbeds(eb.build())
                 .addFile(inputStream, "avatar.png")
                 .queue(message -> {
-                    message.editMessageEmbeds(eb)
+                    message.editMessageEmbeds(eb.build())
                             .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, message.getEmbeds().get(0).getImage().getUrl(), TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"))))
                             .queue();
                 });

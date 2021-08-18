@@ -20,7 +20,6 @@ import mysql.modules.osuaccounts.DBOsuAccounts;
 import mysql.modules.osuaccounts.OsuAccountData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -97,8 +96,8 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     }
 
     @Override
-    protected void sendMessage(Member member, TextChannel channel, MessageEmbed eb) {
-        channel.sendMessageEmbeds(eb)
+    protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
+        channel.sendMessageEmbeds(eb.build())
                 .setActionRows(getActionRows())
                 .queue(message -> {
                     if (memberIsAuthor) {
@@ -128,7 +127,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
                     Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode).get();
                     this.osuName = osuUsername;
                     this.osuAccount = osuAccountOptional.orElse(null);
-                    DBOsuAccounts.getInstance().retrieve().put(getMemberId().get(), new OsuAccountData(getMemberId().get(), this.osuAccount.getOsuId()));
+                    DBOsuAccounts.getInstance().retrieve().put(event.getMember().getIdLong(), new OsuAccountData(event.getMember().getIdLong(), this.osuAccount.getOsuId()));
                     this.status = Status.DEFAULT;
                     return true;
                 }

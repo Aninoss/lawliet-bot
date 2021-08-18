@@ -33,7 +33,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
+    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
         rankingSlots = new ArrayList<>();
         Map<Long, Long> map = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getAllRecentFishGains();
         map.forEach((memberId, recentFishGains) -> {

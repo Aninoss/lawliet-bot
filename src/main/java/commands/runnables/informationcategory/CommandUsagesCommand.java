@@ -32,7 +32,7 @@ public class CommandUsagesCommand extends ListAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
         for (Class<? extends Command> clazz : CommandContainer.getInstance().getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             commandUsages.add(new Pair<>(DBCommandUsages.getInstance().retrieve(command.getTrigger()), command.getCommandProperties().emoji()));

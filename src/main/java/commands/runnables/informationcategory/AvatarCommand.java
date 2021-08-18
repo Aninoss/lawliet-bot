@@ -8,7 +8,6 @@ import core.TextManager;
 import core.components.ActionRows;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -37,8 +36,8 @@ public class AvatarCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected void sendMessage(Member member, TextChannel channel, MessageEmbed eb) {
-        channel.sendMessageEmbeds(eb)
+    protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
+        channel.sendMessageEmbeds(eb.build())
                 .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, avatarUrl, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"))))
                 .queue();
     }

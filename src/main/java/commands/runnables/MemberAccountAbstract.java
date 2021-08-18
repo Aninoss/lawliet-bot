@@ -8,7 +8,6 @@ import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -39,8 +38,8 @@ public abstract class MemberAccountAbstract extends Command {
         return null;
     }
 
-    protected void sendMessage(Member member, TextChannel channel, MessageEmbed eb) {
-        channel.sendMessageEmbeds(eb).queue();
+    protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) throws Throwable {
+        channel.sendMessageEmbeds(eb.build()).queue();
     }
 
     @Override
@@ -84,7 +83,7 @@ public abstract class MemberAccountAbstract extends Command {
                 }
             }
 
-            sendMessage(event.getMember(), event.getChannel(), eb.build());
+            sendMessage(event.getMember(), event.getChannel(), eb);
         }
 
         return true;

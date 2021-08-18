@@ -22,7 +22,7 @@ public class FAQCommand extends ListAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
         slots = new ArrayList<>();
         for (int i = 0; i < TextManager.getKeySize(TextManager.FAQ) / 2; i++) {
             String question = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.question", i)).replace("{PREFIX}", getPrefix());

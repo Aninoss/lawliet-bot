@@ -9,7 +9,6 @@ import modules.graphics.TriggerGraphics;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -38,8 +37,8 @@ public class TriggerCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected void sendMessage(Member member, TextChannel channel, MessageEmbed eb) {
-        channel.sendMessageEmbeds(eb)
+    protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
+        channel.sendMessageEmbeds(eb.build())
                 .addFile(inputStream, "trigger.gif")
                 .queue();
     }
