@@ -21,7 +21,7 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
 
     @Override
     protected CustomObservableMap<Long, ReminderData> load(Long guildId) throws Exception {
-        HashMap<Long, ReminderData> remindersMap = new DBDataLoad<ReminderData>("Reminders", "id, serverId, channelId, time, message, messageId", "serverId = ?",
+        HashMap<Long, ReminderData> remindersMap = new DBDataLoad<ReminderData>("Reminders", "id, serverId, sourceChannelId, channelId, time, message, messageId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getHashMap(
                 ReminderData::getId,
@@ -31,9 +31,10 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
                             serverId,
                             resultSet.getLong(1),
                             resultSet.getLong(3),
-                            resultSet.getLong(6),
-                            resultSet.getTimestamp(4).toInstant(),
-                            resultSet.getString(5)
+                            resultSet.getLong(4),
+                            resultSet.getLong(7),
+                            resultSet.getTimestamp(5).toInstant(),
+                            resultSet.getString(6)
                     );
                 }
         );
@@ -47,7 +48,7 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
     }
 
     public List<ReminderData> retrieveAll() {
-        return new DBDataLoadAll<ReminderData>("Reminders", "id, serverId, channelId, time, message, messageId")
+        return new DBDataLoadAll<ReminderData>("Reminders", "id, serverId, sourceChannelId, channelId, time, message, messageId")
                 .getArrayList(
                         resultSet -> {
                             long serverId = resultSet.getLong(2);
@@ -55,22 +56,24 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
                                     serverId,
                                     resultSet.getLong(1),
                                     resultSet.getLong(3),
-                                    resultSet.getLong(6),
-                                    resultSet.getTimestamp(4).toInstant(),
-                                    resultSet.getString(5)
+                                    resultSet.getLong(4),
+                                    resultSet.getLong(7),
+                                    resultSet.getTimestamp(5).toInstant(),
+                                    resultSet.getString(6)
                             );
                         }
                 );
     }
 
     private void addRemindersBean(ReminderData remindersBean) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Reminders (id, serverId, channelId, time, message, messageId) VALUES (?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Reminders (id, serverId, sourceChannelId, channelId, time, message, messageId) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, remindersBean.getId());
             preparedStatement.setLong(2, remindersBean.getGuildId());
-            preparedStatement.setLong(3, remindersBean.getTextChannelId());
-            preparedStatement.setString(4, DBMain.instantToDateTimeString(remindersBean.getTime()));
-            preparedStatement.setString(5, remindersBean.getMessage());
-            preparedStatement.setLong(6, remindersBean.getMessageId());
+            preparedStatement.setLong(3, remindersBean.getSourceChannelId());
+            preparedStatement.setLong(4, remindersBean.getTargetChannelId());
+            preparedStatement.setString(5, DBMain.instantToDateTimeString(remindersBean.getTime()));
+            preparedStatement.setString(6, remindersBean.getMessage());
+            preparedStatement.setLong(7, remindersBean.getMessageId());
         });
     }
 

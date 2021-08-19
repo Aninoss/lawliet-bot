@@ -48,12 +48,16 @@ public class ReminderScheduler extends Startable {
                 .remove(reminderData.getId());
 
         reminderData.getGuild()
-                .map(guild -> guild.getTextChannelById(reminderData.getTextChannelId()))
-                .ifPresent(channel -> {
+                .map(guild -> guild.getTextChannelById(reminderData.getTargetChannelId()))
+                .ifPresent(targetChannel -> {
                     if (reminderData.getMessageId() != 0) {
-                        channel.deleteMessageById(reminderData.getMessageId()).queue(v -> sendReminder(reminderData, channel));
+                        TextChannel sourceChannel = targetChannel.getGuild().getTextChannelById(reminderData.getSourceChannelId());
+                        if (sourceChannel != null) {
+                            sourceChannel.deleteMessageById(reminderData.getMessageId())
+                                    .queue(v -> sendReminder(reminderData, targetChannel));
+                        }
                     } else {
-                        sendReminder(reminderData, channel);
+                        sendReminder(reminderData, targetChannel);
                     }
                 });
     }

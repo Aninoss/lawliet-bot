@@ -116,19 +116,20 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
 
         event.getChannel().sendMessageEmbeds(eb.build())
                 .setActionRows(ActionRow.of(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))))
-                .queue(message -> insertReminderBean(channel, minutes, messageText, message));
+                .queue(message -> insertReminderBean(event.getChannel(), channel, minutes, messageText, message));
 
         return true;
     }
 
-    private void insertReminderBean(TextChannel channel, long minutes, String messageText, Message message) {
+    private void insertReminderBean(TextChannel sourceChannel, TextChannel targetChannel, long minutes, String messageText, Message message) {
         CustomObservableMap<Long, ReminderData> remindersMap = DBReminders.getInstance()
-                .retrieve(channel.getGuild().getIdLong());
+                .retrieve(targetChannel.getGuild().getIdLong());
 
         ReminderData remindersData = new ReminderData(
-                channel.getGuild().getIdLong(),
+                targetChannel.getGuild().getIdLong(),
                 System.nanoTime(),
-                channel.getIdLong(),
+                sourceChannel.getIdLong(),
+                targetChannel.getIdLong(),
                 message.getIdLong(),
                 Instant.now().plus(minutes, ChronoUnit.MINUTES),
                 messageText
