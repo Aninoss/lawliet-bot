@@ -2,8 +2,10 @@ package events.discordevents.guildmemberjoin;
 
 import java.util.Locale;
 import commands.runnables.utilitycategory.WelcomeCommand;
+import constants.Category;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
+import core.TextManager;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
@@ -49,7 +51,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
 
         if (text.length() > 0) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setAuthor(guild.getName(), null, guild.getIconUrl())
+                    .setAuthor(TextManager.getString(welcomeMessageBean.getGuildData().getLocale(), Category.UTILITY, "welcome_dm", guild.getName()), null, guild.getIconUrl())
                     .setDescription(
                             Welcome.resolveVariables(
                                     welcomeMessageBean.getDmText(),
