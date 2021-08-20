@@ -1,12 +1,10 @@
 package websockets.syncserver;
 
 import java.net.URISyntaxException;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
 import core.*;
-import core.schedule.MainScheduler;
 import org.java_websocket.client.WebSocketJsonClient;
 import org.reflections.Reflections;
 
@@ -54,9 +52,8 @@ public class SyncManager extends Startable {
     @Override
     protected void run() {
         if (Program.productionMode()) {
-            startConnectionChecker();
+            this.client.connect();
         }
-        this.client.connect();
     }
 
     public WebSocketJsonClient getClient() {
@@ -83,23 +80,6 @@ public class SyncManager extends Startable {
         if (event != null) {
             this.client.addEventHandler(event.event(), function);
         }
-    }
-
-    private void startConnectionChecker() {
-        MainScheduler.getInstance().poll(5, ChronoUnit.SECONDS, "sync_connection_checker", () -> {
-            if (client.isConnected()) {
-                errors = 0;
-            } else {
-                errors++;
-                if (errors == 3) {
-                    client.reconnect();
-                } else if (errors >= 6) {
-                    MainLogger.get().error("EXIT - No connection with sync server");
-                    return false;
-                }
-            }
-            return true;
-        });
     }
 
     public void reconnect() {
