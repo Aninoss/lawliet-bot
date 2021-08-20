@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
@@ -452,6 +453,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             }
             setState(REROLL_MESSAGE);
             return true;
+        } else if (i == (rerollWinners > 0 ? 1 : 0)) {
+            giveawayMap.remove(rerollGiveawayData.getMessageId());
+            setLog(LogStatus.SUCCESS, getString("removed", rerollGiveawayData.getTitle()));
+            setState(REROLL_MESSAGE);
+            return true;
         }
         return false;
     }
@@ -494,9 +500,9 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @Draw(state = EDIT_MESSAGE)
     public EmbedBuilder onDrawEditMessage(Member member) {
-        String[] options = new ListGen<GiveawayData>()
-                .getList(getActiveGiveawaySlots(), ListGen.SLOT_TYPE_NONE, giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getTextChannel().get().getName()))
-                .split("\n");
+        String[] options = getActiveGiveawaySlots().stream()
+                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getTextChannel().get().getName()))
+                .toArray(String[]::new);
         setOptions(options);
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
     }
@@ -568,10 +574,17 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Draw(state = REROLL_NUMBER)
     public EmbedBuilder onDrawRerollNumber(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
+        OptionButton[] optionButtons;
         if (rerollWinners > 0) {
-            setOptions(getString("state13_options").split("\n"));
+            optionButtons = new OptionButton[2];
+            optionButtons[0] = new OptionButton(ButtonStyle.PRIMARY, getString("state13_confirm"), null);
+            optionButtons[1] = new OptionButton(ButtonStyle.DANGER, getString("state13_delete"), null);
+        } else {
+            optionButtons = new OptionButton[1];
+            optionButtons[0] = new OptionButton(ButtonStyle.DANGER, getString("state13_delete"), null);
         }
 
+        setOptions(optionButtons);
         return EmbedFactory.getEmbedDefault(
                 this,
                 getString("state13_description", rerollGiveawayData.getTitle(), rerollWinners > 0 ? StringUtil.numToString(rerollWinners) : notSet),
