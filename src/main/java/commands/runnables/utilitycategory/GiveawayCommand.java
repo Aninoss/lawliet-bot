@@ -62,7 +62,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             SENT = 10,
             REROLL_NUMBER = 13;
 
-    private CustomObservableMap<Long, GiveawayData> giveawayBeans = null;
+    private CustomObservableMap<Long, GiveawayData> giveawayMap = null;
 
     private long messageId;
     private String title;
@@ -84,7 +84,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        giveawayBeans = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
+        giveawayMap = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
         title = getString("title");
         registerNavigationListener(event.getMember());
         registerReactionListener(event.getMember());
@@ -388,11 +388,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                             imageLink,
                             true
                     );
-                    if (!giveawayBeans.containsKey(giveawayData.getMessageId())) {
+                    if (!giveawayMap.containsKey(giveawayData.getMessageId())) {
                         GiveawayScheduler.getInstance().loadGiveawayBean(giveawayData);
                     }
 
-                    giveawayBeans.put(giveawayData.getMessageId(), giveawayData);
+                    giveawayMap.put(giveawayData.getMessageId(), giveawayData);
                 } else {
                     setLog(LogStatus.FAILURE, getString("error"));
                 }
@@ -503,9 +503,9 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @Draw(state = REROLL_MESSAGE)
     public EmbedBuilder onDrawRerollMessage(Member member) {
-        String[] options = new ListGen<GiveawayData>()
-                .getList(getCompletedGiveawaySlots(), ListGen.SLOT_TYPE_NONE, giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getTextChannel().get().getName()))
-                .split("\n");
+        String[] options = getCompletedGiveawaySlots().stream()
+                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getTextChannel().get().getName()))
+                .toArray(String[]::new);
         setOptions(options);
         return EmbedFactory.getEmbedDefault(this, getString("state12_description"), getString("state12_title"));
     }
@@ -580,13 +580,13 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     private List<GiveawayData> getActiveGiveawaySlots() {
-        return giveawayBeans.values().stream()
+        return giveawayMap.values().stream()
                 .filter(g -> g.isActive() && g.getEnd().isAfter(Instant.now()))
                 .collect(Collectors.toList());
     }
 
     private List<GiveawayData> getCompletedGiveawaySlots() {
-        return giveawayBeans.values().stream()
+        return giveawayMap.values().stream()
                 .filter(g -> !g.isActive())
                 .collect(Collectors.toList());
     }

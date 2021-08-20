@@ -97,6 +97,17 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
             default -> getString("stringrank", String.valueOf(rank));
         };
 
+        return new Pair<>(
+                Emojis.ZERO_WIDTH_SPACE + "\n" + getString(
+                        "template_title",
+                        rankString,
+                        userString
+                ),
+                getEntryValue(fisheryMemberDataCache)
+        );
+    }
+
+    private String getEntryValue(FisheryMemberDataCache fisheryMemberDataCache) {
         FisheryProperty[] fisheryProperties = new FisheryProperty[]{
                 new FisheryProperty(Emojis.GROWTH, fisheryMemberDataCache.getRecentFishGains(), orderBy == OrderBy.RECENT_FISH_GAINS),
                 new FisheryProperty(Emojis.FISH, fisheryMemberDataCache.getFish(), orderBy == OrderBy.FISH || orderBy == OrderBy.RECENT_FISH_GAINS),
@@ -117,15 +128,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
                         .append("**");
             }
         }
-
-        return new Pair<>(
-                Emojis.ZERO_WIDTH_SPACE + "\n" + getString(
-                        "template_title",
-                        rankString,
-                        userString
-                ),
-                sb.toString()
-        );
+        return sb.toString();
     }
 
     @Override
