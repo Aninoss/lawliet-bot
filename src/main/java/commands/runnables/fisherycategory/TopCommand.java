@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 )
 public class TopCommand extends ListAbstract implements FisheryInterface {
 
-    private enum OrderBy { RECENT_FISH_GAINS, FISH, COINS }
+    private enum OrderBy { RECENT_FISH_GAINS, FISH, COINS, DAILY_STREAK }
 
     private ArrayList<FisheryMemberDataCache> rankingSlots;
     private OrderBy orderBy;
@@ -42,19 +42,38 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
         rankingSlots = new ArrayList<>();
         FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
         Map<Long, Long> recentFishGainsMap = fisheryGuildData.getAllRecentFishGains();
-        Map<Long, Long> fishMap = fisheryGuildData.getAllFish(recentFishGainsMap.keySet());
-        Map<Long, Long> coinsMap = fisheryGuildData.getAllCoins(recentFishGainsMap.keySet());
+        Map<Long, Long> fishMap = Collections.emptyMap();
+        Map<Long, Long> coinsMap = Collections.emptyMap();
+        Map<Long, Long> dailyStreakMap = Collections.emptyMap();
         orderBy = calculateOrderBy(args.toLowerCase());
-        Map<Long, Long> rankingMap = switch (orderBy) {
-            case FISH -> fishMap;
-            case COINS -> coinsMap;
-            default -> recentFishGainsMap;
-        };
+        Map<Long, Long> rankingMap;
+        switch (orderBy) {
+            case FISH -> {
+                fishMap = fisheryGuildData.getAllFish(recentFishGainsMap.keySet());
+                rankingMap = fishMap;
+            }
+            case COINS -> {
+                coinsMap = fisheryGuildData.getAllCoins(recentFishGainsMap.keySet());
+                rankingMap = coinsMap;
+            }
+            case DAILY_STREAK -> {
+                dailyStreakMap = fisheryGuildData.getAllDailyStreaks(recentFishGainsMap.keySet());
+                rankingMap = dailyStreakMap;
+            }
+            default -> {
+                fishMap = fisheryGuildData.getAllFish(recentFishGainsMap.keySet());
+                coinsMap = fisheryGuildData.getAllCoins(recentFishGainsMap.keySet());
+                rankingMap = recentFishGainsMap;
+            }
+        }
 
-        recentFishGainsMap.keySet().forEach(userId -> {
+        for (Long userId : recentFishGainsMap.keySet()) {
             int rank = getRank(rankingMap.values(), rankingMap.get(userId));
-            rankingSlots.add(new FisheryMemberDataCache(event.getGuild().getIdLong(), userId, rank, recentFishGainsMap.get(userId), fishMap.get(userId), coinsMap.get(userId)));
-        });
+            FisheryMemberDataCache fisheryMemberDataCache = new FisheryMemberDataCache(event.getGuild().getIdLong(),
+                    userId, rank, recentFishGainsMap.get(userId), fishMap.getOrDefault(userId, 0L),
+                    coinsMap.getOrDefault(userId, 0L), dailyStreakMap.getOrDefault(userId, 0L));
+            rankingSlots.add(fisheryMemberDataCache);
+        }
         rankingSlots.sort(Comparator.comparingLong(FisheryRecentFishGainsData::getRank));
 
         registerList(event.getMember(), rankingSlots.size(), args);
@@ -78,19 +97,34 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
             default -> getString("stringrank", String.valueOf(rank));
         };
 
+        FisheryProperty[] fisheryProperties = new FisheryProperty[]{
+                new FisheryProperty(Emojis.GROWTH, fisheryMemberDataCache.getRecentFishGains(), orderBy == OrderBy.RECENT_FISH_GAINS),
+                new FisheryProperty(Emojis.FISH, fisheryMemberDataCache.getFish(), orderBy == OrderBy.FISH || orderBy == OrderBy.RECENT_FISH_GAINS),
+                new FisheryProperty(Emojis.COINS, fisheryMemberDataCache.getCoins(), orderBy == OrderBy.COINS || orderBy == OrderBy.RECENT_FISH_GAINS),
+                new FisheryProperty(Emojis.DAILY_STREAK, fisheryMemberDataCache.getDailyStreak(), orderBy == OrderBy.DAILY_STREAK)
+        };
+        StringBuilder sb = new StringBuilder();
+        for (FisheryProperty fisheryProperty : fisheryProperties) {
+            if (fisheryProperty.show) {
+                if (sb.isEmpty()) {
+                    sb.append(Emojis.FULL_SPACE_EMOTE);
+                } else {
+                    sb.append("⠀⠀");
+                }
+                sb.append(fisheryProperty.emoji)
+                        .append(" **")
+                        .append(StringUtil.numToString(fisheryProperty.value))
+                        .append("**");
+            }
+        }
+
         return new Pair<>(
                 Emojis.ZERO_WIDTH_SPACE + "\n" + getString(
                         "template_title",
                         rankString,
                         userString
                 ),
-                getString(
-                        "template_descritpion",
-                        Emojis.FULL_SPACE_EMOTE,
-                        StringUtil.numToString(fisheryMemberDataCache.getRecentFishGains()),
-                        StringUtil.numToString(fisheryMemberDataCache.getCoins()),
-                        StringUtil.numToString(fisheryMemberDataCache.getFish())
-                )
+                sb.toString()
         );
     }
 
@@ -109,8 +143,24 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
         return switch (args) {
             case "fish", "fishes" -> OrderBy.FISH;
             case "coins", "coin" -> OrderBy.COINS;
+            case "daily", "dailystreak", "streak" -> OrderBy.DAILY_STREAK;
             default -> OrderBy.RECENT_FISH_GAINS;
         };
+    }
+
+
+    private static class FisheryProperty {
+
+        private final String emoji;
+        private final Long value;
+        private final boolean show;
+
+        public FisheryProperty(String emoji, Long value, boolean show) {
+            this.emoji = emoji;
+            this.value = value;
+            this.show = show;
+        }
+
     }
 
 }

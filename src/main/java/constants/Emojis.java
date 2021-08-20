@@ -18,7 +18,7 @@ public interface Emojis {
     String FULL_SPACE_UNICODE = "⠀";
     String FULL_SPACE_EMOTE = "<:_:417016019622559755>";
 
-    String CURRENCY = "🐟";
+    String FISH = "🐟";
     String COINS = "<a:coin:512684910620835841>";
     String GROWTH = "<:growth:556164492678004741>";
     String DAILY_STREAK = "🔥";

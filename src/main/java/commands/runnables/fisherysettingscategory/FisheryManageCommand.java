@@ -291,7 +291,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
     private String emojiOfProperty(int i) {
         return switch (i) {
-            case 0 -> Emojis.CURRENCY;
+            case 0 -> Emojis.FISH;
             case 1 -> Emojis.COINS;
             case 2 -> Emojis.DAILY_STREAK;
             default -> FisheryGear.values()[i - 3].getEmoji();

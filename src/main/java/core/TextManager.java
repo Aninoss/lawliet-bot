@@ -76,7 +76,7 @@ public class TextManager {
 
     private static String processEmojis(String text, String[] placeholders) {
         List<Pair<String, String>> emojiPairs = List.of(
-                new Pair<>("CURRENCY", Emojis.CURRENCY),
+                new Pair<>("CURRENCY", Emojis.FISH),
                 new Pair<>("COINS", Emojis.COINS),
                 new Pair<>("GROWTH", Emojis.GROWTH),
                 new Pair<>("DAILY_STREAK", Emojis.DAILY_STREAK)

@@ -141,6 +141,10 @@ public class FisheryGuildData implements GuildAsset {
         return getAllValue(userIds, fisheryMemberData -> fisheryMemberData.FIELD_COINS);
     }
 
+    public Map<Long, Long> getAllDailyStreaks(Collection<Long> userIds) {
+        return getAllValue(userIds, fisheryMemberData -> fisheryMemberData.FIELD_DAILY_STREAK);
+    }
+
     private Map<Long, Long> getAllValue(Collection<Long> userIds, Function<FisheryMemberData, String> fieldFunction) {
         return DBRedis.getInstance().get(jedis -> {
             ArrayList<Pair<Long, Response<String>>> responses = new ArrayList<>();
