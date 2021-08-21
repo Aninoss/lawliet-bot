@@ -2,8 +2,10 @@ package modules.schedulers;
 
 import java.time.Instant;
 import commands.runnables.utilitycategory.ReminderCommand;
+import constants.Category;
 import core.*;
 import core.schedule.MainScheduler;
+import core.utils.StringUtil;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.Permission;
@@ -69,7 +71,9 @@ public class ReminderScheduler extends Startable {
                 channel,
                 Permission.MESSAGE_WRITE
         )) {
-            channel.sendMessage(reminderData.getMessage())
+            String userMessage = StringUtil.shortenString(reminderData.getMessage(), 1800);
+            String message = TextManager.getString(reminderData.getGuildData().getLocale(), Category.UTILITY, "reminder_action", userMessage);
+            channel.sendMessage(message)
                     .allowedMentions(null)
                     .queue();
         }

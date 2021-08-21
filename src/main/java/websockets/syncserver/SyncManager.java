@@ -17,7 +17,6 @@ public class SyncManager extends Startable {
     }
 
     private final WebSocketJsonClient client;
-    private int errors = 0;
 
     private SyncManager() {
         try {
