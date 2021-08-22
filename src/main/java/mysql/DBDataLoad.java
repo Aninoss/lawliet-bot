@@ -1,5 +1,6 @@
 package mysql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,6 +13,7 @@ import mysql.interfaces.SQLFunction;
 
 public class DBDataLoad<T> {
 
+    private final Connection connection;
     private final PreparedStatement preparedStatement;
 
     public DBDataLoad(String table, String requiredAttributes, String where) {
@@ -21,11 +23,14 @@ public class DBDataLoad<T> {
 
     public DBDataLoad(String table, String requiredAttributes, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) {
         try {
-            if (requiredAttributes.isEmpty()) throw new SQLException("No attributes specified!");
+            if (requiredAttributes.isEmpty()) {
+                throw new SQLException("No attributes specified!");
+            }
 
             String sqlString = String.format("SELECT %s FROM %s WHERE %s", requiredAttributes, table, where);
 
-            preparedStatement = DBMain.getInstance().getConnection().prepareStatement(sqlString);
+            connection = DBMain.getInstance().getConnection();
+            preparedStatement = connection.prepareStatement(sqlString);
             wherePreparedStatementConsumer.accept(preparedStatement);
             preparedStatement.execute();
         } catch (SQLException e) {
@@ -35,22 +40,23 @@ public class DBDataLoad<T> {
 
     public ArrayList<T> getArrayList(SQLFunction<ResultSet, T> function) {
         try (ResultSet resultSet = preparedStatement.getResultSet()) {
-                ArrayList<T> list = new ArrayList<>();
+            ArrayList<T> list = new ArrayList<>();
 
-                while (resultSet.next()) {
-                    try {
-                        T value = function.apply(resultSet);
-                        if (!Objects.isNull(value)) list.add(value);
-                    } catch (Throwable e) {
-                        MainLogger.get().error("Exception", e);
-                    }
+            while (resultSet.next()) {
+                try {
+                    T value = function.apply(resultSet);
+                    if (!Objects.isNull(value)) list.add(value);
+                } catch (Throwable e) {
+                    MainLogger.get().error("Exception", e);
                 }
+            }
 
-                return list;
+            return list;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             try {
+                connection.close();
                 preparedStatement.close();
             } catch (SQLException throwables) {
                 MainLogger.get().error("Could not close preparedStatement", throwables);
@@ -76,6 +82,7 @@ public class DBDataLoad<T> {
             throw new RuntimeException(e);
         } finally {
             try {
+                connection.close();
                 preparedStatement.close();
             } catch (SQLException throwables) {
                 MainLogger.get().error("Could not close preparedStatement", throwables);

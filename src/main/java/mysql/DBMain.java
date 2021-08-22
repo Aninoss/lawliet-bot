@@ -16,6 +16,7 @@ import core.MainLogger;
 import mysql.interfaces.SQLConsumer;
 import mysql.interfaces.SQLFunction;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 public class DBMain implements DriverAction {
 
@@ -28,26 +29,35 @@ public class DBMain implements DriverAction {
     private DBMain() {
     }
 
-    private Connection connect = null;
+    private BasicDataSource ds = null;
     private final ExecutorService executorService = Executors.newFixedThreadPool(3, new CountingThreadFactory(() -> "Main", "DB", false));
 
     private final ArrayList<DBCache> caches = new ArrayList<>();
 
     public void connect() throws SQLException {
-        final MysqlDataSource rv = new MysqlDataSource();
+        MysqlDataSource rv = new MysqlDataSource();
         rv.setServerName(System.getenv("DB_HOST"));
         rv.setPortNumber(Integer.parseInt(System.getenv("DB_PORT")));
         rv.setDatabaseName(System.getenv("DB_DATABASE"));
         rv.setAllowMultiQueries(false);
         rv.setAutoReconnect(true);
         rv.setCharacterEncoding("UTF-8");
-        rv.setUser(System.getenv("DB_USER"));
-        rv.setPassword(System.getenv("DB_PASSWORD"));
         rv.setServerTimezone(TimeZone.getDefault().getID());
         rv.setRewriteBatchedStatements(true);
 
-        MainLogger.get().info("Connecting with database {}", rv.getUrl());
-        connect = rv.getConnection();
+        //TODO: check params
+        MainLogger.get().info("Connecting with database {}", "jdbc:mysql://localhost/Lawliet");
+        ds = new BasicDataSource();
+        ds.setUrl("jdbc:mysql://localhost/Lawliet");
+        ds.setUsername(System.getenv("DB_USER"));
+        ds.setPassword(System.getenv("DB_PASSWORD"));
+        ds.setMinIdle(5);
+        ds.setMaxIdle(10);
+        ds.setMaxOpenPreparedStatements(100);
+    }
+
+    public Connection getConnection() throws SQLException {
+        return ds.getConnection();
     }
 
     public void addDBCached(DBCache dbCache) {
@@ -68,21 +78,19 @@ public class DBMain implements DriverAction {
         return DateTimeFormatter.ofPattern("yyyy-MM-dd").format(localDate);
     }
 
-    public Connection getConnection() {
-        return connect;
-    }
-
     public <T> T get(String sql, SQLFunction<ResultSet, T> resultSetFunction) throws SQLException, InterruptedException {
         SQLException exception = null;
-        for (int i = 0; i < 3; i++) {
-            try (Statement statement = getConnection().createStatement();
-                 ResultSet resultSet = statement.executeQuery(sql)
-            ) {
-                return resultSetFunction.apply(resultSet);
-            } catch (SQLException e) {
-                //ignore
-                exception = e;
-                Thread.sleep(5000);
+        try (Connection connection = ds.getConnection()) {
+            for (int i = 0; i < 3; i++) {
+                try (Statement statement = connection.createStatement();
+                     ResultSet resultSet = statement.executeQuery(sql)
+                ) {
+                    return resultSetFunction.apply(resultSet);
+                } catch (SQLException e) {
+                    //ignore
+                    exception = e;
+                    Thread.sleep(5000);
+                }
             }
         }
 
@@ -91,15 +99,17 @@ public class DBMain implements DriverAction {
 
     public <T> T get(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer, SQLFunction<ResultSet, T> resultSetFunction) throws SQLException, InterruptedException {
         SQLException exception = null;
-        for (int i = 0; i < 3; i++) {
-            try (PreparedStatement preparedStatement = getConnection().prepareStatement(sql)) {
-                preparedStatementConsumer.accept(preparedStatement);
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    return resultSetFunction.apply(resultSet);
+        try (Connection connection = ds.getConnection()) {
+            for (int i = 0; i < 3; i++) {
+                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                    preparedStatementConsumer.accept(preparedStatement);
+                    try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                        return resultSetFunction.apply(resultSet);
+                    }
+                } catch (SQLException e) {
+                    exception = e;
+                    Thread.sleep(5000);
                 }
-            } catch (SQLException e) {
-                exception = e;
-                Thread.sleep(5000);
             }
         }
 
@@ -138,12 +148,14 @@ public class DBMain implements DriverAction {
 
     public int update(String sql) throws SQLException, InterruptedException {
         SQLException exception = null;
-        for (int i = 0; i < 3; i++) {
-            try (Statement statement = getConnection().createStatement()) {
-                return statement.executeUpdate(sql);
-            } catch (SQLException e) {
-                exception = e;
-                Thread.sleep(5000);
+        try (Connection connection = ds.getConnection()) {
+            for (int i = 0; i < 3; i++) {
+                try (Statement statement = connection.createStatement()) {
+                    return statement.executeUpdate(sql);
+                } catch (SQLException e) {
+                    exception = e;
+                    Thread.sleep(5000);
+                }
             }
         }
 
@@ -152,13 +164,15 @@ public class DBMain implements DriverAction {
 
     public int update(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException, InterruptedException {
         SQLException exception = null;
-        for (int i = 0; i < 3; i++) {
-            try (PreparedStatement preparedStatement = getConnection().prepareStatement(sql)) {
-                preparedStatementConsumer.accept(preparedStatement);
-                return preparedStatement.executeUpdate();
-            } catch (SQLException e) {
-                exception = e;
-                Thread.sleep(5000);
+        try (Connection connection = ds.getConnection()) {
+            for (int i = 0; i < 3; i++) {
+                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                    preparedStatementConsumer.accept(preparedStatement);
+                    return preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    exception = e;
+                    Thread.sleep(5000);
+                }
             }
         }
 

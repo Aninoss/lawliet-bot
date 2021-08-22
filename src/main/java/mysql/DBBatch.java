@@ -1,15 +1,18 @@
 package mysql;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import mysql.interfaces.SQLConsumer;
 
 public class DBBatch implements AutoCloseable {
 
+    private final Connection connection;
     private final PreparedStatement preparedStatement;
 
     public DBBatch(String sql) throws SQLException {
-        preparedStatement = DBMain.getInstance().getConnection().prepareStatement(sql);
+        connection = DBMain.getInstance().getConnection();
+        preparedStatement = connection.prepareStatement(sql);
     }
 
     public void add(SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException {
@@ -23,6 +26,7 @@ public class DBBatch implements AutoCloseable {
 
     @Override
     public void close() throws SQLException {
+        connection.close();
         preparedStatement.close();
     }
 

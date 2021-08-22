@@ -30,6 +30,7 @@ dependencies {
     implementation 'com.sedmelluq:lavaplayer:1.3.60'
     implementation 'com.github.21Joakim:JDA-Memory-Optimizations:0.0.4'
     implementation 'mysql:mysql-connector-java:8.0.23'
+    implementation 'org.apache.commons:commons-dbcp2:2.9.0'
     implementation 'com.kcthota:emoji4j:6.0'
     implementation 'commons-io:commons-io:2.6'
     implementation 'org.json:json:20180813'
