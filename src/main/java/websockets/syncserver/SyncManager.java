@@ -50,9 +50,7 @@ public class SyncManager extends Startable {
 
     @Override
     protected void run() {
-        if (Program.productionMode()) {
-            this.client.connect();
-        }
+        this.client.connect();
     }
 
     public WebSocketJsonClient getClient() {

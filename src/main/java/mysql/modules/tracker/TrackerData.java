@@ -43,11 +43,12 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
     private Instant nextRequest;
     private String webhookUrl;
     private final String userMessage;
+    private final Instant creationTime;
     private WebhookClient webhookClient;
     private boolean active = true;
     private boolean preferWebhook = true;
 
-    public TrackerData(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args, String webhookUrl, String userMessage) {
+    public TrackerData(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args, String webhookUrl, String userMessage, Instant creationTime) {
         super(serverId);
         this.channelId = channelId;
         this.messageId = messageId;
@@ -57,6 +58,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
         this.nextRequest = nextRequest;
         this.webhookUrl = webhookUrl;
         this.userMessage = userMessage;
+        this.creationTime = creationTime;
     }
 
     @Override
@@ -86,6 +88,10 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
 
     public Optional<String> getUserMessage() {
         return Optional.ofNullable(userMessage);
+    }
+
+    public Instant getCreationTime() {
+        return creationTime;
     }
 
     public Optional<String> getEffectiveUserMessage() {
@@ -343,7 +349,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
 
     @Override
     public int hashCode() {
-        return Objects.hash(channelId, commandTrigger, commandKey);
+        return Objects.hash(channelId, commandTrigger, commandKey, creationTime);
     }
 
 }

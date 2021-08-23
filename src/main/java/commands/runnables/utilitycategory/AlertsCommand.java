@@ -385,7 +385,8 @@ public class AlertsCommand extends NavigationAbstract {
                 Instant.now(),
                 null,
                 null,
-                userMessage
+                userMessage,
+                Instant.now()
         );
 
         alerts.put(slot.hashCode(), slot);

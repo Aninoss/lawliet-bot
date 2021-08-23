@@ -40,7 +40,7 @@ public class PatreonCommand extends Command {
 
         String content = getString("info",
                 getString("status", PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false)),
-                StringUtil.getEmojiForBoolean(event.getChannel(), PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong()))
+                StringUtil.getOnOffForBoolean(event.getChannel(), getLocale(), PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong()))
         );
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, content)

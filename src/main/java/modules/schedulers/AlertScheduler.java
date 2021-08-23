@@ -57,7 +57,7 @@ public class AlertScheduler extends Startable {
             CustomObservableMap<Integer, TrackerData> map = DBTracker.getInstance().retrieve(guildId);
             if (map.containsKey(hash)) {
                 TrackerData slot = map.get(hash);
-                try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMinutes(5))) {
+                try (AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMinutes(5))) {
                     asyncTimer.setTimeOutListener(t -> {
                         t.interrupt();
                         MainLogger.get().error("Alert stuck: {} with key {}", slot.getCommandTrigger(), slot.getCommandKey(), ExceptionUtil.generateForStack(t));
