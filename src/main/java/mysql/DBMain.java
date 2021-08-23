@@ -18,7 +18,7 @@ import mysql.interfaces.SQLFunction;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 import org.apache.commons.dbcp2.BasicDataSource;
 
-public class DBMain implements DriverAction {
+public class DBMain {
 
     private static final DBMain ourInstance = new DBMain();
 
@@ -45,15 +45,16 @@ public class DBMain implements DriverAction {
         rv.setServerTimezone(TimeZone.getDefault().getID());
         rv.setRewriteBatchedStatements(true);
 
-        //TODO: check params
-        MainLogger.get().info("Connecting with database {}", "jdbc:mysql://localhost/Lawliet");
+        String url = rv.getUrl();
+        MainLogger.get().info("Connecting with database {}", url);
         ds = new BasicDataSource();
-        ds.setUrl("jdbc:mysql://localhost/Lawliet");
+        ds.setUrl(url);
         ds.setUsername(System.getenv("DB_USER"));
         ds.setPassword(System.getenv("DB_PASSWORD"));
-        ds.setMinIdle(5);
-        ds.setMaxIdle(10);
+        ds.setMinIdle(1);
+        ds.setMaxIdle(3);
         ds.setMaxOpenPreparedStatements(100);
+        rv.exposeAsProperties().forEach((key, value) -> ds.addConnectionProperty(key.toString(), value.toString()));
     }
 
     public Connection getConnection() throws SQLException {
@@ -68,14 +69,6 @@ public class DBMain implements DriverAction {
 
     public void invalidateGuildId(long guildId) {
         caches.forEach(c -> c.invalidateGuildId(guildId));
-    }
-
-    public static String instantToDateTimeString(Instant instant) {
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
-    }
-
-    public static String localDateToDateString(LocalDate localDate) {
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd").format(localDate);
     }
 
     public <T> T get(String sql, SQLFunction<ResultSet, T> resultSetFunction) throws SQLException, InterruptedException {
@@ -209,9 +202,12 @@ public class DBMain implements DriverAction {
         return future;
     }
 
-    @Override
-    public void deregister() {
-        MainLogger.get().info("Driver deregistered");
+    public static String instantToDateTimeString(Instant instant) {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.ofInstant(instant, ZoneOffset.systemDefault()));
+    }
+
+    public static String localDateToDateString(LocalDate localDate) {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd").format(localDate);
     }
 
 }
