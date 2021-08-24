@@ -8,7 +8,8 @@ import commands.runnables.RolePlayAbstract;
         trigger = "slap",
         emoji = "\uD83D\uDC4F",
         executableWithoutArgs = true,
-        requiresFullMemberCache = true
+        requiresFullMemberCache = true,
+        aliases = { "smack" }
 )
 public class SlapCommand extends RolePlayAbstract {
 
