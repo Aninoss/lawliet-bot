@@ -4,12 +4,11 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Random;
+import constants.AssetIds;
 import constants.Category;
 import constants.ExternalLinks;
-import core.CustomObservableMap;
-import core.EmbedFactory;
-import core.Program;
-import core.TextManager;
+import core.*;
 import core.schedule.ScheduleInterface;
 import core.utils.JDAUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
@@ -27,12 +26,20 @@ public class ReminderUpvote implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
+        int i = new Random().nextInt(); //TODO: debug
+
         if (Program.getClusterId() == 1) {
             CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.CLAIM);
             UpvotesData upvotesData = DBUpvotes.getInstance().retrieve();
-            for (UpvoteSlot upvoteSlot : new ArrayList<>(upvotesData.getUpvoteMap().values())) {
-                if (Instant.now().isAfter(upvoteSlot.getLastUpdate().plus(12, ChronoUnit.HOURS))) {
-                    upvotesData.getUpvoteMap().remove(upvoteSlot.getUserId());
+            CustomObservableMap<Long, UpvoteSlot> upvoteMap = upvotesData.getUpvoteMap();
+            for (UpvoteSlot upvoteSlot : new ArrayList<>(upvoteMap.values())) {
+                if (Instant.now().isAfter(upvoteSlot.getLastUpdate().plus(12, ChronoUnit.HOURS)) &&
+                        upvoteMap.containsKey(upvoteSlot.getUserId())
+                ) {
+                    if (upvoteSlot.getUserId() == AssetIds.OWNER_USER_ID) {
+                        MainLogger.get().info("##### Upvote reminder: {}", i); //TODO
+                    }
+                    upvoteMap.remove(upvoteSlot.getUserId());
                     SubSlot sub = subMap.get(upvoteSlot.getUserId());
                     if (sub != null) {
                         Locale locale = sub.getLocale();
