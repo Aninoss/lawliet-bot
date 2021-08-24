@@ -59,7 +59,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnBut
             CustomObservableMap<Long, SubSlot> slotMap = DBSubs.getInstance().retrieve(command);
             boolean newActive = !slotMap.containsKey(event.getMember().getIdLong());
             if (newActive) {
-                SubSlot subSlot = new SubSlot(command, event.getMember().getIdLong(), getLocale());
+                SubSlot subSlot = new SubSlot(command, event.getMember().getIdLong(), getLocale(), 0);
                 slotMap.put(subSlot.getUserId(), subSlot);
             } else {
                 slotMap.remove(event.getMember().getIdLong());

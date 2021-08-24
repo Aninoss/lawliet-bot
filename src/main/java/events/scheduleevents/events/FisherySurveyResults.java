@@ -11,7 +11,6 @@ import constants.FisheryGear;
 import constants.FisheryStatus;
 import core.*;
 import core.schedule.ScheduleInterface;
-import core.utils.JDAUtil;
 import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -84,7 +83,7 @@ public class FisherySurveyResults implements ScheduleInterface {
             CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.SURVEY);
             for (SubSlot sub : new ArrayList<>(subMap.values())) {
                 try {
-                    sendSurveyResult(sub.getLocale(), lastSurvey.getSurveyQuestionAndAnswers(sub.getLocale()), sub.getUserId(), won, percent);
+                    sendSurveyResult(sub.getLocale(), lastSurvey.getSurveyQuestionAndAnswers(sub.getLocale()), sub, won, percent);
                 } catch (IOException e) {
                     MainLogger.get().error("Survey error", e);
                 }
@@ -105,7 +104,7 @@ public class FisherySurveyResults implements ScheduleInterface {
                 });
     }
 
-    private static void sendSurveyResult(Locale locale, SurveyQuestion surveyQuestion, long userId, byte won, int percent) {
+    private static void sendSurveyResult(Locale locale, SurveyQuestion surveyQuestion, SubSlot sub, byte won, int percent) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(TextManager.getString(locale, Category.FISHERY, "survey_results_message_title"))
                 .setDescription(TextManager.getString(locale, Category.FISHERY, "survey_results_message_template", won == 2,
@@ -114,10 +113,8 @@ public class FisherySurveyResults implements ScheduleInterface {
                         surveyQuestion.getAnswers()[1],
                         surveyQuestion.getAnswers()[Math.min(1, won)],
                         String.valueOf(percent)
-                ))
-                .setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
-
-        JDAUtil.sendPrivateMessage(userId, eb.build()).queue();
+                ));
+        sub.sendEmbed(locale, eb);
     }
 
 }

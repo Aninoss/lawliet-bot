@@ -10,7 +10,6 @@ import constants.Category;
 import constants.ExternalLinks;
 import core.*;
 import core.schedule.ScheduleInterface;
-import core.utils.JDAUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.modules.subs.DBSubs;
 import mysql.modules.subs.SubSlot;
@@ -45,10 +44,9 @@ public class ReminderUpvote implements ScheduleInterface {
                         Locale locale = sub.getLocale();
                         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                                 .setTitle(TextManager.getString(locale, Category.FISHERY, "claim_message_title"))
-                                .setDescription(TextManager.getString(locale, Category.FISHERY, "claim_message_desc"))
-                                .setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
+                                .setDescription(TextManager.getString(locale, Category.FISHERY, "claim_message_desc"));
                         Button button = Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, TextManager.getString(locale, Category.FISHERY, "claim_message_button"));
-                        JDAUtil.sendPrivateMessage(sub.getUserId(), eb.build(), button).queue();
+                        sub.sendEmbed(locale, eb, button);
                     }
                 }
             }

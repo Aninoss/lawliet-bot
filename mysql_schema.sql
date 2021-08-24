@@ -864,6 +864,7 @@ CREATE TABLE `Subs` (
   `command` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `memberId` bigint unsigned NOT NULL,
   `locale` varchar(7) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `errors` tinyint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`memberId`,`command`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1258,4 +1259,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-23 19:43:53
+-- Dump completed on 2021-08-24 13:34:02

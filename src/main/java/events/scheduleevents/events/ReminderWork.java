@@ -12,7 +12,6 @@ import core.MainLogger;
 import core.ShardManager;
 import core.TextManager;
 import core.schedule.ScheduleInterface;
-import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.modules.autowork.AutoWorkData;
@@ -64,9 +63,8 @@ public class ReminderWork implements ScheduleInterface {
                 String guildsMention = MentionUtil.getMentionedStringOfGuilds(locale, new ArrayList<>(guilds)).getMentionText();
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(TextManager.getString(locale, Category.FISHERY, "work_message_title"))
-                        .setDescription(TextManager.getString(locale, Category.FISHERY, "work_message_desc", guildsMention))
-                        .setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
-                JDAUtil.sendPrivateMessage(sub.getUserId(), eb.build()).queue();
+                        .setDescription(TextManager.getString(locale, Category.FISHERY, "work_message_desc", guildsMention));
+                sub.sendEmbed(locale, eb);
             }
         }
     }

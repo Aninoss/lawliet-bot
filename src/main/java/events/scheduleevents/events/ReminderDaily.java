@@ -8,7 +8,6 @@ import core.EmbedFactory;
 import core.Program;
 import core.TextManager;
 import core.schedule.ScheduleInterface;
-import core.utils.JDAUtil;
 import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.subs.DBSubs;
 import mysql.modules.subs.SubSlot;
@@ -29,9 +28,8 @@ public class ReminderDaily implements ScheduleInterface {
                 Locale locale = sub.getLocale();
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(TextManager.getString(locale, Category.FISHERY, "daily_message_title"))
-                        .setDescription(TextManager.getString(locale, Category.FISHERY, "daily_message_desc"))
-                        .setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
-                JDAUtil.sendPrivateMessage(sub.getUserId(), eb.build()).queue();
+                        .setDescription(TextManager.getString(locale, Category.FISHERY, "daily_message_desc"));
+                sub.sendEmbed(locale, eb);
             }
         }
     }
