@@ -92,10 +92,10 @@ public class Fishery {
         int rateBefore = ExchangeRate.getInstance().get(offset - 1);
 
         if (rateNow > rateBefore) {
-            return "\uD83D\uDD3A";
+            return "🔺";
         } else {
             if (rateNow < rateBefore) {
-                return "\uD83D\uDD3B";
+                return "🔻";
             } else {
                 return "•";
             }

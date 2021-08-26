@@ -218,7 +218,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             }
         } else {
             if (controlButtonList.size() > 0) {
-                setActionRow(ActionRow.of(controlButtonList));
+                setActionRows(ActionRow.of(controlButtonList));
             } else {
                 setButtons();
             }

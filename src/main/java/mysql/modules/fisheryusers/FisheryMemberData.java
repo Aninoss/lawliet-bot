@@ -21,6 +21,8 @@ import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
+import modules.stockmarket.Stock;
+import modules.stockmarket.StockMarket;
 import mysql.DBRedis;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -111,6 +113,64 @@ public class FisheryMemberData implements MemberAsset {
 
     public FisheryMemberGearData getMemberGear(FisheryGear fisheryGear) {
         return new FisheryMemberGearData(this, fisheryGear);
+    }
+
+    public FisheryMemberStocksData getStocks(Stock stock) {
+        return new FisheryMemberStocksData(this, stock);
+    }
+
+    public long getStocksTotalShares() {
+        return DBRedis.getInstance().get(jedis -> {
+            ArrayList<Response<String>> sharesRespList = new ArrayList<>();
+            Pipeline pipeline = jedis.pipelined();
+            for (Stock stock : Stock.values()) {
+                FisheryMemberStocksData stocksData = getStocks(stock);
+                sharesRespList.add(pipeline.hget(KEY_ACCOUNT, stocksData.FIELD_SHARES));
+            }
+            pipeline.sync();
+
+            long totalShares = 0;
+            for (Response<String> stringResponse : sharesRespList) {
+                totalShares += DBRedis.parseLong(stringResponse.get());
+            }
+            return totalShares;
+        });
+    }
+
+    public long getStocksTotalInvestmentBefore() {
+        return DBRedis.getInstance().get(jedis -> {
+            ArrayList<Response<String>> investmentRespList = new ArrayList<>();
+            Pipeline pipeline = jedis.pipelined();
+            for (Stock stock : Stock.values()) {
+                FisheryMemberStocksData stocksData = getStocks(stock);
+                investmentRespList.add(pipeline.hget(KEY_ACCOUNT, stocksData.FIELD_INVESTED));
+            }
+            pipeline.sync();
+
+            long totalInvestment = 0;
+            for (Response<String> stringResponse : investmentRespList) {
+                totalInvestment += DBRedis.parseLong(stringResponse.get());
+            }
+            return totalInvestment;
+        });
+    }
+
+    public long getStocksTotalInvestmentAfter() {
+        return DBRedis.getInstance().get(jedis -> {
+            HashMap<Stock, Response<String>> sharesRespMap = new HashMap<>();
+            Pipeline pipeline = jedis.pipelined();
+            for (Stock stock : Stock.values()) {
+                FisheryMemberStocksData stocksData = getStocks(stock);
+                sharesRespMap.put(stock, pipeline.hget(KEY_ACCOUNT, stocksData.FIELD_SHARES));
+            }
+            pipeline.sync();
+
+            long totalInvestment = 0;
+            for (Map.Entry<Stock, Response<String>> stockResponseEntry : sharesRespMap.entrySet()) {
+                totalInvestment += DBRedis.parseLong(stockResponseEntry.getValue().get()) * StockMarket.getValue(stockResponseEntry.getKey());
+            }
+            return totalInvestment;
+        });
     }
 
     public long getFish() {

@@ -7,6 +7,8 @@ public interface Settings {
     int TIME_OUT_MINUTES = 10;
     long FISHERY_MAX = 9_999_999_999_999_999L;
     int FISHERY_GEAR_MAX = 999_999;
+    int FISHERY_SHARES_MAX = 99_999_999;
+    int FISHERY_SHARES_FEES = 4;
     String[] NSFW_FILTERS = { "shota", "loli", "bestiality", "beastiality", "zoophilia", "cub", "vore", "gore", "scat", "rape", "necrophilia", "corpse", "children", "child" };
     int COOLDOWN_TIME_SEC = 30;
     int COOLDOWN_MAX_ALLOWED = 5;

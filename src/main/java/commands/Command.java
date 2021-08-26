@@ -110,8 +110,8 @@ public abstract class Command implements OnTriggerListener {
         this.additionalEmbeds = additionalEmbeds;
     }
 
-    public void setActionRow(ActionRow actionRow) {
-        setActionRows(List.of(actionRow));
+    public void setActionRows(ActionRow... actionRows) {
+        this.actionRows = List.of(actionRows);
     }
 
     public void setActionRows(List<ActionRow> actionRows) {

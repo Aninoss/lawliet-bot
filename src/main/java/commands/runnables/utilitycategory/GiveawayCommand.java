@@ -204,12 +204,9 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @ControllerMessage(state = REROLL_NUMBER)
     public Response onMessageRerollWinners(GuildMessageReceivedEvent event, String input) {
-        int amount;
-        if (StringUtil.stringIsInt(input) &&
-                (amount = Integer.parseInt(input)) >= WINNERS_MIN &&
-                amount <= WINNERS_MAX
-        ) {
-            rerollWinners = amount;
+        long amount = MentionUtil.getAmountExt(input);
+        if (amount >= WINNERS_MIN && amount <= WINNERS_MAX) {
+            rerollWinners = (int) amount;
             return Response.TRUE;
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", String.valueOf(WINNERS_MIN), String.valueOf(WINNERS_MAX)));

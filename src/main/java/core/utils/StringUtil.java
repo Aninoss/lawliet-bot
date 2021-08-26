@@ -231,7 +231,7 @@ public final class StringUtil {
     }
 
     public static String doubleToString(double d, int placesAfterPoint) {
-        return doubleToString(d, placesAfterPoint, Locale.US);
+        return doubleToString(d, placesAfterPoint, Language.EN.getLocale());
     }
 
     public static String doubleToString(double d, int placesAfterPoint, Locale locale) {
