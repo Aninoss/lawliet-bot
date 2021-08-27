@@ -44,8 +44,6 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     private static final String BUTTON_ID_VOTE_FIRST_B = "vote_1_1";
     private static final String BUTTON_ID_VOTE_SECOND_A = "vote_2_0";
     private static final String BUTTON_ID_VOTE_SECOND_B = "vote_2_1";
-    private static final String BUTTON_ID_NOTIFICATIONS = "notifications";
-    private static final String BELL_EMOJI = "🔔";
 
     public SurveyCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -65,18 +63,13 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     public void onStaticButton(ButtonClickEvent event) throws Throwable {
         SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
         if (event.getMessage().getTimeCreated().toInstant().isAfter(surveyData.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
-            if (event.getComponentId().equals(BUTTON_ID_NOTIFICATIONS)) {
-                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("use_cd_instead"));
-                event.replyEmbeds(eb.build()).setEphemeral(true).queue(); //TODO: remove
-            } else {
-                String[] parts = event.getComponentId().split("_");
-                byte type = Byte.parseByte(parts[1]);
-                byte vote = Byte.parseByte(parts[2]);
+            String[] parts = event.getComponentId().split("_");
+            byte type = Byte.parseByte(parts[1]);
+            byte vote = Byte.parseByte(parts[2]);
 
-                if (registerVote(event, surveyData, type, vote)) {
-                    EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
-                    event.replyEmbeds(eb.build()).setEphemeral(true).queue();
-                }
+            if (registerVote(event, surveyData, type, vote)) {
+                EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
+                event.replyEmbeds(eb.build()).setEphemeral(true).queue();
             }
         }
     }
@@ -215,7 +208,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
     private EmbedBuilder generateNewEmbed(SurveyData surveyData, boolean tracker) throws IOException {
         SurveyQuestion surveyQuestion = surveyData.getSurveyQuestionAndAnswers(getLocale());
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("sdescription", BELL_EMOJI), getString("title"))
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("sdescription"), getString("title"))
                 .setFooter("");
 
         StringBuilder personalString = new StringBuilder();

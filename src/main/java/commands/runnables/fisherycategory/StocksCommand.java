@@ -295,7 +295,6 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         if (graphFile.exists() && currentHourSlotMillis <= graphFile.lastModified()) {
             return graphFile.cdnGetUrl();
         } else {
-            System.out.println("GENERATE NEW GRAPH FOR " + currentStock.getId()); //TODO
             InputStream is = StockMarketGraphics.createImageGraph(currentStock).get();
             return FileUtil.writeInputStreamToFile(is, graphFile);
         }
