@@ -57,7 +57,7 @@ public class ShipGraphics {
         FontRenderContext frc = new FontRenderContext(null, true, true);
 
         int y = (int) (image.getHeight() / 5.0 * 4.0);
-        GraphicsUtil.drawStringWithBorder(g, simIterator, fontSimilarity.getStringBounds(percentage + "%", frc), mainColor, image.getWidth() / 2, y - (int) (0.252 * fsize), 4, -1);
+        GraphicsUtil.drawStringWithBorder(g, simIterator, fontSimilarity.getStringBounds(percentage + "%", frc), mainColor, Color.BLACK, image.getWidth() / 2, y - (int) (0.252 * fsize), 4, -1);
 
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             ImageIO.write(result, "png", os);

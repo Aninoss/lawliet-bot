@@ -6,7 +6,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import com.google.common.io.Files;
 import com.google.common.net.UrlEscapers;
 import core.LocalFile;
 import core.MainLogger;
@@ -19,13 +18,8 @@ public final class InternetUtil {
     }
 
     public static String getUrlFromInputStream(InputStream inputStream, String fileExt) throws ExecutionException, InterruptedException, IOException {
-        try (inputStream) {
-            LocalFile cdnFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%d.%s", System.nanoTime(), fileExt));
-            byte[] buffer = new byte[inputStream.available()];
-            inputStream.read(buffer);
-            Files.write(buffer, cdnFile);
-            return cdnFile.cdnGetUrl();
-        }
+        LocalFile cdnFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%d.%s", System.nanoTime(), fileExt));
+        return FileUtil.writeInputStreamToFile(inputStream, cdnFile);
     }
 
     public static boolean urlContainsImage(String url) {

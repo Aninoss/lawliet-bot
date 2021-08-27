@@ -43,7 +43,7 @@ public class GraphicsUtil {
     public static AttributedCharacterIterator getNameIterator(FontRenderContext frc, AttributedStringGenerator fontName, String text, int maxWidth) {
         char ddd = '…';
         AttributedCharacterIterator nameIterator = fontName.getIterator(text);
-        while (fontName.getStringBounds(text + ddd, frc).getWidth() > maxWidth) {
+        while (fontName.getStringBounds(text + ddd, frc).getWidth() > maxWidth && maxWidth != -1) {
             text = text.substring(0, text.length() - 1);
             nameIterator = fontName.getIterator(text + ddd);
         }
@@ -70,8 +70,8 @@ public class GraphicsUtil {
         g2d.dispose();
     }
 
-    public static void drawStringWithBorder(Graphics2D g2d, AttributedCharacterIterator iterator, Rectangle2D bounds, Color color, int x, int y, int thickness, double maxWidth) {
-        g2d.setColor(Color.BLACK);
+    public static void drawStringWithBorder(Graphics2D g2d, AttributedCharacterIterator iterator, Rectangle2D bounds, Color mainColor, Color borderColor, int x, int y, int thickness, double maxWidth) {
+        g2d.setColor(borderColor);
         double n = 8;
         for (double i = 0; i < n; i++) {
             double a = (int) ((i / n) * 360);
@@ -87,7 +87,7 @@ public class GraphicsUtil {
             drawStringCenter(g2d, iterator, bounds, x + xNew, y + yNew, maxWidth, 1);
         }
 
-        g2d.setColor(color);
+        g2d.setColor(mainColor);
         drawStringCenter(g2d, iterator, bounds, x, y, maxWidth, 1);
     }
 

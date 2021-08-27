@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class FontContainer {
 
-    public static final FontContainer ourInstance = new FontContainer();
+    private static final FontContainer ourInstance = new FontContainer();
 
     public static FontContainer getInstance() {
         return ourInstance;

@@ -1,6 +1,9 @@
 package commands.runnables.fisherycategory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
@@ -9,9 +12,13 @@ import constants.LogStatus;
 import constants.Response;
 import constants.Settings;
 import core.EmbedFactory;
+import core.LocalFile;
 import core.TextManager;
+import core.utils.FileUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import core.utils.TimeUtil;
+import modules.graphics.StockMarketGraphics;
 import modules.stockmarket.Stock;
 import modules.stockmarket.StockMarket;
 import mysql.modules.fisheryusers.DBFishery;
@@ -157,7 +164,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     }
 
     @Draw(state = STATE_MAIN)
-    public EmbedBuilder onDrawMain(Member member) {
+    public EmbedBuilder onDrawMain(Member member) throws IOException, ExecutionException, InterruptedException {
         long coins = fisheryMemberBean.getCoins();
         long totalShares = fisheryMemberBean.getStocksTotalShares();
         long totalInvestmentBefore = fisheryMemberBean.getStocksTotalInvestmentBefore();
@@ -178,7 +185,8 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         setOptions(optionButtons);
         return EmbedFactory.getEmbedDefault(this)
                 .setDescription(desc + "\n" + Emojis.ZERO_WIDTH_SPACE)
-                .addField(getString("investment_title", StringUtil.numToString(currentStock.ordinal() + 1), currentStock.getName()), generateStockDescription(), false);
+                .addField(getString("investment_title", StringUtil.numToString(currentStock.ordinal() + 1), currentStock.getName()), generateStockDescription(), false)
+                .setImage(getStockGraphUrl() + "?" + TimeUtil.currentHour());
     }
 
     @Draw(state = STATE_BUY)
@@ -278,6 +286,18 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
             } else {
                 return "•";
             }
+        }
+    }
+
+    private String getStockGraphUrl() throws ExecutionException, InterruptedException, IOException {
+        long currentHourSlotMillis =  (System.currentTimeMillis() / 3_600_000L) * 3_600_000L;
+        LocalFile graphFile = new LocalFile(LocalFile.Directory.CDN, String.format("stockmarket/%d.png", currentStock.getId()));
+        if (graphFile.exists() && currentHourSlotMillis <= graphFile.lastModified()) {
+            return graphFile.cdnGetUrl();
+        } else {
+            System.out.println("GENERATE NEW GRAPH FOR " + currentStock.getId()); //TODO
+            InputStream is = StockMarketGraphics.createImageGraph(currentStock).get();
+            return FileUtil.writeInputStreamToFile(is, graphFile);
         }
     }
 

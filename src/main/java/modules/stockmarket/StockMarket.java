@@ -44,7 +44,7 @@ public class StockMarket {
             multi = 1.0 / multi;
         }
         value *= multi;
-        if (hourSlot >= currentHourSlot - 24 * 7) {
+        if (hourSlot >= currentHourSlot - 24 * 8) {
             cache.put(Objects.hash(stock, hourSlot), value);
         }
         return value;
