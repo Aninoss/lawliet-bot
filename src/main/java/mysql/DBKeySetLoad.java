@@ -10,12 +10,11 @@ import mysql.interfaces.SQLFunction;
 
 public class DBKeySetLoad<T> {
 
-    private final Connection connection;
     private final Statement statement;
 
     public DBKeySetLoad(String table, String keyColumn) {
         try {
-            connection = DBMain.getInstance().getConnection();
+            Connection connection = DBMain.getInstance().getConnection();
             statement = connection.createStatement();
             statement.execute(String.format("SELECT %s FROM %s;", keyColumn, table));
         } catch (SQLException exception) {
@@ -39,7 +38,6 @@ public class DBKeySetLoad<T> {
             throw new RuntimeException(e);
         } finally {
             try {
-                connection.close();
                 statement.close();
             } catch (SQLException throwables) {
                 MainLogger.get().error("Could not close statement", throwables);

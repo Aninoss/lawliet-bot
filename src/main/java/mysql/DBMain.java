@@ -16,7 +16,6 @@ import core.MainLogger;
 import mysql.interfaces.SQLConsumer;
 import mysql.interfaces.SQLFunction;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
-import org.apache.commons.dbcp2.BasicDataSource;
 
 public class DBMain {
 
@@ -29,7 +28,7 @@ public class DBMain {
     private DBMain() {
     }
 
-    private BasicDataSource ds = null;
+    private Connection connection;
     private final ExecutorService executorService = Executors.newFixedThreadPool(3, new CountingThreadFactory(() -> "Main", "DB", false));
 
     private final ArrayList<DBCache> caches = new ArrayList<>();
@@ -38,27 +37,19 @@ public class DBMain {
         MysqlDataSource rv = new MysqlDataSource();
         rv.setServerName(System.getenv("DB_HOST"));
         rv.setPortNumber(Integer.parseInt(System.getenv("DB_PORT")));
+        rv.setUser(System.getenv("DB_USER"));
+        rv.setPassword(System.getenv("DB_PASSWORD"));
         rv.setDatabaseName(System.getenv("DB_DATABASE"));
         rv.setAllowMultiQueries(false);
         rv.setAutoReconnect(true);
         rv.setCharacterEncoding("UTF-8");
         rv.setServerTimezone(TimeZone.getDefault().getID());
         rv.setRewriteBatchedStatements(true);
-
-        String url = rv.getUrl();
-        MainLogger.get().info("Connecting with database {}", url);
-        ds = new BasicDataSource();
-        ds.setUrl(url);
-        ds.setUsername(System.getenv("DB_USER"));
-        ds.setPassword(System.getenv("DB_PASSWORD"));
-        ds.setMinIdle(1);
-        ds.setMaxIdle(3);
-        ds.setMaxOpenPreparedStatements(100);
-        rv.exposeAsProperties().forEach((key, value) -> ds.addConnectionProperty(key.toString(), value.toString()));
+        connection = rv.getConnection();
     }
 
     public Connection getConnection() throws SQLException {
-        return ds.getConnection();
+        return connection;
     }
 
     public void addDBCached(DBCache dbCache) {
@@ -73,17 +64,15 @@ public class DBMain {
 
     public <T> T get(String sql, SQLFunction<ResultSet, T> resultSetFunction) throws SQLException, InterruptedException {
         SQLException exception = null;
-        try (Connection connection = ds.getConnection()) {
-            for (int i = 0; i < 3; i++) {
-                try (Statement statement = connection.createStatement();
-                     ResultSet resultSet = statement.executeQuery(sql)
-                ) {
-                    return resultSetFunction.apply(resultSet);
-                } catch (SQLException e) {
-                    //ignore
-                    exception = e;
-                    Thread.sleep(5000);
-                }
+        for (int i = 0; i < 3; i++) {
+            try (Statement statement = connection.createStatement();
+                 ResultSet resultSet = statement.executeQuery(sql)
+            ) {
+                return resultSetFunction.apply(resultSet);
+            } catch (SQLException e) {
+                //ignore
+                exception = e;
+                Thread.sleep(5000);
             }
         }
 
@@ -92,17 +81,15 @@ public class DBMain {
 
     public <T> T get(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer, SQLFunction<ResultSet, T> resultSetFunction) throws SQLException, InterruptedException {
         SQLException exception = null;
-        try (Connection connection = ds.getConnection()) {
-            for (int i = 0; i < 3; i++) {
-                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                    preparedStatementConsumer.accept(preparedStatement);
-                    try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                        return resultSetFunction.apply(resultSet);
-                    }
-                } catch (SQLException e) {
-                    exception = e;
-                    Thread.sleep(5000);
+        for (int i = 0; i < 3; i++) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatementConsumer.accept(preparedStatement);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    return resultSetFunction.apply(resultSet);
                 }
+            } catch (SQLException e) {
+                exception = e;
+                Thread.sleep(5000);
             }
         }
 
@@ -141,14 +128,12 @@ public class DBMain {
 
     public int update(String sql) throws SQLException, InterruptedException {
         SQLException exception = null;
-        try (Connection connection = ds.getConnection()) {
-            for (int i = 0; i < 3; i++) {
-                try (Statement statement = connection.createStatement()) {
-                    return statement.executeUpdate(sql);
-                } catch (SQLException e) {
-                    exception = e;
-                    Thread.sleep(5000);
-                }
+        for (int i = 0; i < 3; i++) {
+            try (Statement statement = connection.createStatement()) {
+                return statement.executeUpdate(sql);
+            } catch (SQLException e) {
+                exception = e;
+                Thread.sleep(5000);
             }
         }
 
@@ -157,15 +142,13 @@ public class DBMain {
 
     public int update(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException, InterruptedException {
         SQLException exception = null;
-        try (Connection connection = ds.getConnection()) {
-            for (int i = 0; i < 3; i++) {
-                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                    preparedStatementConsumer.accept(preparedStatement);
-                    return preparedStatement.executeUpdate();
-                } catch (SQLException e) {
-                    exception = e;
-                    Thread.sleep(5000);
-                }
+        for (int i = 0; i < 3; i++) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatementConsumer.accept(preparedStatement);
+                return preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                exception = e;
+                Thread.sleep(5000);
             }
         }
 

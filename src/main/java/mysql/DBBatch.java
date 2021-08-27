@@ -7,11 +7,10 @@ import mysql.interfaces.SQLConsumer;
 
 public class DBBatch implements AutoCloseable {
 
-    private final Connection connection;
     private final PreparedStatement preparedStatement;
 
     public DBBatch(String sql) throws SQLException {
-        connection = DBMain.getInstance().getConnection();
+        Connection connection = DBMain.getInstance().getConnection();
         preparedStatement = connection.prepareStatement(sql);
     }
 
@@ -26,7 +25,6 @@ public class DBBatch implements AutoCloseable {
 
     @Override
     public void close() throws SQLException {
-        connection.close();
         preparedStatement.close();
     }
 

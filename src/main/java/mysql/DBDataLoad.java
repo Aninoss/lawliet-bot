@@ -13,7 +13,6 @@ import mysql.interfaces.SQLFunction;
 
 public class DBDataLoad<T> {
 
-    private final Connection connection;
     private final PreparedStatement preparedStatement;
 
     public DBDataLoad(String table, String requiredAttributes, String where) {
@@ -29,7 +28,7 @@ public class DBDataLoad<T> {
 
             String sqlString = String.format("SELECT %s FROM %s WHERE %s", requiredAttributes, table, where);
 
-            connection = DBMain.getInstance().getConnection();
+            Connection connection = DBMain.getInstance().getConnection();
             preparedStatement = connection.prepareStatement(sqlString);
             wherePreparedStatementConsumer.accept(preparedStatement);
             preparedStatement.execute();
@@ -56,7 +55,6 @@ public class DBDataLoad<T> {
             throw new RuntimeException(e);
         } finally {
             try {
-                connection.close();
                 preparedStatement.close();
             } catch (SQLException throwables) {
                 MainLogger.get().error("Could not close preparedStatement", throwables);
@@ -82,7 +80,6 @@ public class DBDataLoad<T> {
             throw new RuntimeException(e);
         } finally {
             try {
-                connection.close();
                 preparedStatement.close();
             } catch (SQLException throwables) {
                 MainLogger.get().error("Could not close preparedStatement", throwables);
