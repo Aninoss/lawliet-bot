@@ -78,7 +78,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 case "fish", "fishes" -> type = 0;
                 case "coins", "coin" -> type = 1;
                 case "daily", "dailystreak", "streak" -> type = 2;
-                case "reset", "remove", "delete", "clear" -> type = 3;
+                case "reset", "remove", "delete", "clear" -> type = 3 + FisheryGear.values().length;
                 default -> {
                     FisheryGear gear = FisheryGear.parse(typeString);
                     if (gear != null) {
@@ -89,7 +89,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
             if (type == -1) {
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
-            } else if (type == 3) {
+            } else if (type == 3 + FisheryGear.values().length) {
                 fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
                 event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag())).build())
                         .queue();
