@@ -45,6 +45,8 @@ public class DBMain {
         rv.setCharacterEncoding("UTF-8");
         rv.setServerTimezone(TimeZone.getDefault().getID());
         rv.setRewriteBatchedStatements(true);
+
+        MainLogger.get().info("Connecting with database {}", rv.getUrl());
         connection = rv.getConnection();
     }
 

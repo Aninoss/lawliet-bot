@@ -32,10 +32,13 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
 
     protected void registerList(Member member, int size, String args) throws Throwable {
         this.size = size;
-        if (StringUtil.stringIsInt(args)) {
-            int pageStart = Integer.parseInt(args);
-            if (pageStart >= 1) {
-                page = Math.min(getPageSize(), pageStart) - 1;
+        for (String part : args.split(" ")) {
+            if (StringUtil.stringIsInt(part)) {
+                int pageStart = Integer.parseInt(part);
+                if (pageStart >= 1) {
+                    page = Math.min(getPageSize(), pageStart) - 1;
+                }
+                break;
             }
         }
 

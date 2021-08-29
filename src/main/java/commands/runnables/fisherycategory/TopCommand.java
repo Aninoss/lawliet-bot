@@ -143,12 +143,21 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
     }
 
     private OrderBy calculateOrderBy(String args) {
-        return switch (args) {
-            case "fish", "fishes" -> OrderBy.FISH;
-            case "coins", "coin" -> OrderBy.COINS;
-            case "daily", "dailystreak", "streak" -> OrderBy.DAILY_STREAK;
-            default -> OrderBy.RECENT_FISH_GAINS;
-        };
+        for (String part : args.split(" ")) {
+            switch (part) {
+                case "fish", "fishes" -> {
+                    return OrderBy.FISH;
+                }
+                case "coins", "coin" -> {
+                    return OrderBy.COINS;
+                }
+                case "daily", "dailystreak", "streak" -> {
+                    return OrderBy.DAILY_STREAK;
+                }
+                default -> {}
+            };
+        }
+        return OrderBy.RECENT_FISH_GAINS;
     }
 
 
