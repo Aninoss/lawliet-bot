@@ -129,7 +129,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     protected void endGame(Member member, boolean requestRetry) {
         status = Status.DRAW;
         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.CASINO, "casino_draw"));
-        DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(getMemberId().get()).addCoinsHidden(-coinsInput);
+        DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get()).addCoinsHidden(-coinsInput);
         if (requestRetry && !retryRequestAdded) {
             registerButtonListener(member);
             setButtons(BUTTON_RETRY);
@@ -150,7 +150,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         if (coinsInput > 0 && useCalculatedMultiplicator) {
             DBGameStatistics.getInstance().retrieve(compareKey).addValue(false, 1);
         }
-        EmbedBuilder eb = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
+        EmbedBuilder eb = DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get())
                 .changeValuesEmbed(member, 0, -coinsInput);
         if (coinsInput > 0) {
             setAdditionalEmbeds(eb.build());
@@ -240,11 +240,17 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     @Override
     public void onListenerTimeOut() {
         if (status == Status.ACTIVE) {
-            cancel(getMember().get(), true, false);
-            EmbedBuilder eb = draw(getMember().get());
-            if (eb != null) {
-                drawMessage(eb);
-            }
+            getMember().ifPresentOrElse(member -> {
+                cancel(member, true, false);
+                EmbedBuilder eb = draw(member);
+                if (eb != null) {
+                    drawMessage(eb);
+                }
+            }, () -> {
+                FisheryMemberData memberData = DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get());
+                memberData.addCoinsHidden(-coinsInput);
+                memberData.changeValues(0, -coinsInput);
+            });
         }
     }
 
