@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
+import constants.Emojis;
 import constants.TrackerResult;
 import core.EmbedFactory;
 import core.TextManager;
@@ -61,9 +62,10 @@ public class TwitchCommand extends Command implements OnAlertListener {
         TwitchUser twitchUser = twitchStream.getTwitchUser();
         EmbedBuilder eb;
         if (twitchStream.isLive()) {
+            String twitchStatus = twitchStream.getStatus().get();
             eb = EmbedFactory.getEmbedDefault()
                     .setAuthor(getString("streamer", twitchUser.getDisplayName(), twitchStream.getGame().get()), twitchUser.getChannelUrl(), TWITCH_ICON)
-                    .setTitle(twitchStream.getStatus().get(), twitchUser.getChannelUrl())
+                    .setTitle(twitchStatus.isEmpty() ? Emojis.ZERO_WIDTH_SPACE : twitchStatus, twitchUser.getChannelUrl())
                     .setImage(twitchStream.getPreviewImage().get());
             EmbedUtil.setFooter(eb, this, getString("footer", StringUtil.numToString(twitchStream.getViewers().get()), StringUtil.numToString(twitchStream.getFollowers().get())));
         } else {
