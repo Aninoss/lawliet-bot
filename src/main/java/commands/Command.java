@@ -187,7 +187,10 @@ public abstract class Command implements OnTriggerListener {
                 action.queue(message -> {
                     drawMessage = message;
                     future.complete(drawMessage.getIdLong());
-                }, future::completeExceptionally);
+                }, e -> {
+                    MainLogger.get().error("Draw exception for \"{}\"", getTrigger(), e);
+                    future.completeExceptionally(e);
+                });
             } else {
                 future.completeExceptionally(new PermissionException("Missing permissions"));
             }

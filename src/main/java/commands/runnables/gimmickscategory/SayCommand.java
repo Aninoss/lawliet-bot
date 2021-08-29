@@ -39,15 +39,19 @@ public class SayCommand extends Command {
         if (attachments.size() > 0) {
             addLoadingReactionInstantly();
             Message.Attachment attachment = attachments.get(0);
-            String name = "image_main." + attachment.getFileExtension();
-            attachmentMap.put(name, attachment.retrieveInputStream().get());
-            eb.setImage("attachment://" + name);
+            if (attachment.isImage() && attachment.getSize() <= 8_000_000) {
+                String name = "image_main." + attachment.getFileExtension();
+                attachmentMap.put(name, attachment.retrieveInputStream().get());
+                eb.setImage("attachment://" + name);
+            }
         }
         if (attachments.size() > 1) {
             Message.Attachment attachment = attachments.get(1);
-            String name = "image_tn." + attachment.getFileExtension();
-            attachmentMap.put(name, attachment.retrieveInputStream().get());
-            eb.setThumbnail("attachment://" + name);
+            if (attachment.isImage() && attachment.getSize() <= 8_000_000) {
+                String name = "image_tn." + attachment.getFileExtension();
+                attachmentMap.put(name, attachment.retrieveInputStream().get());
+                eb.setThumbnail("attachment://" + name);
+            }
         }
 
         AtomicReference<MessageAction> messageAction = new AtomicReference<>(event.getChannel().sendMessageEmbeds(eb.build()));
