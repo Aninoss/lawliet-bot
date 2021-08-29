@@ -16,15 +16,20 @@ public abstract class ButtonClickAbstract extends DiscordEventAbstract {
         if (event.isFromGuild() && event.getMessage() != null) {
             try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofSeconds(1)))  {
                 asyncTimer.setTimeOutListener(t -> {
-                    MainLogger.get().error("Interaction \"{}\" of guild {} stuck", event.getComponentId(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
                     if (!event.isAcknowledged()) {
                         event.deferEdit().queue();
                     }
                 });
 
-                execute(listenerList, event.getUser(), event.getGuild().getIdLong(),
-                        listener -> ((ButtonClickAbstract) listener).onButtonClick(event)
-                );
+                try(AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
+                    timeOutTimer.setTimeOutListener(t -> {
+                        MainLogger.get().error("Interaction \"{}\" of guild {} stuck", event.getComponentId(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
+                    });
+
+                    execute(listenerList, event.getUser(), event.getGuild().getIdLong(),
+                            listener -> ((ButtonClickAbstract) listener).onButtonClick(event)
+                    );
+                }
             } catch (InterruptedException e) {
                 MainLogger.get().error("Interrupted", e);
             }

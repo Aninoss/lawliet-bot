@@ -1,5 +1,6 @@
 package events.discordevents.guildmessagereceived;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ import commands.CommandManager;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.informationcategory.HelpCommand;
 import constants.Response;
+import core.AsyncTimer;
 import core.MainLogger;
 import core.ShardManager;
 import core.utils.BotPermissionUtil;
@@ -127,13 +129,21 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     .collect(Collectors.toList());
 
             if (listeners.size() > 0) {
-                for (CommandListenerMeta<?> listener : listeners) {
-                    Response response = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event);
-                    if (response != null) {
-                        return true;
+                try(AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
+                    timeOutTimer.setTimeOutListener(t -> {
+                        MainLogger.get().error("Message input \"{}\" of guild {} stuck", event.getMessage().getContentRaw(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
+                    });
+
+                    for (CommandListenerMeta<?> listener : listeners) {
+                        Response response = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event);
+                        if (response != null) {
+                            return true;
+                        }
                     }
+                    return true;
+                } catch (InterruptedException e) {
+                    MainLogger.get().error("Interrupted exception", e);
                 }
-                return true;
             } else {
                 return false;
             }
