@@ -176,6 +176,7 @@ public abstract class Command implements OnTriggerListener {
                             .setActionRows(actionRows);
                 } else {
                     if (interactionResponse != null &&
+                            interactionResponse.isValid() &&
                             (BotPermissionUtil.canUseExternalEmojisInInteraction(channel) || !getCommandProperties().usesExtEmotes())
                     ) {
                         action = interactionResponse.editMessageEmbeds(embeds, actionRows);

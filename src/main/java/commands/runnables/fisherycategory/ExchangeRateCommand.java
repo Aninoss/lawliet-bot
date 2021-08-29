@@ -82,9 +82,11 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
 
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
-        boolean canUseExternalEmoji = BotPermissionUtil.canUseExternalEmojisInInteraction(event.getGuildChannel());
-        getInteractionResponse().replyEmbeds(List.of(generateUserEmbed(canUseExternalEmoji).build()), ActionRows.of(), true)
-                .queue();
+        if (getInteractionResponse().isValid()) {
+            boolean canUseExternalEmoji = BotPermissionUtil.canUseExternalEmojisInInteraction(event.getGuildChannel());
+            getInteractionResponse().replyEmbeds(List.of(generateUserEmbed(canUseExternalEmoji).build()), ActionRows.of(), true)
+                    .queue();
+        }
         return false;
     }
 

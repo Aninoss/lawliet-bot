@@ -1,5 +1,7 @@
 package core;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import net.dv8tion.jda.api.entities.Message;
@@ -42,8 +44,13 @@ public class InteractionResponse {
         }
     }
 
+    public boolean isValid() {
+        Instant interactionEnd = event.getTimeCreated().toInstant().plus(Duration.ofMinutes(15));
+        return Instant.now().isBefore(interactionEnd);
+    }
+
     public void complete() {
-        if (!event.isAcknowledged()) {
+        if (isValid() && !event.isAcknowledged()) {
             event.deferEdit().queue();
         }
     }
