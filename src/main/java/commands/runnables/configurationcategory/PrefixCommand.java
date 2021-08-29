@@ -6,6 +6,7 @@ import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
+import core.utils.StringUtil;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -36,15 +37,16 @@ public class PrefixCommand extends Command {
                     String nickname = self.getEffectiveName().trim();
                     String[] nicknameArray = nickname.split("\\[");
 
-                    if (nicknameArray.length == 1) {
-                        guild.modifyNickname(self, nickname + " [" + args + "]")
-                                .reason(getCommandLanguage().getTitle())
-                                .queue();
-                    } else if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
-                        guild.modifyNickname(self, nicknameArray[0].trim() + " [" + args + "]")
-                                .reason(getCommandLanguage().getTitle())
-                                .queue();
+                    String effectiveNickname;
+                    if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
+                        effectiveNickname = nicknameArray[0].trim() + " [" + args + "]";
+                    } else {
+                        effectiveNickname = nickname + " [" + args + "]";
                     }
+
+                    guild.modifyNickname(self, StringUtil.shortenString(effectiveNickname, 32))
+                            .reason(getCommandLanguage().getTitle())
+                            .queue();
                 }
 
                 event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("changed", args)).build()).queue();
