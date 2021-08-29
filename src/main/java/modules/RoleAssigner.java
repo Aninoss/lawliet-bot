@@ -22,15 +22,6 @@ import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 public class RoleAssigner {
 
-    private static final RoleAssigner ourInstance = new RoleAssigner();
-
-    public static RoleAssigner getInstance() {
-        return ourInstance;
-    }
-
-    private RoleAssigner() {
-    }
-
     private final Cache<Long, AtomicBoolean> busyServers = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofHours(1))
             .build();

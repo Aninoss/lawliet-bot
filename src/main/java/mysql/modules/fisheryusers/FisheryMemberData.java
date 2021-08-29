@@ -23,7 +23,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.stockmarket.Stock;
 import modules.stockmarket.StockMarket;
-import mysql.DBRedis;
+import mysql.RedisManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -120,7 +120,7 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public long getStocksTotalShares() {
-        return DBRedis.getInstance().get(jedis -> {
+        return RedisManager.get(jedis -> {
             ArrayList<Response<String>> sharesRespList = new ArrayList<>();
             Pipeline pipeline = jedis.pipelined();
             for (Stock stock : Stock.values()) {
@@ -131,14 +131,14 @@ public class FisheryMemberData implements MemberAsset {
 
             long totalShares = 0;
             for (Response<String> stringResponse : sharesRespList) {
-                totalShares += DBRedis.parseLong(stringResponse.get());
+                totalShares += RedisManager.parseLong(stringResponse.get());
             }
             return totalShares;
         });
     }
 
     public long getStocksTotalInvestmentBefore() {
-        return DBRedis.getInstance().get(jedis -> {
+        return RedisManager.get(jedis -> {
             ArrayList<Response<String>> investmentRespList = new ArrayList<>();
             Pipeline pipeline = jedis.pipelined();
             for (Stock stock : Stock.values()) {
@@ -149,14 +149,14 @@ public class FisheryMemberData implements MemberAsset {
 
             long totalInvestment = 0;
             for (Response<String> stringResponse : investmentRespList) {
-                totalInvestment += DBRedis.parseLong(stringResponse.get());
+                totalInvestment += RedisManager.parseLong(stringResponse.get());
             }
             return totalInvestment;
         });
     }
 
     public long getStocksTotalInvestmentAfter() {
-        return DBRedis.getInstance().get(jedis -> {
+        return RedisManager.get(jedis -> {
             HashMap<Stock, Response<String>> sharesRespMap = new HashMap<>();
             Pipeline pipeline = jedis.pipelined();
             for (Stock stock : Stock.values()) {
@@ -167,14 +167,14 @@ public class FisheryMemberData implements MemberAsset {
 
             long totalInvestment = 0;
             for (Map.Entry<Stock, Response<String>> stockResponseEntry : sharesRespMap.entrySet()) {
-                totalInvestment += DBRedis.parseLong(stockResponseEntry.getValue().get()) * StockMarket.getValue(stockResponseEntry.getKey());
+                totalInvestment += RedisManager.parseLong(stockResponseEntry.getValue().get()) * StockMarket.getValue(stockResponseEntry.getKey());
             }
             return totalInvestment;
         });
     }
 
     public long getFish() {
-        return DBRedis.getInstance().getLong(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_FISH));
+        return RedisManager.getLong(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_FISH));
     }
 
     public long getCoins() {
@@ -184,7 +184,7 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public long getCoinsRaw() {
-        return DBRedis.getInstance().getLong(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_COINS));
+        return RedisManager.getLong(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_COINS));
     }
 
     public long getCoinsHidden() {
@@ -193,14 +193,14 @@ public class FisheryMemberData implements MemberAsset {
 
     public long getCoinsGiveReceived() {
         cleanDailyValues();
-        return DBRedis.getInstance().getLong(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED));
+        return RedisManager.getLong(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED));
     }
 
     public void addCoinsGiveReceived(long value) {
         cleanDailyValues();
         if (value > 0) {
-            DBRedis.getInstance().update(jedis -> {
-                long coinsGiveReceived = DBRedis.parseLong(jedis.hget(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED));
+            RedisManager.update(jedis -> {
+                long coinsGiveReceived = RedisManager.parseLong(jedis.hget(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED));
                 long newCoinsGiveReceived = Math.min(coinsGiveReceived + value, Settings.FISHERY_MAX);
                 jedis.hset(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED, String.valueOf(newCoinsGiveReceived));
             });
@@ -209,7 +209,7 @@ public class FisheryMemberData implements MemberAsset {
 
     public long getCoinsGiveReceivedMax() {
         cleanDailyValues();
-        long coinsGiveReceivedMax = DBRedis.getInstance().getLong(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED_MAX));
+        long coinsGiveReceivedMax = RedisManager.getLong(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED_MAX));
         if (coinsGiveReceivedMax == 0) {
             long sum = 0;
             for (FisheryGear gear : FisheryGear.values()) {
@@ -220,7 +220,7 @@ public class FisheryMemberData implements MemberAsset {
             }
             coinsGiveReceivedMax = sum;
             long finalCoinsGiveReceivedMax = coinsGiveReceivedMax;
-            DBRedis.getInstance().update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED_MAX, String.valueOf(finalCoinsGiveReceivedMax)));
+            RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED_MAX, String.valueOf(finalCoinsGiveReceivedMax)));
         }
 
         return coinsGiveReceivedMax;
@@ -231,31 +231,31 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public LocalDate getDailyReceived() {
-        LocalDate date = DBRedis.getInstance().getLocalDate(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_DAILY_RECEIVED));
+        LocalDate date = RedisManager.getLocalDate(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_DAILY_RECEIVED));
         return date != null ? date : LocalDate.of(2000, 1, 1);
     }
 
     public long getDailyStreak() {
-        return DBRedis.getInstance().getLong(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_DAILY_STREAK));
+        return RedisManager.getLong(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_DAILY_STREAK));
     }
 
     public int getUpvoteStack() {
-        return DBRedis.getInstance().getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_UPVOTE_STACK));
+        return RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_UPVOTE_STACK));
     }
 
     public boolean isReminderSent() {
-        return DBRedis.getInstance().getBoolean(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_REMINDER_SENT));
+        return RedisManager.getBoolean(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_REMINDER_SENT));
     }
 
     public boolean isBanned() {
-        Instant bannedUntil = DBRedis.getInstance().getInstant(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_BANNED_UNTIL));
+        Instant bannedUntil = RedisManager.getInstant(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_BANNED_UNTIL));
         return bannedUntil != null && bannedUntil.isAfter(Instant.now());
     }
 
     public void cleanDailyValues() {
-        LocalDate dailyValuesUpdated = DBRedis.getInstance().getLocalDate(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_DAILY_VALUES_UPDATED));
+        LocalDate dailyValuesUpdated = RedisManager.getLocalDate(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_DAILY_VALUES_UPDATED));
         if (dailyValuesUpdated == null || LocalDate.now().isAfter(dailyValuesUpdated)) {
-            DBRedis.getInstance().update(jedis -> {
+            RedisManager.update(jedis -> {
                 Pipeline pipeline = jedis.pipelined();
                 pipeline.hset(KEY_ACCOUNT, FIELD_DAILY_VALUES_UPDATED, LocalDate.now().toString());
                 pipeline.hdel(KEY_ACCOUNT, FIELD_COINS_GIVE_RECEIVED);
@@ -267,7 +267,7 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public Optional<Instant> checkNextWork() {
-        Instant nextWork = DBRedis.getInstance().getInstant(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_NEXT_WORK));
+        Instant nextWork = RedisManager.getInstant(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_NEXT_WORK));
         boolean canWork = nextWork == null || Instant.now().isAfter(nextWork);
         if (canWork) {
             completeWork();
@@ -278,20 +278,20 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public Optional<Instant> getNextWork() {
-        Instant nextWork = DBRedis.getInstance().getInstant(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_NEXT_WORK));
+        Instant nextWork = RedisManager.getInstant(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_NEXT_WORK));
         return Optional.ofNullable(nextWork);
     }
 
     public void completeWork() {
-        DBRedis.getInstance().update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_NEXT_WORK, Instant.now().plus(4, ChronoUnit.HOURS).toString()));
+        RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_NEXT_WORK, Instant.now().plus(4, ChronoUnit.HOURS).toString()));
     }
 
     public void removeWork() {
-        DBRedis.getInstance().update(jedis -> jedis.hdel(KEY_ACCOUNT, FIELD_NEXT_WORK));
+        RedisManager.update(jedis -> jedis.hdel(KEY_ACCOUNT, FIELD_NEXT_WORK));
     }
 
     public boolean registerMessage(Message message) {
-        return DBRedis.getInstance().get(jedis -> {
+        return RedisManager.get(jedis -> {
             long hour = TimeUtil.currentHour();
             FisheryMemberGearData fisheryMemberGearData = getMemberGear(FisheryGear.MESSAGE);
 
@@ -306,7 +306,7 @@ public class FisheryMemberData implements MemberAsset {
             Response<String> levelResp = pipeline.hget(KEY_ACCOUNT, fisheryMemberGearData.FIELD_GEAR);
             pipeline.sync();
 
-            Instant bannedUntil = DBRedis.parseInstant(bannedUntilResp.get());
+            Instant bannedUntil = RedisManager.parseInstant(bannedUntilResp.get());
             if (bannedUntil != null && bannedUntil.isAfter(Instant.now())) {
                 return false;
             }
@@ -318,7 +318,7 @@ public class FisheryMemberData implements MemberAsset {
                 return false;
             }
 
-            long messagesThisHourSlot = DBRedis.parseLong(messagesThisHourSlotResp.get());
+            long messagesThisHourSlot = RedisManager.parseLong(messagesThisHourSlotResp.get());
             if (messagesThisHourSlot != hour) {
                 pipeline = jedis.pipelined();
                 pipeline.hdel(KEY_ACCOUNT, FIELD_MESSAGES_THIS_HOUR);
@@ -327,11 +327,11 @@ public class FisheryMemberData implements MemberAsset {
             }
 
             if (getFisheryGuildData().messageActivityIsValid(memberId, message.getContentRaw())) {
-                long level = DBRedis.parseLong(levelResp.get());
+                long level = RedisManager.parseLong(levelResp.get());
                 long effect = fisheryMemberGearData.getEffect(level);
-                long fish = Math.min(DBRedis.parseLong(fishResp.get()) + effect, Settings.FISHERY_MAX);
-                long recentFishGainsRaw = Math.min(DBRedis.parseLong(recentFishGainsRawResp.get()) + effect, Settings.FISHERY_MAX);
-                long recentFishGainsProcessed = Math.min(DBRedis.parseLong(recentFishGainsProcessedResp.get()) + effect, Settings.FISHERY_MAX);
+                long fish = Math.min(RedisManager.parseLong(fishResp.get()) + effect, Settings.FISHERY_MAX);
+                long recentFishGainsRaw = Math.min(RedisManager.parseLong(recentFishGainsRawResp.get()) + effect, Settings.FISHERY_MAX);
+                long recentFishGainsProcessed = Math.min(RedisManager.parseLong(recentFishGainsProcessedResp.get()) + effect, Settings.FISHERY_MAX);
 
                 pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
                 pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
@@ -339,7 +339,7 @@ public class FisheryMemberData implements MemberAsset {
 
                 Optional<Member> memberOpt;
                 if (fish >= 100 &&
-                        !DBRedis.parseBoolean(reminderSentResp.get()) &&
+                        !RedisManager.parseBoolean(reminderSentResp.get()) &&
                         getGuildData().isFisheryReminders() &&
                         BotPermissionUtil.canWriteEmbed(message.getTextChannel()) &&
                         (memberOpt = getMember()).isPresent()
@@ -370,7 +370,7 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public void registerVoice(int minutes) throws ExecutionException {
-        DBRedis.getInstance().update(jedis -> {
+        RedisManager.update(jedis -> {
             long hour = TimeUtil.currentHour();
             int newMinutes = minutes;
             FisheryMemberGearData fisheryMemberGearData = getMemberGear(FisheryGear.VOICE);
@@ -384,20 +384,20 @@ public class FisheryMemberData implements MemberAsset {
             Response<String> levelResp = pipeline.hget(KEY_ACCOUNT, fisheryMemberGearData.FIELD_GEAR);
             pipeline.sync();
 
-            Instant bannedUntil = DBRedis.parseInstant(bannedUntilResp.get());
+            Instant bannedUntil = RedisManager.parseInstant(bannedUntilResp.get());
             if (bannedUntil == null || bannedUntil.isBefore(Instant.now())) {
                 Optional<Integer> limitOpt = getGuildData().getFisheryVcHoursCap();
-                if (limitOpt.isPresent() && ServerPatreonBoostCache.getInstance().get(getGuildId())) {
+                if (limitOpt.isPresent() && ServerPatreonBoostCache.get(getGuildId())) {
                     cleanDailyValues();
-                    newMinutes = Math.min(newMinutes, limitOpt.get() * 60 - DBRedis.parseInteger(voiceMinutesResp.get()));
+                    newMinutes = Math.min(newMinutes, limitOpt.get() * 60 - RedisManager.parseInteger(voiceMinutesResp.get()));
                 }
 
                 if (newMinutes > 0) {
-                    long level = DBRedis.parseLong(levelResp.get());
+                    long level = RedisManager.parseLong(levelResp.get());
                     long effect = fisheryMemberGearData.getEffect(level) * newMinutes;
-                    long fish = Math.min(DBRedis.parseLong(fishResp.get()) + effect, Settings.FISHERY_MAX);
-                    long recentFishGainsRaw = Math.min(DBRedis.parseLong(recentFishGainsRawResp.get()) + effect, Settings.FISHERY_MAX);
-                    long recentFishGainsProcessed = Math.min(DBRedis.parseLong(recentFishGainsProcessedResp.get()) + effect, Settings.FISHERY_MAX);
+                    long fish = Math.min(RedisManager.parseLong(fishResp.get()) + effect, Settings.FISHERY_MAX);
+                    long recentFishGainsRaw = Math.min(RedisManager.parseLong(recentFishGainsRawResp.get()) + effect, Settings.FISHERY_MAX);
+                    long recentFishGainsProcessed = Math.min(RedisManager.parseLong(recentFishGainsProcessedResp.get()) + effect, Settings.FISHERY_MAX);
 
                     pipeline = jedis.pipelined();
                     pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
@@ -412,13 +412,13 @@ public class FisheryMemberData implements MemberAsset {
 
     public void setFish(long fish) {
         long newFish = Math.max(Math.min(fish, Settings.FISHERY_MAX), 0);
-        DBRedis.getInstance().update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(newFish)));
+        RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(newFish)));
     }
 
     public void setCoinsRaw(long coins) {
         long coinsHidden = getCoinsHidden();
         long newCoins = Math.max(Math.min(coins, Settings.FISHERY_MAX), coinsHidden);
-        DBRedis.getInstance().update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_COINS, String.valueOf(newCoins)));
+        RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_COINS, String.valueOf(newCoins)));
     }
 
     public void addCoinsHidden(long value) {
@@ -430,8 +430,8 @@ public class FisheryMemberData implements MemberAsset {
 
     public void addCoinsRaw(long value) {
         if (value != 0) {
-            DBRedis.getInstance().update(jedis -> {
-                long coinsRaw = DBRedis.parseLong(jedis.hget(KEY_ACCOUNT, FIELD_COINS));
+            RedisManager.update(jedis -> {
+                long coinsRaw = RedisManager.parseLong(jedis.hget(KEY_ACCOUNT, FIELD_COINS));
                 long coinsHidden = getCoinsHidden();
                 long newCoins = Math.max(Math.min(coinsRaw + value, Settings.FISHERY_MAX), coinsHidden);
                 jedis.hset(KEY_ACCOUNT, FIELD_COINS, String.valueOf(newCoins));
@@ -441,7 +441,7 @@ public class FisheryMemberData implements MemberAsset {
 
     public void setDailyStreak(long dailyStreak) {
         long newDailyStreak = Math.max(Math.min(dailyStreak, Settings.FISHERY_MAX), 0);
-        DBRedis.getInstance().update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_DAILY_STREAK, String.valueOf(newDailyStreak)));
+        RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_DAILY_STREAK, String.valueOf(newDailyStreak)));
     }
 
     public void changeValues(long fishAdd, long coinsAdd) {
@@ -449,7 +449,7 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public synchronized void changeValues(long fishAdd, long coinsAdd, Long newDailyStreak) {
-        DBRedis.getInstance().update(jedis -> {
+        RedisManager.update(jedis -> {
             long hour = TimeUtil.currentHour();
 
             Pipeline pipeline = jedis.pipelined();
@@ -462,11 +462,11 @@ public class FisheryMemberData implements MemberAsset {
             pipeline = jedis.pipelined();
 
             if (fishAdd != 0) {
-                long fish = Math.max(Math.min(DBRedis.parseLong(fishResp.get()) + fishAdd, Settings.FISHERY_MAX), 0);
+                long fish = Math.max(Math.min(RedisManager.parseLong(fishResp.get()) + fishAdd, Settings.FISHERY_MAX), 0);
                 pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
                 if (fishAdd > 0) {
-                    long recentFishGainsRaw = Math.min(DBRedis.parseLong(recentFishGainsRawResp.get()) + fishAdd, Settings.FISHERY_MAX);
-                    long recentFishGainsProcessed = Math.min(DBRedis.parseLong(recentFishGainsProcessedResp.get()) + fishAdd, Settings.FISHERY_MAX);
+                    long recentFishGainsRaw = Math.min(RedisManager.parseLong(recentFishGainsRawResp.get()) + fishAdd, Settings.FISHERY_MAX);
+                    long recentFishGainsProcessed = Math.min(RedisManager.parseLong(recentFishGainsProcessedResp.get()) + fishAdd, Settings.FISHERY_MAX);
                     pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
                     pipeline.zadd(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, recentFishGainsProcessed, String.valueOf(memberId));
                 }
@@ -474,7 +474,7 @@ public class FisheryMemberData implements MemberAsset {
 
             if (coinsAdd != 0) {
                 long coinsHidden = getCoinsHidden();
-                long coins = Math.max(Math.min(DBRedis.parseLong(coinsResp.get()) + coinsAdd, Settings.FISHERY_MAX), coinsHidden);
+                long coins = Math.max(Math.min(RedisManager.parseLong(coinsResp.get()) + coinsAdd, Settings.FISHERY_MAX), coinsHidden);
                 pipeline.hset(KEY_ACCOUNT, FIELD_COINS, String.valueOf(coins));
             }
 
@@ -496,7 +496,7 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public synchronized EmbedBuilder changeValuesEmbed(Member member, long fishAdd, long coinsAdd, Long newDailyStreak) {
-        return DBRedis.getInstance().get(jedis -> {
+        return RedisManager.get(jedis -> {
             long coinsHidden = getCoinsHidden();
 
             /* collect current data */
@@ -508,10 +508,10 @@ public class FisheryMemberData implements MemberAsset {
             pipeline.sync();
 
             FisheryRecentFishGainsData fisheryRecentFishGainsDataPrevious = getRecentFishGains();
-            long fishPrevious = DBRedis.parseLong(fishPreviousResp.get());
-            long coinsPrevious = DBRedis.parseLong(coinsPreviousResp.get()) - coinsHidden;
-            long dailyStreakPrevious = DBRedis.parseLong(dailyStreakPreviousResp.get());
-            Instant bannedUntil = DBRedis.parseInstant(bannedUntilResp.get());
+            long fishPrevious = RedisManager.parseLong(fishPreviousResp.get());
+            long coinsPrevious = RedisManager.parseLong(coinsPreviousResp.get()) - coinsHidden;
+            long dailyStreakPrevious = RedisManager.parseLong(dailyStreakPreviousResp.get());
+            Instant bannedUntil = RedisManager.parseInstant(bannedUntilResp.get());
             boolean banned = bannedUntil != null && bannedUntil.isAfter(Instant.now());
 
             /* update values */
@@ -601,23 +601,23 @@ public class FisheryMemberData implements MemberAsset {
 
     public void updateDailyReceived() {
         if (!LocalDate.now().equals(getDailyReceived())) {
-            DBRedis.getInstance().update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_DAILY_RECEIVED, LocalDate.now().toString()));
+            RedisManager.update(jedis -> jedis.hset(KEY_ACCOUNT, FIELD_DAILY_RECEIVED, LocalDate.now().toString()));
         }
     }
 
     public void addUpvote(int upvotes) {
         if (upvotes > 0) {
-            DBRedis.getInstance().update(jedis -> jedis.hincrBy(KEY_ACCOUNT, FIELD_UPVOTE_STACK, upvotes));
+            RedisManager.update(jedis -> jedis.hincrBy(KEY_ACCOUNT, FIELD_UPVOTE_STACK, upvotes));
         }
     }
 
     public void clearUpvoteStack() {
-        DBRedis.getInstance().update(jedis -> jedis.hdel(KEY_ACCOUNT, FIELD_UPVOTE_STACK));
+        RedisManager.update(jedis -> jedis.hdel(KEY_ACCOUNT, FIELD_UPVOTE_STACK));
     }
 
     public void remove() {
-        DBRedis.getInstance().update(jedis -> {
-            List<Map.Entry<String, String>> recentFishGainsRaw = DBRedis.getInstance().hscan(jedis, getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW);
+        RedisManager.update(jedis -> {
+            List<Map.Entry<String, String>> recentFishGainsRaw = RedisManager.hscan(jedis, getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW);
 
             Pipeline pipeline = jedis.pipelined();
             pipeline.del(KEY_ACCOUNT);

@@ -110,11 +110,11 @@ public class CoinFlipCommand extends CasinoAbstract {
         if (selection[0] == -1) return;
         deregisterListenersWithButtons();
 
-        MainScheduler.getInstance().schedule(3000, "coinflip_cputhrow", () -> {
+        MainScheduler.schedule(3000, "coinflip_cputhrow", () -> {
             selection[1] = new Random().nextBoolean() ? 1 : 0;
             drawMessage(draw(member));
 
-            MainScheduler.getInstance().schedule(1000, "coinflip_results", () -> {
+            MainScheduler.schedule(1000, "coinflip_results", () -> {
                 if (selection[0] == selection[1]) {
                     win(member);
                 } else {

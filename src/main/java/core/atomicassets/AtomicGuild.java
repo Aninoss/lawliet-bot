@@ -24,7 +24,7 @@ public class AtomicGuild implements AtomicAsset<Guild> {
 
     @Override
     public Optional<Guild> get() {
-        return ShardManager.getInstance().getLocalGuildById(guildId);
+        return ShardManager.getLocalGuildById(guildId);
     }
 
     @Override

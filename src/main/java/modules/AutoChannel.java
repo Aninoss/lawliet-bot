@@ -33,9 +33,9 @@ public class AutoChannel {
         AutoChannelData autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
         if (autoChannelBean.isActive() && voiceChannel.getIdLong() == autoChannelBean.getParentChannelId().orElse(0L)) {
             GuildData guildBean = autoChannelBean.getGuildData();
-            if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, guild, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL) &&
-                    PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParent(), Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL) &&
-                    PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
+            if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, guild, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL) &&
+                    PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParent(), Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL) &&
+                    PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
             ) {
                 int n = 1;
                 for (int i = 0; i < 50; i++) {
@@ -65,7 +65,7 @@ public class AutoChannel {
 
         for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (voiceChannel.getIdLong() == childChannelId) {
-                if (PermissionCheckRuntime.getInstance().botHasPermission(autoChannelBean.getGuildData().getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
+                if (PermissionCheckRuntime.botHasPermission(autoChannelBean.getGuildData().getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
                     if (voiceChannel.getMembers().size() == 0) {
                         voiceChannel.delete().queue();
                     }

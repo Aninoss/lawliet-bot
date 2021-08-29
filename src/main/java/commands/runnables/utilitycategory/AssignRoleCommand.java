@@ -38,6 +38,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 public class AssignRoleCommand extends Command implements OnButtonListener {
 
     private static final String CANCEL_EMOJI = Emojis.X;
+    private static final RoleAssigner roleAssigner = new RoleAssigner();
 
     private Mention rolesMention;
 
@@ -82,7 +83,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
         }
 
         rolesMention = MentionUtil.getMentionedStringOfRoles(getLocale(), roles);
-        Optional<CompletableFuture<Boolean>> futureOpt = RoleAssigner.getInstance().assignRoles(event.getGuild(), roles, addRole());
+        Optional<CompletableFuture<Boolean>> futureOpt = roleAssigner.assignRoles(event.getGuild(), roles, addRole());
 
         /* check for busy */
         if (futureOpt.isEmpty()) {
@@ -117,7 +118,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         event.deferEdit().queue();
         deregisterListenersWithButtons();
-        RoleAssigner.getInstance().cancel(event.getGuild().getIdLong());
+        roleAssigner.cancel(event.getGuild().getIdLong());
         return false;
     }
 

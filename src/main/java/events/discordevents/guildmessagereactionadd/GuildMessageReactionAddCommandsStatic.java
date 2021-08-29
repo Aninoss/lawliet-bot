@@ -37,7 +37,7 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
             if (command instanceof OnStaticReactionAddListener) {
                 Message message;
                 try {
-                    message = MessageCache.getInstance().retrieveMessage(event.getChannel(), event.getMessageIdLong()).get();
+                    message = MessageCache.retrieveMessage(event.getChannel(), event.getMessageIdLong()).get();
                 } catch (InterruptedException | ExecutionException e) {
                     //Ignore
                     return true;

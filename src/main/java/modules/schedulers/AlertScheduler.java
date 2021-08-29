@@ -24,34 +24,24 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
-public class AlertScheduler extends Startable {
+public class AlertScheduler {
 
-    private static final AlertScheduler ourInstance = new AlertScheduler();
-
-    public static AlertScheduler getInstance() {
-        return ourInstance;
-    }
-
-    private AlertScheduler() {
-    }
-
-    private final ScheduledExecutorService executorService =
+    private static final ScheduledExecutorService executorService =
             Executors.newScheduledThreadPool(3, new CountingThreadFactory(() -> "Main", "Alerts", false));
 
-    @Override
-    protected void run() {
+    public static void start() {
         try {
-            DBTracker.getInstance().retrieveAll().forEach(this::loadAlert);
+            DBTracker.getInstance().retrieveAll().forEach(AlertScheduler::loadAlert);
         } catch (Throwable e) {
             MainLogger.get().error("Could not start alerts", e);
         }
     }
 
-    public void loadAlert(TrackerData slot) {
+    public static void loadAlert(TrackerData slot) {
         loadAlert(slot.getGuildId(), slot.hashCode(), slot.getNextRequest());
     }
 
-    public void loadAlert(long guildId, int hash, Instant due) {
+    public static void loadAlert(long guildId, int hash, Instant due) {
         long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), due);
         executorService.schedule(() -> {
             CustomObservableMap<Integer, TrackerData> map = DBTracker.getInstance().retrieve(guildId);
@@ -74,7 +64,7 @@ public class AlertScheduler extends Startable {
         }, millis, TimeUnit.MILLISECONDS);
     }
 
-    private boolean manageAlert(TrackerData slot) {
+    private static boolean manageAlert(TrackerData slot) {
         Instant minInstant = Instant.now().plus(1, ChronoUnit.MINUTES);
 
         try {
@@ -94,7 +84,7 @@ public class AlertScheduler extends Startable {
         return false;
     }
 
-    private void processAlert(TrackerData slot) throws Throwable {
+    private static void processAlert(TrackerData slot) throws Throwable {
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getGuildData().getLocale(), slot.getGuildData().getPrefix());
         if (commandOpt.isEmpty()) {
             MainLogger.get().error("Invalid alert for command: {}", slot.getCommandTrigger());
@@ -105,7 +95,7 @@ public class AlertScheduler extends Startable {
         OnAlertListener command = (OnAlertListener) commandOpt.get();
         Optional<TextChannel> channelOpt = slot.getTextChannel();
         if (channelOpt.isPresent()) {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+            if (PermissionCheckRuntime.botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
                 if (checkNSFW(slot, channelOpt.get(), (Command) command) ||
                         checkPatreon(slot, channelOpt.get(), (Command) command)
                 ) {
@@ -143,7 +133,7 @@ public class AlertScheduler extends Startable {
         }
     }
 
-    private boolean checkNSFW(TrackerData slot, TextChannel channel, Command command) {
+    private static boolean checkNSFW(TrackerData slot, TextChannel channel, Command command) {
         if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
@@ -156,9 +146,9 @@ public class AlertScheduler extends Startable {
         return false;
     }
 
-    private boolean checkPatreon(TrackerData slot, TextChannel channel, Command command) {
+    private static boolean checkPatreon(TrackerData slot, TextChannel channel, Command command) {
         if (command.getCommandProperties().patreonRequired() &&
-                !ServerPatreonBoostCache.getInstance().get(channel.getGuild().getIdLong())
+                !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
         ) {
             EmbedBuilder eb = EmbedFactory.getPatreonBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());

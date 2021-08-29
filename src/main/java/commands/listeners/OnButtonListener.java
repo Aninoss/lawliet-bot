@@ -56,7 +56,7 @@ public interface OnButtonListener {
 
         CommandListenerMeta<ButtonClickEvent> commandListenerMeta =
                 new CommandListenerMeta<>(member.getIdLong(), validityChecker, onTimeOut, onOverridden, command);
-        CommandContainer.getInstance().registerListener(OnButtonListener.class, commandListenerMeta);
+        CommandContainer.registerListener(OnButtonListener.class, commandListenerMeta);
 
         try {
             if (command.getDrawMessageId().isEmpty()) {
@@ -108,7 +108,7 @@ public interface OnButtonListener {
                 MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
             }
             if (onButton(event)) {
-                CommandContainer.getInstance().refreshListeners(command);
+                CommandContainer.refreshListeners(command);
                 EmbedBuilder eb = draw(event.getMember());
                 if (eb != null) {
                     ((Command) this).drawMessage(eb);

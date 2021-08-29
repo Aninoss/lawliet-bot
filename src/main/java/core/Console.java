@@ -17,7 +17,7 @@ import events.scheduleevents.events.FisheryVoiceChannelObserver;
 import events.scheduleevents.events.ReminderDaily;
 import javafx.util.Pair;
 import modules.repair.MainRepair;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.JDA;
@@ -26,122 +26,115 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import websockets.syncserver.SyncManager;
 
-public class Console extends Startable {
+public class Console {
 
-    private static final Console instance = new Console();
+    private static final HashMap<String, ConsoleTask> tasks = new HashMap<>();
 
-    public static Console getInstance() {
-        return instance;
-    }
-
-    private Console() {
+    static {
         registerTasks();
     }
 
-    private final HashMap<String, ConsoleTask> tasks = new HashMap<>();
-
-    @Override
-    protected void run() {
-        Thread t = new Thread(this::manageConsole, "Console");
+    public static void start() {
+        Thread t = new Thread(Console::manageConsole, "Console");
         t.setDaemon(true);
         t.start();
     }
 
-    private void registerTasks() {
-        tasks.put("help", this::onHelp);
+    private static void registerTasks() {
+        tasks.put("help", Console::onHelp);
 
-        tasks.put("reminder_daily", this::onReminderDaily);
-        tasks.put("actions_servers", this::onActionsServers);
-        tasks.put("actions", this::onActions);
-        tasks.put("stuck", this::onStuck);
-        tasks.put("routes", this::onRoutes);
-        tasks.put("patreon_fetch", this::onPatreonFetch);
-        tasks.put("survey", this::onSurvey);
-        tasks.put("repair", this::onRepair);
-        tasks.put("quit", this::onQuit);
-        tasks.put("stats", this::onStats);
-        tasks.put("memory", this::onMemory);
-        tasks.put("uptime", this::onUptime);
-        tasks.put("shards", this::onShards);
-        tasks.put("reconnect", this::onReconnect);
-        tasks.put("sync_reconnect", this::onSyncReconnect);
-        tasks.put("mysql_connect", this::onMySQLConnect);
-        tasks.put("threads", this::onThreads);
-        tasks.put("threads_stack", this::onThreadsStack);
-        tasks.put("threads_interrupt", this::onThreadsInterrupt);
-        tasks.put("ban", this::onBan);
-        tasks.put("unban", this::onUnban);
-        tasks.put("fish", this::onFish);
-        tasks.put("coins", this::onCoins);
-        tasks.put("daily", this::onDailyStreak);
-        tasks.put("delete_fishery_user", this::onDeleteFisheryUser);
-        tasks.put("fishery_vc", this::onFisheryVC);
-        tasks.put("server", this::onServer);
-        tasks.put("leave_server", this::onLeaveServer);
-        tasks.put("user_find", this::onUserFind);
-        tasks.put("user", this::onUser);
-        tasks.put("servers", this::onServers);
-        tasks.put("servers_mutual", this::onServersMutual);
-        tasks.put("patreon", this::onPatreon);
-        tasks.put("patreon_guild", this::onPatreonGuild);
-        tasks.put("internet", this::onInternetConnection);
-        tasks.put("send_user", this::onSendUser);
-        tasks.put("send_channel", this::onSendChannel);
+        tasks.put("reminder_daily", Console::onReminderDaily);
+        tasks.put("actions_servers", Console::onActionsServers);
+        tasks.put("actions", Console::onActions);
+        tasks.put("stuck", Console::onStuck);
+        tasks.put("routes", Console::onRoutes);
+        tasks.put("patreon_fetch", Console::onPatreonFetch);
+        tasks.put("survey", Console::onSurvey);
+        tasks.put("repair", Console::onRepair);
+        tasks.put("quit", Console::onQuit);
+        tasks.put("stats", Console::onStats);
+        tasks.put("memory", Console::onMemory);
+        tasks.put("uptime", Console::onUptime);
+        tasks.put("shards", Console::onShards);
+        tasks.put("reconnect", Console::onReconnect);
+        tasks.put("sync_reconnect", Console::onSyncReconnect);
+        tasks.put("mysql_connect", Console::onMySQLConnect);
+        tasks.put("threads", Console::onThreads);
+        tasks.put("threads_stack", Console::onThreadsStack);
+        tasks.put("threads_interrupt", Console::onThreadsInterrupt);
+        tasks.put("ban", Console::onBan);
+        tasks.put("unban", Console::onUnban);
+        tasks.put("fish", Console::onFish);
+        tasks.put("coins", Console::onCoins);
+        tasks.put("daily", Console::onDailyStreak);
+        tasks.put("delete_fishery_user", Console::onDeleteFisheryUser);
+        tasks.put("fishery_vc", Console::onFisheryVC);
+        tasks.put("server", Console::onServer);
+        tasks.put("leave_server", Console::onLeaveServer);
+        tasks.put("user_find", Console::onUserFind);
+        tasks.put("user", Console::onUser);
+        tasks.put("servers", Console::onServers);
+        tasks.put("servers_mutual", Console::onServersMutual);
+        tasks.put("patreon", Console::onPatreon);
+        tasks.put("patreon_guild", Console::onPatreonGuild);
+        tasks.put("internet", Console::onInternetConnection);
+        tasks.put("send_user", Console::onSendUser);
+        tasks.put("send_channel", Console::onSendChannel);
     }
 
-    private void onReminderDaily(String[] args) {
+    private static void onReminderDaily(String[] args) {
         MainLogger.get().info("Processing daily reminders");
         ReminderDaily.execute();
     }
 
-    private void onActionsServers(String[] args) {
-        List<Pair<Long, Integer>> guildActionCounts = RestLogger.getInstance().countGuilds(20);
+    private static void onActionsServers(String[] args) {
+        List<Pair<Long, Integer>> guildActionCounts = RestLogger.countGuilds(20);
         for (Pair<Long, Integer> guildActionCount : guildActionCounts) {
             MainLogger.get().info("{}: {} requests", guildActionCount.getKey(), guildActionCount.getValue());
         }
     }
 
-    private void onActions(String[] args) {
-        MainLogger.get().info("Recent actions in cluster {}: {} requests", Program.getClusterId(), RestLogger.getInstance().count());
+    private static void onActions(String[] args) {
+        MainLogger.get().info("Recent actions in cluster {}: {} requests", Program.getClusterId(), RestLogger.count());
     }
 
-    private void onStuck(String[] args) {
-        MainLogger.get().info("Cluster {} command stuck counter: {}", Program.getClusterId(), CommandContainer.getInstance().getCommandStuckCounter());
+    private static void onStuck(String[] args) {
+        MainLogger.get().info("Cluster {} command stuck counter: {}", Program.getClusterId(), CommandContainer.getCommandStuckCounter());
     }
 
-    private void onRoutes(String[] args) {
+    private static void onRoutes(String[] args) {
         int limit = 999;
         if (args.length > 1) {
             limit = Integer.parseInt(args[1]);
         }
 
-        RequestRouteLogger.getInstance().getRoutes()
+        RequestRouteLogger.getRoutes()
                 .stream()
                 .limit(limit)
                 .forEach(entry -> MainLogger.get().info("\"{}\": {} requests", entry.getRoute(), entry.getRequests()));
     }
 
-    private void onPatreonFetch(String[] args) {
+    private static void onPatreonFetch(String[] args) {
         PatreonCache.getInstance().requestUpdate();
     }
 
-    private void onSurvey(String[] args) {
+    private static void onSurvey(String[] args) {
         MainLogger.get().info("Processing survey results");
         FisherySurveyResults.processCurrentResults();
     }
 
-    private void onRepair(String[] args) {
+    private static void onRepair(String[] args) {
         int minutes = Integer.parseInt(args[1]);
-        ShardManager.getInstance().getConnectedLocalJDAs().forEach(jda -> MainRepair.start(jda, minutes));
+        ShardManager.getConnectedLocalJDAs().forEach(jda -> MainRepair.start(jda, minutes));
         MainLogger.get().info("Repairing cluster {} with {} minutes", Program.getClusterId(), minutes);
     }
 
-    private void onSendChannel(String[] args) {
+    private static void onSendChannel(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long channelId = Long.parseLong(args[2]);
         String text = collectArgs(args, 3).replace("\\n", "\n");
 
-        ShardManager.getInstance().getLocalGuildById(serverId)
+        ShardManager.getLocalGuildById(serverId)
                 .map(guild -> guild.getTextChannelById(channelId))
                 .ifPresent(channel -> {
                     MainLogger.get().info("#{}: {}", channel.getName(), text);
@@ -149,10 +142,10 @@ public class Console extends Startable {
                 });
     }
 
-    private void onSendUser(String[] args) {
+    private static void onSendUser(String[] args) {
         long userId = Long.parseLong(args[1]);
         String text = collectArgs(args, 2).replace("\\n", "\n");
-        ShardManager.getInstance().fetchUserById(userId)
+        ShardManager.fetchUserById(userId)
                 .exceptionally(ExceptionLogger.get())
                 .thenAccept(user -> {
                     MainLogger.get().info("@{}: {}", user.getAsTag(), text);
@@ -160,40 +153,40 @@ public class Console extends Startable {
                 });
     }
 
-    private void onInternetConnection(String[] args) {
+    private static void onInternetConnection(String[] args) {
         MainLogger.get().info("Internet connection (Cluster {}): {}", Program.getClusterId(), InternetUtil.checkConnection());
     }
 
-    private void onPatreon(String[] args) {
+    private static void onPatreon(String[] args) {
         long userId = Long.parseLong(args[1]);
         MainLogger.get().info("Patreon stats of user {}: {}", userId, PatreonCache.getInstance().getUserTier(userId, false));
     }
 
-    private void onPatreonGuild(String[] args) {
+    private static void onPatreonGuild(String[] args) {
         long guildId = Long.parseLong(args[1]);
         MainLogger.get().info("{} unlocked: {}", guildId, PatreonCache.getInstance().isUnlocked(guildId));
     }
 
-    private void onServersMutual(String[] args) {
-        User user = ShardManager.getInstance().fetchOwner().join();
-        ShardManager.getInstance()
+    private static void onServersMutual(String[] args) {
+        User user = ShardManager.fetchOwner().join();
+        ShardManager
                 .getLocalMutualGuilds(user)
                 .stream()
                 .limit(50)
-                .forEach(this::printGuild);
+                .forEach(Console::printGuild);
     }
 
-    private void onServers(String[] args) {
-        ArrayList<Guild> guilds = new ArrayList<>(ShardManager.getInstance().getLocalGuilds());
+    private static void onServers(String[] args) {
+        ArrayList<Guild> guilds = new ArrayList<>(ShardManager.getLocalGuilds());
         int min = args.length > 1 ? Integer.parseInt(args[1]) : 0;
 
         guilds.stream()
                 .filter(g -> g.getMemberCount() >= min)
                 .limit(50)
-                .forEach(this::printGuild);
+                .forEach(Console::printGuild);
     }
 
-    private void printGuild(Guild guild) {
+    private static void printGuild(Guild guild) {
         MemberCacheController.getInstance().loadMembersFull(guild).join();
         int bots = (int) guild.getMembers().stream().filter(m -> m.getUser().isBot()).count();
         MainLogger.get().info(
@@ -207,11 +200,11 @@ public class Console extends Startable {
         );
     }
 
-    private void onUserFind(String[] args) {
+    private static void onUserFind(String[] args) {
         String username = collectArgs(args, 1);
         AtomicInteger n = new AtomicInteger();
-        for (int i = ShardManager.getInstance().getShardIntervalMin(); i <= ShardManager.getInstance().getShardIntervalMax(); i++) {
-            ShardManager.getInstance().getJDA(i).map(JDA::getUsers).ifPresent(users -> {
+        for (int i = ShardManager.getShardIntervalMin(); i <= ShardManager.getShardIntervalMax(); i++) {
+            ShardManager.getJDA(i).map(JDA::getUsers).ifPresent(users -> {
                 users.forEach(user -> {
                     if (user.getAsTag().toLowerCase().contains(username.toLowerCase())) {
                         if (n.getAndIncrement() < 20) {
@@ -223,16 +216,16 @@ public class Console extends Startable {
         }
     }
 
-    private void onUser(String[] args) {
+    private static void onUser(String[] args) {
         long userId = Long.parseLong(args[1]);
-        ShardManager.getInstance().fetchUserById(userId)
+        ShardManager.fetchUserById(userId)
                 .exceptionally(ExceptionLogger.get())
                 .thenAccept(user -> MainLogger.get().info("{} => {}", user.getId(), user.getAsTag()));
     }
 
-    private void onFisheryVC(String[] args) {
+    private static void onFisheryVC(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(guild -> {
+        ShardManager.getLocalGuildById(serverId).ifPresent(guild -> {
             HashSet<Member> members = new HashSet<>();
             guild.getVoiceChannels().forEach(vc -> members.addAll(FisheryVoiceChannelObserver.getValidVCMembers(vc)));
 
@@ -243,77 +236,77 @@ public class Console extends Startable {
         });
     }
 
-    private void onServer(String[] args) {
+    private static void onServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(guild ->
+        ShardManager.getLocalGuildById(serverId).ifPresent(guild ->
                 MainLogger.get().info("{} | Members: {} | Owner: {} | Shard {}", guild.getName(), guild.getMemberCount(), guild.getOwner().getUser().getAsTag(), guild.getJDA().getShardInfo().getShardId())
         );
     }
 
-    private void onLeaveServer(String[] args) {
+    private static void onLeaveServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
-        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
+        ShardManager.getLocalGuildById(serverId).ifPresent(server -> {
             server.leave().queue();
             MainLogger.get().info("Left server: {}", server.getName());
         });
     }
 
-    private void onDeleteFisheryUser(String[] args) {
+    private static void onDeleteFisheryUser(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
 
-        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
+        ShardManager.getLocalGuildById(serverId).ifPresent(server -> {
             DBFishery.getInstance().retrieve(serverId).getMemberData(userId).remove();
             MainLogger.get().info("Fishery user {} from server {} removed", userId, serverId);
         });
     }
 
-    private void onDailyStreak(String[] args) {
+    private static void onDailyStreak(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
 
-        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
+        ShardManager.getLocalGuildById(serverId).ifPresent(server -> {
             DBFishery.getInstance().retrieve(serverId).getMemberData(userId).setDailyStreak(value);
             MainLogger.get().info("Changed daily streak value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }
 
-    private void onCoins(String[] args) {
+    private static void onCoins(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
 
-        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
+        ShardManager.getLocalGuildById(serverId).ifPresent(server -> {
             DBFishery.getInstance().retrieve(serverId).getMemberData(userId).setCoinsRaw(value);
             MainLogger.get().info("Changed coin value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }
 
-    private void onFish(String[] args) {
+    private static void onFish(String[] args) {
         long serverId = Long.parseLong(args[1]);
         long userId = Long.parseLong(args[2]);
         long value = Long.parseLong(args[3]);
 
-        ShardManager.getInstance().getLocalGuildById(serverId).ifPresent(server -> {
+        ShardManager.getLocalGuildById(serverId).ifPresent(server -> {
             DBFishery.getInstance().retrieve(serverId).getMemberData(userId).setFish(value);
             MainLogger.get().info("Changed fish value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }
 
-    private void onUnban(String[] args) {
+    private static void onUnban(String[] args) {
         long userId = Long.parseLong(args[1]);
         DBBannedUsers.getInstance().retrieve().getUserIds().remove(userId);
         MainLogger.get().info("User {} unbanned", userId);
     }
 
-    private void onBan(String[] args) {
+    private static void onBan(String[] args) {
         long userId = Long.parseLong(args[1]);
         DBBannedUsers.getInstance().retrieve().getUserIds().add(userId);
         MainLogger.get().info("User {} banned", userId);
     }
 
-    private void onThreadsStack(String[] args) {
+    private static void onThreadsStack(String[] args) {
         for (Thread t : Thread.getAllStackTraces().keySet()) {
             if (args.length < 2 || t.getName().matches(args[1])) {
                 Exception e = ExceptionUtil.generateForStack(t);
@@ -322,7 +315,7 @@ public class Console extends Startable {
         }
     }
 
-    private void onThreadsInterrupt(String[] args) {
+    private static void onThreadsInterrupt(String[] args) {
         int stopped = 0;
 
         for (Thread t : Thread.getAllStackTraces().keySet()) {
@@ -335,7 +328,7 @@ public class Console extends Startable {
         MainLogger.get().info("{} thread/s interrupted in cluster {}", stopped, Program.getClusterId());
     }
 
-    private void onThreads(String[] args) {
+    private static void onThreads(String[] args) {
         StringBuilder sb = new StringBuilder();
 
         for (Thread t : Thread.getAllStackTraces().keySet()) {
@@ -350,57 +343,57 @@ public class Console extends Startable {
         MainLogger.get().info("\n--- THREADS FOR CLUSTER {} ({}) ---\n{}\n", Program.getClusterId(), Thread.getAllStackTraces().size(), str);
     }
 
-    private void onMySQLConnect(String[] args) {
+    private static void onMySQLConnect(String[] args) {
         try {
-            DBMain.getInstance().connect();
+            MySQLManager.connect();
         } catch (SQLException e) {
             MainLogger.get().error("Exception", e);
         }
     }
 
-    private void onSyncReconnect(String[] args) {
-        SyncManager.getInstance().reconnect();
+    private static void onSyncReconnect(String[] args) {
+        SyncManager.reconnect();
     }
 
-    private void onReconnect(String[] args) {
+    private static void onReconnect(String[] args) {
         int shardId = Integer.parseInt(args[1]);
-        ShardManager.getInstance().reconnectShard(shardId);
+        ShardManager.reconnectShard(shardId);
     }
 
-    private void onShards(String[] args) {
-        MainLogger.get().info("Cluster: {} - Shards: {} / {}", Program.getClusterId(), ShardManager.getInstance().getConnectedLocalJDAs().size(), ShardManager.getInstance().getLocalShards());
-        for (int i = ShardManager.getInstance().getShardIntervalMin(); i <= ShardManager.getInstance().getShardIntervalMax(); i++) {
-            if (!ShardManager.getInstance().jdaIsConnected(i)) {
+    private static void onShards(String[] args) {
+        MainLogger.get().info("Cluster: {} - Shards: {} / {}", Program.getClusterId(), ShardManager.getConnectedLocalJDAs().size(), ShardManager.getLocalShards());
+        for (int i = ShardManager.getShardIntervalMin(); i <= ShardManager.getShardIntervalMax(); i++) {
+            if (!ShardManager.jdaIsConnected(i)) {
                 MainLogger.get().info("Shard {} is unavailable!", i);
             }
         }
     }
 
-    private void onUptime(String[] args) {
+    private static void onUptime(String[] args) {
         MainLogger.get().info("Uptime cluster {}: {}", Program.getClusterId(), TimeUtil.getRemainingTimeString(Language.EN.getLocale(), Program.getStartTime(), Instant.now(), false));
     }
 
-    private void onStats(String[] args) {
+    private static void onStats(String[] args) {
         MainLogger.get().info(getStats());
     }
 
-    private void onMemory(String[] args) {
+    private static void onMemory(String[] args) {
         MainLogger.get().info(getMemory());
     }
 
-    private void onQuit(String[] args) {
+    private static void onQuit(String[] args) {
         MainLogger.get().info("EXIT - Stopping cluster {}", Program.getClusterId());
         System.exit(0);
     }
 
-    private void onHelp(String[] args) {
+    private static void onHelp(String[] args) {
         tasks.keySet().stream()
                 .filter(key -> !key.equals("help"))
                 .sorted()
                 .forEach(key -> System.out.println("- " + key));
     }
 
-    private void manageConsole() {
+    private static void manageConsole() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             if (scanner.hasNext()) {
@@ -412,7 +405,7 @@ public class Console extends Startable {
         }
     }
 
-    public void processInput(String input) {
+    public static void processInput(String input) {
         String[] args = input.split(" ");
         ConsoleTask task = tasks.get(args[0]);
         if (task != null) {
@@ -428,7 +421,7 @@ public class Console extends Startable {
         }
     }
 
-    private String collectArgs(String[] args, int firstIndex) {
+    private static String collectArgs(String[] args, int firstIndex) {
         StringBuilder argsString = new StringBuilder();
         for (int i = firstIndex; i < args.length; i++) {
             argsString.append(" ").append(args[i]);
@@ -436,7 +429,7 @@ public class Console extends Startable {
         return argsString.toString().trim();
     }
 
-    public String getMemory() {
+    public static String getMemory() {
         StringBuilder sb = new StringBuilder();
         double memoryTotal = Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0);
         double memoryUsed = memoryTotal - (Runtime.getRuntime().freeMemory() / (1024.0 * 1024.0));
@@ -449,7 +442,7 @@ public class Console extends Startable {
         return sb.toString();
     }
 
-    public String getStats() {
+    public static String getStats() {
         String header = String.format("--- STATS CLUSTER %d ---", Program.getClusterId());
         StringBuilder sb = new StringBuilder("\n" + header + "\n");
 
@@ -469,12 +462,12 @@ public class Console extends Startable {
 
         // active listeners
         sb.append("Active Listeners: ")
-                .append(CommandContainer.getInstance().getListenerSize())
+                .append(CommandContainer.getListenerSize())
                 .append("\n");
 
         // running commands
         sb.append("Running Commands: ")
-                .append(RunningCheckerManager.getInstance().getRunningCommandsMap().size())
+                .append(RunningCheckerManager.getRunningCommandsMap().size())
                 .append("\n");
 
         sb.append("-".repeat(header.length()))

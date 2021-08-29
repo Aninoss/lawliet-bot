@@ -84,7 +84,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         if (surveySecondVote == null) {
             voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         } else {
-            voteStrings[1] = "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getInstance().getGuildName(surveySecondVote.getGuildId()).orElse(String.valueOf(surveySecondVote.getGuildId()))) + ")\n";
+            voteStrings[1] = "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getGuildName(surveySecondVote.getGuildId()).orElse(String.valueOf(surveySecondVote.getGuildId()))) + ")\n";
         }
 
         return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.ZERO_WIDTH_SPACE)
@@ -231,7 +231,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         TextChannel channel = slot.getTextChannel().get();
-        if (!PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION)) {
+        if (!PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), channel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION)) {
             return TrackerResult.CONTINUE;
         }
 

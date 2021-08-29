@@ -21,19 +21,13 @@ import websockets.syncserver.SyncManager;
 
 public class DiscordConnector {
 
-    private static final DiscordConnector ourInstance = new DiscordConnector();
+    private static boolean started = false;
+    private static final ConcurrentSessionController concurrentSessionController = new ConcurrentSessionController();
 
-    public static DiscordConnector getInstance() {
-        return ourInstance;
-    }
-
-    private boolean started = false;
-    private final ConcurrentSessionController concurrentSessionController = new ConcurrentSessionController();
-
-    private final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
+    private static final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
             .setSessionController(concurrentSessionController)
             .setMemberCachePolicy(MemberCacheController.getInstance())
-            .setChunkingFilter(ChunkingFilterController.getInstance())
+            .setChunkingFilter(new ChunkingFilterController())
             .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
             .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)
@@ -41,17 +35,17 @@ public class DiscordConnector {
             .setHttpClient(IOUtil.newHttpClientBuilder().addInterceptor(new CustomInterceptor()).build())
             .addEventListeners(new DiscordEventAdapter());
 
-    private DiscordConnector() {
+    static {
         concurrentSessionController.setConcurrency(Integer.parseInt(System.getenv("CONCURRENCY")));
-        ShardManager.getInstance().addShardDisconnectConsumer(this::reconnectApi);
+        ShardManager.addShardDisconnectConsumer(DiscordConnector::reconnectApi);
     }
 
-    public void connect(int shardMin, int shardMax, int totalShards) {
+    public static void connect(int shardMin, int shardMax, int totalShards) {
         if (started) return;
         started = true;
 
         MainLogger.get().info("Bot is logging in...");
-        ShardManager.getInstance().init(shardMin, shardMax, totalShards);
+        ShardManager.init(shardMin, shardMax, totalShards);
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageAction.setDefaultMentions(EnumSet.complementOf(deny));
 
@@ -68,11 +62,11 @@ public class DiscordConnector {
         }, "Shard-Starter").start();
     }
 
-    public void reconnectApi(int shardId) {
+    public static void reconnectApi(int shardId) {
         MainLogger.get().info("Shard {} is getting reconnected...", shardId);
 
         try {
-            jdaBuilder.useSharding(shardId, ShardManager.getInstance().getTotalShards())
+            jdaBuilder.useSharding(shardId, ShardManager.getTotalShards())
                     .build();
         } catch (LoginException e) {
             MainLogger.get().error("EXIT - Invalid token", e);
@@ -80,44 +74,46 @@ public class DiscordConnector {
         }
     }
 
-    public void onJDAJoin(JDA jda) {
-        ShardManager.getInstance().addJDA(jda);
+    public static void onJDAJoin(JDA jda) {
+        ShardManager.addJDA(jda);
         MainLogger.get().info("Shard {} connection established", jda.getShardInfo().getShardId());
 
-        synchronized (this) {
-            if (ShardManager.getInstance().isEverythingConnected() && !ShardManager.getInstance().isReady()) {
-                onConnectionCompleted();
-            }
-        }
-
+        checkConnectionCompleted();
         MainRepair.start(jda, 5);
     }
 
-    private void onConnectionCompleted() {
-        new ScheduleEventManager().start();
-        if (Program.productionMode() && Program.publicVersion()) BumpReminder.getInstance().start();
-        AlertScheduler.getInstance().start();
-        ReminderScheduler.getInstance().start();
-        GiveawayScheduler.getInstance().start();
-        TempBanScheduler.getInstance().start();
-        ServerMuteScheduler.getInstance().start();
+    private synchronized static void checkConnectionCompleted() {
+        if (ShardManager.isEverythingConnected() && !ShardManager.isReady()) {
+            onConnectionCompleted();
+        }
+    }
 
-        ShardManager.getInstance().start();
-        SyncManager.getInstance().setFullyConnected();
+    private synchronized static void onConnectionCompleted() {
+        new ScheduleEventManager().start();
+        if (Program.productionMode() && Program.publicVersion()) {
+            BumpReminder.start();
+        }
+        AlertScheduler.start();
+        ReminderScheduler.start();
+        GiveawayScheduler.start();
+        TempBanScheduler.start();
+        ServerMuteScheduler.start();
+        ShardManager.start();
+        SyncManager.setFullyConnected();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 
-    public void updateActivity(JDA jda) {
+    public static void updateActivity(JDA jda) {
         jda.getPresence().setActivity(Activity.watching(getActivityText()));
     }
 
-    private String getActivityText() {
-        return ShardManager.getInstance().getGlobalGuildSize()
+    private static String getActivityText() {
+        return ShardManager.getGlobalGuildSize()
                 .map(globalGuildSize -> "L.help | " + StringUtil.numToString(globalGuildSize) + " | www.lawlietbot.xyz")
                 .orElse("L.help | www.lawlietbot.xyz");
     }
 
-    public boolean isStarted() {
+    public static boolean isStarted() {
         return started;
     }
 

@@ -70,7 +70,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
             }
         }
 
-        if (memberIsAuthor && OsuAccountSync.getInstance().getUserInCache(member.getIdLong()).isEmpty()) {
+        if (memberIsAuthor && OsuAccountSync.getUserInCache(member.getIdLong()).isEmpty()) {
             setButtons(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("connect", userExists)));
         }
 
@@ -133,11 +133,11 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
                 }
             }
 
-            OsuAccountSync.getInstance().add(event.getMember().getIdLong(), osuUsername -> {
+            OsuAccountSync.add(event.getMember().getIdLong(), osuUsername -> {
                 if (!osuUsername.equals(GUEST)) {
                     setButtons();
                     deregisterListeners();
-                    OsuAccountSync.getInstance().remove(event.getMember().getIdLong());
+                    OsuAccountSync.remove(event.getMember().getIdLong());
                     OsuAccountDownloader.download(osuUsername, gameMode)
                             .thenAccept(osuAccountOptional -> {
                                 this.osuName = osuUsername;
@@ -153,7 +153,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
         } else if (event.getComponentId().equals(BUTTON_ID_CANCEL) && status == Status.CONNECTING) {
             setButtons();
             deregisterListeners();
-            OsuAccountSync.getInstance().remove(event.getMember().getIdLong());
+            OsuAccountSync.remove(event.getMember().getIdLong());
             this.osuAccount = null;
             this.status = Status.ABORTED;
             return true;

@@ -2,7 +2,7 @@ package mysql.modules.bannedusers;
 
 import java.util.ArrayList;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBSingleCache;
 
 public class DBBannedUsers extends DBSingleCache<BannedUsersData> {
@@ -32,13 +32,13 @@ public class DBBannedUsers extends DBSingleCache<BannedUsersData> {
     }
 
     private void addUserId(long userId) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO BannedUsers (userId) VALUES (?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO BannedUsers (userId) VALUES (?);", preparedStatement -> {
             preparedStatement.setLong(1, userId);
         });
     }
 
     private void removeUserId(long userId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM BannedUsers WHERE userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM BannedUsers WHERE userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, userId);
         });
     }

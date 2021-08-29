@@ -11,20 +11,11 @@ import core.cache.PatreonCache;
 
 public class RunningCheckerManager {
 
-    private static final RunningCheckerManager ourInstance = new RunningCheckerManager();
-
-    public static RunningCheckerManager getInstance() {
-        return ourInstance;
-    }
-
-    private RunningCheckerManager() {
-    }
-
-    private final Cache<Long, ArrayList<RunningCheckerSlot>> runningCommandsCache = CacheBuilder.newBuilder()
+    private static final Cache<Long, ArrayList<RunningCheckerSlot>> runningCommandsCache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(1))
             .build();
 
-    public synchronized boolean canUserRunCommand(Command command, long guildId, long userId, int shardId, int maxCalculationTimeSec) {
+    public static synchronized boolean canUserRunCommand(Command command, long guildId, long userId, int shardId, int maxCalculationTimeSec) {
         ArrayList<RunningCheckerSlot> runningCommandsList = runningCommandsCache.asMap().computeIfAbsent(userId, k -> new ArrayList<>());
         stopAndRemoveOutdatedRunningCommands(runningCommandsList);
 
@@ -39,22 +30,24 @@ public class RunningCheckerManager {
         return false;
     }
 
-    private void removeOnThreadEnd(Command command, ArrayList<RunningCheckerSlot> runningCommandsList, RunningCheckerSlot runningCheckerSlot, long userId) {
+    private static void removeOnThreadEnd(Command command, ArrayList<RunningCheckerSlot> runningCommandsList, RunningCheckerSlot runningCheckerSlot, long userId) {
         command.addCompletedListener(() -> {
-            synchronized (this) {
-                runningCommandsList.remove(runningCheckerSlot);
-                if (runningCommandsList.isEmpty()) {
-                    runningCommandsCache.invalidate(userId);
-                }
-            }
+            remove(runningCommandsList, runningCheckerSlot, userId);
         });
     }
 
-    private int getMaxAmount(long guildId, long userId) {
+    private static synchronized void remove(ArrayList<RunningCheckerSlot> runningCommandsList, RunningCheckerSlot runningCheckerSlot, long userId) {
+        runningCommandsList.remove(runningCheckerSlot);
+        if (runningCommandsList.isEmpty()) {
+            runningCommandsCache.invalidate(userId);
+        }
+    }
+
+    private static int getMaxAmount(long guildId, long userId) {
         return PatreonCache.getInstance().getUserTier(userId, true) >= 3 || PatreonCache.getInstance().isUnlocked(guildId) ? 2 : 1;
     }
 
-    private void stopAndRemoveOutdatedRunningCommands(ArrayList<RunningCheckerSlot> runningCommandsList) {
+    private static void stopAndRemoveOutdatedRunningCommands(ArrayList<RunningCheckerSlot> runningCommandsList) {
         new ArrayList<>(runningCommandsList).stream()
                 .filter(runningCheckerSlot -> Instant.now().isAfter(runningCheckerSlot.getInstant().plusSeconds(runningCheckerSlot.getMaxCalculationTimeSec())))
                 .forEach(runningCheckerSlot -> {
@@ -63,7 +56,7 @@ public class RunningCheckerManager {
                 });
     }
 
-    public synchronized HashMap<Long, ArrayList<RunningCheckerSlot>> getRunningCommandsMap() {
+    public static synchronized HashMap<Long, ArrayList<RunningCheckerSlot>> getRunningCommandsMap() {
         return new HashMap<>(runningCommandsCache.asMap());
     }
 

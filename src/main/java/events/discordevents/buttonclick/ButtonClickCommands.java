@@ -16,7 +16,7 @@ public class ButtonClickCommands extends ButtonClickAbstract {
     @Override
     public boolean onButtonClick(ButtonClickEvent event) {
         if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
-            CommandContainer.getInstance().getListeners(OnButtonListener.class)
+            CommandContainer.getListeners(OnButtonListener.class)
                     .forEach(listener -> {
                         switch (listener.check(event)) {
                             case ACCEPT -> ((OnButtonListener) listener.getCommand()).processButton(event);

@@ -34,7 +34,7 @@ public class OnCommandList implements SyncServerFunction {
         }
 
         //Add every command
-        for (Class<? extends Command> clazz : CommandContainer.getInstance().getFullCommandList()) {
+        for (Class<? extends Command> clazz : CommandContainer.getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");
             String trigger = command.getTrigger();
             JSONObject commandJSON = new JSONObject();

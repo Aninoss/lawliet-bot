@@ -9,15 +9,6 @@ import net.dv8tion.jda.api.entities.Role;
 
 public class AninossRaidProtection {
 
-    private static final AninossRaidProtection ourInstance = new AninossRaidProtection();
-
-    public static AninossRaidProtection getInstance() {
-        return ourInstance;
-    }
-
-    private AninossRaidProtection() {
-    }
-
     private Member lastMember = null;
     private Instant lastInstant = null;
 

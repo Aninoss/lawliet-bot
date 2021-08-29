@@ -9,15 +9,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class TextAICache {
 
-    public static final TextAICache ourInstance = new TextAICache();
-
-    public static TextAICache getInstance() {
-        return ourInstance;
-    }
-
-    private TextAICache() {
-    }
-
     private final LoadingCache<String, TextAI.WordMap> cache = CacheBuilder.newBuilder()
             .expireAfterWrite(1, TimeUnit.HOURS)
             .build(new CacheLoader<>() {

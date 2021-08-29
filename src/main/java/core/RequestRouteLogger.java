@@ -7,18 +7,9 @@ import java.util.stream.Collectors;
 
 public class RequestRouteLogger {
 
-    private static final RequestRouteLogger ourInstance = new RequestRouteLogger();
+    private static final HashMap<String, RequestMeta> routeMap = new HashMap<>();
 
-    public static RequestRouteLogger getInstance() {
-        return ourInstance;
-    }
-
-    private final HashMap<String, RequestMeta> routeMap = new HashMap<>();
-
-    private RequestRouteLogger() {
-    }
-
-    public void logRoute(String path, boolean ratelimit) {
+    public static void logRoute(String path, boolean ratelimit) {
         RequestMeta requestMeta = routeMap.computeIfAbsent(path, k -> new RequestMeta(path));
         requestMeta.requests++;
         if (ratelimit) {
@@ -27,7 +18,7 @@ public class RequestRouteLogger {
         routeMap.put(path, requestMeta);
     }
 
-    public List<RequestMeta> getRoutes() {
+    public static List<RequestMeta> getRoutes() {
         return new ArrayList<>(routeMap.values()).stream()
                 .sorted((e0, e1) -> Long.compare(e1.requests, e0.requests))
                 .collect(Collectors.toList());

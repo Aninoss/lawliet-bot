@@ -8,17 +8,11 @@ import core.*;
 import org.java_websocket.client.WebSocketJsonClient;
 import org.reflections.Reflections;
 
-public class SyncManager extends Startable {
+public class SyncManager {
 
-    private static final SyncManager ourInstance = new SyncManager();
+    private static final WebSocketJsonClient client;
 
-    public static SyncManager getInstance() {
-        return ourInstance;
-    }
-
-    private final WebSocketJsonClient client;
-
-    private SyncManager() {
+    static {
         try {
             client = new WebSocketJsonClient(
                     System.getenv("SYNC_HOST"),
@@ -45,41 +39,40 @@ public class SyncManager extends Startable {
                 .filter(Objects::nonNull)
                 .filter(obj -> obj instanceof SyncServerFunction)
                 .map(obj -> (SyncServerFunction) obj)
-                .forEach(this::addEvent);
+                .forEach(SyncManager::addEvent);
     }
 
-    @Override
-    protected void run() {
-        this.client.connect();
+    public static void connect() {
+        client.connect();
     }
 
-    public WebSocketJsonClient getClient() {
+    public static WebSocketJsonClient getClient() {
         return client;
     }
 
-    public void setFullyConnected() {
+    public static void setFullyConnected() {
         getClient().addHeader("already_connected", "true");
-        getClient().addHeader("shard_min", String.valueOf(ShardManager.getInstance().getShardIntervalMin()));
-        getClient().addHeader("shard_max", String.valueOf(ShardManager.getInstance().getShardIntervalMax()));
-        getClient().addHeader("total_shards", String.valueOf(ShardManager.getInstance().getTotalShards()));
+        getClient().addHeader("shard_min", String.valueOf(ShardManager.getShardIntervalMin()));
+        getClient().addHeader("shard_max", String.valueOf(ShardManager.getShardIntervalMax()));
+        getClient().addHeader("total_shards", String.valueOf(ShardManager.getTotalShards()));
         SendEvent.sendFullyConnected().exceptionally(ExceptionLogger.get());
     }
 
-    private HashMap<String, String> getSocketClientHeaders() {
+    private static HashMap<String, String> getSocketClientHeaders() {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("size", String.valueOf(Math.round(Runtime.getRuntime().totalMemory() / (1024.0 * 1024.0))));
         headers.put("already_connected", "false");
         return headers;
     }
 
-    private void addEvent(SyncServerFunction function) {
+    private static void addEvent(SyncServerFunction function) {
         SyncServerEvent event = function.getClass().getAnnotation(SyncServerEvent.class);
         if (event != null) {
-            this.client.addEventHandler(event.event(), function);
+            client.addEventHandler(event.event(), function);
         }
     }
 
-    public void reconnect() {
+    public static void reconnect() {
         client.reconnect();
     }
 

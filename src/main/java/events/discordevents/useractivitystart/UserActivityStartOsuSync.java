@@ -11,7 +11,7 @@ public class UserActivityStartOsuSync extends UserActivityStartAbstract {
 
     @Override
     public boolean onUserActivityStart(UserActivityStartEvent event) {
-        OsuAccountSync.getInstance().getUserInCache(event.getMember().getIdLong()).ifPresent(action -> {
+        OsuAccountSync.getUserInCache(event.getMember().getIdLong()).ifPresent(action -> {
             OsuAccountCheck.getOsuUsernameFromActivity(event.getNewActivity())
                     .ifPresent(action);
         });

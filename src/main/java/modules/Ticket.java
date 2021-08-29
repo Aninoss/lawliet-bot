@@ -24,8 +24,8 @@ public class Ticket {
     public static Optional<ChannelAction<TextChannel>> createTicketChannel(TextChannel textChannel, Member member, TicketData ticketData) {
         Guild guild = textChannel.getGuild();
         GuildData guildBean = ticketData.getGuildData();
-        if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), TicketCommand.class, guild, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL) &&
-                PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), TicketCommand.class, textChannel.getParent(), Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL)
+        if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), TicketCommand.class, guild, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL) &&
+                PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), TicketCommand.class, textChannel.getParent(), Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL)
         ) {
             String ticket = String.format("%04d", ticketData.increaseCounterAndGet());
             return Optional.of(createNewChannel(ticketData, textChannel, member, ticket));

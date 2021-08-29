@@ -6,7 +6,7 @@ import java.util.Locale;
 import com.google.common.cache.CacheBuilder;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBMapCache;
 
 public class DBSubs extends DBMapCache<DBSubs.Command, CustomObservableMap<Long, SubSlot>> {
@@ -51,7 +51,7 @@ public class DBSubs extends DBMapCache<DBSubs.Command, CustomObservableMap<Long,
     }
 
     private void addSub(SubSlot subSlot) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Subs (command, memberId, locale, errors) VALUES (?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Subs (command, memberId, locale, errors) VALUES (?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setString(1, subSlot.getCommand().name().toLowerCase());
             preparedStatement.setLong(2, subSlot.getUserId());
             preparedStatement.setString(3, subSlot.getLocale().getDisplayName());
@@ -60,7 +60,7 @@ public class DBSubs extends DBMapCache<DBSubs.Command, CustomObservableMap<Long,
     }
 
     private void removeSub(SubSlot subSlot) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Subs WHERE command = ? AND memberId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM Subs WHERE command = ? AND memberId = ?;", preparedStatement -> {
             preparedStatement.setString(1, subSlot.getCommand().name().toLowerCase());
             preparedStatement.setLong(2, subSlot.getUserId());
         });

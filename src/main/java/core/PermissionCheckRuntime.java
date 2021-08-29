@@ -20,34 +20,24 @@ import net.dv8tion.jda.api.entities.Role;
 
 public class PermissionCheckRuntime {
 
-    private static final PermissionCheckRuntime instance = new PermissionCheckRuntime();
-
-    private PermissionCheckRuntime() {
-    }
-
-    public static PermissionCheckRuntime getInstance() {
-        return instance;
-    }
-
-
     private static final long PERMISSION_ROLE_POS = -1;
 
-    private final Cache<Pair<Long, Long>, Boolean> errorCache = CacheBuilder.newBuilder()
+    private static final Cache<Pair<Long, Long>, Boolean> errorCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofHours(6))
             .build();
 
-    public boolean botHasPermission(Locale locale, Class<? extends Command> c, Guild guild, Permission... permissions) {
+    public static boolean botHasPermission(Locale locale, Class<? extends Command> c, Guild guild, Permission... permissions) {
         return botHasPermission(locale, c, guild, null, permissions);
     }
 
-    public boolean botHasPermission(Locale locale, Class<? extends Command> c, GuildChannel channel, Permission... permissions) {
+    public static boolean botHasPermission(Locale locale, Class<? extends Command> c, GuildChannel channel, Permission... permissions) {
         if (channel == null) {
             return true;
         }
         return botHasPermission(locale, c, channel.getGuild(), channel, permissions);
     }
 
-    private boolean botHasPermission(Locale locale, Class<? extends Command> c, Guild guild, GuildChannel channel, Permission... permissions) {
+    private static boolean botHasPermission(Locale locale, Class<? extends Command> c, Guild guild, GuildChannel channel, Permission... permissions) {
         if (guild == null && channel == null) {
             return true;
         }
@@ -79,11 +69,11 @@ public class PermissionCheckRuntime {
         return false;
     }
 
-    public boolean botCanManageRoles(Locale locale, Class<? extends Command> c, List<Role> roles) {
+    public static boolean botCanManageRoles(Locale locale, Class<? extends Command> c, List<Role> roles) {
         return botCanManageRoles(locale, c, roles.toArray(new Role[0]));
     }
 
-    public boolean botCanManageRoles(Locale locale, Class<? extends Command> c, Role... roles) {
+    public static boolean botCanManageRoles(Locale locale, Class<? extends Command> c, Role... roles) {
         ArrayList<Role> unreachableRoles = new ArrayList<>();
 
         for (Role role : roles) {
@@ -110,11 +100,11 @@ public class PermissionCheckRuntime {
         return false;
     }
 
-    private boolean canPostError(long id, long permissionsRaw) {
+    private static boolean canPostError(long id, long permissionsRaw) {
         return !errorCache.asMap().containsKey(new Pair<>(id, permissionsRaw));
     }
 
-    private void setErrorInstant(long id, long permissionsRaw) {
+    private static void setErrorInstant(long id, long permissionsRaw) {
         errorCache.put(new Pair<>(id, permissionsRaw), true);
     }
 

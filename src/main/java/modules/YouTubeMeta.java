@@ -15,15 +15,9 @@ import core.MainLogger;
 
 public class YouTubeMeta {
 
-    private static final YouTubeMeta ourInstance = new YouTubeMeta();
-
-    public static YouTubeMeta getInstance() {
-        return ourInstance;
-    }
-
     private final AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
 
-    private YouTubeMeta() {
+    public YouTubeMeta() {
         playerManager.registerSourceManager(new YoutubeAudioSourceManager());
     }
 

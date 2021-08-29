@@ -1,6 +1,6 @@
 package mysql.modules.autoquote;
 
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBAutoQuote extends DBObserverMapCache<Long, AutoQuoteData> {
@@ -16,7 +16,7 @@ public class DBAutoQuote extends DBObserverMapCache<Long, AutoQuoteData> {
 
     @Override
     protected AutoQuoteData load(Long serverId) throws Exception {
-        return DBMain.getInstance().get(
+        return MySQLManager.get(
                 "SELECT active FROM AutoQuote WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
@@ -37,7 +37,7 @@ public class DBAutoQuote extends DBObserverMapCache<Long, AutoQuoteData> {
 
     @Override
     protected void save(AutoQuoteData serverBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO AutoQuote (serverId, active) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO AutoQuote (serverId, active) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverBean.getGuildId());
             preparedStatement.setBoolean(2, serverBean.isActive());
         });

@@ -6,7 +6,7 @@ public class JDABlocker {
     private boolean[] blockedShards;
 
     public synchronized void add(int totalShards, int shardsMin, int shardsMax) {
-        if (!ShardManager.getInstance().isReady()) {
+        if (!ShardManager.isReady()) {
             return;
         }
 
@@ -21,11 +21,11 @@ public class JDABlocker {
     }
 
     public boolean guildIsAvailable(long guildId) {
-        if (totalShards <= 0 || guildId <= 0L || totalShards == ShardManager.getInstance().getTotalShards()) {
+        if (totalShards <= 0 || guildId <= 0L || totalShards == ShardManager.getTotalShards()) {
             return true;
         }
 
-        int shard = ShardManager.getInstance().getResponsibleShard(guildId, totalShards);
+        int shard = ShardManager.getResponsibleShard(guildId, totalShards);
         return !blockedShards[shard];
     }
 

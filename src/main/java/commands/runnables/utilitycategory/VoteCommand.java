@@ -66,7 +66,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 EmbedBuilder eb = getEmbed(voteInfo, true);
                 Message message = event.getChannel().sendMessageEmbeds(eb.build()).complete();
                 registerStaticReactionMessage(message);
-                VoteCache.getInstance().put(message.getIdLong(), voteInfo);
+                VoteCache.put(message.getIdLong(), voteInfo);
 
                 RestActionQueue restActionQueue = new RestActionQueue();
                 for (int i = 0; i < answers.length; i++) {
@@ -109,7 +109,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
-        VoteCache.getInstance().get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
+        VoteCache.get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
             if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
                     voteInfo.getCreatorId().isPresent() &&
                     voteInfo.getCreatorId().get() == event.getUserIdLong()
@@ -146,7 +146,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) {
-        VoteCache.getInstance().get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
+        VoteCache.get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
                 .ifPresent(voteInfo -> {
                     if (voteInfo.getVotes(event.getUserIdLong()) == 0) {
                         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {

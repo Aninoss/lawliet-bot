@@ -5,7 +5,7 @@ import java.util.List;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBDataLoadAll;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBMapCache;
 
 public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBanData>> {
@@ -56,15 +56,15 @@ public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBa
     }
 
     private void addTempBan(TempBanData tempBan) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO TempBans (serverId, userId, expires) VALUES (?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO TempBans (serverId, userId, expires) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, tempBan.getGuildId());
             preparedStatement.setLong(2, tempBan.getMemberId());
-            preparedStatement.setString(3, DBMain.instantToDateTimeString(tempBan.getExpirationTime()));
+            preparedStatement.setString(3, MySQLManager.instantToDateTimeString(tempBan.getExpirationTime()));
         });
     }
 
     private void removeTempBan(TempBanData tempBan) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM TempBans WHERE serverId = ? AND userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM TempBans WHERE serverId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, tempBan.getGuildId());
             preparedStatement.setLong(2, tempBan.getMemberId());
         });

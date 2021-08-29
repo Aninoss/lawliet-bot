@@ -48,7 +48,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
         SuggestionsData suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
         if (suggestionsBean.isActive()) {
             Optional<TextChannel> channelOpt = suggestionsBean.getTextChannel();
-            if (channelOpt.isPresent() && PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.MESSAGE_WRITE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION)) {
+            if (channelOpt.isPresent() && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.MESSAGE_WRITE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION)) {
                 if (ratelimitManager.checkAndSet(event.getMember().getIdLong(), 1, Duration.ofMinutes(1)).isEmpty()) {
                     TextChannel channel = channelOpt.get();
                     String author = event.getMessage().getMember().getUser().getAsTag();

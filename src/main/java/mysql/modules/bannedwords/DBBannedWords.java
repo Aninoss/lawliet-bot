@@ -2,7 +2,7 @@ package mysql.modules.bannedwords;
 
 import java.util.ArrayList;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
@@ -18,7 +18,7 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
 
     @Override
     protected BannedWordsData load(Long serverId) throws Exception {
-        BannedWordsData bannedWordsBean = DBMain.getInstance().get(
+        BannedWordsData bannedWordsBean = MySQLManager.get(
                 "SELECT active FROM BannedWords WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
@@ -56,7 +56,7 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
 
     @Override
     protected void save(BannedWordsData bannedWordsBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO BannedWords (serverId, active) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO BannedWords (serverId, active) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, bannedWordsBean.getGuildId());
             preparedStatement.setBoolean(2, bannedWordsBean.isActive());
         });
@@ -69,14 +69,14 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
     }
 
     private void addIgnoredUser(long serverId, long userId) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO BannedWordsIgnoredUsers (serverId, userId) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO BannedWordsIgnoredUsers (serverId, userId) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, userId);
         });
     }
 
     private void removeIgnoredUser(long serverId, long userId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM BannedWordsIgnoredUsers WHERE serverId = ? AND userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM BannedWordsIgnoredUsers WHERE serverId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, userId);
         });
@@ -89,14 +89,14 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
     }
 
     private void addLogReceiver(long serverId, long userId) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO BannedWordsLogRecievers (serverId, userId) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO BannedWordsLogRecievers (serverId, userId) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, userId);
         });
     }
 
     private void removeLogReceiver(long serverId, long userId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM BannedWordsLogRecievers WHERE serverId = ? AND userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM BannedWordsLogRecievers WHERE serverId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, userId);
         });
@@ -109,14 +109,14 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
     }
 
     private void addWord(long serverId, String word) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO BannedWordsWords (serverId, word) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO BannedWordsWords (serverId, word) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setString(2, word);
         });
     }
 
     private void removeWord(long serverId, String word) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM BannedWordsWords WHERE serverId = ? AND word = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM BannedWordsWords WHERE serverId = ? AND word = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setString(2, word);
         });

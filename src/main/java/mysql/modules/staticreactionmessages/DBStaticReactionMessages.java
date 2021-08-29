@@ -3,7 +3,7 @@ package mysql.modules.staticreactionmessages;
 import java.util.HashMap;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBMapCache;
 
 public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableMap<Long, StaticReactionMessageData>> {
@@ -40,7 +40,7 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
     }
 
     private void addStaticReaction(StaticReactionMessageData staticReactionMessageData) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO StaticReactionMessages (serverId, channelId, messageId, command) VALUES (?,?,?,?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO StaticReactionMessages (serverId, channelId, messageId, command) VALUES (?,?,?,?);", preparedStatement -> {
             preparedStatement.setLong(1, staticReactionMessageData.getGuildId());
             preparedStatement.setLong(2, staticReactionMessageData.getTextChannelId());
             preparedStatement.setLong(3, staticReactionMessageData.getMessageId());
@@ -49,7 +49,7 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
     }
 
     private void removeStaticReaction(StaticReactionMessageData staticReactionMessageData) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM StaticReactionMessages WHERE messageId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM StaticReactionMessages WHERE messageId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, staticReactionMessageData.getMessageId());
         });
     }

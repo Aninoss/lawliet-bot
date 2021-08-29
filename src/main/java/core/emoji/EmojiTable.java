@@ -12,18 +12,9 @@ import emoji4j.EmojiManager;
 
 public class EmojiTable {
 
-    private static final EmojiTable ourInstance = new EmojiTable();
+    private static final ArrayList<String> emojis = new ArrayList<>();
 
-    public static EmojiTable getInstance() {
-        return ourInstance;
-    }
-
-    private final ArrayList<String> emojis = new ArrayList<>();
-
-    private EmojiTable() {
-    }
-
-    public void load() {
+    public static void load() {
         if (Program.productionMode()) {
             GlobalThreadPool.getExecutorService().submit(() -> {
                 emojis.addAll(List.of(Emojis.LETTERS));
@@ -32,10 +23,10 @@ public class EmojiTable {
 
                     MainLogger.get().info("Downloading emoji lists...");
                     emojiUnicodePointAndValueMaker.build("https://unicode.org/emoji/charts/full-emoji-modifiers.html")
-                            .forEach(emoji -> this.emojis.add(emoji.toEmoji()));
+                            .forEach(emoji -> emojis.add(emoji.toEmoji()));
 
                     emojiUnicodePointAndValueMaker.build("https://unicode.org/emoji/charts/full-emoji-list.html")
-                            .forEach(emoji -> this.emojis.add(emoji.toEmoji()));
+                            .forEach(emoji -> emojis.add(emoji.toEmoji()));
 
                     MainLogger.get().info("Emoji lists completed with {} emojis", emojis.size());
                 } catch (Throwable e) {
@@ -46,16 +37,16 @@ public class EmojiTable {
         }
     }
 
-    public void loadFromArchive() {
+    public static void loadFromArchive() {
         try {
             EmojiUnicodePointAndValueMaker emojiUnicodePointAndValueMaker = new EmojiUnicodePointAndValueMaker();
 
             MainLogger.get().info("Downloading emoji lists from cache...");
             emojiUnicodePointAndValueMaker.build("https://web.archive.org/web/20210515172234/https://unicode.org/emoji/charts/full-emoji-modifiers.html")
-                    .forEach(emoji -> this.emojis.add(emoji.toEmoji()));
+                    .forEach(emoji -> emojis.add(emoji.toEmoji()));
 
             emojiUnicodePointAndValueMaker.build("https://web.archive.org/web/20210616052941/https://unicode.org/emoji/charts/full-emoji-list.html")
-                    .forEach(emoji -> this.emojis.add(emoji.toEmoji()));
+                    .forEach(emoji -> emojis.add(emoji.toEmoji()));
 
             emojis.addAll(List.of(Emojis.LETTERS));
             MainLogger.get().info("Emoji lists completed with {} emojis", emojis.size());
@@ -65,14 +56,14 @@ public class EmojiTable {
         }
     }
 
-    public void loadFromLibrary() {
+    public static void loadFromLibrary() {
         for (Emoji emoji : EmojiManager.data()) {
             emojis.add(emoji.getEmoji());
         }
         MainLogger.get().info("Emoji lists completed with {} emojis", emojis.size());
     }
 
-    public Optional<String> extractFirstEmoji(String input) {
+    public static Optional<String> extractFirstEmoji(String input) {
         Optional<String> emojiResult = Optional.empty();
         int maxLength = 0;
 

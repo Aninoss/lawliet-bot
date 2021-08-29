@@ -30,7 +30,7 @@ public class VoiceChannelChangeUserLimitAutoChannel extends VoiceChannelUpdateUs
                         GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
                         Locale locale = guildBean.getLocale();
 
-                        if (PermissionCheckRuntime.getInstance().botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL)) {
+                        if (PermissionCheckRuntime.botHasPermission(locale, AutoChannelCommand.class, event.getChannel(), Permission.MANAGE_CHANNEL)) {
                             event.getChannel().getManager().setUserLimit(parentUserLimit)
                                     .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildData().getLocale()).getTitle())
                                     .queue();

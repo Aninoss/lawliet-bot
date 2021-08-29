@@ -57,7 +57,7 @@ public interface OnMessageInputListener {
 
         CommandListenerMeta<GuildMessageReceivedEvent> commandListenerMeta =
                 new CommandListenerMeta<>(member.getIdLong(), validityChecker, onTimeOut, onOverridden, command);
-        CommandContainer.getInstance().registerListener(OnMessageInputListener.class, commandListenerMeta);
+        CommandContainer.registerListener(OnMessageInputListener.class, commandListenerMeta);
 
         try {
             if (draw && command.getDrawMessageId().isEmpty()) {
@@ -85,7 +85,7 @@ public interface OnMessageInputListener {
             Response response = onMessageInput(event, event.getMessage().getContentRaw());
             if (response != null) {
                 if (response == Response.TRUE) {
-                    CommandContainer.getInstance().refreshListeners(command);
+                    CommandContainer.refreshListeners(command);
                     if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                         event.getMessage().delete().queue();
                     }

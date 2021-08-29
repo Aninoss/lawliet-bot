@@ -24,44 +24,34 @@ import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 
-public class GiveawayScheduler extends Startable {
+public class GiveawayScheduler {
 
-    private static final GiveawayScheduler ourInstance = new GiveawayScheduler();
-
-    public static GiveawayScheduler getInstance() {
-        return ourInstance;
-    }
-
-    private GiveawayScheduler() {
-    }
-
-    @Override
-    protected void run() {
+    public static void start() {
         try {
             DBGiveaway.getInstance().retrieveAll().stream()
                     .filter(GiveawayData::isActive)
-                    .forEach(this::loadGiveawayBean);
+                    .forEach(GiveawayScheduler::loadGiveawayBean);
         } catch (Throwable e) {
             MainLogger.get().error("Could not start giveaway", e);
         }
     }
 
-    public void loadGiveawayBean(GiveawayData slot) {
+    public static void loadGiveawayBean(GiveawayData slot) {
         loadGiveawayBean(slot.getGuildId(), slot.getMessageId(), slot.getEnd());
     }
 
-    public void loadGiveawayBean(long guildId, long messageId, Instant due) {
-        MainScheduler.getInstance().schedule(due, "giveaway_" + messageId, () -> {
+    public static void loadGiveawayBean(long guildId, long messageId, Instant due) {
+        MainScheduler.schedule(due, "giveaway_" + messageId, () -> {
             CustomObservableMap<Long, GiveawayData> map = DBGiveaway.getInstance().retrieve(guildId);
-            if (map.containsKey(messageId) && ShardManager.getInstance().guildIsManaged(guildId)) {
+            if (map.containsKey(messageId) && ShardManager.guildIsManaged(guildId)) {
                 onGiveawayDue(map.get(messageId));
             }
         });
     }
 
-    private void onGiveawayDue(GiveawayData giveawayData) {
+    private static void onGiveawayDue(GiveawayData giveawayData) {
         if (giveawayData.isActive()) {
-            ShardManager.getInstance().getLocalGuildById(giveawayData.getGuildId())
+            ShardManager.getLocalGuildById(giveawayData.getGuildId())
                     .map(guild -> guild.getTextChannelById(giveawayData.getTextChannelId()))
                     .ifPresent(channel -> {
                         try {
@@ -73,7 +63,7 @@ public class GiveawayScheduler extends Startable {
         }
     }
 
-    public CompletableFuture<Boolean> processGiveawayUsers(GiveawayData giveawayData, int numberOfWinners, boolean reroll) {
+    public static CompletableFuture<Boolean> processGiveawayUsers(GiveawayData giveawayData, int numberOfWinners, boolean reroll) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         giveawayData.retrieveMessage()
                 .exceptionally(e -> {
@@ -95,8 +85,8 @@ public class GiveawayScheduler extends Startable {
         return future;
     }
 
-    private void processGiveaway(GiveawayData giveawayData, Message message, ArrayList<User> users, int numberOfWinners,
-                                boolean reroll
+    private static void processGiveaway(GiveawayData giveawayData, Message message, ArrayList<User> users, int numberOfWinners,
+                                 boolean reroll
     ) {
         TextChannel channel = message.getTextChannel();
         MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).thenAccept(members -> {
@@ -126,7 +116,7 @@ public class GiveawayScheduler extends Startable {
             }
             giveawayData.stop();
 
-            if (PermissionCheckRuntime.getInstance().botHasPermission(locale, GiveawayCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+            if (PermissionCheckRuntime.botHasPermission(locale, GiveawayCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
                 if (!reroll) {
                     message.editMessageEmbeds(eb.build())
                             .content(winners.size() > 0 ? mentions.toString() : null)

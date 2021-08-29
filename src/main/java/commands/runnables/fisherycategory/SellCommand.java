@@ -58,7 +58,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
                             "status",
                             StringUtil.numToString(userBean.getFish()),
                             StringUtil.numToString(userBean.getCoins()),
-                            StringUtil.numToString(ExchangeRate.getInstance().get(0)),
+                            StringUtil.numToString(ExchangeRate.get(0)),
                             Fishery.getChangeEmoji()
                     )
             );
@@ -108,7 +108,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
         }
 
         if (value >= 1) {
-            long coins = ExchangeRate.getInstance().get(0) * value;
+            long coins = ExchangeRate.get(0) * value;
             this.eb = EmbedFactory.getEmbedDefault(this, getString("done"));
             setAdditionalEmbeds(userBean.changeValuesEmbed(member, -value, coins).build());
             return true;
@@ -126,7 +126,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     private void markNoInterest() {
-        eb = EmbedFactory.getEmbedDefault(this, getString("nointerest_description", StringUtil.numToString(ExchangeRate.getInstance().get(0)), Fishery.getChangeEmoji()));
+        eb = EmbedFactory.getEmbedDefault(this, getString("nointerest_description", StringUtil.numToString(ExchangeRate.get(0)), Fishery.getChangeEmoji()));
     }
 
 }

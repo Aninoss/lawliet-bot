@@ -12,16 +12,7 @@ import websockets.syncserver.SendEvent;
 
 public class ExternalEmojiCache {
 
-    private static final ExternalEmojiCache ourInstance = new ExternalEmojiCache();
-
-    public static ExternalEmojiCache getInstance() {
-        return ourInstance;
-    }
-
-    private ExternalEmojiCache() {
-    }
-
-    private final LoadingCache<Long, Optional<String>> cache = CacheBuilder.newBuilder()
+    private static final LoadingCache<Long, Optional<String>> cache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .build(new CacheLoader<>() {
                        @Override
@@ -31,7 +22,7 @@ public class ExternalEmojiCache {
                    }
             );
 
-    public Optional<String> getEmoteById(long emojiId) {
+    public static Optional<String> getEmoteById(long emojiId) {
         try {
             return cache.get(emojiId);
         } catch (ExecutionException e) {

@@ -191,7 +191,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     private boolean processEmoji(String emoji) {
-        if (EmojiUtil.emojiIsUnicode(emoji) || ShardManager.getInstance().emoteIsKnown(emoji)) {
+        if (EmojiUtil.emojiIsUnicode(emoji) || ShardManager.emoteIsKnown(emoji)) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                 if (emojiConnection.getEmojiTag().equals(emoji)) {
                     setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
@@ -457,7 +457,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             if (!editMode) {
                 Message message = textChannel.sendMessageEmbeds(getMessageEmbed(false).build()).complete();
                 registerStaticReactionMessage(message);
-                ReactionMessagesCache.getInstance().put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
+                ReactionMessagesCache.put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
                 if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
                     RestActionQueue restActionQueue = new RestActionQueue();
                     for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
@@ -470,7 +470,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
             } else {
                 Message message = textChannel.editMessageEmbedsById(editMessageId, getMessageEmbed(false).build()).complete();
-                ReactionMessagesCache.getInstance().put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
+                ReactionMessagesCache.put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
                 if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
                     RestActionQueue restActionQueue = new RestActionQueue();
                     for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
@@ -525,7 +525,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     private boolean calculateEmoji(String emoji) {
-        if (emoji == null || (!EmojiUtil.emojiIsUnicode(emoji) && !ShardManager.getInstance().emoteIsKnown(emoji))) {
+        if (emoji == null || (!EmojiUtil.emojiIsUnicode(emoji) && !ShardManager.emoteIsKnown(emoji))) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
             return true;
         }
@@ -670,7 +670,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     @Override
     public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
         Member member = event.getMember();
-        updateValuesFromMessage(ReactionMessagesCache.getInstance().get(message).get());
+        updateValuesFromMessage(ReactionMessagesCache.get(message).get());
         if (!blockCache.asMap().containsKey(member.getIdLong())) {
             try {
                 if (!multipleRoles) {
@@ -705,7 +705,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                     }
                     return channelComp;
                 })
-                .map(m -> m.getTextChannel().flatMap(ch -> ReactionMessagesCache.getInstance().get(ch, m.getMessageId())).orElse(null))
+                .map(m -> m.getTextChannel().flatMap(ch -> ReactionMessagesCache.get(ch, m.getMessageId())).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableList());
     }
@@ -729,7 +729,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 }
 
                 Role r = rOpt.get();
-                if (PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) {
+                if (PermissionCheckRuntime.botCanManageRoles(getLocale(), getClass(), r)) {
                     event.getGuild().addRoleToMember(event.getMember(), r)
                             .reason(getCommandLanguage().getTitle())
                             .complete();
@@ -746,7 +746,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getGuild(), emojiConnection.getConnection());
             if (rOpt.isPresent()) {
                 Role r = rOpt.get();
-                if (event.getMember().getRoles().contains(r) && PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), r)) {
+                if (event.getMember().getRoles().contains(r) && PermissionCheckRuntime.botCanManageRoles(getLocale(), getClass(), r)) {
                     if (!removeRole) return true;
                     event.getGuild().removeRoleFromMember(event.getMember(), r)
                             .reason(getCommandLanguage().getTitle())
@@ -760,7 +760,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Override
     public void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) {
-        updateValuesFromMessage(ReactionMessagesCache.getInstance().get(message).get());
+        updateValuesFromMessage(ReactionMessagesCache.get(message).get());
         if (removeRole) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
                 if (emojiConnection.isEmoji(event.getReactionEmote())) {
@@ -768,7 +768,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                     if (rOpt.isEmpty()) return;
 
                     Role role = rOpt.get();
-                    if (PermissionCheckRuntime.getInstance().botCanManageRoles(getLocale(), getClass(), role)) {
+                    if (PermissionCheckRuntime.botCanManageRoles(getLocale(), getClass(), role)) {
                         event.getGuild().removeRoleFromMember(event.getUserId(), role)
                                 .reason(getCommandLanguage().getTitle())
                                 .queue();

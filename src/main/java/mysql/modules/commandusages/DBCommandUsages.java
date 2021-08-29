@@ -1,7 +1,7 @@
 package mysql.modules.commandusages;
 
 import mysql.DBIntervalMapCache;
-import mysql.DBMain;
+import mysql.MySQLManager;
 
 public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesData> {
 
@@ -17,7 +17,7 @@ public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesDat
 
     @Override
     protected CommandUsagesData load(String command) throws Exception {
-        return DBMain.getInstance().get(
+        return MySQLManager.get(
                 "SELECT usages FROM CommandUsages WHERE command = ?;",
                 preparedStatement -> preparedStatement.setString(1, command),
                 resultSet -> {
@@ -38,7 +38,7 @@ public class DBCommandUsages extends DBIntervalMapCache<String, CommandUsagesDat
 
     @Override
     protected void save(CommandUsagesData commandUsagesData) {
-        DBMain.getInstance().asyncUpdate("INSERT INTO CommandUsages (command, usages) VALUES (?, ?) ON DUPLICATE KEY UPDATE usages = usages + ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT INTO CommandUsages (command, usages) VALUES (?, ?) ON DUPLICATE KEY UPDATE usages = usages + ?;", preparedStatement -> {
             long inc = commandUsagesData.flushIncrement();
             preparedStatement.setString(1, commandUsagesData.getCommand());
             preparedStatement.setLong(2, inc);

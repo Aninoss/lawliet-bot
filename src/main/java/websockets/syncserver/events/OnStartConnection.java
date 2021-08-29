@@ -13,7 +13,7 @@ public class OnStartConnection implements SyncServerFunction {
         int shardMin = jsonObject.getInt("shard_min");
         int shardMax = jsonObject.getInt("shard_max");
         int totalShards = jsonObject.getInt("total_shards");
-        DiscordConnector.getInstance().connect(shardMin, shardMax, totalShards);
+        DiscordConnector.connect(shardMin, shardMax, totalShards);
         return null;
     }
 

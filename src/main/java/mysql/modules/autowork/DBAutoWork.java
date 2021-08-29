@@ -2,7 +2,7 @@ package mysql.modules.autowork;
 
 import java.util.ArrayList;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBSingleCache;
 
 public class DBAutoWork extends DBSingleCache<AutoWorkData> {
@@ -29,11 +29,11 @@ public class DBAutoWork extends DBSingleCache<AutoWorkData> {
     }
 
     private void addAutoWork(long userId) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO AutoWork (userId, active) VALUES (?, 1);", preparedStatement -> preparedStatement.setLong(1, userId));
+        MySQLManager.asyncUpdate("REPLACE INTO AutoWork (userId, active) VALUES (?, 1);", preparedStatement -> preparedStatement.setLong(1, userId));
     }
 
     private void removeAutoWork(long userId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM AutoWork WHERE userId = ?;", preparedStatement -> preparedStatement.setLong(1, userId));
+        MySQLManager.asyncUpdate("DELETE FROM AutoWork WHERE userId = ?;", preparedStatement -> preparedStatement.setLong(1, userId));
     }
 
     @Override

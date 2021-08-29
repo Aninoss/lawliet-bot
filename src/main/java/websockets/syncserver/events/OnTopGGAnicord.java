@@ -20,7 +20,7 @@ public class OnTopGGAnicord extends OnTopGG {
 
     @Override
     protected void processUpvote(long userId, boolean isWeekend) {
-        Guild guild = ShardManager.getInstance().getLocalGuildById(AssetIds.ANICORD_SERVER_ID).get();
+        Guild guild = ShardManager.getLocalGuildById(AssetIds.ANICORD_SERVER_ID).get();
         MemberCacheController.getInstance().loadMember(guild, userId).thenAccept(member -> {
             if (member != null) {
                 TextChannel bumpChannel = guild.getTextChannelById(713849992611102781L);

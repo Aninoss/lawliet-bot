@@ -9,7 +9,7 @@ import java.util.Optional;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBDataLoadAll;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBMapCache;
 
 public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, ServerMuteData>> {
@@ -61,13 +61,13 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
     }
 
     private void addServerMute(ServerMuteData serverMuteData) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO ServerMute (serverId, userId, expires) VALUES (?,?,?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO ServerMute (serverId, userId, expires) VALUES (?,?,?);", preparedStatement -> {
             preparedStatement.setLong(1, serverMuteData.getGuildId());
             preparedStatement.setLong(2, serverMuteData.getMemberId());
 
             Optional<Instant> expirationOpt = serverMuteData.getExpirationTime();
             if (expirationOpt.isPresent()) {
-                preparedStatement.setString(3, DBMain.instantToDateTimeString(expirationOpt.get()));
+                preparedStatement.setString(3, MySQLManager.instantToDateTimeString(expirationOpt.get()));
             } else {
                 preparedStatement.setNull(3, Types.TIMESTAMP);
             }
@@ -75,7 +75,7 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
     }
 
     private void removeServerMute(ServerMuteData serverMuteData) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM ServerMute WHERE serverId = ? AND userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM ServerMute WHERE serverId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverMuteData.getGuildId());
             preparedStatement.setLong(2, serverMuteData.getMemberId());
         });

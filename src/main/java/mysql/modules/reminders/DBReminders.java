@@ -5,7 +5,7 @@ import java.util.List;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBDataLoadAll;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBMapCache;
 
 public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, ReminderData>> {
@@ -66,19 +66,19 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
     }
 
     private void addRemindersBean(ReminderData remindersBean) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Reminders (id, serverId, sourceChannelId, channelId, time, message, messageId) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO Reminders (id, serverId, sourceChannelId, channelId, time, message, messageId) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, remindersBean.getId());
             preparedStatement.setLong(2, remindersBean.getGuildId());
             preparedStatement.setLong(3, remindersBean.getSourceChannelId());
             preparedStatement.setLong(4, remindersBean.getTargetChannelId());
-            preparedStatement.setString(5, DBMain.instantToDateTimeString(remindersBean.getTime()));
+            preparedStatement.setString(5, MySQLManager.instantToDateTimeString(remindersBean.getTime()));
             preparedStatement.setString(6, remindersBean.getMessage());
             preparedStatement.setLong(7, remindersBean.getMessageId());
         });
     }
 
     private void removeRemindersBean(ReminderData remindersBean) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Reminders WHERE id = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM Reminders WHERE id = ?;", preparedStatement -> {
             preparedStatement.setLong(1, remindersBean.getId());
         });
     }

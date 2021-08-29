@@ -29,6 +29,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 )
 public class ImitateCommand extends Command {
 
+    private static final TextAICache textAICache = new TextAICache();
+
     public ImitateCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
@@ -65,9 +67,9 @@ public class ImitateCommand extends Command {
         TextAI textAI = new TextAI(n);
         TextAI.WordMap wordMap;
         if (member != null) {
-            wordMap = TextAICache.getInstance().get(guild.getIdLong(), member.getIdLong(), n);
+            wordMap = textAICache.get(guild.getIdLong(), member.getIdLong(), n);
         } else {
-            wordMap = TextAICache.getInstance().get(guild.getIdLong(), n);
+            wordMap = textAICache.get(guild.getIdLong(), n);
         }
 
         if (wordMap.isEmpty()) {

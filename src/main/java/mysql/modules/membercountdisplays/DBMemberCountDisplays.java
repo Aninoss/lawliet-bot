@@ -2,7 +2,7 @@ package mysql.modules.membercountdisplays;
 
 import java.util.HashMap;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountData> {
@@ -41,7 +41,7 @@ public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountD
     }
 
     private void addMemberCountBeanSlot(long serverId, MemberCountDisplaySlot memberCountDisplaySlot) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO MemberCountDisplays (serverId, vcId, name) VALUES (?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO MemberCountDisplays (serverId, vcId, name) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, memberCountDisplaySlot.getVoiceChannelId());
             preparedStatement.setString(3, memberCountDisplaySlot.getMask());
@@ -49,7 +49,7 @@ public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountD
     }
 
     private void removeMemberCountBeanSlot(long serverId, MemberCountDisplaySlot memberCountDisplaySlot) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM MemberCountDisplays WHERE serverId = ? AND vcId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM MemberCountDisplays WHERE serverId = ? AND vcId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, memberCountDisplaySlot.getVoiceChannelId());
         });

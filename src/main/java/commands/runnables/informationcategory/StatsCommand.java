@@ -35,26 +35,26 @@ public class StatsCommand extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         String dephordName = "???";
         try {
-            dephordName = ShardManager.getInstance().fetchUserById(303085910784737281L).get().getAsTag();
+            dephordName = ShardManager.fetchUserById(303085910784737281L).get().getAsTag();
         } catch (InterruptedException | ExecutionException e) {
             //Ignore
         }
 
         String neverCookFirstName = "???";
         try {
-            neverCookFirstName = ShardManager.getInstance().fetchUserById(298153126223937538L).get().getAsTag();
+            neverCookFirstName = ShardManager.fetchUserById(298153126223937538L).get().getAsTag();
         } catch (InterruptedException | ExecutionException e) {
             //Ignore
         }
 
         String laleName = "???";
         try {
-            laleName = ShardManager.getInstance().fetchUserById(774017093309431808L).get().getAsTag();
+            laleName = ShardManager.fetchUserById(774017093309431808L).get().getAsTag();
         } catch (InterruptedException | ExecutionException e) {
             //Ignore
         }
 
-        String owner = ShardManager.getInstance().fetchOwner().get().getAsTag();
+        String owner = ShardManager.fetchOwner().get().getAsTag();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,
                 getString(
@@ -63,7 +63,7 @@ public class StatsCommand extends Command {
                         ExternalLinks.BOT_INVITE_URL,
                         BotUtil.getCurrentVersion(),
                         TimeFormat.DATE_TIME_SHORT.atInstant(DBVersion.getInstance().retrieve().getCurrentVersion().getDate()).toString(),
-                        ShardManager.getInstance().getGlobalGuildSize().map(StringUtil::numToString).orElse("-"),
+                        ShardManager.getGlobalGuildSize().map(StringUtil::numToString).orElse("-"),
                         owner,
                         StringUtil.numToString(event.getJDA().getShardInfo().getShardId()),
                         StringUtil.numToString(Program.getClusterId())

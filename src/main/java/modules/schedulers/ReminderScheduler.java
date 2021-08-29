@@ -11,41 +11,31 @@ import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-public class ReminderScheduler extends Startable {
+public class ReminderScheduler {
 
-    private static final ReminderScheduler ourInstance = new ReminderScheduler();
-
-    public static ReminderScheduler getInstance() {
-        return ourInstance;
-    }
-
-    private ReminderScheduler() {
-    }
-
-    @Override
-    protected void run() {
+    public static void start() {
         try {
             DBReminders.getInstance().retrieveAll()
-                    .forEach(this::loadReminderBean);
+                    .forEach(ReminderScheduler::loadReminderBean);
         } catch (Throwable e) {
             MainLogger.get().error("Could not start reminder", e);
         }
     }
 
-    public void loadReminderBean(ReminderData remindersBean) {
+    public static void loadReminderBean(ReminderData remindersBean) {
         loadReminderBean(remindersBean.getGuildId(), remindersBean.getId(), remindersBean.getTime());
     }
 
-    public void loadReminderBean(long guildId, long reminderId, Instant due) {
-        MainScheduler.getInstance().schedule(due, "reminder_" + reminderId, () -> {
+    public static void loadReminderBean(long guildId, long reminderId, Instant due) {
+        MainScheduler.schedule(due, "reminder_" + reminderId, () -> {
             CustomObservableMap<Long, ReminderData> map = DBReminders.getInstance().retrieve(guildId);
-            if (map.containsKey(reminderId) && ShardManager.getInstance().guildIsManaged(guildId)) {
+            if (map.containsKey(reminderId) && ShardManager.guildIsManaged(guildId)) {
                 onReminderDue(map.get(reminderId));
             }
         });
     }
 
-    private void onReminderDue(ReminderData reminderData) {
+    private static void onReminderDue(ReminderData reminderData) {
         DBReminders.getInstance().retrieve(reminderData.getGuildId())
                 .remove(reminderData.getId());
 
@@ -64,8 +54,8 @@ public class ReminderScheduler extends Startable {
                 });
     }
 
-    private void sendReminder(ReminderData reminderData, TextChannel channel) {
-        if (PermissionCheckRuntime.getInstance().botHasPermission(
+    private static void sendReminder(ReminderData reminderData, TextChannel channel) {
+        if (PermissionCheckRuntime.botHasPermission(
                 reminderData.getGuildData().getLocale(),
                 ReminderCommand.class,
                 channel,

@@ -2,7 +2,7 @@ package mysql.modules.nsfwfilter;
 
 import java.util.ArrayList;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBNSFWFilters extends DBObserverMapCache<Long, NSFWFiltersData> {
@@ -41,14 +41,14 @@ public class DBNSFWFilters extends DBObserverMapCache<Long, NSFWFiltersData> {
     }
 
     private void addKeyword(long serverId, String keyword) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO NSFWFilter (serverId, keyword) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO NSFWFilter (serverId, keyword) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setString(2, keyword);
         });
     }
 
     private void removeKeyword(long serverId, String keyword) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM NSFWFilter WHERE serverId = ? AND keyword = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM NSFWFilter WHERE serverId = ? AND keyword = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setString(2, keyword);
         });

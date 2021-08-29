@@ -2,7 +2,7 @@ package mysql.modules.upvotes;
 
 import java.util.HashMap;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBSingleCache;
 
 public class DBUpvotes extends DBSingleCache<UpvotesData> {
@@ -35,20 +35,20 @@ public class DBUpvotes extends DBSingleCache<UpvotesData> {
     }
 
     private void addUpvote(UpvoteSlot upvoteSlot) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Upvotes (userId, lastDate) VALUES (?,?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Upvotes (userId, lastDate) VALUES (?,?);", preparedStatement -> {
             preparedStatement.setLong(1, upvoteSlot.getUserId());
-            preparedStatement.setString(2, DBMain.instantToDateTimeString(upvoteSlot.getLastUpdate()));
+            preparedStatement.setString(2, MySQLManager.instantToDateTimeString(upvoteSlot.getLastUpdate()));
         });
     }
 
     private void removeUpvote(UpvoteSlot upvoteSlot) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Upvotes WHERE userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM Upvotes WHERE userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, upvoteSlot.getUserId());
         });
     }
 
     public void cleanUp() {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();");
+        MySQLManager.asyncUpdate("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();");
     }
 
     @Override

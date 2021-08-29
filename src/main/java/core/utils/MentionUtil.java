@@ -35,7 +35,7 @@ public class MentionUtil {
     public static MentionList<Member> getMembers(Message message, String input, List<Member> members) {
         MemberCacheController.getInstance().loadMembersFull(message.getGuild()).join();
         ArrayList<Member> list = new ArrayList<>(message.getMentionedMembers());
-        if (!input.contains(ShardManager.getInstance().getSelfIdString())) {
+        if (!input.contains(ShardManager.getSelfIdString())) {
             list.remove(message.getGuild().getSelfMember());
         }
         list.removeIf(member -> !members.contains(member));
@@ -68,7 +68,7 @@ public class MentionUtil {
 
     public static MentionList<User> getUsers(Message message, String input, List<User> users) {
         ArrayList<User> list = message.getMentionedMembers().stream().map(Member::getUser).collect(Collectors.toCollection(ArrayList::new));
-        if (!input.contains(ShardManager.getInstance().getSelfIdString())) {
+        if (!input.contains(ShardManager.getSelfIdString())) {
             list.remove(message.getGuild().getSelfMember().getUser());
         }
         list.removeIf(user -> !users.contains(user));
@@ -111,7 +111,7 @@ public class MentionUtil {
                         usedIds.add(userId);
                         if (NumberUtil.countDigits(userId) >= 17) {
                             try {
-                                User user = ShardManager.getInstance().fetchUserById(userId).get();
+                                User user = ShardManager.fetchUserById(userId).get();
                                 if (!userList.contains(user)) {
                                     userList.add(user);
                                     newInput = newInput.replace(segment, "");
@@ -331,7 +331,7 @@ public class MentionUtil {
             }
         }
 
-        Optional<String> unicodeEmojiOpt = EmojiTable.getInstance().extractFirstEmoji(input);
+        Optional<String> unicodeEmojiOpt = EmojiTable.extractFirstEmoji(input);
         if (unicodeEmojiOpt.isPresent()) {
             String unicodeEmoji = unicodeEmojiOpt.get();
             emojiList.add(unicodeEmoji);

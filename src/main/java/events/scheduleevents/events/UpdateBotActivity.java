@@ -11,7 +11,7 @@ public class UpdateBotActivity implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        ShardManager.getInstance().getConnectedLocalJDAs().forEach(api -> DiscordConnector.getInstance().updateActivity(api));
+        ShardManager.getConnectedLocalJDAs().forEach(DiscordConnector::updateActivity);
     }
 
 }

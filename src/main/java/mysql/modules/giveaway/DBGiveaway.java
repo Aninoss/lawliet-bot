@@ -5,7 +5,7 @@ import java.util.List;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBDataLoadAll;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBMapCache;
 
 public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, GiveawayData>> {
@@ -68,13 +68,13 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
     }
 
     private void addGiveawaySlot(GiveawayData slot) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Giveaways (serverId, messageId, channelId, emoji, winners, start, durationMinutes, title, description, imageUrl, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Giveaways (serverId, messageId, channelId, emoji, winners, start, durationMinutes, title, description, imageUrl, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getGuildId());
             preparedStatement.setLong(2, slot.getMessageId());
             preparedStatement.setLong(3, slot.getTextChannelId());
             preparedStatement.setString(4, slot.getEmoji());
             preparedStatement.setInt(5, slot.getWinners());
-            preparedStatement.setString(6, DBMain.instantToDateTimeString(slot.getStart()));
+            preparedStatement.setString(6, MySQLManager.instantToDateTimeString(slot.getStart()));
             preparedStatement.setLong(7, slot.getDurationMinutes());
             preparedStatement.setString(8, slot.getTitle());
             preparedStatement.setString(9, slot.getDescription());
@@ -84,7 +84,7 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
     }
 
     private void removeGiveawaySlot(GiveawayData slot) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Giveaways WHERE messageId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM Giveaways WHERE messageId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, slot.getMessageId());
         });
     }

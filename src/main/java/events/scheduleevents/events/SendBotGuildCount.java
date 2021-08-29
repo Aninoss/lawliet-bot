@@ -13,8 +13,8 @@ public class SendBotGuildCount implements ScheduleInterface {
     @Override
     public void run() throws Throwable {
         if (Program.productionMode() && Program.publicVersion() && Program.getClusterId() == 1) {
-            ShardManager.getInstance().getGlobalGuildSize().ifPresent(totalServers -> {
-                TopGG.getInstance().updateServerCount(totalServers);
+            ShardManager.getGlobalGuildSize().ifPresent(totalServers -> {
+                TopGG.updateServerCount(totalServers);
                 Botsfordiscord.updateServerCount(totalServers);
                 BotsOnDiscord.updateServerCount(totalServers);
                 Discordbotlist.updateServerCount(totalServers);

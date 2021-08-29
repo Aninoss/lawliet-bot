@@ -131,10 +131,10 @@ public class SlotCommand extends CasinoAbstract {
         deregisterListenersWithButtons();
 
         Member member = event.getMember();
-        MainScheduler.getInstance().schedule(1000, "slot_0", () -> unlockFruit(member, 0));
-        MainScheduler.getInstance().schedule(2000, "slot_1", () -> unlockFruit(member, 1));
-        MainScheduler.getInstance().schedule(3000, "slot_2", () -> unlockFruit(member, 2));
-        MainScheduler.getInstance().schedule(4000, "slot_results", () -> manageEnd(member));
+        MainScheduler.schedule(1000, "slot_0", () -> unlockFruit(member, 0));
+        MainScheduler.schedule(2000, "slot_1", () -> unlockFruit(member, 1));
+        MainScheduler.schedule(3000, "slot_2", () -> unlockFruit(member, 2));
+        MainScheduler.schedule(4000, "slot_results", () -> manageEnd(member));
 
         return true;
     }

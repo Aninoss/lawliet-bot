@@ -171,7 +171,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
 
                         manager.complete();
                         memberCountBean.getMemberCountBeanSlots().put(currentVC.getIdLong(), new MemberCountDisplaySlot(event.getGuild().getIdLong(), currentVC.getIdLong(), currentName));
-                        MemberCountDisplay.getInstance().manage(getLocale(), event.getGuild());
+                        MemberCountDisplay.manage(getLocale(), event.getGuild());
 
                         setLog(LogStatus.SUCCESS, getString("displayadd"));
                         setState(0);

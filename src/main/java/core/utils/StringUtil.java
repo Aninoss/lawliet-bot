@@ -226,7 +226,7 @@ public final class StringUtil {
                 .replace("{CHANNEL_ID}", message.getChannel().getId())
                 .replace("{GUILD_ID}", message.getGuild().getId())
                 .replace("{@USER}", message.getMember().getAsMention())
-                .replace("{@BOT}", ShardManager.getInstance().getSelf().getAsMention())
+                .replace("{@BOT}", ShardManager.getSelf().getAsMention())
                 .replace("%Prefix", prefix);
     }
 

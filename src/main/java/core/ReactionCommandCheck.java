@@ -10,7 +10,7 @@ public class ReactionCommandCheck {
 
     public static boolean manage(GenericGuildMessageReactionEvent event) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            CommandContainer.getInstance().getListeners(OnReactionListener.class).stream()
+            CommandContainer.getListeners(OnReactionListener.class).stream()
                     .filter(listener -> listener.check(event) == CommandListenerMeta.CheckResponse.ACCEPT)
                     .forEach(listener -> ((OnReactionListener) listener.getCommand()).processReaction(event));
         }

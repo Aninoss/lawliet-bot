@@ -33,7 +33,7 @@ public class AtomicVoiceChannel implements MentionableAtomicAsset<VoiceChannel> 
 
     @Override
     public Optional<VoiceChannel> get() {
-        return ShardManager.getInstance().getLocalGuildById(guildId)
+        return ShardManager.getLocalGuildById(guildId)
                 .map(guild -> guild.getVoiceChannelById(channelId));
     }
 

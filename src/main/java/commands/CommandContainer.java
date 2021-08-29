@@ -32,23 +32,17 @@ import core.utils.ExceptionUtil;
 
 public class CommandContainer {
 
-    private static final CommandContainer ourInstance = new CommandContainer();
+    private static final HashMap<String, Class<? extends Command>> commandMap = new HashMap<>();
+    private static final HashMap<String, ArrayList<Class<? extends Command>>> commandCategoryMap = new HashMap<>();
+    private static final ArrayList<Class<? extends OnStaticReactionAddListener>> staticReactionAddCommands = new ArrayList<>();
+    private static final ArrayList<Class<? extends OnStaticReactionRemoveListener>> staticReactionRemoveCommands = new ArrayList<>();
+    private static final ArrayList<Class<? extends OnAlertListener>> trackerCommands = new ArrayList<>();
 
-    public static CommandContainer getInstance() {
-        return ourInstance;
-    }
+    private static final HashMap<Class<?>, Cache<Long, CommandListenerMeta<?>>> listenerMap = new HashMap<>();
 
-    private final HashMap<String, Class<? extends Command>> commandMap = new HashMap<>();
-    private final HashMap<String, ArrayList<Class<? extends Command>>> commandCategoryMap = new HashMap<>();
-    private final ArrayList<Class<? extends OnStaticReactionAddListener>> staticReactionAddCommands = new ArrayList<>();
-    private final ArrayList<Class<? extends OnStaticReactionRemoveListener>> staticReactionRemoveCommands = new ArrayList<>();
-    private final ArrayList<Class<? extends OnAlertListener>> trackerCommands = new ArrayList<>();
+    private static int commandStuckCounter = 0;
 
-    private final HashMap<Class<?>, Cache<Long, CommandListenerMeta<?>>> listenerMap = new HashMap<>();
-
-    private int commandStuckCounter = 0;
-
-    private CommandContainer() {
+    static {
         final ArrayList<Class<? extends Command>> commandList = new ArrayList<>();
 
         //GIMMICKS
@@ -301,12 +295,12 @@ public class CommandContainer {
         }
     }
 
-    private void addCommandCategoryMap(Command command) {
+    private static void addCommandCategoryMap(Command command) {
         ArrayList<Class<? extends Command>> commands = commandCategoryMap.computeIfAbsent(command.getCategory(), e -> new ArrayList<>());
         commands.add(command.getClass());
     }
 
-    private void addCommand(String trigger, Command command) {
+    private static void addCommand(String trigger, Command command) {
         if (commandMap.containsKey(trigger)) {
             MainLogger.get().error("Duplicate key for \"" + command.getTrigger() + "\"");
         } else {
@@ -315,36 +309,36 @@ public class CommandContainer {
     }
 
 
-    public HashMap<String, Class<? extends Command>> getCommandMap() {
+    public static HashMap<String, Class<? extends Command>> getCommandMap() {
         return commandMap;
     }
 
-    public ArrayList<Class<? extends OnStaticReactionAddListener>> getStaticReactionAddCommands() {
+    public static ArrayList<Class<? extends OnStaticReactionAddListener>> getStaticReactionAddCommands() {
         return staticReactionAddCommands;
     }
 
-    public ArrayList<Class<? extends OnStaticReactionRemoveListener>> getStaticReactionRemoveCommands() {
+    public static ArrayList<Class<? extends OnStaticReactionRemoveListener>> getStaticReactionRemoveCommands() {
         return staticReactionRemoveCommands;
     }
 
-    public ArrayList<Class<? extends OnAlertListener>> getTrackerCommands() {
+    public static ArrayList<Class<? extends OnAlertListener>> getTrackerCommands() {
         return trackerCommands;
     }
 
-    public HashMap<String, ArrayList<Class<? extends Command>>> getCommandCategoryMap() {
+    public static HashMap<String, ArrayList<Class<? extends Command>>> getCommandCategoryMap() {
         return commandCategoryMap;
     }
 
-    public ArrayList<Class<? extends Command>> getFullCommandList() {
+    public static ArrayList<Class<? extends Command>> getFullCommandList() {
         ArrayList<Class<? extends Command>> fullList = new ArrayList<>();
-        CommandContainer.getInstance().getCommandCategoryMap().values()
+        getCommandCategoryMap().values()
                 .forEach(fullList::addAll);
 
         return fullList;
     }
 
 
-    public synchronized <T> void registerListener(Class<?> clazz, CommandListenerMeta<T> commandListenerMeta) {
+    public static synchronized <T> void registerListener(Class<?> clazz, CommandListenerMeta<T> commandListenerMeta) {
         Cache<Long, CommandListenerMeta<?>> cache = listenerMap.computeIfAbsent(
                 clazz,
                 e -> CacheBuilder.newBuilder()
@@ -359,31 +353,31 @@ public class CommandContainer {
         cache.put(commandListenerMeta.getCommand().getId(), commandListenerMeta);
     }
 
-    public synchronized void deregisterListeners(Command command) {
+    public static synchronized void deregisterListeners(Command command) {
         for (Cache<Long, CommandListenerMeta<?>> cache : listenerMap.values()) {
             cache.invalidate(command.getId());
         }
     }
 
-    public synchronized Collection<CommandListenerMeta<?>> getListeners(Class<?> clazz) {
+    public static synchronized Collection<CommandListenerMeta<?>> getListeners(Class<?> clazz) {
         if (!listenerMap.containsKey(clazz)) {
             return Collections.emptyList();
         }
         return listenerMap.get(clazz).asMap().values();
     }
 
-    public synchronized Optional<CommandListenerMeta<?>> getListener(Class<?> clazz, Command command) {
+    public static synchronized Optional<CommandListenerMeta<?>> getListener(Class<?> clazz, Command command) {
         if (!listenerMap.containsKey(clazz)) {
             return Optional.empty();
         }
         return Optional.ofNullable(listenerMap.get(clazz).getIfPresent(command.getId()));
     }
 
-    public synchronized void cleanUp() {
+    public static synchronized void cleanUp() {
         listenerMap.values().forEach(Cache::cleanUp);
     }
 
-    public synchronized void refreshListeners(Command command) {
+    public static synchronized void refreshListeners(Command command) {
         for (Cache<Long, CommandListenerMeta<?>> cache : listenerMap.values()) {
             CommandListenerMeta<?> meta = cache.getIfPresent(command.getId());
             if (meta != null) {
@@ -392,17 +386,17 @@ public class CommandContainer {
         }
     }
 
-    public synchronized Collection<Class<?>> getListenerClasses() {
+    public static synchronized Collection<Class<?>> getListenerClasses() {
         return listenerMap.keySet();
     }
 
-    public synchronized int getListenerSize() {
+    public static synchronized int getListenerSize() {
         return (int) listenerMap.values().stream()
                 .mapToLong(Cache::size)
                 .sum();
     }
 
-    public void addCommandTerminationStatus(Command command, Thread commandThread, boolean stuck) {
+    public static void addCommandTerminationStatus(Command command, Thread commandThread, boolean stuck) {
         if (stuck) {
             Exception e = ExceptionUtil.generateForStack(commandThread);
             MainLogger.get().error("Command \"{}\" stuck (stuck counter: {})", command.getTrigger(), ++commandStuckCounter, e);
@@ -412,7 +406,7 @@ public class CommandContainer {
         }
     }
 
-    public int getCommandStuckCounter() {
+    public static int getCommandStuckCounter() {
         return commandStuckCounter;
     }
 

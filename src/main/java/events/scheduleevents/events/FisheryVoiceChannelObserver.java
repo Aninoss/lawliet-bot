@@ -29,7 +29,7 @@ public class FisheryVoiceChannelObserver implements ScheduleInterface {
     @Override
     public void run() throws Throwable {
         AtomicInteger actions = new AtomicInteger(0);
-        ShardManager.getInstance().getLocalGuilds().stream()
+        ShardManager.getLocalGuilds().stream()
                 .filter(guild -> {
                     try {
                         return DBGuild.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE;

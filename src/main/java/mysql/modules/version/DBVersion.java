@@ -2,7 +2,7 @@ package mysql.modules.version;
 
 import java.util.ArrayList;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBSingleCache;
 
 public class DBVersion extends DBSingleCache<VersionData> {
@@ -33,9 +33,9 @@ public class DBVersion extends DBSingleCache<VersionData> {
     }
 
     protected void insertVersion(VersionSlot versionSlot) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Version (version, date) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO Version (version, date) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setString(1, versionSlot.getVersion());
-            preparedStatement.setString(2, DBMain.instantToDateTimeString(versionSlot.getDate()));
+            preparedStatement.setString(2, MySQLManager.instantToDateTimeString(versionSlot.getDate()));
         });
     }
 

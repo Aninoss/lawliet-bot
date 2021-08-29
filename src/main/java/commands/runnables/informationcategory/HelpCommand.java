@@ -136,7 +136,7 @@ public class HelpCommand extends NavigationAbstract {
             noArgs = true;
         }
 
-        for (Class<? extends Command> clazz : CommandContainer.getInstance().getFullCommandList()) {
+        for (Class<? extends Command> clazz : CommandContainer.getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
 
@@ -251,7 +251,7 @@ public class HelpCommand extends NavigationAbstract {
     private void addRolePlayCommandList(Member member, EmbedBuilder eb, Function<RolePlayAbstract, Boolean> rolePlayAbstractFilter, AtomicInteger counter) {
         StringBuilder stringBuilder = new StringBuilder();
         int i = 0;
-        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(Category.INTERACTIONS)) {
+        for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.INTERACTIONS)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) &&
@@ -287,7 +287,7 @@ public class HelpCommand extends NavigationAbstract {
 
         int i = 0;
         for (String category : Category.LIST) {
-            for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(category)) {
+            for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
                 Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                 String commandTrigger = command.getTrigger();
                 if (command.getCommandProperties().patreonRequired() &&
@@ -332,7 +332,7 @@ public class HelpCommand extends NavigationAbstract {
         boolean includePatreon = false;
 
         int i = 0;
-        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(category)) {
+        for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (!commandTrigger.equals(getTrigger()) &&
@@ -375,7 +375,7 @@ public class HelpCommand extends NavigationAbstract {
         StringBuilder withoutSearchKey = new StringBuilder();
 
         int i = 0;
-        for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(Category.NSFW)) {
+        for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.NSFW)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
             if (commandManagementBean.commandIsTurnedOn(command) ||

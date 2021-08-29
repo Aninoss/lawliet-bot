@@ -13,7 +13,7 @@ public class GuildMemberRemoveMCDisplays extends GuildMemberRemoveAbstract {
     @Override
     public boolean onGuildMemberRemove(GuildMemberRemoveEvent event) {
         Locale locale = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
-        MemberCountDisplay.getInstance().manage(locale, event.getGuild());
+        MemberCountDisplay.manage(locale, event.getGuild());
         return true;
     }
 

@@ -23,9 +23,11 @@ import org.json.JSONObject;
 public class RedditDownloader {
 
     private final static int TIMEOUT_MIN = 60;
-    private static Instant nextRequestBlockUntil = null;
 
-    public static RedditPost getImagePost(Locale locale, String sub) throws IOException, InterruptedException, ExecutionException {
+    private Instant nextRequestBlockUntil = null;
+    private final SubredditCache subredditCache = new SubredditCache();
+
+    public RedditPost getImagePost(Locale locale, String sub) throws IOException, InterruptedException, ExecutionException {
         sub = InternetUtil.escapeForURL(sub);
 
         RedditPost redditPost;
@@ -39,7 +41,7 @@ public class RedditDownloader {
         return redditPost;
     }
 
-    public static RedditPost getPost(Locale locale, String sub) throws InterruptedException, ExecutionException {
+    public RedditPost getPost(Locale locale, String sub) throws InterruptedException, ExecutionException {
         if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil)) {
             return null;
         }
@@ -47,7 +49,7 @@ public class RedditDownloader {
         if (sub.startsWith("r/")) sub = sub.substring(2);
         sub = InternetUtil.escapeForURL(sub.replace(" ", "_"));
 
-        Subreddit subreddit = SubredditContainer.getInstance().get(sub);
+        Subreddit subreddit = subredditCache.get(sub);
         String postReference = subreddit.getPostReference();
         if (postReference.length() > 0) postReference = "&after=" + postReference;
 
@@ -75,7 +77,7 @@ public class RedditDownloader {
         return getPost(locale, data);
     }
 
-    public static PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws InterruptedException, ExecutionException {
+    public PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws InterruptedException, ExecutionException {
         if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil)) {
             return null;
         }
@@ -100,7 +102,7 @@ public class RedditDownloader {
         return trackerProcess(locale, postData, postedIdList);
     }
 
-    private static JSONObject httpResponseToJson(HttpResponse httpResponse) {
+    private JSONObject httpResponseToJson(HttpResponse httpResponse) {
         if (httpResponse.getCode() / 100 != 2) {
             return null;
         }
@@ -119,7 +121,7 @@ public class RedditDownloader {
         return root.getJSONObject("data");
     }
 
-    private static PostBundle<RedditPost> trackerProcess(Locale locale, JSONArray postData, ArrayList<String> postedIdList) {
+    private PostBundle<RedditPost> trackerProcess(Locale locale, JSONArray postData, ArrayList<String> postedIdList) {
         ArrayList<RedditPost> redditPosts = new ArrayList<>();
         for (int i = 0; i < postData.length() - 1; i++) {
             String name = postData.getJSONObject(i).getJSONObject("data").getString("name");
@@ -146,7 +148,7 @@ public class RedditDownloader {
         return new PostBundle<>(redditPosts, newArg.toString());
     }
 
-    private static JSONArray filterPostData(JSONArray postData) {
+    private JSONArray filterPostData(JSONArray postData) {
         JSONArray newArray = new JSONArray();
         for (int i = 0; i < postData.length() - 1; i++) {
             JSONObject entry = postData.getJSONObject(i);
@@ -159,7 +161,7 @@ public class RedditDownloader {
         return newArray;
     }
 
-    public static boolean checkRedditConnection() {
+    public boolean checkRedditConnection() {
         try {
             return getPost(Language.EN.getLocale(), "memes") != null;
         } catch (InterruptedException | ExecutionException e) {
@@ -168,7 +170,7 @@ public class RedditDownloader {
         return false;
     }
 
-    private static RedditPost getPost(Locale locale, JSONObject data) {
+    private RedditPost getPost(Locale locale, JSONObject data) {
         RedditPost post = new RedditPost();
 
         String description;

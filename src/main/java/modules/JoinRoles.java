@@ -25,6 +25,8 @@ import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 public class JoinRoles {
 
+    private static final AninossRaidProtection aninossRaidProtection = new AninossRaidProtection();
+
     public static void process(Member member) {
         if (!member.isPending()) {
             HashSet<Role> rolesToAdd = new HashSet<>();
@@ -52,9 +54,9 @@ public class JoinRoles {
         for (Role role : DBAutoRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds()
                 .transform(guild::getRoleById, ISnowflake::getIdLong)
         ) {
-            if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role)) {
+            if (PermissionCheckRuntime.botCanManageRoles(locale, AutoRolesCommand.class, role)) {
                 if (role.getIdLong() != 462410205288726531L ||
-                        (AninossRaidProtection.getInstance().check(member, role) &&
+                        (aninossRaidProtection.check(member, role) &&
                                 member.getUser().getTimeCreated().toInstant().plus(1, ChronoUnit.HOURS).isBefore(Instant.now()))
                 ) {
                     rolesToAdd.add(role);
@@ -73,7 +75,7 @@ public class JoinRoles {
         List<Role> memberRoles = fisheryGuildBean.getMemberData(member.getIdLong()).getRoles();
         for (Role role : fisheryGuildBean.getRoles()) {
             boolean give = memberRoles.contains(role);
-            if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, FisheryCommand.class, role) && give != member.getRoles().contains(role)) {
+            if (PermissionCheckRuntime.botCanManageRoles(locale, FisheryCommand.class, role) && give != member.getRoles().contains(role)) {
                 if (give) {
                     rolesToAdd.add(role);
                 } else {
@@ -87,7 +89,7 @@ public class JoinRoles {
         Guild guild = member.getGuild();
         if (DBServerMute.getInstance().retrieve(guild.getIdLong()).containsKey(member.getIdLong())) {
             DBModeration.getInstance().retrieve(guild.getIdLong()).getMuteRole().ifPresent(muteRole -> {
-                if (PermissionCheckRuntime.getInstance().botCanManageRoles(locale, MuteCommand.class, muteRole)) {
+                if (PermissionCheckRuntime.botCanManageRoles(locale, MuteCommand.class, muteRole)) {
                     rolesToAdd.add(muteRole);
                 }
             });

@@ -18,12 +18,12 @@ public class CheckSyncWebsocket implements ScheduleInterface {
     public void run() throws Throwable {
         if (Program.productionMode() && !isConnected()) {
             MainLogger.get().error("Sync websocket disconnected, attempting reconnect");
-            SyncManager.getInstance().reconnect();
+            SyncManager.reconnect();
         }
     }
 
     private boolean isConnected() {
-        if (!SyncManager.getInstance().getClient().isConnected()) {
+        if (!SyncManager.getClient().isConnected()) {
             return false;
         }
 

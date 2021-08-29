@@ -17,17 +17,12 @@ import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class MainScheduler {
 
-    private static final MainScheduler ourInstance = new MainScheduler();
     private static final Duration MAX_TASK_DURATION = Duration.ofSeconds(5);
 
-    public static MainScheduler getInstance() {
-        return ourInstance;
-    }
+    private static final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(1, new CountingThreadFactory(() -> "Main", "Scheduler", true));
+    private static final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(1, new CountingThreadFactory(() -> "Main", "Poller", true));
 
-    private final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(1, new CountingThreadFactory(() -> "Main", "Scheduler", true));
-    private final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(1, new CountingThreadFactory(() -> "Main", "Poller", true));
-
-    public void schedule(long millis, String name, Runnable listener) {
+    public static void schedule(long millis, String name, Runnable listener) {
         if (Program.isRunning()) {
             schedulers.schedule(() -> {
                 GlobalThreadPool.getExecutorService().submit(() -> {
@@ -47,12 +42,12 @@ public class MainScheduler {
         }
     }
 
-    public void schedule(long amount, TemporalUnit unit, String name, Runnable listener) {
+    public static void schedule(long amount, TemporalUnit unit, String name, Runnable listener) {
         long millis = Duration.of(amount, unit).toMillis();
         schedule(millis, name, listener);
     }
 
-    public void schedule(Instant dueInstant, String name, Runnable listener) {
+    public static void schedule(Instant dueInstant, String name, Runnable listener) {
         long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), dueInstant);
         schedule(millis, name, listener);
     }
@@ -60,7 +55,7 @@ public class MainScheduler {
     /*
     Keeps polling in the specified time interval as long as the listener returns true
      */
-    public void poll(long millis, String name, Supplier<Boolean> listener) {
+    public static void poll(long millis, String name, Supplier<Boolean> listener) {
         if (Program.isRunning()) {
             pollers.schedule(() -> {
                 GlobalThreadPool.getExecutorService().submit(() -> {
@@ -82,7 +77,7 @@ public class MainScheduler {
         }
     }
 
-    public void poll(long amount, TemporalUnit unit, String name, Supplier<Boolean> listener) {
+    public static void poll(long amount, TemporalUnit unit, String name, Supplier<Boolean> listener) {
         long millis = Duration.of(amount, unit).toMillis();
         poll(millis, name, listener);
     }

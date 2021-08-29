@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import core.MainLogger;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBMapCache;
-import mysql.DBRedis;
+import mysql.RedisManager;
 import redis.clients.jedis.Pipeline;
 
 public class DBFishery extends DBMapCache<Long, FisheryGuildData> {
@@ -45,14 +45,14 @@ public class DBFishery extends DBMapCache<Long, FisheryGuildData> {
     }
 
     private void addRoleId(long serverId, long roleId) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO PowerPlantRoles (serverId, roleId) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO PowerPlantRoles (serverId, roleId) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, roleId);
         });
     }
 
     private void removeRoleId(long serverId, long roleId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantRoles WHERE serverId = ? AND roleId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM PowerPlantRoles WHERE serverId = ? AND roleId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, roleId);
         });
@@ -65,14 +65,14 @@ public class DBFishery extends DBMapCache<Long, FisheryGuildData> {
     }
 
     private void addIgnoredChannelId(long serverId, long channelId) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO PowerPlantIgnoredChannels (serverId, channelId) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO PowerPlantIgnoredChannels (serverId, channelId) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, channelId);
         });
     }
 
     private void removeIgnoredChannelId(long serverId, long channelId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM PowerPlantIgnoredChannels WHERE serverId = ? AND channelId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM PowerPlantIgnoredChannels WHERE serverId = ? AND channelId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, channelId);
         });
@@ -81,8 +81,8 @@ public class DBFishery extends DBMapCache<Long, FisheryGuildData> {
     @Override
     public void invalidateGuildId(long guildId) {
         FisheryGuildData fisheryGuildData = retrieve(guildId);
-        DBRedis.getInstance().update(jedis -> {
-            List<String> accountKeys = DBRedis.getInstance().scan(jedis, "fishery_account:" + guildId + ":*");
+        RedisManager.update(jedis -> {
+            List<String> accountKeys = RedisManager.scan(jedis, "fishery_account:" + guildId + ":*");
             Pipeline pipeline = jedis.pipelined();
             pipeline.del(fisheryGuildData.KEY_RECENT_FISH_GAINS_RAW);
             pipeline.del(fisheryGuildData.KEY_RECENT_FISH_GAINS_PROCESSED);
@@ -94,8 +94,8 @@ public class DBFishery extends DBMapCache<Long, FisheryGuildData> {
 
     public List<Long> getGuildIdsForFisheryUser(long userId) {
         ArrayList<Long> guildIds = new ArrayList<>();
-        DBRedis.getInstance().update(jedis -> {
-            List<String> accountKeys = DBRedis.getInstance().scan(jedis, "fishery_account:*:" + userId);
+        RedisManager.update(jedis -> {
+            List<String> accountKeys = RedisManager.scan(jedis, "fishery_account:*:" + userId);
             for (String accountKey : accountKeys) {
                 String[] parts = accountKey.split(":");
                 long fisheryGuildId = Long.parseLong(parts[1]);

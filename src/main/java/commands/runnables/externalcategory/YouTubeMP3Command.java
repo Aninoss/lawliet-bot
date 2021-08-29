@@ -32,6 +32,7 @@ import org.json.JSONObject;
 public class YouTubeMP3Command extends Command {
 
     private final static int MINUTES_CAP = 30;
+    private final static YouTubeMeta youTubeMeta = new YouTubeMeta();
 
     public YouTubeMP3Command(Locale locale, String prefix) {
         super(locale, prefix);
@@ -51,7 +52,7 @@ public class YouTubeMP3Command extends Command {
             args = args.split("&")[0];
         }
 
-        Optional<AudioTrackInfo> metaOpt = YouTubeMeta.getInstance().getFromVideoURL(args);
+        Optional<AudioTrackInfo> metaOpt = youTubeMeta.getFromVideoURL(args);
         if (metaOpt.isEmpty() || metaOpt.get().isStream) {
             event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), args)).build()).queue();
             return false;

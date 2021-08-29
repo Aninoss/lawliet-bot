@@ -136,7 +136,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     @Override
     public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
         TextChannel textChannel = slot.getTextChannel().get();
-        if (PermissionCheckRuntime.getInstance().botHasPermission(getLocale(), getClass(), textChannel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
+        if (PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), textChannel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
             Optional<Integer> hoursMin = extractHoursMin(textChannel, slot.getCommandKey());
             if (hoursMin.isPresent()) {
                 fullClear(textChannel, hoursMin.get());

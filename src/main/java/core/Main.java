@@ -6,13 +6,21 @@ import java.util.concurrent.TimeUnit;
 import com.jockie.jda.memory.MemoryOptimizations;
 import core.emoji.EmojiTable;
 import core.utils.BotUtil;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionData;
 import mysql.modules.version.VersionSlot;
 import websockets.syncserver.SyncManager;
 
 public class Main {
+
+    static {
+        try {
+            MemoryOptimizations.installOptimizations();
+        } catch (Throwable e) {
+            MainLogger.get().error("Unable to install byte-buddy", e);
+        }
+    }
 
     public static void main(String[] args) {
         try {
@@ -28,28 +36,22 @@ public class Main {
         }
 
         try {
-            MemoryOptimizations.installOptimizations();
-        } catch (Throwable e) {
-            MainLogger.get().error("Unable to install byte-buddy", e);
-        }
-
-        try {
             Program.init();
             createTempDir();
 
-            Console.getInstance().start();
-            FontContainer.getInstance().init();
-            DBMain.getInstance().connect();
-            EmojiTable.getInstance().load();
+            Console.start();
+            FontManager.init();
+            MySQLManager.connect();
+            EmojiTable.load();
             if (Program.publicVersion()) {
                 initializeUpdate();
             }
 
             MainLogger.get().info("Waiting for sync server");
-            SyncManager.getInstance().start();
+            SyncManager.connect();
 
             if (!Program.productionMode()) {
-                DiscordConnector.getInstance().connect(0, 0, 1);
+                DiscordConnector.connect(0, 0, 1);
             } else {
                 Runtime.getRuntime().addShutdownHook(new Thread(Program::onStop, "Shutdown Bot-Stop"));
             }

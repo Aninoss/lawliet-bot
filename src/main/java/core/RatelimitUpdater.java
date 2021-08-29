@@ -29,7 +29,7 @@ public class RatelimitUpdater {
     }
 
     private void startTimer(long key) {
-        MainScheduler.getInstance().schedule(amount, temporalUnit, "ratelimit_updater", () -> {
+        MainScheduler.schedule(amount, temporalUnit, "ratelimit_updater", () -> {
             if (restActionMap.containsKey(key)) {
                 restActionMap.get(key).ifPresentOrElse(restAction -> {
                     restAction.queue();

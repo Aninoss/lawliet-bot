@@ -2,7 +2,7 @@ package mysql.modules.spblock;
 
 import java.util.ArrayList;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
@@ -18,7 +18,7 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
 
     @Override
     protected SPBlockData load(Long serverId) throws Exception {
-        SPBlockData spBlockBean = DBMain.getInstance().get(
+        SPBlockData spBlockBean = MySQLManager.get(
                 "SELECT active, action FROM SPBlock WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
@@ -58,7 +58,7 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
 
     @Override
     protected void save(SPBlockData spBlockBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO SPBlock (serverId, active, action) VALUES (?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO SPBlock (serverId, active, action) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, spBlockBean.getGuildId());
             preparedStatement.setBoolean(2, spBlockBean.isActive());
             preparedStatement.setString(3, spBlockBean.getAction().name());
@@ -72,14 +72,14 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
     }
 
     private void addIgnoredUser(long serverId, long userId) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO SPBlockIgnoredUsers (serverId, userId) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO SPBlockIgnoredUsers (serverId, userId) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, userId);
         });
     }
 
     private void removeIgnoredUser(long serverId, long userId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM SPBlockIgnoredUsers WHERE serverId = ? AND userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM SPBlockIgnoredUsers WHERE serverId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, userId);
         });
@@ -92,14 +92,14 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
     }
 
     private void addLogReceiver(long serverId, long userId) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO SPBlockLogRecievers (serverId, userId) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO SPBlockLogRecievers (serverId, userId) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, userId);
         });
     }
 
     private void removeLogReceiver(long serverId, long userId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM SPBlockLogRecievers WHERE serverId = ? AND userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM SPBlockLogRecievers WHERE serverId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, userId);
         });
@@ -112,14 +112,14 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
     }
 
     private void addIgnoredChannels(long serverId, long channelId) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO SPBlockIgnoredChannels (serverId, channelId) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO SPBlockIgnoredChannels (serverId, channelId) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, channelId);
         });
     }
 
     private void removeIgnoredChannels(long serverId, long channelId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM SPBlockIgnoredChannels WHERE serverId = ? AND channelId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM SPBlockIgnoredChannels WHERE serverId = ? AND channelId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, channelId);
         });

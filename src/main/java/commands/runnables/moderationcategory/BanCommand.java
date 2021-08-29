@@ -50,7 +50,7 @@ public class BanCommand extends WarnCommand {
         if (minutes > 0) {
             TempBanData tempBan = new TempBanData(guild.getIdLong(), target.getIdLong(), Instant.now().plus(Duration.ofMinutes(minutes)));
             DBTempBan.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), tempBan);
-            TempBanScheduler.getInstance().loadTempBan(tempBan);
+            TempBanScheduler.loadTempBan(tempBan);
         } else {
             DBTempBan.getInstance().retrieve(guild.getIdLong()).remove(target.getIdLong());
         }

@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 public class TwitchCommand extends Command implements OnAlertListener {
 
     private static final String TWITCH_ICON = "https://www.twitch.tv/favicon.ico";
+    private static final TwitchDownloader twitchDownloader = new TwitchDownloader();
 
     public TwitchCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -44,7 +45,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
         }
 
         addLoadingReactionInstantly();
-        Optional<TwitchStream> streamOpt = TwitchDownloader.getInstance().getStream(args);
+        Optional<TwitchStream> streamOpt = twitchDownloader.getStream(args);
         if (streamOpt.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
@@ -86,7 +87,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
 
         Optional<TwitchStream> streamOpt;
         try {
-            streamOpt = TwitchDownloader.getInstance().getStream(slot.getCommandKey());
+            streamOpt = twitchDownloader.getStream(slot.getCommandKey());
         } catch (Throwable e) {
             if (slot.getArgs().isEmpty()) {
                 streamOpt = Optional.empty();

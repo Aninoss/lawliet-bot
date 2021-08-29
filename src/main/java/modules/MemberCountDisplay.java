@@ -22,25 +22,16 @@ import net.dv8tion.jda.api.requests.RestAction;
 
 public class MemberCountDisplay {
 
-    private static final MemberCountDisplay ourInstance = new MemberCountDisplay();
-
-    public static MemberCountDisplay getInstance() {
-        return ourInstance;
-    }
-
-    private final RatelimitUpdater ratelimitUpdater = new RatelimitUpdater(5, ChronoUnit.MINUTES);
-    private final Cache<Long, String> voiceNameCache = CacheBuilder.newBuilder()
+    private static final RatelimitUpdater ratelimitUpdater = new RatelimitUpdater(5, ChronoUnit.MINUTES);
+    private static final Cache<Long, String> voiceNameCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(20))
             .build();
 
-    private MemberCountDisplay() {
-    }
-
-    public void manage(Locale locale, Guild guild) {
+    public static void manage(Locale locale, Guild guild) {
         ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().retrieve(guild.getIdLong()).getMemberCountBeanSlots().values());
         for (MemberCountDisplaySlot display : displays) {
             display.getVoiceChannel().ifPresent(voiceChannel -> {
-                if (PermissionCheckRuntime.getInstance().botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
+                if (PermissionCheckRuntime.botHasPermission(locale, MemberCountDisplayCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
                     String newVoiceName = generateNewVCName(guild, display.getMask());
 
                     if (!getCurrentVoiceName(voiceChannel).equals(newVoiceName)) {
@@ -52,14 +43,14 @@ public class MemberCountDisplay {
         }
     }
 
-    private String getCurrentVoiceName(VoiceChannel voiceChannel) {
+    private static String getCurrentVoiceName(VoiceChannel voiceChannel) {
         if (voiceNameCache.asMap().containsKey(voiceChannel.getIdLong())) {
             return voiceNameCache.getIfPresent(voiceChannel.getIdLong());
         }
         return voiceChannel.getName();
     }
 
-    private void rename(VoiceChannel voiceChannel, String newVCName) {
+    private static void rename(VoiceChannel voiceChannel, String newVCName) {
         RestAction<Void> restAction = voiceChannel.getManager()
                 .setName(newVCName);
 

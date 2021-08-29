@@ -11,7 +11,7 @@ public abstract class GuildMessageUpdateAbstract extends DiscordEventAbstract {
     public abstract boolean onGuildMessageUpdate(GuildMessageUpdateEvent event) throws Throwable;
 
     public static void onGuildMessageUpdateStatic(GuildMessageUpdateEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        MessageCache.getInstance().put(event.getMessage());
+        MessageCache.put(event.getMessage());
 
         Member member = event.getMember();
         if (member == null) {

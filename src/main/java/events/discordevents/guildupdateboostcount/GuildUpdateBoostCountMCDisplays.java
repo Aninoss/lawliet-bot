@@ -13,7 +13,7 @@ public class GuildUpdateBoostCountMCDisplays extends GuildUpdateBoostCountAbstra
     @Override
     public boolean onGuildUpdateBoostCount(GuildUpdateBoostCountEvent event) throws Throwable {
         Locale locale = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
-        MemberCountDisplay.getInstance().manage(locale, event.getGuild());
+        MemberCountDisplay.manage(locale, event.getGuild());
         return true;
     }
 

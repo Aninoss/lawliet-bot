@@ -11,7 +11,7 @@ public interface GuildAsset {
     long getGuildId();
 
     default Optional<Guild> getGuild() {
-        return ShardManager.getInstance().getLocalGuildById(getGuildId());
+        return ShardManager.getLocalGuildById(getGuildId());
     }
 
     default GuildData getGuildData() {

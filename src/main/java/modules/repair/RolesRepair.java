@@ -28,15 +28,6 @@ import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class RolesRepair {
 
-    private static final RolesRepair ourInstance = new RolesRepair();
-
-    public static RolesRepair getInstance() {
-        return ourInstance;
-    }
-
-    private RolesRepair() {
-    }
-
     private final ExecutorService executorService = Executors.newSingleThreadExecutor(new CountingThreadFactory(() -> "Main", "RoleRepair", false));
 
     public void start(JDA jda, int minutes) {
@@ -86,7 +77,7 @@ public class RolesRepair {
     private void checkRoles(Locale locale, String reason, Member member, List<Role> roles) {
         HashSet<Role> rolesToAdd = new HashSet<>();
         roles.stream()
-                .filter(role -> !member.getRoles().contains(role) && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, AutoRolesCommand.class, role))
+                .filter(role -> !member.getRoles().contains(role) && PermissionCheckRuntime.botCanManageRoles(locale, AutoRolesCommand.class, role))
                 .forEach(role -> {
                     MainLogger.get().info("Giving role \"{}\" to user \"{}\" on server \"{}\"", role.getName(), member.getUser().getAsTag(), role.getGuild().getName());
                     rolesToAdd.add(role);

@@ -3,7 +3,7 @@ package mysql.modules.welcomemessage;
 import java.util.Locale;
 import constants.Category;
 import core.TextManager;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
@@ -21,7 +21,7 @@ public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageDat
 
     @Override
     protected WelcomeMessageData load(Long serverId) throws Exception {
-        return DBMain.getInstance().get(
+        return MySQLManager.get(
                 "SELECT activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText FROM ServerWelcomeMessage WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
@@ -61,7 +61,7 @@ public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageDat
 
     @Override
     protected void save(WelcomeMessageData welcomeMessageBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO ServerWelcomeMessage (serverId, activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO ServerWelcomeMessage (serverId, activated, title, description, channel, goodbye, goodbyeText, goodbyeChannel, dm, dmText) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, welcomeMessageBean.getGuildId());
 
             preparedStatement.setBoolean(2, welcomeMessageBean.isWelcomeActive());

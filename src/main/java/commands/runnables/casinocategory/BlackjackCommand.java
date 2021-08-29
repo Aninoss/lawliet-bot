@@ -73,7 +73,7 @@ public class BlackjackCommand extends CasinoAbstract {
 
                 if (getCardsValue(PlayerType.PLAYER) > 21) {
                     turnForPlayer = false;
-                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_player_overdrew", () -> {
+                    MainScheduler.schedule(TIME_BEFORE_END, "blackjack_player_overdrew", () -> {
                         lose(event.getMember());
                         setLog(LogStatus.LOSE, getString("toomany", 0));
                         drawMessage(draw(event.getMember()));
@@ -94,7 +94,7 @@ public class BlackjackCommand extends CasinoAbstract {
     }
 
     private void onCPUTurn(Member member) {
-        MainScheduler.getInstance().poll(TIME_BETWEEN_EVENTS, "blackjack_cpu", () -> onCPUTurnStep(member));
+        MainScheduler.poll(TIME_BETWEEN_EVENTS, "blackjack_cpu", () -> onCPUTurnStep(member));
     }
 
     private boolean onCPUTurnStep(Member member) {
@@ -106,11 +106,11 @@ public class BlackjackCommand extends CasinoAbstract {
         int cardsValue = getCardsValue(PlayerType.DEALER);
         if (cardsValue >= 17) {
             if (cardsValue <= 21) {
-                MainScheduler.getInstance().schedule(TIME_BETWEEN_EVENTS, "blackjack_cpu_stop", () -> {
+                MainScheduler.schedule(TIME_BETWEEN_EVENTS, "blackjack_cpu_stop", () -> {
                     setLog(LogStatus.SUCCESS, getString("stopcard", 1));
                     drawMessage(draw(member));
 
-                    MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_checkresults", () -> {
+                    MainScheduler.schedule(TIME_BEFORE_END, "blackjack_checkresults", () -> {
                         HashMap<PlayerType, Boolean> hasBlackJackMap = new HashMap<>();
                         for (PlayerType playerType : PlayerType.values()) {
                             hasBlackJackMap.put(
@@ -151,7 +151,7 @@ public class BlackjackCommand extends CasinoAbstract {
                     });
                 });
             } else {
-                MainScheduler.getInstance().schedule(TIME_BEFORE_END, "blackjack_cpu_overdrew", () -> {
+                MainScheduler.schedule(TIME_BEFORE_END, "blackjack_cpu_overdrew", () -> {
                     win(member);
                     setLog(LogStatus.WIN, getString("toomany", 1));
                     drawMessage(draw(member));

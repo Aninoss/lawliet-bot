@@ -2,7 +2,7 @@ package mysql.modules.moderation;
 
 import java.sql.Types;
 import java.util.Optional;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBModeration extends DBObserverMapCache<Long, ModerationData> {
@@ -18,7 +18,7 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationData> {
 
     @Override
     protected ModerationData load(Long serverId) throws Exception {
-        return DBMain.getInstance().get(
+        return MySQLManager.get(
                 "SELECT channelId, question, muteRoleId, autoKick, autoBan, autoMute, autoKickDays, autoBanDays, autoMuteDays, autoBanDuration, autoMuteDuration FROM Moderation WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
@@ -59,7 +59,7 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationData> {
 
     @Override
     protected void save(ModerationData moderationBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Moderation (serverId, channelId, question, muteRoleId, autoKick, autoBan, autoMute, autoKickDays, autoBanDays, autoMuteDays, autoBanDuration, autoMuteDuration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Moderation (serverId, channelId, question, muteRoleId, autoKick, autoBan, autoMute, autoKickDays, autoBanDays, autoMuteDays, autoBanDuration, autoMuteDuration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, moderationBean.getGuildId());
 
             Optional<Long> channelIdOpt = moderationBean.getAnnouncementChannelId();

@@ -3,7 +3,7 @@ package mysql.modules.fisheryusers;
 import constants.Settings;
 import modules.stockmarket.Stock;
 import modules.stockmarket.StockMarket;
-import mysql.DBRedis;
+import mysql.RedisManager;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
@@ -23,7 +23,7 @@ public class FisheryMemberStocksData {
     }
 
     public long getInvestedBefore() {
-        return DBRedis.getInstance().getLong(jedis -> jedis.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_INVESTED));
+        return RedisManager.getLong(jedis -> jedis.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_INVESTED));
     }
 
     public long getInvestedAfter() {
@@ -31,18 +31,18 @@ public class FisheryMemberStocksData {
     }
 
     public long getShareSize() {
-        return DBRedis.getInstance().getLong(jedis -> jedis.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_SHARES));
+        return RedisManager.getLong(jedis -> jedis.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_SHARES));
     }
 
     public void add(int number) {
-        DBRedis.getInstance().update(jedis -> {
+        RedisManager.update(jedis -> {
             Pipeline pipeline = jedis.pipelined();
             Response<String> sizeResp = pipeline.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_SHARES);
             Response<String> investedResp = pipeline.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_INVESTED);
             pipeline.sync();
 
-            long size = DBRedis.parseLong(sizeResp.get());
-            long invested = DBRedis.parseLong(investedResp.get());
+            long size = RedisManager.parseLong(sizeResp.get());
+            long invested = RedisManager.parseLong(investedResp.get());
             long newSize = Math.min(Math.max(size + number, 0), Settings.FISHERY_SHARES_MAX);
 
             pipeline = jedis.pipelined();

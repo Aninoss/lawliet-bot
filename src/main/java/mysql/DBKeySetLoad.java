@@ -14,7 +14,7 @@ public class DBKeySetLoad<T> {
 
     public DBKeySetLoad(String table, String keyColumn) {
         try {
-            Connection connection = DBMain.getInstance().getConnection();
+            Connection connection = MySQLManager.getConnection();
             statement = connection.createStatement();
             statement.execute(String.format("SELECT %s FROM %s;", keyColumn, table));
         } catch (SQLException exception) {

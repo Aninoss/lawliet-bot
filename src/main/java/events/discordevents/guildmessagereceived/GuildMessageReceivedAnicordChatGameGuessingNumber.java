@@ -12,6 +12,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 @DiscordEvent(priority = EventPriority.LOW)
 public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMessageReceivedAbstract {
 
+    private final ChatGameGuessingNames chatGameGuessingNames = new ChatGameGuessingNames();
+
     @Override
     public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
         final long GAME_CHANNEL_ID = 758285721877479504L;
@@ -25,8 +27,8 @@ public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMess
             if (StringUtil.stringIsInt(numStr)) {
                 int val = Integer.parseInt(numStr);
                 if (val >= 1 && val <= 100000) {
-                    int tries = ChatGameGuessingNames.getInstance().getTries() + 1;
-                    int res = ChatGameGuessingNames.getInstance().check(val);
+                    int tries = chatGameGuessingNames.getTries() + 1;
+                    int res = chatGameGuessingNames.check(val);
                     if (res == 0) {
                         event.getMessage().addReaction(Emojis.CHECKMARK).queue();
                         event.getMessage().reply(String.format("**%s** hat richtig geraten!\nDie Lösung war: `%s` (%d Versuche)", StringUtil.escapeMarkdown(event.getMember().getEffectiveName()), StringUtil.numToString(val), tries))

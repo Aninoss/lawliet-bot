@@ -8,28 +8,19 @@ import com.google.common.cache.CacheBuilder;
 
 public class OsuAccountSync {
 
-    private static final OsuAccountSync ourInstance = new OsuAccountSync();
-
-    public static OsuAccountSync getInstance() {
-        return ourInstance;
-    }
-
-    private OsuAccountSync() {
-    }
-
-    private final Cache<Long, Consumer<String>> osuSyncCache = CacheBuilder.newBuilder()
+    private static final Cache<Long, Consumer<String>> osuSyncCache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .build();
 
-    public void add(long userId, Consumer<String> action) {
+    public static void add(long userId, Consumer<String> action) {
         osuSyncCache.put(userId, action);
     }
 
-    public Optional<Consumer<String>> getUserInCache(long userId) {
+    public static Optional<Consumer<String>> getUserInCache(long userId) {
         return Optional.ofNullable(osuSyncCache.getIfPresent(userId));
     }
 
-    public void remove(long userId) {
+    public static void remove(long userId) {
         osuSyncCache.invalidate(userId);
     }
 

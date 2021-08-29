@@ -13,16 +13,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ExchangeRate {
 
-    private static final ExchangeRate instance = new ExchangeRate();
-
-    private ExchangeRate() {
-    }
-
-    public static ExchangeRate getInstance() {
-        return instance;
-    }
-
-    private final LoadingCache<String, Integer> rateCache = CacheBuilder.newBuilder()
+    private static final LoadingCache<String, Integer> rateCache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofHours(6))
             .build(new CacheLoader<>() {
                 @Override
@@ -43,7 +34,7 @@ public class ExchangeRate {
                 }
             });
 
-    public int get(int offset) {
+    public static int get(int offset) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, offset);
         String dateString = calendar.get(Calendar.YEAR) + ";" + calendar.get(Calendar.DAY_OF_YEAR);

@@ -15,7 +15,7 @@ public class AttributedStringGenerator {
     private final List<Font> fonts;
 
     public AttributedStringGenerator(int size) {
-        fonts = FontContainer.getInstance().getFontList(size);
+        fonts = FontManager.getFontList(size);
     }
 
     public AttributedCharacterIterator getIterator(String str) {

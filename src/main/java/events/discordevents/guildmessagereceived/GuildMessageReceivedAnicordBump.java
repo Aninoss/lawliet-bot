@@ -21,7 +21,7 @@ public class GuildMessageReceivedAnicordBump extends GuildMessageReceivedAbstrac
             List<MessageEmbed> embedList = event.getMessage().getEmbeds();
             if (embedList.size() > 0 && embedList.get(0).getImage() != null && embedList.get(0).getDescription() != null) {
                 DBBump.setNextBump(Instant.now().plus(2, ChronoUnit.HOURS));
-                BumpReminder.getInstance().startCountdown(2 * 60 * 60 * 1000);
+                BumpReminder.startCountdown(2 * 60 * 60 * 1000);
             }
         }
 

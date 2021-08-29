@@ -15,22 +15,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ServerPatreonBoostCache {
 
-    private static final ServerPatreonBoostCache ourInstance = new ServerPatreonBoostCache();
-
-    private ServerPatreonBoostCache() {
-    }
-
-    public static ServerPatreonBoostCache getInstance() {
-        return ourInstance;
-    }
-
-    private final LoadingCache<Long, Boolean> cache = CacheBuilder.newBuilder()
+    private static final LoadingCache<Long, Boolean> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(10))
             .build(
                     new CacheLoader<>() {
                         @Override
                         public Boolean load(@NonNull Long serverId) {
-                            Optional<Guild> guildOptional = ShardManager.getInstance().getLocalGuildById(serverId);
+                            Optional<Guild> guildOptional = ShardManager.getLocalGuildById(serverId);
                             if (guildOptional.isPresent()) {
                                 Guild guild = guildOptional.get();
 
@@ -44,11 +35,11 @@ public class ServerPatreonBoostCache {
                     }
             );
 
-    public void setTrue(long serverId) {
+    public static void setTrue(long serverId) {
         cache.put(serverId, true);
     }
 
-    public boolean get(long guildId) {
+    public static boolean get(long guildId) {
         try {
             return PatreonCache.getInstance().isUnlocked(guildId) || cache.get(guildId);
         } catch (ExecutionException e) {

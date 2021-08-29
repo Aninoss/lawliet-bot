@@ -7,16 +7,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class SubredditContainer {
-
-    private static final SubredditContainer ourInstance = new SubredditContainer();
-
-    public static SubredditContainer getInstance() {
-        return ourInstance;
-    }
-
-    private SubredditContainer() {
-    }
+public class SubredditCache {
 
     private final LoadingCache<String, Subreddit> subredditCache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(30))

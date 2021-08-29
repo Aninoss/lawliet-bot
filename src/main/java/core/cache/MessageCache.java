@@ -11,20 +11,11 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 public class MessageCache {
 
-    private static final MessageCache ourInstance = new MessageCache();
-
-    public static MessageCache getInstance() {
-        return ourInstance;
-    }
-
-    private MessageCache() {
-    }
-
-    private final Cache<Long, Message> cache = CacheBuilder.newBuilder()
+    private static final Cache<Long, Message> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofHours(6))
             .build();
 
-    public synchronized CompletableFuture<Message> retrieveMessage(TextChannel channel, long messageId) {
+    public static synchronized CompletableFuture<Message> retrieveMessage(TextChannel channel, long messageId) {
         if (!BotPermissionUtil.canReadHistory(channel)) {
             return CompletableFuture.failedFuture(new NoSuchElementException("No such message"));
         }
@@ -40,13 +31,13 @@ public class MessageCache {
         }
     }
 
-    public synchronized void put(Message message) {
+    public static synchronized void put(Message message) {
         if (cache.asMap().containsKey(message.getIdLong())) {
             cache.put(message.getIdLong(), message);
         }
     }
 
-    public synchronized void delete(long messageId) {
+    public static synchronized void delete(long messageId) {
         cache.invalidate(messageId);
     }
 

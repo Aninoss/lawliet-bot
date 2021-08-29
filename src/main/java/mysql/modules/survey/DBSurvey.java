@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import javafx.util.Pair;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
@@ -24,7 +24,7 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
 
     @Override
     protected SurveyData load(Integer surveyId) throws Exception {
-        SurveyData surveyData = DBMain.getInstance().get(
+        SurveyData surveyData = MySQLManager.get(
                 "SELECT start FROM SurveyDates WHERE surveyId = ?;",
                 preparedStatement -> preparedStatement.setInt(1, surveyId),
                 resultSet -> {
@@ -68,7 +68,7 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
     public synchronized int getCurrentSurveyId() {
         if (currentSurveyId == null) {
             try {
-                currentSurveyId = DBMain.getInstance().get(
+                currentSurveyId = MySQLManager.get(
                         "SELECT surveyId FROM SurveyDates ORDER BY start DESC, surveyId DESC LIMIT 1;",
                         resultSet -> {
                             if (resultSet.next()) {
@@ -88,7 +88,7 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
     public int next() {
         currentSurveyId++;
 
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO SurveyDates VALUES (?, NOW());", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO SurveyDates VALUES (?, NOW());", preparedStatement -> {
             preparedStatement.setInt(1, currentSurveyId);
         });
 
@@ -112,7 +112,7 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
     }
 
     private void addFirstVote(int surveyId, SurveyFirstVote surveyFirstVote) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO SurveyVotes (surveyId, userId, personalVote, locale) VALUES (?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO SurveyVotes (surveyId, userId, personalVote, locale) VALUES (?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setInt(1, surveyId);
             preparedStatement.setLong(2, surveyFirstVote.getUserId());
             preparedStatement.setByte(3, surveyFirstVote.getVote());
@@ -121,7 +121,7 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
     }
 
     private void removeFirstVote(int surveyId, SurveyFirstVote surveyFirstVote) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM SurveyVotes WHERE surveyId = ? AND userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM SurveyVotes WHERE surveyId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, surveyId);
             preparedStatement.setLong(2, surveyFirstVote.getUserId());
         });
@@ -134,7 +134,7 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
     }
 
     private void addSecondVote(int surveyId, SurveySecondVote surveySecondVote) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO SurveyMajorityVotes (surveyId, serverId, userId, majorityVote) VALUES (?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO SurveyMajorityVotes (surveyId, serverId, userId, majorityVote) VALUES (?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setInt(1, surveyId);
             preparedStatement.setLong(2, surveySecondVote.getGuildId());
             preparedStatement.setLong(3, surveySecondVote.getMemberId());
@@ -143,7 +143,7 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
     }
 
     private void removeSecondVote(int surveyId, SurveySecondVote surveySecondVote) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM SurveyVotes WHERE surveyId = ? AND serverId = ? AND userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM SurveyVotes WHERE surveyId = ? AND serverId = ? AND userId = ?;", preparedStatement -> {
             preparedStatement.setInt(1, surveyId);
             preparedStatement.setLong(2, surveySecondVote.getGuildId());
             preparedStatement.setLong(3, surveySecondVote.getMemberId());
@@ -156,13 +156,13 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
     }
 
     private void addNotificationUserId(long userId) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO SurveyNotifications (userId) VALUES (?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO SurveyNotifications (userId) VALUES (?);", preparedStatement -> {
             preparedStatement.setLong(1, userId);
         });
     }
 
     private void removeNotificationUserId(long userId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM SurveyNotifications WHERE userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM SurveyNotifications WHERE userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, userId);
         });
     }

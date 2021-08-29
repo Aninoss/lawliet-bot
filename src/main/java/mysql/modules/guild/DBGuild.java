@@ -11,7 +11,7 @@ import constants.FisheryStatus;
 import constants.Language;
 import core.LocalFile;
 import core.ShardManager;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBGuild extends DBObserverMapCache<Long, GuildData> {
@@ -31,12 +31,12 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
     @Override
     protected GuildData load(Long serverId) throws Exception {
-        boolean serverPresent = ShardManager.getInstance().getLocalGuildById(serverId).isPresent();
+        boolean serverPresent = ShardManager.getLocalGuildById(serverId).isPresent();
         if (serverPresent) {
             removedServerIds.invalidate(serverId);
         }
 
-        return DBMain.getInstance().get(
+        return MySQLManager.get(
                 "SELECT prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit FROM DServer WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
@@ -86,7 +86,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
     private void insertBean(GuildData guildBean) {
         try {
-            DBMain.getInstance().update("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+            MySQLManager.update("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
                 preparedStatement.setLong(1, guildBean.getGuildId());
                 preparedStatement.setString(2, guildBean.getPrefix());
                 preparedStatement.setString(3, guildBean.getLocale().getDisplayName());
@@ -122,7 +122,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
     @Override
     protected void save(GuildData guildBean) {
-        DBMain.getInstance().asyncUpdate("UPDATE DServer SET prefix = ?, locale = ?, powerPlant = ?, powerPlantSingleRole = ?, powerPlantAnnouncementChannelId = ?, powerPlantTreasureChests = ?, powerPlantReminders = ?, powerPlantRoleMin = ?, powerPlantRoleMax = ?, powerPlantVCHoursCap = ?, commandAuthorMessageRemove = ?, fisheryCoinsGivenLimit = ? WHERE serverId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("UPDATE DServer SET prefix = ?, locale = ?, powerPlant = ?, powerPlantSingleRole = ?, powerPlantAnnouncementChannelId = ?, powerPlantTreasureChests = ?, powerPlantReminders = ?, powerPlantRoleMin = ?, powerPlantRoleMax = ?, powerPlantVCHoursCap = ?, commandAuthorMessageRemove = ?, fisheryCoinsGivenLimit = ? WHERE serverId = ?;", preparedStatement -> {
             preparedStatement.setLong(11, guildBean.getGuildId());
 
             preparedStatement.setString(1, guildBean.getPrefix());
@@ -157,8 +157,8 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
     public void remove(long guildId) {
         removedServerIds.put(guildId, true);
-        DBMain.getInstance().asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, guildId));
-        DBMain.getInstance().invalidateGuildId(guildId);
+        MySQLManager.asyncUpdate("DELETE FROM DServer WHERE serverId = ?;", preparedStatement -> preparedStatement.setLong(1, guildId));
+        MySQLManager.invalidateGuildId(guildId);
 
         LocalFile welcomeBackgroundFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guildId));
         if (welcomeBackgroundFile.exists()) {

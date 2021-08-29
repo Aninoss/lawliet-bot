@@ -75,13 +75,13 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onGuildReady(@NotNull GuildReadyEvent event) {
-        ShardManager.getInstance().initAssetIds(event.getJDA());
+        ShardManager.initAssetIds(event.getJDA());
     }
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         GlobalThreadPool.getExecutorService()
-                .submit(() -> DiscordConnector.getInstance().onJDAJoin(event.getJDA()));
+                .submit(() -> DiscordConnector.onJDAJoin(event.getJDA()));
     }
 
     @Override
@@ -229,13 +229,13 @@ public class DiscordEventAdapter extends ListenerAdapter {
         String[] routeCompiledParts = event.getRoute().getCompiledRoute().split("/");
 
         String route = event.getRoute().getMethod().toString() + " " + routeBased;
-        RequestRouteLogger.getInstance().logRoute(route, event.isRateLimit());
+        RequestRouteLogger.logRoute(route, event.isRateLimit());
 
         Long guildId = null;
         for (int i = 0; i < routeBasedParts.length; i++) {
             if (routeBasedParts[i].equals("{channel_id}")) {
                 long channelId = Long.parseLong(routeCompiledParts[i]);
-                Optional<GuildChannel> channelOpt = ShardManager.getInstance().getLocalGuildChannelById(channelId);
+                Optional<GuildChannel> channelOpt = ShardManager.getLocalGuildChannelById(channelId);
                 if (channelOpt.isPresent()) {
                     guildId = channelOpt.get().getGuild().getIdLong();
                 }
@@ -246,7 +246,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
             }
         }
 
-        RestLogger.getInstance().insert(guildId);
+        RestLogger.insert(guildId);
     }
 
 }

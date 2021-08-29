@@ -192,7 +192,7 @@ public class AlertsCommand extends NavigationAbstract {
         }
 
         Command command = commandOpt.get();
-        if (command.getCommandProperties().nsfw() && !ShardManager.getInstance().getLocalGuildById(serverId).get().getTextChannelById(channelId).isNSFW()) {
+        if (command.getCommandProperties().nsfw() && !ShardManager.getLocalGuildById(serverId).get().getTextChannelById(channelId).isNSFW()) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description"));
             return Response.FALSE;
         }
@@ -390,13 +390,13 @@ public class AlertsCommand extends NavigationAbstract {
         );
 
         alerts.put(slot.hashCode(), slot);
-        AlertScheduler.getInstance().loadAlert(slot);
+        AlertScheduler.loadAlert(slot);
         setState(STATE_ADD);
         setLog(LogStatus.SUCCESS, getString("state3_added", commandCache.getTrigger()));
     }
 
     private List<Command> getAllTrackerCommands() {
-        return CommandContainer.getInstance().getTrackerCommands().stream()
+        return CommandContainer.getTrackerCommands().stream()
                 .map(clazz -> CommandManager.createCommandByClass((Class<? extends Command>) clazz, getLocale(), getPrefix()))
                 .collect(Collectors.toList());
     }

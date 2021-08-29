@@ -91,7 +91,7 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         setCompareKey("quiz_" + answers.length + "_" + difficulty);
-        MainScheduler.getInstance().schedule(10, ChronoUnit.SECONDS, "quiz_timeup", () -> onTimeUp(event.getMember()));
+        MainScheduler.schedule(10, ChronoUnit.SECONDS, "quiz_timeup", () -> onTimeUp(event.getMember()));
         return true;
     }
 
@@ -162,7 +162,7 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         answerSelected = selected;
-        MainScheduler.getInstance().schedule(Settings.TIME_OUT_MINUTES, ChronoUnit.MINUTES, "quiz_remove", this::deregisterListenersWithButtonMessage);
+        MainScheduler.schedule(Settings.TIME_OUT_MINUTES, ChronoUnit.MINUTES, "quiz_remove", this::deregisterListenersWithButtonMessage);
     }
 
 }

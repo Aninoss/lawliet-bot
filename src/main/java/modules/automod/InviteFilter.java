@@ -32,14 +32,14 @@ public class InviteFilter extends AutoModAbstract {
     @Override
     protected boolean withAutoActions(Message message, Locale locale) {
         if (spBlockBean.getAction() == SPBlockData.ActionList.BAN_USER &&
-                PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getTextChannel(), Permission.BAN_MEMBERS)
+                PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getTextChannel(), Permission.BAN_MEMBERS)
         ) {
             message.getGuild()
                     .ban(message.getMember(), 0, TextManager.getString(spBlockBean.getGuildData().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
                     .queue();
             return false;
         } else if (spBlockBean.getAction() == SPBlockData.ActionList.KICK_USER &&
-                PermissionCheckRuntime.getInstance().botHasPermission(locale, getCommandClass(), message.getTextChannel(), Permission.KICK_MEMBERS)
+                PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getTextChannel(), Permission.KICK_MEMBERS)
         ) {
             message.getGuild()
                     .kick(message.getMember(), TextManager.getString(spBlockBean.getGuildData().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
@@ -81,7 +81,7 @@ public class InviteFilter extends AutoModAbstract {
             List<String> inviteLinks = message.getInvites();
             if (inviteLinks.size() > 0) {
                 return inviteLinks.stream()
-                        .map(inviteCode -> InviteCache.getInstance().getInviteByCode(inviteCode))
+                        .map(InviteCache::getInviteByCode)
                         .map(future -> {
                             try {
                                 return future.get();

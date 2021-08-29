@@ -26,33 +26,27 @@ import websockets.syncserver.SendEvent;
 
 public class ShardManager {
 
-    private static final ShardManager ourInstance = new ShardManager();
-
-    public static ShardManager getInstance() {
-        return ourInstance;
-    }
-
-    private ShardManager() {
+    static {
         if (Program.productionMode()) {
             startJDAPoller();
         }
     }
 
-    private final JDABlocker JDABlocker = new JDABlocker();
-    private final HashMap<Integer, JDAExtended> jdaMap = new HashMap<>();
-    private final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
-    private int shardIntervalMin = 0;
-    private int shardIntervalMax = 0;
-    private int totalShards = 0;
-    private boolean ready = false;
-    private long selfId = 0;
-    private int globalErrors = 0;
+    private static final JDABlocker JDABlocker = new JDABlocker();
+    private static final HashMap<Integer, JDAExtended> jdaMap = new HashMap<>();
+    private static final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
+    private static int shardIntervalMin = 0;
+    private static int shardIntervalMax = 0;
+    private static int totalShards = 0;
+    private static boolean ready = false;
+    private static long selfId = 0;
+    private static int globalErrors = 0;
 
-    private final Cache<Long, User> userCache = CacheBuilder.newBuilder()
+    private static final Cache<Long, User> userCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(5))
             .build();
 
-    private final SingleCache<Long> globalGuildSizeCache = new SingleCache<>() {
+    private static final SingleCache<Long> globalGuildSizeCache = new SingleCache<>() {
         @Override
         protected Long fetchValue() {
             Optional<Long> localGuildSizeOpt = getLocalGuildSize();
@@ -63,13 +57,13 @@ public class ShardManager {
         }
     };
 
-    public void init(int shardIntervalMin, int shardIntervalMax, int totalShards) {
-        this.shardIntervalMin = shardIntervalMin;
-        this.shardIntervalMax = shardIntervalMax;
-        this.totalShards = totalShards;
+    public static void init(int shardIntervalMin, int shardIntervalMax, int totalShards) {
+        ShardManager.shardIntervalMin = shardIntervalMin;
+        ShardManager.shardIntervalMax = shardIntervalMax;
+        ShardManager.totalShards = totalShards;
 
         if (Program.productionMode()) {
-            MainScheduler.getInstance().schedule(2, ChronoUnit.MINUTES, "bootup_check", () -> {
+            MainScheduler.schedule(2, ChronoUnit.MINUTES, "bootup_check", () -> {
                 if (!ready) {
                     MainLogger.get().error("EXIT - Could not boot up");
                     System.exit(5);
@@ -78,7 +72,7 @@ public class ShardManager {
         }
     }
 
-    public synchronized void increaseGlobalErrorCounter() {
+    public static synchronized void increaseGlobalErrorCounter() {
         MainLogger.get().warn("Shard error counter: {}", ++globalErrors);
         if (globalErrors >= 4) {
             System.err.println("EXIT - Too many shard errors (" + Program.getClusterId() + ")");
@@ -86,27 +80,27 @@ public class ShardManager {
         }
     }
 
-    public synchronized void decreaseGlobalErrorCounter() {
+    public static synchronized void decreaseGlobalErrorCounter() {
         if (globalErrors > 0) {
             MainLogger.get().warn("Shard error counter: {}", --globalErrors);
         }
     }
 
-    public synchronized void initAssetIds(JDA jda) {
+    public static synchronized void initAssetIds(JDA jda) {
         if (selfId == 0) {
             selfId = jda.getSelfUser().getIdLong();
         }
     }
 
-    public JDABlocker getJDABlocker() {
+    public static JDABlocker getJDABlocker() {
         return JDABlocker;
     }
 
-    public void addShardDisconnectConsumer(Consumer<Integer> consumer) {
+    public static void addShardDisconnectConsumer(Consumer<Integer> consumer) {
         shardDisconnectConsumers.add(consumer);
     }
 
-    public void addJDA(JDA jda) {
+    public static void addJDA(JDA jda) {
         JDAExtended jdaExtended = jdaMap.get(jda.getShardInfo().getShardId());
         if (jdaExtended != null) {
             jdaExtended.getJDA().shutdown();
@@ -114,27 +108,27 @@ public class ShardManager {
         jdaMap.put(jda.getShardInfo().getShardId(), new JDAExtended(jda));
     }
 
-    public synchronized Optional<JDA> getJDA(int shard) {
+    public static synchronized Optional<JDA> getJDA(int shard) {
         return Optional.ofNullable(jdaMap.get(shard)).map(JDAExtended::getJDA);
     }
 
-    public synchronized boolean jdaIsConnected(int shard) {
+    public static synchronized boolean jdaIsConnected(int shard) {
         return jdaMap.containsKey(shard) && jdaMap.get(shard).isActive();
     }
 
-    public synchronized Optional<JDA> getAnyJDA() {
+    public static synchronized Optional<JDA> getAnyJDA() {
         return new ArrayList<>(jdaMap.values()).stream().findFirst().map(JDAExtended::getJDA);
     }
 
-    public synchronized List<JDA> getConnectedLocalJDAs() {
+    public static synchronized List<JDA> getConnectedLocalJDAs() {
         return new ArrayList<>(jdaMap.values()).stream()
                 .filter(JDAExtended::isActive)
                 .map(JDAExtended::getJDA)
                 .collect(Collectors.toList());
     }
 
-    private void startJDAPoller() {
-        MainScheduler.getInstance().poll(10, ChronoUnit.SECONDS, "api_poller", () -> {
+    private static void startJDAPoller() {
+        MainScheduler.poll(10, ChronoUnit.SECONDS, "api_poller", () -> {
             try {
                 new ArrayList<>(jdaMap.values())
                         .forEach(JDAExtended::checkConnection);
@@ -145,59 +139,59 @@ public class ShardManager {
         });
     }
 
-    public void reconnectShard(int shard) {
-        getJDA(shard).ifPresent(this::reconnectShard);
+    public static void reconnectShard(int shard) {
+        getJDA(shard).ifPresent(ShardManager::reconnectShard);
     }
 
-    public void reconnectShard(JDA jda) {
+    public static void reconnectShard(JDA jda) {
         int shard = jda.getShardInfo().getShardId();
         jda.shutdown();
         shardDisconnectConsumers.forEach(c -> c.accept(shard));
     }
 
-    public int getTotalShards() {
+    public static int getTotalShards() {
         return totalShards;
     }
 
-    public int getLocalShards() {
+    public static int getLocalShards() {
         return shardIntervalMax - shardIntervalMin + 1;
     }
 
-    public int getShardIntervalMin() {
+    public static int getShardIntervalMin() {
         return shardIntervalMin;
     }
 
-    public int getShardIntervalMax() {
+    public static int getShardIntervalMax() {
         return shardIntervalMax;
     }
 
-    public boolean isReady() {
+    public static boolean isReady() {
         return ready;
     }
 
-    public boolean isEverythingConnected() {
+    public static boolean isEverythingConnected() {
         return jdaMap.size() >= getLocalShards();
     }
 
-    public void start() {
+    public static void start() {
         if (isEverythingConnected()) {
             ready = true;
         }
     }
 
-    public void stop() {
+    public static void stop() {
         ready = false;
     }
 
-    public int getResponsibleShard(long guildId) {
+    public static int getResponsibleShard(long guildId) {
         return Math.abs((int) ((guildId >> 22) % totalShards));
     }
 
-    public int getResponsibleShard(long guildId, int totalShards) {
+    public static int getResponsibleShard(long guildId, int totalShards) {
         return Math.abs((int) ((guildId >> 22) % totalShards));
     }
 
-    public boolean guildIsManaged(long guildId) {
+    public static boolean guildIsManaged(long guildId) {
         if (!JDABlocker.guildIsAvailable(guildId)) {
             return false;
         }
@@ -217,7 +211,7 @@ public class ShardManager {
         return false;
     }
 
-    public List<Guild> getLocalGuilds() {
+    public static List<Guild> getLocalGuilds() {
         ArrayList<Guild> guildList = new ArrayList<>();
         for (JDAExtended jda : jdaMap.values()) {
             jda.getJDA().getGuilds().stream()
@@ -228,7 +222,7 @@ public class ShardManager {
         return guildList;
     }
 
-    public Optional<Long> getLocalGuildSize() {
+    public static Optional<Long> getLocalGuildSize() {
         if (isEverythingConnected()) {
             long guilds = 0;
             for (JDA jda : getConnectedLocalJDAs()) {
@@ -240,7 +234,7 @@ public class ShardManager {
         return Optional.empty();
     }
 
-    public Optional<Long> getGlobalGuildSize() {
+    public static Optional<Long> getGlobalGuildSize() {
         Optional<Long> localGuildSizeOpt = getLocalGuildSize();
         if (localGuildSizeOpt.isEmpty()) {
             return Optional.empty();
@@ -250,7 +244,7 @@ public class ShardManager {
         return globalGuildSize != null ? Optional.of(globalGuildSize) : Optional.empty();
     }
 
-    public Optional<Guild> getLocalGuildById(long guildId) {
+    public static Optional<Guild> getLocalGuildById(long guildId) {
         if (!JDABlocker.guildIsAvailable(guildId)) {
             return Optional.empty();
         }
@@ -260,24 +254,24 @@ public class ShardManager {
                 .map(jda -> jda.getGuildById(guildId));
     }
 
-    public List<Guild> getLocalMutualGuilds(User user) {
+    public static List<Guild> getLocalMutualGuilds(User user) {
         return getLocalGuilds().stream()
                 .filter(server -> JDABlocker.guildIsAvailable(server.getIdLong()) && server.isMember(user))
                 .collect(Collectors.toList());
     }
 
-    public List<Guild> getLocalMutualGuilds(long userId) {
+    public static List<Guild> getLocalMutualGuilds(long userId) {
         return getLocalGuilds().stream()
                 .filter(server -> JDABlocker.guildIsAvailable(server.getIdLong()) && server.getMembers().stream().anyMatch(m -> m.getIdLong() == userId))
                 .collect(Collectors.toList());
     }
 
-    public Optional<String> getGuildName(long guildId) {
+    public static Optional<String> getGuildName(long guildId) {
         Optional<String> guildNameOpt = getLocalGuildById(guildId).map(Guild::getName);
-        return guildNameOpt.or(() -> ExternalGuildNameCache.getInstance().getGuildNameById(guildId));
+        return guildNameOpt.or(() -> ExternalGuildNameCache.getGuildNameById(guildId));
     }
 
-    public Optional<GuildChannel> getLocalGuildChannelById(long channelId) {
+    public static Optional<GuildChannel> getLocalGuildChannelById(long channelId) {
         for (Guild guild : getLocalGuilds()) {
             GuildChannel channel = guild.getGuildChannelById(channelId);
             if (channel != null) {
@@ -287,7 +281,7 @@ public class ShardManager {
         return Optional.empty();
     }
 
-    public Optional<User> getCachedUserById(long userId) {
+    public static Optional<User> getCachedUserById(long userId) {
         for (JDAExtended jda : jdaMap.values()) {
             User user = jda.getJDA().getUserById(userId);
             if (user != null) {
@@ -297,7 +291,7 @@ public class ShardManager {
         return Optional.empty();
     }
 
-    public CompletableFuture<User> fetchUserById(long userId) {
+    public static CompletableFuture<User> fetchUserById(long userId) {
         if (userId <= 0) {
             return CompletableFuture.failedFuture(new NoSuchElementException("No such user id"));
         }
@@ -321,29 +315,29 @@ public class ShardManager {
         return future;
     }
 
-    public CompletableFuture<User> fetchOwner() {
+    public static CompletableFuture<User> fetchOwner() {
         return fetchUserById(AssetIds.OWNER_USER_ID);
     }
 
-    public User getSelf() {
+    public static User getSelf() {
         return getAnyJDA()
                 .map(JDA::getSelfUser)
                 .orElse(null);
     }
 
-    public long getSelfId() {
+    public static long getSelfId() {
         return selfId;
     }
 
-    public String getSelfIdString() {
+    public static String getSelfIdString() {
         return String.valueOf(selfId);
     }
 
-    public boolean emoteIsKnown(String emoteMention) {
+    public static boolean emoteIsKnown(String emoteMention) {
         return getEmoteById(EmojiUtil.extractIdFromEmoteMention(emoteMention)).isPresent();
     }
 
-    public Optional<Emote> getLocalEmoteById(long emoteId) {
+    public static Optional<Emote> getLocalEmoteById(long emoteId) {
         for (JDA jda : getConnectedLocalJDAs()) {
             Optional<Emote> emoteOptional = Optional.ofNullable(jda.getEmoteById(emoteId));
             if (emoteOptional.isPresent()) {
@@ -354,9 +348,9 @@ public class ShardManager {
         return Optional.empty();
     }
 
-    public Optional<String> getEmoteById(long emojiId) {
+    public static Optional<String> getEmoteById(long emojiId) {
         Optional<String> emojiOptional = getLocalEmoteById(emojiId).map(Emote::getAsMention);
-        return emojiOptional.or(() -> ExternalEmojiCache.getInstance().getEmoteById(emojiId));
+        return emojiOptional.or(() -> ExternalEmojiCache.getEmoteById(emojiId));
     }
 
 
@@ -391,16 +385,16 @@ public class ShardManager {
 
         public void checkConnection() {
             if (alive) {
-                ShardManager.getInstance().decreaseGlobalErrorCounter();
+                ShardManager.decreaseGlobalErrorCounter();
                 errors = 0;
                 alive = false;
             } else {
                 MainLogger.get().debug("No data from shard {}", jda.getShardInfo().getShardId());
                 if (++errors % 4 == 3) {    /* reconnect after 30 seconds */
                     active = false;
-                    ShardManager.getInstance().increaseGlobalErrorCounter();
+                    ShardManager.increaseGlobalErrorCounter();
                     MainLogger.get().warn("Shard {} temporarily offline", jda.getShardInfo().getShardId());
-                    ShardManager.getInstance().reconnectShard(jda);
+                    ShardManager.reconnectShard(jda);
                 }
             }
         }

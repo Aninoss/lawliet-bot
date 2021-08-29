@@ -17,23 +17,14 @@ import mysql.interfaces.SQLConsumer;
 import mysql.interfaces.SQLFunction;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
-public class DBMain {
+public class MySQLManager {
 
-    private static final DBMain ourInstance = new DBMain();
+    private static Connection connection;
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(3, new CountingThreadFactory(() -> "Main", "DB", false));
 
-    public static DBMain getInstance() {
-        return ourInstance;
-    }
+    private static final ArrayList<DBCache> caches = new ArrayList<>();
 
-    private DBMain() {
-    }
-
-    private Connection connection;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(3, new CountingThreadFactory(() -> "Main", "DB", false));
-
-    private final ArrayList<DBCache> caches = new ArrayList<>();
-
-    public void connect() throws SQLException {
+    public static void connect() throws SQLException {
         MysqlDataSource rv = new MysqlDataSource();
         rv.setServerName(System.getenv("DB_HOST"));
         rv.setPortNumber(Integer.parseInt(System.getenv("DB_PORT")));
@@ -50,21 +41,21 @@ public class DBMain {
         connection = rv.getConnection();
     }
 
-    public Connection getConnection() throws SQLException {
+    public static Connection getConnection() throws SQLException {
         return connection;
     }
 
-    public void addDBCached(DBCache dbCache) {
+    public static void addDBCached(DBCache dbCache) {
         if (!caches.contains(dbCache)) {
             caches.add(dbCache);
         }
     }
 
-    public void invalidateGuildId(long guildId) {
+    public static void invalidateGuildId(long guildId) {
         caches.forEach(c -> c.invalidateGuildId(guildId));
     }
 
-    public <T> T get(String sql, SQLFunction<ResultSet, T> resultSetFunction) throws SQLException, InterruptedException {
+    public static <T> T get(String sql, SQLFunction<ResultSet, T> resultSetFunction) throws SQLException, InterruptedException {
         SQLException exception = null;
         for (int i = 0; i < 3; i++) {
             try (Statement statement = connection.createStatement();
@@ -81,7 +72,7 @@ public class DBMain {
         throw exception;
     }
 
-    public <T> T get(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer, SQLFunction<ResultSet, T> resultSetFunction) throws SQLException, InterruptedException {
+    public static <T> T get(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer, SQLFunction<ResultSet, T> resultSetFunction) throws SQLException, InterruptedException {
         SQLException exception = null;
         for (int i = 0; i < 3; i++) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -98,7 +89,7 @@ public class DBMain {
         throw exception;
     }
 
-    public <T> CompletableFuture<T> asyncGet(String sql, SQLFunction<ResultSet, T> resultSetFunction) {
+    public static <T> CompletableFuture<T> asyncGet(String sql, SQLFunction<ResultSet, T> resultSetFunction) {
         CompletableFuture<T> future = new CompletableFuture<>();
         executorService.submit(() -> {
             try {
@@ -113,7 +104,7 @@ public class DBMain {
         return future;
     }
 
-    public <T> CompletableFuture<T> asyncGet(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer, SQLFunction<ResultSet, T> resultSetFunction) {
+    public static <T> CompletableFuture<T> asyncGet(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer, SQLFunction<ResultSet, T> resultSetFunction) {
         CompletableFuture<T> future = new CompletableFuture<>();
         executorService.submit(() -> {
             try {
@@ -128,7 +119,7 @@ public class DBMain {
         return future;
     }
 
-    public int update(String sql) throws SQLException, InterruptedException {
+    public static int update(String sql) throws SQLException, InterruptedException {
         SQLException exception = null;
         for (int i = 0; i < 3; i++) {
             try (Statement statement = connection.createStatement()) {
@@ -142,7 +133,7 @@ public class DBMain {
         throw exception;
     }
 
-    public int update(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException, InterruptedException {
+    public static int update(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) throws SQLException, InterruptedException {
         SQLException exception = null;
         for (int i = 0; i < 3; i++) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -157,7 +148,7 @@ public class DBMain {
         throw exception;
     }
 
-    public CompletableFuture<Integer> asyncUpdate(String sql) {
+    public static CompletableFuture<Integer> asyncUpdate(String sql) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
         executorService.submit(() -> {
             try {
@@ -172,7 +163,7 @@ public class DBMain {
         return future;
     }
 
-    public CompletableFuture<Integer> asyncUpdate(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) {
+    public static CompletableFuture<Integer> asyncUpdate(String sql, SQLConsumer<PreparedStatement> preparedStatementConsumer) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
         executorService.submit(() -> {
             try {

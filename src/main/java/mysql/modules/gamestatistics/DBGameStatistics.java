@@ -1,7 +1,7 @@
 package mysql.modules.gamestatistics;
 
 import core.Program;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBGameStatistics extends DBObserverMapCache<String, GameStatisticsData> {
@@ -17,7 +17,7 @@ public class DBGameStatistics extends DBObserverMapCache<String, GameStatisticsD
 
     @Override
     protected GameStatisticsData load(String command) throws Exception {
-        return DBMain.getInstance().get(
+        return MySQLManager.get(
                 "SELECT won, value FROM GameStatistics WHERE game = ?;",
                 preparedStatement -> preparedStatement.setString(1, command),
                 resultSet -> {
@@ -34,7 +34,7 @@ public class DBGameStatistics extends DBObserverMapCache<String, GameStatisticsD
     @Override
     protected void save(GameStatisticsData gameStatisticsData) {
         if (Program.publicVersion()) {
-            DBMain.getInstance().asyncUpdate("REPLACE INTO GameStatistics (game, won, value) VALUES (?, ?, ?), (?, ?, ?);", preparedStatement -> {
+            MySQLManager.asyncUpdate("REPLACE INTO GameStatistics (game, won, value) VALUES (?, ?, ?), (?, ?, ?);", preparedStatement -> {
                 preparedStatement.setString(1, gameStatisticsData.getCommand());
                 preparedStatement.setBoolean(2, false);
                 preparedStatement.setDouble(3, gameStatisticsData.getValue(false));

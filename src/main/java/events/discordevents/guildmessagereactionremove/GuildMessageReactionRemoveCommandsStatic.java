@@ -37,7 +37,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
             if (command instanceof OnStaticReactionRemoveListener) {
                 Message message;
                 try {
-                    message = MessageCache.getInstance().retrieveMessage(event.getChannel(), event.getMessageIdLong()).get();
+                    message = MessageCache.retrieveMessage(event.getChannel(), event.getMessageIdLong()).get();
                 } catch (InterruptedException | ExecutionException e) {
                     //Ignore
                     return true;

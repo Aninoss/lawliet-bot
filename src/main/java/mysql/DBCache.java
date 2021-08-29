@@ -3,7 +3,7 @@ package mysql;
 public abstract class DBCache {
 
     protected DBCache() {
-        DBMain.getInstance().addDBCached(this);
+        MySQLManager.addDBCached(this);
     }
 
     public abstract void clear();

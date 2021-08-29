@@ -66,7 +66,7 @@ public class Mod {
 
 
             if (autoBan &&
-                    PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, guild, Permission.BAN_MEMBERS) &&
+                    PermissionCheckRuntime.botHasPermission(locale, ModSettingsCommand.class, guild, Permission.BAN_MEMBERS) &&
                     BotPermissionUtil.canInteract(guild, target)
             ) {
                 guild.retrieveBanList().queue(banList -> {
@@ -81,13 +81,13 @@ public class Mod {
                             if (duration > 0) {
                                 TempBanData tempBanData = new TempBanData(guild.getIdLong(), target.getIdLong(), Instant.now().plus(Duration.ofMinutes(duration)));
                                 DBTempBan.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), tempBanData);
-                                TempBanScheduler.getInstance().loadTempBan(tempBanData);
+                                TempBanScheduler.loadTempBan(tempBanData);
                             }
                         });
                     }
                 });
             } else if (autoKick &&
-                    PermissionCheckRuntime.getInstance().botHasPermission(locale, ModSettingsCommand.class, guild, Permission.KICK_MEMBERS) &&
+                    PermissionCheckRuntime.botHasPermission(locale, ModSettingsCommand.class, guild, Permission.KICK_MEMBERS) &&
                     BotPermissionUtil.canInteract(guild, target) && guild.isMember(target)
             ) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
@@ -101,7 +101,7 @@ public class Mod {
 
             if (autoMute &&
                     muteRole != null &&
-                    PermissionCheckRuntime.getInstance().botCanManageRoles(locale, ModSettingsCommand.class, muteRole) &&
+                    PermissionCheckRuntime.botCanManageRoles(locale, ModSettingsCommand.class, muteRole) &&
                     (member == null || !BotPermissionUtil.can(member, Permission.ADMINISTRATOR))
             ) {
                 int duration = moderationBean.getAutoMuteDuration();
@@ -185,7 +185,7 @@ public class Mod {
         eb.setFooter("");
 
         moderationBean.getAnnouncementChannel().ifPresent(channel -> {
-            if (PermissionCheckRuntime.getInstance().botHasPermission(command.getLocale(), command.getClass(), channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+            if (PermissionCheckRuntime.botHasPermission(command.getLocale(), command.getClass(), channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
                 channel.sendMessageEmbeds(eb.build()).queue();
             }
         });

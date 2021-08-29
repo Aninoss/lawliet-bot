@@ -136,7 +136,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         );
 
         remindersMap.put(remindersData.getId(), remindersData);
-        ReminderScheduler.getInstance().loadReminderBean(remindersData);
+        ReminderScheduler.loadReminderBean(remindersData);
         registerStaticReactionMessage(message);
     }
 

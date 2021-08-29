@@ -88,8 +88,8 @@ public class Fishery {
     }
 
     public static String getChangeEmoji(int offset) {
-        int rateNow = ExchangeRate.getInstance().get(offset);
-        int rateBefore = ExchangeRate.getInstance().get(offset - 1);
+        int rateNow = ExchangeRate.get(offset);
+        int rateBefore = ExchangeRate.get(offset - 1);
 
         if (rateNow > rateBefore) {
             return "🔺";

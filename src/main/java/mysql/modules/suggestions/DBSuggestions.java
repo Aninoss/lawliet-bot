@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import modules.suggestions.SuggestionMessage;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
@@ -21,7 +21,7 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
 
     @Override
     protected SuggestionsData load(Long serverId) throws Exception {
-        SuggestionsData suggestionsBean = DBMain.getInstance().get(
+        SuggestionsData suggestionsBean = MySQLManager.get(
                 "SELECT active, channelId FROM SuggestionConfig WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
@@ -52,7 +52,7 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
 
     @Override
     protected void save(SuggestionsData suggestionsBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO SuggestionConfig (serverId, active, channelId) VALUES (?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO SuggestionConfig (serverId, active, channelId) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, suggestionsBean.getGuildId());
             preparedStatement.setBoolean(2, suggestionsBean.isActive());
 
@@ -80,7 +80,7 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
     }
 
     private void addSuggestionMessage(SuggestionMessage suggestionMessage) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO SuggestionMessages (serverId, messageId, content, author) VALUES (?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO SuggestionMessages (serverId, messageId, content, author) VALUES (?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, suggestionMessage.getGuildId());
             preparedStatement.setLong(2, suggestionMessage.getMessageId());
             preparedStatement.setString(3, suggestionMessage.getContent());
@@ -89,7 +89,7 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
     }
 
     private void removeSuggestionMessage(SuggestionMessage suggestionMessage) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM SuggestionMessages WHERE serverId = ? AND messageId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM SuggestionMessages WHERE serverId = ? AND messageId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, suggestionMessage.getGuildId());
             preparedStatement.setLong(2, suggestionMessage.getMessageId());
         });

@@ -10,7 +10,7 @@ import core.CustomObservableList;
 import core.assets.GuildAsset;
 import core.utils.TimeUtil;
 import javafx.util.Pair;
-import mysql.DBRedis;
+import mysql.RedisManager;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -86,9 +86,9 @@ public class FisheryGuildData implements GuildAsset {
         if (currentHour > recentFishGainsRefreshHour) {
             HashMap<Long, Long> processedMap = new HashMap<>();
 
-            DBRedis.getInstance().update(jedis -> {
+            RedisManager.update(jedis -> {
                 long minHour = currentHour - 24 * 7;
-                List<Map.Entry<String, String>> list = DBRedis.getInstance().hscan(jedis, KEY_RECENT_FISH_GAINS_RAW);
+                List<Map.Entry<String, String>> list = RedisManager.hscan(jedis, KEY_RECENT_FISH_GAINS_RAW);
                 ArrayList<String> outdatedEntries = new ArrayList<>();
 
                 for (Map.Entry<String, String> entry : list) {
@@ -122,9 +122,9 @@ public class FisheryGuildData implements GuildAsset {
 
     public Map<Long, Long> getAllRecentFishGains() {
         return refreshRecentFishGains().orElseGet(() -> {
-            return DBRedis.getInstance().get(jedis -> {
+            return RedisManager.get(jedis -> {
                 HashMap<Long, Long> recentFishGains = new HashMap<>();
-                List<Tuple> list = DBRedis.getInstance().zscan(jedis, KEY_RECENT_FISH_GAINS_PROCESSED);
+                List<Tuple> list = RedisManager.zscan(jedis, KEY_RECENT_FISH_GAINS_PROCESSED);
                 for (Tuple tuple : list) {
                     recentFishGains.put(Long.parseLong(tuple.getElement()), (long) tuple.getScore());
                 }
@@ -146,7 +146,7 @@ public class FisheryGuildData implements GuildAsset {
     }
 
     private Map<Long, Long> getAllValue(Collection<Long> userIds, Function<FisheryMemberData, String> fieldFunction) {
-        return DBRedis.getInstance().get(jedis -> {
+        return RedisManager.get(jedis -> {
             ArrayList<Pair<Long, Response<String>>> responses = new ArrayList<>();
             Pipeline pipeline = jedis.pipelined();
             for (long userId : userIds) {
@@ -159,7 +159,7 @@ public class FisheryGuildData implements GuildAsset {
             HashMap<Long, Long> fishMap = new HashMap<>();
             for (Pair<Long, Response<String>> response : responses) {
                 long userId = response.getKey();
-                long fish = DBRedis.parseLong(response.getValue().get());
+                long fish = RedisManager.parseLong(response.getValue().get());
                 fishMap.put(userId, fish);
             }
             return fishMap;
@@ -168,11 +168,11 @@ public class FisheryGuildData implements GuildAsset {
 
     public FisheryRecentFishGainsData getRecentFishGainsForMember(long memberId) {
         refreshRecentFishGains();
-        Double scoreDouble = DBRedis.getInstance().get(jedis -> jedis.zscore(KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId)));
-        long score = DBRedis.parseLong(scoreDouble);
-        return DBRedis.getInstance().get(jedis -> {
+        Double scoreDouble = RedisManager.get(jedis -> jedis.zscore(KEY_RECENT_FISH_GAINS_PROCESSED, String.valueOf(memberId)));
+        long score = RedisManager.parseLong(scoreDouble);
+        return RedisManager.get(jedis -> {
             Long rank = jedis.zcount(KEY_RECENT_FISH_GAINS_PROCESSED, score + 1, Settings.FISHERY_MAX);
-            return new FisheryRecentFishGainsData(guildId, memberId, DBRedis.parseInteger(rank) + 1, score);
+            return new FisheryRecentFishGainsData(guildId, memberId, RedisManager.parseInteger(rank) + 1, score);
         });
     }
 

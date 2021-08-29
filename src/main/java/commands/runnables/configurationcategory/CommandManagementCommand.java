@@ -92,7 +92,7 @@ public class CommandManagementCommand extends NavigationAbstract {
                 }
 
             case 2:
-                List<Command> commandList = CommandContainer.getInstance().getCommandCategoryMap().get(category).stream()
+                List<Command> commandList = CommandContainer.getCommandCategoryMap().get(category).stream()
                         .map(clazz -> CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()))
                         .collect(Collectors.toList());
 
@@ -126,7 +126,7 @@ public class CommandManagementCommand extends NavigationAbstract {
 
     private void turnOnAllCategoryCommands() {
         commandManagementBean.getSwitchedOffElements().removeIf(element -> {
-            Class<? extends Command> clazz = CommandContainer.getInstance().getCommandMap().get(element);
+            Class<? extends Command> clazz = CommandContainer.getCommandMap().get(element);
             if (clazz == null) return false;
             return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()).getCategory().equals(category);
         });
@@ -136,7 +136,7 @@ public class CommandManagementCommand extends NavigationAbstract {
         boolean hasOn = false, hasOff = false;
 
         if (!commandManagementBean.getSwitchedOffElements().contains(category)) {
-            for (Class<? extends Command> clazz : CommandContainer.getInstance().getCommandCategoryMap().get(category)) {
+            for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
                 Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                 if (!hasOn && commandManagementBean.commandIsTurnedOn(command)) {
                     hasOn = true;
@@ -169,7 +169,7 @@ public class CommandManagementCommand extends NavigationAbstract {
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description", getCategoryStatus(category), categoryName));
 
             case 2:
-                options = CommandContainer.getInstance().getCommandCategoryMap().get(category).stream()
+                options = CommandContainer.getCommandCategoryMap().get(category).stream()
                         .map(clazz -> CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()))
                         .map(command -> getString("command", commandManagementBean.commandIsTurnedOn(command), command.getTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title")))
                         .toArray(String[]::new);

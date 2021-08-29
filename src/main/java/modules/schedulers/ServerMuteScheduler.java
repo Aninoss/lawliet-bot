@@ -15,45 +15,35 @@ import mysql.modules.servermute.ServerMuteData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 
-public class ServerMuteScheduler extends Startable {
+public class ServerMuteScheduler {
 
-    private static final ServerMuteScheduler ourInstance = new ServerMuteScheduler();
-
-    public static ServerMuteScheduler getInstance() {
-        return ourInstance;
-    }
-
-    private ServerMuteScheduler() {
-    }
-
-    @Override
-    protected void run() {
+    public static void start() {
         try {
             DBServerMute.getInstance().retrieveAll()
-                    .forEach(this::loadServerMute);
+                    .forEach(ServerMuteScheduler::loadServerMute);
         } catch (Throwable e) {
             MainLogger.get().error("Could not start server mute", e);
         }
     }
 
-    public void loadServerMute(ServerMuteData serverMuteData) {
+    public static void loadServerMute(ServerMuteData serverMuteData) {
         serverMuteData.getExpirationTime()
                 .ifPresent(expirationTime -> loadServerMute(serverMuteData.getGuildId(), serverMuteData.getMemberId(), expirationTime));
     }
 
-    public void loadServerMute(long guildId, long memberId, Instant expires) {
-        MainScheduler.getInstance().schedule(expires, "servermute_" + guildId, () -> {
+    public static void loadServerMute(long guildId, long memberId, Instant expires) {
+        MainScheduler.schedule(expires, "servermute_" + guildId, () -> {
             CustomObservableMap<Long, ServerMuteData> map = DBServerMute.getInstance().retrieve(guildId);
             if (map.containsKey(memberId) &&
                     map.get(memberId).getExpirationTime().orElse(Instant.now()).getEpochSecond() == expires.getEpochSecond() &&
-                    ShardManager.getInstance().guildIsManaged(guildId)
+                    ShardManager.guildIsManaged(guildId)
             ) {
                 onServerMuteExpire(map.get(memberId));
             }
         });
     }
 
-    private void onServerMuteExpire(ServerMuteData serverMuteData) {
+    private static void onServerMuteExpire(ServerMuteData serverMuteData) {
         DBServerMute.getInstance().retrieve(serverMuteData.getGuildId())
                 .remove(serverMuteData.getMemberId(), serverMuteData);
 
@@ -61,7 +51,7 @@ public class ServerMuteScheduler extends Startable {
             if (member != null) {
                 Locale locale = serverMuteData.getGuildData().getLocale();
                 Role muteRole = DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().orElse(null);
-                if (muteRole != null && PermissionCheckRuntime.getInstance().botCanManageRoles(locale, MuteCommand.class, muteRole)) {
+                if (muteRole != null && PermissionCheckRuntime.botCanManageRoles(locale, MuteCommand.class, muteRole)) {
                     member.getGuild().removeRoleFromMember(member, muteRole)
                             .reason(TextManager.getString(locale, Category.MODERATION, "mute_expired_title"))
                             .queue();

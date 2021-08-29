@@ -29,7 +29,7 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
 
     @Override
     public Optional<User> get() {
-        return ShardManager.getInstance().getCachedUserById(userId);
+        return ShardManager.getCachedUserById(userId);
     }
 
     @Override

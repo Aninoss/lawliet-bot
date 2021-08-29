@@ -24,12 +24,12 @@ public class CommandReleaseNotification implements ScheduleInterface {
     public void run() throws Throwable {
         if (Program.publicVersion()) {
             AtomicBoolean newRelease = new AtomicBoolean(false);
-            CommandContainer.getInstance().getCommandCategoryMap().values().forEach(list -> list.forEach(clazz -> {
+            CommandContainer.getCommandCategoryMap().values().forEach(list -> list.forEach(clazz -> {
                 Command command = CommandManager.createCommandByClass(clazz, Language.EN.getLocale(), "L.");
                 command.getReleaseDate().ifPresent(date -> {
                     if (date.isEqual(LocalDate.now())) {
                         String message = "`L." + command.getTrigger() + "` is now publicly available!";
-                        ShardManager.getInstance().getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
+                        ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
                                 .map(guild -> guild.getTextChannelById(557960859792441357L))
                                 .ifPresent(channel -> {
                                     channel.sendMessage(message).flatMap(Message::crosspost).queue();
@@ -40,7 +40,7 @@ public class CommandReleaseNotification implements ScheduleInterface {
             }));
 
             if (newRelease.get()) {
-                Guild guild = ShardManager.getInstance().getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get();
+                Guild guild = ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get();
                 TextChannel channel = guild.getTextChannelById(557960859792441357L);
                 Role role = guild.getRoleById(703879430799622155L);
                 channel.sendMessage(role.getAsMention())

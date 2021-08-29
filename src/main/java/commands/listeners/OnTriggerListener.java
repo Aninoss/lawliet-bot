@@ -50,9 +50,9 @@ public interface OnTriggerListener {
     private void addKillTimer(AtomicBoolean isProcessing) {
         Command command = (Command) this;
         Thread commandThread = Thread.currentThread();
-        MainScheduler.getInstance().schedule(command.getCommandProperties().maxCalculationTimeSec(), ChronoUnit.SECONDS, "command_timeout", () -> {
+        MainScheduler.schedule(command.getCommandProperties().maxCalculationTimeSec(), ChronoUnit.SECONDS, "command_timeout", () -> {
             if (!command.getCommandProperties().turnOffTimeout()) {
-                CommandContainer.getInstance().addCommandTerminationStatus(command, commandThread, isProcessing.get());
+                CommandContainer.addCommandTerminationStatus(command, commandThread, isProcessing.get());
             }
         });
     }
@@ -60,8 +60,8 @@ public interface OnTriggerListener {
     private void processTriggerDelete(GuildMessageReceivedEvent event) {
         GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         if (guildBean.isCommandAuthorMessageRemove() &&
-                ServerPatreonBoostCache.getInstance().get(event.getGuild().getIdLong()) &&
-                PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), TriggerDeleteCommand.class, event.getChannel(), Permission.MESSAGE_MANAGE)
+                ServerPatreonBoostCache.get(event.getGuild().getIdLong()) &&
+                PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), TriggerDeleteCommand.class, event.getChannel(), Permission.MESSAGE_MANAGE)
         ) {
             event.getMessage().delete().queue();
         }

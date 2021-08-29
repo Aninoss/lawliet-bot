@@ -16,28 +16,19 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class InviteCache {
 
-    private static final InviteCache ourInstance = new InviteCache();
-
-    public static InviteCache getInstance() {
-        return ourInstance;
-    }
-
-    private InviteCache() {
-    }
-
-    private final LoadingCache<String, Optional<Invite>> cache = CacheBuilder.newBuilder()
+    private static final LoadingCache<String, Optional<Invite>> cache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofHours(1))
             .build(
                     new CacheLoader<>() {
                         @Override
                         public Optional<Invite> load(@NonNull String code) throws ExecutionException {
-                            JDA jda = ShardManager.getInstance().getAnyJDA().get();
+                            JDA jda = ShardManager.getAnyJDA().get();
                             return Optional.of(Invite.resolve(jda, code).complete());
                         }
                     }
             );
 
-    public CompletableFuture<Invite> getInviteByCode(String code) {
+    public static CompletableFuture<Invite> getInviteByCode(String code) {
         return FutureUtil.supplyAsync(() -> {
             try {
                 Optional<Invite> inviteOpt = cache.get(code);

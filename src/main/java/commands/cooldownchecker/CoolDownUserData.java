@@ -17,7 +17,7 @@ public class CoolDownUserData {
 
         if (commandInstants.size() >= Settings.COOLDOWN_MAX_ALLOWED) {
             Duration duration = Duration.between(Instant.now(), commandInstants.get(0));
-            MainScheduler.getInstance().schedule(commandInstants.get(0), "cool_down_post", () -> this.canPostCoolDownMessage = true);
+            MainScheduler.schedule(commandInstants.get(0), "cool_down_post", () -> this.canPostCoolDownMessage = true);
             return Optional.of((int) (duration.getSeconds() + 1));
         }
 

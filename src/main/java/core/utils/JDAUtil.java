@@ -56,7 +56,7 @@ public class JDAUtil {
 
     @CheckReturnValue
     public static RestAction<Message> sendPrivateMessage(long userId, String content) {
-        return ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
+        return ShardManager.getAnyJDA().get().openPrivateChannelById(userId).flatMap(
                 channel -> channel.sendMessage(content)
         );
     }
@@ -73,7 +73,7 @@ public class JDAUtil {
 
     @CheckReturnValue
     public static RestAction<Message> sendPrivateMessage(long userId, MessageEmbed eb, Button... buttons) {
-        return ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
+        return ShardManager.getAnyJDA().get().openPrivateChannelById(userId).flatMap(
                 channel -> channel.sendMessageEmbeds(eb)
                         .setActionRows(ActionRows.of(buttons))
         );
@@ -81,19 +81,19 @@ public class JDAUtil {
 
     @CheckReturnValue
     public static RestAction<Message> sendPrivateMessage(long userId, Function<? super PrivateChannel, ? extends RestAction<Message>> flatMap) {
-        return ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(flatMap);
+        return ShardManager.getAnyJDA().get().openPrivateChannelById(userId).flatMap(flatMap);
     }
 
     @CheckReturnValue
     public static RestAction<Message> sendPrivateFile(long userId, InputStream inputStream, String filename) {
-        return ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
+        return ShardManager.getAnyJDA().get().openPrivateChannelById(userId).flatMap(
                 channel -> channel.sendFile(inputStream, filename)
         );
     }
 
     @CheckReturnValue
     public static RestAction<Message> sendPrivateFile(long userId, File file) {
-        return ShardManager.getInstance().getAnyJDA().get().openPrivateChannelById(userId).flatMap(
+        return ShardManager.getAnyJDA().get().openPrivateChannelById(userId).flatMap(
                 channel -> channel.sendFile(file)
         );
     }

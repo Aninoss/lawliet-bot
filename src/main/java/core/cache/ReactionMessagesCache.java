@@ -15,30 +15,21 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 public class ReactionMessagesCache {
 
-    private static final ReactionMessagesCache ourInstance = new ReactionMessagesCache();
-
-    public static ReactionMessagesCache getInstance() {
-        return ourInstance;
-    }
-
-    private ReactionMessagesCache() {
-    }
-
-    private final Cache<Long, Optional<ReactionMessage>> reactionMessageCache = CacheBuilder.newBuilder()
+    private static final Cache<Long, Optional<ReactionMessage>> reactionMessageCache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofHours(12))
             .build();
 
-    public void put(long messageId, ReactionMessage reactionMessage) {
+    public static void put(long messageId, ReactionMessage reactionMessage) {
         reactionMessageCache.put(messageId, Optional.ofNullable(reactionMessage));
     }
 
-    public synchronized Optional<ReactionMessage> get(TextChannel channel, long messageId) {
+    public static synchronized Optional<ReactionMessage> get(TextChannel channel, long messageId) {
         if (reactionMessageCache.asMap().containsKey(messageId)) {
             return reactionMessageCache.getIfPresent(messageId);
         } else {
             Optional<ReactionMessage> reactionMessageOpt;
             try {
-                Message message = MessageCache.getInstance().retrieveMessage(channel, messageId).get();
+                Message message = MessageCache.retrieveMessage(channel, messageId).get();
                 reactionMessageOpt = generateReactionMessage(message);
             } catch (Throwable e) {
                 reactionMessageOpt = Optional.empty();
@@ -49,7 +40,7 @@ public class ReactionMessagesCache {
         }
     }
 
-    public Optional<ReactionMessage> get(Message message) {
+    public static Optional<ReactionMessage> get(Message message) {
         if (reactionMessageCache.asMap().containsKey(message.getIdLong())) {
             return reactionMessageCache.getIfPresent(message.getIdLong());
         } else {
@@ -65,7 +56,7 @@ public class ReactionMessagesCache {
         }
     }
 
-    private Optional<ReactionMessage> generateReactionMessage(Message message) throws Throwable {
+    private static Optional<ReactionMessage> generateReactionMessage(Message message) throws Throwable {
         MessageEmbed embed = message.getEmbeds().get(0);
         String title = embed.getTitle();
 

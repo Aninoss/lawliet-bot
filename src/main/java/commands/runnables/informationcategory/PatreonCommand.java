@@ -66,7 +66,7 @@ public class PatreonCommand extends Command {
 
         patreonData.getUserMap().keySet().stream()
                 .filter(userId -> patreonData.getUserMap().get(userId) == patreonTier + 1 && Arrays.stream(USER_ID_NOT_VISIBLE).noneMatch(uid -> uid == userId))
-                .map(userId -> ShardManager.getInstance().fetchUserById(userId).join())
+                .map(userId -> ShardManager.fetchUserById(userId).join())
                 .filter(Objects::nonNull)
                 .forEach(user -> {
                     String value = getString("slot_value", patreonTier);

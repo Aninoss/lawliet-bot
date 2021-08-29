@@ -126,7 +126,7 @@ public class MemberCacheController implements MemberCachePolicy {
             if (Instant.now().isAfter(entry.getValue())) {
                 long guildId = entry.getKey();
                 try {
-                    ShardManager.getInstance().getLocalGuildById(guildId).ifPresent(guild -> {
+                    ShardManager.getLocalGuildById(guildId).ifPresent(guild -> {
                         int n = guild.getMembers().size();
                         guild.pruneMemberCache();
                         membersPruned.addAndGet(n - guild.getMembers().size());

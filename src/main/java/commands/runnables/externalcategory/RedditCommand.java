@@ -32,6 +32,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 )
 public class RedditCommand extends Command implements OnAlertListener {
 
+    private static final RedditDownloader redditDownloader = new RedditDownloader();
+
     private final String forceSubreddit;
 
     public RedditCommand(Locale locale, String prefix) {
@@ -59,7 +61,7 @@ public class RedditCommand extends Command implements OnAlertListener {
             return false;
         } else {
             RedditPost post;
-            post = RedditDownloader.getPost(getLocale(), args);
+            post = redditDownloader.getPost(getLocale(), args);
 
             if (post != null) {
                 if (post.isNsfw() && !event.getChannel().isNSFW()) {
@@ -125,7 +127,7 @@ public class RedditCommand extends Command implements OnAlertListener {
             return TrackerResult.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
-            PostBundle<RedditPost> postBundle = RedditDownloader.getPostTracker(getLocale(), key, slot.getArgs().orElse(null));
+            PostBundle<RedditPost> postBundle = redditDownloader.getPostTracker(getLocale(), key, slot.getArgs().orElse(null));
             TextChannel channel = slot.getTextChannel().get();
             boolean containsOnlyNsfw = true;
 

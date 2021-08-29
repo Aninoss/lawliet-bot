@@ -16,24 +16,15 @@ import net.dv8tion.jda.api.entities.*;
 
 public class VoteCache {
 
-    private static final VoteCache ourInstance = new VoteCache();
-
-    public static VoteCache getInstance() {
-        return ourInstance;
-    }
-
-    private VoteCache() {
-    }
-
-    private final Cache<Long, VoteInfo> voteCache = CacheBuilder.newBuilder()
+    private static final Cache<Long, VoteInfo> voteCache = CacheBuilder.newBuilder()
             .expireAfterAccess(Duration.ofMinutes(30))
             .build();
 
-    public void put(long messageId, VoteInfo voteInfo) {
+    public static void put(long messageId, VoteInfo voteInfo) {
         voteCache.put(messageId, voteInfo);
     }
 
-    public Optional<VoteInfo> get(TextChannel channel, long messageId, long userId, String emoji, boolean add) {
+    public static Optional<VoteInfo> get(TextChannel channel, long messageId, long userId, String emoji, boolean add) {
         VoteInfo voteInfo = voteCache.getIfPresent(messageId);
 
         if (voteInfo != null) {
@@ -65,7 +56,7 @@ public class VoteCache {
         return Optional.of(voteInfo);
     }
 
-    private VoteInfo extractVoteInfoFromMessage(Message message) {
+    private static VoteInfo extractVoteInfoFromMessage(Message message) {
         ArrayList<HashSet<Long>> votes = new ArrayList<>();
 
         MessageEmbed embed = message.getEmbeds().get(0);

@@ -35,7 +35,7 @@ public class ReminderWork implements ScheduleInterface {
         AtomicInteger actions = new AtomicInteger(0);
         Map<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.WORK);
 
-        ShardManager.getInstance().getLocalGuilds().stream()
+        ShardManager.getLocalGuilds().stream()
                 .filter(guild -> {
                     try {
                         return DBGuild.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE;

@@ -42,8 +42,8 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
         String[] prefixes = {
                 prefix,
-                MentionUtil.getUserAsMention(ShardManager.getInstance().getSelfId(), true),
-                MentionUtil.getUserAsMention(ShardManager.getInstance().getSelfId(), false)
+                MentionUtil.getUserAsMention(ShardManager.getSelfId(), true),
+                MentionUtil.getUserAsMention(ShardManager.getSelfId(), false)
         };
 
         int prefixFound = -1;
@@ -76,7 +76,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
             if (commandTrigger.length() > 0) {
                 Locale locale = guildBean.getLocale();
                 Class<? extends Command> clazz;
-                clazz = CommandContainer.getInstance().getCommandMap().get(commandTrigger);
+                clazz = CommandContainer.getCommandMap().get(commandTrigger);
                 if (clazz != null) {
                     Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
                     if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
@@ -123,7 +123,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     private boolean manageMessageInput(GuildMessageReceivedEvent event) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            List<CommandListenerMeta<?>> listeners = CommandContainer.getInstance().getListeners(OnMessageInputListener.class).stream()
+            List<CommandListenerMeta<?>> listeners = CommandContainer.getListeners(OnMessageInputListener.class).stream()
                     .filter(listener -> listener.check(event) == CommandListenerMeta.CheckResponse.ACCEPT)
                     .sorted((l1, l2) -> l2.getCreationTime().compareTo(l1.getCreationTime()))
                     .collect(Collectors.toList());

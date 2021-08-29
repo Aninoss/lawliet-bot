@@ -16,7 +16,7 @@ public class SendEvent {
     }
 
     public static CompletableFuture<JSONObject> sendFullyConnected() {
-        CompletableFuture<JSONObject> future = SyncManager.getInstance().getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
+        CompletableFuture<JSONObject> future = SyncManager.getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
         if (Program.productionMode()) {
             return future;
         } else {
@@ -26,7 +26,7 @@ public class SendEvent {
 
     public static CompletableFuture<Optional<Long>> sendRequestGlobalGuildSize(long localServerSize) {
         if (!Program.productionMode()) {
-            return CompletableFuture.completedFuture(ShardManager.getInstance().getLocalGuildSize());
+            return CompletableFuture.completedFuture(ShardManager.getLocalGuildSize());
         }
 
         return process(
@@ -72,7 +72,7 @@ public class SendEvent {
     }
 
     public static CompletableFuture<JSONObject> sendEmpty(String event) {
-        return SyncManager.getInstance().getClient().send(event, new JSONObject());
+        return SyncManager.getClient().send(event, new JSONObject());
     }
 
     private static <T> CompletableFuture<T> process(String event, Map<String, Object> jsonMap, Function<JSONObject, T> function) {
@@ -80,7 +80,7 @@ public class SendEvent {
 
         JSONObject dataJson = new JSONObject();
         jsonMap.keySet().forEach(k -> dataJson.put(k, jsonMap.get(k)));
-        SyncManager.getInstance().getClient().send(event, dataJson)
+        SyncManager.getClient().send(event, dataJson)
                 .exceptionally(e -> {
                     future.completeExceptionally(e);
                     return null;

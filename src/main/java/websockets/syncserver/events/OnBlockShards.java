@@ -13,7 +13,7 @@ public class OnBlockShards implements SyncServerFunction {
         int totalShards = jsonObject.getInt("total_shards");
         int shardsMin = jsonObject.getInt("shards_min");
         int shardsMax = jsonObject.getInt("shards_max");
-        ShardManager.getInstance().getJDABlocker().add(totalShards, shardsMin, shardsMax);
+        ShardManager.getJDABlocker().add(totalShards, shardsMin, shardsMax);
         return null;
     }
 

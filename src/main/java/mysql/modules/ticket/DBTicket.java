@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBTicket extends DBObserverMapCache<Long, TicketData> {
@@ -21,7 +21,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
 
     @Override
     protected TicketData load(Long serverId) throws Exception {
-        TicketData ticketData = DBMain.getInstance().get(
+        TicketData ticketData = MySQLManager.get(
                 "SELECT channelId, counter, memberCanClose FROM Ticket WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
@@ -60,7 +60,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
 
     @Override
     protected void save(TicketData ticketData) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Ticket (serverId, channelId, counter, memberCanClose) VALUES (?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Ticket (serverId, channelId, counter, memberCanClose) VALUES (?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, ticketData.getGuildId());
 
             Optional<Long> channelIdOpt = ticketData.getAnnouncementTextChannelId();
@@ -91,7 +91,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
     }
 
     private void addTicketChannel(TicketChannel ticketChannel) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO TicketOpenChannel (serverId, channelId, userId, messageChannelId, messageMessageId) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO TicketOpenChannel (serverId, channelId, userId, messageChannelId, messageMessageId) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, ticketChannel.getGuildId());
             preparedStatement.setLong(2, ticketChannel.getTextChannelId());
             preparedStatement.setLong(3, ticketChannel.getMemberId());
@@ -101,7 +101,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
     }
 
     private void removeTicketChannel(TicketChannel ticketChannel) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM TicketOpenChannel WHERE serverId = ? AND channelId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM TicketOpenChannel WHERE serverId = ? AND channelId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, ticketChannel.getGuildId());
             preparedStatement.setLong(2, ticketChannel.getTextChannelId());
         });
@@ -114,14 +114,14 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
     }
 
     private void addStaffRole(long serverId, long roleId) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO TicketStaffRole (serverId, roleId) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO TicketStaffRole (serverId, roleId) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, roleId);
         });
     }
 
     private void removeStaffRole(long serverId, long roleId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM TicketStaffRole WHERE serverId = ? AND roleId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM TicketStaffRole WHERE serverId = ? AND roleId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, roleId);
         });

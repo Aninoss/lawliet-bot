@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import javafx.util.Pair;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, ServerWarningsData> {
@@ -54,10 +54,10 @@ public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, Serve
     }
 
     private void addWarning(ServerWarningSlot serverWarningsSlot) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO Warnings (serverId, userId, time, requestorUserId, reason) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO Warnings (serverId, userId, time, requestorUserId, reason) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverWarningsSlot.getGuildId());
             preparedStatement.setLong(2, serverWarningsSlot.getMemberId());
-            preparedStatement.setString(3, DBMain.instantToDateTimeString(serverWarningsSlot.getTime()));
+            preparedStatement.setString(3, MySQLManager.instantToDateTimeString(serverWarningsSlot.getTime()));
             preparedStatement.setLong(4, serverWarningsSlot.getRequesterUserId());
 
             Optional<String> reason = serverWarningsSlot.getReason();
@@ -70,10 +70,10 @@ public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, Serve
     }
 
     private void removeWarning(ServerWarningSlot serverWarningsSlot) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM Warnings WHERE serverId = ? AND userId = ? AND time = ? AND requestorUserId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM Warnings WHERE serverId = ? AND userId = ? AND time = ? AND requestorUserId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverWarningsSlot.getGuildId());
             preparedStatement.setLong(2, serverWarningsSlot.getMemberId());
-            preparedStatement.setString(3, DBMain.instantToDateTimeString(serverWarningsSlot.getTime()));
+            preparedStatement.setString(3, MySQLManager.instantToDateTimeString(serverWarningsSlot.getTime()));
             preparedStatement.setLong(4, serverWarningsSlot.getRequesterUserId());
         });
     }

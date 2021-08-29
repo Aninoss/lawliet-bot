@@ -67,7 +67,7 @@ public abstract class Command implements OnTriggerListener {
 
     public void addLoadingReaction(Message message, AtomicBoolean isProcessing) {
         this.isProcessing = isProcessing;
-        MainScheduler.getInstance().schedule(
+        MainScheduler.schedule(
                 2500, ChronoUnit.MILLIS,
                 getTrigger() + "_idle",
                 () -> addLoadingReactionInstantly(message, isProcessing)
@@ -90,7 +90,7 @@ public abstract class Command implements OnTriggerListener {
 
             String reaction = EmojiUtil.getLoadingEmojiTag(message.getTextChannel());
             message.addReaction(reaction).queue();
-            MainScheduler.getInstance().poll(100, getTrigger() + "_loading", () -> {
+            MainScheduler.poll(100, getTrigger() + "_loading", () -> {
                 if (isProcessing.get()) {
                     return true;
                 } else {
@@ -253,7 +253,7 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public void deregisterListeners() {
-        CommandContainer.getInstance().deregisterListeners(this);
+        CommandContainer.deregisterListeners(this);
     }
 
     public synchronized void onListenerTimeOutSuper() throws Throwable {

@@ -70,7 +70,7 @@ public interface OnReactionListener {
 
         CommandListenerMeta<GenericGuildMessageReactionEvent> commandListenerMeta =
                 new CommandListenerMeta<>(member.getIdLong(), validityChecker, onTimeOut, onOverridden, command);
-        CommandContainer.getInstance().registerListener(OnReactionListener.class, commandListenerMeta);
+        CommandContainer.registerListener(OnReactionListener.class, commandListenerMeta);
 
         try {
             if (command.getDrawMessageId().isEmpty()) {
@@ -135,7 +135,7 @@ public interface OnReactionListener {
                 return;
             }
             if (onReaction(event)) {
-                CommandContainer.getInstance().refreshListeners(command);
+                CommandContainer.refreshListeners(command);
                 EmbedBuilder eb = draw(event.getMember());
                 if (eb != null) {
                     ((Command) this).drawMessage(eb);

@@ -8,7 +8,7 @@ import java.util.Optional;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBDataLoadAll;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBMapCache;
 
 public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, TrackerData>> {
@@ -69,7 +69,7 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
     }
 
     private void addTracker(TrackerData slot) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getGuildId());
             preparedStatement.setLong(2, slot.getTextChannelId());
             preparedStatement.setString(3, slot.getCommandTrigger());
@@ -82,7 +82,7 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
             }
 
             preparedStatement.setString(5, slot.getCommandKey());
-            preparedStatement.setString(6, DBMain.instantToDateTimeString(slot.getNextRequest()));
+            preparedStatement.setString(6, MySQLManager.instantToDateTimeString(slot.getNextRequest()));
 
             Optional<String> argsOpt = slot.getArgs();
             if (argsOpt.isPresent()) {
@@ -105,13 +105,13 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
                 preparedStatement.setNull(9, Types.VARCHAR);
             }
 
-            preparedStatement.setString(10, DBMain.instantToDateTimeString(slot.getCreationTime()));
+            preparedStatement.setString(10, MySQLManager.instantToDateTimeString(slot.getCreationTime()));
         });
     }
 
     private void removeTracker(TrackerData slot) {
         if (!Objects.isNull(slot)) {
-            DBMain.getInstance().asyncUpdate("DELETE FROM Tracking WHERE channelId = ? AND command = ? AND commandKey = ?;", preparedStatement -> {
+            MySQLManager.asyncUpdate("DELETE FROM Tracking WHERE channelId = ? AND command = ? AND commandKey = ?;", preparedStatement -> {
                 preparedStatement.setLong(1, slot.getTextChannelId());
                 preparedStatement.setString(2, slot.getCommandTrigger());
                 preparedStatement.setString(3, slot.getCommandKey());

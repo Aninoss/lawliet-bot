@@ -187,7 +187,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         }
 
         ArrayList<Button> controlButtonList = new ArrayList<>();
-        if (CommandContainer.getInstance().getListener(OnButtonListener.class, this).isPresent()) {
+        if (CommandContainer.getListener(OnButtonListener.class, this).isPresent()) {
             controlButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_BACK, TextManager.getString(getLocale(), TextManager.GENERAL, "list_back")));
         }
         if (options != null && options.length > 0) {

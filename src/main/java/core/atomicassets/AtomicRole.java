@@ -33,7 +33,7 @@ public class AtomicRole implements MentionableAtomicAsset<Role> {
 
     @Override
     public Optional<Role> get() {
-        return ShardManager.getInstance().getLocalGuildById(guildId)
+        return ShardManager.getLocalGuildById(guildId)
                 .map(guild -> guild.getRoleById(roleId));
     }
 

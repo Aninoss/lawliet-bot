@@ -12,16 +12,7 @@ import websockets.syncserver.SendEvent;
 
 public class ExternalGuildNameCache {
 
-    private static final ExternalGuildNameCache ourInstance = new ExternalGuildNameCache();
-
-    public static ExternalGuildNameCache getInstance() {
-        return ourInstance;
-    }
-
-    private ExternalGuildNameCache() {
-    }
-
-    private final LoadingCache<Long, Optional<String>> cache = CacheBuilder.newBuilder()
+    private static final LoadingCache<Long, Optional<String>> cache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .build(new CacheLoader<>() {
                        @Override
@@ -31,7 +22,7 @@ public class ExternalGuildNameCache {
                    }
             );
 
-    public Optional<String> getGuildNameById(long serverId) {
+    public static Optional<String> getGuildNameById(long serverId) {
         try {
             return cache.get(serverId);
         } catch (ExecutionException e) {

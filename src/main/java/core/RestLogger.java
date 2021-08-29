@@ -10,28 +10,19 @@ import javafx.util.Pair;
 
 public class RestLogger {
 
-    private static final RestLogger ourInstance = new RestLogger();
+    private static final LinkedList<ActionEvent> actionEvents = new LinkedList<>();
 
-    public static RestLogger getInstance() {
-        return ourInstance;
-    }
-
-    private final LinkedList<ActionEvent> actionEvents = new LinkedList<>();
-
-    private RestLogger() {
-    }
-
-    public synchronized void insert(Long guildId) {
+    public static synchronized void insert(Long guildId) {
         cleanOutDatedActions();
         actionEvents.add(new ActionEvent(guildId));
     }
 
-    public synchronized int count() {
+    public static synchronized int count() {
         cleanOutDatedActions();
         return actionEvents.size();
     }
 
-    public synchronized List<Pair<Long, Integer>> countGuilds(int limit) {
+    public static synchronized List<Pair<Long, Integer>> countGuilds(int limit) {
         cleanOutDatedActions();
         HashMap<Long, Integer> guildCounter = new HashMap<>();
 
@@ -49,7 +40,7 @@ public class RestLogger {
                 .collect(Collectors.toList());
     }
 
-    private void cleanOutDatedActions() {
+    private static void cleanOutDatedActions() {
         while(actionEvents.size() > 0) {
             Instant actionEventInstant = actionEvents.getFirst().instant;
             if (actionEventInstant.isBefore(Instant.now().minus(Duration.ofHours(1)))) {

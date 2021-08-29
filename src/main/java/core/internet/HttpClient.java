@@ -6,21 +6,12 @@ import okhttp3.*;
 
 public class HttpClient {
 
-    private static final HttpClient ourInstance = new HttpClient();
-
-    public static HttpClient getInstance() {
-        return ourInstance;
-    }
-
     private final OkHttpClient client = IOUtil.newHttpClientBuilder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .cache(null)
             .build();
-
-    private HttpClient() {
-    }
 
     public Call newCall(Request request) {
         return client.newCall(request);

@@ -2,7 +2,7 @@ package mysql.modules.autoclaim;
 
 import java.util.ArrayList;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBSingleCache;
 
 public class DBAutoClaim extends DBSingleCache<AutoClaimData> {
@@ -29,11 +29,11 @@ public class DBAutoClaim extends DBSingleCache<AutoClaimData> {
     }
 
     private void addAutoClaim(long userId) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO AutoClaim (userId, active) VALUES (?, 1);", preparedStatement -> preparedStatement.setLong(1, userId));
+        MySQLManager.asyncUpdate("REPLACE INTO AutoClaim (userId, active) VALUES (?, 1);", preparedStatement -> preparedStatement.setLong(1, userId));
     }
 
     private void removeAutoClaim(long userId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM AutoClaim WHERE userId = ?;", preparedStatement -> preparedStatement.setLong(1, userId));
+        MySQLManager.asyncUpdate("DELETE FROM AutoClaim WHERE userId = ?;", preparedStatement -> preparedStatement.setLong(1, userId));
     }
 
     @Override

@@ -4,7 +4,7 @@ import constants.FisheryGear;
 import constants.Settings;
 import core.assets.MemberAsset;
 import core.utils.NumberUtil;
-import mysql.DBRedis;
+import mysql.RedisManager;
 
 public class FisheryMemberGearData implements MemberAsset {
 
@@ -34,12 +34,12 @@ public class FisheryMemberGearData implements MemberAsset {
     }
 
     public int getLevel() {
-        return DBRedis.getInstance().getInteger(jedis -> jedis.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR));
+        return RedisManager.getInteger(jedis -> jedis.hget(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR));
     }
 
     void setLevel(int level) {
         int newLevel = Math.min(level, Settings.FISHERY_GEAR_MAX);
-        DBRedis.getInstance().update(jedis -> jedis.hset(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR, String.valueOf(newLevel)));
+        RedisManager.update(jedis -> jedis.hset(fisheryMemberData.KEY_ACCOUNT, FIELD_GEAR, String.valueOf(newLevel)));
     }
 
     void levelUp() {

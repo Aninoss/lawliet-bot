@@ -198,7 +198,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         InteractionHook hook = event.getHook();
 
         FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
-        MainScheduler.getInstance().schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
+        MainScheduler.schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
             Random r = new Random();
             String[] winLose = new String[] { "win", "lose" };
             int resultInt = r.nextInt(2);
@@ -226,7 +226,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 hook.editOriginalEmbeds(eb2.build()).queue();
             }
 
-            MainScheduler.getInstance().schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
+            MainScheduler.schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
                 if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
                     hook.deleteOriginal().queue();
                 }

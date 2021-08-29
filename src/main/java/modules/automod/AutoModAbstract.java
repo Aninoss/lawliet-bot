@@ -33,7 +33,7 @@ public abstract class AutoModAbstract {
             try {
                 GuildData guildBean = DBGuild.getInstance().retrieve(message.getGuild().getIdLong());
                 Class<? extends Command> commandClass = getCommandClass();
-                if (PermissionCheckRuntime.getInstance().botHasPermission(guildBean.getLocale(), commandClass, message.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+                if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), commandClass, message.getTextChannel(), Permission.MESSAGE_MANAGE)) {
                     message.delete().queue();
                 }
                 punish(message, guildBean, commandClass);

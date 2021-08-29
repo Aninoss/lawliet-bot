@@ -387,7 +387,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                             true
                     );
                     if (!giveawayMap.containsKey(giveawayData.getMessageId())) {
-                        GiveawayScheduler.getInstance().loadGiveawayBean(giveawayData);
+                        GiveawayScheduler.loadGiveawayBean(giveawayData);
                     }
 
                     giveawayMap.put(giveawayData.getMessageId(), giveawayData);
@@ -442,7 +442,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             setState(REROLL_MESSAGE);
             return true;
         } else if (i == 0 && rerollWinners > 0) {
-            boolean messageExists = GiveawayScheduler.getInstance().processGiveawayUsers(rerollGiveawayData, rerollWinners, true).join();
+            boolean messageExists = GiveawayScheduler.processGiveawayUsers(rerollGiveawayData, rerollWinners, true).join();
             if (messageExists) {
                 setLog(LogStatus.SUCCESS, getString("rerollset", rerollGiveawayData.getTitle()));
             } else {
@@ -469,7 +469,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     private boolean processEmoji(String emoji) {
-        if (EmojiUtil.emojiIsUnicode(emoji) || ShardManager.getInstance().emoteIsKnown(emoji)) {
+        if (EmojiUtil.emojiIsUnicode(emoji) || ShardManager.emoteIsKnown(emoji)) {
             this.emoji = emoji;
             setLog(LogStatus.SUCCESS, getString("emojiset"));
             setState(CONFIGURE_MESSAGE);

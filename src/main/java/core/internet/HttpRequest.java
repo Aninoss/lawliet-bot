@@ -11,6 +11,8 @@ public class HttpRequest {
 
     private static final String USER_AGENT = String.format("Lawliet Discord Bot v%s made by Aninoss#7220", BotUtil.getCurrentVersion());
 
+    private static final HttpClient httpClient = new HttpClient();
+
     public static CompletableFuture<HttpResponse> get(String url, HttpHeader... headers) {
         return post(url, null, null, headers);
     }
@@ -28,7 +30,7 @@ public class HttpRequest {
         Request request = requestBuilder.build();
 
         CompletableFuture<HttpResponse> future = new CompletableFuture<>();
-        HttpClient.getInstance().newCall(request).enqueue(new Callback() {
+        httpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 try(ResponseBody body = response.body()) {

@@ -9,16 +9,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class CoolDownManager {
 
-    private static final CoolDownManager ourInstance = new CoolDownManager();
-
-    public static CoolDownManager getInstance() {
-        return ourInstance;
-    }
-
-    private CoolDownManager() {
-    }
-
-    private final LoadingCache<Long, CoolDownUserData> coolDownUserDataMap = CacheBuilder.newBuilder()
+    private static final LoadingCache<Long, CoolDownUserData> coolDownUserDataMap = CacheBuilder.newBuilder()
             .expireAfterAccess(Settings.COOLDOWN_TIME_SEC, TimeUnit.SECONDS)
             .build(new CacheLoader<>() {
                 @Override
@@ -27,7 +18,7 @@ public class CoolDownManager {
                 }
             });
 
-    public synchronized CoolDownUserData getCoolDownData(long userId) {
+    public static synchronized CoolDownUserData getCoolDownData(long userId) {
         return coolDownUserDataMap.getUnchecked(userId);
     }
 

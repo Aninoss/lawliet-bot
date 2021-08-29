@@ -10,7 +10,7 @@ public class DBBatch implements AutoCloseable {
     private final PreparedStatement preparedStatement;
 
     public DBBatch(String sql) throws SQLException {
-        Connection connection = DBMain.getInstance().getConnection();
+        Connection connection = MySQLManager.getConnection();
         preparedStatement = connection.prepareStatement(sql);
     }
 

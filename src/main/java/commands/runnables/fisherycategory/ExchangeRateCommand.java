@@ -55,7 +55,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     }
 
     private EmbedBuilder generateEmbed(boolean alert) {
-        StringBuilder sb = new StringBuilder(getString(alert ? "template_alert" : "template", StringUtil.numToString(ExchangeRate.getInstance().get(0)), Fishery.getChangeEmoji()));
+        StringBuilder sb = new StringBuilder(getString(alert ? "template_alert" : "template", StringUtil.numToString(ExchangeRate.get(0)), Fishery.getChangeEmoji()));
         if (textInclude != null) {
             sb.append("\n")
                     .append(textInclude);
@@ -71,7 +71,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
             sb.append(
                     getString("forecast_slot", canUseExternalEmoji,
                             getString("forecast_day", i),
-                            StringUtil.numToString(ExchangeRate.getInstance().get(i - 1)),
+                            StringUtil.numToString(ExchangeRate.get(i - 1)),
                             Fishery.getChangeEmoji(i - 1)
                     )
             ).append("\n");

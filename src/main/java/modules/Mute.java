@@ -22,7 +22,7 @@ public class Mute {
             Instant expiration = minutes > 0 ? Instant.now().plus(Duration.ofMinutes(minutes)) : null;
             ServerMuteData serverMuteData = new ServerMuteData(guild.getIdLong(), target.getIdLong(), expiration);
             DBServerMute.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), serverMuteData);
-            ServerMuteScheduler.getInstance().loadServerMute(serverMuteData);
+            ServerMuteScheduler.loadServerMute(serverMuteData);
 
             Member member = MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).join();
             if (member != null) {

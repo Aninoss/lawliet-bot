@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import mysql.DBDataLoad;
 import mysql.DBKeySetLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelData> {
@@ -21,7 +21,7 @@ public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelData> {
 
     @Override
     protected AutoChannelData load(Long serverId) throws Exception {
-        AutoChannelData autoChannelBean = DBMain.getInstance().get(
+        AutoChannelData autoChannelBean = MySQLManager.get(
                 "SELECT channelId, active, channelName, locked FROM AutoChannel WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
@@ -55,7 +55,7 @@ public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelData> {
 
     @Override
     protected void save(AutoChannelData autoChannelBean) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO AutoChannel (serverId, channelId, active, channelName, locked) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO AutoChannel (serverId, channelId, active, channelName, locked) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, autoChannelBean.getGuildId());
 
             Optional<Long> channelIdOpt = autoChannelBean.getParentChannelId();
@@ -78,14 +78,14 @@ public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelData> {
     }
 
     private void addChildChannel(long serverId, long channelId) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO AutoChannelChildChannels (serverId, channelId) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO AutoChannelChildChannels (serverId, channelId) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, channelId);
         });
     }
 
     private void removeChildChannel(long serverId, long channelId) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM AutoChannelChildChannels WHERE serverId = ? AND channelId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM AutoChannelChildChannels WHERE serverId = ? AND channelId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, channelId);
         });

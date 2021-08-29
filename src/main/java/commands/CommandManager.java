@@ -70,7 +70,7 @@ public class CommandManager {
             if (command.getCommandProperties().patreonRequired() &&
                     (Arrays.stream(command.getCommandProperties().userGuildPermissions()).anyMatch(p -> p == Permission.MANAGE_SERVER))
             ) {
-                ServerPatreonBoostCache.getInstance().setTrue(event.getGuild().getIdLong());
+                ServerPatreonBoostCache.setTrue(event.getGuild().getIdLong());
             }
 
             try {
@@ -88,7 +88,7 @@ public class CommandManager {
             } catch (Throwable e) {
                 ExceptionUtil.handleCommandException(e, command, event.getChannel());
             } finally {
-                CommandContainer.getInstance().cleanUp();
+                CommandContainer.cleanUp();
             }
         }
     }
@@ -100,7 +100,7 @@ public class CommandManager {
                 BotPermissionUtil.canWriteEmbed(event.getChannel())
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setThumbnail(ShardManager.getInstance().getSelf().getAvatarUrl())
+                    .setThumbnail(ShardManager.getSelf().getAvatarUrl())
                     .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite"));
 
             Button button = Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_REMINDER_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"));
@@ -112,7 +112,7 @@ public class CommandManager {
 
     private static boolean checkRunningCommands(GuildMessageReceivedEvent event, Command command) {
         if (command instanceof PingCommand) command.getAttachments().put("start_instant", Instant.now());
-        if (RunningCheckerManager.getInstance().canUserRunCommand(
+        if (RunningCheckerManager.canUserRunCommand(
                 command,
                 event.getGuild().getIdLong(),
                 event.getMember().getIdLong(),
@@ -122,7 +122,7 @@ public class CommandManager {
             return true;
         }
 
-        if (CoolDownManager.getInstance().getCoolDownData(event.getMember().getIdLong()).canPostCoolDownMessage()) {
+        if (CoolDownManager.getCoolDownData(event.getMember().getIdLong()).canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_desc");
 
             if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
@@ -142,7 +142,7 @@ public class CommandManager {
         if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 || PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())) {
             return true;
         }
-        CoolDownUserData cooldownUserData = CoolDownManager.getInstance().getCoolDownData(event.getMember().getIdLong());
+        CoolDownUserData cooldownUserData = CoolDownManager.getCoolDownData(event.getMember().getIdLong());
 
         Optional<Integer> waitingSec = cooldownUserData.getWaitingSec(Settings.COOLDOWN_TIME_SEC);
         if (waitingSec.isEmpty()) {
@@ -309,7 +309,7 @@ public class CommandManager {
     }
 
     private static void autoRemoveMessageAfterCountdown(GuildMessageReceivedEvent event, Message message) {
-        MainScheduler.getInstance().schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, "command_manager_error_countdown", () -> {
+        MainScheduler.schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, "command_manager_error_countdown", () -> {
             if (BotPermissionUtil.can(event.getChannel())) {
                 if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                     event.getChannel().deleteMessages(Arrays.asList(message, event.getMessage())).queue();
@@ -384,23 +384,23 @@ public class CommandManager {
 
     private static void sendOverwrittenSignals(Command command, Member member, Class<?> clazz) {
         if (clazz.isInstance(command)) {
-            CommandContainer.getInstance().getListeners(clazz).stream()
+            CommandContainer.getListeners(clazz).stream()
                     .filter(meta -> meta.getAuthorId() == member.getIdLong())
                     .forEach(CommandListenerMeta::override);
         }
     }
 
     private static void cleanPreviousListeners(Command command, Member member) {
-        for (Class<?> clazz : CommandContainer.getInstance().getListenerClasses()) {
+        for (Class<?> clazz : CommandContainer.getListenerClasses()) {
             if (clazz.isInstance(command)) {
-                ArrayList<CommandListenerMeta<?>> metaList = CommandContainer.getInstance().getListeners(clazz).stream()
+                ArrayList<CommandListenerMeta<?>> metaList = CommandContainer.getListeners(clazz).stream()
                         .filter(meta -> meta.getAuthorId() == member.getIdLong())
                         .sorted(Comparator.comparing(CommandListenerMeta::getCreationTime))
                         .collect(Collectors.toCollection(ArrayList::new));
 
                 while (metaList.size() >= 2) {
                     CommandListenerMeta<?> meta = metaList.remove(0);
-                    CommandContainer.getInstance().deregisterListeners(meta.getCommand());
+                    CommandContainer.deregisterListeners(meta.getCommand());
                     meta.timeOut();
                 }
             }
@@ -408,7 +408,7 @@ public class CommandManager {
     }
 
     public static Optional<Command> createCommandByTrigger(String trigger, Locale locale, String prefix) {
-        Class<? extends Command> clazz = CommandContainer.getInstance().getCommandMap().get(trigger);
+        Class<? extends Command> clazz = CommandContainer.getCommandMap().get(trigger);
         if (clazz == null) return Optional.empty();
         return Optional.of(createCommandByClass(clazz, locale, prefix));
     }

@@ -15,15 +15,6 @@ import org.json.JSONObject;
 
 public class TwitchDownloader {
 
-    private static final TwitchDownloader ourInstance = new TwitchDownloader();
-
-    public static TwitchDownloader getInstance() {
-        return ourInstance;
-    }
-
-    private TwitchDownloader() {
-    }
-
     private final LoadingCache<String, Optional<TwitchUser>> userCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(10))
             .build(

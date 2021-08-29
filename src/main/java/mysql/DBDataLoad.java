@@ -28,7 +28,7 @@ public class DBDataLoad<T> {
 
             String sqlString = String.format("SELECT %s FROM %s WHERE %s", requiredAttributes, table, where);
 
-            Connection connection = DBMain.getInstance().getConnection();
+            Connection connection = MySQLManager.getConnection();
             preparedStatement = connection.prepareStatement(sqlString);
             wherePreparedStatementConsumer.accept(preparedStatement);
             preparedStatement.execute();

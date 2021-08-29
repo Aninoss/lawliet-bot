@@ -3,7 +3,7 @@ package mysql.modules.osuaccounts;
 import java.util.HashMap;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBSingleCache;
 
 public class DBOsuAccounts extends DBSingleCache<CustomObservableMap<Long, OsuAccountData>> {
@@ -28,14 +28,14 @@ public class DBOsuAccounts extends DBSingleCache<CustomObservableMap<Long, OsuAc
     }
 
     private void addOsuAccount(OsuAccountData osuAccountData) {
-        DBMain.getInstance().asyncUpdate("REPLACE INTO OsuAccounts (userId, osuId) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO OsuAccounts (userId, osuId) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, osuAccountData.getUserId());
             preparedStatement.setLong(2, osuAccountData.getOsuId());
         });
     }
 
     private void removeOsuAccount(OsuAccountData osuAccountData) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM OsuAccounts WHERE userId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM OsuAccounts WHERE userId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, osuAccountData.getUserId());
         });
     }

@@ -15,7 +15,7 @@ public class GuildMessageReceivedSingleBotMention extends GuildMessageReceivedAb
 
     @Override
     public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
-        if (event.getMessage().getContentRaw().replace("@!", "@").trim().equalsIgnoreCase(ShardManager.getInstance().getSelf().getAsMention())) {
+        if (event.getMessage().getContentRaw().replace("@!", "@").trim().equalsIgnoreCase(ShardManager.getSelf().getAsMention())) {
             GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
 
             String text = TextManager.getString(guildBean.getLocale(), TextManager.GENERAL, "bot_ping_help", guildBean.getPrefix());

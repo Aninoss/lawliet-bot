@@ -10,7 +10,7 @@ public class OnCmd implements SyncServerFunction {
 
     @Override
     public JSONObject apply(JSONObject jsonObject) {
-        Console.getInstance().processInput(jsonObject.getString("input"));
+        Console.processInput(jsonObject.getString("input"));
         return null;
     }
 

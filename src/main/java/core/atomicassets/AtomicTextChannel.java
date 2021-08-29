@@ -33,7 +33,7 @@ public class AtomicTextChannel implements MentionableAtomicAsset<TextChannel> {
 
     @Override
     public Optional<TextChannel> get() {
-        return ShardManager.getInstance().getLocalGuildById(guildId)
+        return ShardManager.getLocalGuildById(guildId)
                 .map(guild -> guild.getTextChannelById(channelId));
     }
 

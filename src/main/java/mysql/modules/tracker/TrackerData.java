@@ -95,7 +95,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
     }
 
     public Optional<String> getEffectiveUserMessage() {
-        if (!ServerPatreonBoostCache.getInstance().get(getGuildId())) {
+        if (!ServerPatreonBoostCache.get(getGuildId())) {
             return Optional.empty();
         }
         return getUserMessage();
@@ -169,7 +169,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                     List<Webhook> webhooks = channel.retrieveWebhooks().complete();
                     for (Webhook webhook : webhooks) {
                         Member webhookOwner = webhook.getOwner();
-                        if (webhookOwner != null && webhookOwner.getIdLong() == ShardManager.getInstance().getSelfId()) {
+                        if (webhookOwner != null && webhookOwner.getIdLong() == ShardManager.getSelfId()) {
                             webhookUrl = webhook.getUrl();
                             return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds, actionRows);
                         }

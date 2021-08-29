@@ -2,7 +2,7 @@ package mysql.modules.commandmanagement;
 
 import java.util.ArrayList;
 import mysql.DBDataLoad;
-import mysql.DBMain;
+import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
 
 public class DBCommandManagement extends DBObserverMapCache<Long, CommandManagementData> {
@@ -41,14 +41,14 @@ public class DBCommandManagement extends DBObserverMapCache<Long, CommandManagem
     }
 
     private void addSwitchedOffElement(long serverId, String element) {
-        DBMain.getInstance().asyncUpdate("INSERT IGNORE INTO CMOff (serverId, element) VALUES (?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO CMOff (serverId, element) VALUES (?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setString(2, element);
         });
     }
 
     private void removeSwitchedOffElement(long serverId, String element) {
-        DBMain.getInstance().asyncUpdate("DELETE FROM CMOff WHERE serverId = ? AND element = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM CMOff WHERE serverId = ? AND element = ?;", preparedStatement -> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setString(2, element);
         });
