@@ -62,7 +62,18 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
 
     @ControllerMessage(state = STATE_BUY)
     public Response onMessageBuy(GuildMessageReceivedEvent event, String input) {
-        long amount = MentionUtil.getAmountExt(input);
+        long maxValue = (long) Math.floor((double) fisheryMemberBean.getCoins() / StockMarket.getValue(currentStock) / (1 + Settings.FISHERY_SHARES_FEES / 100.0));
+        return onMessageBuySell(input, Math.min(maxValue, Settings.FISHERY_SHARES_MAX));
+    }
+
+    @ControllerMessage(state = STATE_SELL)
+    public Response onMessageSell(GuildMessageReceivedEvent event, String input) {
+        long maxValue = fisheryMemberBean.getStocks(currentStock).getShareSize();
+        return onMessageBuySell(input, maxValue);
+    }
+
+    private Response onMessageBuySell(String input, long maxValue) {
+        long amount = MentionUtil.getAmountExt(input, maxValue);
         if (amount > 0 && amount <= Settings.FISHERY_SHARES_MAX) {
             sharesNum = (int) amount;
             return Response.TRUE;
@@ -70,11 +81,6 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", String.valueOf(1), StringUtil.numToString(Settings.FISHERY_SHARES_MAX)));
             return Response.FALSE;
         }
-    }
-
-    @ControllerMessage(state = STATE_SELL)
-    public Response onMessageSell(GuildMessageReceivedEvent event, String input) {
-        return onMessageBuy(event, input);
     }
 
     @ControllerButton(state = STATE_MAIN)
