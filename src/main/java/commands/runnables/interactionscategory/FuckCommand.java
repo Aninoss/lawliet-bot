@@ -115,7 +115,16 @@ public class FuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736281485216317442/834506018188165160/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/834506032612114492/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/839471780678991882/fuck.gif",
-                "https://cdn.discordapp.com/attachments/736281485216317442/839471858193530910/fuck.gif"
+                "https://cdn.discordapp.com/attachments/736281485216317442/839471858193530910/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/881903289946484776/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/881903723922731129/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/881903786346549259/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/881903844748046406/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/881903908941873172/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/881903968723275786/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/881904031323287592/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/881904123405021264/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/881904190358704148/fuck.gif"
         );
     }
 

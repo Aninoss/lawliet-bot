@@ -47,7 +47,8 @@ public class HighfiveCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736274901673181216/834508183355129856/highfive.gif",
                 "https://cdn.discordapp.com/attachments/736274901673181216/834508196030316654/highfive.gif",
                 "https://cdn.discordapp.com/attachments/736274901673181216/834508208038608906/highfive.gif",
-                "https://cdn.discordapp.com/attachments/736274901673181216/834508220034711552/highfive.gif"
+                "https://cdn.discordapp.com/attachments/736274901673181216/834508220034711552/highfive.gif",
+                "https://cdn.discordapp.com/attachments/736274901673181216/881895480227938334/highfive.gif"
         );
     }
 

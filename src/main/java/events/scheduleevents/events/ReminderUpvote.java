@@ -4,11 +4,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Random;
-import constants.AssetIds;
 import constants.Category;
 import constants.ExternalLinks;
-import core.*;
+import core.CustomObservableMap;
+import core.EmbedFactory;
+import core.Program;
+import core.TextManager;
 import core.schedule.ScheduleInterface;
 import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.modules.subs.DBSubs;
@@ -25,8 +26,6 @@ public class ReminderUpvote implements ScheduleInterface {
 
     @Override
     public void run() throws Throwable {
-        int i = new Random().nextInt(); //TODO: debug
-
         if (Program.getClusterId() == 1) {
             CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.CLAIM);
             UpvotesData upvotesData = DBUpvotes.getInstance().retrieve();
@@ -35,9 +34,6 @@ public class ReminderUpvote implements ScheduleInterface {
                 if (Instant.now().isAfter(upvoteSlot.getLastUpdate().plus(12, ChronoUnit.HOURS)) &&
                         upvoteMap.containsKey(upvoteSlot.getUserId())
                 ) {
-                    if (upvoteSlot.getUserId() == AssetIds.OWNER_USER_ID) {
-                        MainLogger.get().info("##### Upvote reminder: {}", i); //TODO
-                    }
                     upvoteMap.remove(upvoteSlot.getUserId());
                     SubSlot sub = subMap.get(upvoteSlot.getUserId());
                     if (sub != null) {

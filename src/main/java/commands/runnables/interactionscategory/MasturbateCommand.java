@@ -36,8 +36,9 @@ public class MasturbateCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/834831425651474442/834831790748467220/masturbate.gif",
                 "https://cdn.discordapp.com/attachments/834831425651474442/834831804020162660/masturbate.gif",
                 "https://cdn.discordapp.com/attachments/834831425651474442/834831815612825643/masturbate.gif",
-                "https://cdn.discordapp.com/attachments/834831425651474442/834831827457802271/masturbate.gif"
-                );
+                "https://cdn.discordapp.com/attachments/834831425651474442/834831827457802271/masturbate.gif",
+                "https://cdn.discordapp.com/attachments/834831425651474442/881905216432259072/masturbate.gif"
+        );
     }
 
 }

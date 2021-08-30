@@ -30,7 +30,9 @@ public class CumCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/834500528426844160/834501115449180200/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/834501127272923217/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/834501140014956624/cum.gif",
-                "https://cdn.discordapp.com/attachments/834500528426844160/839471906024849408/cum.gif"
+                "https://cdn.discordapp.com/attachments/834500528426844160/839471906024849408/cum.gif",
+                "https://cdn.discordapp.com/attachments/834500528426844160/881904994863951873/cum.gif",
+                "https://cdn.discordapp.com/attachments/834500528426844160/881905088447250443/cum.gif"
         );
     }
 

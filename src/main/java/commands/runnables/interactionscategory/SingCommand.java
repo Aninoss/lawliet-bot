@@ -22,7 +22,9 @@ public class SingCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/874742187357773844/874742765756481576/sing.gif",
                 "https://cdn.discordapp.com/attachments/874742187357773844/874742863513157662/sing.gif",
                 "https://cdn.discordapp.com/attachments/874742187357773844/874742945864110120/sing.gif",
-                "https://cdn.discordapp.com/attachments/874742187357773844/874743043486543872/sing.gif"
+                "https://cdn.discordapp.com/attachments/874742187357773844/874743043486543872/sing.gif",
+                "https://cdn.discordapp.com/attachments/874742187357773844/881900344035123270/sing.gif",
+                "https://cdn.discordapp.com/attachments/874742187357773844/881900424075030528/sing.gif"
         );
     }
 

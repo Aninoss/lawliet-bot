@@ -31,7 +31,9 @@ public class TittyFuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/834844814671478824/834845117496033280/tittyfuck.gif",
                 "https://cdn.discordapp.com/attachments/834844814671478824/834845130196385832/tittyfuck.gif",
                 "https://cdn.discordapp.com/attachments/834844814671478824/834845146393739284/tittyfuck.gif",
-                "https://cdn.discordapp.com/attachments/834844814671478824/834845159539081226/tittyfuck.gif"
+                "https://cdn.discordapp.com/attachments/834844814671478824/834845159539081226/tittyfuck.gif",
+                "https://cdn.discordapp.com/attachments/834844814671478824/881905383625596959/tittyfuck.gif",
+                "https://cdn.discordapp.com/attachments/834844814671478824/881905488055377960/tittyfuck.gif"
         );
     }
 

@@ -43,7 +43,8 @@ public class PokeCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736273767520665610/834835495871316044/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/834835507515097151/poke.gif",
                 "https://cdn.discordapp.com/attachments/736273767520665610/834835519157698560/poke.gif",
-                "https://cdn.discordapp.com/attachments/736273767520665610/834835531182768128/poke.gif"
+                "https://cdn.discordapp.com/attachments/736273767520665610/834835531182768128/poke.gif",
+                "https://cdn.discordapp.com/attachments/736273767520665610/881898719878979625/poke.gif"
         );
     }
 

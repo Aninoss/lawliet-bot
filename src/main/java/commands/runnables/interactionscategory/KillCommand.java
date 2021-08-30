@@ -45,7 +45,8 @@ public class KillCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736270438627278859/834510804056932412/kill.gif",
                 "https://cdn.discordapp.com/attachments/736270438627278859/834510811983773736/kill.gif",
                 "https://cdn.discordapp.com/attachments/736270438627278859/834510824755953699/kill.gif",
-                "https://cdn.discordapp.com/attachments/736270438627278859/834510983585464350/kill.gif"
+                "https://cdn.discordapp.com/attachments/736270438627278859/834510983585464350/kill.gif",
+                "https://cdn.discordapp.com/attachments/736270438627278859/881891935055392848/kill.gif"
         );
     }
 

@@ -103,7 +103,11 @@ public class CryCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736255198808375307/834499627687477248/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/834499639411605554/cry.gif",
                 "https://cdn.discordapp.com/attachments/736255198808375307/838516530265980968/cry.gif",
-                "https://cdn.discordapp.com/attachments/736255198808375307/839471288501665852/cry.gif"
+                "https://cdn.discordapp.com/attachments/736255198808375307/839471288501665852/cry.gif",
+                "https://cdn.discordapp.com/attachments/736255198808375307/881893079093768222/cry.gif",
+                "https://cdn.discordapp.com/attachments/736255198808375307/881893227391778876/cry.gif",
+                "https://cdn.discordapp.com/attachments/736255198808375307/881893404198436906/cry.gif",
+                "https://cdn.discordapp.com/attachments/736255198808375307/881893675502821396/cry.gif"
         );
     }
 

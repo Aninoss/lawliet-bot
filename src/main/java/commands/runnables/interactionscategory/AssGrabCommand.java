@@ -25,7 +25,8 @@ public class AssGrabCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/834460432818241566/834462003274711077/assgrab.gif",
                 "https://cdn.discordapp.com/attachments/834460432818241566/834462015236997191/assgrab.gif",
                 "https://cdn.discordapp.com/attachments/834460432818241566/834462028906233866/assgrab.gif",
-                "https://cdn.discordapp.com/attachments/834460432818241566/834462042706542643/assgrab.gif"
+                "https://cdn.discordapp.com/attachments/834460432818241566/834462042706542643/assgrab.gif",
+                "https://cdn.discordapp.com/attachments/834460432818241566/881905588206968832/assgrab.gif"
         );
     }
 

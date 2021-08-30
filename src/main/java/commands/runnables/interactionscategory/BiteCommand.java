@@ -42,7 +42,8 @@ public class BiteCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736272811789779006/834489268222820392/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/834489283703734302/bite.gif",
                 "https://cdn.discordapp.com/attachments/736272811789779006/834489296710270996/bite.gif",
-                "https://cdn.discordapp.com/attachments/736272811789779006/834489308818833418/bite.gif"
+                "https://cdn.discordapp.com/attachments/736272811789779006/834489308818833418/bite.gif",
+                "https://cdn.discordapp.com/attachments/736272811789779006/881892257886765066/bite.gif"
         );
     }
 

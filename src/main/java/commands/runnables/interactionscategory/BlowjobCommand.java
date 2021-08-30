@@ -26,7 +26,13 @@ public class BlowjobCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/834490895260844032/834491311238283315/blowjob.gif",
                 "https://cdn.discordapp.com/attachments/834490895260844032/834491323016806531/blowjob.gif",
                 "https://cdn.discordapp.com/attachments/834490895260844032/834491339138924574/blowjob.gif",
-                "https://cdn.discordapp.com/attachments/834490895260844032/834491350865936434/blowjob.gif"
+                "https://cdn.discordapp.com/attachments/834490895260844032/834491350865936434/blowjob.gif",
+                "https://cdn.discordapp.com/attachments/834490895260844032/881904390376673330/blowjob.gif",
+                "https://cdn.discordapp.com/attachments/834490895260844032/881904479627255828/blowjob.gif",
+                "https://cdn.discordapp.com/attachments/834490895260844032/881904551949635604/blowjob.gif",
+                "https://cdn.discordapp.com/attachments/834490895260844032/881904674318471258/blowjob.gif",
+                "https://cdn.discordapp.com/attachments/834490895260844032/881904763275452466/blowjob.gif",
+                "https://cdn.discordapp.com/attachments/834490895260844032/881904859471818862/blowjob.gif"
         );
     }
 

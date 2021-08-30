@@ -92,7 +92,9 @@ public class SleepCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736261025166524498/834838704639967282/sleep.gif",
                 "https://cdn.discordapp.com/attachments/736261025166524498/834838717574545438/sleep.gif",
                 "https://cdn.discordapp.com/attachments/736261025166524498/834838728525479956/sleep.gif",
-                "https://cdn.discordapp.com/attachments/736261025166524498/834838739850100798/sleep.gif"
+                "https://cdn.discordapp.com/attachments/736261025166524498/834838739850100798/sleep.gif",
+                "https://cdn.discordapp.com/attachments/736261025166524498/881899546731479140/sleep.gif",
+                "https://cdn.discordapp.com/attachments/736261025166524498/881899944871592026/sleep.gif"
         );
     }
 
