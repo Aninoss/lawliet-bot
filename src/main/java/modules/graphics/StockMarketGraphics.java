@@ -95,21 +95,23 @@ public class StockMarketGraphics {
 
         g2d.setColor(Color.WHITE);
         for (int i = 0; i <= 7; i++) {
+            int offset = -i * 24;
             g2d.setColor(BACKGROUND_COLOR);
             g2d.fillOval(
-                    (int) mapX(-i * 24) - CIRCLE_SIZE_OUTER / 2,
-                    (int) mapY(stock, -i * 24, min, max) - CIRCLE_SIZE_OUTER / 2,
+                    (int) mapX(offset) - CIRCLE_SIZE_OUTER / 2,
+                    (int) mapY(stock, offset, min, max) - CIRCLE_SIZE_OUTER / 2,
                     CIRCLE_SIZE_OUTER,
                     CIRCLE_SIZE_OUTER
             );
             g2d.setColor(Color.WHITE);
             g2d.fillOval(
-                    (int) mapX(-i * 24) - CIRCLE_SIZE / 2,
-                    (int) mapY(stock, -i * 24, min, max) - CIRCLE_SIZE / 2,
+                    (int) mapX(offset) - CIRCLE_SIZE / 2,
+                    (int) mapY(stock, offset, min, max) - CIRCLE_SIZE / 2,
                     CIRCLE_SIZE,
                     CIRCLE_SIZE
             );
 
+            int offsetSign = StockMarket.getValue(stock, offset) > StockMarket.getValue(stock, offset - 2) ? -1 : 1;
             String text = switch (i) {
                 case 0 -> "NOW";
                 case 1 -> "24H";
@@ -123,8 +125,8 @@ public class StockMarketGraphics {
                     bounds,
                     Color.WHITE,
                     BACKGROUND_COLOR,
-                    (int) mapX(-i * 24),
-                    (int) mapY(stock, -i * 24, min, max) + 25,
+                    (int) mapX(offset),
+                    (int) mapY(stock, offset, min, max) + 25 * offsetSign,
                     4,
                     -1
             );

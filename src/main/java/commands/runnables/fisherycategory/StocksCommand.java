@@ -7,7 +7,10 @@ import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
-import constants.*;
+import constants.Emojis;
+import constants.LogStatus;
+import constants.Response;
+import constants.Settings;
 import core.EmbedFactory;
 import core.LocalFile;
 import core.Program;
@@ -294,17 +297,13 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     }
 
     private String getStockGraphUrl() throws ExecutionException, InterruptedException, IOException {
-        if (Program.productionMode()) {
-            long currentHourSlotMillis = (System.currentTimeMillis() / 3_600_000L) * 3_600_000L;
-            LocalFile graphFile = new LocalFile(LocalFile.Directory.CDN, String.format("stockmarket/%d.png", currentStock.getId()));
-            if (graphFile.exists() && currentHourSlotMillis <= graphFile.lastModified()) {
-                return graphFile.cdnGetUrl();
-            } else {
-                InputStream is = StockMarketGraphics.createImageGraph(currentStock).get();
-                return FileUtil.writeInputStreamToFile(is, graphFile);
-            }
+        long currentHourSlotMillis = (System.currentTimeMillis() / 3_600_000L) * 3_600_000L;
+        LocalFile graphFile = new LocalFile(LocalFile.Directory.CDN, String.format("stockmarket/%d.png", currentStock.getId()));
+        if ((graphFile.exists() && currentHourSlotMillis <= graphFile.lastModified()) || !Program.productionMode()) {
+            return graphFile.cdnGetUrl();
         } else {
-            return ExternalLinks.LAWLIET_WEBSITE;
+            InputStream is = StockMarketGraphics.createImageGraph(currentStock).get();
+            return FileUtil.writeInputStreamToFile(is, graphFile);
         }
     }
 
