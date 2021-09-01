@@ -61,7 +61,10 @@ public class RedditCommand extends Command implements OnAlertListener {
             return false;
         } else {
             RedditPost post;
-            post = redditDownloader.getPost(getLocale(), args);
+            int errors = 0;
+            do {
+                post = redditDownloader.getPost(getLocale(), args);
+            } while (++errors < 5 && (post == null || (post.isNsfw() && !event.getChannel().isNSFW())));
 
             if (post != null) {
                 if (post.isNsfw() && !event.getChannel().isNSFW()) {
