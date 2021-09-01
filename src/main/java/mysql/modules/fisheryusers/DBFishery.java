@@ -38,10 +38,10 @@ public class DBFishery extends DBMapCache<Long, FisheryGuildData> {
         return fisheryGuildBean;
     }
 
-    private ArrayList<Long> getRoleIds(long serverId) {
+    private List<Long> getRoleIds(long serverId) {
         return new DBDataLoad<Long>("PowerPlantRoles", "roleId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addRoleId(long serverId, long roleId) {
@@ -58,10 +58,10 @@ public class DBFishery extends DBMapCache<Long, FisheryGuildData> {
         });
     }
 
-    private ArrayList<Long> getIgnoredChannelIds(long serverId) {
+    private List<Long> getIgnoredChannelIds(long serverId) {
         return new DBDataLoad<Long>("PowerPlantIgnoredChannels", "channelId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addIgnoredChannelId(long serverId, long channelId) {

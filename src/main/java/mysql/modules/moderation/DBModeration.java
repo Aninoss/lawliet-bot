@@ -1,9 +1,11 @@
 package mysql.modules.moderation;
 
 import java.sql.Types;
+import java.util.List;
 import java.util.Optional;
-import mysql.MySQLManager;
+import mysql.DBDataLoad;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBModeration extends DBObserverMapCache<Long, ModerationData> {
 
@@ -18,7 +20,7 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationData> {
 
     @Override
     protected ModerationData load(Long serverId) throws Exception {
-        return MySQLManager.get(
+        ModerationData moderationData = MySQLManager.get(
                 "SELECT channelId, question, muteRoleId, autoKick, autoBan, autoMute, autoKickDays, autoBanDays, autoMuteDays, autoBanDuration, autoMuteDuration FROM Moderation WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
@@ -35,7 +37,8 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationData> {
                                 resultSet.getInt(8),
                                 resultSet.getInt(9),
                                 resultSet.getInt(10),
-                                resultSet.getInt(11)
+                                resultSet.getInt(11),
+                                getJailRoles(serverId)
                         );
                     } else {
                         return new ModerationData(
@@ -50,11 +53,18 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationData> {
                                 0,
                                 0,
                                 0,
-                                0
+                                0,
+                                getJailRoles(serverId)
                         );
                     }
                 }
         );
+
+        moderationData.getJailRoleIds()
+                .addListAddListener(list -> list.forEach(roleId -> addJailRole(serverId, roleId)))
+                .addListRemoveListener(list -> list.forEach(roleId -> removeJailRole(serverId, roleId)));
+
+        return moderationData;
     }
 
     @Override
@@ -86,6 +96,26 @@ public class DBModeration extends DBObserverMapCache<Long, ModerationData> {
             preparedStatement.setInt(10, moderationBean.getAutoMuteDays());
             preparedStatement.setInt(11, moderationBean.getAutoBanDuration());
             preparedStatement.setInt(12, moderationBean.getAutoMuteDuration());
+        });
+    }
+
+    private List<Long> getJailRoles(long serverId) {
+        return new DBDataLoad<Long>("JailRoles", "roleId", "serverId = ?",
+                preparedStatement -> preparedStatement.setLong(1, serverId)
+        ).getList(resultSet -> resultSet.getLong(1));
+    }
+
+    private void addJailRole(long serverId, long roleId) {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO JailRoles (serverId, roleId) VALUES (?, ?);", preparedStatement -> {
+            preparedStatement.setLong(1, serverId);
+            preparedStatement.setLong(2, roleId);
+        });
+    }
+
+    private void removeJailRole(long serverId, long roleId) {
+        MySQLManager.asyncUpdate("DELETE FROM JailRoles WHERE serverId = ? AND roleId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, serverId);
+            preparedStatement.setLong(2, roleId);
         });
     }
 

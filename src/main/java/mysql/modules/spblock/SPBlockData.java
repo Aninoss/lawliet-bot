@@ -1,9 +1,8 @@
 package mysql.modules.spblock;
 
-import java.util.ArrayList;
+import java.util.List;
 import core.CustomObservableList;
 import mysql.DataWithGuild;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class SPBlockData extends DataWithGuild {
 
@@ -11,9 +10,13 @@ public class SPBlockData extends DataWithGuild {
 
     private boolean active;
     private ActionList action;
-    private final CustomObservableList<Long> ignoredUserIds, ignoredChannelIds, logReceiverUserIds;
+    private final CustomObservableList<Long> ignoredUserIds;
+    private final CustomObservableList<Long> ignoredChannelIds;
+    private final CustomObservableList<Long> logReceiverUserIds;
 
-    public SPBlockData(long serverId, boolean active, ActionList action, @NonNull ArrayList<Long> ignoredUserIds, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> logReceiverUserIds) {
+    public SPBlockData(long serverId, boolean active, ActionList action, List<Long> ignoredUserIds,
+                       List<Long> ignoredChannelIds, List<Long> logReceiverUserIds
+    ) {
         super(serverId);
         this.active = active;
         this.action = action;

@@ -4,9 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 import core.MainLogger;
 import mysql.interfaces.SQLConsumer;
 import mysql.interfaces.SQLFunction;
@@ -37,7 +35,7 @@ public class DBDataLoad<T> {
         }
     }
 
-    public ArrayList<T> getArrayList(SQLFunction<ResultSet, T> function) {
+    public List<T> getList(SQLFunction<ResultSet, T> function) {
         try (ResultSet resultSet = preparedStatement.getResultSet()) {
             ArrayList<T> list = new ArrayList<>();
 
@@ -62,7 +60,7 @@ public class DBDataLoad<T> {
         }
     }
 
-    public <U> HashMap<U, T> getHashMap(SQLFunction<T, U> getKeyFunction, SQLFunction<ResultSet, T> function) {
+    public <U> Map<U, T> getMap(SQLFunction<T, U> getKeyFunction, SQLFunction<ResultSet, T> function) {
         try (ResultSet resultSet = preparedStatement.getResultSet()) {
             HashMap<U, T> map = new HashMap<>();
 

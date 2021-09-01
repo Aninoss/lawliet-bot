@@ -1,12 +1,12 @@
 package mysql.modules.reminders;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBDataLoadAll;
-import mysql.MySQLManager;
 import mysql.DBMapCache;
+import mysql.MySQLManager;
 
 public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, ReminderData>> {
 
@@ -21,9 +21,9 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
 
     @Override
     protected CustomObservableMap<Long, ReminderData> load(Long guildId) throws Exception {
-        HashMap<Long, ReminderData> remindersMap = new DBDataLoad<ReminderData>("Reminders", "id, serverId, sourceChannelId, channelId, time, message, messageId", "serverId = ?",
+        Map<Long, ReminderData> remindersMap = new DBDataLoad<ReminderData>("Reminders", "id, serverId, sourceChannelId, channelId, time, message, messageId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
-        ).getHashMap(
+        ).getMap(
                 ReminderData::getId,
                 resultSet -> {
                     long serverId = resultSet.getLong(2);
@@ -49,7 +49,7 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
 
     public List<ReminderData> retrieveAll() {
         return new DBDataLoadAll<ReminderData>("Reminders", "id, serverId, sourceChannelId, channelId, time, message, messageId")
-                .getArrayList(
+                .getList(
                         resultSet -> {
                             long serverId = resultSet.getLong(2);
                             return new ReminderData(

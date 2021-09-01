@@ -1,13 +1,12 @@
 package mysql.modules.ticket;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import core.CustomObservableList;
 import core.CustomObservableMap;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class TicketData extends DataWithGuild {
 
@@ -17,7 +16,9 @@ public class TicketData extends DataWithGuild {
     private final CustomObservableList<Long> staffRoleIds;
     private final CustomObservableMap<Long, TicketChannel> ticketChannels;
 
-    public TicketData(long serverId, Long channelId, int counter, boolean memberCanClose, @NonNull ArrayList<Long> staffRoleIds, @NonNull HashMap<Long, TicketChannel> ticketChannels) {
+    public TicketData(long serverId, Long channelId, int counter, boolean memberCanClose,
+                      List<Long> staffRoleIds, Map<Long, TicketChannel> ticketChannels
+    ) {
         super(serverId);
         this.channelId = channelId;
         this.counter = counter;

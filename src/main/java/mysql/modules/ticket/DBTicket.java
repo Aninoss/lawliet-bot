@@ -1,12 +1,12 @@
 package mysql.modules.ticket;
 
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBTicket extends DBObserverMapCache<Long, TicketData> {
 
@@ -75,10 +75,10 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
         });
     }
 
-    private HashMap<Long, TicketChannel> getTicketChannels(long serverId) {
+    private Map<Long, TicketChannel> getTicketChannels(long serverId) {
         return new DBDataLoad<TicketChannel>("TicketOpenChannel", "channelId, userId, messageChannelId, messageMessageId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getHashMap(
+        ).getMap(
                 TicketChannel::getTextChannelId,
                 resultSet -> new TicketChannel(
                         serverId,
@@ -107,10 +107,10 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
         });
     }
 
-    private ArrayList<Long> getStaffRoles(long serverId) {
+    private List<Long> getStaffRoles(long serverId) {
         return new DBDataLoad<Long>("TicketStaffRole", "roleId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addStaffRole(long serverId, long roleId) {

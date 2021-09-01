@@ -2,11 +2,13 @@ package mysql.modules.autochannel;
 
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import mysql.DBDataLoad;
 import mysql.DBKeySetLoad;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelData> {
 
@@ -41,7 +43,7 @@ public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelData> {
                                 false,
                                 "%VCName [%Creator]",
                                 false,
-                                new ArrayList<>()
+                                Collections.emptyList()
                         );
                     }
                 });
@@ -71,10 +73,10 @@ public class DBAutoChannel extends DBObserverMapCache<Long, AutoChannelData> {
         });
     }
 
-    private ArrayList<Long> getChildChannels(long serverId) {
+    private List<Long> getChildChannels(long serverId) {
         return new DBDataLoad<Long>("AutoChannelChildChannels", "channelId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addChildChannel(long serverId, long channelId) {

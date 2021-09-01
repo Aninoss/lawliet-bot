@@ -3,14 +3,14 @@ package mysql.modules.servermute;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBDataLoadAll;
-import mysql.MySQLManager;
 import mysql.DBMapCache;
+import mysql.MySQLManager;
 
 public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, ServerMuteData>> {
 
@@ -25,9 +25,9 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
 
     @Override
     protected CustomObservableMap<Long, ServerMuteData> load(Long guildId) throws Exception {
-        HashMap<Long, ServerMuteData> serverMuteMap = new DBDataLoad<ServerMuteData>("ServerMute", "serverId, userId, expires", "serverId = ?",
+        Map<Long, ServerMuteData> serverMuteMap = new DBDataLoad<ServerMuteData>("ServerMute", "serverId, userId, expires", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
-        ).getHashMap(
+        ).getMap(
                 ServerMuteData::getMemberId,
                 resultSet -> {
                     Timestamp timestamp = resultSet.getTimestamp(3);
@@ -47,7 +47,7 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
 
     public List<ServerMuteData> retrieveAll() {
         return new DBDataLoadAll<ServerMuteData>("ServerMute", "serverId, userId, expires")
-                .getArrayList(
+                .getList(
                         resultSet -> {
                             long serverId = resultSet.getLong(1);
                             Timestamp timestamp = resultSet.getTimestamp(3);

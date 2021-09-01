@@ -1,9 +1,9 @@
 package mysql.modules.autowork;
 
-import java.util.ArrayList;
+import java.util.List;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBSingleCache;
+import mysql.MySQLManager;
 
 public class DBAutoWork extends DBSingleCache<AutoWorkData> {
 
@@ -18,8 +18,8 @@ public class DBAutoWork extends DBSingleCache<AutoWorkData> {
 
     @Override
     protected AutoWorkData loadBean() throws Exception {
-        ArrayList<Long> autoWorkList = new DBDataLoad<Long>("AutoWork", "userId", "active = 1")
-                .getArrayList(resultSet -> resultSet.getLong(1));
+        List<Long> autoWorkList = new DBDataLoad<Long>("AutoWork", "userId", "active = 1")
+                .getList(resultSet -> resultSet.getLong(1));
 
         AutoWorkData autoWorkData = new AutoWorkData(autoWorkList);
         autoWorkData.getUserList().addListAddListener(list -> list.forEach(this::addAutoWork))

@@ -1,12 +1,11 @@
 package mysql.modules.suggestions;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import core.CustomObservableMap;
 import modules.suggestions.SuggestionMessage;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class SuggestionsData extends DataWithGuild {
 
@@ -14,7 +13,7 @@ public class SuggestionsData extends DataWithGuild {
     private boolean active;
     private Long channelId;
 
-    public SuggestionsData(long serverId, boolean active, Long channelId, @NonNull HashMap<Long, SuggestionMessage> messages) {
+    public SuggestionsData(long serverId, boolean active, Long channelId, Map<Long, SuggestionMessage> messages) {
         super(serverId);
         this.messages = new CustomObservableMap<>(messages);
         this.active = active;

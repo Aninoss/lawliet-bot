@@ -1,9 +1,12 @@
 package mysql.modules.moderation;
 
+import java.util.List;
 import java.util.Optional;
+import core.CustomObservableList;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ModerationData extends DataWithGuild {
 
@@ -18,8 +21,12 @@ public class ModerationData extends DataWithGuild {
     private int autoMuteDays;
     private int autoBanDuration;
     private int autoMuteDuration;
+    private final CustomObservableList<Long> jailRoleIds;
 
-    public ModerationData(long serverId, Long announcementChannelId, boolean question, Long muteRoleId, int autoKick, int autoBan, int autoMute, int autoKickDays, int autoBanDays, int autoMuteDays, int autoBanDuration, int autoMuteDuration) {
+    public ModerationData(long serverId, Long announcementChannelId, boolean question, Long muteRoleId, int autoKick,
+                          int autoBan, int autoMute, int autoKickDays, int autoBanDays, int autoMuteDays,
+                          int autoBanDuration, int autoMuteDuration, @NonNull List<Long> jailRoleIds
+    ) {
         super(serverId);
         this.announcementChannelId = announcementChannelId;
         this.question = question;
@@ -32,6 +39,7 @@ public class ModerationData extends DataWithGuild {
         this.autoMuteDays = autoMuteDays;
         this.autoBanDuration = autoBanDuration;
         this.autoMuteDuration = autoMuteDuration;
+        this.jailRoleIds = new CustomObservableList<>(jailRoleIds);
     }
 
     public Optional<Long> getAnnouncementChannelId() {
@@ -135,6 +143,10 @@ public class ModerationData extends DataWithGuild {
             setChanged();
             notifyObservers();
         }
+    }
+
+    public CustomObservableList<Long> getJailRoleIds() {
+        return jailRoleIds;
     }
 
 }

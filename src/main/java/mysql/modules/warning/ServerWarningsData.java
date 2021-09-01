@@ -2,20 +2,18 @@ package mysql.modules.warning;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.assets.MemberAsset;
 import mysql.DataWithGuild;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ServerWarningsData extends DataWithGuild implements MemberAsset {
 
     private final long memberId;
     private final CustomObservableList<ServerWarningSlot> warnings;
 
-    public ServerWarningsData(long serverId, long memberId, @NonNull ArrayList<ServerWarningSlot> warnings) {
+    public ServerWarningsData(long serverId, long memberId, List<ServerWarningSlot> warnings) {
         super(serverId);
         this.memberId = memberId;
         this.warnings = new CustomObservableList<>(warnings);

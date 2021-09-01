@@ -6,9 +6,11 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-import core.*;
+import core.CustomObservableList;
+import core.CustomObservableMap;
+import core.FileManager;
+import core.LocalFile;
 import javafx.util.Pair;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class SurveyData extends Observable {
 
@@ -18,8 +20,8 @@ public class SurveyData extends Observable {
     private final CustomObservableMap<Pair<Long, Long>, SurveySecondVote> secondVotes; /* Pair: serverId, userId */
     private final CustomObservableList<Long> notificationUserIds;
 
-    public SurveyData(int surveyId, LocalDate startDate, @NonNull HashMap<Long, SurveyFirstVote> firstVotes,
-                      @NonNull HashMap<Pair<Long, Long>, SurveySecondVote> secondVotes, @NonNull ArrayList<Long> notificationUserIds) {
+    public SurveyData(int surveyId, LocalDate startDate, Map<Long, SurveyFirstVote> firstVotes,
+                      Map<Pair<Long, Long>, SurveySecondVote> secondVotes, List<Long> notificationUserIds) {
         this.surveyId = surveyId;
         this.startDate = startDate;
         this.firstVotes = new CustomObservableMap<>(firstVotes);

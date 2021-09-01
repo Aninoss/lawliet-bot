@@ -1,15 +1,14 @@
 package mysql.modules.autoclaim;
 
-import java.util.ArrayList;
+import java.util.List;
 import core.CustomObservableList;
 import core.cache.PatreonCache;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class AutoClaimData {
 
     private final CustomObservableList<Long> userList;
 
-    public AutoClaimData(@NonNull ArrayList<Long> userList) {
+    public AutoClaimData(List<Long> userList) {
         this.userList = new CustomObservableList<>(userList);
     }
 

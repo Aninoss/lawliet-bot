@@ -13,7 +13,6 @@ import javafx.util.Pair;
 import mysql.RedisManager;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Role;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.Tuple;
@@ -33,7 +32,7 @@ public class FisheryGuildData implements GuildAsset {
             .expireAfterWrite(Duration.ofMinutes(1))
             .build();
 
-    public FisheryGuildData(long guildId, @NonNull ArrayList<Long> ignoredChannelIds, @NonNull ArrayList<Long> roleIds) {
+    public FisheryGuildData(long guildId, List<Long> ignoredChannelIds, List<Long> roleIds) {
         this.guildId = guildId;
         this.ignoredChannelIds = new CustomObservableList<>(ignoredChannelIds);
         this.roleIds = new CustomObservableList<>(roleIds);

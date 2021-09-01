@@ -1,9 +1,9 @@
 package mysql.modules.nsfwfilter;
 
-import java.util.ArrayList;
+import java.util.List;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBNSFWFilters extends DBObserverMapCache<Long, NSFWFiltersData> {
 
@@ -34,10 +34,10 @@ public class DBNSFWFilters extends DBObserverMapCache<Long, NSFWFiltersData> {
     protected void save(NSFWFiltersData nsfwFiltersBean) {
     }
 
-    private ArrayList<String> getKeywords(long serverId) {
+    private List<String> getKeywords(long serverId) {
         return new DBDataLoad<String>("NSFWFilter", "keyword", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getString(1));
+        ).getList(resultSet -> resultSet.getString(1));
     }
 
     private void addKeyword(long serverId, String keyword) {

@@ -1,9 +1,9 @@
 package mysql.modules.upvotes;
 
-import java.util.HashMap;
+import java.util.Map;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBSingleCache;
+import mysql.MySQLManager;
 
 public class DBUpvotes extends DBSingleCache<UpvotesData> {
 
@@ -18,8 +18,8 @@ public class DBUpvotes extends DBSingleCache<UpvotesData> {
 
     @Override
     protected UpvotesData loadBean() throws Exception {
-        HashMap<Long, UpvoteSlot> upvoteMap = new DBDataLoad<UpvoteSlot>("Upvotes", "userId, lastDate", "1")
-                .getHashMap(
+        Map<Long, UpvoteSlot> upvoteMap = new DBDataLoad<UpvoteSlot>("Upvotes", "userId, lastDate", "1")
+                .getMap(
                         UpvoteSlot::getUserId,
                         resultSet -> new UpvoteSlot(
                                 resultSet.getLong(1),

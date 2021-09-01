@@ -1,16 +1,15 @@
 package mysql.modules.commandmanagement;
 
-import java.util.ArrayList;
+import java.util.List;
 import commands.Command;
 import core.CustomObservableList;
 import mysql.DataWithGuild;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class CommandManagementData extends DataWithGuild {
 
     private final CustomObservableList<String> switchedOffElements;
 
-    public CommandManagementData(long serverId, @NonNull ArrayList<String> switchedOffElements) {
+    public CommandManagementData(long serverId, List<String> switchedOffElements) {
         super(serverId);
         this.switchedOffElements = new CustomObservableList<>(switchedOffElements);
     }

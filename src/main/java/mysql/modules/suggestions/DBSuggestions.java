@@ -1,12 +1,13 @@
 package mysql.modules.suggestions;
 
 import java.sql.Types;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import modules.suggestions.SuggestionMessage;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
 
@@ -37,7 +38,7 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
                                 serverId,
                                 false,
                                 null,
-                                new HashMap<>()
+                                Collections.emptyMap()
                         );
                     }
                 }
@@ -65,10 +66,10 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
         });
     }
 
-    private HashMap<Long, SuggestionMessage> getSuggestionMessages(long serverId) {
+    private Map<Long, SuggestionMessage> getSuggestionMessages(long serverId) {
         return new DBDataLoad<SuggestionMessage>("SuggestionMessages", "messageId, content, author", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getHashMap(
+        ).getMap(
                 SuggestionMessage::getMessageId,
                 resultSet -> new SuggestionMessage(
                         serverId,

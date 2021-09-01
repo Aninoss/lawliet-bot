@@ -2,15 +2,14 @@ package mysql.modules.upvotes;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
+import java.util.Map;
 import core.CustomObservableMap;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class UpvotesData {
 
     private final CustomObservableMap<Long, UpvoteSlot> upvoteMap;
 
-    public UpvotesData(@NonNull HashMap<Long, UpvoteSlot> lastUpvote) {
+    public UpvotesData(Map<Long, UpvoteSlot> lastUpvote) {
         this.upvoteMap = new CustomObservableMap<>(lastUpvote);
     }
 

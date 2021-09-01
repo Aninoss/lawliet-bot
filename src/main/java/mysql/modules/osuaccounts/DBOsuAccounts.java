@@ -1,10 +1,10 @@
 package mysql.modules.osuaccounts;
 
-import java.util.HashMap;
+import java.util.Map;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBSingleCache;
+import mysql.MySQLManager;
 
 public class DBOsuAccounts extends DBSingleCache<CustomObservableMap<Long, OsuAccountData>> {
 
@@ -19,8 +19,8 @@ public class DBOsuAccounts extends DBSingleCache<CustomObservableMap<Long, OsuAc
 
     @Override
     protected CustomObservableMap<Long, OsuAccountData> loadBean() throws Exception {
-        HashMap<Long, OsuAccountData> osuMap = new DBDataLoad<OsuAccountData>("OsuAccounts", "userId, osuId", "1")
-                .getHashMap(OsuAccountData::getUserId, resultSet -> new OsuAccountData(resultSet.getLong(1), resultSet.getLong(2)));
+        Map<Long, OsuAccountData> osuMap = new DBDataLoad<OsuAccountData>("OsuAccounts", "userId, osuId", "1")
+                .getMap(OsuAccountData::getUserId, resultSet -> new OsuAccountData(resultSet.getLong(1), resultSet.getLong(2)));
 
         return new CustomObservableMap<>(osuMap)
                 .addMapAddListener(this::addOsuAccount)

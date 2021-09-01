@@ -1,9 +1,9 @@
 package mysql.modules.bannedusers;
 
-import java.util.ArrayList;
+import java.util.List;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBSingleCache;
+import mysql.MySQLManager;
 
 public class DBBannedUsers extends DBSingleCache<BannedUsersData> {
 
@@ -26,9 +26,9 @@ public class DBBannedUsers extends DBSingleCache<BannedUsersData> {
         return bannedUsersData;
     }
 
-    private ArrayList<Long> getUserIds() {
+    private List<Long> getUserIds() {
         return new DBDataLoad<Long>("BannedUsers", "userId", "1")
-                .getArrayList(resultSet -> resultSet.getLong(1));
+                .getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addUserId(long userId) {

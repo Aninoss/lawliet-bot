@@ -1,9 +1,8 @@
 package mysql.modules.bannedwords;
 
-import java.util.ArrayList;
+import java.util.List;
 import core.CustomObservableList;
 import mysql.DataWithGuild;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class BannedWordsData extends DataWithGuild {
 
@@ -11,7 +10,9 @@ public class BannedWordsData extends DataWithGuild {
     private final CustomObservableList<Long> ignoredUserIds, logReceiverUserIds;
     private final CustomObservableList<String> words;
 
-    public BannedWordsData(long serverId, boolean active, @NonNull ArrayList<Long> ignoredUserIds, @NonNull ArrayList<Long> logReceiverUserIds, @NonNull ArrayList<String> words) {
+    public BannedWordsData(long serverId, boolean active, List<Long> ignoredUserIds, List<Long> logReceiverUserIds,
+                           List<String> words
+    ) {
         super(serverId);
         this.active = active;
         this.ignoredUserIds = new CustomObservableList<>(ignoredUserIds);

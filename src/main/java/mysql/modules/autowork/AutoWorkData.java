@@ -1,6 +1,6 @@
 package mysql.modules.autowork;
 
-import java.util.ArrayList;
+import java.util.List;
 import core.CustomObservableList;
 import core.cache.PatreonCache;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -9,7 +9,7 @@ public class AutoWorkData {
 
     private final CustomObservableList<Long> userList;
 
-    public AutoWorkData(@NonNull ArrayList<Long> userList) {
+    public AutoWorkData(@NonNull List<Long> userList) {
         this.userList = new CustomObservableList<>(userList);
     }
 

@@ -1,12 +1,12 @@
 package mysql.modules.giveaway;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBDataLoadAll;
-import mysql.MySQLManager;
 import mysql.DBMapCache;
+import mysql.MySQLManager;
 
 public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, GiveawayData>> {
 
@@ -21,9 +21,9 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
 
     @Override
     protected CustomObservableMap<Long, GiveawayData> load(Long guildId) {
-        HashMap<Long, GiveawayData> giveawaysMapRaw = new DBDataLoad<GiveawayData>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active", "serverId = ?",
+        Map<Long, GiveawayData> giveawaysMapRaw = new DBDataLoad<GiveawayData>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
-        ).getHashMap(
+        ).getMap(
                 GiveawayData::getMessageId,
                 resultSet -> new GiveawayData(
                         resultSet.getLong(1),
@@ -50,7 +50,7 @@ public class DBGiveaway extends DBMapCache<Long, CustomObservableMap<Long, Givea
 
     public List<GiveawayData> retrieveAll() {
         return new DBDataLoadAll<GiveawayData>("Giveaways", "serverId, channelId, messageId, emoji, winners, start, durationMinutes, title, description, imageUrl, active")
-                .getArrayList(
+                .getList(
                         resultSet -> new GiveawayData(
                                 resultSet.getLong(1),
                                 resultSet.getLong(2),

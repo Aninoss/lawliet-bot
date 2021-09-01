@@ -1,12 +1,11 @@
 package mysql.modules.autochannel;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import core.CustomObservableList;
 import core.MainLogger;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class AutoChannelData extends DataWithGuild {
 
@@ -15,7 +14,9 @@ public class AutoChannelData extends DataWithGuild {
     private final CustomObservableList<Long> childChannels;
     private Long parentChannelId;
 
-    public AutoChannelData(long serverId, Long parentChannelId, boolean active, String nameMask, boolean locked, @NonNull ArrayList<Long> childChannels) {
+    public AutoChannelData(long serverId, Long parentChannelId, boolean active, String nameMask, boolean locked,
+                           List<Long> childChannels
+    ) {
         super(serverId);
         this.parentChannelId = parentChannelId;
         this.active = active;

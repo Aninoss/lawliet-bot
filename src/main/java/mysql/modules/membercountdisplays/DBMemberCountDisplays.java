@@ -1,9 +1,9 @@
 package mysql.modules.membercountdisplays;
 
-import java.util.HashMap;
+import java.util.Map;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountData> {
 
@@ -34,10 +34,10 @@ public class DBMemberCountDisplays extends DBObserverMapCache<Long, MemberCountD
     protected void save(MemberCountData memberCountBean) {
     }
 
-    private HashMap<Long, MemberCountDisplaySlot> getMemberCountBeanSlot(long serverId) {
+    private Map<Long, MemberCountDisplaySlot> getMemberCountBeanSlot(long serverId) {
         return new DBDataLoad<MemberCountDisplaySlot>("MemberCountDisplays", "vcId, name", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getHashMap(MemberCountDisplaySlot::getVoiceChannelId, resultSet -> new MemberCountDisplaySlot(serverId, resultSet.getLong(1), resultSet.getString(2)));
+        ).getMap(MemberCountDisplaySlot::getVoiceChannelId, resultSet -> new MemberCountDisplaySlot(serverId, resultSet.getLong(1), resultSet.getString(2)));
     }
 
     private void addMemberCountBeanSlot(long serverId, MemberCountDisplaySlot memberCountDisplaySlot) {

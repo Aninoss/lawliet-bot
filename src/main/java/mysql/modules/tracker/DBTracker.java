@@ -1,15 +1,15 @@
 package mysql.modules.tracker;
 
 import java.sql.Types;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBDataLoadAll;
-import mysql.MySQLManager;
 import mysql.DBMapCache;
+import mysql.MySQLManager;
 
 public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, TrackerData>> {
 
@@ -24,9 +24,9 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
 
     @Override
     protected CustomObservableMap<Integer, TrackerData> load(Long guildId) {
-        HashMap<Integer, TrackerData> trackersMap = new DBDataLoad<TrackerData>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime", "serverId = ?",
+        Map<Integer, TrackerData> trackersMap = new DBDataLoad<TrackerData>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
-        ).getHashMap(
+        ).getMap(
                 TrackerData::hashCode,
                 resultSet -> new TrackerData(
                         resultSet.getLong(1),
@@ -52,7 +52,7 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
 
     public List<TrackerData> retrieveAll() {
         return new DBDataLoadAll<TrackerData>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime")
-                .getArrayList(
+                .getList(
                         resultSet -> new TrackerData(
                                 resultSet.getLong(1),
                                 resultSet.getLong(2),

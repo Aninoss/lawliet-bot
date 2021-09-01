@@ -1,10 +1,10 @@
 package mysql.modules.staticreactionmessages;
 
-import java.util.HashMap;
+import java.util.Map;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBMapCache;
+import mysql.MySQLManager;
 
 public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableMap<Long, StaticReactionMessageData>> {
 
@@ -19,12 +19,12 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
 
     @Override
     protected CustomObservableMap<Long, StaticReactionMessageData> load(Long guildId) throws Exception {
-        HashMap<Long, StaticReactionMessageData> staticReactionMap = new DBDataLoad<StaticReactionMessageData>(
+        Map<Long, StaticReactionMessageData> staticReactionMap = new DBDataLoad<StaticReactionMessageData>(
                 "StaticReactionMessages",
                 "serverId, channelId, messageId, command",
                 "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
-        ).getHashMap(
+        ).getMap(
                 StaticReactionMessageData::getMessageId,
                 resultSet -> new StaticReactionMessageData(
                         resultSet.getLong(1),

@@ -1,9 +1,9 @@
 package mysql.modules.commandmanagement;
 
-import java.util.ArrayList;
+import java.util.List;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBCommandManagement extends DBObserverMapCache<Long, CommandManagementData> {
 
@@ -34,10 +34,10 @@ public class DBCommandManagement extends DBObserverMapCache<Long, CommandManagem
     protected void save(CommandManagementData commandManagementBean) {
     }
 
-    private ArrayList<String> getSwitchedOffElements(long serverId) {
+    private List<String> getSwitchedOffElements(long serverId) {
         return new DBDataLoad<String>("CMOff", "element", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getString(1));
+        ).getList(resultSet -> resultSet.getString(1));
     }
 
     private void addSwitchedOffElement(long serverId, String element) {

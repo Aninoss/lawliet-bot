@@ -1,13 +1,13 @@
 package mysql.modules.subs;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import com.google.common.cache.CacheBuilder;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBMapCache;
+import mysql.MySQLManager;
 
 public class DBSubs extends DBMapCache<DBSubs.Command, CustomObservableMap<Long, SubSlot>> {
 
@@ -30,9 +30,9 @@ public class DBSubs extends DBMapCache<DBSubs.Command, CustomObservableMap<Long,
 
     @Override
     protected CustomObservableMap<Long, SubSlot> load(Command command) throws Exception {
-        HashMap<Long, SubSlot> subMap = new DBDataLoad<SubSlot>("Subs", "memberId, locale, errors", "command = ?",
+        Map<Long, SubSlot> subMap = new DBDataLoad<SubSlot>("Subs", "memberId, locale, errors", "command = ?",
                 preparedStatement -> preparedStatement.setString(1, command.name().toLowerCase())
-        ).getHashMap(
+        ).getMap(
                 SubSlot::getUserId,
                 resultSet -> {
                     return new SubSlot(

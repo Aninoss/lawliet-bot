@@ -1,13 +1,11 @@
 package mysql.modules.survey;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
+import java.util.*;
 import javafx.util.Pair;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
 
@@ -40,9 +38,9 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
                         return new SurveyData(
                                 surveyId,
                                 resultSet.getDate(1).toLocalDate(),
-                                new HashMap<>(),
-                                new HashMap<>(),
-                                new ArrayList<>()
+                                Collections.emptyMap(),
+                                Collections.emptyMap(),
+                                Collections.emptyList()
                         );
                     }
                 }
@@ -99,10 +97,10 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
     protected void save(SurveyData surveyData) {
     }
 
-    private HashMap<Long, SurveyFirstVote> getFirstVotes(int surveyId) {
+    private Map<Long, SurveyFirstVote> getFirstVotes(int surveyId) {
         return new DBDataLoad<SurveyFirstVote>("SurveyVotes", "userId, personalVote, locale", "surveyId = ?",
                 preparedStatement -> preparedStatement.setInt(1, surveyId)
-        ).getHashMap(SurveyFirstVote::getUserId, resultSet ->
+        ).getMap(SurveyFirstVote::getUserId, resultSet ->
                 new SurveyFirstVote(
                         resultSet.getLong(1),
                         resultSet.getByte(2),
@@ -127,10 +125,10 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
         });
     }
 
-    private HashMap<Pair<Long, Long>, SurveySecondVote> getSecondVotes(int surveyId) {
+    private Map<Pair<Long, Long>, SurveySecondVote> getSecondVotes(int surveyId) {
         return new DBDataLoad<SurveySecondVote>("SurveyMajorityVotes", "serverId, userId, majorityVote", "surveyId = ?",
                 preparedStatement -> preparedStatement.setInt(1, surveyId)
-        ).getHashMap(secondVote -> new Pair<>(secondVote.getGuildId(), secondVote.getMemberId()), resultSet -> new SurveySecondVote(resultSet.getLong(1), resultSet.getLong(2), resultSet.getByte(3)));
+        ).getMap(secondVote -> new Pair<>(secondVote.getGuildId(), secondVote.getMemberId()), resultSet -> new SurveySecondVote(resultSet.getLong(1), resultSet.getLong(2), resultSet.getByte(3)));
     }
 
     private void addSecondVote(int surveyId, SurveySecondVote surveySecondVote) {
@@ -150,9 +148,9 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
         });
     }
 
-    private ArrayList<Long> getNotificationUserIds() {
+    private List<Long> getNotificationUserIds() {
         return new DBDataLoad<Long>("SurveyNotifications", "userId", "1")
-                .getArrayList(resultSet -> resultSet.getLong(1));
+                .getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addNotificationUserId(long userId) {

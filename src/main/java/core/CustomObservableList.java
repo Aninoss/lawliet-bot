@@ -14,7 +14,7 @@ public class CustomObservableList<T> extends ObservableListWrapper<T> implements
     private final ArrayList<ListRemoveListener<T>> listRemoveListeners = new ArrayList<>();
     private final ArrayList<ListUpdateListener<T>> listUpdateListeners = new ArrayList<>();
 
-    public CustomObservableList(ArrayList<T> list) {
+    public CustomObservableList(List<T> list) {
         super(list);
         list.forEach(value -> {
             if (value instanceof Observable) ((Observable) value).addObserver(this);

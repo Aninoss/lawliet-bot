@@ -1,9 +1,9 @@
 package mysql.modules.whitelistedchannels;
 
-import java.util.ArrayList;
+import java.util.List;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBWhiteListedChannels extends DBObserverMapCache<Long, WhiteListedChannelsData> {
 
@@ -34,10 +34,10 @@ public class DBWhiteListedChannels extends DBObserverMapCache<Long, WhiteListedC
     protected void save(WhiteListedChannelsData whiteListedChannelsBean) {
     }
 
-    private ArrayList<Long> getChannelIds(long serverId) {
+    private List<Long> getChannelIds(long serverId) {
         return new DBDataLoad<Long>("WhiteListedChannels", "channelId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addChannelId(long serverId, long roleId) {

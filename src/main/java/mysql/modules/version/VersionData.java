@@ -1,6 +1,5 @@
 package mysql.modules.version;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.stream.Collectors;
@@ -10,7 +9,7 @@ public class VersionData extends Observable {
 
     private final CustomObservableList<VersionSlot> slots;
 
-    public VersionData(ArrayList<VersionSlot> slots) {
+    public VersionData(List<VersionSlot> slots) {
         this.slots = new CustomObservableList<>(slots);
     }
 

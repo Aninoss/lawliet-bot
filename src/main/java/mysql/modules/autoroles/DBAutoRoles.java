@@ -1,9 +1,9 @@
 package mysql.modules.autoroles;
 
-import java.util.ArrayList;
+import java.util.List;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBMapCache;
+import mysql.MySQLManager;
 
 public class DBAutoRoles extends DBMapCache<Long, AutoRolesData> {
 
@@ -30,10 +30,10 @@ public class DBAutoRoles extends DBMapCache<Long, AutoRolesData> {
         return autoRolesBean;
     }
 
-    private ArrayList<Long> getRoleIds(long serverId) {
+    private List<Long> getRoleIds(long serverId) {
         return new DBDataLoad<Long>("BasicRole", "roleId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addRoleId(long serverId, long roleId) {

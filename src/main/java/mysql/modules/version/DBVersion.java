@@ -1,9 +1,9 @@
 package mysql.modules.version;
 
-import java.util.ArrayList;
+import java.util.List;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBSingleCache;
+import mysql.MySQLManager;
 
 public class DBVersion extends DBSingleCache<VersionData> {
 
@@ -18,8 +18,8 @@ public class DBVersion extends DBSingleCache<VersionData> {
 
     @Override
     protected VersionData loadBean() {
-        ArrayList<VersionSlot> slots = new DBDataLoad<VersionSlot>("Version", "version, date", "1 ORDER BY date")
-                .getArrayList(
+        List<VersionSlot> slots = new DBDataLoad<VersionSlot>("Version", "version, date", "1 ORDER BY date")
+                .getList(
                         resultSet -> new VersionSlot(
                                 resultSet.getString(1),
                                 resultSet.getTimestamp(2).toInstant()

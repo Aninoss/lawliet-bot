@@ -1,9 +1,6 @@
 package core;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 import java.util.function.Function;
 import com.sun.javafx.collections.ObservableMapWrapper;
 import javafx.collections.MapChangeListener;
@@ -14,7 +11,7 @@ public class CustomObservableMap<T, U> extends ObservableMapWrapper<T, U> implem
     private final ArrayList<MapRemoveListener<T, U>> mapRemoveListeners = new ArrayList<>();
     private final ArrayList<MapUpdateListener<T, U>> mapUpdateListeners = new ArrayList<>();
 
-    public CustomObservableMap(HashMap<T, U> map) {
+    public CustomObservableMap(Map<T, U> map) {
         super(map);
         map.values().forEach(value -> {
             if (value instanceof Observable) ((Observable) value).addObserver(this);

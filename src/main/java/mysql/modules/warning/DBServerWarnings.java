@@ -1,12 +1,12 @@
 package mysql.modules.warning;
 
 import java.sql.Types;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javafx.util.Pair;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, ServerWarningsData> {
 
@@ -38,13 +38,13 @@ public class DBServerWarnings extends DBObserverMapCache<Pair<Long, Long>, Serve
     protected void save(ServerWarningsData serverWarningsBean) {
     }
 
-    private ArrayList<ServerWarningSlot> getWarnings(long serverId, long userId) {
+    private List<ServerWarningSlot> getWarnings(long serverId, long userId) {
         return new DBDataLoad<ServerWarningSlot>("Warnings", "userId, time, requestorUserId, reason", "serverId = ? AND userId = ? ORDER BY time",
                 preparedStatement -> {
                     preparedStatement.setLong(1, serverId);
                     preparedStatement.setLong(2, userId);
                 }
-        ).getArrayList(resultSet -> new ServerWarningSlot(
+        ).getList(resultSet -> new ServerWarningSlot(
                 serverId,
                 resultSet.getLong(1),
                 resultSet.getTimestamp(2).toInstant(),

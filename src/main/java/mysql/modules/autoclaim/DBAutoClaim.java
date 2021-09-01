@@ -1,9 +1,9 @@
 package mysql.modules.autoclaim;
 
-import java.util.ArrayList;
+import java.util.List;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBSingleCache;
+import mysql.MySQLManager;
 
 public class DBAutoClaim extends DBSingleCache<AutoClaimData> {
 
@@ -18,8 +18,8 @@ public class DBAutoClaim extends DBSingleCache<AutoClaimData> {
 
     @Override
     protected AutoClaimData loadBean() throws Exception {
-        ArrayList<Long> autoClaimList = new DBDataLoad<Long>("AutoClaim", "userId", "active = 1")
-                .getArrayList(resultSet -> resultSet.getLong(1));
+        List<Long> autoClaimList = new DBDataLoad<Long>("AutoClaim", "userId", "active = 1")
+                .getList(resultSet -> resultSet.getLong(1));
 
         AutoClaimData autoClaimData = new AutoClaimData(autoClaimList);
         autoClaimData.getUserList().addListAddListener(list -> list.forEach(this::addAutoClaim))

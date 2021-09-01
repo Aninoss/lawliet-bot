@@ -1,9 +1,9 @@
 package mysql.modules.spblock;
 
-import java.util.ArrayList;
+import java.util.List;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
 
@@ -65,10 +65,10 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
         });
     }
 
-    private ArrayList<Long> getIgnoredUsers(long serverId) {
+    private List<Long> getIgnoredUsers(long serverId) {
         return new DBDataLoad<Long>("SPBlockIgnoredUsers", "userId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addIgnoredUser(long serverId, long userId) {
@@ -85,10 +85,10 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
         });
     }
 
-    private ArrayList<Long> getLogReceivers(long serverId) {
+    private List<Long> getLogReceivers(long serverId) {
         return new DBDataLoad<Long>("SPBlockLogRecievers", "userId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addLogReceiver(long serverId, long userId) {
@@ -105,10 +105,10 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
         });
     }
 
-    private ArrayList<Long> getIgnoredChannels(long serverId) {
+    private List<Long> getIgnoredChannels(long serverId) {
         return new DBDataLoad<Long>("SPBlockIgnoredChannels", "channelId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addIgnoredChannels(long serverId, long channelId) {

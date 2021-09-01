@@ -1,9 +1,9 @@
 package mysql.modules.bannedwords;
 
-import java.util.ArrayList;
+import java.util.List;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
+import mysql.MySQLManager;
 
 public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
 
@@ -62,10 +62,10 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
         });
     }
 
-    private ArrayList<Long> getIgnoredUsers(long serverId) {
+    private List<Long> getIgnoredUsers(long serverId) {
         return new DBDataLoad<Long>("BannedWordsIgnoredUsers", "userId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addIgnoredUser(long serverId, long userId) {
@@ -82,10 +82,10 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
         });
     }
 
-    private ArrayList<Long> getLogReceivers(long serverId) {
+    private List<Long> getLogReceivers(long serverId) {
         return new DBDataLoad<Long>("BannedWordsLogRecievers", "userId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getLong(1));
+        ).getList(resultSet -> resultSet.getLong(1));
     }
 
     private void addLogReceiver(long serverId, long userId) {
@@ -102,10 +102,10 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
         });
     }
 
-    private ArrayList<String> getWords(long serverId) {
+    private List<String> getWords(long serverId) {
         return new DBDataLoad<String>("BannedWordsWords", "word", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
-        ).getArrayList(resultSet -> resultSet.getString(1));
+        ).getList(resultSet -> resultSet.getString(1));
     }
 
     private void addWord(long serverId, String word) {

@@ -1,12 +1,12 @@
 package mysql.modules.tempban;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import core.CustomObservableMap;
 import mysql.DBDataLoad;
 import mysql.DBDataLoadAll;
-import mysql.MySQLManager;
 import mysql.DBMapCache;
+import mysql.MySQLManager;
 
 public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBanData>> {
 
@@ -21,9 +21,9 @@ public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBa
 
     @Override
     protected CustomObservableMap<Long, TempBanData> load(Long guildId) throws Exception {
-        HashMap<Long, TempBanData> tempBanMap = new DBDataLoad<TempBanData>("TempBans", "serverId, userId, expires", "serverId = ?",
+        Map<Long, TempBanData> tempBanMap = new DBDataLoad<TempBanData>("TempBans", "serverId, userId, expires", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
-        ).getHashMap(
+        ).getMap(
                 TempBanData::getMemberId,
                 resultSet -> {
                     long serverId = resultSet.getLong(1);
@@ -43,7 +43,7 @@ public class DBTempBan extends DBMapCache<Long, CustomObservableMap<Long, TempBa
 
     public List<TempBanData> retrieveAll() {
         return new DBDataLoadAll<TempBanData>("TempBans", "serverId, userId, expires")
-                .getArrayList(
+                .getList(
                         resultSet -> {
                             long serverId = resultSet.getLong(1);
                             return new TempBanData(
