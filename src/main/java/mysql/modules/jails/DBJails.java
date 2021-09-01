@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import core.CustomObservableMap;
+import core.MainLogger;
 import mysql.*;
 
 public class DBJails extends DBMapCache<Long, CustomObservableMap<Long, JailData>> {
@@ -63,7 +64,7 @@ public class DBJails extends DBMapCache<Long, CustomObservableMap<Long, JailData
     }
 
     private void addJail(JailData jailData) {
-        MySQLManager.asyncUpdate("INSERT IGNORE INTO Jails (serverId, userId, expires) VALUES (?,?,?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Jails (serverId, userId, expires) VALUES (?,?,?);", preparedStatement -> {
             preparedStatement.setLong(1, jailData.getGuildId());
             preparedStatement.setLong(2, jailData.getMemberId());
 
@@ -91,17 +92,28 @@ public class DBJails extends DBMapCache<Long, CustomObservableMap<Long, JailData
     }
 
     private void addJailPreviousRoles(JailData jailData) {
-        try (DBBatch batch = new DBBatch("INSERT IGNORE INTO JailRemainRoles (serverId, userId, roleId) VALUES (?,?,?)")) {
-            for (long roleId : jailData.getPreviousRoleIds()) {
-                batch.add(preparedStatement -> {
-                    preparedStatement.setLong(1, jailData.getGuildId());
-                    preparedStatement.setLong(2, jailData.getMemberId());
-                    preparedStatement.setLong(3, roleId);
-                });
+        try {
+            MySQLManager.update("DELETE FROM JailRemainRoles WHERE serverId = ? AND userId = ?;", preparedStatement -> {
+                preparedStatement.setLong(1, jailData.getGuildId());
+                preparedStatement.setLong(2, jailData.getMemberId());
+            });
+        } catch (SQLException | InterruptedException e) {
+            MainLogger.get().error("SQL Exception", e);
+        }
+
+        if (jailData.getPreviousRoleIds().size() > 0) {
+            try (DBBatch batch = new DBBatch("INSERT IGNORE INTO JailRemainRoles (serverId, userId, roleId) VALUES (?, ?, ?)")) {
+                for (long roleId : jailData.getPreviousRoleIds()) {
+                    batch.add(preparedStatement -> {
+                        preparedStatement.setLong(1, jailData.getGuildId());
+                        preparedStatement.setLong(2, jailData.getMemberId());
+                        preparedStatement.setLong(3, roleId);
+                    });
+                }
+                batch.execute();
+            } catch (SQLException e) {
+                MainLogger.get().error("SQL Exception", e);
             }
-            batch.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
