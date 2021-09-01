@@ -100,6 +100,8 @@ public class CommandContainer {
         commandList.add(WarnRemoveCommand.class);
         commandList.add(MuteCommand.class);
         commandList.add(UnmuteCommand.class);
+        commandList.add(JailCommand.class);
+        commandList.add(UnjailCommand.class);
         commandList.add(InviteFilterCommand.class);
         commandList.add(WordFilterCommand.class);
         commandList.add(ClearCommand.class);

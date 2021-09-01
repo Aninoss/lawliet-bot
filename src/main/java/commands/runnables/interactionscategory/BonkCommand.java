@@ -9,7 +9,7 @@ import commands.runnables.RolePlayAbstract;
         emoji = "🏏",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        aliases = { "lewd", "hornyjail", "horny", "jail" }
+        aliases = { "lewd", "hornyjail", "horny" }
 )
 public class BonkCommand extends RolePlayAbstract {
 

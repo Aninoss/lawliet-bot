@@ -35,7 +35,7 @@ public class ServerMuteScheduler {
         MainScheduler.schedule(expires, "servermute_" + guildId, () -> {
             CustomObservableMap<Long, ServerMuteData> map = DBServerMute.getInstance().retrieve(guildId);
             if (map.containsKey(memberId) &&
-                    map.get(memberId).getExpirationTime().orElse(Instant.now()).getEpochSecond() == expires.getEpochSecond() &&
+                    map.get(memberId).getExpirationTime().orElse(Instant.MIN).getEpochSecond() == expires.getEpochSecond() &&
                     ShardManager.guildIsManaged(guildId)
             ) {
                 onServerMuteExpire(map.get(memberId));

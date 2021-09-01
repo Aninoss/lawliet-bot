@@ -11,7 +11,7 @@ import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import modules.ServerMute;
+import modules.Mute;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -429,7 +429,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                 setOptions(getString("state0_options").split("\n"));
 
                 String content = getString("state0_description");
-                List<TextChannel> leakedChannels = ServerMute.getLeakedChannels(member.getGuild());
+                List<TextChannel> leakedChannels = Mute.getLeakedChannels(member.getGuild());
                 if (leakedChannels.size() > 0) {
                     content += "\n\n" + getString("state0_noteffective", leakedChannels.size() != 1, StringUtil.numToString(leakedChannels.size()), "https://discordhelp.net/mute-user");
                 }

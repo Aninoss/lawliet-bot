@@ -105,7 +105,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnBut
     }
 
     private String getRemainingTimeWork() {
-        Instant nextWork = fisheryMemberData.getNextWork().orElse(Instant.ofEpochSecond(0));
+        Instant nextWork = fisheryMemberData.getNextWork().orElse(Instant.MIN);
         return getRemainingTime(nextWork);
     }
 
@@ -116,7 +116,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnBut
 
     private String getRemainingTimeSurvey() {
         SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
-        Instant nextSurvey = surveyData.getSecondVotes().containsKey(new Pair<>(fisheryMemberData.getGuildId(), fisheryMemberData.getMemberId())) ? TimeUtil.localDateToInstant(surveyData.getNextDate()) : Instant.ofEpochSecond(0);
+        Instant nextSurvey = surveyData.getSecondVotes().containsKey(new Pair<>(fisheryMemberData.getGuildId(), fisheryMemberData.getMemberId())) ? TimeUtil.localDateToInstant(surveyData.getNextDate()) : Instant.MIN;
         return getRemainingTime(nextSurvey);
     }
 

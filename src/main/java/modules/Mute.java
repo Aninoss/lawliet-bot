@@ -2,6 +2,8 @@ package modules;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import core.MemberCacheController;
 import modules.schedulers.ServerMuteScheduler;
@@ -9,10 +11,8 @@ import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.servermute.ServerMuteData;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 
 public class Mute {
 
@@ -55,6 +55,42 @@ public class Mute {
     private static boolean prerequisites(Guild guild, ModerationData moderationBean) {
         Optional<Role> muteRoleOpt = moderationBean.getMuteRole();
         return muteRoleOpt.isPresent() && guild.getSelfMember().canInteract(muteRoleOpt.get());
+    }
+
+    public static List<TextChannel> getLeakedChannels(Guild guild) {
+        ArrayList<TextChannel> leakedChannels = new ArrayList<>();
+        DBModeration.getInstance().retrieve(guild.getIdLong()).getMuteRole().ifPresent(muteRole -> {
+            for (TextChannel channel : guild.getTextChannels()) {
+                PermissionOverride publicOverride = channel.getPermissionOverride(guild.getPublicRole());
+
+                /* ignore channel if no one except for administrators has message read permissions */
+                if (publicOverride != null &&
+                        publicOverride.getDenied().contains(Permission.MESSAGE_READ) &&
+                        channel.getRolePermissionOverrides().stream().noneMatch(o -> o.getAllowed().contains(Permission.MESSAGE_READ))
+                ) {
+                    continue;
+                }
+
+                /* add channel if any overridden role permission allows message write */
+                if (channel.getRolePermissionOverrides().stream().anyMatch(o -> o.getAllowed().contains(Permission.MESSAGE_WRITE))) {
+                    leakedChannels.add(channel);
+                    continue;
+                }
+
+                /* ignore channel if no one except for administrators has message write permissions */
+                if (publicOverride != null && publicOverride.getDenied().contains(Permission.MESSAGE_WRITE)) {
+                    continue;
+                }
+
+                /* add channel if mute role doesn't deny message write permissions */
+                PermissionOverride permissionOverride = channel.getPermissionOverride(muteRole);
+                if (permissionOverride == null || !permissionOverride.getDenied().contains(Permission.MESSAGE_WRITE)) {
+                    leakedChannels.add(channel);
+                }
+            }
+        });
+
+        return leakedChannels;
     }
 
 }
