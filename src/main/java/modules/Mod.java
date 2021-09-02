@@ -26,10 +26,7 @@ import mysql.modules.warning.ServerWarningSlot;
 import mysql.modules.warning.ServerWarningsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 public class Mod {
@@ -59,11 +56,12 @@ public class Mod {
             int autoKickDays = moderationBean.getAutoKickDays();
             int autoBanDays = moderationBean.getAutoBanDays();
             int autoMuteDays = moderationBean.getAutoMuteDays();
+            int autoJailDays = moderationBean.getAutoJailDays();
 
             boolean autoKick = moderationBean.getAutoKick() > 0 && (autoKickDays > 0 ? serverWarningsBean.getAmountLatest(autoKickDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoKick();
             boolean autoBan = moderationBean.getAutoBan() > 0 && (autoBanDays > 0 ? serverWarningsBean.getAmountLatest(autoBanDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoBan();
             boolean autoMute = moderationBean.getAutoMute() > 0 && (autoMuteDays > 0 ? serverWarningsBean.getAmountLatest(autoMuteDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoMute();
-
+            boolean autoJail = moderationBean.getAutoJail() > 0 && (autoJailDays > 0 ? serverWarningsBean.getAmountLatest(autoJailDays, ChronoUnit.DAYS).size() : serverWarningsBean.getWarnings().size()) >= moderationBean.getAutoJail();
 
             if (autoBan &&
                     PermissionCheckRuntime.botHasPermission(locale, ModSettingsCommand.class, guild, Permission.BAN_MEMBERS) &&
@@ -97,6 +95,23 @@ public class Mod {
                 postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildData().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                     guild.kick(target.getId(), TextManager.getString(locale, Category.MODERATION, "mod_autokick")).queue();
                 });
+            }
+
+            if (autoJail &&
+                    member != null &&
+                    !BotPermissionUtil.can(member, Permission.ADMINISTRATOR)
+            ) {
+                List<Role> jailRoles = DBModeration.getInstance().retrieve(guild.getIdLong()).getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
+                if (PermissionCheckRuntime.botCanManageRoles(locale, ModSettingsCommand.class, jailRoles)) {
+                    int duration = moderationBean.getAutoJailDuration();
+                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                            .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autojail"))
+                            .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autojail_template", duration > 0, target.getAsTag(), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
+
+                    postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildData().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
+                        Jail.jail(guild, member, duration, TextManager.getString(locale, Category.MODERATION, "mod_autojail"));
+                    });
+                }
             }
 
             if (autoMute &&

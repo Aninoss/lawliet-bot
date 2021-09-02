@@ -51,9 +51,11 @@ public class Jail {
                 .filter(role -> role.getIdLong() != muteRoleId && !jailRolesAdd.contains(role) && guild.getSelfMember().canInteract(role))
                 .collect(Collectors.toList());
 
-        guild.modifyMemberRoles(member, jailRolesAdd, jailRolesRemove)
-                .reason(reason)
-                .queue();
+        if (guild.getMembers().contains(member)) {
+            guild.modifyMemberRoles(member, jailRolesAdd, jailRolesRemove)
+                    .reason(reason)
+                    .queue();
+        }
 
         return allRolePermissionsFine;
     }

@@ -6,7 +6,6 @@ import core.CustomObservableList;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ModerationData extends DataWithGuild {
 
@@ -16,16 +15,20 @@ public class ModerationData extends DataWithGuild {
     private int autoKick;
     private int autoBan;
     private int autoMute;
+    private int autoJail;
     private int autoKickDays;
     private int autoBanDays;
     private int autoMuteDays;
+    private int autoJailDays;
     private int autoBanDuration;
     private int autoMuteDuration;
+    private int autoJailDuration;
     private final CustomObservableList<Long> jailRoleIds;
 
     public ModerationData(long serverId, Long announcementChannelId, boolean question, Long muteRoleId, int autoKick,
-                          int autoBan, int autoMute, int autoKickDays, int autoBanDays, int autoMuteDays,
-                          int autoBanDuration, int autoMuteDuration, @NonNull List<Long> jailRoleIds
+                          int autoBan, int autoMute, int autoJail, int autoKickDays, int autoBanDays, int autoMuteDays,
+                          int autoJailDays, int autoBanDuration, int autoMuteDuration, int autoJailDuration,
+                          List<Long> jailRoleIds
     ) {
         super(serverId);
         this.announcementChannelId = announcementChannelId;
@@ -34,11 +37,14 @@ public class ModerationData extends DataWithGuild {
         this.autoKick = autoKick;
         this.autoBan = autoBan;
         this.autoMute = autoMute;
+        this.autoJail = autoJail;
         this.autoKickDays = autoKickDays;
         this.autoBanDays = autoBanDays;
         this.autoMuteDays = autoMuteDays;
+        this.autoJailDays = autoJailDays;
         this.autoBanDuration = autoBanDuration;
         this.autoMuteDuration = autoMuteDuration;
+        this.autoJailDuration = autoJailDuration;
         this.jailRoleIds = new CustomObservableList<>(jailRoleIds);
     }
 
@@ -94,6 +100,18 @@ public class ModerationData extends DataWithGuild {
         return autoMuteDuration;
     }
 
+    public int getAutoJail() {
+        return autoJail;
+    }
+
+    public int getAutoJailDays() {
+        return autoJailDays;
+    }
+
+    public int getAutoJailDuration() {
+        return autoJailDuration;
+    }
+
     public void setAnnouncementChannelId(Long announcementChannelId) {
         if (this.announcementChannelId == null || !this.announcementChannelId.equals(announcementChannelId)) {
             this.announcementChannelId = announcementChannelId;
@@ -140,6 +158,16 @@ public class ModerationData extends DataWithGuild {
             this.autoMute = autoMute;
             this.autoMuteDays = autoMuteDays;
             this.autoMuteDuration = autoMuteDuration;
+            setChanged();
+            notifyObservers();
+        }
+    }
+
+    public void setAutoJail(int autoJail, int autoJailDays, int autoJailDuration) {
+        if (this.autoJail != autoJail || this.autoJailDays != autoJailDays || this.autoJailDuration != autoJailDuration) {
+            this.autoJail = autoJail;
+            this.autoJailDays = autoJailDays;
+            this.autoJailDuration = autoJailDuration;
             setChanged();
             notifyObservers();
         }

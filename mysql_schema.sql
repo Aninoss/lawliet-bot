@@ -518,11 +518,14 @@ CREATE TABLE `Moderation` (
   `autoKick` int unsigned NOT NULL DEFAULT '0',
   `autoBan` int unsigned NOT NULL DEFAULT '0',
   `autoMute` int unsigned NOT NULL DEFAULT '0',
+  `autoJail` int unsigned NOT NULL DEFAULT '0',
   `autoKickDays` int unsigned NOT NULL DEFAULT '30',
   `autoBanDays` int unsigned NOT NULL DEFAULT '30',
   `autoMuteDays` int unsigned NOT NULL DEFAULT '30',
+  `autoJailDays` int unsigned NOT NULL DEFAULT '30',
   `autoBanDuration` int unsigned NOT NULL DEFAULT '0',
   `autoMuteDuration` int unsigned NOT NULL DEFAULT '0',
+  `autoJailDuration` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`serverId`),
   CONSTRAINT `ModerationServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -1306,4 +1309,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-09-01 22:29:37
+-- Dump completed on 2021-09-02 15:06:41

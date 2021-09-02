@@ -42,8 +42,10 @@ public class ModSettingsCommand extends NavigationAbstract {
     private int autoKickTemp;
     private int autoBanTemp;
     private int autoMuteTemp;
+    private int autoJailTemp;
     private int autoBanDaysTemp;
     private int autoMuteDaysTemp;
+    private int autoJailDaysTemp;
     private CustomObservableList<AtomicRole> jailRoles;
     private NavigationHelper<AtomicRole> jailRolesNavigationHelper;
 
@@ -222,6 +224,50 @@ public class ModSettingsCommand extends NavigationAbstract {
                 roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
                 return jailRolesNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMessage().getMember(), 0);
 
+            case 13:
+                if (StringUtil.stringIsInt(input)) {
+                    int value = Integer.parseInt(input);
+                    if (value >= 1) {
+                        autoJailTemp = value;
+                        setState(14);
+                        return Response.TRUE;
+                    } else {
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
+                        return Response.FALSE;
+                    }
+                } else {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
+                    return Response.FALSE;
+                }
+
+            case 14:
+                if (StringUtil.stringIsInt(input)) {
+                    int value = Integer.parseInt(input);
+                    if (value >= 1) {
+                        autoJailDaysTemp = value;
+                        setState(15);
+                        return Response.TRUE;
+                    } else {
+                        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
+                        return Response.FALSE;
+                    }
+                } else {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
+                    return Response.FALSE;
+                }
+
+            case 15:
+                minutes = MentionUtil.getTimeMinutes(input).getValue();
+                if (minutes > 0) {
+                    moderationBean.setAutoJail(autoJailTemp, autoJailDaysTemp, (int) minutes);
+                    setLog(LogStatus.SUCCESS, getString("autojailset"));
+                    setState(0);
+                    return Response.TRUE;
+                } else {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid"));
+                    return Response.FALSE;
+                }
+
             default:
                 return null;
         }
@@ -266,10 +312,14 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 6:
-                        setState(2);
+                        setState(13);
                         return true;
 
                     case 7:
+                        setState(2);
+                        return true;
+
+                    case 8:
                         setState(3);
                         return true;
 
@@ -445,6 +495,53 @@ public class ModSettingsCommand extends NavigationAbstract {
             case 12:
                 return jailRolesNavigationHelper.removeData(i, 0);
 
+            case 13:
+                switch (i) {
+                    case -1:
+                        setState(0);
+                        return true;
+
+                    case 0:
+                        moderationBean.setAutoJail(0, 0, 0);
+                        setLog(LogStatus.SUCCESS, getString("autojailset"));
+                        setState(0);
+                        return true;
+
+                    default:
+                        return false;
+                }
+
+            case 14:
+                switch (i) {
+                    case -1:
+                        setState(13);
+                        return true;
+
+                    case 0:
+                        autoJailDaysTemp = 0;
+                        setState(15);
+                        return true;
+
+                    default:
+                        return false;
+                }
+
+            case 15:
+                switch (i) {
+                    case -1:
+                        setState(14);
+                        return true;
+
+                    case 0:
+                        moderationBean.setAutoJail(autoJailTemp, autoJailDaysTemp, 0);
+                        setLog(LogStatus.SUCCESS, getString("autojailset"));
+                        setState(0);
+                        return true;
+
+                    default:
+                        return false;
+                }
+
             default:
                 return false;
         }
@@ -471,6 +568,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(jailRoles, getLocale(), IMentionable::getAsMention), true)
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc",
                                 getAutoModString(textChannel, moderationBean.getAutoMute(), moderationBean.getAutoMuteDays(), moderationBean.getAutoMuteDuration()),
+                                getAutoModString(textChannel, moderationBean.getAutoJail(), moderationBean.getAutoJailDays(), moderationBean.getAutoJailDuration()),
                                 getAutoModString(textChannel, moderationBean.getAutoKick(), moderationBean.getAutoKickDays(), 0),
                                 getAutoModString(textChannel, moderationBean.getAutoBan(), moderationBean.getAutoBanDays(), moderationBean.getAutoBanDuration())
                         ), false);
@@ -520,6 +618,19 @@ public class ModSettingsCommand extends NavigationAbstract {
 
             case 12:
                 return jailRolesNavigationHelper.drawDataRemove(getString("state12_title"));
+
+            case 13:
+                setOptions(new String[] { getString("state13_options") });
+                setLog(LogStatus.WARNING, getString("state13_warning"));
+                return EmbedFactory.getEmbedDefault(this, getString("state13_description"), getString("state13_title"));
+
+            case 14:
+                setOptions(new String[] { getString("state4_options") });
+                return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoJailTemp != 1, StringUtil.numToString(autoJailTemp)), getString("state14_title"));
+
+            case 15:
+                setOptions(new String[] { getString("state15_options") });
+                return EmbedFactory.getEmbedDefault(this, getString("state15_description"), getString("state15_title"));
 
             default:
                 return null;
