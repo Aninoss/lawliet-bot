@@ -2,12 +2,16 @@ package commands.runnables.moderationcategory;
 
 import java.util.List;
 import java.util.Locale;
+import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import constants.Response;
+import core.CustomObservableList;
 import core.EmbedFactory;
+import core.ListGen;
 import core.TextManager;
+import core.atomicassets.AtomicRole;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -40,6 +44,8 @@ public class ModSettingsCommand extends NavigationAbstract {
     private int autoMuteTemp;
     private int autoBanDaysTemp;
     private int autoMuteDaysTemp;
+    private CustomObservableList<AtomicRole> jailRoles;
+    private NavigationHelper<AtomicRole> jailRolesNavigationHelper;
 
     public ModSettingsCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -48,6 +54,8 @@ public class ModSettingsCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
+        jailRoles = AtomicRole.transformIdList(event.getGuild(), moderationBean.getJailRoleIds());
+        jailRolesNavigationHelper = new NavigationHelper<>(this, jailRoles, AtomicRole.class, 20);
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -210,6 +218,10 @@ public class ModSettingsCommand extends NavigationAbstract {
                     return Response.FALSE;
                 }
 
+            case 11:
+                roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
+                return jailRolesNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMessage().getMember(), 0);
+
             default:
                 return null;
         }
@@ -238,6 +250,14 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 3:
+                        jailRolesNavigationHelper.startDataAdd(11);
+                        return true;
+
+                    case 4:
+                        jailRolesNavigationHelper.startDataRemove(12);
+                        return true;
+
+                    case 5:
                         if (moderationBean.getMuteRole().isPresent()) {
                             setState(8);
                         } else {
@@ -245,11 +265,11 @@ public class ModSettingsCommand extends NavigationAbstract {
                         }
                         return true;
 
-                    case 4:
+                    case 6:
                         setState(2);
                         return true;
 
-                    case 5:
+                    case 7:
                         setState(3);
                         return true;
 
@@ -415,6 +435,16 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return false;
                 }
 
+            case 11:
+                if (i == -1) {
+                    setState(0);
+                    return true;
+                }
+                return false;
+
+            case 12:
+                return jailRolesNavigationHelper.removeData(i, 0);
+
             default:
                 return false;
         }
@@ -438,6 +468,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         .addField(getString("state0_mchannel"), moderationBean.getAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationBean.isQuestion()), true)
                         .addField(getString("state0_mmuterole"), moderationBean.getMuteRole().map(IMentionable::getAsMention).orElse(notSet), true)
+                        .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(jailRoles, getLocale(), IMentionable::getAsMention), true)
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc",
                                 getAutoModString(textChannel, moderationBean.getAutoMute(), moderationBean.getAutoMuteDays(), moderationBean.getAutoMuteDuration()),
                                 getAutoModString(textChannel, moderationBean.getAutoKick(), moderationBean.getAutoKickDays(), 0),
@@ -483,6 +514,12 @@ public class ModSettingsCommand extends NavigationAbstract {
             case 10:
                 setOptions(new String[] { getString("state10_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
+
+            case 11:
+                return jailRolesNavigationHelper.drawDataAdd(getString("state11_title"));
+
+            case 12:
+                return jailRolesNavigationHelper.drawDataRemove(getString("state12_title"));
 
             default:
                 return null;

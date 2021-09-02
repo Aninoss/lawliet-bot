@@ -99,6 +99,13 @@ public class NavigationHelper<T> {
         );
     }
 
+    public EmbedBuilder drawDataAdd(String title) {
+        return drawDataAdd(
+                title,
+                TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_add_desc" + typeString)
+        );
+    }
+
     public EmbedBuilder drawDataAdd(String title, String desc) {
         return EmbedFactory.getEmbedDefault(command, desc, title);
     }
@@ -106,6 +113,13 @@ public class NavigationHelper<T> {
     public EmbedBuilder drawDataRemove() {
         return drawDataRemove(
                 TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_remove_title" + typeString),
+                TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_remove_desc" + typeString)
+        );
+    }
+
+    public EmbedBuilder drawDataRemove(String title) {
+        return drawDataRemove(
+                title,
                 TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_remove_desc" + typeString)
         );
     }
