@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
+import commands.runnables.moderationcategory.JailCommand;
 import commands.runnables.moderationcategory.MuteCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
@@ -15,6 +16,7 @@ import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.guild.DBGuild;
+import mysql.modules.jails.DBJails;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.servermute.DBServerMute;
 import net.dv8tion.jda.api.entities.Guild;
@@ -30,11 +32,15 @@ public class JoinRoles {
     public static void process(Member member) {
         if (!member.isPending()) {
             HashSet<Role> rolesToAdd = new HashSet<>();
-
             Locale locale = DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).getLocale();
-            getAutoRoles(locale, member, rolesToAdd);
-            getFisheryRoles(locale, member, rolesToAdd, new HashSet<>());
-            getMuteRoles(locale, member, rolesToAdd);
+
+            if (DBJails.getInstance().retrieve(member.getGuild().getIdLong()).containsKey(member.getIdLong())) {
+                getJailRoles(locale, member, rolesToAdd);
+            } else {
+                getAutoRoles(locale, member, rolesToAdd);
+                getFisheryRoles(locale, member, rolesToAdd, new HashSet<>());
+            }
+            getMuteRole(locale, member, rolesToAdd);
 
             if (rolesToAdd.size() > 0) {
                 RestActionQueue restActionQueue = new RestActionQueue();
@@ -85,7 +91,7 @@ public class JoinRoles {
         }
     }
 
-    public static void getMuteRoles(Locale locale, Member member, HashSet<Role> rolesToAdd) {
+    public static void getMuteRole(Locale locale, Member member, HashSet<Role> rolesToAdd) {
         Guild guild = member.getGuild();
         if (DBServerMute.getInstance().retrieve(guild.getIdLong()).containsKey(member.getIdLong())) {
             DBModeration.getInstance().retrieve(guild.getIdLong()).getMuteRole().ifPresent(muteRole -> {
@@ -93,6 +99,17 @@ public class JoinRoles {
                     rolesToAdd.add(muteRole);
                 }
             });
+        }
+    }
+
+    public static void getJailRoles(Locale locale, Member member, HashSet<Role> rolesToAdd) {
+        Guild guild = member.getGuild();
+        List<Role> jailRoles = DBModeration.getInstance().retrieve(guild.getIdLong()).getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
+        PermissionCheckRuntime.botCanManageRoles(locale, JailCommand.class, jailRoles);
+        for (Role jailRole : jailRoles) {
+            if (guild.getSelfMember().canInteract(jailRole)) {
+                rolesToAdd.add(jailRole);
+            }
         }
     }
 
