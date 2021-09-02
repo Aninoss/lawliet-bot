@@ -27,7 +27,7 @@ import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 public class AlertScheduler {
 
     private static final ScheduledExecutorService executorService =
-            Executors.newScheduledThreadPool(3, new CountingThreadFactory(() -> "Main", "Alerts", false));
+            Executors.newScheduledThreadPool(5, new CountingThreadFactory(() -> "Main", "Alerts", false));
 
     public static void start() {
         try {
@@ -49,7 +49,7 @@ public class AlertScheduler {
                 TrackerData slot = map.get(hash);
                 try (AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMinutes(5))) {
                     asyncTimer.setTimeOutListener(t -> {
-                        t.interrupt();
+                        asyncTimer.interrupt();
                         MainLogger.get().error("Alert stuck: {} with key {}", slot.getCommandTrigger(), slot.getCommandKey(), ExceptionUtil.generateForStack(t));
                     });
 

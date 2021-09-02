@@ -277,7 +277,11 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         Button messageButton = generateButtons(pornImages).get(0);
         generatePostMessagesText(pornImages, slot.getCommandKey(), channel, 1)
                 .ifPresent(message -> {
-                    slot.sendMessage(true, message.getContentRaw(), ActionRow.of(messageButton));
+                    try {
+                        slot.sendMessage(true, message.getContentRaw(), ActionRow.of(messageButton));
+                    } catch (InterruptedException e) {
+                        //Ignore
+                    }
                 });
 
         slot.setArgs("found");

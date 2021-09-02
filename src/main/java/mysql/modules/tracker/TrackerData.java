@@ -123,36 +123,36 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
         }
     }
 
-    public Optional<Long> sendMessage(boolean acceptUserMessage, String content, ActionRow... actionRows) {
+    public Optional<Long> sendMessage(boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
         if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
             content = getEffectiveUserMessage().get() + "\n" + content;
         }
         return processMessage(true, acceptUserMessage, content, Collections.emptyList(), actionRows);
     }
 
-    public Optional<Long> editMessage(boolean acceptUserMessage, String content, ActionRow... actionRows) {
+    public Optional<Long> editMessage(boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
         if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
             content = getEffectiveUserMessage().get() + "\n" + content;
         }
         return processMessage(false, acceptUserMessage, content, Collections.emptyList(), actionRows);
     }
 
-    public Optional<Long> sendMessage(boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) {
+    public Optional<Long> sendMessage(boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) throws InterruptedException {
         return sendMessage(acceptUserMessage, Collections.singletonList(embed), actionRows);
     }
 
-    public Optional<Long> editMessage(boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) {
+    public Optional<Long> editMessage(boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) throws InterruptedException {
         return editMessage(acceptUserMessage, Collections.singletonList(embed), actionRows);
     }
 
-    public Optional<Long> sendMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) {
+    public Optional<Long> sendMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
         if (embeds.isEmpty()) {
             return Optional.empty();
         }
         return processMessage(true, acceptUserMessage, null, embeds, actionRows);
     }
 
-    public Optional<Long> editMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) {
+    public Optional<Long> editMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
         if (embeds.isEmpty()) {
             return Optional.empty();
         }
@@ -160,7 +160,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
     }
 
     private Optional<Long> processMessage(boolean newMessage, boolean acceptUserMessage, String content,
-                                          List<MessageEmbed> embeds, ActionRow... actionRows) {
+                                          List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
             TextChannel channel = channelOpt.get();
@@ -191,6 +191,8 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                         preferWebhook = false;
                         getTextChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows));
                     }
+                } catch (InterruptedException e) {
+                    throw e;
                 } catch (Throwable e) {
                     MainLogger.get().error("Could not process webhooks", e);
                     getTextChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows));
@@ -208,7 +210,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
     }
 
     private Optional<Long> processMessageViaWebhook(boolean newMessage, boolean acceptUserMessage, String content,
-                                                    List<MessageEmbed> embeds, ActionRow... actionRows) {
+                                                    List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
             if (webhookClient == null) {
@@ -248,6 +250,8 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                         return Optional.of(webhookClient.edit(messageId, wmb.build()).get(10, TimeUnit.SECONDS).getId());
                     }
                 }
+            } catch (InterruptedException e) {
+                throw e;
             } catch (Throwable e) {
                 Optional<Long> messageIdOpt = Optional.empty();
                 if (e.toString().contains("10015")) { /* Unknown Webhook */
