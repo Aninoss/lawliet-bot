@@ -20,6 +20,7 @@ public class Jail {
 
     public static boolean jail(Guild guild, Member member, long minutes, String reason) {
         ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
+        long muteRoleId = moderationData.getMuteRoleId().orElse(0L);
 
         CustomObservableMap<Long, JailData> guildJailMap = DBJails.getInstance().retrieve(guild.getIdLong());
         List<Long> currentRoleIds;
@@ -28,6 +29,7 @@ public class Jail {
         } else {
             currentRoleIds = member.getRoles().stream()
                     .map(ISnowflake::getIdLong)
+                    .filter(rId -> rId != muteRoleId)
                     .collect(Collectors.toList());
         }
 
@@ -43,10 +45,10 @@ public class Jail {
                 .collect(Collectors.toList());
 
         boolean allRolePermissionsFine = member.getRoles().stream()
-                .filter(role -> !jailRolesAdd.contains(role) && member.getRoles().contains(role))
+                .filter(role -> role.getIdLong() != muteRoleId && !jailRolesAdd.contains(role) && member.getRoles().contains(role))
                 .allMatch(role -> guild.getSelfMember().canInteract(role));
         List<Role> jailRolesRemove = member.getRoles().stream()
-                .filter(role -> !jailRolesAdd.contains(role) && guild.getSelfMember().canInteract(role))
+                .filter(role -> role.getIdLong() != muteRoleId && !jailRolesAdd.contains(role) && guild.getSelfMember().canInteract(role))
                 .collect(Collectors.toList());
 
         guild.modifyMemberRoles(member, jailRolesAdd, jailRolesRemove)
