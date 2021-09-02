@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.entities.*;
 
 public class Jail {
 
-    public static void jail(Guild guild, Member member, long minutes, String reason) {
+    public static boolean jail(Guild guild, Member member, long minutes, String reason) {
         ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
 
         CustomObservableMap<Long, JailData> guildJailMap = DBJails.getInstance().retrieve(guild.getIdLong());
@@ -42,6 +42,9 @@ public class Jail {
                 .filter(role -> guild.getSelfMember().canInteract(role))
                 .collect(Collectors.toList());
 
+        boolean allRolePermissionsFine = member.getRoles().stream()
+                .filter(role -> !jailRolesAdd.contains(role) && member.getRoles().contains(role))
+                .allMatch(role -> guild.getSelfMember().canInteract(role));
         List<Role> jailRolesRemove = member.getRoles().stream()
                 .filter(role -> !jailRolesAdd.contains(role) && guild.getSelfMember().canInteract(role))
                 .collect(Collectors.toList());
@@ -49,20 +52,28 @@ public class Jail {
         guild.modifyMemberRoles(member, jailRolesAdd, jailRolesRemove)
                 .reason(reason)
                 .queue();
+
+        return allRolePermissionsFine;
     }
 
-    public static void unjail(Guild guild, User target, String reason) {
+    public static boolean unjail(Guild guild, User target, String reason) {
         JailData jailData = DBJails.getInstance().retrieve(guild.getIdLong()).remove(target.getIdLong());
         if (jailData != null) {
             Member member = MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).join();
             if (member != null) {
-                unjail(jailData, guild, member, reason);
+                return unjail(jailData, guild, member, reason);
             }
         }
+        return true;
     }
 
-    public static void unjail(JailData jailData, Guild guild, Member member, String reason) {
+    public static boolean unjail(JailData jailData, Guild guild, Member member, String reason) {
         ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
+
+        boolean allRolePermissionsFine = jailData.getPreviousRoleIds().stream()
+                .map(guild::getRoleById)
+                .filter(role -> role != null && !member.getRoles().contains(role))
+                .allMatch(role -> guild.getSelfMember().canInteract(role));
         List<Role> previousRolesAdd = jailData.getPreviousRoleIds().stream()
                 .map(guild::getRoleById)
                 .filter(role -> role != null && guild.getSelfMember().canInteract(role))
@@ -77,6 +88,8 @@ public class Jail {
         guild.modifyMemberRoles(member, previousRolesAdd, previousRolesRemove)
                 .reason(reason)
                 .queue();
+
+        return allRolePermissionsFine;
     }
 
 }

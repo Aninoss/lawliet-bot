@@ -3,14 +3,18 @@ package commands.runnables.moderationcategory;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
+import constants.Category;
+import constants.LogStatus;
 import core.EmbedFactory;
 import core.MemberCacheController;
 import core.TextManager;
 import core.mention.Mention;
 import core.mention.MentionValue;
 import core.utils.BotPermissionUtil;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Jail;
@@ -35,6 +39,7 @@ public class JailCommand extends WarnCommand {
 
     private long minutes = 0;
     private final boolean jail;
+    private boolean permissionIssues = false;
 
     public JailCommand(Locale locale, String prefix) {
         this(locale, prefix, false, true);
@@ -72,14 +77,19 @@ public class JailCommand extends WarnCommand {
 
     @Override
     protected void process(Guild guild, User target, String reason) {
+        AtomicBoolean newPermissionIssues = new AtomicBoolean(false);
         if (jail) {
             MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).thenAccept(member -> {
                 if (member != null) {
-                    Jail.jail(guild, member, minutes, reason);
+                    newPermissionIssues.set(!Jail.jail(guild, member, minutes, reason));
                 }
             });
         } else {
-            Jail.unjail(guild, target, reason);
+            newPermissionIssues.set(!Jail.unjail(guild, target, reason));
+        }
+
+        if (newPermissionIssues.get()) {
+            permissionIssues = true;
         }
     }
 
@@ -93,7 +103,7 @@ public class JailCommand extends WarnCommand {
 
     @Override
     protected boolean canProcessBot(Guild guild, User target) {
-        return true;
+        return guild.getSelfMember().getIdLong() != target.getIdLong();
     }
 
     @Override
@@ -114,7 +124,11 @@ public class JailCommand extends WarnCommand {
     protected EmbedBuilder getSuccessEmbed() {
         String remaining = TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(minutes)).toString();
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
-        return EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "success_description" : "success_description_temp", mention.isMultiple(), mention.getMentionText(), remaining));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "success_description" : "success_description_temp", mention.isMultiple(), mention.getMentionText(), remaining));
+        if (permissionIssues) {
+            EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(getLocale(), Category.MODERATION, "jail_warning_notallroles", jail));
+        }
+        return eb;
     }
 
 }
