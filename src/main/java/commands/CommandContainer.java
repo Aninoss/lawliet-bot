@@ -244,22 +244,25 @@ public class CommandContainer {
         commandList.add(RealbooruCommand.class);
         commandList.add(E621Command.class);
         commandList.add(DanbooruCommand.class);
-        //commandList.add(KonachanCommand.class); TODO: Add
+        //commandList.add(KonachanCommand.class);
         commandList.add(RealLifePornCommand.class);
         commandList.add(RealLifeBoobsCommand.class);
         commandList.add(RealLifeAssCommand.class);
         commandList.add(RealLifeBDSMCommand.class);
         commandList.add(RealLifeGayCommand.class);
         commandList.add(RealLifeLesbianCommand.class);
+        commandList.add(RealLifeDick.class);
         commandList.add(HentaiCommand.class);
         commandList.add(HentaiBlowjobCommand.class);
         commandList.add(HentaiBDSMCommand.class);
+        commandList.add(HentaiDick.class);
         commandList.add(AhegaoCommand.class);
         commandList.add(TrapCommand.class);
         commandList.add(FutaCommand.class);
         commandList.add(NekoCommand.class);
         commandList.add(YaoiCommand.class);
         commandList.add(YuriCommand.class);
+        commandList.add(BaraCommand.class);
         commandList.add(FurryCommand.class);
 
         //SPLATOON
