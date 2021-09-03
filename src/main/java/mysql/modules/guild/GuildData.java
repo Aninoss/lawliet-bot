@@ -20,10 +20,13 @@ public class GuildData extends DataWithGuild {
     private boolean fisheryCoinsGivenLimit;
     private Long fisheryAnnouncementChannelId;
     private Integer fisheryVcHoursCap;
+    private boolean big;
 
     public GuildData(long guildId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles,
                      Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax,
-                     int fisheryVcHoursCap, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit) {
+                     int fisheryVcHoursCap, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit,
+                     boolean big
+    ) {
         super(guildId);
         this.guildId = guildId;
         this.fisheryRoleMin = fisheryRoleMin;
@@ -42,6 +45,7 @@ public class GuildData extends DataWithGuild {
         this.fisheryAnnouncementChannelId = fisheryAnnouncementChannelId != null && fisheryAnnouncementChannelId != 0 ? fisheryAnnouncementChannelId : null;
         this.commandAuthorMessageRemove = commandAuthorMessageRemove;
         this.fisheryCoinsGivenLimit = fisheryCoinsGivenLimit;
+        this.big = big;
     }
 
     public long getFisheryRoleMin() {
@@ -74,6 +78,10 @@ public class GuildData extends DataWithGuild {
 
     public boolean isFisheryReminders() {
         return fisheryReminders;
+    }
+
+    public boolean isBig() {
+        return big;
     }
 
     public Optional<Long> getFisheryAnnouncementChannelId() {
@@ -133,6 +141,14 @@ public class GuildData extends DataWithGuild {
         }
     }
 
+    public void setBig(boolean big) {
+        if (this.big != big) {
+            this.big = big;
+            setChanged();
+            notifyObservers();
+        }
+    }
+
     public void toggleFisherySingleRoles() {
         this.fisherySingleRoles = !this.fisherySingleRoles;
         setChanged();
@@ -174,7 +190,9 @@ public class GuildData extends DataWithGuild {
     }
 
     public void setCommandAuthorMessageRemove(boolean active) {
-        if (this.isCommandAuthorMessageRemove() != active) toggleCommandAuthorMessageRemove();
+        if (this.isCommandAuthorMessageRemove() != active) {
+            toggleCommandAuthorMessageRemove();
+        }
     }
 
     public void toggleFisheryCoinsGivenLimit() {

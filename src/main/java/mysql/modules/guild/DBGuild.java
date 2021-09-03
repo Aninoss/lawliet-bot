@@ -37,7 +37,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
         }
 
         return MySQLManager.get(
-                "SELECT prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit FROM DServer WHERE serverId = ?;",
+                "SELECT prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit, big FROM DServer WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
                     if (resultSet.next()) {
@@ -54,8 +54,8 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
                                 resultSet.getLong(9),
                                 resultSet.getInt(10),
                                 resultSet.getBoolean(11),
-                                resultSet.getBoolean(12)
-
+                                resultSet.getBoolean(12),
+                                resultSet.getBoolean(13)
                         );
                     } else {
                         GuildData guildBean = new GuildData(
@@ -71,7 +71,8 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
                                 800000000,
                                 0,
                                 false,
-                                true
+                                true,
+                                false
                         );
                         insertBean(guildBean);
                         return guildBean;
@@ -86,7 +87,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
     private void insertBean(GuildData guildBean) {
         try {
-            MySQLManager.update("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+            MySQLManager.update("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit, big) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
                 preparedStatement.setLong(1, guildBean.getGuildId());
                 preparedStatement.setString(2, guildBean.getPrefix());
                 preparedStatement.setString(3, guildBean.getLocale().getDisplayName());
@@ -114,6 +115,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
                 preparedStatement.setBoolean(12, guildBean.isCommandAuthorMessageRemove());
                 preparedStatement.setBoolean(13, guildBean.hasFisheryCoinsGivenLimit());
+                preparedStatement.setBoolean(13, guildBean.isBig());
             });
         } catch (SQLException | InterruptedException e) {
             throw new RuntimeException(e);
@@ -122,7 +124,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
     @Override
     protected void save(GuildData guildBean) {
-        MySQLManager.asyncUpdate("UPDATE DServer SET prefix = ?, locale = ?, powerPlant = ?, powerPlantSingleRole = ?, powerPlantAnnouncementChannelId = ?, powerPlantTreasureChests = ?, powerPlantReminders = ?, powerPlantRoleMin = ?, powerPlantRoleMax = ?, powerPlantVCHoursCap = ?, commandAuthorMessageRemove = ?, fisheryCoinsGivenLimit = ? WHERE serverId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("UPDATE DServer SET prefix = ?, locale = ?, powerPlant = ?, powerPlantSingleRole = ?, powerPlantAnnouncementChannelId = ?, powerPlantTreasureChests = ?, powerPlantReminders = ?, powerPlantRoleMin = ?, powerPlantRoleMax = ?, powerPlantVCHoursCap = ?, commandAuthorMessageRemove = ?, fisheryCoinsGivenLimit = ?, big = ? WHERE serverId = ?;", preparedStatement -> {
             preparedStatement.setLong(11, guildBean.getGuildId());
 
             preparedStatement.setString(1, guildBean.getPrefix());
@@ -151,7 +153,8 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
             preparedStatement.setBoolean(11, guildBean.isCommandAuthorMessageRemove());
             preparedStatement.setBoolean(12, guildBean.hasFisheryCoinsGivenLimit());
-            preparedStatement.setLong(13, guildBean.getGuildId());
+            preparedStatement.setBoolean(13, guildBean.isBig());
+            preparedStatement.setLong(14, guildBean.getGuildId());
         });
     }
 

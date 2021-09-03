@@ -332,6 +332,7 @@ CREATE TABLE `DServer` (
   `powerPlantVCHoursCap` int unsigned DEFAULT NULL,
   `commandAuthorMessageRemove` tinyint(1) NOT NULL DEFAULT '0',
   `fisheryCoinsGivenLimit` tinyint(1) NOT NULL DEFAULT '0',
+  `big` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`serverId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1309,4 +1310,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-09-02 15:06:41
+-- Dump completed on 2021-09-02 23:58:29

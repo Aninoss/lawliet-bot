@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class MemberCacheController implements MemberCachePolicy {
 
+    public static final int BIG_SERVER_THRESHOLD = 40_000;
     private static final MemberCacheController ourInstance = new MemberCacheController();
 
     private final HashMap<Long, Instant> guildAccessMap = new HashMap<>();
@@ -97,7 +98,7 @@ public class MemberCacheController implements MemberCachePolicy {
                 member.isPending() ||
                 member.isOwner() ||
                 member.getIdLong() == AssetIds.OWNER_USER_ID ||
-                guild.getMemberCount() >= 40_000 ||
+                guild.getMemberCount() >= BIG_SERVER_THRESHOLD ||
                 guildIsCached(guild) ||
                 (Program.productionMode() && PatreonCache.getInstance().getUserTier(member.getIdLong(), false) >= 2) ||
                 DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().map(muteRole -> member.getRoles().contains(muteRole)).orElse(false) ||
