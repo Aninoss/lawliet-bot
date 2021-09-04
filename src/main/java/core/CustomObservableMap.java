@@ -12,7 +12,7 @@ public class CustomObservableMap<T, U> extends ObservableMapWrapper<T, U> implem
     private final ArrayList<MapUpdateListener<T, U>> mapUpdateListeners = new ArrayList<>();
 
     public CustomObservableMap(Map<T, U> map) {
-        super(map);
+        super(new HashMap<>(map));
         map.values().forEach(value -> {
             if (value instanceof Observable) ((Observable) value).addObserver(this);
         });
