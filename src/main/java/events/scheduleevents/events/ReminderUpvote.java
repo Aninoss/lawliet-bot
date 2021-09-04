@@ -4,8 +4,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Random;
-import constants.AssetIds;
 import constants.Category;
 import constants.ExternalLinks;
 import core.*;
@@ -23,32 +21,34 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 @ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.MINUTES)
 public class ReminderUpvote implements ScheduleInterface {
 
+    private boolean unlocked = true;
+
     @Override
     public void run() throws Throwable {
-        int i = new Random().nextInt(); //TODO: debug
-
-        if (Program.getClusterId() == 1) {
-            CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.CLAIM);
-            UpvotesData upvotesData = DBUpvotes.getInstance().retrieve();
-            CustomObservableMap<Long, UpvoteSlot> upvoteMap = upvotesData.getUpvoteMap();
-            for (UpvoteSlot upvoteSlot : new ArrayList<>(upvoteMap.values())) {
-                if (Instant.now().isAfter(upvoteSlot.getLastUpdate().plus(12, ChronoUnit.HOURS)) &&
-                        upvoteMap.containsKey(upvoteSlot.getUserId())
-                ) {
-                    if (upvoteSlot.getUserId() == AssetIds.OWNER_USER_ID) {
-                        MainLogger.get().info("##### Upvote reminder: {}", i); //TODO
-                    }
-                    upvoteMap.remove(upvoteSlot.getUserId());
-                    SubSlot sub = subMap.get(upvoteSlot.getUserId());
-                    if (sub != null) {
-                        Locale locale = sub.getLocale();
-                        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                                .setTitle(TextManager.getString(locale, Category.FISHERY, "claim_message_title"))
-                                .setDescription(TextManager.getString(locale, Category.FISHERY, "claim_message_desc"));
-                        Button button = Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, TextManager.getString(locale, Category.FISHERY, "claim_message_button"));
-                        sub.sendEmbed(locale, eb, button);
+        if (Program.getClusterId() == 1 && unlocked) {
+            unlocked = false;
+            try {
+                CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.CLAIM);
+                UpvotesData upvotesData = DBUpvotes.getInstance().retrieve();
+                CustomObservableMap<Long, UpvoteSlot> upvoteMap = upvotesData.getUpvoteMap();
+                for (UpvoteSlot upvoteSlot : new ArrayList<>(upvoteMap.values())) {
+                    if (Instant.now().isAfter(upvoteSlot.getLastUpdate().plus(12, ChronoUnit.HOURS)) &&
+                            upvoteMap.containsKey(upvoteSlot.getUserId())
+                    ) {
+                        upvoteMap.remove(upvoteSlot.getUserId());
+                        SubSlot sub = subMap.get(upvoteSlot.getUserId());
+                        if (sub != null) {
+                            Locale locale = sub.getLocale();
+                            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                                    .setTitle(TextManager.getString(locale, Category.FISHERY, "claim_message_title"))
+                                    .setDescription(TextManager.getString(locale, Category.FISHERY, "claim_message_desc"));
+                            Button button = Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, TextManager.getString(locale, Category.FISHERY, "claim_message_button"));
+                            sub.sendEmbed(locale, eb, button);
+                        }
                     }
                 }
+            } finally {
+                unlocked = true;
             }
         }
     }
