@@ -33,7 +33,9 @@ public abstract class PornSearchAbstract extends PornAbstract {
 
         switch (search.toLowerCase()) {
             case "hinata" -> search = "hyuuga_hinata";
+            case "hanabi" -> search = "hyuuga_hanabi";
             case "konosuba" -> search = "kono_subarashii_sekai_ni_shukufuku_wo!";
+            case "dxd", "highschool_dxd" -> search = "high_school_dxd";
         }
 
         int maxTags = getMaxTags();

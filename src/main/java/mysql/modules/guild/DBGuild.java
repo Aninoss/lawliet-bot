@@ -115,7 +115,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
                 preparedStatement.setBoolean(12, guildBean.isCommandAuthorMessageRemove());
                 preparedStatement.setBoolean(13, guildBean.hasFisheryCoinsGivenLimit());
-                preparedStatement.setBoolean(13, guildBean.isBig());
+                preparedStatement.setBoolean(14, guildBean.isBig());
             });
         } catch (SQLException | InterruptedException e) {
             throw new RuntimeException(e);
