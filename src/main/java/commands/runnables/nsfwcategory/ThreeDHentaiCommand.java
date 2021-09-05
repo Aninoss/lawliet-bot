@@ -4,32 +4,31 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.RealbooruAbstract;
+import commands.runnables.DanbooruAbstract;
 
 @CommandProperties(
-        trigger = "rlporn",
+        trigger = "3dhentai",
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
-        requiresEmbeds = false,
-        aliases = { "r1porn", "porn" }
+        requiresEmbeds = false
 )
-public class RealLifePornCommand extends RealbooruAbstract {
+public class ThreeDHentaiCommand extends DanbooruAbstract {
 
-    public RealLifePornCommand(Locale locale, String prefix) {
+    public ThreeDHentaiCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
     protected String getSearchKey() {
-        return "sex animated";
+        return "animated 3d";
     }
 
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("lesbian", "gay", "shemale", "trap"));
+        filters.addAll(Set.of("yaoi", "yuri", "shemale", "lesbian", "gay", "futa", "trap"));
         return filters;
     }
 

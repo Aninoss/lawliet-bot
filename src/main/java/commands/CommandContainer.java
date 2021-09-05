@@ -253,6 +253,7 @@ public class CommandContainer {
         commandList.add(RealLifeLesbianCommand.class);
         commandList.add(RealLifeDick.class);
         commandList.add(HentaiCommand.class);
+        commandList.add(ThreeDHentaiCommand.class);
         commandList.add(HentaiBlowjobCommand.class);
         commandList.add(HentaiBDSMCommand.class);
         commandList.add(HentaiDick.class);

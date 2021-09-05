@@ -4,7 +4,7 @@ import java.util.*;
 import constants.Category;
 import core.TextManager;
 import modules.porn.BooruImage;
-import modules.porn.IllegalBooruTagException;
+import modules.porn.IllegalTagException;
 
 public abstract class PornPredefinedAbstract extends PornAbstract {
 
@@ -24,7 +24,7 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
     }
 
     @Override
-    public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults) throws IllegalBooruTagException {
+    public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults) throws IllegalTagException {
         if (!search.isEmpty()) {
             notice = TextManager.getString(getLocale(), Category.NSFW, "porn_keyforbidden");
         }

@@ -35,7 +35,7 @@ public class BooruImageDownloader {
         return RestClient.WEBCACHE.post("booru", "application/json", json.toString())
                 .thenApply(response -> {
                     String content = response.getBody();
-                    if (content.length() > 0 && content.startsWith("{")) {
+                    if (content.startsWith("{")) {
                         JSONObject responseJson = new JSONObject(content);
                         BooruImage booruImage = new BooruImage()
                                 .setScore(responseJson.getInt("score"))

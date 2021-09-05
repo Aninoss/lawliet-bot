@@ -24,7 +24,7 @@ import core.utils.NSFWUtil;
 import core.utils.StringUtil;
 import modules.porn.BooruImage;
 import modules.porn.BooruImageDownloader;
-import modules.porn.IllegalBooruTagException;
+import modules.porn.IllegalTagException;
 import modules.porn.TooManyTagsException;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import mysql.modules.tracker.TrackerData;
@@ -116,7 +116,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             List<BooruImage> pornImages;
             try {
                 pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilters, args, Math.min(3, (int) amount), usedResults);
-            } catch (IllegalBooruTagException e) {
+            } catch (IllegalTagException e) {
                 if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
                     event.getChannel().sendMessageEmbeds(illegalTagsEmbed().build()).queue();
                 } else {
@@ -248,7 +248,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                     () -> getBooruImages(0L, nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>())
             );
         } catch (ExecutionException e) {
-            if (e.getCause() instanceof IllegalBooruTagException) {
+            if (e.getCause() instanceof IllegalTagException) {
                 EmbedBuilder eb = illegalTagsEmbed();
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessageEmbeds(eb.build()).complete();
@@ -309,9 +309,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     protected List<BooruImage> downloadPorn(long guildId, Set<String> nsfwFilter, int amount, String domain,
                                             String search, boolean animatedOnly, boolean explicit,
-                                            ArrayList<String> usedResults) throws IllegalBooruTagException {
+                                            ArrayList<String> usedResults) throws IllegalTagException {
         if (NSFWUtil.stringContainsBannedTags(search, nsfwFilter)) {
-            throw new IllegalBooruTagException();
+            throw new IllegalTagException();
         }
 
         ArrayList<CompletableFuture<Optional<BooruImage>>> futures = new ArrayList<>();

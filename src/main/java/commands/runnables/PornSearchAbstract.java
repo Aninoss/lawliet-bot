@@ -4,7 +4,7 @@ import java.util.*;
 import constants.Category;
 import core.TextManager;
 import modules.porn.BooruImage;
-import modules.porn.IllegalBooruTagException;
+import modules.porn.IllegalTagException;
 import modules.porn.TooManyTagsException;
 
 public abstract class PornSearchAbstract extends PornAbstract {
@@ -25,7 +25,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
     }
 
     @Override
-    public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults) throws IllegalBooruTagException, TooManyTagsException {
+    public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults) throws IllegalTagException, TooManyTagsException {
         if (search.isEmpty()) {
             search = "animated";
             notice = TextManager.getString(getLocale(), Category.NSFW, "porn_nokey");
@@ -36,7 +36,8 @@ public abstract class PornSearchAbstract extends PornAbstract {
             case "hanabi" -> search = "hyuuga_hanabi";
             case "konosuba" -> search = "kono_subarashii_sekai_ni_shukufuku_wo!";
             case "dxd", "highschool_dxd" -> search = "high_school_dxd";
-            case "zerotwo", "zero_two", "zero two" -> search = "zero_two_(darling_in_the_franxx) ";
+            case "zerotwo", "zero_two", "zero two" -> search = "zero_two_(darling_in_the_franxx)";
+            case "rem" -> search = "rem_(re:zero)";
         }
 
         int maxTags = getMaxTags();
