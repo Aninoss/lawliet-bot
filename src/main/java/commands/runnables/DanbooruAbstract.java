@@ -1,6 +1,7 @@
 package commands.runnables;
 
 import java.util.Locale;
+import java.util.Set;
 
 public abstract class DanbooruAbstract extends PornPredefinedAbstract {
 
@@ -11,6 +12,11 @@ public abstract class DanbooruAbstract extends PornPredefinedAbstract {
     @Override
     protected String getDomain() {
         return "danbooru.donmai.us";
+    }
+
+    @Override
+    protected Set<String> getAdditionalFilters() {
+        return Set.of("furry", "what");
     }
 
     @Override

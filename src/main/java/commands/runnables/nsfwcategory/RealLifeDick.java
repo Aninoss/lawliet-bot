@@ -35,7 +35,7 @@ public class RealLifeDick extends RealbooruAbstract {
                 "otoko_no_ko", "fakes", "autofellatio", "cum_on_anus", "cum_on_ass", "kangaroo", "handjob", "manpussy",
                 "machine", "electrostimulation", "anilingus", "crossdresser", "crossdressing", "double_anal",
                 "double_penetration", "breasts", "cum_on_food", "toy", "face_fuck", "sexdoll", "sextoy",
-                "spider-man_(series)", "cum_on_face"));
+                "spider-man_(series)", "cum_on_face", "censored"));
         return filters;
     }
 

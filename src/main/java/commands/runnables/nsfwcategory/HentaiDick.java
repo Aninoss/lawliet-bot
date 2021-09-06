@@ -23,7 +23,7 @@ public class HentaiDick extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "penis male_focus";
+        return "penis male_focus -multiple_boys -sex -anal -shota";
     }
 
     @Override
