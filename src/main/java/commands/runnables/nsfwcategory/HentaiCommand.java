@@ -23,12 +23,13 @@ public class HentaiCommand extends DanbooruAbstract {
     @Override
     protected String getSearchKey() {
         return "animated -3d";
-    }
+    } //TODO: add sex
 
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("yaoi", "yuri", "shemale", "lesbian", "gay", "futa", "trap", "3d", "blender_(medium)", "pixel_art"));
+        filters.addAll(Set.of("yaoi", "yuri", "shemale", "lesbian", "gay", "futa", "trap", "otoko_no_ko", "3d",
+                "blender_(medium)", "pixel_art"));
         return filters;
     }
 

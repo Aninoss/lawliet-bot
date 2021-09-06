@@ -13,7 +13,7 @@ import commands.runnables.RealbooruAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "r1porn", "porn" }
+        aliases = { "porn", "reallifeporn" }
 )
 public class RealLifePornCommand extends RealbooruAbstract {
 
@@ -29,7 +29,7 @@ public class RealLifePornCommand extends RealbooruAbstract {
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("lesbian", "gay", "shemale", "trap"));
+        filters.addAll(Set.of("lesbian", "gay", "shemale", "trap", "transgender", "otoko_no_ko", "censored"));
         return filters;
     }
 

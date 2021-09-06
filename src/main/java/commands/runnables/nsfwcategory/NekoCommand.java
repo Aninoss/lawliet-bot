@@ -12,7 +12,8 @@ import commands.runnables.DanbooruAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
-        requiresEmbeds = false
+        requiresEmbeds = false,
+        aliases = { "nekogirl", "nekogirls", "catgirl", "catgirls" }
 )
 public class NekoCommand extends DanbooruAbstract {
 
@@ -28,7 +29,7 @@ public class NekoCommand extends DanbooruAbstract {
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("yaoi", "yuri", "shemale", "lesbian", "gay", "futa", "trap"));
+        filters.addAll(Set.of("yaoi", "yuri", "shemale", "lesbian", "gay", "futa", "trap", "otoko_no_ko"));
         return filters;
     }
 

@@ -29,7 +29,8 @@ public class HentaiDick extends DanbooruAbstract {
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("multiple_boys", "sex", "anal", "2boys", "blank_censor", "trap", "shemale", "futa", "fellatio"));
+        filters.addAll(Set.of("multiple_boys", "sex", "anal", "2boys", "blank_censor", "trap", "shemale", "futa",
+                "fellatio", "crossdressing", "otoko_no_ko"));
         return filters;
     }
 

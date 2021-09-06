@@ -14,7 +14,7 @@ import commands.runnables.RealbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "boobs", "r1boobs" }
+        aliases = { "boobs", "r1boobs", "tits", "rltits", "boobies", "rlboobies" }
 )
 public class RealLifeBoobsCommand extends RealbooruAbstract {
 
@@ -30,7 +30,11 @@ public class RealLifeBoobsCommand extends RealbooruAbstract {
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("lesbian", "gay", "shemale", "trap"));
+        filters.addAll(Set.of("lesbian", "gay", "shemale", "trap", "transgender", "otoko_no_ko", "sex", "dildo",
+                "orgasm", "1boy", "2boys", "penis", "penetration", "double_penetration", "fellatio", "handjob",
+                "oral", "threesome", "anal", "vaginal", "vaginal_sex", "doggy_style", "squirt", "squirting",
+                "vaginal_penetration", "fingering", "cum", "buttjob", "cum_in_pussy", "vaginal_insertion",
+                "mia_khalifa", "reverse_cowgirl_position", "riding", "enema", "between breasts"));
         return filters;
     }
 

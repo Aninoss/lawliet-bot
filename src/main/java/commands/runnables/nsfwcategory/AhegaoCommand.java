@@ -23,13 +23,14 @@ public class AhegaoCommand extends Rule34HentaiAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated ahe_gao";
+        return "animated ahe_gao -3d";
     }
 
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("yaoi", "yuri", "shemale", "lesbian", "gay", "futa", "trap"));
+        filters.addAll(Set.of("yaoi", "yuri", "shemale", "lesbian", "gay", "futa", "trap", "otoko_no_ko", "3d",
+                "blender_(medium)", "pixel_art"));
         return filters;
     }
 

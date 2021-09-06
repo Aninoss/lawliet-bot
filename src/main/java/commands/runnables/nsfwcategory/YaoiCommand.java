@@ -28,7 +28,7 @@ public class YaoiCommand extends Rule34HentaiAbstract {
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("shemale", "trap"));
+        filters.addAll(Set.of("shemale", "trap", "otoko_no_ko"));
         return filters;
     }
 

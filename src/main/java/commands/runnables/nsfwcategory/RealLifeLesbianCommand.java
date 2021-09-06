@@ -11,7 +11,7 @@ import commands.runnables.RealbooruAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "r1lesbian" }
+        aliases = { "lesbian", "lesbianp", "rllesbianp", "lesbianporn", "rllesbianporn" }
 )
 public class RealLifeLesbianCommand extends RealbooruAbstract {
 

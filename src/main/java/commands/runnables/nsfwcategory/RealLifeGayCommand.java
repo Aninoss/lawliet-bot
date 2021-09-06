@@ -13,7 +13,7 @@ import commands.runnables.RealbooruAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "r1gay" }
+        aliases = { "gay", "gayp", "rlgayp", "gayporn", "rlgayporn" }
 )
 public class RealLifeGayCommand extends RealbooruAbstract {
 
@@ -23,13 +23,13 @@ public class RealLifeGayCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated gay";
+        return "animated sex gay";
     }
 
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("shemale", "trap"));
+        filters.addAll(Set.of("shemale", "trap", "otoko_no_ko"));
         return filters;
     }
 

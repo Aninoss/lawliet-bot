@@ -24,19 +24,23 @@ public class RealLifeAssCommand extends RealbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated ass";
+        return "ass";
     }
 
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("lesbian", "gay", "shemale", "trap"));
+        filters.addAll(Set.of("lesbian", "gay", "shemale", "trap", "transgender", "otoko_no_ko", "sex", "dildo",
+                "orgasm", "1boy", "2boys", "penis", "penetration", "double_penetration", "fellatio", "handjob",
+                "oral", "threesome", "anal", "vaginal", "vaginal_sex", "doggy_style", "squirt", "squirting",
+                "vaginal_penetration", "fingering", "cum", "buttjob", "cum_in_pussy", "vaginal_insertion",
+                "mia_khalifa", "reverse_cowgirl_position", "riding", "enema"));
         return filters;
     }
 
     @Override
     protected boolean isAnimatedOnly() {
-        return true;
+        return false;
     }
 
 }

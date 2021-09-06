@@ -21,7 +21,7 @@ public class FurryCommand extends E621Abstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated";
+        return "sex animated";
     }
 
     @Override
