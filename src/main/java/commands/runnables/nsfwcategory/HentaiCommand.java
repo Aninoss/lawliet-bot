@@ -22,8 +22,8 @@ public class HentaiCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated -3d";
-    } //TODO: add sex
+        return "animated sex -3d";
+    }
 
     @Override
     protected Set<String> getAdditionalFilters() {

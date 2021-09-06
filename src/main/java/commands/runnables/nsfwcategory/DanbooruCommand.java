@@ -31,7 +31,7 @@ public class DanbooruCommand extends PornSearchAbstract {
 
     @Override
     public int getMaxTags() {
-        return 2;
+        return 12;
     }
 
 }
