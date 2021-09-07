@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.http.HttpRequestEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
@@ -220,6 +221,12 @@ public class DiscordEventAdapter extends ListenerAdapter {
     public void onButtonClick(@NotNull ButtonClickEvent event) {
         GlobalThreadPool.getExecutorService()
                 .submit(() -> ButtonClickAbstract.onButtonClickStatic(event, getListenerList(ButtonClickAbstract.class)));
+    }
+
+    @Override
+    public void onSelectionMenu(@NotNull SelectionMenuEvent event) {
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> SelectionMenuAbstract.onSelectionMenuStatic(event, getListenerList(SelectionMenuAbstract.class)));
     }
 
     @Override
