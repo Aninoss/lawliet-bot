@@ -44,6 +44,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
     protected void registerNavigationListener(Member member) {
         registerButtonListener(member);
+        registerSelectionMenuListener(member, false);
         registerMessageInputListener(member, false);
         processDraw(member, true).exceptionally(ExceptionLogger.get());
     }

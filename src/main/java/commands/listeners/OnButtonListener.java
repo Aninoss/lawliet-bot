@@ -11,11 +11,15 @@ public interface OnButtonListener extends OnInteractionListener {
     boolean onButton(ButtonClickEvent event) throws Throwable;
 
     default CompletableFuture<Long> registerButtonListener(Member member) {
-        return registerInteractionListener(member, this::onButtonOverridden, OnButtonListener.class);
+        return registerButtonListener(member, true);
     }
 
-    default CompletableFuture<Long> registerButtonListener(Member member, Function<ButtonClickEvent, CommandListenerMeta.CheckResponse> validityChecker) {
-        return registerInteractionListener(member, validityChecker, this::onButtonOverridden, OnButtonListener.class);
+    default CompletableFuture<Long> registerButtonListener(Member member, boolean draw) {
+        return registerInteractionListener(member, this::onButtonOverridden, OnButtonListener.class, draw);
+    }
+
+    default CompletableFuture<Long> registerButtonListener(Member member, Function<ButtonClickEvent, CommandListenerMeta.CheckResponse> validityChecker, boolean draw) {
+        return registerInteractionListener(member, validityChecker, this::onButtonOverridden, OnButtonListener.class, draw);
     }
 
     default void processButton(ButtonClickEvent event) {

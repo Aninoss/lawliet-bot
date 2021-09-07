@@ -2,6 +2,7 @@ package commands.runnables.fisherycategory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
@@ -29,9 +30,12 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 
 @CommandProperties(
         trigger = "stocks",
@@ -95,10 +99,6 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                 return false;
             }
             case 0 -> {
-                currentStock = getRelativeStock(-1);
-                return true;
-            }
-            case 1 -> {
                 if (fisheryMemberBean.getStocks(currentStock).getShareSize() < Settings.FISHERY_SHARES_MAX) {
                     sharesNum = 0;
                     setState(STATE_BUY);
@@ -107,17 +107,13 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                 }
                 return true;
             }
-            case 2 -> {
+            case 1 -> {
                 if (fisheryMemberBean.getStocks(currentStock).getShareSize() > 0) {
                     sharesNum = 0;
                     setState(STATE_SELL);
                 } else {
                     setLog(LogStatus.FAILURE, getString("sell_none"));
                 }
-                return true;
-            }
-            case 3 -> {
-                currentStock = getRelativeStock(1);
                 return true;
             }
             default -> {
@@ -171,6 +167,12 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         return false;
     }
 
+    @ControllerSelectionMenu(state = STATE_MAIN)
+    public boolean onSelectionMenuMain(SelectionMenuEvent event) {
+        currentStock = Stock.values()[Integer.parseInt(event.getValues().get(0))];
+        return true;
+    }
+
     @Draw(state = STATE_MAIN)
     public EmbedBuilder onDrawMain(Member member) throws IOException, ExecutionException, InterruptedException {
         long coins = fisheryMemberBean.getCoins();
@@ -185,15 +187,32 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         );
 
         Button[] buttons = new Button[] {
-                Button.of(ButtonStyle.SECONDARY, "0", getString("button_prev", getRelativeStock(-1).getName())),
-                Button.of(ButtonStyle.PRIMARY, "1", getString("button_buy")),
-                Button.of(ButtonStyle.PRIMARY, "2", getString("button_sell")),
-                Button.of(ButtonStyle.SECONDARY, "3", getString("button_next", getRelativeStock(1).getName()))
+                Button.of(ButtonStyle.PRIMARY, "0", getString("button_buy")),
+                Button.of(ButtonStyle.PRIMARY, "1", getString("button_sell")),
         };
-        setComponents(buttons);
+        SelectionMenu.Builder menuBuilder = SelectionMenu.create("selection")
+                .setMinValues(1);
+        for (int i = 0; i < Stock.values().length; i++) {
+            Stock stock = Stock.values()[i];
+            long price = StockMarket.getValue(stock);
+            long pricePrevious = StockMarket.getValue(stock, -1);
+            menuBuilder.addOption(
+                    stock.getName(),
+                    String.valueOf(i),
+                    getString("select_desc", StringUtil.numToString(price), generateChangeArrow(pricePrevious, price))
+            );
+        }
+        SelectionMenu menu = menuBuilder.setDefaultValues(List.of(String.valueOf(currentStock.ordinal())))
+                .build();
+        ActionRow[] actionRows = new ActionRow[] {
+                ActionRow.of(buttons),
+                ActionRow.of(menu)
+        };
+
+        setActionRows(actionRows);
         return EmbedFactory.getEmbedDefault(this)
                 .setDescription(desc + "\n" + Emojis.ZERO_WIDTH_SPACE)
-                .addField(getString("investment_title", StringUtil.numToString(currentStock.ordinal() + 1), currentStock.getName()), generateStockDescription(), false)
+                .addField(currentStock.getName(), generateStockDescription(), false)
                 .setImage(getStockGraphUrl() + "?" + TimeUtil.currentHour());
     }
 
@@ -214,7 +233,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         );
 
         if (sharesNum > 0) {
-            setComponents(new String[] { getString("buy_confirm") });
+            setComponents(getString("buy_confirm"));
         }
         return EmbedFactory.getEmbedDefault(this, desc, getString("buy_title", currentStock.getName()))
                 .addField(Emojis.ZERO_WIDTH_SPACE, attr, false);

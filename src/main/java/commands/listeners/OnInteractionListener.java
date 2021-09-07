@@ -44,17 +44,18 @@ public interface OnInteractionListener extends Drawable {
         command.resetDrawMessage();
     }
 
-    default CompletableFuture<Long> registerInteractionListener(Member member, ExceptionRunnable overriddenMethod, Class<?> clazz) {
+    default CompletableFuture<Long> registerInteractionListener(Member member, ExceptionRunnable overriddenMethod, Class<?> clazz, boolean draw) {
         return registerInteractionListener(member, event -> {
             if (event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L)) {
                 return event.getUser().getIdLong() == member.getIdLong() ? CommandListenerMeta.CheckResponse.ACCEPT : CommandListenerMeta.CheckResponse.DENY;
             }
             return CommandListenerMeta.CheckResponse.IGNORE;
-        }, overriddenMethod, clazz);
+        }, overriddenMethod, clazz, draw);
     }
 
     default <T extends GenericComponentInteractionCreateEvent> CompletableFuture<Long> registerInteractionListener(Member member, Function<T, CommandListenerMeta.CheckResponse> validityChecker,
-                                                                ExceptionRunnable overriddenMethod, Class<?> clazz
+                                                                                                                   ExceptionRunnable overriddenMethod, Class<?> clazz,
+                                                                                                                   boolean draw
     ) {
         Command command = (Command) this;
 
@@ -80,13 +81,15 @@ public interface OnInteractionListener extends Drawable {
         CommandContainer.registerListener(clazz, commandListenerMeta);
 
         try {
-            if (command.getDrawMessageId().isEmpty()) {
-                EmbedBuilder eb = draw(member);
-                if (eb != null) {
-                    return command.drawMessage(eb);
+            if (draw) {
+                if (command.getDrawMessageId().isEmpty()) {
+                    EmbedBuilder eb = draw(member);
+                    if (eb != null) {
+                        return command.drawMessage(eb);
+                    }
+                } else {
+                    return CompletableFuture.completedFuture(command.getDrawMessageId().get());
                 }
-            } else {
-                return CompletableFuture.completedFuture(command.getDrawMessageId().get());
             }
         } catch (Throwable e) {
             command.getTextChannel().ifPresent(channel -> {
