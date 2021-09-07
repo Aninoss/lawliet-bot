@@ -9,11 +9,9 @@ public abstract class ButtonClickAbstract extends DiscordEventAbstract {
     public abstract boolean onButtonClick(ButtonClickEvent event) throws Throwable;
 
     public static void onButtonClickStatic(ButtonClickEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        InteractionAbstract.onInteractionStatic(event, () -> {
-            execute(listenerList, event.getUser(), event.getGuild().getIdLong(),
-                    listener -> ((ButtonClickAbstract) listener).onButtonClick(event)
-            );
-        });
+        InteractionAbstract.onInteractionStatic(event, listenerList,
+                listener -> ((ButtonClickAbstract) listener).onButtonClick(event)
+        );
     }
 
 }

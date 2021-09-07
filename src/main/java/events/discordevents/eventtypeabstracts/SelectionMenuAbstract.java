@@ -9,11 +9,9 @@ public abstract class SelectionMenuAbstract extends DiscordEventAbstract {
     public abstract boolean onSelectionMenu(SelectionMenuEvent event) throws Throwable;
 
     public static void onSelectionMenuStatic(SelectionMenuEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        InteractionAbstract.onInteractionStatic(event, () -> {
-            execute(listenerList, event.getUser(), event.getGuild().getIdLong(),
-                    listener -> ((SelectionMenuAbstract) listener).onSelectionMenu(event)
-            );
-        });
+        InteractionAbstract.onInteractionStatic(event, listenerList,
+                listener -> ((SelectionMenuAbstract) listener).onSelectionMenu(event)
+        );
     }
 
 }
