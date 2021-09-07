@@ -21,10 +21,10 @@ public class ActionRows {
         }
 
         ArrayList<DataObject> rows = new ArrayList<>();
-        ArrayList<Component> buttonsRemovable = new ArrayList<>(components);
+        ArrayList<Component> componentRemovable = new ArrayList<>(components);
         int rowIndex = 0;
 
-        while(buttonsRemovable.size() > 0) {
+        while(componentRemovable.size() > 0) {
             DataObject row;
             if (rowIndex >= rows.size()) {
                 row = DataObject.empty()
@@ -35,9 +35,12 @@ public class ActionRows {
                 row = rows.get(rowIndex);
             }
 
-            DataArray componentsDataArray = row.getArray("components");
-            if (componentsDataArray.length() < 5) {
-                componentsDataArray.add(buttonsRemovable.remove(0).toData());
+            DataArray dataArray = row.getArray("components");
+            Component component = componentRemovable.get(0);
+            if (countChildrenTypeInDataArray(dataArray, component.getType()) < component.getMaxPerRow() &&
+                    dataArrayOnlyHasType(dataArray, component.getType())
+            ) {
+                dataArray.add(componentRemovable.remove(0).toData());
             } else {
                 rowIndex++;
             }
@@ -46,6 +49,27 @@ public class ActionRows {
         return rows.stream()
                 .map(ActionRow::fromData)
                 .collect(Collectors.toList());
+    }
+
+    private static int countChildrenTypeInDataArray(DataArray dataArray, Component.Type type) {
+        int n = 0;
+        for (int i = 0; i < dataArray.length(); i++) {
+            DataObject dataObject = dataArray.getObject(i);
+            if (dataObject.getInt("type") == type.ordinal()) {
+                n++;
+            }
+        }
+        return n;
+    }
+
+    private static boolean dataArrayOnlyHasType(DataArray dataArray, Component.Type type) {
+        for (int i = 0; i < dataArray.length(); i++) {
+            DataObject dataObject = dataArray.getObject(i);
+            if (dataObject.getInt("type") != type.ordinal()) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
