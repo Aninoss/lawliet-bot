@@ -263,7 +263,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
         ArrayList<Role> unmanagableRoles = new ArrayList<>();
         for (Role role : roles) {
-            if (role != null && (!role.getGuild().getSelfMember().canInteract(role) || !BotPermissionUtil.can(role.getGuild().getSelfMember(), Permission.MANAGE_ROLES))) {
+            if (role != null && (!BotPermissionUtil.canManage(role) || !BotPermissionUtil.can(role.getGuild().getSelfMember(), Permission.MANAGE_ROLES))) {
                 unmanagableRoles.add(role);
             }
         }
@@ -276,7 +276,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
             ArrayList<Role> forbiddenRoles = new ArrayList<>();
             for (Role role : roles) {
-                if (role != null && (!member.canInteract(role) || !BotPermissionUtil.can(member, Permission.MANAGE_ROLES))) {
+                if (role != null && (!BotPermissionUtil.canManage(role) || !BotPermissionUtil.can(member, Permission.MANAGE_ROLES))) {
                     forbiddenRoles.add(role);
                 }
             }

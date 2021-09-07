@@ -178,7 +178,7 @@ public class BotPermissionUtil {
         }
     }
 
-    public static boolean canInteract(GuildChannel channel, Permission permission) {
+    public static boolean canManage(GuildChannel channel, Permission permission) {
         if (channel.getGuild().getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
             return true;
         }
@@ -186,6 +186,12 @@ public class BotPermissionUtil {
         return permission.getOffset() != Permission.MANAGE_PERMISSIONS.getOffset() &&
                 (channel.getParent() == null || channel.getGuild().getSelfMember().hasPermission(channel.getParent(), permission)) &&
                 channel.getGuild().getSelfMember().hasPermission(permission);
+    }
+
+    public static boolean canManage(Role role) {
+        return role.getGuild().getSelfMember().canInteract(role) &&
+                !role.isManaged() &&
+                !role.isPublicRole();
     }
 
     public static boolean canUseExternalEmojisInInteraction(GuildChannel channel) {
@@ -265,11 +271,11 @@ public class BotPermissionUtil {
         }
 
         List<Permission> allowList = Permission.getPermissions(allowRaw).stream()
-                .filter(permission -> BotPermissionUtil.canInteract(parentChannel, permission))
+                .filter(permission -> BotPermissionUtil.canManage(parentChannel, permission))
                 .collect(Collectors.toList());
 
         List<Permission> denyList = Permission.getPermissions(denyRaw).stream()
-                .filter(permission -> BotPermissionUtil.canInteract(parentChannel, permission))
+                .filter(permission -> BotPermissionUtil.canManage(parentChannel, permission))
                 .collect(Collectors.toList());
 
         if (memberOverride) {

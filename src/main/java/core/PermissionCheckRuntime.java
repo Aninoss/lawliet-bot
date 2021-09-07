@@ -77,7 +77,7 @@ public class PermissionCheckRuntime {
         ArrayList<Role> unreachableRoles = new ArrayList<>();
 
         for (Role role : roles) {
-            if (!role.getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES) || !role.getGuild().getSelfMember().canInteract(role)) {
+            if (!role.getGuild().getSelfMember().hasPermission(Permission.MANAGE_ROLES) || !BotPermissionUtil.canManage(role)) {
                 unreachableRoles.add(role);
             }
         }

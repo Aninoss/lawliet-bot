@@ -55,7 +55,7 @@ public class JailCommand extends WarnCommand {
         ModerationData moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         Guild guild = event.getGuild();
         List<Role> notManagableRoles = moderationBean.getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong).stream()
-                .filter(role -> !guild.getSelfMember().canInteract(role))
+                .filter(role -> !BotPermissionUtil.canManage(role))
                 .collect(Collectors.toList());
 
         if (notManagableRoles.size() > 0) {

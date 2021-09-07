@@ -235,7 +235,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         if (slot.getGear() == FisheryGear.ROLE) {
             return slot.getLevel() < roles.size() &&
                     BotPermissionUtil.can(guild, Permission.MANAGE_ROLES) &&
-                    guild.getSelfMember().canInteract(roles.get(slot.getLevel()));
+                    BotPermissionUtil.canManage(roles.get(slot.getLevel()));
         }
 
         if (slot.getGear() == FisheryGear.TREASURE) {

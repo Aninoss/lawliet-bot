@@ -44,7 +44,7 @@ public class RoleAssigner {
                             MemberCacheController.getInstance().loadMembersFull(guild).join();
                             boolean canInteract = roles.stream().allMatch(role ->
                                     BotPermissionUtil.can(role.getGuild(), Permission.MANAGE_ROLES) &&
-                                            role.getGuild().getSelfMember().canInteract(role)
+                                            BotPermissionUtil.canManage(role)
                             );
 
                             if (guild.getMembers().contains(member) && canInteract) {

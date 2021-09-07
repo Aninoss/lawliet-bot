@@ -2,6 +2,7 @@ package commands.runnables.moderationcategory;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
@@ -58,6 +59,7 @@ public class ModSettingsCommand extends NavigationAbstract {
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         jailRoles = AtomicRole.transformIdList(event.getGuild(), moderationBean.getJailRoleIds());
         jailRolesNavigationHelper = new NavigationHelper<>(this, jailRoles, AtomicRole.class, 20);
+        checkRolesWithLog(event.getMember(), jailRoles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
         registerNavigationListener(event.getMember());
         return true;
     }

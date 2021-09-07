@@ -56,7 +56,7 @@ public class MuteCommand extends WarnCommand {
             return false;
         }
 
-        if (!event.getGuild().getSelfMember().canInteract(muteRoleOpt.get())) {
+        if (!BotPermissionUtil.canManage(muteRoleOpt.get())) {
             event.getChannel()
                     .sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, muteRoleOpt.get().getAsMention())).build())
                     .queue();

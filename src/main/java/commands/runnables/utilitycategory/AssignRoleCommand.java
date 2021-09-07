@@ -12,6 +12,7 @@ import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.Mention;
+import core.utils.BotPermissionUtil;
 import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import modules.RoleAssigner;
@@ -60,7 +61,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
 
         /* check for missing role manage permissions bot */
         List<Role> rolesMissingPermissions = roles.stream()
-                .filter(r -> !event.getGuild().getSelfMember().canInteract(r))
+                .filter(r -> !BotPermissionUtil.canManage(r))
                 .collect(Collectors.toList());
         if (rolesMissingPermissions.size() > 0) {
             Mention mention = MentionUtil.getMentionedStringOfRoles(getLocale(), rolesMissingPermissions);
@@ -72,7 +73,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
 
         /* check for missing role manage permissions user */
         rolesMissingPermissions = roles.stream()
-                .filter(r -> !event.getMember().canInteract(r))
+                .filter(r -> !BotPermissionUtil.canManage(r))
                 .collect(Collectors.toList());
         if (rolesMissingPermissions.size() > 0) {
             Mention mention = MentionUtil.getMentionedStringOfRoles(getLocale(), rolesMissingPermissions);

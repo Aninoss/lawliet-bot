@@ -9,6 +9,7 @@ import commands.runnables.moderationcategory.UnjailCommand;
 import core.CustomObservableMap;
 import core.MemberCacheController;
 import core.PermissionCheckRuntime;
+import core.utils.BotPermissionUtil;
 import modules.schedulers.JailScheduler;
 import mysql.modules.jails.DBJails;
 import mysql.modules.jails.JailData;
@@ -41,14 +42,14 @@ public class Jail {
         List<Role> jailRoles =  moderationData.getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
         PermissionCheckRuntime.botCanManageRoles(moderationData.getGuildData().getLocale(), JailCommand.class, jailRoles);
         List<Role> jailRolesAdd = jailRoles.stream()
-                .filter(role -> guild.getSelfMember().canInteract(role))
+                .filter(BotPermissionUtil::canManage)
                 .collect(Collectors.toList());
 
         boolean allRolePermissionsFine = member.getRoles().stream()
                 .filter(role -> role.getIdLong() != muteRoleId && !jailRolesAdd.contains(role) && member.getRoles().contains(role))
-                .allMatch(role -> guild.getSelfMember().canInteract(role));
+                .allMatch(BotPermissionUtil::canManage);
         List<Role> jailRolesRemove = member.getRoles().stream()
-                .filter(role -> role.getIdLong() != muteRoleId && !jailRolesAdd.contains(role) && guild.getSelfMember().canInteract(role))
+                .filter(role -> role.getIdLong() != muteRoleId && !jailRolesAdd.contains(role) && BotPermissionUtil.canManage(role))
                 .collect(Collectors.toList());
 
         if (guild.getMembers().contains(member)) {
@@ -77,16 +78,16 @@ public class Jail {
         boolean allRolePermissionsFine = jailData.getPreviousRoleIds().stream()
                 .map(guild::getRoleById)
                 .filter(role -> role != null && !member.getRoles().contains(role))
-                .allMatch(role -> guild.getSelfMember().canInteract(role));
+                .allMatch(BotPermissionUtil::canManage);
         List<Role> previousRolesAdd = jailData.getPreviousRoleIds().stream()
                 .map(guild::getRoleById)
-                .filter(role -> role != null && guild.getSelfMember().canInteract(role))
+                .filter(role -> role != null && BotPermissionUtil.canManage(role))
                 .collect(Collectors.toList());
 
         List<Role> jailRoles =  moderationData.getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
         PermissionCheckRuntime.botCanManageRoles(moderationData.getGuildData().getLocale(), UnjailCommand.class, jailRoles);
         List<Role> previousRolesRemove = jailRoles.stream()
-                .filter(role -> !previousRolesAdd.contains(role) && guild.getSelfMember().canInteract(role))
+                .filter(role -> !previousRolesAdd.contains(role) && BotPermissionUtil.canManage(role))
                 .collect(Collectors.toList());
 
         guild.modifyMemberRoles(member, previousRolesAdd, previousRolesRemove)

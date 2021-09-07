@@ -12,6 +12,7 @@ import commands.runnables.utilitycategory.AutoRolesCommand;
 import constants.FisheryStatus;
 import core.PermissionCheckRuntime;
 import core.RestActionQueue;
+import core.utils.BotPermissionUtil;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
@@ -107,7 +108,7 @@ public class JoinRoles {
         List<Role> jailRoles = DBModeration.getInstance().retrieve(guild.getIdLong()).getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
         PermissionCheckRuntime.botCanManageRoles(locale, JailCommand.class, jailRoles);
         for (Role jailRole : jailRoles) {
-            if (guild.getSelfMember().canInteract(jailRole)) {
+            if (BotPermissionUtil.canManage(jailRole)) {
                 rolesToAdd.add(jailRole);
             }
         }
