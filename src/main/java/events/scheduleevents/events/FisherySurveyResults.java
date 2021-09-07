@@ -10,7 +10,7 @@ import commands.Category;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
 import core.*;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -24,7 +24,7 @@ import mysql.modules.survey.SurveySecondVote;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 @ScheduleEventDaily
-public class FisherySurveyResults implements ScheduleInterface {
+public class FisherySurveyResults implements ExceptionRunnable {
 
     @Override
     public void run() {

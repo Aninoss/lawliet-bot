@@ -91,7 +91,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     public boolean onButtonMain(ButtonClickEvent event, int i) {
         switch (i) {
             case -1 -> {
-                deregisterListenersWithButtonMessage();
+                deregisterListenersWithComponentMessage();
                 return false;
             }
             case 0 -> {

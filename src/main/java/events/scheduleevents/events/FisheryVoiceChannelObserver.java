@@ -10,7 +10,7 @@ import modules.fishery.FisheryStatus;
 import core.MainLogger;
 import core.Program;
 import core.ShardManager;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
 @ScheduleEventFixedRate(rateValue = FisheryVoiceChannelObserver.VC_CHECK_INTERVAL_MIN, rateUnit = ChronoUnit.MINUTES)
-public class FisheryVoiceChannelObserver implements ScheduleInterface {
+public class FisheryVoiceChannelObserver implements ExceptionRunnable {
 
     public static final int VC_CHECK_INTERVAL_MIN = 1;
 

@@ -199,7 +199,7 @@ public class WarnCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
         boolean confirm = Boolean.parseBoolean(event.getComponentId());
         if (confirm) {
             event.deferEdit().queue();

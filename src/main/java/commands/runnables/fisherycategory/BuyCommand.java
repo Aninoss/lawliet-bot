@@ -101,7 +101,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
         if (state == 0) {
             if (i == -1) {
-                deregisterListenersWithButtonMessage();
+                deregisterListenersWithComponentMessage();
                 return false;
             } else if (i >= 0 && i < FisheryGear.values().length) {
                 buy(FisheryGear.values()[i], event.getMember(), true);

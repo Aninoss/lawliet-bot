@@ -6,13 +6,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import core.MainLogger;
 import core.Program;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventFixedRate;
 import websockets.syncserver.SendEvent;
 import websockets.syncserver.SyncManager;
 
 @ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.MINUTES)
-public class CheckSyncWebsocket implements ScheduleInterface {
+public class CheckSyncWebsocket implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {

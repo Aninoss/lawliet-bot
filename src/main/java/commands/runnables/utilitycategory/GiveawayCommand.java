@@ -229,7 +229,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     public boolean onButtonAddOrEdit(ButtonClickEvent event, int i) {
         switch (i) {
             case -1:
-                deregisterListenersWithButtonMessage();
+                deregisterListenersWithComponentMessage();
                 return false;
 
             case 0:

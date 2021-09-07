@@ -3,11 +3,11 @@ package events.scheduleevents.events;
 import java.time.temporal.ChronoUnit;
 import core.MainLogger;
 import core.MemberCacheController;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventFixedRate;
 
 @ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.MINUTES)
-public class PruneMemberCache implements ScheduleInterface {
+public class PruneMemberCache implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {

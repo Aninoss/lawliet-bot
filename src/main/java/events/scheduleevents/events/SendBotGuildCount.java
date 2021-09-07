@@ -3,12 +3,12 @@ package events.scheduleevents.events;
 import java.time.temporal.ChronoUnit;
 import core.Program;
 import core.ShardManager;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventFixedRate;
 import websockets.*;
 
 @ScheduleEventFixedRate(rateValue = 5, rateUnit = ChronoUnit.MINUTES)
-public class SendBotGuildCount implements ScheduleInterface {
+public class SendBotGuildCount implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {

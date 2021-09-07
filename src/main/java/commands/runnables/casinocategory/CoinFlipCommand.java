@@ -108,7 +108,7 @@ public class CoinFlipCommand extends CasinoAbstract {
 
     private void manageEnd(Member member) {
         if (selection[0] == -1) return;
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
 
         MainScheduler.schedule(3000, "coinflip_cputhrow", () -> {
             selection[1] = new Random().nextBoolean() ? 1 : 0;

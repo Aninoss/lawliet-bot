@@ -71,7 +71,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
 
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
         boolean active = Boolean.parseBoolean(event.getComponentId());
         if (setActive(active)) {
             mode = Mode.SET;

@@ -168,7 +168,7 @@ public class WelcomeCommand extends NavigationAbstract {
         if (state == 0) {
             switch (i) {
                 case -1:
-                    deregisterListenersWithButtonMessage();
+                    deregisterListenersWithComponentMessage();
                     return false;
 
                 case 0:

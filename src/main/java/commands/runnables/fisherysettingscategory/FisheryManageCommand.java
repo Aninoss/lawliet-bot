@@ -224,7 +224,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         if (state == 0) {
             int posDelete = 3 + FisheryGear.values().length;
             if (i == -1) {
-                deregisterListenersWithButtonMessage();
+                deregisterListenersWithComponentMessage();
                 return false;
             } else if (i >= 0 && i < posDelete) {
                 setState(i + 1);

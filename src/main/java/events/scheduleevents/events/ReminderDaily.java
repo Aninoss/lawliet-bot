@@ -7,14 +7,14 @@ import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.Program;
 import core.TextManager;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.subs.DBSubs;
 import mysql.modules.subs.SubSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 @ScheduleEventDaily
-public class ReminderDaily implements ScheduleInterface {
+public class ReminderDaily implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {

@@ -1,12 +1,13 @@
 package core.schedule;
 
+import constants.ExceptionRunnable;
 import core.MainLogger;
 
 public class ScheduleAdapter implements Runnable {
 
-    private final ScheduleInterface scheduleEvent;
+    private final ExceptionRunnable scheduleEvent;
 
-    public ScheduleAdapter(ScheduleInterface scheduleEvent) {
+    public ScheduleAdapter(ExceptionRunnable scheduleEvent) {
         this.scheduleEvent = scheduleEvent;
     }
 

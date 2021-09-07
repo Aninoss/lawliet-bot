@@ -77,7 +77,7 @@ public class LanguageCommand extends Command implements OnButtonListener {
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         Language language = Language.valueOf(event.getComponentId());
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
         setLocale(language.getLocale());
         DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setLocale(getLocale());
         set = true;

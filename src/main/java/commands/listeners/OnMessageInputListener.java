@@ -14,11 +14,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
-public interface OnMessageInputListener {
+public interface OnMessageInputListener extends Drawable {
 
     MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable;
-
-    EmbedBuilder draw(Member member) throws Throwable;
 
     default void registerMessageInputListener(Member member) {
         registerMessageInputListener(member, true);

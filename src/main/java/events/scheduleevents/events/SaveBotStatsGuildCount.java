@@ -2,12 +2,12 @@ package events.scheduleevents.events;
 
 import core.Program;
 import core.ShardManager;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.botstats.DBBotStats;
 
 @ScheduleEventDaily
-public class SaveBotStatsGuildCount implements ScheduleInterface {
+public class SaveBotStatsGuildCount implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {

@@ -162,7 +162,7 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         answerSelected = selected;
-        MainScheduler.schedule(Settings.TIME_OUT_MINUTES, ChronoUnit.MINUTES, "quiz_remove", this::deregisterListenersWithButtonMessage);
+        MainScheduler.schedule(Settings.TIME_OUT_MINUTES, ChronoUnit.MINUTES, "quiz_remove", this::deregisterListenersWithComponentMessage);
     }
 
 }

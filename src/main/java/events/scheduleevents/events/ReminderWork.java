@@ -11,7 +11,7 @@ import core.EmbedFactory;
 import core.MainLogger;
 import core.ShardManager;
 import core.TextManager;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import core.utils.MentionUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.modules.autowork.AutoWorkData;
@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
 @ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.MINUTES)
-public class ReminderWork implements ScheduleInterface {
+public class ReminderWork implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {

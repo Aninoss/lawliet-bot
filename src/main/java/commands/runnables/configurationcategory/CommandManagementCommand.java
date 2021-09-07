@@ -59,7 +59,7 @@ public class CommandManagementCommand extends NavigationAbstract {
         switch (state) {
             case 0:
                 if (i == -1) {
-                    deregisterListenersWithButtonMessage();
+                    deregisterListenersWithComponentMessage();
                     return false;
                 } else if (i >= 0 && i < Category.LIST.length) {
                     category = Category.LIST[i];

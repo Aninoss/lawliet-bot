@@ -107,7 +107,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     }
 
     private void onAssignmentFinished(boolean success) {
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
         if (success) {
             drawMessage(EmbedFactory.getEmbedDefault(this, getString("success_desc", rolesMention.isMultiple(), rolesMention.getMentionText())));
         } else {
@@ -118,7 +118,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         event.deferEdit().queue();
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
         roleAssigner.cancel(event.getGuild().getIdLong());
         return false;
     }

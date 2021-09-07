@@ -218,7 +218,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public boolean onButtonAddOrEdit(ButtonClickEvent event, int i) {
         switch (i) {
             case -1:
-                deregisterListenersWithButtonMessage();
+                deregisterListenersWithComponentMessage();
                 return false;
 
             case 0:

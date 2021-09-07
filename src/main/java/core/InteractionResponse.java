@@ -6,16 +6,16 @@ import java.util.Collection;
 import java.util.List;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.RestAction;
 
 public class InteractionResponse {
 
-    private final ButtonClickEvent event;
+    private final GenericComponentInteractionCreateEvent event;
 
-    public InteractionResponse(ButtonClickEvent buttonClickEvent) {
-        this.event = buttonClickEvent;
+    public InteractionResponse(GenericComponentInteractionCreateEvent event) {
+        this.event = event;
     }
 
     public RestAction<Message> editMessageEmbeds(List<MessageEmbed> embeds, Collection<ActionRow> actionRows) {

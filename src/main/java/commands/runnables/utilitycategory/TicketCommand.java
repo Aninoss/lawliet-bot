@@ -119,7 +119,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     public boolean onButtonMain(ButtonClickEvent event, int i) {
         switch (i) {
             case -1:
-                deregisterListenersWithButtonMessage();
+                deregisterListenersWithComponentMessage();
                 return false;
 
             case 0:

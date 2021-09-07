@@ -7,7 +7,7 @@ import java.util.Locale;
 import commands.Category;
 import constants.ExternalLinks;
 import core.*;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventFixedRate;
 import mysql.modules.subs.DBSubs;
 import mysql.modules.subs.SubSlot;
@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.MINUTES)
-public class ReminderUpvote implements ScheduleInterface {
+public class ReminderUpvote implements ExceptionRunnable {
 
     private boolean unlocked = true;
 

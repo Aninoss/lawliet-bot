@@ -62,7 +62,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
 
             if (!interrupt) {
-                deregisterListenersWithButtons();
+                deregisterListenersWithComponents();
                 drawMessage(eb);
             }
 
@@ -158,7 +158,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
         interrupt = true;
         return true;
     }

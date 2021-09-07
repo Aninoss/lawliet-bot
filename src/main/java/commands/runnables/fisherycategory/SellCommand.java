@@ -74,13 +74,13 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
 
     @Override
     public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
         return process(event.getMember(), input) ? MessageInputResponse.SUCCESS : MessageInputResponse.FAILED;
     }
 
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
         if (event.getComponentId().equals(BUTTON_ID_CANCEL)) {
             markNoInterest();
         } else if (event.getComponentId().equals(BUTTON_ID_SELLALL)){
@@ -96,7 +96,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
 
     @Override
     public void onMessageInputOverridden() throws Throwable {
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
     }
 
     private boolean process(Member member, String args) {

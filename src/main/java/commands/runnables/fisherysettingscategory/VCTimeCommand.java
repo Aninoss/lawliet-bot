@@ -97,7 +97,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
 
     @Override
     public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
         this.eb = mainExecution(event, input);
         return MessageInputResponse.SUCCESS;
     }
@@ -105,11 +105,11 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         if (event.getComponentId().equals(BUTTON_ID_UNLIMITED)) {
-            deregisterListenersWithButtons();
+            deregisterListenersWithComponents();
             this.eb = markUnlimited();
             return true;
         } else if (event.getComponentId().equals(BUTTON_ID_CANCEL)) {
-            deregisterListenersWithButtonMessage();
+            deregisterListenersWithComponentMessage();
             return true;
         }
         return false;

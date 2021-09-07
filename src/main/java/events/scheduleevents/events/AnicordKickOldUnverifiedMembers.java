@@ -7,12 +7,12 @@ import constants.AssetIds;
 import core.Program;
 import core.MainLogger;
 import core.ShardManager;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventHourly;
 import net.dv8tion.jda.api.entities.Role;
 
 @ScheduleEventHourly
-public class AnicordKickOldUnverifiedMembers implements ScheduleInterface {
+public class AnicordKickOldUnverifiedMembers implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {

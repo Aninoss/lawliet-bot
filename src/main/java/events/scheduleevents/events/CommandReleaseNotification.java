@@ -10,7 +10,7 @@ import constants.AssetIds;
 import constants.Language;
 import core.Program;
 import core.ShardManager;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventDaily;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 @ScheduleEventDaily
-public class CommandReleaseNotification implements ScheduleInterface {
+public class CommandReleaseNotification implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {

@@ -1,11 +1,11 @@
 package events.scheduleevents.events;
 
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.upvotes.DBUpvotes;
 
 @ScheduleEventDaily
-public class ClearOldUpvotes implements ScheduleInterface {
+public class ClearOldUpvotes implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {

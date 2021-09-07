@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 import core.MainLogger;
 import core.Startable;
 import core.schedule.ScheduleAdapter;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import core.utils.TimeUtil;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 import org.reflections.Reflections;
@@ -34,7 +34,7 @@ public class ScheduleEventManager extends Startable {
         processAnnotations(ScheduleEventDaily.class, this::attachDaily);
     }
 
-    private <A extends Annotation> void processAnnotations(Class<A> annotationClass, Consumer<ScheduleInterface> action) {
+    private <A extends Annotation> void processAnnotations(Class<A> annotationClass, Consumer<ExceptionRunnable> action) {
         Set<Class<?>> annotations = reflections.getTypesAnnotatedWith(annotationClass);
         annotations.stream()
                 .map(clazz -> {
@@ -46,12 +46,12 @@ public class ScheduleEventManager extends Startable {
                     return null;
                 })
                 .filter(Objects::nonNull)
-                .filter(obj -> obj instanceof ScheduleInterface)
-                .map(obj -> (ScheduleInterface) obj)
+                .filter(obj -> obj instanceof ExceptionRunnable)
+                .map(obj -> (ExceptionRunnable) obj)
                 .forEach(action);
     }
 
-    private void attachFixedRate(ScheduleInterface listener) {
+    private void attachFixedRate(ExceptionRunnable listener) {
         ScheduleEventFixedRate fixedRateAnnotation = listener.getClass().getAnnotation(ScheduleEventFixedRate.class);
         if (fixedRateAnnotation != null) {
             long millis = Duration.of(fixedRateAnnotation.rateValue(), fixedRateAnnotation.rateUnit()).toMillis();
@@ -59,7 +59,7 @@ public class ScheduleEventManager extends Startable {
         }
     }
 
-    private void attachHourly(ScheduleInterface listener) {
+    private void attachHourly(ExceptionRunnable listener) {
         ScheduleEventHourly fixedRateHourly = listener.getClass().getAnnotation(ScheduleEventHourly.class);
         if (fixedRateHourly != null) {
             long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), TimeUtil.instantToNextHour(Instant.now()));
@@ -67,7 +67,7 @@ public class ScheduleEventManager extends Startable {
         }
     }
 
-    private void attachDaily(ScheduleInterface listener) {
+    private void attachDaily(ExceptionRunnable listener) {
         ScheduleEventDaily fixedRateDaily = listener.getClass().getAnnotation(ScheduleEventDaily.class);
         if (fixedRateDaily != null) {
             long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), TimeUtil.setInstantToNextDay(Instant.now()));

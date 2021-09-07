@@ -92,7 +92,7 @@ public class HelpCommand extends NavigationAbstract {
             searchTerm = key;
 
             if (searchTerm.equals("quit")) {
-                deregisterListenersWithButtonMessage();
+                deregisterListenersWithComponentMessage();
                 return false;
             }
 

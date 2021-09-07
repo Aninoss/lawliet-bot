@@ -82,7 +82,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
             int number = Integer.parseInt(input);
             if (number >= 0 && number <= area.length * area[0].length) {
                 if (number == fishCounter) {
-                    deregisterListenersWithButtons();
+                    deregisterListenersWithComponents();
                     active = false;
                     long coins = fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect();
                     setAdditionalEmbeds(fisheryMemberBean.changeValuesEmbed(event.getMember(), 0, coins).build());
@@ -102,7 +102,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
 
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
         active = false;
         fisheryMemberBean.removeWork();
         setLog(null, getString("canceled"));

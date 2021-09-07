@@ -62,7 +62,7 @@ public class ClearCommand extends Command implements OnButtonListener {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
 
             if (!interrupt) {
-                deregisterListenersWithButtons();
+                deregisterListenersWithComponents();
                 drawMessage(eb);
             }
 
@@ -146,7 +146,7 @@ public class ClearCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
-        deregisterListenersWithButtons();
+        deregisterListenersWithComponents();
         interrupt = true;
         return true;
     }

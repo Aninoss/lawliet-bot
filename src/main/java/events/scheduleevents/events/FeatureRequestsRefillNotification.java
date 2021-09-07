@@ -6,13 +6,13 @@ import constants.AssetIds;
 import constants.ExternalLinks;
 import core.Program;
 import core.ShardManager;
-import core.schedule.ScheduleInterface;
+import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventDaily;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 
 @ScheduleEventDaily
-public class FeatureRequestsRefillNotification implements ScheduleInterface {
+public class FeatureRequestsRefillNotification implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {

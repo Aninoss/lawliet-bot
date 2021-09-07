@@ -22,11 +22,9 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 
-public interface OnReactionListener {
+public interface OnReactionListener extends Drawable {
 
     boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable;
-
-    EmbedBuilder draw(Member member) throws Throwable;
 
     default CompletableFuture<Long> registerReactionListener(Member member, String... emojis) {
         Command command = (Command) this;

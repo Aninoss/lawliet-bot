@@ -67,7 +67,7 @@ public class AutoRolesCommand extends NavigationAbstract {
             case 0:
                 switch (i) {
                     case -1:
-                        deregisterListenersWithButtonMessage();
+                        deregisterListenersWithComponentMessage();
                         return false;
 
                     case 0:

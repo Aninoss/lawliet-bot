@@ -94,7 +94,7 @@ public class AlertsCommand extends NavigationAbstract {
             if (key.equalsIgnoreCase("back")) {
                 switch (state) {
                     case DEFAULT_STATE:
-                        deregisterListenersWithButtonMessage();
+                        deregisterListenersWithComponentMessage();
                         return false;
 
                     case STATE_ADD:
