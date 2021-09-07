@@ -8,8 +8,8 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
-import constants.Category;
-import constants.TrackerResult;
+import commands.Category;
+import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.components.ActionRows;
@@ -121,13 +121,13 @@ public class RedditCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         String key = forceSubreddit != null ? forceSubreddit : slot.getCommandKey();
         if (key.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
             slot.getTextChannel().get().sendMessageEmbeds(eb.build()).complete();
-            return TrackerResult.STOP_AND_DELETE;
+            return AlertResponse.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
             PostBundle<RedditPost> postBundle = redditDownloader.getPostTracker(getLocale(), key, slot.getArgs().orElse(null));
@@ -153,7 +153,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                     channel.sendMessageEmbeds(eb.build())
                             .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())))
                             .complete();
-                    return TrackerResult.STOP_AND_DELETE;
+                    return AlertResponse.STOP_AND_DELETE;
                 }
 
                 if (embedList.size() > 0) {
@@ -161,7 +161,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 }
 
                 slot.setArgs(postBundle.getNewestPost());
-                return TrackerResult.CONTINUE_AND_SAVE;
+                return AlertResponse.CONTINUE_AND_SAVE;
             } else {
                 if (slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this)
@@ -169,9 +169,9 @@ public class RedditCommand extends Command implements OnAlertListener {
                             .setDescription(TextManager.getNoResultsString(getLocale(), key));
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                     channel.sendMessageEmbeds(eb.build()).complete();
-                    return TrackerResult.STOP_AND_DELETE;
+                    return AlertResponse.STOP_AND_DELETE;
                 } else {
-                    return TrackerResult.CONTINUE;
+                    return AlertResponse.CONTINUE;
                 }
             }
         }

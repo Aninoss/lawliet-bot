@@ -13,7 +13,7 @@ import core.EmbedFactory;
 import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import modules.Fishery;
+import modules.fishery.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;

@@ -8,7 +8,7 @@ import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
@@ -61,32 +61,32 @@ public class WordFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
                 List<Member> memberIgnoredList = MentionUtil.getMembers(event.getMessage(), input).getList();
                 if (memberIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     ignoredUsers.clear();
                     ignoredUsers.addAll(memberIgnoredList.stream().map(AtomicMember::new).collect(Collectors.toList()));
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 }
 
             case 2:
                 List<Member> logRecieverList = MentionUtil.getMembers(event.getMessage(), input).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     logReceivers.clear();
                     logReceivers.addAll(logRecieverList.stream().map(AtomicMember::new).collect(Collectors.toList()));
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 }
 
             case 3:
@@ -180,7 +180,7 @@ public class WordFilterCommand extends NavigationAbstract {
     public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
-                setOptions(getString("state0_options").split("\n"));
+                setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), bannedWordsBean.isActive()), true)
                         .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), MentionableAtomicAsset::getAsMention), true)
@@ -188,11 +188,11 @@ public class WordFilterCommand extends NavigationAbstract {
                         .addField(getString("state0_mwords"), getWordsString(), true);
 
             case 1:
-                setOptions(new String[] { getString("empty") });
+                setComponents(new String[] { getString("empty") });
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                setOptions(new String[] { getString("empty") });
+                setComponents(new String[] { getString("empty") });
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:

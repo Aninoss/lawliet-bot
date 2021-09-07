@@ -1,7 +1,7 @@
 package mysql.modules.welcomemessage;
 
 import java.util.Locale;
-import constants.Category;
+import commands.Category;
 import core.TextManager;
 import mysql.MySQLManager;
 import mysql.DBObserverMapCache;

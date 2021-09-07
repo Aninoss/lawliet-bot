@@ -1,4 +1,4 @@
-package modules;
+package modules.fishery;
 
 import java.time.Duration;
 import java.util.Calendar;

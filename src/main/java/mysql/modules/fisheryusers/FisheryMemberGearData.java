@@ -1,6 +1,6 @@
 package mysql.modules.fisheryusers;
 
-import constants.FisheryGear;
+import modules.fishery.FisheryGear;
 import constants.Settings;
 import core.assets.MemberAsset;
 import core.utils.NumberUtil;

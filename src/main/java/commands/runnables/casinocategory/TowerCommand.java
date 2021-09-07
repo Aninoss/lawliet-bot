@@ -42,7 +42,7 @@ public class TowerCommand extends CasinoAbstract {
     @Override
     public boolean onGameStart(GuildMessageReceivedEvent event, String args) {
         showMoreText = true;
-        setButtons(
+        setComponents(
                 Button.of(ButtonStyle.PRIMARY, "0", getString("raise", StringUtil.doubleToString(MULTIPLIER_STEP, 2, getLocale()))),
                 Button.of(ButtonStyle.SECONDARY, "1", getString("sell"))
         );

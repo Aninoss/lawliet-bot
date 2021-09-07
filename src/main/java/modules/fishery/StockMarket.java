@@ -1,4 +1,4 @@
-package modules.stockmarket;
+package modules.fishery;
 
 import java.util.HashMap;
 import java.util.Objects;

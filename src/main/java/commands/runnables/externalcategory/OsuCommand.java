@@ -71,7 +71,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
         }
 
         if (memberIsAuthor && OsuAccountSync.getUserInCache(member.getIdLong()).isEmpty()) {
-            setButtons(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("connect", userExists)));
+            setComponents(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("connect", userExists)));
         }
 
         return eb;
@@ -122,7 +122,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
             if (osuUsernameOpt.isPresent()) {
                 String osuUsername = osuUsernameOpt.get();
                 if (!osuUsername.equals(GUEST)) {
-                    setButtons();
+                    setActionRows();
                     deregisterListeners();
                     Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode).get();
                     this.osuName = osuUsername;
@@ -135,7 +135,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
 
             OsuAccountSync.add(event.getMember().getIdLong(), osuUsername -> {
                 if (!osuUsername.equals(GUEST)) {
-                    setButtons();
+                    setActionRows();
                     deregisterListeners();
                     OsuAccountSync.remove(event.getMember().getIdLong());
                     OsuAccountDownloader.download(osuUsername, gameMode)
@@ -151,7 +151,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
             });
             return true;
         } else if (event.getComponentId().equals(BUTTON_ID_CANCEL) && status == Status.CONNECTING) {
-            setButtons();
+            setActionRows();
             deregisterListeners();
             OsuAccountSync.remove(event.getMember().getIdLong());
             this.osuAccount = null;
@@ -165,7 +165,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     public EmbedBuilder draw(Member member) {
         switch (status) {
             case CONNECTING:
-                setButtons(
+                setComponents(
                         Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("refresh")),
                         Button.of(ButtonStyle.SECONDARY, BUTTON_ID_CANCEL, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
                 );
@@ -177,7 +177,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
 
             default:
                 if (osuAccount != null) {
-                    setButtons(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("connect", 1)));
+                    setComponents(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("connect", 1)));
                     eb = generateAccountEmbed(member, osuAccount);
                     EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("connected"));
                 } else {

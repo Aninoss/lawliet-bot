@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.LocalFile;
 import core.TextManager;
@@ -54,7 +54,7 @@ public class WelcomeCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws IOException, ExecutionException, InterruptedException {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws IOException, ExecutionException, InterruptedException {
         switch (state) {
             case 1:
                 if (input.length() > 0) {
@@ -62,13 +62,13 @@ public class WelcomeCommand extends NavigationAbstract {
                         welcomeMessageBean.setWelcomeTitle(input);
                         setLog(LogStatus.SUCCESS, getString("titleset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, getString("titletoolarge", "20"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 }
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
 
             case 2:
                 if (input.length() > 0) {
@@ -76,27 +76,27 @@ public class WelcomeCommand extends NavigationAbstract {
                         welcomeMessageBean.setWelcomeText(input);
                         setLog(LogStatus.SUCCESS, getString("descriptionset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, getString("descriptiontoolarge", "1000"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 }
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
 
             case 3:
                 List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     if (checkWriteInChannelWithLog(channelList.get(0))) {
                         welcomeMessageBean.setWelcomeChannelId(channelList.get(0).getIdLong());
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 }
 
@@ -107,12 +107,12 @@ public class WelcomeCommand extends NavigationAbstract {
                     if (FileUtil.downloadImageAttachment(attachmentList.get(0), localFile)) {
                         setLog(LogStatus.SUCCESS, getString("backgroundset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     }
                 }
 
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
 
             case 6:
                 if (input.length() > 0) {
@@ -120,27 +120,27 @@ public class WelcomeCommand extends NavigationAbstract {
                         welcomeMessageBean.setGoodbyeText(input);
                         setLog(LogStatus.SUCCESS, getString("goodbyetextset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, getString("goodbyetoolarge", "1000"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 }
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
 
             case 7:
                 channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     if (checkWriteInChannelWithLog(channelList.get(0))) {
                         welcomeMessageBean.setGoodbyeChannelId(channelList.get(0).getIdLong());
                         setLog(LogStatus.SUCCESS, getString("farechannelset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 }
 
@@ -150,13 +150,13 @@ public class WelcomeCommand extends NavigationAbstract {
                         welcomeMessageBean.setDmText(input);
                         setLog(LogStatus.SUCCESS, getString("dmtextset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, getString("dmtoolarge", "1000"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 }
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
 
             default:
                 return null;
@@ -233,7 +233,7 @@ public class WelcomeCommand extends NavigationAbstract {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         if (state == 0) {
-            setOptions(getString("state0_options").split("\n"));
+            setComponents(getString("state0_options").split("\n"));
             TextChannel textChannel = getTextChannel().get();
             return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                     .addBlankField(false)

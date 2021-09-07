@@ -5,7 +5,7 @@ import java.util.Locale;
 import java.util.Optional;
 import commands.Command;
 import commands.runnables.utilitycategory.TicketCommand;
-import constants.Category;
+import commands.Category;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;

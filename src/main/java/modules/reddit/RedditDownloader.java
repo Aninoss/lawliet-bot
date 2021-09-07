@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-import constants.Category;
+import commands.Category;
 import constants.Language;
 import core.MainLogger;
 import core.TextManager;

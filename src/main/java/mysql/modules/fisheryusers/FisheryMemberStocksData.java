@@ -1,8 +1,8 @@
 package mysql.modules.fisheryusers;
 
 import constants.Settings;
-import modules.stockmarket.Stock;
-import modules.stockmarket.StockMarket;
+import modules.fishery.Stock;
+import modules.fishery.StockMarket;
 import mysql.RedisManager;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;

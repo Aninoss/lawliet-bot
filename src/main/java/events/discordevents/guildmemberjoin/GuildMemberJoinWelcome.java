@@ -2,7 +2,7 @@ package events.discordevents.guildmemberjoin;
 
 import java.util.Locale;
 import commands.runnables.utilitycategory.WelcomeCommand;
-import constants.Category;
+import commands.Category;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;

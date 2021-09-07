@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.runnables.moderationcategory.InviteFilterCommand;
 import constants.AssetIds;
-import constants.Category;
+import commands.Category;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.cache.InviteCache;

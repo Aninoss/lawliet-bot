@@ -2,7 +2,7 @@ package modules.schedulers;
 
 import java.time.Instant;
 import commands.runnables.utilitycategory.ReminderCommand;
-import constants.Category;
+import commands.Category;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;

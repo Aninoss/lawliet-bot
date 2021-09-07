@@ -6,13 +6,13 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.FisheryInterface;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import modules.ExchangeRate;
-import modules.Fishery;
+import modules.fishery.ExchangeRate;
+import modules.fishery.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -62,7 +62,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
                             Fishery.getChangeEmoji()
                     )
             );
-            setButtons(
+            setComponents(
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_SELLALL, getString("sellall")),
                     Button.of(ButtonStyle.SECONDARY, BUTTON_ID_CANCEL, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
             );
@@ -73,9 +73,9 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
+    public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
         deregisterListenersWithButtons();
-        return process(event.getMember(), input) ? Response.TRUE : Response.FALSE;
+        return process(event.getMember(), input) ? MessageInputResponse.SUCCESS : MessageInputResponse.FAILED;
     }
 
     @Override

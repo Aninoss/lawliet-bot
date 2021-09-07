@@ -5,7 +5,7 @@ import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
@@ -46,22 +46,22 @@ public class SuggestionConfigCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
             if (channelList.size() == 0) {
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
             } else {
                 TextChannel channel = channelList.get(0);
                 if (BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
                     suggestionsBean.setChannelId(channelList.get(0).getIdLong());
                     setLog(LogStatus.SUCCESS, getString("channelset"));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission", channel.getName()));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
             }
         }
@@ -107,7 +107,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         switch (state) {
             case 0:
-                setOptions(getString("state0_options").split("\n"));
+                setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), suggestionsBean.isActive()), true)
                         .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(suggestionsBean.getTextChannel().map(IMentionable::getAsMention).orElse(notSet)), true);

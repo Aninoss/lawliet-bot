@@ -14,8 +14,8 @@ import javax.imageio.ImageIO;
 import core.AttributedStringGenerator;
 import core.MainLogger;
 import core.utils.FutureUtil;
-import modules.stockmarket.Stock;
-import modules.stockmarket.StockMarket;
+import modules.fishery.Stock;
+import modules.fishery.StockMarket;
 
 public class StockMarketGraphics {
 

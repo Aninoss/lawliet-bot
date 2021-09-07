@@ -4,7 +4,7 @@ import java.util.Locale;
 import java.util.Random;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
-import constants.Category;
+import commands.Category;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.TextManager;
@@ -45,7 +45,7 @@ public class CoinFlipCommand extends CasinoAbstract {
             return true;
         }
 
-        setButtons(
+        setComponents(
                 Button.of(ButtonStyle.PRIMARY, "0", getString("heads")),
                 Button.of(ButtonStyle.PRIMARY, "1", getString("tails")),
                 BUTTON_CANCEL

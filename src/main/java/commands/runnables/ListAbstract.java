@@ -43,7 +43,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
         }
 
         if (size > entriesPerPage) {
-            setButtons(
+            setComponents(
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"))
             );

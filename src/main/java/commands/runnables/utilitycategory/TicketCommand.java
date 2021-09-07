@@ -12,7 +12,7 @@ import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.*;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.MentionableAtomicAsset;
@@ -76,42 +76,42 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @ControllerMessage(state = ADD_STAFF_ROLE)
-    public Response onMessageAddStaffRole(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageAddStaffRole(GuildMessageReceivedEvent event, String input) {
         List<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
         return staffRoleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), MAIN);
     }
 
     @ControllerMessage(state = ANNOUNCEMENT_CHANNEL)
-    public Response onMessageAnnouncementChannel(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageAnnouncementChannel(GuildMessageReceivedEvent event, String input) {
         List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
         if (channelList.size() == 0) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         } else {
             TextChannel textChannel = channelList.get(0);
 
             String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), textChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS);
             if (channelMissingPerms != null) {
                 setLog(LogStatus.FAILURE, channelMissingPerms);
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
             }
 
             ticketData.setAnnouncementTextChannelId(textChannel.getIdLong());
             setLog(LogStatus.SUCCESS, getString("announcement_set"));
             setState(MAIN);
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         }
     }
 
     @ControllerMessage(state = CREATE_TICKET_MESSAGE)
-    public Response onMessageCreateTicketMessage(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageCreateTicketMessage(GuildMessageReceivedEvent event, String input) {
         List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
         if (channelList.size() == 0) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         } else {
             tempPostChannel = channelList.get(0);
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         }
     }
 
@@ -223,7 +223,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     @Draw(state = MAIN)
     public EmbedBuilder onDrawMain(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        setOptions(getString("state0_options").split("\n"));
+        setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mannouncement"), StringUtil.escapeMarkdown(ticketData.getAnnouncementTextChannel().map(GuildChannel::getAsMention).orElse(notSet)), true)
                 .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true)
@@ -232,7 +232,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @Draw(state = ANNOUNCEMENT_CHANNEL)
     public EmbedBuilder onDrawAnnouncementChannel(Member member) {
-        setOptions(getString("state1_options").split("\n"));
+        setComponents(getString("state1_options").split("\n"));
         return staffRoleNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
     }
 
@@ -250,7 +250,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     public EmbedBuilder onDrawCreateTicketMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (tempPostChannel != null) {
-            setOptions(getString("state4_options").split("\n"));
+            setComponents(getString("state4_options").split("\n"));
         }
         return EmbedFactory.getEmbedDefault(
                 this,

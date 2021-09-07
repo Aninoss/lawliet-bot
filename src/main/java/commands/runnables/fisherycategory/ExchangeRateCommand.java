@@ -7,7 +7,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
-import constants.TrackerResult;
+import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
 import core.cache.PatreonCache;
 import core.components.ActionRows;
@@ -15,8 +15,8 @@ import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import modules.ExchangeRate;
-import modules.Fishery;
+import modules.fishery.ExchangeRate;
+import modules.fishery.Fishery;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -45,7 +45,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false) >= 2) {
-            setButtons(Button.of(ButtonStyle.PRIMARY, "forecast", getString("forecast_button")));
+            setComponents(Button.of(ButtonStyle.PRIMARY, "forecast", getString("forecast_button")));
             registerButtonListener(event.getMember());
         } else {
             textInclude = getString("forecast_patreon");
@@ -98,11 +98,11 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         slot.sendMessage(true, generateEmbed(true).build());
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));
 
-        return TrackerResult.CONTINUE_AND_SAVE;
+        return AlertResponse.CONTINUE_AND_SAVE;
     }
 
     @Override

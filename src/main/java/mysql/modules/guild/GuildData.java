@@ -2,7 +2,7 @@ package mysql.modules.guild;
 
 import java.util.Locale;
 import java.util.Optional;
-import constants.FisheryStatus;
+import modules.fishery.FisheryStatus;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.TextChannel;
 

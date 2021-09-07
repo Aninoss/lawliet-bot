@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import commands.Category;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnAlertListener;
 import commands.runnables.NavigationAbstract;
 import constants.*;
@@ -77,7 +79,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state != STATE_REMOVE) {
             cont = true;
             return controll(input, event.getMember());
@@ -117,23 +119,23 @@ public class AlertsCommand extends NavigationAbstract {
         return false;
     }
 
-    private Response controll(String searchTerm, Member member) {
+    private MessageInputResponse controll(String searchTerm, Member member) {
         while (true) {
             if (searchTerm.replace(" ", "").isEmpty()) {
-                return Response.TRUE;
+                return MessageInputResponse.SUCCESS;
             }
 
             String arg = searchTerm.split(" ")[0].toLowerCase();
-            Response currentResponse = processArg(arg, searchTerm, member);
-            if (currentResponse != Response.TRUE || !cont) {
-                return currentResponse;
+            MessageInputResponse currentMessageInputResponse = processArg(arg, searchTerm, member);
+            if (currentMessageInputResponse != MessageInputResponse.SUCCESS || !cont) {
+                return currentMessageInputResponse;
             }
 
             searchTerm = searchTerm.substring(arg.length()).trim();
         }
     }
 
-    private Response processArg(String arg, String argComplete, Member member) {
+    private MessageInputResponse processArg(String arg, String argComplete, Member member) {
         int state = getState();
         switch (state) {
             case DEFAULT_STATE:
@@ -156,23 +158,23 @@ public class AlertsCommand extends NavigationAbstract {
         }
     }
 
-    private Response processMain(String arg) {
+    private MessageInputResponse processMain(String arg) {
         switch (arg) {
             case "add":
                 if (enoughSpaceForNewTrackers()) {
                     setState(STATE_ADD);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 } else {
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             case "remove":
                 if (getTrackersInChannel().size() > 0) {
                     setState(STATE_REMOVE);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 } else {
                     setLog(LogStatus.FAILURE, getString("notracker"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             default:
@@ -180,7 +182,7 @@ public class AlertsCommand extends NavigationAbstract {
         }
     }
 
-    private Response processAdd(String arg) {
+    private MessageInputResponse processAdd(String arg) {
         if (!enoughSpaceForNewTrackers()) {
             return null;
         }
@@ -194,7 +196,7 @@ public class AlertsCommand extends NavigationAbstract {
         Command command = commandOpt.get();
         if (command.getCommandProperties().nsfw() && !ShardManager.getLocalGuildById(serverId).get().getTextChannelById(channelId).isNSFW()) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description"));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
 
         if (command.getCommandProperties().patreonRequired() &&
@@ -202,12 +204,12 @@ public class AlertsCommand extends NavigationAbstract {
                 !PatreonCache.getInstance().isUnlocked(getGuildId().get())
         ) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
 
         if (trackerSlotExists(command.getTrigger(), "")) {
             setLog(LogStatus.FAILURE, getString("state1_alreadytracking", command.getTrigger()));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
 
         OnAlertListener trackerCommand = (OnAlertListener) command;
@@ -219,10 +221,10 @@ public class AlertsCommand extends NavigationAbstract {
             cont = false;
             setState(STATE_USERMESSAGE);
         }
-        return Response.TRUE;
+        return MessageInputResponse.SUCCESS;
     }
 
-    private Response processRemove(String arg) {
+    private MessageInputResponse processRemove(String arg) {
         List<TrackerData> trackerData = getTrackersInChannel();
 
         if (!StringUtil.stringIsInt(arg)) {
@@ -241,56 +243,56 @@ public class AlertsCommand extends NavigationAbstract {
             setState(DEFAULT_STATE);
         }
 
-        return Response.FALSE;
+        return MessageInputResponse.FAILED;
     }
 
-    private Response processKey(String arg) {
+    private MessageInputResponse processKey(String arg) {
         if (!enoughSpaceForNewTrackers()) {
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
 
         if (arg.length() > LIMIT_KEY_LENGTH) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", String.valueOf(LIMIT_KEY_LENGTH)));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
 
         if (trackerSlotExists(commandCache.getTrigger(), arg)) {
             setLog(LogStatus.FAILURE, getString("state3_alreadytracking", arg));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
 
         commandKeyCache = arg;
         setState(STATE_USERMESSAGE);
         cont = false;
-        return Response.TRUE;
+        return MessageInputResponse.SUCCESS;
     }
 
-    private Response processUserMessage(String args, Member member) {
+    private MessageInputResponse processUserMessage(String args, Member member) {
         cont = false;
         if (args.equals("no")) {
             addTracker(null);
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         } else {
             if (PatreonCache.getInstance().isUnlocked(getGuildId().get()) ||
                     PatreonCache.getInstance().getUserTier(getMemberId().get(), true) >= 3
             ) {
                 if (!BotPermissionUtil.memberCanMentionRoles(getTextChannel().get(), member, args)) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
                 addTracker(args);
-                return Response.TRUE;
+                return MessageInputResponse.SUCCESS;
             } else {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
             }
         }
     }
 
     @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDrawMain(Member member) throws Throwable {
-        setOptions(getString("state0_options").split("\n"));
+        setComponents(getString("state0_options").split("\n"));
 
         buttonMap.clear();
         buttonMap.put(-1, "back");
@@ -348,7 +350,7 @@ public class AlertsCommand extends NavigationAbstract {
             buttonMap.put(i, String.valueOf(i));
         }
 
-        setOptions(options);
+        setComponents(options);
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
     }
 
@@ -364,7 +366,7 @@ public class AlertsCommand extends NavigationAbstract {
         buttonMap.clear();
         buttonMap.put(-1, "back");
         buttonMap.put(0, "no");
-        setOptions(getString("state4_options").split("\n"));
+        setComponents(getString("state4_options").split("\n"));
 
         return EmbedFactory.getEmbedDefault(
                 this,

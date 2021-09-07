@@ -5,7 +5,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.runnables.moderationcategory.WordFilterCommand;
-import constants.Category;
+import commands.Category;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;

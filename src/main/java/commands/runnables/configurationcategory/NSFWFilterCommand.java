@@ -4,7 +4,7 @@ import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
@@ -42,7 +42,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws Throwable {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws Throwable {
         if (state == 1) {
             if (!input.isEmpty()) {
                 String[] mentionedKeywords = input.split(" ");
@@ -53,7 +53,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
                 }
                 if (existingKeywords >= mentionedKeywords.length) {
                     setLog(LogStatus.FAILURE, getString("keywordexists", mentionedKeywords.length != 1));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
                 int tooLongKeywords = 0;
@@ -62,7 +62,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
                 }
                 if (tooLongKeywords >= mentionedKeywords.length) {
                     setLog(LogStatus.FAILURE, getString("keywordtoolong", String.valueOf(MAX_LENGTH)));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
                 int n = 0;
@@ -77,7 +77,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
 
                 setLog(LogStatus.SUCCESS, getString("keywordadd", n != 1, String.valueOf(n)));
                 setState(0);
-                return Response.TRUE;
+                return MessageInputResponse.SUCCESS;
             }
         }
 
@@ -135,7 +135,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
     public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
-                setOptions(getString("state0_options").split("\n"));
+                setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mkeywords"), StringUtil.shortenString(StringUtil.escapeMarkdown(new ListGen<String>().getList(keywords, getLocale(), str -> str)), 1024), true);
 
@@ -147,7 +147,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
                 for (int i = 0; i < keywordStrings.length; i++) {
                     keywordStrings[i] = keywords.get(i);
                 }
-                setOptions(keywordStrings);
+                setComponents(keywordStrings);
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
         }
         return null;

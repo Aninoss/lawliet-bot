@@ -28,6 +28,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.json.JSONObject;
 
@@ -118,20 +120,34 @@ public abstract class Command implements OnTriggerListener {
         this.actionRows = actionRows;
     }
 
-    public void setButtons(Button... buttons) {
-        setButtons(List.of(buttons));
-    }
-
-    public void setButtons(List<Button> buttons) {
-        this.actionRows = ActionRows.of(buttons);
-    }
-
     public List<ActionRow> getActionRows() {
         return actionRows;
     }
 
-    public synchronized CompletableFuture<Void> redrawMessageWithoutButtons() {
-        setButtons();
+    public void setComponents(Button... buttons) {
+        setComponents(List.of(buttons));
+    }
+
+    public void setComponents(List<? extends Component> components) {
+        this.actionRows = ActionRows.of(components);
+    }
+
+    public void setComponents(String... options) {
+        if (options != null) {
+            ArrayList<Button> buttonList = new ArrayList<>();
+            for (int i = 0; i < options.length; i++) {
+                buttonList.add(
+                        Button.of(ButtonStyle.PRIMARY, String.valueOf(i), options[i])
+                );
+            }
+            setComponents(buttonList);
+        } else {
+            setActionRows();
+        }
+    }
+
+    public synchronized CompletableFuture<Void> redrawMessageWithoutComponents() {
+        setActionRows();
         if (drawMessage.getEmbeds().size() > 1) {
             ArrayList<MessageEmbed> embeds = new ArrayList<>();
             for (int i = 1; i < drawMessage.getEmbeds().size(); i++) {

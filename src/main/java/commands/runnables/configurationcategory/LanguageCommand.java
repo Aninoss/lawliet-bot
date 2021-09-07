@@ -5,7 +5,7 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
-import constants.Category;
+import commands.Category;
 import constants.ExternalLinks;
 import constants.Language;
 import core.EmbedFactory;
@@ -56,7 +56,7 @@ public class LanguageCommand extends Command implements OnButtonListener {
                 setLocale(language.getLocale());
                 DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setLocale(getLocale());
                 if (language.isDeepLGenerated()) {
-                    setButtons(Button.of(ButtonStyle.LINK, ExternalLinks.GITHUB, getString("github")));
+                    setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.GITHUB, getString("github")));
                 }
                 drawMessage(EmbedFactory.getEmbedDefault(this, getString("set", language.isDeepLGenerated(), getString(language.name()), ExternalLinks.GITHUB)));
                 return true;
@@ -68,7 +68,7 @@ public class LanguageCommand extends Command implements OnButtonListener {
                         .withEmoji(Emoji.fromUnicode(language.getFlag()));
                 buttons.add(button);
             }
-            setButtons(buttons);
+            setComponents(buttons);
             registerButtonListener(event.getMember());
             return true;
         }
@@ -88,7 +88,7 @@ public class LanguageCommand extends Command implements OnButtonListener {
     public EmbedBuilder draw(Member member) throws Throwable {
         Language language = Language.from(getLocale());
         if (set && language.isDeepLGenerated()) {
-            setButtons(Button.of(ButtonStyle.LINK, ExternalLinks.GITHUB, getString("github")));
+            setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.GITHUB, getString("github")));
         }
         return EmbedFactory.getEmbedDefault(this, set ? getString("set", language.isDeepLGenerated(), getString(language.name())) : getString("reaction"));
     }

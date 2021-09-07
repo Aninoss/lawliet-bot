@@ -5,11 +5,11 @@ import java.io.InputStream;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Response;
 import constants.Settings;
 import core.EmbedFactory;
 import core.LocalFile;
@@ -19,9 +19,9 @@ import core.utils.FileUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
+import modules.fishery.Stock;
+import modules.fishery.StockMarket;
 import modules.graphics.StockMarketGraphics;
-import modules.stockmarket.Stock;
-import modules.stockmarket.StockMarket;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.fisheryusers.FisheryMemberStocksData;
@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
@@ -64,25 +65,25 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     }
 
     @ControllerMessage(state = STATE_BUY)
-    public Response onMessageBuy(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageBuy(GuildMessageReceivedEvent event, String input) {
         long maxValue = (long) Math.floor((double) fisheryMemberBean.getCoins() / StockMarket.getValue(currentStock) / (1 + Settings.FISHERY_SHARES_FEES / 100.0));
         return onMessageBuySell(input, Math.min(maxValue, Settings.FISHERY_SHARES_MAX));
     }
 
     @ControllerMessage(state = STATE_SELL)
-    public Response onMessageSell(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageSell(GuildMessageReceivedEvent event, String input) {
         long maxValue = fisheryMemberBean.getStocks(currentStock).getShareSize();
         return onMessageBuySell(input, maxValue);
     }
 
-    private Response onMessageBuySell(String input, long maxValue) {
+    private MessageInputResponse onMessageBuySell(String input, long maxValue) {
         long amount = MentionUtil.getAmountExt(input, maxValue);
         if (amount > 0 && amount <= Settings.FISHERY_SHARES_MAX) {
             sharesNum = (int) amount;
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", String.valueOf(1), StringUtil.numToString(Settings.FISHERY_SHARES_MAX)));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
     }
 
@@ -183,13 +184,13 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                 generateInvestmentGrowth(totalInvestmentBefore, totalInvestmentAfter)
         );
 
-        OptionButton[] optionButtons = new OptionButton[] {
-                new OptionButton(ButtonStyle.SECONDARY, getString("button_prev", getRelativeStock(-1).getName()), null),
-                new OptionButton(ButtonStyle.PRIMARY, getString("button_buy"), null),
-                new OptionButton(ButtonStyle.PRIMARY, getString("button_sell"), null),
-                new OptionButton(ButtonStyle.SECONDARY, getString("button_next", getRelativeStock(1).getName()), null)
+        Button[] buttons = new Button[] {
+                Button.of(ButtonStyle.SECONDARY, "0", getString("button_prev", getRelativeStock(-1).getName())),
+                Button.of(ButtonStyle.PRIMARY, "1", getString("button_buy")),
+                Button.of(ButtonStyle.PRIMARY, "2", getString("button_sell")),
+                Button.of(ButtonStyle.SECONDARY, "3", getString("button_next", getRelativeStock(1).getName()))
         };
-        setOptions(optionButtons);
+        setComponents(buttons);
         return EmbedFactory.getEmbedDefault(this)
                 .setDescription(desc + "\n" + Emojis.ZERO_WIDTH_SPACE)
                 .addField(getString("investment_title", StringUtil.numToString(currentStock.ordinal() + 1), currentStock.getName()), generateStockDescription(), false)
@@ -213,7 +214,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         );
 
         if (sharesNum > 0) {
-            setOptions(new String[] { getString("buy_confirm") });
+            setComponents(new String[] { getString("buy_confirm") });
         }
         return EmbedFactory.getEmbedDefault(this, desc, getString("buy_title", currentStock.getName()))
                 .addField(Emojis.ZERO_WIDTH_SPACE, attr, false);
@@ -240,7 +241,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         );
 
         if (sharesNum > 0) {
-            setOptions(new String[] { getString("sell_confirm") });
+            setComponents(new String[] { getString("sell_confirm") });
         }
         return EmbedFactory.getEmbedDefault(this, desc, getString("sell_title", currentStock.getName()))
                 .addField(Emojis.ZERO_WIDTH_SPACE, attr, false);

@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.*;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
-import constants.Category;
+import commands.Category;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.FileManager;
 import core.LocalFile;
@@ -48,7 +48,7 @@ public class HangmanCommand extends CasinoAbstract {
         List<String> wordList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "hangman_" + getLocale().getDisplayName() + ".txt"));
         answer = wordList.get(r.nextInt(wordList.size()));
         progress = new boolean[answer.length()];
-        setButtons(BUTTON_CANCEL);
+        setComponents(BUTTON_CANCEL);
         return true;
     }
 
@@ -114,7 +114,7 @@ public class HangmanCommand extends CasinoAbstract {
     }
 
     @Override
-    public Response onMessageInputCasino(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageInputCasino(GuildMessageReceivedEvent event, String input) {
         input = input.toUpperCase();
 
         if (input.length() != 1) {
@@ -129,7 +129,7 @@ public class HangmanCommand extends CasinoAbstract {
             } else { //input is wrong
                 onWrong(event.getMember(), input);
             }
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         }
 
         char inputChar = input.charAt(0);
@@ -155,7 +155,7 @@ public class HangmanCommand extends CasinoAbstract {
         } else {
             setLog(LogStatus.FAILURE, getString("used", input));
         }
-        return Response.TRUE;
+        return MessageInputResponse.SUCCESS;
     }
 
     private void onWrong(Member member, String input) {

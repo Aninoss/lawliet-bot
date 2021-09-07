@@ -10,9 +10,9 @@ import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
-import constants.FisheryGear;
+import modules.fishery.FisheryGear;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.RandomUtil;
@@ -57,7 +57,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
         Optional<Instant> nextWork = fisheryMemberBean.checkNextWork();
         if (nextWork.isEmpty()) {
             setArea();
-            setButtons(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
+            setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             registerButtonListener(event.getMember());
             registerMessageInputListener(event.getMember(), false);
             return true;
@@ -77,7 +77,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public Response onMessageInput(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) {
         if (StringUtil.stringIsInt(input)) {
             int number = Integer.parseInt(input);
             if (number >= 0 && number <= area.length * area[0].length) {
@@ -88,11 +88,11 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
                     setAdditionalEmbeds(fisheryMemberBean.changeValuesEmbed(event.getMember(), 0, coins).build());
                     fisheryMemberBean.completeWork();
                     setLog(LogStatus.SUCCESS, getString("right"));
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 } else {
                     setArea();
                     setLog(LogStatus.FAILURE, getString("wrong"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
             }
         }

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
-import constants.TrackerResult;
+import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import modules.animenews.AnimeNewsArticle;
@@ -53,11 +53,11 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
         List<AnimeNewsArticle> articles = AnimeNewsDownloader.retrieveArticles(getLocale());
         if (articles == null || articles.size() == 0) {
-            return TrackerResult.CONTINUE;
+            return AlertResponse.CONTINUE;
         }
 
         String thresholdString = slot.getArgs().orElse(null);
@@ -78,7 +78,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
             slot.sendMessage(true, embedList);
         }
         slot.setArgs(articles.get(0).getPublicationTime().toString());
-        return TrackerResult.CONTINUE_AND_SAVE;
+        return AlertResponse.CONTINUE_AND_SAVE;
     }
 
     @Override

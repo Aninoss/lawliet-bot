@@ -9,7 +9,7 @@ import commands.runnables.fisherysettingscategory.FisheryCommand;
 import commands.runnables.moderationcategory.JailCommand;
 import commands.runnables.moderationcategory.MuteCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
-import constants.FisheryStatus;
+import modules.fishery.FisheryStatus;
 import core.PermissionCheckRuntime;
 import core.RestActionQueue;
 import core.utils.BotPermissionUtil;

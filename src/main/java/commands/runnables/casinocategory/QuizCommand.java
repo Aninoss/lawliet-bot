@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
-import constants.Category;
+import commands.Category;
 import constants.Emojis;
 import constants.LogStatus;
 import constants.Settings;

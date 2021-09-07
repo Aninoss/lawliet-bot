@@ -1,4 +1,4 @@
-package constants;
+package commands;
 
 public interface Category {
 

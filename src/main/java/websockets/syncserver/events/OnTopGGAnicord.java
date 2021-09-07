@@ -4,7 +4,7 @@ import java.text.MessageFormat;
 import constants.AssetIds;
 import core.*;
 import core.utils.StringUtil;
-import modules.Fishery;
+import modules.fishery.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.entities.Guild;

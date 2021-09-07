@@ -1,13 +1,13 @@
 package events.discordevents.guildmessagereceived;
 
 import java.util.Random;
-import constants.FisheryStatus;
+import modules.fishery.FisheryStatus;
 import core.CustomObservableList;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
-import modules.Fishery;
+import modules.fishery.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.guild.DBGuild;

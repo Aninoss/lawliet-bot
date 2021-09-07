@@ -10,7 +10,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.ExternalLinks;
-import constants.FisheryGear;
+import modules.fishery.FisheryGear;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.cache.PatreonCache;

@@ -5,7 +5,7 @@ import java.util.Locale;
 import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.BanCommand;
-import constants.Category;
+import commands.Category;
 import core.*;
 import core.schedule.MainScheduler;
 import modules.Mod;

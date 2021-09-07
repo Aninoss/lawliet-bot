@@ -10,7 +10,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import constants.AssetIds;
-import constants.TrackerResult;
+import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.BotUtil;
@@ -117,7 +117,7 @@ public class NewCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
             long messageId = slot.sendMessage(true, getVersionsEmbed(newestSlot).build()).orElse(0L);
@@ -127,10 +127,10 @@ public class NewCommand extends Command implements OnAlertListener {
             }
 
             slot.setArgs(BotUtil.getCurrentVersion());
-            return TrackerResult.STOP_AND_SAVE;
+            return AlertResponse.STOP_AND_SAVE;
         }
 
-        return TrackerResult.STOP;
+        return AlertResponse.STOP;
     }
 
     @Override

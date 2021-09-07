@@ -2,7 +2,7 @@ package events.scheduleevents.events;
 
 import java.util.ArrayList;
 import java.util.Locale;
-import constants.Category;
+import commands.Category;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.Program;

@@ -9,7 +9,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import constants.Emojis;
-import constants.TrackerResult;
+import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
@@ -81,7 +81,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(5, ChronoUnit.MINUTES));
         TextChannel channel = slot.getTextChannel().get();
 
@@ -103,9 +103,9 @@ public class TwitchCommand extends Command implements OnAlertListener {
                         .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessageEmbeds(eb.build()).complete();
-                return TrackerResult.STOP_AND_DELETE;
+                return AlertResponse.STOP_AND_DELETE;
             } else {
-                return TrackerResult.CONTINUE;
+                return AlertResponse.CONTINUE;
             }
         }
 
@@ -125,7 +125,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
         }
 
         slot.setArgs(String.valueOf(twitchStream.isLive()));
-        return TrackerResult.CONTINUE_AND_SAVE;
+        return AlertResponse.CONTINUE_AND_SAVE;
     }
 
     @Override

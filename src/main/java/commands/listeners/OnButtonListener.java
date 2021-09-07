@@ -78,7 +78,7 @@ public interface OnButtonListener {
 
     default void deregisterListenersWithButtons() {
         Command command = (Command) this;
-        command.setButtons();
+        command.setActionRows();
         command.deregisterListeners();
     }
 

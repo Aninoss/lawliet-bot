@@ -10,11 +10,11 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnReactionListener;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Response;
 import core.*;
 import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
@@ -93,49 +94,49 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerMessage(state = ADD_MESSAGE)
-    public Response onMessageAddMessage(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageAddMessage(GuildMessageReceivedEvent event, String input) {
         List<TextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getMessage(), input).getList();
         if (serverTextChannel.size() > 0) {
             if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
                 channel = new AtomicTextChannel(serverTextChannel.get(0));
                 setLog(LogStatus.SUCCESS, getString("channelset"));
-                return Response.TRUE;
+                return MessageInputResponse.SUCCESS;
             } else {
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
             }
         }
         setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-        return Response.FALSE;
+        return MessageInputResponse.FAILED;
     }
 
     @ControllerMessage(state = UPDATE_TITLE)
-    public Response onMessageUpdateTitle(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateTitle(GuildMessageReceivedEvent event, String input) {
         if (input.length() > 0 && input.length() <= 250) {
             title = input;
             setLog(LogStatus.SUCCESS, getString("titleset", input));
             setState(CONFIGURE_MESSAGE);
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "250"));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
     }
 
     @ControllerMessage(state = UPDATE_DESC)
-    public Response onMessageUpdateDesc(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateDesc(GuildMessageReceivedEvent event, String input) {
         if (input.length() > 0 && input.length() <= 1000) {
             description = input;
             setLog(LogStatus.SUCCESS, getString("descriptionset", input));
             setState(CONFIGURE_MESSAGE);
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "1000"));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
     }
 
     @ControllerMessage(state = UPDATE_DURATION)
-    public Response onMessageUpdateDuration(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateDuration(GuildMessageReceivedEvent event, String input) {
         long minutes = MentionUtil.getTimeMinutes(input).getValue();
 
         if (minutes > 0) {
@@ -144,19 +145,19 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 durationMinutes = minutes;
                 setLog(LogStatus.SUCCESS, getString("durationset", input));
                 setState(CONFIGURE_MESSAGE);
-                return Response.TRUE;
+                return MessageInputResponse.SUCCESS;
             } else {
                 setLog(LogStatus.FAILURE, getString("durationtoolong"));
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
             }
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", input));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
     }
 
     @ControllerMessage(state = UPDATE_WINNERS)
-    public Response onMessageUpdateWinners(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateWinners(GuildMessageReceivedEvent event, String input) {
         int amount;
         if (StringUtil.stringIsInt(input) &&
                 (amount = Integer.parseInt(input)) >= WINNERS_MIN &&
@@ -165,27 +166,27 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             amountOfWinners = amount;
             setLog(LogStatus.SUCCESS, getString("winnersset", input));
             setState(CONFIGURE_MESSAGE);
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", String.valueOf(WINNERS_MIN), String.valueOf(WINNERS_MAX)));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
     }
 
     @ControllerMessage(state = UPDATE_EMOJI)
-    public Response onMessageUpdateEmoji(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateEmoji(GuildMessageReceivedEvent event, String input) {
         List<String> emojiList = MentionUtil.getEmojis(event.getMessage(), input).getList();
         if (emojiList.size() > 0) {
             String emoji = emojiList.get(0);
-            return processEmoji(emoji) ? Response.TRUE : Response.FALSE;
+            return processEmoji(emoji) ? MessageInputResponse.SUCCESS : MessageInputResponse.FAILED;
         }
 
         setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-        return Response.FALSE;
+        return MessageInputResponse.FAILED;
     }
 
     @ControllerMessage(state = UPDATE_IMAGE)
-    public Response onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException, ExecutionException, InterruptedException {
+    public MessageInputResponse onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException, ExecutionException, InterruptedException {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
             LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%d.png", System.nanoTime()));
@@ -194,23 +195,23 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 imageLink = uploadFile(tempFile);
                 setLog(LogStatus.SUCCESS, getString("imageset"));
                 setState(CONFIGURE_MESSAGE);
-                return Response.TRUE;
+                return MessageInputResponse.SUCCESS;
             }
         }
 
         setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-        return Response.FALSE;
+        return MessageInputResponse.FAILED;
     }
 
     @ControllerMessage(state = REROLL_NUMBER)
-    public Response onMessageRerollWinners(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageRerollWinners(GuildMessageReceivedEvent event, String input) {
         long amount = MentionUtil.getAmountExt(input);
         if (amount >= WINNERS_MIN && amount <= WINNERS_MAX) {
             rerollWinners = (int) amount;
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", String.valueOf(WINNERS_MIN), String.valueOf(WINNERS_MAX)));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
     }
 
@@ -406,7 +407,6 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         if (getState() == UPDATE_EMOJI) {
             event.getReaction().removeReaction(event.getUser()).queue();
             processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
-            processDraw(event.getMember()).exceptionally(ExceptionLogger.get());
             return true;
         }
         return false;
@@ -482,7 +482,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @Draw(state = ADD_OR_EDIT)
     public EmbedBuilder onDrawAddOrEdit(Member member) {
-        setOptions(getString("state0_options").split("\n"));
+        setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
     }
 
@@ -490,7 +490,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     public EmbedBuilder onDrawAddMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (channel != null) {
-            setOptions(new String[] { TextManager.getString(getLocale(), TextManager.GENERAL, "continue") });
+            setComponents(new String[] { TextManager.getString(getLocale(), TextManager.GENERAL, "continue") });
         }
         return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(channel).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state1_title"));
     }
@@ -500,7 +500,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         String[] options = getActiveGiveawaySlots().stream()
                 .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getTextChannel().get().getName()))
                 .toArray(String[]::new);
-        setOptions(options);
+        setComponents(options);
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
     }
 
@@ -509,14 +509,14 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         String[] options = getCompletedGiveawaySlots().stream()
                 .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getTextChannel().get().getName()))
                 .toArray(String[]::new);
-        setOptions(options);
+        setComponents(options);
         return EmbedFactory.getEmbedDefault(this, getString("state12_description"), getString("state12_title"));
     }
 
     @Draw(state = CONFIGURE_MESSAGE)
     public EmbedBuilder onDrawConfigureMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        setOptions(getString("state3_options").split("\n"));
+        setComponents(getString("state3_options").split("\n"));
 
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_" + (editMode ? "edit" : "new")))
                 .addField(getString("state3_mtitle"), title, false)
@@ -554,7 +554,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @Draw(state = UPDATE_IMAGE)
     public EmbedBuilder onDrawUpdateImage(Member member) {
-        setOptions(getString("state8_options").split("\n"));
+        setComponents(getString("state8_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state8_description"), getString("state8_title"));
     }
 
@@ -571,17 +571,19 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Draw(state = REROLL_NUMBER)
     public EmbedBuilder onDrawRerollNumber(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        OptionButton[] optionButtons;
+        Button[] buttons;
         if (rerollWinners > 0) {
-            optionButtons = new OptionButton[2];
-            optionButtons[0] = new OptionButton(ButtonStyle.PRIMARY, getString("state13_confirm"), null);
-            optionButtons[1] = new OptionButton(ButtonStyle.DANGER, getString("state13_delete"), null);
+            buttons = new Button[]{
+                    Button.of(ButtonStyle.PRIMARY, "0", getString("state13_confirm")),
+                    Button.of(ButtonStyle.DANGER, "1", getString("state13_delete"))
+            };
         } else {
-            optionButtons = new OptionButton[1];
-            optionButtons[0] = new OptionButton(ButtonStyle.DANGER, getString("state13_delete"), null);
+            buttons = new Button[]{
+                    Button.of(ButtonStyle.DANGER, "0", getString("state13_delete")),
+            };
         }
 
-        setOptions(optionButtons);
+        setComponents(buttons);
         return EmbedFactory.getEmbedDefault(
                 this,
                 getString("state13_description", rerollGiveawayData.getTitle(), rerollWinners > 0 ? StringUtil.numToString(rerollWinners) : notSet),

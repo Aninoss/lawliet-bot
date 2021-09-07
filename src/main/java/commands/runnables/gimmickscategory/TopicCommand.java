@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
-import constants.TrackerResult;
+import modules.schedulers.AlertResponse;
 import core.*;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -45,7 +45,7 @@ public class TopicCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         final int MIN_MINUTES = 10;
         final int MAX_MINUTES = 10080;
         String key = slot.getCommandKey();
@@ -59,12 +59,12 @@ public class TopicCommand extends Command implements OnAlertListener {
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
 
             slot.getTextChannel().get().sendMessageEmbeds(eb.build()).complete();
-            return TrackerResult.STOP_AND_DELETE;
+            return AlertResponse.STOP_AND_DELETE;
         }
 
         slot.sendMessage(true, getEmbed(slot.getTextChannel().get()).build());
         slot.setNextRequest(Instant.now().plus(minutes, ChronoUnit.MINUTES));
-        return TrackerResult.CONTINUE_AND_SAVE;
+        return AlertResponse.CONTINUE_AND_SAVE;
     }
 
     @Override

@@ -5,7 +5,7 @@ import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
@@ -45,19 +45,19 @@ public class AutoChannelCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
                 List<VoiceChannel> channelList = MentionUtil.getVoiceChannels(event.getMessage(), input).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     VoiceChannel voiceChannel = channelList.get(0);
                     String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), voiceChannel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS);
                     if (channelMissingPerms != null) {
                         setLog(LogStatus.FAILURE, channelMissingPerms);
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
 
                     Category parent = voiceChannel.getParent();
@@ -65,14 +65,14 @@ public class AutoChannelCommand extends NavigationAbstract {
                         String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL);
                         if (categoryMissingPerms != null) {
                             setLog(LogStatus.FAILURE, categoryMissingPerms);
-                            return Response.FALSE;
+                            return MessageInputResponse.FAILED;
                         }
                     }
 
                     autoChannelBean.setParentChannelId(voiceChannel.getIdLong());
                     setLog(LogStatus.SUCCESS, getString("channelset"));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 }
 
             case 2:
@@ -80,10 +80,10 @@ public class AutoChannelCommand extends NavigationAbstract {
                     autoChannelBean.setNameMask(input);
                     setLog(LogStatus.SUCCESS, getString("channelnameset"));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "50"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             default:
@@ -144,7 +144,7 @@ public class AutoChannelCommand extends NavigationAbstract {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         switch (state) {
             case 0:
-                setOptions(getString("state0_options").split("\n"));
+                setComponents(getString("state0_options").split("\n"));
                 TextChannel textChannel = getTextChannel().get();
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), autoChannelBean.isActive()), true)

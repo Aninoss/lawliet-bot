@@ -7,7 +7,7 @@ import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
@@ -65,22 +65,22 @@ public class ModSettingsCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
                 List<TextChannel> channelsList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
                 if (channelsList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     TextChannel channel = channelsList.get(0);
                     if (checkWriteInChannelWithLog(channel)) {
                         moderationBean.setAnnouncementChannelId(channel.getIdLong());
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 }
 
@@ -90,14 +90,14 @@ public class ModSettingsCommand extends NavigationAbstract {
                     if (value >= 1) {
                         autoKickTemp = value;
                         setState(4);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             case 3:
@@ -106,14 +106,14 @@ public class ModSettingsCommand extends NavigationAbstract {
                     if (value >= 1) {
                         autoBanTemp = value;
                         setState(5);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             case 4:
@@ -123,14 +123,14 @@ public class ModSettingsCommand extends NavigationAbstract {
                         moderationBean.setAutoKick(autoKickTemp, value);
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             case 5:
@@ -139,30 +139,30 @@ public class ModSettingsCommand extends NavigationAbstract {
                     if (value >= 1) {
                         autoBanDaysTemp = value;
                         setState(7);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             case 6:
                 List<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
                 if (roleList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     Role role = roleList.get(0);
                     if (checkRoleWithLog(event.getMember(), role)) {
                         moderationBean.setMuteRoleId(role.getIdLong());
                         setLog(LogStatus.SUCCESS, getString("muteroleset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 }
 
@@ -172,10 +172,10 @@ public class ModSettingsCommand extends NavigationAbstract {
                     moderationBean.setAutoBan(autoBanTemp, autoBanDaysTemp, (int) minutes);
                     setLog(LogStatus.SUCCESS, getString("autobanset"));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             case 8:
@@ -184,14 +184,14 @@ public class ModSettingsCommand extends NavigationAbstract {
                     if (value >= 1) {
                         autoMuteTemp = value;
                         setState(9);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             case 9:
@@ -200,14 +200,14 @@ public class ModSettingsCommand extends NavigationAbstract {
                     if (value >= 1) {
                         autoMuteDaysTemp = value;
                         setState(10);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             case 10:
@@ -216,10 +216,10 @@ public class ModSettingsCommand extends NavigationAbstract {
                     moderationBean.setAutoMute(autoMuteTemp, autoMuteDaysTemp, (int) minutes);
                     setLog(LogStatus.SUCCESS, getString("automuteset"));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             case 11:
@@ -232,14 +232,14 @@ public class ModSettingsCommand extends NavigationAbstract {
                     if (value >= 1) {
                         autoJailTemp = value;
                         setState(14);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             case 14:
@@ -248,14 +248,14 @@ public class ModSettingsCommand extends NavigationAbstract {
                     if (value >= 1) {
                         autoJailDaysTemp = value;
                         setState(15);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             case 15:
@@ -264,10 +264,10 @@ public class ModSettingsCommand extends NavigationAbstract {
                     moderationBean.setAutoJail(autoJailTemp, autoJailDaysTemp, (int) minutes);
                     setLog(LogStatus.SUCCESS, getString("autojailset"));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "invalid"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             default:
@@ -555,7 +555,7 @@ public class ModSettingsCommand extends NavigationAbstract {
             case 0:
                 String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
                 TextChannel textChannel = getTextChannel().get();
-                setOptions(getString("state0_options").split("\n"));
+                setComponents(getString("state0_options").split("\n"));
 
                 String content = getString("state0_description");
                 List<TextChannel> leakedChannels = Mute.getLeakedChannels(member.getGuild());
@@ -576,43 +576,43 @@ public class ModSettingsCommand extends NavigationAbstract {
                         ), false);
 
             case 1:
-                setOptions(new String[] { getString("state1_options") });
+                setComponents(new String[] { getString("state1_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                setOptions(new String[] { getString("state2_options") });
+                setComponents(new String[] { getString("state2_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:
-                setOptions(new String[] { getString("state3_options") });
+                setComponents(new String[] { getString("state3_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
 
             case 4:
-                setOptions(new String[] { getString("state4_options") });
+                setComponents(new String[] { getString("state4_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoKickTemp != 1, StringUtil.numToString(autoKickTemp)), getString("state4_title"));
 
             case 5:
-                setOptions(new String[] { getString("state4_options") });
+                setComponents(new String[] { getString("state4_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoBanTemp != 1, StringUtil.numToString(autoBanTemp)), getString("state5_title"));
 
             case 6:
-                setOptions(new String[] { getString("state6_options") });
+                setComponents(new String[] { getString("state6_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state6_description"), getString("state6_title"));
 
             case 7:
-                setOptions(new String[] { getString("state7_options") });
+                setComponents(new String[] { getString("state7_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
 
             case 8:
-                setOptions(new String[] { getString("state8_options") });
+                setComponents(new String[] { getString("state8_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state8_description"), getString("state8_title"));
 
             case 9:
-                setOptions(new String[] { getString("state4_options") });
+                setComponents(new String[] { getString("state4_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoMuteTemp != 1, StringUtil.numToString(autoMuteTemp)), getString("state9_title"));
 
             case 10:
-                setOptions(new String[] { getString("state10_options") });
+                setComponents(new String[] { getString("state10_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
 
             case 11:
@@ -622,16 +622,16 @@ public class ModSettingsCommand extends NavigationAbstract {
                 return jailRolesNavigationHelper.drawDataRemove(getString("state12_title"));
 
             case 13:
-                setOptions(new String[] { getString("state13_options") });
+                setComponents(new String[] { getString("state13_options") });
                 setLog(LogStatus.WARNING, getString("state13_warning"));
                 return EmbedFactory.getEmbedDefault(this, getString("state13_description"), getString("state13_title"));
 
             case 14:
-                setOptions(new String[] { getString("state4_options") });
+                setComponents(new String[] { getString("state4_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoJailTemp != 1, StringUtil.numToString(autoJailTemp)), getString("state14_title"));
 
             case 15:
-                setOptions(new String[] { getString("state15_options") });
+                setComponents(new String[] { getString("state15_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state15_description"), getString("state15_title"));
 
             default:

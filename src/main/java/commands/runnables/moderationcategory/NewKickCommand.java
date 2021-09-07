@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
-import constants.Category;
+import commands.Category;
 import core.EmbedFactory;
 import core.MemberCacheController;
 import core.TextManager;

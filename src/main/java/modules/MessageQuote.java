@@ -3,7 +3,7 @@ package modules;
 import java.util.Locale;
 import commands.Command;
 import commands.runnables.gimmickscategory.QuoteCommand;
-import constants.Category;
+import commands.Category;
 import core.EmbedFactory;
 import core.TextManager;
 import core.components.ActionRows;

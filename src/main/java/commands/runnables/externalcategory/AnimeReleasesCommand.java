@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
-import constants.TrackerResult;
+import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
 import core.utils.EmbedUtil;
 import core.utils.InternetUtil;
@@ -78,7 +78,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         boolean first = slot.getArgs().isEmpty();
         PostBundle<AnimeReleasePost> postBundle = AnimeReleasesDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());
@@ -102,7 +102,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
         if (postBundle.getNewestPost() != null) {
             slot.setArgs(postBundle.getNewestPost());
         }
-        return TrackerResult.CONTINUE_AND_SAVE;
+        return AlertResponse.CONTINUE_AND_SAVE;
     }
 
     @Override

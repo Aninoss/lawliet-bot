@@ -1,4 +1,4 @@
-package constants;
+package modules.fishery;
 
 public enum FisheryStatus {
 

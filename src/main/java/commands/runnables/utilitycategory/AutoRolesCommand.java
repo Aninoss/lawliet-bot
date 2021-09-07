@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
@@ -52,7 +52,7 @@ public class AutoRolesCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             List<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
             return roleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), 0);
@@ -101,7 +101,7 @@ public class AutoRolesCommand extends NavigationAbstract {
     public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
-                setOptions(getString("state0_options").split("\n"));
+                setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(roles, getLocale(), MentionableAtomicAsset::getAsMention), true);
 

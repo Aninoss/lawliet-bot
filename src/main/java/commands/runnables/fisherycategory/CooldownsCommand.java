@@ -86,7 +86,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnBut
             buttons[i] = Button.of(ButtonStyle.PRIMARY, String.valueOf(i), getString("dmreminders_subscribe", active, property));
         }
         buttons[4] = Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, getString("upvotebutton"));
-        setButtons(buttons);
+        setComponents(buttons);
 
         String template = getString("template",
                 getRemainingTimeDaily(),

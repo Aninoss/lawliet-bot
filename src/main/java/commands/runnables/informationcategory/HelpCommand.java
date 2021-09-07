@@ -5,10 +5,12 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import commands.Category;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnAlertListener;
 import commands.runnables.NavigationAbstract;
 import commands.runnables.PornPredefinedAbstract;
@@ -75,10 +77,10 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     @ControllerMessage(state = DEFAULT_STATE)
-    public Response onMessage(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessage(GuildMessageReceivedEvent event, String input) {
         if (input.length() > 0 && buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(input))) {
             searchTerm = input;
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         }
         return null;
     }
@@ -114,7 +116,7 @@ public class HelpCommand extends NavigationAbstract {
         if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1, arg.length() - 1);
 
         TextChannel channel = getTextChannel().get();
-        setOptions((OptionButton[]) null);
+        setActionRows();
 
         EmbedBuilder eb;
         if ((eb = checkCommand(arg)) == null) {
@@ -165,7 +167,7 @@ public class HelpCommand extends NavigationAbstract {
 
                 String addNotExecutable = "";
                 if (command.getCommandProperties().executableWithoutArgs()) {
-                    setOptions(getString("command_execute").split("\n"));
+                    setComponents(getString("command_execute").split("\n"));
                     buttonMap.put(0, "exec:" + command.getClass().getName());
                 }
 
@@ -466,7 +468,7 @@ public class HelpCommand extends NavigationAbstract {
             ), true);
         }
 
-        setOptions(options.toArray(new String[0]));
+        setComponents(options.toArray(new String[0]));
         return eb;
     }
 

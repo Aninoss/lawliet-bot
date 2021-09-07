@@ -6,10 +6,10 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
-import constants.Category;
-import constants.FisheryStatus;
+import commands.Category;
+import modules.fishery.FisheryStatus;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.MentionUtil;
@@ -132,10 +132,10 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get()).addCoinsHidden(-coinsInput);
         if (requestRetry && !retryRequestAdded) {
             registerButtonListener(member);
-            setButtons(BUTTON_RETRY);
+            setComponents(BUTTON_RETRY);
             retryRequestAdded = true;
         } else {
-            setButtons();
+            setActionRows();
         }
     }
 
@@ -208,7 +208,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             }
         } else if (event.getComponentId().equals(BUTTON_ID_RETRY)) {
             deregisterListeners();
-            redrawMessageWithoutButtons();
+            redrawMessageWithoutComponents();
             Command command = CommandManager.createCommandByClass(this.getClass(), getLocale(), getPrefix());
             getGuildMessageReceivedEvent().ifPresent(e -> CommandManager.manage(e, command, String.valueOf(coinsInput), Instant.now()));
             return false;
@@ -220,12 +220,12 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         return getActionRows().stream().anyMatch(b -> b.getButtons().contains(BUTTON_CANCEL));
     }
 
-    public Response onMessageInputCasino(GuildMessageReceivedEvent event, String input) throws Throwable {
+    public MessageInputResponse onMessageInputCasino(GuildMessageReceivedEvent event, String input) throws Throwable {
         return null;
     }
 
     @Override
-    public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
+    public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
         if (status == Status.ACTIVE) {
             return onMessageInputCasino(event, input);
         }

@@ -1,4 +1,4 @@
-package modules.stockmarket;
+package modules.fishery;
 
 public enum Stock {
 

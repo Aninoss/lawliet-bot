@@ -7,7 +7,7 @@ import java.util.Optional;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.ListGen;
 import core.MemberCacheController;
@@ -54,7 +54,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             List<VoiceChannel> vcList = MentionUtil.getVoiceChannels(event.getMessage(), input).getList();
             if (vcList.size() == 0) {
@@ -63,24 +63,24 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                     if (input.length() <= 50) {
                         currentName = input;
                         setLog(LogStatus.SUCCESS, getString("nameset"));
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, getString("nametoolarge", "50"));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 }
 
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
             } else {
                 VoiceChannel channel = vcList.get(0);
                 if (checkChannel(channel)) {
                     currentVC = new AtomicVoiceChannel(channel);
                     setLog(LogStatus.SUCCESS, getString("vcset"));
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 }
 
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
             }
         }
 
@@ -207,7 +207,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
 
         switch (state) {
             case 0:
-                setOptions(getString("state0_options").split("\n"));
+                setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<MemberCountDisplaySlot>()
                                 .getList(memberCountBean.getMemberCountBeanSlots().values(), getLocale(), bean -> {
@@ -219,7 +219,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                                 })), false);
 
             case 1:
-                if (currentName != null && currentVC != null) setOptions(new String[] { getString("state1_options") });
+                if (currentName != null && currentVC != null) setComponents(new String[] { getString("state1_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description", StringUtil.escapeMarkdown(Optional.ofNullable(currentVC).flatMap(AtomicVoiceChannel::get).map(GuildChannel::getAsMention).orElse(notSet)), highlightVariables(StringUtil.escapeMarkdown(Optional.ofNullable(currentName).orElse(notSet)))), getString("state1_title"));
 
             case 2:
@@ -228,7 +228,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                 for (int i = 0; i < roleStrings.length; i++) {
                     roleStrings[i] = channelNames.get(i).getMask();
                 }
-                setOptions(roleStrings);
+                setComponents(roleStrings);
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             default:

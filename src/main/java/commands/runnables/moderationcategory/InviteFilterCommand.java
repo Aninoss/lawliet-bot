@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
@@ -57,46 +57,46 @@ public class InviteFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
                 List<Member> userIgnoredList = MentionUtil.getMembers(event.getMessage(), input).getList();
                 if (userIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     ignoredUsers.clear();
                     ignoredUsers.addAll(userIgnoredList.stream().map(AtomicMember::new).collect(Collectors.toList()));
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 }
 
             case 2:
                 List<TextChannel> channelIgnoredList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
                 if (channelIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     ignoredChannels.clear();
                     ignoredChannels.addAll(channelIgnoredList.stream().map(AtomicTextChannel::new).collect(Collectors.toList()));
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 }
 
             case 3:
                 List<Member> logRecieverList = MentionUtil.getMembers(event.getMessage(), input).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     logReceivers.clear();
                     logReceivers.addAll(logRecieverList.stream().map(AtomicMember::new).collect(Collectors.toList()));
 
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 }
 
             default:
@@ -195,7 +195,7 @@ public class InviteFilterCommand extends NavigationAbstract {
     public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
-                setOptions(getString("state0_options").split("\n"));
+                setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), spBlockBean.isActive()), true)
                         .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), MentionableAtomicAsset::getAsMention), true)
@@ -204,19 +204,19 @@ public class InviteFilterCommand extends NavigationAbstract {
                         .addField(getString("state0_maction"), getString("state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true);
 
             case 1:
-                setOptions(new String[] { getString("empty") });
+                setComponents(new String[] { getString("empty") });
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                setOptions(new String[] { getString("empty") });
+                setComponents(new String[] { getString("empty") });
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:
-                setOptions(new String[] { getString("empty") });
+                setComponents(new String[] { getString("empty") });
                 return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
 
             case 4:
-                setOptions(getString("state0_mactionlist").split("\n"));
+                setComponents(getString("state0_mactionlist").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description"), getString("state4_title"));
 
             default:

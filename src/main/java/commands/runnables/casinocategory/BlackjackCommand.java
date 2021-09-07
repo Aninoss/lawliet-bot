@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.Random;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
-import constants.Category;
+import commands.Category;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
@@ -56,7 +56,7 @@ public class BlackjackCommand extends CasinoAbstract {
             }
         }
 
-        setButtons(
+        setComponents(
                 Button.of(ButtonStyle.PRIMARY, BUTTON_ID_HIT, getString("hit")),
                 Button.of(ButtonStyle.SECONDARY, BUTTON_ID_STAND, getString("stand"))
         );
@@ -82,7 +82,7 @@ public class BlackjackCommand extends CasinoAbstract {
                 return true;
             } else if (event.getComponentId().equals(BUTTON_ID_STAND)) {
                 turnForPlayer = false;
-                setButtons();
+                setActionRows();
                 deregisterListeners();
 
                 setLog(LogStatus.SUCCESS, getString("stopcard", 0));

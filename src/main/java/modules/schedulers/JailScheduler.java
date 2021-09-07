@@ -5,7 +5,7 @@ import java.util.Locale;
 import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.JailCommand;
-import constants.Category;
+import commands.Category;
 import core.*;
 import core.schedule.MainScheduler;
 import modules.Jail;

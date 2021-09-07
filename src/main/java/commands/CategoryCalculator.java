@@ -1,7 +1,5 @@
 package commands;
 
-import constants.Category;
-
 public class CategoryCalculator {
 
     public static String getCategoryByCommand(Class<? extends Command> c) {

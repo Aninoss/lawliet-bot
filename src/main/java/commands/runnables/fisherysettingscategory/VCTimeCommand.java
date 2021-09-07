@@ -5,7 +5,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
@@ -54,7 +54,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
                     )
             );
 
-            setButtons(
+            setComponents(
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_UNLIMITED, getString("setunlimited")),
                     Button.of(ButtonStyle.SECONDARY, BUTTON_ID_CANCEL, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
             );
@@ -96,10 +96,10 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     }
 
     @Override
-    public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
+    public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
         deregisterListenersWithButtons();
         this.eb = mainExecution(event, input);
-        return Response.TRUE;
+        return MessageInputResponse.SUCCESS;
     }
 
     @Override

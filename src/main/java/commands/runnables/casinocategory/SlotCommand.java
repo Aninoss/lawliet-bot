@@ -4,7 +4,7 @@ import java.util.Locale;
 import java.util.Random;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
-import constants.Category;
+import commands.Category;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
@@ -57,7 +57,7 @@ public class SlotCommand extends CasinoAbstract {
         }
 
         setFruits();
-        setButtons(
+        setComponents(
                 Button.of(ButtonStyle.PRIMARY, "go", getString("go")),
                 BUTTON_CANCEL
         );

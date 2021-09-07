@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.util.Locale;
 import java.util.Optional;
 import commands.listeners.CommandProperties;
-import constants.Category;
+import commands.Category;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.Mention;

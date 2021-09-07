@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import constants.Category;
+import commands.Category;
 import constants.Language;
 import core.EmbedFactory;
 import core.TextManager;

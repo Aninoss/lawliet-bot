@@ -12,11 +12,10 @@ import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnTriggerListener;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.ExceptionLogger;
 import core.MainLogger;
 import core.TextManager;
-import core.components.ActionRows;
 import core.utils.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -29,17 +28,17 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener {
 
-    private static final int MAX_OPTIONS = 20;
-    private static final String BUTTON_ID_PREV = "prev";
-    private static final String BUTTON_ID_NEXT = "next";
-    private static final String BUTTON_ID_BACK = "back";
+    private static final int MAX_ROWS_PER_PAGE = 4;
+    private static final String BUTTON_ID_PREV = "nav:prev";
+    private static final String BUTTON_ID_NEXT = "nav:next";
+    private static final String BUTTON_ID_BACK = "nav:back";
 
     protected final int DEFAULT_STATE = 0;
 
-    private OptionButton[] options;
     private int state = DEFAULT_STATE;
     private int page = 0;
     private int pageMax = 0;
+    private List<ActionRow> actionRows = Collections.emptyList();
 
     public NavigationAbstract(Locale locale, String prefix) {
         super(locale, prefix);
@@ -48,29 +47,32 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     protected void registerNavigationListener(Member member) {
         registerButtonListener(member);
         registerMessageInputListener(member, false);
-        processDraw(member).exceptionally(ExceptionLogger.get());
+        processDraw(member, true).exceptionally(ExceptionLogger.get());
     }
 
     @Override
-    public Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
-        Response response = controllerMessage(event, input, state);
-        if (response != null) {
-            processDraw(event.getMember()).exceptionally(ExceptionLogger.get());
+    public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
+        MessageInputResponse messageInputResponse = controllerMessage(event, input, state);
+        if (messageInputResponse != null) {
+            processDraw(event.getMember(), true).exceptionally(ExceptionLogger.get());
         }
 
-        return response;
+        return messageInputResponse;
     }
 
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         boolean changed = true;
+        boolean loadComponents = true;
         try {
             if (event.getComponentId().equals(BUTTON_ID_PREV)) {
+                loadComponents = false;
                 page--;
                 if (page < 0) {
                     page = pageMax;
                 }
             } else if (event.getComponentId().equals(BUTTON_ID_NEXT)) {
+                loadComponents = false;
                 page++;
                 if (page > pageMax) {
                     page = 0;
@@ -81,12 +83,13 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                 } else if (StringUtil.stringIsInt(event.getComponentId())) {
                     changed = controllerButton(event, Integer.parseInt(event.getComponentId()), state);
                 } else {
-                    changed = false;
+                    changed = controllerButton(event, -2, state);
                 }
             }
 
             if (changed) {
-                processDraw(event.getMember()).exceptionally(ExceptionLogger.get());
+                processDraw(event.getMember(), loadComponents)
+                        .exceptionally(ExceptionLogger.get());
             }
         } catch (Throwable throwable) {
             ExceptionUtil.handleCommandException(throwable, this, event.getTextChannel());
@@ -94,12 +97,12 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return changed;
     }
 
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws Throwable {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws Throwable {
         for (Method method : getClass().getDeclaredMethods()) {
             ControllerMessage c = method.getAnnotation(ControllerMessage.class);
             if (c != null && c.state() == state) {
                 try {
-                    return (Response) method.invoke(this, event, input);
+                    return (MessageInputResponse) method.invoke(this, event, input);
                 } catch (InvocationTargetException e) {
                     throw e.getCause();
                 }
@@ -110,7 +113,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             ControllerMessage c = method.getAnnotation(ControllerMessage.class);
             if (c != null && c.state() == -1) {
                 try {
-                    return (Response) method.invoke(this, event, input);
+                    return (MessageInputResponse) method.invoke(this, event, input);
                 } catch (InvocationTargetException e) {
                     throw e.getCause();
                 }
@@ -177,7 +180,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return null;
     }
 
-    protected CompletableFuture<Long> processDraw(Member member) {
+    protected CompletableFuture<Long> processDraw(Member member, boolean loadComponents) {
         Locale locale = getLocale();
         EmbedBuilder eb;
         try {
@@ -190,37 +193,34 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         if (CommandContainer.getListener(OnButtonListener.class, this).isPresent()) {
             controlButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_BACK, TextManager.getString(getLocale(), TextManager.GENERAL, "list_back")));
         }
-        if (options != null && options.length > 0) {
-            ArrayList<Button> buttonList = new ArrayList<>();
+        if (loadComponents) {
+            actionRows = getActionRows();
+        }
+        if (actionRows != null && actionRows.size() > 0) {
+            pageMax = Math.max(0, actionRows.size() - 1) / MAX_ROWS_PER_PAGE;
             page = Math.min(page, pageMax);
-            for (int i = page * MAX_OPTIONS; i <= Math.min(page * MAX_OPTIONS + MAX_OPTIONS - 1, options.length - 1); i++) {
-                OptionButton optionButton = options[i];
-                Button button = Button.of(optionButton.getButtonStyle(), String.valueOf(i), optionButton.getLabel());
-                Emoji emoji = optionButton.getEmoji().orElse(null);
-                if (emoji != null) {
-                    button = button.withEmoji(emoji);
-                }
-                buttonList.add(button);
+            ArrayList<ActionRow> displayActionRowList = new ArrayList<>();
+            for (int i = page * MAX_ROWS_PER_PAGE; i <= Math.min(page * MAX_ROWS_PER_PAGE + MAX_ROWS_PER_PAGE - 1, actionRows.size() - 1); i++) {
+                displayActionRowList.add(actionRows.get(i));
             }
 
-            if (options.length > MAX_OPTIONS) {
+            if (actionRows.size() > MAX_ROWS_PER_PAGE) {
                 EmbedUtil.setFooter(eb, this, TextManager.getString(locale, TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(pageMax + 1)));
                 controlButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_PREV, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")));
                 controlButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next")));
             }
 
             if (controlButtonList.size() > 0) {
-                ArrayList<ActionRow> actionRowList = new ArrayList<>(ActionRows.of(buttonList));
-                actionRowList.add(ActionRow.of(controlButtonList));
-                setActionRows(actionRowList);
+                displayActionRowList.add(ActionRow.of(controlButtonList));
+                setActionRows(displayActionRowList);
             } else {
-                setButtons();
+                setActionRows();
             }
         } else {
             if (controlButtonList.size() > 0) {
                 setActionRows(ActionRow.of(controlButtonList));
             } else {
-                setButtons();
+                setActionRows();
             }
         }
 
@@ -293,35 +293,13 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public void setState(int state) {
-        this.options = null;
+        setActionRows();
         this.page = 0;
         this.state = state;
     }
 
     public int getState() {
         return state;
-    }
-
-    public OptionButton[] getOptions() {
-        return options;
-    }
-
-    public void setOptions(OptionButton[] options) {
-        this.options = options;
-        if (options != null) {
-            this.pageMax = Math.max(0, options.length - 1) / MAX_OPTIONS;
-        }
-    }
-
-    public void setOptions(String[] options) {
-        if (options != null) {
-            this.options = Arrays.stream(options)
-                    .map(l -> new OptionButton(ButtonStyle.PRIMARY, l, null))
-                    .toArray(OptionButton[]::new);
-            this.pageMax = Math.max(0, options.length - 1) / MAX_OPTIONS;
-        } else {
-            this.options = null;
-        }
     }
 
     public int getPage() {
@@ -346,33 +324,6 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     protected @interface Draw {
 
         int state() default -1;
-
-    }
-
-
-    public static class OptionButton {
-
-        private final ButtonStyle buttonStyle;
-        private final String label;
-        private final Emoji emoji;
-
-        public OptionButton(ButtonStyle buttonStyle, String label, Emoji emoji) {
-            this.buttonStyle = buttonStyle;
-            this.label = label;
-            this.emoji = emoji;
-        }
-
-        public ButtonStyle getButtonStyle() {
-            return buttonStyle;
-        }
-
-        public String getLabel() {
-            return StringUtil.shortenString(label, 80);
-        }
-
-        public Optional<Emoji> getEmoji() {
-            return Optional.ofNullable(emoji);
-        }
 
     }
 

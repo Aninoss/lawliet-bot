@@ -1,15 +1,14 @@
-package modules;
+package modules.fishery;
 
 import java.util.HashSet;
 import java.util.Locale;
 import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
-import constants.Category;
-import constants.FisheryGear;
-import constants.FisheryStatus;
+import commands.Category;
 import core.EmbedFactory;
 import core.TextManager;
 import core.components.ActionRows;
+import modules.JoinRoles;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;

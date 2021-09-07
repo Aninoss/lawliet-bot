@@ -9,7 +9,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import constants.Emojis;
-import constants.TrackerResult;
+import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
 import core.internet.HttpCache;
 import core.utils.EmbedUtil;
@@ -96,15 +96,15 @@ public class SalmonCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         EmbedBuilder eb = getEmbed(true);
         if (eb != null) {
             slot.sendMessage(true, eb.build());
             slot.setNextRequest(trackingTime);
-            return TrackerResult.CONTINUE_AND_SAVE;
+            return AlertResponse.CONTINUE_AND_SAVE;
         } else {
             slot.setNextRequest(Instant.now().plus(Duration.ofMinutes(5)));
-            return TrackerResult.CONTINUE;
+            return AlertResponse.CONTINUE;
         }
     }
 

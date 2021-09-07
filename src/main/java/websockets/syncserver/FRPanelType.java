@@ -1,4 +1,4 @@
-package constants;
+package websockets.syncserver;
 
 public enum FRPanelType {
 

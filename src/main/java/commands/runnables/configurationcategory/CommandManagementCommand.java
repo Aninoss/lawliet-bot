@@ -1,27 +1,30 @@
 package commands.runnables.configurationcategory;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.stream.Collectors;
+import commands.Category;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
-import constants.Category;
+import constants.Emojis;
 import constants.LogStatus;
-import constants.Response;
 import core.EmbedFactory;
 import core.TextManager;
 import mysql.modules.commandmanagement.CommandManagementData;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "cman",
@@ -47,7 +50,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         return null;
     }
 
@@ -149,31 +152,59 @@ public class CommandManagementCommand extends NavigationAbstract {
         return hasOn ? (hasOff ? 1 : 2) : 0;
     }
 
+    private String getUnicodeEmojiFromStatus(int status) {
+        return switch (status) {
+            case 0 -> Emojis.X;
+            case 1 -> "❔";
+            default -> "☑️";
+        };
+    }
+
+    private ButtonStyle getButtonStyleFromStatus(int status) {
+        return switch (status) {
+            case 0 -> ButtonStyle.SECONDARY;
+            case 1 -> ButtonStyle.SECONDARY;
+            default -> ButtonStyle.SUCCESS;
+        };
+    }
+
     @Override
     public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
-                String[] options = Arrays.stream(Category.LIST)
-                        .map(id -> {
-                            String name = TextManager.getString(getLocale(), TextManager.COMMANDS, id);
-                            return getString("category", getCategoryStatus(id), name);
-                        })
-                        .filter(Objects::nonNull)
-                        .toArray(String[]::new);
-                setOptions(options);
+                Button[] buttons = new Button[Category.LIST.length];
+                for (int i = 0; i < buttons.length; i++) {
+                    String id = Category.LIST[i];
+                    int status = getCategoryStatus(id);
+                    buttons[i] = Button.of(
+                            getButtonStyleFromStatus(status),
+                            String.valueOf(i),
+                            TextManager.getString(getLocale(), TextManager.COMMANDS, id),
+                            Emoji.fromUnicode(getUnicodeEmojiFromStatus(status))
+                    );
+                }
+                setComponents(buttons);
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
 
             case 1:
-                setOptions(getString("state1_options").split("\n"));
+                setComponents(getString("state1_options").split("\n"));
                 String categoryName = TextManager.getString(getLocale(), TextManager.COMMANDS, category);
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description", getCategoryStatus(category), categoryName));
 
             case 2:
-                options = CommandContainer.getCommandCategoryMap().get(category).stream()
-                        .map(clazz -> CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()))
-                        .map(command -> getString("command", commandManagementBean.commandIsTurnedOn(command), command.getTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title")))
-                        .toArray(String[]::new);
-                setOptions(options);
+                ArrayList<Class<? extends Command>> commands = CommandContainer.getCommandCategoryMap().get(category);
+                buttons = new Button[commands.size()];
+                for (int i = 0; i < buttons.length; i++) {
+                    Command command = CommandManager.createCommandByClass(commands.get(i), getLocale(), getPrefix());
+                    int status = commandManagementBean.commandIsTurnedOn(command) ? 2 : 0;
+                    buttons[i] = Button.of(
+                            getButtonStyleFromStatus(status),
+                            String.valueOf(i),
+                            getString("command", command.getTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title")),
+                            Emoji.fromUnicode(getUnicodeEmojiFromStatus(status))
+                    );
+                }
+                setComponents(buttons);
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             default:

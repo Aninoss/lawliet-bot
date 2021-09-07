@@ -10,6 +10,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import commands.Category;
 import commands.Command;
 import commands.listeners.OnAlertListener;
 import constants.*;
@@ -26,6 +27,7 @@ import modules.porn.BooruImage;
 import modules.porn.BooruImageDownloader;
 import modules.porn.IllegalTagException;
 import modules.porn.TooManyTagsException;
+import modules.schedulers.AlertResponse;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -235,7 +237,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         TextChannel channel = slot.getTextChannel().get();
 
         ArrayList<String> nsfwFiltersList = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(slot.getGuildId()).getKeywords());
@@ -252,12 +254,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                 EmbedBuilder eb = illegalTagsEmbed();
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessageEmbeds(eb.build()).complete();
-                return TrackerResult.STOP_AND_DELETE;
+                return AlertResponse.STOP_AND_DELETE;
             } if (e.getCause() instanceof TooManyTagsException) {
                 EmbedBuilder eb = tooManyTagsEmbed(((TooManyTagsException) e.getCause()).getMaxTags());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessageEmbeds(eb.build()).complete();
-                return TrackerResult.STOP_AND_DELETE;
+                return AlertResponse.STOP_AND_DELETE;
             } else {
                 throw e;
             }
@@ -268,9 +270,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                 EmbedBuilder eb = noResultsEmbed(slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessageEmbeds(eb.build()).complete();
-                return TrackerResult.STOP_AND_DELETE;
+                return AlertResponse.STOP_AND_DELETE;
             } else {
-                return TrackerResult.CONTINUE;
+                return AlertResponse.CONTINUE;
             }
         }
 
@@ -286,7 +288,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
         slot.setArgs("found");
         slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
-        return TrackerResult.CONTINUE_AND_SAVE;
+        return AlertResponse.CONTINUE_AND_SAVE;
     }
 
     private Optional<Message> generatePostMessagesText(List<BooruImage> pornImages, String search, TextChannel channel, int max) {

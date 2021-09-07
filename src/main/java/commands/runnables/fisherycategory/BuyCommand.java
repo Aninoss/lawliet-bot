@@ -9,15 +9,15 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
-import constants.FisheryGear;
+import modules.fishery.FisheryGear;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
-import modules.Fishery;
+import modules.fishery.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -93,7 +93,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String inputString, int state) throws Throwable {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String inputString, int state) throws Throwable {
         return null;
     }
 
@@ -208,7 +208,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                 );
 
                 eb.addField(getString("status_title"), StringUtil.shortenStringLine(status, 1024), false);
-                setOptions(options.toArray(new String[0]));
+                setComponents(options.toArray(new String[0]));
                 return eb;
 
             case 1:

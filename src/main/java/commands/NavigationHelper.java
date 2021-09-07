@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
@@ -41,13 +41,13 @@ public class NavigationHelper<T> {
         }
     }
 
-    public Response addData(List<T> newList, String inputString, Member author, int stateBack) {
+    public MessageInputResponse addData(List<T> newList, String inputString, Member author, int stateBack) {
         if (newList.size() == 0) {
             command.setLog(LogStatus.FAILURE, TextManager.getNoResultsString(command.getLocale(), inputString));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         } else {
             if (type == Type.Role && !command.checkRolesWithLog(author, AtomicRole.to((List<AtomicRole>) newList))) {
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
             }
 
             int existingRoles = 0;
@@ -59,7 +59,7 @@ public class NavigationHelper<T> {
 
             if (existingRoles >= newList.size()) {
                 command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_exists" + typeString, newList.size() != 1));
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
             }
 
             int n = 0;
@@ -74,7 +74,7 @@ public class NavigationHelper<T> {
 
             command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_add" + typeString, n != 1, String.valueOf(n)));
             command.setState(stateBack);
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         }
     }
 
@@ -136,7 +136,7 @@ public class NavigationHelper<T> {
         for (int i = 0; i < strings.length; i++) {
             strings[i] = nameFunction.apply(srcList.get(i));
         }
-        command.setOptions(strings);
+        command.setComponents(strings);
         return EmbedFactory.getEmbedDefault(command, desc, title);
     }
 

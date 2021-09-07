@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.listeners.CommandProperties;
-import constants.Category;
+import commands.Category;
 import core.TextManager;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 

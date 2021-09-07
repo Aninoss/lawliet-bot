@@ -8,14 +8,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import commands.listeners.CommandProperties;
-import commands.listeners.OnReactionListener;
-import commands.listeners.OnStaticReactionAddListener;
-import commands.listeners.OnStaticReactionRemoveListener;
+import commands.listeners.*;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Response;
 import core.*;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
@@ -34,6 +30,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
@@ -91,49 +88,49 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerMessage(state = ADD_MESSAGE)
-    public Response onMessageAddMessage(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageAddMessage(GuildMessageReceivedEvent event, String input) {
         List<TextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getMessage(), input).getList();
         if (serverTextChannel.size() > 0) {
             if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
                 atomicTextChannel = new AtomicTextChannel(serverTextChannel.get(0));
                 setLog(LogStatus.SUCCESS, getString("channelset"));
-                return Response.TRUE;
+                return MessageInputResponse.SUCCESS;
             } else {
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
             }
         }
         setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-        return Response.FALSE;
+        return MessageInputResponse.FAILED;
     }
 
     @ControllerMessage(state = UPDATE_TITLE)
-    public Response onMessageUpdateTitle(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateTitle(GuildMessageReceivedEvent event, String input) {
         if (input.length() > 0 && input.length() <= 250) {
             title = input;
             setLog(LogStatus.SUCCESS, getString("titleset", input));
             setState(CONFIGURE_MESSAGE);
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "250"));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
     }
 
     @ControllerMessage(state = UPDATE_DESC)
-    public Response onMessageUpdateDesc(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateDesc(GuildMessageReceivedEvent event, String input) {
         if (input.length() > 0 && input.length() <= 1024) {
             description = input;
             setLog(LogStatus.SUCCESS, getString("descriptionset", input));
             setState(CONFIGURE_MESSAGE);
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "1024"));
-            return Response.FALSE;
+            return MessageInputResponse.FAILED;
         }
     }
 
     @ControllerMessage(state = UPDATE_IMAGE)
-    public Response onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException, ExecutionException, InterruptedException {
+    public MessageInputResponse onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException, ExecutionException, InterruptedException {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
             LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("reactionroles/%d.png", System.nanoTime()));
@@ -142,12 +139,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 banner = uploadFile(tempFile);
                 setLog(LogStatus.SUCCESS, getString("imageset"));
                 setState(CONFIGURE_MESSAGE);
-                return Response.TRUE;
+                return MessageInputResponse.SUCCESS;
             }
         }
 
         setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-        return Response.FALSE;
+        return MessageInputResponse.FAILED;
     }
 
     private String uploadFile(LocalFile file) {
@@ -161,7 +158,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerMessage(state = ADD_SLOT)
-    public Response onMessageAddSlot(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageAddSlot(GuildMessageReceivedEvent event, String input) {
         if (input.length() > 0) {
             boolean ok = false;
             List<String> emojis = MentionUtil.getEmojis(event.getMessage(), input).getList();
@@ -171,7 +168,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 if (processEmoji(emojis.get(0))) {
                     ok = true;
                 } else {
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
             }
 
@@ -179,15 +176,15 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 if (processRole(event.getMember(), roles)) {
                     ok = true;
                 } else {
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
             }
 
-            if (ok) return Response.TRUE;
+            if (ok) return MessageInputResponse.SUCCESS;
         }
 
         setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-        return Response.FALSE;
+        return MessageInputResponse.FAILED;
     }
 
     private boolean processEmoji(String emoji) {
@@ -411,11 +408,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                 event.getReaction().removeReaction(event.getUser()).queue();
             }
-            boolean success = calculateEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
-            if (success) {
-                processDraw(event.getMember()).exceptionally(ExceptionLogger.get());
-            }
-            return success;
+            return calculateEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
         }
 
         return false;
@@ -543,7 +536,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Draw(state = ADD_OR_EDIT)
     public EmbedBuilder onDrawAddOrEdit(Member member) {
-        setOptions(getString("state0_options").split("\n"));
+        setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
     }
 
@@ -551,7 +544,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public EmbedBuilder onDrawAddMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (atomicTextChannel != null) {
-            setOptions(new String[] { TextManager.getString(getLocale(), TextManager.GENERAL, "continue") });
+            setComponents(new String[] { TextManager.getString(getLocale(), TextManager.GENERAL, "continue") });
         }
         return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(atomicTextChannel).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state1_title"));
     }
@@ -566,14 +559,14 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             options[i] = getString("state2_template", reactionMessage.getTitle(), channel.getName());
         }
 
-        setOptions(options);
+        setComponents(options);
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
     }
 
     @Draw(state = CONFIGURE_MESSAGE)
     public EmbedBuilder onDrawConfigureMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        setOptions(getString("state3_options").split("\n"));
+        setComponents(getString("state3_options").split("\n"));
 
         String add;
         if (editMode) {
@@ -603,30 +596,33 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Draw(state = UPDATE_IMAGE)
     public EmbedBuilder onDrawUpdateImage(Member member) {
-        setOptions(getString("state10_options").split("\n"));
+        setComponents(getString("state10_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
     }
 
     @Draw(state = ADD_SLOT)
     public EmbedBuilder onDrawAddSlot(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        if (roleTemp != null && emojiTemp != null) setOptions(new String[] { getString("state6_options") });
+        if (roleTemp != null && emojiTemp != null) setComponents(new String[] { getString("state6_options") });
         return EmbedFactory.getEmbedDefault(this, getString("state6_description", Optional.ofNullable(emojiTemp).orElse(notSet), Optional.ofNullable(roleTemp).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state6_title"));
     }
 
     @Draw(state = REMOVE_SLOT)
     public EmbedBuilder onDrawRemoveSlot(Member member) {
-        ArrayList<OptionButton> optionsDelete = new ArrayList<>();
-        for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-            long roleId = StringUtil.filterLongFromString( emojiConnection.getConnection());
-            OptionButton optionButton = new OptionButton(
+        ArrayList<Button> buttons = new ArrayList<>();
+        ArrayList<EmojiConnection> tempConnections = new ArrayList<>(emojiConnections);
+        for (int i = 0; i < tempConnections.size(); i++) {
+            EmojiConnection emojiConnection = tempConnections.get(i);
+            long roleId = StringUtil.filterLongFromString(emojiConnection.getConnection());
+            Button button = Button.of(
                     ButtonStyle.PRIMARY,
+                    String.valueOf(i),
                     new AtomicRole(getGuildId().get(), roleId).getName(),
                     Emoji.fromMarkdown(emojiConnection.getEmojiTag())
             );
-            optionsDelete.add(optionButton);
+            buttons.add(button);
         }
-        setOptions(optionsDelete.toArray(new OptionButton[0]));
+        setComponents(buttons);
 
         return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
     }

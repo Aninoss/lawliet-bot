@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
-import constants.Category;
+import commands.Category;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.MemberCacheController;

@@ -1,6 +1,6 @@
-package constants;
+package modules.schedulers;
 
-public enum TrackerResult {
+public enum AlertResponse {
 
     CONTINUE,
     CONTINUE_AND_SAVE,

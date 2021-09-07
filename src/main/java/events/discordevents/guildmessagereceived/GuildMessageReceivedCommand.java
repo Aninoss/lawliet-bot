@@ -10,7 +10,7 @@ import commands.CommandListenerMeta;
 import commands.CommandManager;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.informationcategory.HelpCommand;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import core.AsyncTimer;
 import core.MainLogger;
 import core.ShardManager;
@@ -136,8 +136,8 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     });
 
                     for (CommandListenerMeta<?> listener : listeners) {
-                        Response response = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event);
-                        if (response != null) {
+                        MessageInputResponse messageInputResponse = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event);
+                        if (messageInputResponse != null) {
                             return true;
                         }
                     }

@@ -2,7 +2,7 @@ package commands.runnables;
 
 import commands.Command;
 import commands.listeners.OnTriggerListener;
-import constants.FisheryStatus;
+import modules.fishery.FisheryStatus;
 import core.EmbedFactory;
 import core.TextManager;
 import mysql.modules.guild.DBGuild;

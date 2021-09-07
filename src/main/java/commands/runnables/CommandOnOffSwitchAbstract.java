@@ -60,7 +60,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
             event.getChannel().sendMessageEmbeds(eb.build())
                     .queue();
         } else {
-            setButtons(
+            setComponents(
                     Button.of(ButtonStyle.SUCCESS, "true", TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 1)),
                     Button.of(ButtonStyle.DANGER, "false", TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 0))
             );

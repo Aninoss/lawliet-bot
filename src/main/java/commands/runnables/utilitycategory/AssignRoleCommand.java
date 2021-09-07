@@ -97,7 +97,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
         CompletableFuture<Boolean> future = futureOpt.get();
         future.thenAccept(this::onAssignmentFinished);
 
-        setButtons(Button.of(ButtonStyle.SECONDARY, "quit", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
+        setComponents(Button.of(ButtonStyle.SECONDARY, "quit", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
         registerButtonListener(event.getMember());
         return true;
     }

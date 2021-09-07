@@ -1,11 +1,11 @@
 package commands.listeners;
 
-import constants.TrackerResult;
+import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 
 public interface OnAlertListener {
 
-    TrackerResult onTrackerRequest(TrackerData slot) throws Throwable;
+    AlertResponse onTrackerRequest(TrackerData slot) throws Throwable;
 
     boolean trackerUsesKey();
 

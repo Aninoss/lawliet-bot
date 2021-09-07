@@ -6,7 +6,7 @@ import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import constants.Response;
+import commands.listeners.MessageInputResponse;
 import constants.Settings;
 import core.CustomObservableList;
 import core.EmbedFactory;
@@ -14,7 +14,7 @@ import core.ListGen;
 import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import modules.Fishery;
+import modules.fishery.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.guild.DBGuild;
@@ -59,16 +59,16 @@ public class FisheryRolesCommand extends NavigationAbstract {
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
                 List<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
                 if (roleList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     if (!checkRolesWithLog(event.getMember(), roleList)) {
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
 
                     CustomObservableList<Role> roles = fisheryGuildBean.getRoles();
@@ -81,7 +81,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
                     if (existingRoles >= roleList.size()) {
                         setLog(LogStatus.FAILURE, getString("roleexists", roleList.size() != 1));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
 
                     int rolesAdded = 0;
@@ -95,23 +95,23 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
                     setLog(LogStatus.SUCCESS, getString("roleadd", (rolesAdded - existingRoles) != 1, String.valueOf(rolesAdded)));
                     setState(0);
-                    return Response.TRUE;
+                    return MessageInputResponse.SUCCESS;
                 }
 
             case 3:
                 List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 } else {
                     TextChannel channel = channelList.get(0);
                     if (checkWriteInChannelWithLog(channel)) {
                         guildBean.setFisheryAnnouncementChannelId(channel.getIdLong());
                         setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 }
 
@@ -127,14 +127,14 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         guildBean.setFisheryRolePrices(priceMin, priceMax);
                         setLog(LogStatus.SUCCESS, getString("pricesset"));
                         setState(0);
-                        return Response.TRUE;
+                        return MessageInputResponse.SUCCESS;
                     } else {
                         setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "0", StringUtil.numToString(Settings.FISHERY_MAX)));
-                        return Response.FALSE;
+                        return MessageInputResponse.FAILED;
                     }
                 } else {
                     setLog(LogStatus.FAILURE, getString("prices_wrongvalues"));
-                    return Response.FALSE;
+                    return MessageInputResponse.FAILED;
                 }
 
             default:
@@ -247,7 +247,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
         switch (state) {
             case 0:
-                setOptions(getString("state0_options").split("\n"));
+                setComponents(getString("state0_options").split("\n"));
 
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(fisheryGuildBean.getRoles(), getLocale(), this::getRoleString), false)
@@ -264,12 +264,12 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 for (int i = 0; i < roleStrings.length; i++) {
                     roleStrings[i] = getRoleString2(roles.get(i));
                 }
-                setOptions(roleStrings);
+                setComponents(roleStrings);
 
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:
-                setOptions(new String[] { getString("state3_options") });
+                setComponents(new String[] { getString("state3_options") });
                 return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
 
             case 4:

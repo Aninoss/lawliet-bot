@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
-import constants.Category;
+import commands.Category;
 import core.*;
 import core.utils.BotPermissionUtil;
 import core.utils.FutureUtil;

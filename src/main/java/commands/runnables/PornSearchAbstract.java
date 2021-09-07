@@ -1,7 +1,7 @@
 package commands.runnables;
 
 import java.util.*;
-import constants.Category;
+import commands.Category;
 import core.TextManager;
 import modules.porn.BooruImage;
 import modules.porn.IllegalTagException;

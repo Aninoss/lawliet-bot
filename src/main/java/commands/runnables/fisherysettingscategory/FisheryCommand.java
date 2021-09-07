@@ -4,17 +4,23 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import commands.Category;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnStaticButtonListener;
 import commands.runnables.NavigationAbstract;
-import constants.*;
+import constants.Emojis;
+import constants.LogStatus;
+import constants.Settings;
 import core.*;
 import core.atomicassets.AtomicTextChannel;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import modules.fishery.FisheryGear;
+import modules.fishery.FisheryStatus;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -29,6 +35,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
@@ -67,7 +74,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
             return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMessage().getMember(), 0);
@@ -156,15 +163,15 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         switch (state) {
             case 0:
                 String[] options = getString("state0_options_" + guildBean.getFisheryStatus().ordinal()).split("\n");
-                OptionButton[] buttons = new OptionButton[options.length];
+                Button[] buttons = new Button[options.length];
                 for (int i = 0; i < options.length; i++) {
-                    buttons[i] = new OptionButton(
+                    buttons[i] = Button.of(
                             i == 6 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY,
-                            options[i],
-                            null
+                            String.valueOf(i),
+                            options[i]
                     );
                 }
-                setOptions(buttons);
+                setComponents(buttons);
 
                 TextChannel channel = getTextChannel().get();
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))

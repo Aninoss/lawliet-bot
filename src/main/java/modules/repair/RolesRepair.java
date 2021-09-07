@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryRolesCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
-import constants.FisheryStatus;
+import modules.fishery.FisheryStatus;
 import core.MainLogger;
 import core.MemberCacheController;
 import core.PermissionCheckRuntime;

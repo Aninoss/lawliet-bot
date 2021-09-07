@@ -12,7 +12,7 @@ import commands.listeners.OnStaticButtonListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.TrackerResult;
+import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.ShardManager;
@@ -224,15 +224,15 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         SurveyData currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         if (slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get())) {
-            return TrackerResult.CONTINUE;
+            return AlertResponse.CONTINUE;
         }
 
         TextChannel channel = slot.getTextChannel().get();
         if (!PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), channel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION)) {
-            return TrackerResult.CONTINUE;
+            return AlertResponse.CONTINUE;
         }
 
         slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).queue());
@@ -246,7 +246,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));
         slot.setArgs(String.valueOf(currentSurvey.getSurveyId()));
 
-        return TrackerResult.CONTINUE_AND_SAVE;
+        return AlertResponse.CONTINUE_AND_SAVE;
     }
 
     private Instant getNextSurveyInstant(Instant start) {

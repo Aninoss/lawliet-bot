@@ -9,9 +9,9 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
-import constants.Category;
+import commands.Category;
 import constants.Emojis;
-import constants.TrackerResult;
+import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
@@ -134,7 +134,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     }
 
     @Override
-    public TrackerResult onTrackerRequest(TrackerData slot) throws Throwable {
+    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         TextChannel textChannel = slot.getTextChannel().get();
         if (PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), textChannel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
             Optional<Integer> hoursMin = extractHoursMin(textChannel, slot.getCommandKey());
@@ -144,11 +144,11 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                     slot.sendMessage(true, "");
                 }
                 slot.setNextRequest(Instant.now().plus(1, ChronoUnit.HOURS));
-                return TrackerResult.CONTINUE_AND_SAVE;
+                return AlertResponse.CONTINUE_AND_SAVE;
             }
         }
 
-        return TrackerResult.STOP_AND_DELETE;
+        return AlertResponse.STOP_AND_DELETE;
     }
 
     @Override
@@ -166,7 +166,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     @Override
     public EmbedBuilder draw(Member member) throws Throwable {
         if (!interrupt) {
-            setButtons(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
+            setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), Category.MODERATION, "clear_progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get()), Emojis.X));
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));

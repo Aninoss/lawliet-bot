@@ -3,16 +3,21 @@ package commands.runnables.fisherysettingscategory;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import commands.Category;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
-import constants.*;
+import constants.Emojis;
+import constants.LogStatus;
+import constants.Settings;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
-import modules.Fishery;
 import modules.FisheryMemberGroup;
+import modules.fishery.Fishery;
+import modules.fishery.FisheryGear;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -21,6 +26,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
@@ -113,18 +119,18 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     }
 
     @Override
-    public Response controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state >= 1) {
             if (!updateValues(state - 1, input)) {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
-                return Response.FALSE;
+                return MessageInputResponse.FAILED;
             }
 
             setLog(LogStatus.SUCCESS, getString("set_log", fisheryMemberGroup.getAsTag(), input, nameOfProperty(state - 1)));
             resetLog = true;
             setState(0);
 
-            return Response.TRUE;
+            return MessageInputResponse.SUCCESS;
         }
 
         return null;
@@ -264,21 +270,21 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             }
             eb.addField(Emojis.ZERO_WIDTH_SPACE, sb.toString(), false);
 
-            OptionButton[] buttons = new OptionButton[4 + FisheryGear.values().length];
+            Button[] buttons = new Button[4 + FisheryGear.values().length];
             for (int i = 0; i < 3 + FisheryGear.values().length; i++) {
-                buttons[i] = new OptionButton(
+                buttons[i] = Button.of(
                         ButtonStyle.PRIMARY,
-                        nameOfProperty(i),
-                        null
+                        String.valueOf(i),
+                        nameOfProperty(i)
                 );
             }
-            buttons[buttons.length - 1] = new OptionButton(
+            buttons[buttons.length - 1] = Button.of(
                     ButtonStyle.DANGER,
-                    getString("state0_reset"),
-                    null
+                    String.valueOf(buttons.length - 1),
+                    getString("state0_reset")
             );
 
-            setOptions(buttons);
+            setComponents(buttons);
             return eb;
         } else {
             return EmbedFactory.getEmbedDefault(

@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import constants.FisheryStatus;
+import modules.fishery.FisheryStatus;
 import constants.Language;
 import core.LocalFile;
 import core.ShardManager;

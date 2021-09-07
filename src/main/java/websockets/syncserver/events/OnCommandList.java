@@ -6,7 +6,7 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import commands.listeners.OnAlertListener;
-import constants.Category;
+import commands.Category;
 import core.TextManager;
 import org.json.JSONArray;
 import org.json.JSONObject;

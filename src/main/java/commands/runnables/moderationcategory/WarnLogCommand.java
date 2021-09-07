@@ -71,7 +71,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
     @Override
     protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
         if (warningSlots.size() > ENTRIES_PER_PAGE) {
-            setButtons(
+            setComponents(
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"))
             );

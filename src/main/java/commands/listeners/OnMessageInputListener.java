@@ -5,7 +5,6 @@ import java.util.function.Function;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
-import constants.Response;
 import core.MainLogger;
 import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
@@ -17,7 +16,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public interface OnMessageInputListener {
 
-    Response onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable;
+    MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable;
 
     EmbedBuilder draw(Member member) throws Throwable;
 
@@ -73,7 +72,7 @@ public interface OnMessageInputListener {
         }
     }
 
-    default Response processMessageInput(GuildMessageReceivedEvent event) {
+    default MessageInputResponse processMessageInput(GuildMessageReceivedEvent event) {
         Command command = (Command) this;
         AtomicBoolean isProcessing = new AtomicBoolean(true);
 
@@ -82,9 +81,9 @@ public interface OnMessageInputListener {
             if (command.getCommandProperties().requiresFullMemberCache()) {
                 MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
             }
-            Response response = onMessageInput(event, event.getMessage().getContentRaw());
-            if (response != null) {
-                if (response == Response.TRUE) {
+            MessageInputResponse messageInputResponse = onMessageInput(event, event.getMessage().getContentRaw());
+            if (messageInputResponse != null) {
+                if (messageInputResponse == MessageInputResponse.SUCCESS) {
                     CommandContainer.refreshListeners(command);
                     if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                         event.getMessage().delete().queue();
@@ -96,10 +95,10 @@ public interface OnMessageInputListener {
                     ((Command) this).drawMessage(eb);
                 }
             }
-            return response;
+            return messageInputResponse;
         } catch (Throwable e) {
             ExceptionUtil.handleCommandException(e, command, event.getChannel());
-            return Response.ERROR;
+            return MessageInputResponse.ERROR;
         } finally {
             isProcessing.set(false);
         }

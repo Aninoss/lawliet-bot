@@ -2,7 +2,7 @@ package mysql.modules.subs;
 
 import java.util.Locale;
 import java.util.Observable;
-import constants.Category;
+import commands.Category;
 import core.TextManager;
 import core.assets.UserAsset;
 import core.utils.JDAUtil;

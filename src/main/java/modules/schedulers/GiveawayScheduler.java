@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.utilitycategory.GiveawayCommand;
-import constants.Category;
+import commands.Category;
 import constants.Emojis;
 import core.*;
 import core.schedule.MainScheduler;

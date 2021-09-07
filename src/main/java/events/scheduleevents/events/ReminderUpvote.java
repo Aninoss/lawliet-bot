@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
-import constants.Category;
+import commands.Category;
 import constants.ExternalLinks;
 import core.*;
 import core.schedule.ScheduleInterface;

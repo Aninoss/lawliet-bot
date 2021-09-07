@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import constants.FisheryStatus;
+import modules.fishery.FisheryStatus;
 import core.MainLogger;
 import core.Program;
 import core.ShardManager;

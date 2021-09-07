@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
-import constants.Category;
+import commands.Category;
 import core.EmbedFactory;
 import core.TextManager;
 import core.mention.Mention;
@@ -109,7 +109,7 @@ public class WarnCommand extends Command implements OnButtonListener {
 
         moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         if (userList.size() > 1 || moderationBean.isQuestion()) {
-            setButtons(
+            setComponents(
                     Button.of(ButtonStyle.SUCCESS, "true", TextManager.getString(getLocale(), Category.MODERATION, "warn_button_confirm")),
                     Button.of(ButtonStyle.SECONDARY, "false", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
             );
