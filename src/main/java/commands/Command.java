@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.json.JSONObject;
 
@@ -126,6 +127,10 @@ public abstract class Command implements OnTriggerListener {
 
     public void setComponents(Button... buttons) {
         setComponents(List.of(buttons));
+    }
+
+    public void setComponents(SelectionMenu... menus) {
+        setComponents(List.of(menus));
     }
 
     public void setComponents(List<? extends Component> components) {

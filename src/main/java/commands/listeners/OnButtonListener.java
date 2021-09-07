@@ -6,7 +6,7 @@ import commands.CommandListenerMeta;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 
-public interface OnButtonListener extends OnInteractionListener<ButtonClickEvent> {
+public interface OnButtonListener extends OnInteractionListener {
 
     boolean onButton(ButtonClickEvent event) throws Throwable;
 

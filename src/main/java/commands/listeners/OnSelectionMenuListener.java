@@ -6,7 +6,7 @@ import commands.CommandListenerMeta;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 
-public interface OnSelectionMenuListener extends OnInteractionListener<SelectionMenuEvent> {
+public interface OnSelectionMenuListener extends OnInteractionListener {
 
     boolean onSelectionMenu(SelectionMenuEvent event) throws Throwable;
 

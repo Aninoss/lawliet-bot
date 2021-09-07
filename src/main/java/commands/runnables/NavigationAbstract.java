@@ -8,11 +8,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import commands.Command;
 import commands.CommandContainer;
-import commands.listeners.OnButtonListener;
-import commands.listeners.OnMessageInputListener;
-import commands.listeners.OnTriggerListener;
+import commands.listeners.*;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.ExceptionLogger;
 import core.MainLogger;
 import core.TextManager;
@@ -21,12 +18,13 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
-public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener {
+public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener, OnSelectionMenuListener {
 
     private static final int MAX_ROWS_PER_PAGE = 4;
     private static final String BUTTON_ID_PREV = "nav:prev";
@@ -97,6 +95,17 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return changed;
     }
 
+    @Override
+    public boolean onSelectionMenu(SelectionMenuEvent event) throws Throwable {
+        boolean changed = controllerSelectionMenu(event, state);
+        if (changed) {
+            processDraw(event.getMember(), true)
+                    .exceptionally(ExceptionLogger.get());
+        }
+
+        return changed;
+    }
+
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws Throwable {
         for (Method method : getClass().getDeclaredMethods()) {
             ControllerMessage c = method.getAnnotation(ControllerMessage.class);
@@ -140,6 +149,32 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             if (c != null && c.state() == -1) {
                 try {
                     return (boolean) method.invoke(this, event, i);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean controllerSelectionMenu(SelectionMenuEvent event, int state) throws Throwable {
+        for (Method method : getClass().getDeclaredMethods()) {
+            ControllerSelectionMenu c = method.getAnnotation(ControllerSelectionMenu.class);
+            if (c != null && c.state() == state) {
+                try {
+                    return (boolean) method.invoke(this, event);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
+            }
+        }
+
+        for (Method method : getClass().getDeclaredMethods()) {
+            ControllerSelectionMenu c = method.getAnnotation(ControllerSelectionMenu.class);
+            if (c != null && c.state() == -1) {
+                try {
+                    return (boolean) method.invoke(this, event);
                 } catch (InvocationTargetException e) {
                     throw e.getCause();
                 }
@@ -224,7 +259,11 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             }
         }
 
-        return drawMessage(eb);
+        return drawMessage(eb)
+                .thenApply(messageId -> {
+                    setActionRows();
+                    return messageId;
+                });
     }
 
     public boolean checkWriteInChannelWithLog(TextChannel channel) {
@@ -315,6 +354,13 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
     @Retention(RetentionPolicy.RUNTIME)
     protected @interface ControllerButton {
+
+        int state() default -1;
+
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    protected @interface ControllerSelectionMenu {
 
         int state() default -1;
 

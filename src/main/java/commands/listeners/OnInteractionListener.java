@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
 
-public interface OnInteractionListener<T extends GenericComponentInteractionCreateEvent> extends Drawable {
+public interface OnInteractionListener extends Drawable {
 
     default void deregisterListenersWithComponents() {
         Command command = (Command) this;
@@ -53,7 +53,7 @@ public interface OnInteractionListener<T extends GenericComponentInteractionCrea
         }, overriddenMethod, clazz);
     }
 
-    default CompletableFuture<Long> registerInteractionListener(Member member, Function<T, CommandListenerMeta.CheckResponse> validityChecker,
+    default <T extends GenericComponentInteractionCreateEvent> CompletableFuture<Long> registerInteractionListener(Member member, Function<T, CommandListenerMeta.CheckResponse> validityChecker,
                                                                 ExceptionRunnable overriddenMethod, Class<?> clazz
     ) {
         Command command = (Command) this;
@@ -97,7 +97,7 @@ public interface OnInteractionListener<T extends GenericComponentInteractionCrea
         return CompletableFuture.failedFuture(new NoSuchElementException("No message sent"));
     }
 
-    default void processInteraction(T event, ExceptionFunction<T, Boolean> task) {
+    default <T extends GenericComponentInteractionCreateEvent> void processInteraction(T event, ExceptionFunction<T, Boolean> task) {
         Command command = (Command) this;
         InteractionResponse interactionResponse = new InteractionResponse(event);
         command.setInteractionResponse(interactionResponse);
