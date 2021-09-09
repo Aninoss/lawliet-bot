@@ -139,16 +139,22 @@ public abstract class Command implements OnTriggerListener {
 
     public void setComponents(String... options) {
         if (options != null) {
-            ArrayList<Button> buttonList = new ArrayList<>();
+            setComponents(optionsToButtons(options));
+        } else {
+            setActionRows();
+        }
+    }
+
+    public List<Button> optionsToButtons(String... options) {
+        ArrayList<Button> buttonList = new ArrayList<>();
+        if (options != null) {
             for (int i = 0; i < options.length; i++) {
                 buttonList.add(
                         Button.of(ButtonStyle.PRIMARY, String.valueOf(i), options[i])
                 );
             }
-            setComponents(buttonList);
-        } else {
-            setActionRows();
         }
+        return buttonList;
     }
 
     public synchronized CompletableFuture<Void> redrawMessageWithoutComponents() {

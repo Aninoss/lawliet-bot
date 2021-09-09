@@ -16,7 +16,9 @@ import commands.runnables.NavigationAbstract;
 import commands.runnables.PornPredefinedAbstract;
 import commands.runnables.PornSearchAbstract;
 import commands.runnables.RolePlayAbstract;
-import constants.*;
+import constants.Emojis;
+import constants.ExternalLinks;
+import constants.LogStatus;
 import core.EmbedFactory;
 import core.ListGen;
 import core.Program;
@@ -31,7 +33,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 
 @CommandProperties(
         trigger = "help",
@@ -108,6 +112,12 @@ public class HelpCommand extends NavigationAbstract {
         }
 
         return false;
+    }
+
+    @ControllerSelectionMenu(state = DEFAULT_STATE)
+    public boolean onSelectionMenu(SelectionMenuEvent event, int i) throws Throwable {
+        searchTerm = event.getValues().get(0);
+        return true;
     }
 
     @Draw(state = DEFAULT_STATE)
@@ -229,6 +239,7 @@ public class HelpCommand extends NavigationAbstract {
                         default -> categoryDefault(member, channel, eb, category);
                     }
 
+                    setComponents(generateSelectionMenu(category));
                     return eb;
                 }
             }
@@ -435,8 +446,6 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     private EmbedBuilder checkMainPage(Member member) {
-        ArrayList<String> options = new ArrayList<>();
-
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"))
                 .setDescription(getString("sp"))
@@ -445,16 +454,6 @@ public class HelpCommand extends NavigationAbstract {
 
         buttonMap.clear();
         buttonMap.put(-1, "quit");
-
-        int i = 0;
-        for (String string : LIST) {
-            if (!commandManagementBean.getSwitchedOffElements().contains(string) || BotPermissionUtil.can(member, Permission.ADMINISTRATOR)) {
-                String title = TextManager.getString(getLocale(), TextManager.COMMANDS, string);
-                buttonMap.put(i, "cat:" + string);
-                options.add(title);
-                i++;
-            }
-        }
 
         if (Program.publicVersion()) {
             eb.addField(getString("links_title"), getString(
@@ -468,8 +467,23 @@ public class HelpCommand extends NavigationAbstract {
             ), true);
         }
 
-        setComponents(options.toArray(new String[0]));
+        setComponents(generateSelectionMenu(null));
         return eb;
+    }
+
+    private SelectionMenu generateSelectionMenu(String currentCategory) {
+        SelectionMenu.Builder builder = SelectionMenu.create("category")
+                .setPlaceholder(getString("category_placeholder"));
+        for (String category : LIST) {
+            builder.addOption(
+                    TextManager.getString(getLocale(), TextManager.COMMANDS, category),
+                    "cat:" + category
+            );
+            if (category.equals(currentCategory)) {
+                builder.setDefaultValues(List.of("cat:" + category));
+            }
+        }
+        return builder.build();
     }
 
 

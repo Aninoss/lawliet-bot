@@ -22,9 +22,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 
 @CommandProperties(
         trigger = "cman",
@@ -55,16 +58,18 @@ public class CommandManagementCommand extends NavigationAbstract {
     }
 
     @Override
+    public boolean controllerSelectionMenu(SelectionMenuEvent event, int i, int state) throws Throwable {
+        category = Category.LIST[i];
+        setState(1);
+        return true;
+    }
+
+    @Override
     public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
         switch (state) {
             case 0:
                 if (i == -1) {
                     deregisterListenersWithComponentMessage();
-                    return false;
-                } else if (i >= 0 && i < Category.LIST.length) {
-                    category = Category.LIST[i];
-                    setState(1);
-                    return true;
                 }
                 return false;
 
@@ -127,6 +132,61 @@ public class CommandManagementCommand extends NavigationAbstract {
         }
     }
 
+    @Override
+    public EmbedBuilder draw(Member member, int state) {
+        switch (state) {
+            case 0:
+                setComponents(generateSelectionMenu(null));
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
+
+            case 1:
+                List<Button> buttonsList = optionsToButtons(getString("state1_options").split("\n"));
+                setActionRows(
+                        ActionRow.of(buttonsList),
+                        ActionRow.of(generateSelectionMenu(category))
+                );
+                String categoryName = TextManager.getString(getLocale(), TextManager.COMMANDS, category);
+                return EmbedFactory.getEmbedDefault(this, getString("state1_description", getCategoryStatus(category), categoryName));
+
+            case 2:
+                ArrayList<Class<? extends Command>> commands = CommandContainer.getCommandCategoryMap().get(category);
+                Button[] buttons = new Button[commands.size()];
+                for (int i = 0; i < buttons.length; i++) {
+                    Command command = CommandManager.createCommandByClass(commands.get(i), getLocale(), getPrefix());
+                    int status = commandManagementBean.commandIsTurnedOn(command) ? 2 : 0;
+                    buttons[i] = Button.of(
+                            getButtonStyleFromStatus(status),
+                            String.valueOf(i),
+                            getString("command", command.getTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title")),
+                            Emoji.fromUnicode(getUnicodeEmojiFromStatus(status))
+                    );
+                }
+                setComponents(buttons);
+                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
+
+            default:
+                return null;
+        }
+    }
+
+    private SelectionMenu generateSelectionMenu(String currentCategory) {
+        SelectionMenu.Builder builder = SelectionMenu.create("category")
+                .setPlaceholder(getString("category_placeholder"));
+        for (int i = 0; i < Category.LIST.length; i++) {
+            String id = Category.LIST[i];
+            int status = getCategoryStatus(id);
+            builder.addOption(
+                    TextManager.getString(getLocale(), TextManager.COMMANDS, id),
+                    String.valueOf(i),
+                    Emoji.fromUnicode(getUnicodeEmojiFromStatus(status))
+            );
+            if (id.equals(currentCategory)) {
+                builder.setDefaultValues(List.of(String.valueOf(i)));
+            }
+        }
+        return builder.build();
+    }
+
     private void turnOnAllCategoryCommands() {
         commandManagementBean.getSwitchedOffElements().removeIf(element -> {
             Class<? extends Command> clazz = CommandContainer.getCommandMap().get(element);
@@ -166,50 +226,6 @@ public class CommandManagementCommand extends NavigationAbstract {
             case 1 -> ButtonStyle.SECONDARY;
             default -> ButtonStyle.SUCCESS;
         };
-    }
-
-    @Override
-    public EmbedBuilder draw(Member member, int state) {
-        switch (state) {
-            case 0:
-                Button[] buttons = new Button[Category.LIST.length];
-                for (int i = 0; i < buttons.length; i++) {
-                    String id = Category.LIST[i];
-                    int status = getCategoryStatus(id);
-                    buttons[i] = Button.of(
-                            getButtonStyleFromStatus(status),
-                            String.valueOf(i),
-                            TextManager.getString(getLocale(), TextManager.COMMANDS, id),
-                            Emoji.fromUnicode(getUnicodeEmojiFromStatus(status))
-                    );
-                }
-                setComponents(buttons);
-                return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
-
-            case 1:
-                setComponents(getString("state1_options").split("\n"));
-                String categoryName = TextManager.getString(getLocale(), TextManager.COMMANDS, category);
-                return EmbedFactory.getEmbedDefault(this, getString("state1_description", getCategoryStatus(category), categoryName));
-
-            case 2:
-                ArrayList<Class<? extends Command>> commands = CommandContainer.getCommandCategoryMap().get(category);
-                buttons = new Button[commands.size()];
-                for (int i = 0; i < buttons.length; i++) {
-                    Command command = CommandManager.createCommandByClass(commands.get(i), getLocale(), getPrefix());
-                    int status = commandManagementBean.commandIsTurnedOn(command) ? 2 : 0;
-                    buttons[i] = Button.of(
-                            getButtonStyleFromStatus(status),
-                            String.valueOf(i),
-                            getString("command", command.getTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title")),
-                            Emoji.fromUnicode(getUnicodeEmojiFromStatus(status))
-                    );
-                }
-                setComponents(buttons);
-                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
-
-            default:
-                return null;
-        }
     }
 
 }

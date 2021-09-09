@@ -1,11 +1,11 @@
 package commands.runnables.configurationcategory;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import commands.Category;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnButtonListener;
-import commands.Category;
+import commands.listeners.OnSelectionMenuListener;
 import constants.ExternalLinks;
 import constants.Language;
 import core.EmbedFactory;
@@ -15,10 +15,11 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 
 @CommandProperties(
         trigger = "language",
@@ -27,7 +28,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         executableWithoutArgs = true,
         aliases = { "sprache", "lang" }
 )
-public class LanguageCommand extends Command implements OnButtonListener {
+public class LanguageCommand extends Command implements OnSelectionMenuListener {
 
     private final Language[] LANGUAGES = new Language[] { Language.EN, Language.DE, Language.ES, Language.RU };
 
@@ -62,21 +63,24 @@ public class LanguageCommand extends Command implements OnButtonListener {
                 return true;
             }
         } else {
-            ArrayList<Button> buttons = new ArrayList<>();
+            SelectionMenu.Builder builder = SelectionMenu.create("language");
             for (Language language : LANGUAGES) {
-                Button button = Button.of(ButtonStyle.PRIMARY, language.name(), TextManager.getString(language.getLocale(), Category.CONFIGURATION, "language_" + language.name()))
-                        .withEmoji(Emoji.fromUnicode(language.getFlag()));
-                buttons.add(button);
+                builder.addOption(
+                        TextManager.getString(language.getLocale(), Category.CONFIGURATION, "language_" + language.name()),
+                        language.name(),
+                        Emoji.fromUnicode(language.getFlag())
+                );
             }
-            setComponents(buttons);
-            registerButtonListener(event.getMember());
+            builder.setDefaultValues(List.of(Language.from(getLocale()).name()));
+            setComponents(builder.build());
+            registerSelectionMenuListener(event.getMember());
             return true;
         }
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
-        Language language = Language.valueOf(event.getComponentId());
+    public boolean onSelectionMenu(SelectionMenuEvent event) throws Throwable {
+        Language language = Language.valueOf(event.getValues().get(0));
         deregisterListenersWithComponents();
         setLocale(language.getLocale());
         DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setLocale(getLocale());

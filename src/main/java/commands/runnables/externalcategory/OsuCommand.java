@@ -12,6 +12,7 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
+import modules.OsuGame;
 import modules.osu.OsuAccount;
 import modules.osu.OsuAccountCheck;
 import modules.osu.OsuAccountDownloader;
@@ -43,8 +44,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     private final static String GUEST = "Guest";
 
     private boolean memberIsAuthor;
-    private String gameMode = "osu";
-    private int gameModeSlot = 0;
+    private OsuGame gameMode = OsuGame.OSU;
     private Status status = Status.DEFAULT;
     private OsuAccount osuAccount = null;
     private String osuName;
@@ -81,16 +81,13 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
         if (args.toLowerCase().contains("osu")) {
             setFound();
         } else if (args.toLowerCase().contains("taiko")) {
-            gameMode = "taiko";
-            gameModeSlot = 1;
+            gameMode = OsuGame.TAIKO;
             setFound();
-        } else if (args.toLowerCase().contains("catch") || args.toLowerCase().contains("ctb")) {
-            gameMode = "fruits";
-            gameModeSlot = 2;
+        } else if (args.toLowerCase().contains("fruits") || args.toLowerCase().contains("catch") || args.toLowerCase().contains("ctb")) {
+            gameMode = OsuGame.CATCH;
             setFound();
         } else if (args.toLowerCase().contains("mania")) {
-            gameMode = "mania";
-            gameModeSlot = 3;
+            gameMode = OsuGame.MANIA;
             setFound();
         }
     }
@@ -191,7 +188,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
 
     private EmbedBuilder generateAccountEmbed(Member member, OsuAccount acc) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .setTitle(getString("embedtitle", gameModeSlot, StringUtil.escapeMarkdown(acc.getUsername()), acc.getCountryEmoji()))
+                .setTitle(getString("embedtitle", StringUtil.escapeMarkdown(acc.getUsername()), acc.getCountryEmoji(), getString(gameMode.getId())))
                 .setDescription(getString(
                         "main",
                         StringUtil.numToString(acc.getPp()),

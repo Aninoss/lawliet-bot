@@ -98,7 +98,11 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
     @Override
     public boolean onSelectionMenu(SelectionMenuEvent event) throws Throwable {
-        boolean changed = controllerSelectionMenu(event, state);
+        int i = -1;
+        if (event.getValues().size() > 0 && StringUtil.stringIsInt(event.getValues().get(0))) {
+            i = Integer.parseInt(event.getValues().get(0));
+        }
+        boolean changed = controllerSelectionMenu(event, i, state);
         if (changed) {
             processDraw(event.getMember(), true)
                     .exceptionally(ExceptionLogger.get());
@@ -159,12 +163,12 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return false;
     }
 
-    public boolean controllerSelectionMenu(SelectionMenuEvent event, int state) throws Throwable {
+    public boolean controllerSelectionMenu(SelectionMenuEvent event, int i, int state) throws Throwable {
         for (Method method : getClass().getDeclaredMethods()) {
             ControllerSelectionMenu c = method.getAnnotation(ControllerSelectionMenu.class);
             if (c != null && c.state() == state) {
                 try {
-                    return (boolean) method.invoke(this, event);
+                    return (boolean) method.invoke(this, event, i);
                 } catch (InvocationTargetException e) {
                     throw e.getCause();
                 }
@@ -175,7 +179,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             ControllerSelectionMenu c = method.getAnnotation(ControllerSelectionMenu.class);
             if (c != null && c.state() == -1) {
                 try {
-                    return (boolean) method.invoke(this, event);
+                    return (boolean) method.invoke(this, event, i);
                 } catch (InvocationTargetException e) {
                     throw e.getCause();
                 }

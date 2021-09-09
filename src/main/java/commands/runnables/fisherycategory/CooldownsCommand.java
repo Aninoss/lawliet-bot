@@ -2,16 +2,18 @@ package commands.runnables.fisherycategory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnButtonListener;
+import commands.listeners.OnSelectionMenuListener;
 import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
-import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import javafx.util.Pair;
 import mysql.modules.fisheryusers.DBFishery;
@@ -23,10 +25,12 @@ import mysql.modules.survey.SurveyData;
 import mysql.modules.upvotes.DBUpvotes;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
@@ -35,7 +39,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         executableWithoutArgs = true,
         aliases = { "cooldown", "cd" }
 )
-public class CooldownsCommand extends Command implements FisheryInterface, OnButtonListener {
+public class CooldownsCommand extends Command implements FisheryInterface, OnSelectionMenuListener {
 
     private FisheryMemberData fisheryMemberData;
 
@@ -47,46 +51,53 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnBut
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
         this.fisheryMemberData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
-        registerButtonListener(event.getMember());
+        registerSelectionMenuListener(event.getMember());
         return true;
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
-        int i;
-        if (StringUtil.stringIsInt(event.getComponentId()) && ((i = Integer.parseInt(event.getComponentId())) >= 0 && i < DBSubs.Command.values().length)) {
-            DBSubs.Command command = DBSubs.Command.values()[i];
+    public boolean onSelectionMenu(SelectionMenuEvent event) throws Throwable {
+        DBSubs.Command[] commands = DBSubs.Command.values();
+        List<Integer> activeSubs = event.getValues().stream()
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
+        for (int i = 0; i < commands.length; i++) {
+            DBSubs.Command command = commands[i];
             CustomObservableMap<Long, SubSlot> slotMap = DBSubs.getInstance().retrieve(command);
-            boolean newActive = !slotMap.containsKey(event.getMember().getIdLong());
-            if (newActive) {
+            boolean newActive = activeSubs.contains(i);
+            boolean isActive = slotMap.containsKey(event.getMember().getIdLong());
+            if (newActive && !isActive) {
                 SubSlot subSlot = new SubSlot(command, event.getMember().getIdLong(), getLocale(), 0);
                 slotMap.put(subSlot.getUserId(), subSlot);
-            } else {
+            } else if (!newActive && isActive) {
                 slotMap.remove(event.getMember().getIdLong());
             }
-            setLog(LogStatus.SUCCESS, getString("subset", newActive, getString("property_" + command.name().toLowerCase())));
-            return true;
+            setLog(LogStatus.SUCCESS, getString("subset"));
         }
-        return false;
+        return true;
     }
 
     @Override
     public EmbedBuilder draw(Member member) throws Throwable {
-        Button[] buttons = new Button[5];
-        StringBuilder sb = new StringBuilder();
         DBSubs.Command[] commands = DBSubs.Command.values();
 
+        SelectionMenu.Builder builder = SelectionMenu.create("reminders");
+        ArrayList<String> defaultValues = new ArrayList<>();
         for (int i = 0; i < commands.length; i++) {
             DBSubs.Command command = commands[i];
-            boolean active = DBSubs.getInstance().retrieve(command).containsKey(member.getIdLong());
             String property = getString("property_" + commands[i].name().toLowerCase());
 
-            sb.append(getString("dmreminders_desc", StringUtil.getEmojiForBoolean(getTextChannel().get(), active), property))
-                    .append("\n");
-            buttons[i] = Button.of(ButtonStyle.PRIMARY, String.valueOf(i), getString("dmreminders_subscribe", active, property));
+            builder.addOption(property, String.valueOf(i));
+            if (DBSubs.getInstance().retrieve(command).containsKey(member.getIdLong())) {
+                defaultValues.add(String.valueOf(i));
+            }
         }
-        buttons[4] = Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, getString("upvotebutton"));
-        setComponents(buttons);
+        builder.setRequiredRange(0, 4)
+                .setDefaultValues(defaultValues);
+        setActionRows(
+                ActionRow.of(builder.build()),
+                ActionRow.of(Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, getString("upvotebutton")))
+        );
 
         String template = getString("template",
                 getRemainingTimeDaily(),
@@ -96,7 +107,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnBut
         );
 
         return EmbedFactory.getEmbedDefault(this, template)
-                .addField(getString("dmreminders"), sb.toString(), false);
+                .addField(getString("dmreminders"), getString("dmreminders_desc"), false);
     }
 
     private String getRemainingTimeDaily() {

@@ -168,8 +168,8 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     }
 
     @ControllerSelectionMenu(state = STATE_MAIN)
-    public boolean onSelectionMenuMain(SelectionMenuEvent event) {
-        currentStock = Stock.values()[Integer.parseInt(event.getValues().get(0))];
+    public boolean onSelectionMenuMain(SelectionMenuEvent event, int i) {
+        currentStock = Stock.values()[i];
         return true;
     }
 
@@ -260,7 +260,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         );
 
         if (sharesNum > 0) {
-            setComponents(new String[] { getString("sell_confirm") });
+            setComponents(getString("sell_confirm"));
         }
         return EmbedFactory.getEmbedDefault(this, desc, getString("sell_title", currentStock.getName()))
                 .addField(Emojis.ZERO_WIDTH_SPACE, attr, false);
@@ -291,17 +291,6 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                 StringUtil.numToString(after),
                 growthPrefix + StringUtil.doubleToString(growthPercent * 100, 2)
         );
-    }
-
-    private Stock getRelativeStock(int relative) {
-        int stockSize = Stock.values().length;
-        int n = currentStock.ordinal() + relative;
-        if (n < 0) {
-            n += stockSize;
-        } else if (n >= stockSize) {
-            n -= stockSize;
-        }
-        return Stock.values()[n];
     }
 
     private String generateChangeArrow(long before, long now) {
