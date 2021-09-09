@@ -2,7 +2,10 @@ package commands.runnables.informationcategory;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import commands.Category;
@@ -30,6 +33,7 @@ import mysql.modules.commandmanagement.CommandManagementData;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
@@ -265,7 +269,9 @@ public class HelpCommand extends NavigationAbstract {
 
                 i++;
                 if (i >= 10) {
-                    if (stringBuilder.length() > 0) eb.addField(Emojis.ZERO_WIDTH_SPACE, stringBuilder.toString(), true);
+                    if (stringBuilder.length() > 0) {
+                        eb.addField(Emojis.ZERO_WIDTH_SPACE, stringBuilder.toString(), true);
+                    }
                     stringBuilder = new StringBuilder();
                     i = 0;
                 }
@@ -282,7 +288,7 @@ public class HelpCommand extends NavigationAbstract {
         boolean includeNSFW = false;
 
         int i = 0;
-        for (Category category : Category.values()) {
+        for (Category category : Category.independentValues()) {
             for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
                 Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                 String commandTrigger = command.getTrigger();
@@ -407,7 +413,9 @@ public class HelpCommand extends NavigationAbstract {
         if (command.isModCommand()) sb.append(CommandIcon.LOCKED.get(channel));
         if (includeAlert && command instanceof OnAlertListener) sb.append(CommandIcon.ALERTS.get(channel));
         if (includeNsfw && command.getCommandProperties().nsfw()) sb.append(CommandIcon.NSFW.get(channel));
-        if (includePatreon && command.getCommandProperties().patreonRequired()) sb.append(CommandIcon.PATREON.get(channel));
+        if (includePatreon && command.getCommandProperties().patreonRequired()) {
+            sb.append(CommandIcon.PATREON.get(channel));
+        }
 
         return sb.length() == 0 ? "" : "┊" + sb;
     }
@@ -458,12 +466,15 @@ public class HelpCommand extends NavigationAbstract {
         SelectionMenu.Builder builder = SelectionMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
-            builder.addOption(
-                    TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()),
-                    "cat:" + category
-            );
+            String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
+            String value = "cat:" + category.getId();
+            if (category == Category.PATREON_ONLY) {
+                builder.addOption(label, value, Emoji.fromUnicode("⭐"));
+            } else {
+                builder.addOption(label, value);
+            }
             if (category == currentCategory) {
-                builder.setDefaultValues(List.of("cat:" + category));
+                builder.setDefaultValues(List.of(value));
             }
         }
         return builder.build();
