@@ -3,6 +3,7 @@ package websockets.syncserver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
+import commands.Category;
 import commands.Command;
 import constants.AssetIds;
 import constants.Language;
@@ -14,6 +15,10 @@ import org.json.JSONObject;
 public class SyncLocaleUtil {
 
     private SyncLocaleUtil() {
+    }
+
+    public static JSONObject getLanguagePack(Category category, String key) {
+        return getLanguagePack(category.getId(), key);
     }
 
     public static JSONObject getLanguagePack(String category, String key) {
@@ -45,7 +50,7 @@ public class SyncLocaleUtil {
         return jsonObject;
     }
 
-    public static JSONObject getCommandSpecs(String commandCategory, String key, String commandTrigger) {
+    public static JSONObject getCommandSpecs(Category commandCategory, String key, String commandTrigger) {
         JSONObject jsonObject = new JSONObject();
 
         for (Language language : Language.values()) {

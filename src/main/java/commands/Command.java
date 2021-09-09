@@ -37,7 +37,7 @@ import org.json.JSONObject;
 public abstract class Command implements OnTriggerListener {
 
     private final long id = System.nanoTime();
-    private final String category;
+    private final Category category;
     private final String prefix;
     private Locale locale;
     private final CommandProperties commandProperties;
@@ -408,7 +408,7 @@ public abstract class Command implements OnTriggerListener {
         return id;
     }
 
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
@@ -508,7 +508,7 @@ public abstract class Command implements OnTriggerListener {
         return commandProperties;
     }
 
-    public static String getCategory(Class<? extends Command> clazz) {
+    public static Category getCategory(Class<? extends Command> clazz) {
         return CategoryCalculator.getCategoryByCommand(clazz);
     }
 
@@ -518,7 +518,7 @@ public abstract class Command implements OnTriggerListener {
 
     public static CommandLanguage getCommandLanguage(Class<? extends Command> clazz, Locale locale) {
         String trigger = getCommandProperties(clazz).trigger();
-        String category = getCategory(clazz);
+        Category category = getCategory(clazz);
 
         String title = TextManager.getString(locale, category, trigger + "_title");
         String descLong = TextManager.getString(locale, category, trigger + "_helptext");

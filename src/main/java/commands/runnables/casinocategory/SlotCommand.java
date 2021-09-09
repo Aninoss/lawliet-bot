@@ -66,22 +66,9 @@ public class SlotCommand extends CasinoAbstract {
 
     private void setFruits() {
         switch (winLevel) {
-            case 0:
-                setFruitsLevel0();
-                break;
-
-            case 1:
-            case 2:
-                setFruitsLevel1_2();
-                break;
-
-            case 3:
-            case 4:
-                setFruitsLevel3_4();
-                break;
-
-            default:
-                setFruitsLevel0();
+            default -> setFruitsLevel0();
+            case 1, 2 -> setFruitsLevel1_2();
+            case 3, 4 -> setFruitsLevel3_4();
         }
     }
 

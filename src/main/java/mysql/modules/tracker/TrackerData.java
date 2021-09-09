@@ -236,19 +236,14 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                     if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
                         wmb.setContent(getEffectiveUserMessage().get());
                     }
-
-                    if (newMessage) {
-                        return Optional.of(webhookClient.send(wmb.build()).get(10, TimeUnit.SECONDS).getId());
-                    } else {
-                        return Optional.of(webhookClient.edit(messageId, wmb.build()).get(10, TimeUnit.SECONDS).getId());
-                    }
                 } else {
                     wmb = wmb.setContent(content);
-                    if (newMessage) {
-                        return Optional.of(webhookClient.send(wmb.build()).get(10, TimeUnit.SECONDS).getId());
-                    } else {
-                        return Optional.of(webhookClient.edit(messageId, wmb.build()).get(10, TimeUnit.SECONDS).getId());
-                    }
+                }
+
+                if (newMessage) {
+                    return Optional.of(webhookClient.send(wmb.build()).get(10, TimeUnit.SECONDS).getId());
+                } else {
+                    return Optional.of(webhookClient.edit(messageId, wmb.build()).get(10, TimeUnit.SECONDS).getId());
                 }
             } catch (InterruptedException e) {
                 throw e;

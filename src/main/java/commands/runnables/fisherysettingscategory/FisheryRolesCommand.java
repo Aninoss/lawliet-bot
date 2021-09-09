@@ -269,7 +269,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:
-                setComponents(new String[] { getString("state3_options") });
+                setComponents(getString("state3_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
 
             case 4:

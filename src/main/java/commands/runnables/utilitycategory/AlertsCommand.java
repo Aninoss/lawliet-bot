@@ -137,25 +137,14 @@ public class AlertsCommand extends NavigationAbstract {
 
     private MessageInputResponse processArg(String arg, String argComplete, Member member) {
         int state = getState();
-        switch (state) {
-            case DEFAULT_STATE:
-                return processMain(arg);
-
-            case STATE_ADD:
-                return processAdd(arg);
-
-            case STATE_REMOVE:
-                return processRemove(arg);
-
-            case STATE_KEY:
-                return processKey(argComplete);
-
-            case STATE_USERMESSAGE:
-                return processUserMessage(argComplete, member);
-
-            default:
-                return null;
-        }
+        return switch (state) {
+            case DEFAULT_STATE -> processMain(arg);
+            case STATE_ADD -> processAdd(arg);
+            case STATE_REMOVE -> processRemove(arg);
+            case STATE_KEY -> processKey(argComplete);
+            case STATE_USERMESSAGE -> processUserMessage(argComplete, member);
+            default -> null;
+        };
     }
 
     private MessageInputResponse processMain(String arg) {
@@ -311,7 +300,7 @@ public class AlertsCommand extends NavigationAbstract {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
-        for (String category : Category.LIST) {
+        for (Category category : Category.independentValues()) {
             StringBuilder sb = new StringBuilder();
             trackerCommands.stream()
                     .filter(command -> command.getCategory().equals(category))
@@ -322,7 +311,7 @@ public class AlertsCommand extends NavigationAbstract {
                     });
 
             if (sb.length() > 0) {
-                eb.addField(TextManager.getString(getLocale(), TextManager.COMMANDS, category), sb.toString(), true);
+                eb.addField(TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()), sb.toString(), true);
             }
         }
 

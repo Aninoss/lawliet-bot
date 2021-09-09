@@ -46,31 +46,14 @@ public class EmbedUtil {
         if (log != null && log.length() > 0) {
             String add = "";
             if (logStatus != null) {
-                switch (logStatus) {
-                    case FAILURE:
-                        add = "❌ ";
-                        break;
-
-                    case SUCCESS:
-                        add = "✅ ";
-                        break;
-
-                    case WIN:
-                        add = "🎉 ";
-                        break;
-
-                    case LOSE:
-                        add = "☠️ ";
-                        break;
-
-                    case WARNING:
-                        add = "⚠️️ ";
-                        break;
-
-                    case TIME:
-                        add = "⏲️ ";
-                        break;
-                }
+                add = switch (logStatus) {
+                    case FAILURE -> "❌ ";
+                    case SUCCESS -> "✅ ";
+                    case WIN -> "🎉 ";
+                    case LOSE -> "☠️ ";
+                    case WARNING -> "⚠️️ ";
+                    case TIME -> "⏲️ ";
+                };
             }
             eb.addField(Emojis.ZERO_WIDTH_SPACE, "`" + add + log + "`", false);
         }

@@ -71,7 +71,6 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                 }
 
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                return MessageInputResponse.FAILED;
             } else {
                 VoiceChannel channel = vcList.get(0);
                 if (checkChannel(channel)) {
@@ -79,9 +78,8 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                     setLog(LogStatus.SUCCESS, getString("vcset"));
                     return MessageInputResponse.SUCCESS;
                 }
-
-                return MessageInputResponse.FAILED;
             }
+            return MessageInputResponse.FAILED;
         }
 
         return null;
@@ -219,7 +217,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                                 })), false);
 
             case 1:
-                if (currentName != null && currentVC != null) setComponents(new String[] { getString("state1_options") });
+                if (currentName != null && currentVC != null) setComponents(getString("state1_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description", StringUtil.escapeMarkdown(Optional.ofNullable(currentVC).flatMap(AtomicVoiceChannel::get).map(GuildChannel::getAsMention).orElse(notSet)), highlightVariables(StringUtil.escapeMarkdown(Optional.ofNullable(currentName).orElse(notSet)))), getString("state1_title"));
 
             case 2:

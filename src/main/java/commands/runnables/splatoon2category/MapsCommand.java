@@ -74,11 +74,9 @@ public class MapsCommand extends Command implements OnAlertListener {
 
         //Bestimmt Zeitpunkte der aktuellen Map Rotation
         int index = -1;
-        Instant startTime;
         Instant endTime;
         do {
             index++;
-            startTime = new Date(mapData.getJSONArray("regular").getJSONObject(index).getInt("start_time") * 1000L).toInstant();
             endTime = new Date(mapData.getJSONArray("regular").getJSONObject(index).getInt("end_time") * 1000L).toInstant();
         } while (endTime.isBefore(new Date().toInstant()));
 

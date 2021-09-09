@@ -188,11 +188,11 @@ public class WordFilterCommand extends NavigationAbstract {
                         .addField(getString("state0_mwords"), getWordsString(), true);
 
             case 1:
-                setComponents(new String[] { getString("empty") });
+                setComponents(getString("empty"));
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                setComponents(new String[] { getString("empty") });
+                setComponents(getString("empty"));
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:

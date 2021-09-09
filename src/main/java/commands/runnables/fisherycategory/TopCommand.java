@@ -155,7 +155,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
                     return OrderBy.DAILY_STREAK;
                 }
                 default -> {}
-            };
+            }
         }
         return OrderBy.RECENT_FISH_GAINS;
     }

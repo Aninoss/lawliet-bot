@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import commands.Category;
 import constants.Emojis;
 import constants.Language;
 import constants.RegexPatterns;
@@ -33,8 +34,28 @@ public class TextManager {
                 }
             });
 
+    public static String getString(Locale locale, Category category, String key, boolean secondOption, String... args) {
+        return getString(locale, category.getId(), key, secondOption, args);
+    }
+
+    public static String getString(Locale locale, String category, String key, boolean secondOption, String... args) {
+        if (!secondOption) {
+            return getString(locale, category, key, 0, args);
+        } else {
+            return getString(locale, category, key, 1, args);
+        }
+    }
+
+    public static String getString(Locale locale, Category category, String key, String... args) {
+        return getString(locale, category.getId(), key, args);
+    }
+
     public static String getString(Locale locale, String category, String key, String... args) {
         return getString(locale, category, key, -1, args);
+    }
+
+    public static String getString(Locale locale, Category category, String key, int option, String... args) {
+        return getString(locale, category.getId(), key, option, args);
     }
 
     public static String getString(Locale locale, String category, String key, int option, String... args) {
@@ -56,10 +77,10 @@ public class TextManager {
 
                 return text;
             } catch (Throwable e) {
-                MainLogger.get().error("Text error for key {} in {} with locale {}", key, category, locale.toString(), e);
+                MainLogger.get().error("Text error for key {} in {} with locale {}", key, category, locale, e);
             }
         } else {
-            MainLogger.get().error("Key {} not found in {} with locale {}", key, category, locale.toString());
+            MainLogger.get().error("Key {} not found in {} with locale {}", key, category, locale);
         }
 
         return "???";
@@ -126,14 +147,6 @@ public class TextManager {
         }
 
         return text;
-    }
-
-    public static String getString(Locale locale, String category, String key, boolean secondOption, String... args) {
-        if (!secondOption) {
-            return getString(locale, category, key, 0, args);
-        } else {
-            return getString(locale, category, key, 1, args);
-        }
     }
 
     public static String getNoResultsString(Locale locale, String content) {

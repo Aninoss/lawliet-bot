@@ -2,7 +2,7 @@ package commands;
 
 public class CategoryCalculator {
 
-    public static String getCategoryByCommand(Class<? extends Command> c) {
+    public static Category getCategoryByCommand(Class<? extends Command> c) {
         String packageName = c.getPackage().getName();
         if (packageName.endsWith("gimmickscategory")) return Category.GIMMICKS;
         if (packageName.endsWith("nsfwcategory")) return Category.NSFW;

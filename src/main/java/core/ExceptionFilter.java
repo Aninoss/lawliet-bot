@@ -29,9 +29,6 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "502:",     /* Server Error */
     };
 
-    public ExceptionFilter() {
-    }
-
     @Override
     public FilterReply decide(final ILoggingEvent event) {
         if (!shouldBeVisible(event.getFormattedMessage())) {

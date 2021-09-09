@@ -3,7 +3,6 @@ package events.discordevents.guildmemberjoin;
 import constants.AssetIds;
 import constants.Settings;
 import core.MainLogger;
-import core.ShardManager;
 import core.cache.PatreonCache;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;

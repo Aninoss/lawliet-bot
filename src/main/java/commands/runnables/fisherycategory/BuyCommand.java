@@ -116,8 +116,8 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         List<Role> roles = fisheryGuildBean.getRoles();
         int i = fisheryGear.ordinal();
 
-        boolean canUseTreasureChests = slotIsValid(member.getGuild(), roles, fisheryMemberBean.getMemberGear(FisheryGear.TREASURE));;
-        boolean canUseRoles = slotIsValid(member.getGuild(), roles, fisheryMemberBean.getMemberGear(FisheryGear.ROLE));;
+        boolean canUseTreasureChests = slotIsValid(member.getGuild(), roles, fisheryMemberBean.getMemberGear(FisheryGear.TREASURE));
+        boolean canUseRoles = slotIsValid(member.getGuild(), roles, fisheryMemberBean.getMemberGear(FisheryGear.ROLE));
 
         if (transferableSlots) {
             if (i >= FisheryGear.TREASURE.ordinal() && !canUseTreasureChests) i++;

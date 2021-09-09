@@ -89,25 +89,26 @@ public class NSFWFilterCommand extends NavigationAbstract {
         switch (state) {
             case 0:
                 switch (i) {
-                    case -1:
+                    case -1 -> {
                         deregisterListenersWithComponentMessage();
                         return false;
-
-                    case 0:
+                    }
+                    case 0 -> {
                         if (keywords.size() < MAX_FILTERS) {
                             setState(1);
                         } else {
                             setLog(LogStatus.FAILURE, getString("toomanykeywords", String.valueOf(MAX_FILTERS)));
                         }
                         return true;
-
-                    case 1:
+                    }
+                    case 1 -> {
                         if (keywords.size() > 0) {
                             setState(2);
                         } else {
                             setLog(LogStatus.FAILURE, getString("nokeywordset"));
                         }
                         return true;
+                    }
                 }
                 return false;
 

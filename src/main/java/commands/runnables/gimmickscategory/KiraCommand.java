@@ -26,7 +26,7 @@ public class KiraCommand extends MemberAccountAbstract {
         Random r = new Random(member.hashCode());
         int percent = r.nextInt(101);
         return EmbedFactory.getEmbedDefault(this, getString("template", member.getEffectiveName(), String.valueOf(percent)))
-                .setThumbnail("http://images4.fanpop.com/image/photos/18000000/Kira-death-note-18041689-200-200.jpg");
+                .setThumbnail("https://cdn.discordapp.com/attachments/499629904380297226/885584632752529418/kira.jpg");
     }
 
 }

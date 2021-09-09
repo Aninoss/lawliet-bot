@@ -65,19 +65,19 @@ public class WhiteListCommand extends NavigationAbstract {
         switch (state) {
             case 0:
                 switch (i) {
-                    case -1:
+                    case -1 -> {
                         deregisterListenersWithComponentMessage();
                         return false;
-
-                    case 0:
+                    }
+                    case 0 -> {
                         channelNavigationHelper.startDataAdd(1);
                         return true;
-
-                    case 1:
+                    }
+                    case 1 -> {
                         channelNavigationHelper.startDataRemove(2);
                         return true;
-
-                    case 2:
+                    }
+                    case 2 -> {
                         if (whiteListedChannels.size() > 0) {
                             whiteListedChannels.clear();
                             setLog(LogStatus.SUCCESS, getString("channelcleared"));
@@ -85,6 +85,7 @@ public class WhiteListCommand extends NavigationAbstract {
                             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "element_start_remove_none_channel"));
                         }
                         return true;
+                    }
                 }
                 return false;
 

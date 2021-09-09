@@ -73,11 +73,11 @@ public class SuggestionConfigCommand extends NavigationAbstract {
         switch (state) {
             case 0:
                 switch (i) {
-                    case -1:
+                    case -1 -> {
                         deregisterListenersWithComponentMessage();
                         return false;
-
-                    case 0:
+                    }
+                    case 0 -> {
                         if (suggestionsBean.isActive() || suggestionsBean.getTextChannel().isPresent()) {
                             suggestionsBean.toggleActive();
                             setLog(LogStatus.SUCCESS, getString("activeset", suggestionsBean.isActive()));
@@ -85,10 +85,11 @@ public class SuggestionConfigCommand extends NavigationAbstract {
                             setLog(LogStatus.FAILURE, getString("active_nochannel"));
                         }
                         return true;
-
-                    case 1:
+                    }
+                    case 1 -> {
                         setState(1);
                         return true;
+                    }
                 }
 
             case 1:

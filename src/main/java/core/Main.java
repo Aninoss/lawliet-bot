@@ -14,14 +14,6 @@ import websockets.syncserver.SyncManager;
 
 public class Main {
 
-    static {
-        try {
-            MemoryOptimizations.installOptimizations();
-        } catch (Throwable e) {
-            MainLogger.get().error("Unable to install byte-buddy", e);
-        }
-    }
-
     public static void main(String[] args) {
         try {
             TextManager.getString(new Locale("en_US"), "casino", "casino_retry");
@@ -33,6 +25,12 @@ public class Main {
                 interruptedException.printStackTrace();
             }
             System.exit(1);
+        }
+
+        try {
+            MemoryOptimizations.installOptimizations();
+        } catch (Throwable e) {
+            MainLogger.get().error("Unable to install byte-buddy", e);
         }
 
         try {

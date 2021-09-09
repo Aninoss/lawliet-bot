@@ -46,27 +46,10 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 )
 public class HelpCommand extends NavigationAbstract {
 
-    private final String[] LIST = new String[] {
-            Category.GIMMICKS,
-            Category.AI_TOYS,
-            Category.CONFIGURATION,
-            Category.UTILITY,
-            Category.MODERATION,
-            Category.INFORMATION,
-            Category.FISHERY_SETTINGS,
-            Category.FISHERY,
-            Category.CASINO,
-            Category.INTERACTIONS,
-            Category.EXTERNAL,
-            Category.NSFW,
-            Category.PATREON_ONLY,
-            Category.SPLATOON_2
-    };
-
     private final HashMap<Integer, String> buttonMap = new HashMap<>();
     private String searchTerm;
     private CommandManagementData commandManagementBean;
-    private String currentCategory = null;
+    private Category currentCategory = null;
 
     public HelpCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -191,12 +174,12 @@ public class HelpCommand extends NavigationAbstract {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(
                                 TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
-                                        TextManager.getString(getLocale(), TextManager.COMMANDS, currentCategory) + " » " +
+                                        TextManager.getString(getLocale(), TextManager.COMMANDS, currentCategory.getId()) + " » " +
                                         command.getCommandProperties().emoji() + " " + TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title")
                         )
                         .setDescription(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_helptext") + addNotExecutable)
-                        .addField(Emojis.ZERO_WIDTH_SPACE, getString("command_usage") + "\n" + usage.toString(), true)
-                        .addField(Emojis.ZERO_WIDTH_SPACE, getString("command_example", exampleNumber > 1) + "\n" + examples.toString(), true);
+                        .addField(Emojis.ZERO_WIDTH_SPACE, getString("command_usage") + "\n" + usage, true)
+                        .addField(Emojis.ZERO_WIDTH_SPACE, getString("command_example", exampleNumber > 1) + "\n" + examples, true);
                 EmbedUtil.setFooter(eb, this, getString("command_args"));
 
                 if (command.getUserPermissions().length > 0) {
@@ -218,14 +201,14 @@ public class HelpCommand extends NavigationAbstract {
         }
 
         if (arg.length() > 0) {
-            for (String category : LIST) {
-                if ((category.toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, category).toLowerCase().contains(arg.toLowerCase()))) {
+            for (Category category : Category.values()) {
+                if ((category.getId().toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()).toLowerCase().contains(arg.toLowerCase()))) {
                     currentCategory = category;
 
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(
                                     TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
-                                            TextManager.getString(getLocale(), TextManager.COMMANDS, category)
+                                            TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId())
                             );
                     EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"));
 
@@ -233,9 +216,9 @@ public class HelpCommand extends NavigationAbstract {
                     buttonMap.put(-1, "");
 
                     switch (category) {
-                        case Category.INTERACTIONS -> categoryRolePlay(member, eb);
-                        case Category.NSFW -> categoryNSFW(member, channel, eb);
-                        case Category.PATREON_ONLY -> categoryPatreon(member, channel, eb);
+                        case INTERACTIONS -> categoryRolePlay(member, eb);
+                        case NSFW -> categoryNSFW(member, channel, eb);
+                        case PATREON_ONLY -> categoryPatreon(member, channel, eb);
                         default -> categoryDefault(member, channel, eb, category);
                     }
 
@@ -299,7 +282,7 @@ public class HelpCommand extends NavigationAbstract {
         boolean includeNSFW = false;
 
         int i = 0;
-        for (String category : Category.LIST) {
+        for (Category category : Category.values()) {
             for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
                 Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                 String commandTrigger = command.getTrigger();
@@ -338,7 +321,7 @@ public class HelpCommand extends NavigationAbstract {
         addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, false);
     }
 
-    private void categoryDefault(Member member, TextChannel channel, EmbedBuilder eb, String category) {
+    private void categoryDefault(Member member, TextChannel channel, EmbedBuilder eb, Category category) {
         boolean includeLocked = false;
         boolean includeAlerts = false;
         boolean includeNSFW = false;
@@ -471,15 +454,15 @@ public class HelpCommand extends NavigationAbstract {
         return eb;
     }
 
-    private SelectionMenu generateSelectionMenu(String currentCategory) {
+    private SelectionMenu generateSelectionMenu(Category currentCategory) {
         SelectionMenu.Builder builder = SelectionMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
-        for (String category : LIST) {
+        for (Category category : Category.values()) {
             builder.addOption(
-                    TextManager.getString(getLocale(), TextManager.COMMANDS, category),
+                    TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()),
                     "cat:" + category
             );
-            if (category.equals(currentCategory)) {
+            if (category == currentCategory) {
                 builder.setDefaultValues(List.of("cat:" + category));
             }
         }

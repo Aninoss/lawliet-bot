@@ -19,7 +19,8 @@ public class CommandManagementData extends DataWithGuild {
     }
 
     public boolean commandIsTurnedOn(Command command) {
-        return !switchedOffElements.contains(command.getTrigger()) && !switchedOffElements.contains(command.getCategory());
+        return !switchedOffElements.contains(command.getTrigger()) &&
+                !switchedOffElements.contains(command.getCategory().getId());
     }
 
 }

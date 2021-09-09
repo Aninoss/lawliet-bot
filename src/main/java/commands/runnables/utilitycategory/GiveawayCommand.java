@@ -218,7 +218,6 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     private String uploadFile(LocalFile file) {
         if (imageCdn != null) {
             imageCdn.delete();
-            imageCdn = null;
         }
 
         imageCdn = file;
@@ -490,7 +489,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     public EmbedBuilder onDrawAddMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (channel != null) {
-            setComponents(new String[] { TextManager.getString(getLocale(), TextManager.GENERAL, "continue") });
+            setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
         }
         return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(channel).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state1_title"));
     }

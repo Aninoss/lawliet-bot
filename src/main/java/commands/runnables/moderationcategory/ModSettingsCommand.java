@@ -576,43 +576,43 @@ public class ModSettingsCommand extends NavigationAbstract {
                         ), false);
 
             case 1:
-                setComponents(new String[] { getString("state1_options") });
+                setComponents(getString("state1_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                setComponents(new String[] { getString("state2_options") });
+                setComponents(getString("state2_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:
-                setComponents(new String[] { getString("state3_options") });
+                setComponents(getString("state3_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
 
             case 4:
-                setComponents(new String[] { getString("state4_options") });
+                setComponents(getString("state4_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoKickTemp != 1, StringUtil.numToString(autoKickTemp)), getString("state4_title"));
 
             case 5:
-                setComponents(new String[] { getString("state4_options") });
+                setComponents(getString("state4_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoBanTemp != 1, StringUtil.numToString(autoBanTemp)), getString("state5_title"));
 
             case 6:
-                setComponents(new String[] { getString("state6_options") });
+                setComponents(getString("state6_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state6_description"), getString("state6_title"));
 
             case 7:
-                setComponents(new String[] { getString("state7_options") });
+                setComponents(getString("state7_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
 
             case 8:
-                setComponents(new String[] { getString("state8_options") });
+                setComponents(getString("state8_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state8_description"), getString("state8_title"));
 
             case 9:
-                setComponents(new String[] { getString("state4_options") });
+                setComponents(getString("state4_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoMuteTemp != 1, StringUtil.numToString(autoMuteTemp)), getString("state9_title"));
 
             case 10:
-                setComponents(new String[] { getString("state10_options") });
+                setComponents(getString("state10_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state10_description"), getString("state10_title"));
 
             case 11:
@@ -622,16 +622,16 @@ public class ModSettingsCommand extends NavigationAbstract {
                 return jailRolesNavigationHelper.drawDataRemove(getString("state12_title"));
 
             case 13:
-                setComponents(new String[] { getString("state13_options") });
+                setComponents(getString("state13_options"));
                 setLog(LogStatus.WARNING, getString("state13_warning"));
                 return EmbedFactory.getEmbedDefault(this, getString("state13_description"), getString("state13_title"));
 
             case 14:
-                setComponents(new String[] { getString("state4_options") });
+                setComponents(getString("state4_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoJailTemp != 1, StringUtil.numToString(autoJailTemp)), getString("state14_title"));
 
             case 15:
-                setComponents(new String[] { getString("state15_options") });
+                setComponents(getString("state15_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state15_description"), getString("state15_title"));
 
             default:

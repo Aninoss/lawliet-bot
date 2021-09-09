@@ -150,7 +150,6 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     private String uploadFile(LocalFile file) {
         if (imageCdn != null) {
             imageCdn.delete();
-            imageCdn = null;
         }
 
         imageCdn = file;
@@ -460,7 +459,6 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                             .getCurrentRestAction()
                             .queue();
                 }
-                return true;
             } else {
                 Message message = textChannel.editMessageEmbedsById(editMessageId, getMessageEmbed(false).build()).complete();
                 ReactionMessagesCache.put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
@@ -496,8 +494,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                         restActionQueue.getCurrentRestAction().queue();
                     }
                 }
-                return true;
             }
+            return true;
         } else {
             return false;
         }
@@ -544,7 +542,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public EmbedBuilder onDrawAddMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (atomicTextChannel != null) {
-            setComponents(new String[] { TextManager.getString(getLocale(), TextManager.GENERAL, "continue") });
+            setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
         }
         return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(atomicTextChannel).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state1_title"));
     }
@@ -603,7 +601,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     @Draw(state = ADD_SLOT)
     public EmbedBuilder onDrawAddSlot(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        if (roleTemp != null && emojiTemp != null) setComponents(new String[] { getString("state6_options") });
+        if (roleTemp != null && emojiTemp != null) setComponents(getString("state6_options"));
         return EmbedFactory.getEmbedDefault(this, getString("state6_description", Optional.ofNullable(emojiTemp).orElse(notSet), Optional.ofNullable(roleTemp).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state6_title"));
     }
 

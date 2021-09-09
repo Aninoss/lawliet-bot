@@ -39,7 +39,7 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 public class CommandManagementCommand extends NavigationAbstract {
 
     private CommandManagementData commandManagementBean;
-    private String category;
+    private Category category;
 
     public CommandManagementCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -59,7 +59,7 @@ public class CommandManagementCommand extends NavigationAbstract {
 
     @Override
     public boolean controllerSelectionMenu(SelectionMenuEvent event, int i, int state) throws Throwable {
-        category = Category.LIST[i];
+        category = Category.independentValues()[i];
         setState(1);
         return true;
     }
@@ -81,8 +81,8 @@ public class CommandManagementCommand extends NavigationAbstract {
 
                     case 0:
                         turnOnAllCategoryCommands();
-                        commandManagementBean.getSwitchedOffElements().remove(category);
-                        setLog(LogStatus.SUCCESS, getString("categoryset_all", true, TextManager.getString(getLocale(), TextManager.COMMANDS, category)));
+                        commandManagementBean.getSwitchedOffElements().remove(category.getId());
+                        setLog(LogStatus.SUCCESS, getString("categoryset_all", true, TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId())));
                         return true;
 
                     case 1:
@@ -91,8 +91,8 @@ public class CommandManagementCommand extends NavigationAbstract {
 
                     case 2:
                         turnOnAllCategoryCommands();
-                        commandManagementBean.getSwitchedOffElements().add(category);
-                        setLog(LogStatus.SUCCESS, getString("categoryset_all", false, TextManager.getString(getLocale(), TextManager.COMMANDS, category)));
+                        commandManagementBean.getSwitchedOffElements().add(category.getId());
+                        setLog(LogStatus.SUCCESS, getString("categoryset_all", false, TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId())));
                         return true;
 
                     default:
@@ -113,8 +113,8 @@ public class CommandManagementCommand extends NavigationAbstract {
                         commandManagementBean.getSwitchedOffElements().add(command.getTrigger());
                         setLog(LogStatus.SUCCESS, getString("commandset", false, command.getTrigger()));
                     } else {
-                        if (commandManagementBean.getSwitchedOffElements().contains(command.getCategory())) {
-                            commandManagementBean.getSwitchedOffElements().remove(command.getCategory());
+                        if (commandManagementBean.getSwitchedOffElements().contains(command.getCategory().getId())) {
+                            commandManagementBean.getSwitchedOffElements().remove(command.getCategory().getId());
                             commandList.stream()
                                     .filter(c -> !c.equals(command))
                                     .forEach(c -> commandManagementBean.getSwitchedOffElements().add(c.getTrigger()));
@@ -145,7 +145,7 @@ public class CommandManagementCommand extends NavigationAbstract {
                         ActionRow.of(buttonsList),
                         ActionRow.of(generateSelectionMenu(category))
                 );
-                String categoryName = TextManager.getString(getLocale(), TextManager.COMMANDS, category);
+                String categoryName = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description", getCategoryStatus(category), categoryName));
 
             case 2:
@@ -169,18 +169,19 @@ public class CommandManagementCommand extends NavigationAbstract {
         }
     }
 
-    private SelectionMenu generateSelectionMenu(String currentCategory) {
+    private SelectionMenu generateSelectionMenu(Category currentCategory) {
         SelectionMenu.Builder builder = SelectionMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
-        for (int i = 0; i < Category.LIST.length; i++) {
-            String id = Category.LIST[i];
-            int status = getCategoryStatus(id);
+        Category[] categories = Category.independentValues();
+        for (int i = 0; i < categories.length; i++) {
+            Category category = categories[i];
+            int status = getCategoryStatus(category);
             builder.addOption(
-                    TextManager.getString(getLocale(), TextManager.COMMANDS, id),
+                    TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()),
                     String.valueOf(i),
                     Emoji.fromUnicode(getUnicodeEmojiFromStatus(status))
             );
-            if (id.equals(currentCategory)) {
+            if (category == currentCategory) {
                 builder.setDefaultValues(List.of(String.valueOf(i)));
             }
         }
@@ -195,10 +196,10 @@ public class CommandManagementCommand extends NavigationAbstract {
         });
     }
 
-    private int getCategoryStatus(String category) {
+    private int getCategoryStatus(Category category) {
         boolean hasOn = false, hasOff = false;
 
-        if (!commandManagementBean.getSwitchedOffElements().contains(category)) {
+        if (!commandManagementBean.getSwitchedOffElements().contains(category.getId())) {
             for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
                 Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
                 if (!hasOn && commandManagementBean.commandIsTurnedOn(command)) {
@@ -222,8 +223,7 @@ public class CommandManagementCommand extends NavigationAbstract {
 
     private ButtonStyle getButtonStyleFromStatus(int status) {
         return switch (status) {
-            case 0 -> ButtonStyle.SECONDARY;
-            case 1 -> ButtonStyle.SECONDARY;
+            case 0, 1 -> ButtonStyle.SECONDARY;
             default -> ButtonStyle.SUCCESS;
         };
     }

@@ -33,7 +33,7 @@ import core.utils.ExceptionUtil;
 public class CommandContainer {
 
     private static final HashMap<String, Class<? extends Command>> commandMap = new HashMap<>();
-    private static final HashMap<String, ArrayList<Class<? extends Command>>> commandCategoryMap = new HashMap<>();
+    private static final HashMap<Category, ArrayList<Class<? extends Command>>> commandCategoryMap = new HashMap<>();
     private static final ArrayList<Class<? extends OnStaticReactionAddListener>> staticReactionAddCommands = new ArrayList<>();
     private static final ArrayList<Class<? extends OnStaticReactionRemoveListener>> staticReactionRemoveCommands = new ArrayList<>();
     private static final ArrayList<Class<? extends OnAlertListener>> trackerCommands = new ArrayList<>();
@@ -334,7 +334,7 @@ public class CommandContainer {
         return trackerCommands;
     }
 
-    public static HashMap<String, ArrayList<Class<? extends Command>>> getCommandCategoryMap() {
+    public static HashMap<Category, ArrayList<Class<? extends Command>>> getCommandCategoryMap() {
         return commandCategoryMap;
     }
 

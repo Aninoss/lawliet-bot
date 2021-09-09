@@ -21,15 +21,15 @@ public class OnCommandList implements SyncServerFunction {
     public JSONObject apply(JSONObject jsonObject) {
         JSONObject mainJSON = new JSONObject();
         JSONArray arrayJSON = new JSONArray();
-        HashMap<String, JSONObject> categories = new HashMap<>();
+        HashMap<Category, JSONObject> categories = new HashMap<>();
 
         //Add every command category
-        for (String categoryId : Category.LIST) {
+        for (Category category : Category.independentValues()) {
             JSONObject categoryJSON = new JSONObject();
-            categoryJSON.put("id", categoryId);
-            categoryJSON.put("name", SyncLocaleUtil.getLanguagePack(TextManager.COMMANDS, categoryId));
+            categoryJSON.put("id", category.getId());
+            categoryJSON.put("name", SyncLocaleUtil.getLanguagePack(TextManager.COMMANDS, category.getId()));
             categoryJSON.put("commands", new JSONArray());
-            categories.put(categoryId, categoryJSON);
+            categories.put(category, categoryJSON);
             arrayJSON.put(categoryJSON);
         }
 

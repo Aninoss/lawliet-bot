@@ -204,15 +204,15 @@ public class InviteFilterCommand extends NavigationAbstract {
                         .addField(getString("state0_maction"), getString("state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true);
 
             case 1:
-                setComponents(new String[] { getString("empty") });
+                setComponents(getString("empty"));
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                setComponents(new String[] { getString("empty") });
+                setComponents(getString("empty"));
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
 
             case 3:
-                setComponents(new String[] { getString("empty") });
+                setComponents(getString("empty"));
                 return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title"));
 
             case 4:
