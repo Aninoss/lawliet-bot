@@ -177,8 +177,7 @@ public class HelpCommand extends NavigationAbstract {
 
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(
-                                TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
-                                        TextManager.getString(getLocale(), TextManager.COMMANDS, currentCategory.getId()) + " » " +
+                                TextManager.getString(getLocale(), TextManager.COMMANDS, currentCategory.getId()) + " » " +
                                         command.getCommandProperties().emoji() + " " + TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title")
                         )
                         .setDescription(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_helptext") + addNotExecutable)
@@ -210,10 +209,7 @@ public class HelpCommand extends NavigationAbstract {
                     currentCategory = category;
 
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                            .setTitle(
-                                    TextManager.getString(getLocale(), TextManager.COMMANDS, "categories") + " » " +
-                                            TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId())
-                            );
+                            .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()));
                     EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"));
 
                     buttonMap.clear();
@@ -468,11 +464,7 @@ public class HelpCommand extends NavigationAbstract {
         for (Category category : Category.values()) {
             String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
             String value = "cat:" + category.getId();
-            if (category == Category.PATREON_ONLY) {
-                builder.addOption(label, value, Emoji.fromUnicode("⭐"));
-            } else {
-                builder.addOption(label, value);
-            }
+            builder.addOption(label, value, Emoji.fromUnicode(category.getEmoji()));
             if (category == currentCategory) {
                 builder.setDefaultValues(List.of(value));
             }

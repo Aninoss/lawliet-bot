@@ -13,7 +13,7 @@ import commands.runnables.RealbooruAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "porn", "reallifeporn" }
+        aliases = { "porn", "reallifeporn", "pgif" }
 )
 public class RealLifePornCommand extends RealbooruAbstract {
 
