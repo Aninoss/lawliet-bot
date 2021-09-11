@@ -365,7 +365,7 @@ CREATE TABLE `FeatureRequestBoosts` (
   `boostUserId` bigint unsigned NOT NULL,
   PRIMARY KEY (`id`,`boostDatetime`,`boostUserId`),
   CONSTRAINT `FeatureRequestsBase` FOREIGN KEY (`id`) REFERENCES `FeatureRequests` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=380 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=386 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -384,7 +384,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=382 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=388 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1046,6 +1046,7 @@ CREATE TABLE `Ticket` (
   `counter` int unsigned NOT NULL DEFAULT '0',
   `channelId` bigint unsigned DEFAULT NULL,
   `memberCanClose` tinyint NOT NULL DEFAULT '1',
+  `createMessage` varchar(1000) COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`serverId`),
   CONSTRAINT `TicketServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1310,4 +1311,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-09-02 23:58:29
+-- Dump completed on 2021-09-11 15:14:49

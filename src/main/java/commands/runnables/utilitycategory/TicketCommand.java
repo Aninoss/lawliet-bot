@@ -53,7 +53,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             ANNOUNCEMENT_CHANNEL = 1,
             ADD_STAFF_ROLE = 2,
             REMOVE_STAFF_ROLE = 3,
-            CREATE_TICKET_MESSAGE = 4;
+            CREATE_TICKET_MESSAGE = 4,
+            GREETING_TEXT = 5;
     private final static String BUTTON_ID_CREATE = "create";
     private final static String BUTTON_ID_CLOSE = "close";
 
@@ -115,6 +116,23 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         }
     }
 
+    @ControllerMessage(state = GREETING_TEXT)
+    public MessageInputResponse onMessageGreetingText(GuildMessageReceivedEvent event, String input) {
+        int max = 1000;
+        if (input.length() > 0) {
+            if (input.length() <= max) {
+                ticketData.setCreateMessage(input);
+                setLog(LogStatus.SUCCESS, getString("greetingset"));
+                setState(0);
+                return MessageInputResponse.SUCCESS;
+            } else {
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", StringUtil.numToString(max)));
+                return MessageInputResponse.FAILED;
+            }
+        }
+        return MessageInputResponse.FAILED;
+    }
+
     @ControllerButton(state = MAIN)
     public boolean onButtonMain(ButtonClickEvent event, int i) {
         switch (i) {
@@ -140,6 +158,10 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return true;
 
             case 4:
+                setState(GREETING_TEXT);
+                return true;
+
+            case 5:
                 setState(CREATE_TICKET_MESSAGE);
                 return true;
 
@@ -220,6 +242,20 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         return false;
     }
 
+    @ControllerButton(state = GREETING_TEXT)
+    public boolean onButtonGreetingText(ButtonClickEvent event, int i) {
+        if (i == -1) {
+            setState(0);
+            return true;
+        } else if (i == 0) {
+            ticketData.setCreateMessage(null);
+            setLog(LogStatus.SUCCESS, getString("greetingset"));
+            setState(0);
+            return true;
+        }
+        return false;
+    }
+
     @Draw(state = MAIN)
     public EmbedBuilder onDrawMain(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
@@ -227,7 +263,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mannouncement"), StringUtil.escapeMarkdown(ticketData.getAnnouncementTextChannel().map(GuildChannel::getAsMention).orElse(notSet)), true)
                 .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true)
-                .addField(getString("state0_mmembercanclose"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.memberCanClose()), true);
+                .addField(getString("state0_mmembercanclose"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.memberCanClose()), true)
+                .addField(getString("state0_mcreatemessage"), StringUtil.escapeMarkdown(ticketData.getCreateMessage().orElse(notSet)), false);
     }
 
     @Draw(state = ANNOUNCEMENT_CHANNEL)
@@ -257,6 +294,12 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 getString("state4_description", tempPostChannel != null ? tempPostChannel.getAsMention() : notSet),
                 getString("state4_title")
         );
+    }
+
+    @Draw(state = GREETING_TEXT)
+    public EmbedBuilder onDrawGreetingTextx(Member member) {
+        setComponents(getString("state5_options").split("\n"));
+        return staffRoleNavigationHelper.drawDataAdd(getString("state5_title"), getString("state5_description"));
     }
 
     @Override
@@ -334,6 +377,12 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 .setActionRows(ActionRows.of(Button.of(ButtonStyle.DANGER, BUTTON_ID_CLOSE, getString("button_close"))))
                 .content(member.getAsMention())
                 .queue(this::registerStaticReactionMessage);
+
+        /* create message */
+        ticketData.getCreateMessage().ifPresent(createMessage -> {
+            textChannel.sendMessage(createMessage)
+                    .queue();
+        });
 
         /* post announcement to staff channel */
         AtomicBoolean announcementNotPosted = new AtomicBoolean(true);
