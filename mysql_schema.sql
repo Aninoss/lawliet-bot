@@ -333,6 +333,7 @@ CREATE TABLE `DServer` (
   `commandAuthorMessageRemove` tinyint(1) NOT NULL DEFAULT '0',
   `fisheryCoinsGivenLimit` tinyint(1) NOT NULL DEFAULT '0',
   `big` tinyint(1) NOT NULL DEFAULT '0',
+  `inviteTracking` tinyint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`serverId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -439,6 +440,24 @@ CREATE TABLE `InviteTypeUsages` (
   `usages` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Invites`
+--
+
+DROP TABLE IF EXISTS `Invites`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Invites` (
+  `serverId` bigint unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  `invitedByUserId` bigint unsigned NOT NULL,
+  `date` date NOT NULL,
+  `lastMessage` date NOT NULL,
+  PRIMARY KEY (`serverId`,`userId`),
+  CONSTRAINT `InvitesServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -718,6 +737,23 @@ CREATE TABLE `SPBlockLogRecievers` (
   KEY `SPBlockLogRecieversUserBase` (`userId`),
   CONSTRAINT `SPBlockLogRecieversServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ServerInvites`
+--
+
+DROP TABLE IF EXISTS `ServerInvites`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ServerInvites` (
+  `serverId` bigint unsigned NOT NULL,
+  `code` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  `usages` int unsigned NOT NULL,
+  PRIMARY KEY (`serverId`,`code`),
+  CONSTRAINT `ServerInvitesServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1046,7 +1082,7 @@ CREATE TABLE `Ticket` (
   `counter` int unsigned NOT NULL DEFAULT '0',
   `channelId` bigint unsigned DEFAULT NULL,
   `memberCanClose` tinyint NOT NULL DEFAULT '1',
-  `createMessage` varchar(1000) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `createMessage` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`serverId`),
   CONSTRAINT `TicketServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1311,4 +1347,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-09-11 15:14:49
+-- Dump completed on 2021-09-11 17:32:46

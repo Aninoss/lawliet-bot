@@ -87,6 +87,7 @@ public class CommandContainer {
         commandList.add(GiveawayCommand.class);
         commandList.add(SuggestionCommand.class);
         commandList.add(TicketCommand.class);
+        commandList.add(InviteTrackingCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);

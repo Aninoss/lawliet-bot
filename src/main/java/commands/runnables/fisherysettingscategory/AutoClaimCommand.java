@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.CommandOnOffSwitchAbstract;
 import core.cache.PatreonCache;
 import mysql.modules.autoclaim.DBAutoClaim;
+import net.dv8tion.jda.api.entities.Member;
 
 @CommandProperties(
         trigger = "autoclaim",
@@ -19,14 +20,14 @@ public class AutoClaimCommand extends CommandOnOffSwitchAbstract {
     }
 
     @Override
-    protected boolean isActive() {
-        return DBAutoClaim.getInstance().retrieve().isActive(getMemberId().get());
+    protected boolean isActive(Member member) {
+        return DBAutoClaim.getInstance().retrieve().isActive(member.getIdLong());
     }
 
     @Override
-    protected boolean setActive(boolean active) {
-        if (!active || PatreonCache.getInstance().getUserTier(getMemberId().get(), false) >= 2) {
-            DBAutoClaim.getInstance().retrieve().setActive(getMemberId().get(), active);
+    protected boolean setActive(Member member, boolean active) {
+        if (!active || PatreonCache.getInstance().getUserTier(member.getIdLong(), false) >= 2) {
+            DBAutoClaim.getInstance().retrieve().setActive(member.getIdLong(), active);
             return true;
         } else {
             return false;

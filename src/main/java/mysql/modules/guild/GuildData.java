@@ -21,11 +21,12 @@ public class GuildData extends DataWithGuild {
     private Long fisheryAnnouncementChannelId;
     private Integer fisheryVcHoursCap;
     private boolean big;
+    private boolean inviteTracking;
 
     public GuildData(long guildId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles,
                      Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax,
                      int fisheryVcHoursCap, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit,
-                     boolean big
+                     boolean big, boolean inviteTracking
     ) {
         super(guildId);
         this.guildId = guildId;
@@ -46,6 +47,7 @@ public class GuildData extends DataWithGuild {
         this.commandAuthorMessageRemove = commandAuthorMessageRemove;
         this.fisheryCoinsGivenLimit = fisheryCoinsGivenLimit;
         this.big = big;
+        this.inviteTracking = inviteTracking;
     }
 
     public long getFisheryRoleMin() {
@@ -149,6 +151,14 @@ public class GuildData extends DataWithGuild {
         }
     }
 
+    public void setInviteTracking(boolean inviteTracking) {
+        if (this.inviteTracking != inviteTracking) {
+            this.inviteTracking = inviteTracking;
+            setChanged();
+            notifyObservers();
+        }
+    }
+
     public void toggleFisherySingleRoles() {
         this.fisherySingleRoles = !this.fisherySingleRoles;
         setChanged();
@@ -199,6 +209,10 @@ public class GuildData extends DataWithGuild {
         this.fisheryCoinsGivenLimit = !this.fisheryCoinsGivenLimit;
         setChanged();
         notifyObservers();
+    }
+
+    public boolean isInviteTracking() {
+        return inviteTracking;
     }
 
 }

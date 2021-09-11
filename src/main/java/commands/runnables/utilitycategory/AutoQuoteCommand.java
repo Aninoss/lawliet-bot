@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.CommandOnOffSwitchAbstract;
 import mysql.modules.autoquote.DBAutoQuote;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 
 @CommandProperties(
         trigger = "autoquote",
@@ -20,13 +21,13 @@ public class AutoQuoteCommand extends CommandOnOffSwitchAbstract {
     }
 
     @Override
-    protected boolean isActive() {
-        return DBAutoQuote.getInstance().retrieve(getGuildId().get()).isActive();
+    protected boolean isActive(Member member) {
+        return DBAutoQuote.getInstance().retrieve(member.getGuild().getIdLong()).isActive();
     }
 
     @Override
-    protected boolean setActive(boolean active) {
-        DBAutoQuote.getInstance().retrieve(getGuildId().get()).setActive(active);
+    protected boolean setActive(Member member, boolean active) {
+        DBAutoQuote.getInstance().retrieve(member.getGuild().getIdLong()).setActive(active);
         return true;
     }
 

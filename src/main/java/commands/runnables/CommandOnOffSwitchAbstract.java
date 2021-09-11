@@ -27,9 +27,9 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
         this.forMember = forMember;
     }
 
-    protected abstract boolean isActive();
+    protected abstract boolean isActive(Member member);
 
-    protected abstract boolean setActive(boolean active);
+    protected abstract boolean setActive(Member member, boolean active);
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
@@ -51,8 +51,8 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
 
             boolean active = option == 1;
             EmbedBuilder eb;
-            if (setActive(active)) {
-                eb = EmbedFactory.getEmbedDefault(this, getSetText());
+            if (setActive(event.getMember(), active)) {
+                eb = EmbedFactory.getEmbedDefault(this, getSetText(event.getMember()));
             } else {
                 eb = EmbedFactory.getEmbedDefault(this, getErrorText())
                         .setColor(EmbedFactory.FAILED_EMBED_COLOR);
@@ -73,7 +73,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         deregisterListenersWithComponents();
         boolean active = Boolean.parseBoolean(event.getComponentId());
-        if (setActive(active)) {
+        if (setActive(event.getMember(), active)) {
             mode = Mode.SET;
         } else {
             mode = Mode.ERROR;
@@ -85,22 +85,22 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
     public EmbedBuilder draw(Member member) {
         switch (mode) {
             case SET:
-                return EmbedFactory.getEmbedDefault(this, getSetText());
+                return EmbedFactory.getEmbedDefault(this, getSetText(member));
 
             case ERROR:
                 return EmbedFactory.getEmbedDefault(this, getErrorText())
                         .setColor(EmbedFactory.FAILED_EMBED_COLOR);
 
             default:
-                String onOffText = StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), isActive());
+                String onOffText = StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), isActive(member));
                 String status = TextManager.getString(getLocale(), TextManager.GENERAL, "function_status", onOffText);
                 return EmbedFactory.getEmbedDefault(this, getCommandLanguage().getDescLong() + status);
         }
     }
 
-    private String getSetText() {
+    private String getSetText(Member member) {
         return TextManager.getString(getLocale(), TextManager.GENERAL, forMember ? "function_onoff_member" : "function_onoff",
-                isActive(), getCommandLanguage().getTitle(), getMemberAsMention().get()
+                isActive(member), getCommandLanguage().getTitle(), getMemberAsMention().get()
         );
     }
 

@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.CommandOnOffSwitchAbstract;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 
 @CommandProperties(
         trigger = "triggerdelete",
@@ -23,13 +24,13 @@ public class TriggerDeleteCommand extends CommandOnOffSwitchAbstract {
     }
 
     @Override
-    protected boolean isActive() {
-        return DBGuild.getInstance().retrieve(getGuildId().get()).isCommandAuthorMessageRemove();
+    protected boolean isActive(Member member) {
+        return DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).isCommandAuthorMessageRemove();
     }
 
     @Override
-    protected boolean setActive(boolean active) {
-        DBGuild.getInstance().retrieve(getGuildId().get()).setCommandAuthorMessageRemove(active);
+    protected boolean setActive(Member member, boolean active) {
+        DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).setCommandAuthorMessageRemove(active);
         return true;
     }
 
