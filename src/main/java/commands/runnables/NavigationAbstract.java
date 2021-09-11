@@ -220,7 +220,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return null;
     }
 
-    protected CompletableFuture<Long> processDraw(Member member, boolean loadComponents) {
+    private CompletableFuture<Long> processDraw(Member member, boolean loadComponents) {
         Locale locale = getLocale();
         EmbedBuilder eb;
         try {
@@ -268,6 +268,10 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                 .thenApply(messageId -> {
                     setActionRows();
                     return messageId;
+                })
+                .exceptionally(e -> {
+                    ExceptionUtil.handleCommandException(e, this, getTextChannel().get());
+                    return null;
                 });
     }
 

@@ -10,7 +10,6 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.ExternalLinks;
-import modules.fishery.FisheryGear;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.cache.PatreonCache;
@@ -18,6 +17,7 @@ import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
+import modules.fishery.FisheryGear;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -51,16 +51,16 @@ public class DailyCommand extends Command implements FisheryInterface {
             boolean breakStreak = userBean.getDailyStreak() != 0 && !userBean.getDailyReceived().plus(1, ChronoUnit.DAYS).equals(LocalDate.now());
             userBean.updateDailyReceived();
 
-            int bonusCombo = 0;
-            int bonusDonation = 0;
+            long bonusCombo = 0;
+            long bonusDonation = 0;
             long dailyStreakNow = breakStreak ? 1 : userBean.getDailyStreak() + 1;
 
             if (dailyStreakNow >= 5) {
-                bonusCombo = (int) Math.round(fish * 0.25);
+                bonusCombo = Math.round(fish * 0.25);
             }
 
             if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false) >= 2) {
-                bonusDonation = (int) Math.round((fish + bonusCombo) * 0.5);
+                bonusDonation = Math.round((fish + bonusCombo) * 0.5);
             }
 
             StringBuilder sb = new StringBuilder(getString("point_default", StringUtil.numToString(fish)));

@@ -102,8 +102,10 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 return true;
             } else {
                 String amountString = args.substring(typeString.length()).trim();
+                String valueBefore = valueOfProperty(type);
                 if (updateValues(type, amountString)) {
-                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("set", fisheryMemberGroup.getAsTag(), amountString, emojiOfProperty(type), nameOfProperty(type))).build())
+                    String valueNow = valueOfProperty(type);
+                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("set", fisheryMemberGroup.getAsTag(), emojiOfProperty(type), valueBefore, valueNow)).build())
                             .queue();
                     return true;
                 } else {
@@ -121,12 +123,14 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     @Override
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state >= 1) {
+            String valueBefore = valueOfProperty(state - 1);
             if (!updateValues(state - 1, input)) {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
                 return MessageInputResponse.FAILED;
             }
+            String valueNow = valueOfProperty(state - 1);
 
-            setLog(LogStatus.SUCCESS, getString("set_log", fisheryMemberGroup.getAsTag(), input, nameOfProperty(state - 1)));
+            setLog(LogStatus.SUCCESS, getString("set_log", fisheryMemberGroup.getAsTag(), nameOfProperty(state - 1), valueBefore, valueNow));
             resetLog = true;
             setState(0);
 

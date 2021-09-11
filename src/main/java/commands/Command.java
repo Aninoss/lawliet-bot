@@ -19,6 +19,7 @@ import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
+import core.utils.StringUtil;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -150,7 +151,7 @@ public abstract class Command implements OnTriggerListener {
         if (options != null) {
             for (int i = 0; i < options.length; i++) {
                 buttonList.add(
-                        Button.of(ButtonStyle.PRIMARY, String.valueOf(i), options[i])
+                        Button.of(ButtonStyle.PRIMARY, String.valueOf(i), StringUtil.shortenString(options[i], 80))
                 );
             }
         }
@@ -195,6 +196,17 @@ public abstract class Command implements OnTriggerListener {
 
                 if (actionRows == null) {
                     actionRows = Collections.emptyList();
+                }
+
+                HashSet<String> usedIds = new HashSet<>();
+                for (ActionRow actionRow : actionRows) {
+                    for (Component component : actionRow.getComponents()) {
+                        if (usedIds.contains(component.getId())) {
+                            future.completeExceptionally(new Exception("Duplicate custom id \"" + component.getId() + "\""));
+                            return;
+                        }
+                        usedIds.add(component.getId());
+                    }
                 }
 
                 RestAction<Message> action;

@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
 import commands.Command;
+import commands.runnables.NavigationAbstract;
 import constants.AssetIds;
 import core.*;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -45,7 +46,11 @@ public class ExceptionUtil {
         }
 
         if (submitToDeveloper) {
-            MainLogger.get().error("Exception for command \"{}\" and code {}", command.getTrigger(), code, throwable);
+            int state = -1;
+            if (command instanceof NavigationAbstract) {
+                state = ((NavigationAbstract)command).getState();
+            }
+            MainLogger.get().error("Exception for command \"{}\" (state {}) and code {}", command.getTrigger(), state, code, throwable);
             if (Program.productionMode()) {
                 JDAUtil.sendPrivateMessage(
                         AssetIds.OWNER_USER_ID,

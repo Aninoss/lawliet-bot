@@ -506,7 +506,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Draw(state = REROLL_MESSAGE)
     public EmbedBuilder onDrawRerollMessage(Member member) {
         String[] options = getCompletedGiveawaySlots().stream()
-                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getTextChannel().get().getName()))
+                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), new AtomicTextChannel(member.getGuild().getIdLong(), giveawayData.getTextChannelId()).getName()))
                 .toArray(String[]::new);
         setComponents(options);
         return EmbedFactory.getEmbedDefault(this, getString("state12_description"), getString("state12_title"));
