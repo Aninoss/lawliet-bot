@@ -82,14 +82,10 @@ public class InviteTracking {
 
                     if (inviterId != 0L) {
                         CustomObservableMap<Long, InviteTrackingSlot> inviteTrackingSlots = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots();
-                        LocalDate invitedDate = LocalDate.now();
-                        InviteTrackingSlot slot = inviteTrackingSlots.get(member.getIdLong());
-                        if (slot != null) {
-                            invitedDate = slot.getInvitedDate();
+                        if (!inviteTrackingSlots.containsKey(member.getIdLong())) {
+                            InviteTrackingSlot newSlot = new InviteTrackingSlot(guild.getIdLong(), member.getIdLong(), inviterId, LocalDate.now(), LocalDate.now());
+                            inviteTrackingSlots.put(member.getIdLong(), newSlot);
                         }
-
-                        InviteTrackingSlot newSlot = new InviteTrackingSlot(guild.getIdLong(), member.getIdLong(), inviterId, invitedDate, LocalDate.now());
-                        inviteTrackingSlots.put(member.getIdLong(), newSlot);
                         future.complete(inviterId);
                     } else {
                         future.completeExceptionally(new NoSuchElementException("No inviter found"));
