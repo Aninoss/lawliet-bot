@@ -14,17 +14,19 @@ public class TicketData extends DataWithGuild {
     private int counter;
     private boolean memberCanClose;
     private String createMessage;
+    private boolean assignToAll;
     private final CustomObservableList<Long> staffRoleIds;
     private final CustomObservableMap<Long, TicketChannel> ticketChannels;
 
     public TicketData(long serverId, Long channelId, int counter, boolean memberCanClose, String createMessage,
-                      List<Long> staffRoleIds, Map<Long, TicketChannel> ticketChannels
+                      boolean assignToAll, List<Long> staffRoleIds, Map<Long, TicketChannel> ticketChannels
     ) {
         super(serverId);
         this.channelId = channelId;
         this.counter = counter;
         this.memberCanClose = memberCanClose;
         this.createMessage = createMessage;
+        this.assignToAll = assignToAll;
         this.staffRoleIds = new CustomObservableList<>(staffRoleIds);
         this.ticketChannels = new CustomObservableMap<>(ticketChannels);
     }
@@ -87,6 +89,16 @@ public class TicketData extends DataWithGuild {
             setChanged();
             notifyObservers();
         }
+    }
+
+    public boolean getAssignToAll() {
+        return assignToAll;
+    }
+
+    public void toggleAssignToAll() {
+        this.assignToAll = !this.assignToAll;
+        setChanged();
+        notifyObservers();
     }
 
 }

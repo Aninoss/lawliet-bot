@@ -13,6 +13,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
+import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
 import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -63,25 +64,27 @@ public class Ticket {
         ) {
             ticketChannel.setAssigned();
 
-            ChannelManager channelManager = channel.getManager();
-            List<Role> staffRoles = ticketData.getStaffRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
-            for (Role staffRole : staffRoles) {
-                channelManager = BotPermissionUtil.addPermission(channel, channelManager, staffRole, false, Permission.MESSAGE_WRITE);
-            }
-            BotPermissionUtil.addPermission(channel, channelManager, member, true, Permission.MESSAGE_WRITE)
-                    .reason(Command.getCommandLanguage(TicketCommand.class, locale).getTitle())
-                    .queue();
-
-            TextChannel announcementChannel = guild.getTextChannelById(ticketChannel.getAnnouncementChannelId());
-            if (announcementChannel != null) {
-                String title = Command.getCommandProperties(TicketCommand.class).emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
-                String memberMention = MentionUtil.getUserAsMention(ticketChannel.getMemberId(), true);
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                        .setTitle(title)
-                        .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_assigned", channel.getAsMention(), memberMention, member.getAsMention()));
-                announcementChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), " ")
-                        .setEmbeds(eb.build())
+            if (!DBTicket.getInstance().retrieve(guild.getIdLong()).getAssignToAll()) {
+                ChannelManager channelManager = channel.getManager();
+                List<Role> staffRoles = ticketData.getStaffRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
+                for (Role staffRole : staffRoles) {
+                    channelManager = BotPermissionUtil.addPermission(channel, channelManager, staffRole, false, Permission.MESSAGE_WRITE);
+                }
+                BotPermissionUtil.addPermission(channel, channelManager, member, true, Permission.MESSAGE_WRITE)
+                        .reason(Command.getCommandLanguage(TicketCommand.class, locale).getTitle())
                         .queue();
+
+                TextChannel announcementChannel = guild.getTextChannelById(ticketChannel.getAnnouncementChannelId());
+                if (announcementChannel != null) {
+                    String title = Command.getCommandProperties(TicketCommand.class).emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
+                    String memberMention = MentionUtil.getUserAsMention(ticketChannel.getMemberId(), true);
+                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                            .setTitle(title)
+                            .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_assigned", channel.getAsMention(), memberMention, member.getAsMention()));
+                    announcementChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), " ")
+                            .setEmbeds(eb.build())
+                            .queue();
+                }
             }
         }
     }

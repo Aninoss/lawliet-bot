@@ -158,10 +158,15 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return true;
 
             case 4:
-                setState(GREETING_TEXT);
+                ticketData.toggleAssignToAll();
+                setLog(LogStatus.SUCCESS, getString("assign_set", ticketData.getAssignToAll()));
                 return true;
 
             case 5:
+                setState(GREETING_TEXT);
+                return true;
+
+            case 6:
                 setState(CREATE_TICKET_MESSAGE);
                 return true;
 
@@ -264,6 +269,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 .addField(getString("state0_mannouncement"), StringUtil.escapeMarkdown(ticketData.getAnnouncementTextChannel().map(GuildChannel::getAsMention).orElse(notSet)), true)
                 .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true)
                 .addField(getString("state0_mmembercanclose"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.memberCanClose()), true)
+                .addField(getString("state0_massign"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getAssignToAll()), true)
                 .addField(getString("state0_mcreatemessage"), StringUtil.escapeMarkdown(ticketData.getCreateMessage().orElse(notSet)), false);
     }
 
