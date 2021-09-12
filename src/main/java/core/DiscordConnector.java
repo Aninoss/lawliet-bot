@@ -28,7 +28,7 @@ public class DiscordConnector {
             .setSessionController(concurrentSessionController)
             .setMemberCachePolicy(MemberCacheController.getInstance())
             .setChunkingFilter(new ChunkingFilterController())
-            .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES)
+            .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGE_TYPING)
             .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)
             .setActivity(Activity.watching(getActivityText()))

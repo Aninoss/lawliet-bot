@@ -36,7 +36,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "ticket",
-        botGuildPermissions = { Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL },
+        botGuildPermissions = { Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MANAGE_ROLES },
         userGuildPermissions = { Permission.MANAGE_CHANNEL },
         releaseDate = { 2021, 5, 24 },
         emoji = "🎟️",
@@ -219,7 +219,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
                 Category parent = tempPostChannel.getParent();
                 if (parent != null) {
-                    String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL);
+                    String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE, Permission.MANAGE_CHANNEL);
                     if (categoryMissingPerms != null) {
                         setLog(LogStatus.FAILURE, categoryMissingPerms);
                         return true;
@@ -399,7 +399,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                                     textChannel.getIdLong(),
                                     member.getIdLong(),
                                     announcementChannel.getIdLong(),
-                                    m.getIdLong()
+                                    m.getIdLong(),
+                                    false
                             ));
                         }, e -> {
                             MainLogger.get().error("Ticket announcement error", e);
@@ -408,7 +409,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                                     textChannel.getIdLong(),
                                     member.getIdLong(),
                                     0L,
-                                    0L
+                                    0L,
+                                    false
                             ));
                         });
             }
@@ -420,7 +422,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                     textChannel.getIdLong(),
                     member.getIdLong(),
                     0L,
-                    0L
+                    0L,
+                    false
             ));
         }
     }

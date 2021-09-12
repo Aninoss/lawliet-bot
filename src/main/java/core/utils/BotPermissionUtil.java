@@ -11,6 +11,7 @@ import core.TextManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.managers.ChannelManager;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
 public class BotPermissionUtil {
@@ -282,6 +283,55 @@ public class BotPermissionUtil {
             return channelAction.addMemberPermissionOverride(id, allowList, denyList);
         } else {
             return channelAction.addRolePermissionOverride(id, allowList, denyList);
+        }
+    }
+
+    public static <T extends GuildChannel> ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
+                                                                          IPermissionHolder permissionHolder, boolean allow, Permission... permissions
+    ) {
+        return addPermission(parentChannel, channelManager, parentChannel.getPermissionOverride(permissionHolder), allow,
+                permissionHolder instanceof Member, permissionHolder.getIdLong(), permissions);
+    }
+
+    public static <T extends GuildChannel> ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
+                                                                          PermissionOverride permissionOverride, boolean allow, Permission... permissions
+    ) {
+        return addPermission(parentChannel, channelManager, permissionOverride, allow,
+                permissionOverride.isMemberOverride(), permissionOverride.getIdLong(), permissions);
+    }
+
+    private static <T extends GuildChannel> ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
+                                                                         PermissionOverride permissionOverride, boolean allow, boolean memberOverride,
+                                                                         long id, Permission... permissions
+    ) {
+        long allowRaw = 0L;
+        long denyRaw = 0L;
+
+        if (permissionOverride != null) {
+            allowRaw |= permissionOverride.getAllowedRaw();
+            denyRaw |= permissionOverride.getDeniedRaw();
+        }
+
+        if (allow) {
+            allowRaw |= Permission.getRaw(permissions);
+            denyRaw &= ~Permission.getRaw(permissions);
+        } else {
+            allowRaw &= ~Permission.getRaw(permissions);
+            denyRaw |= Permission.getRaw(permissions);
+        }
+
+        List<Permission> allowList = Permission.getPermissions(allowRaw).stream()
+                .filter(permission -> BotPermissionUtil.canManage(parentChannel, permission))
+                .collect(Collectors.toList());
+
+        List<Permission> denyList = Permission.getPermissions(denyRaw).stream()
+                .filter(permission -> BotPermissionUtil.canManage(parentChannel, permission))
+                .collect(Collectors.toList());
+
+        if (memberOverride) {
+            return channelManager.putMemberPermissionOverride(id, allowList, denyList);
+        } else {
+            return channelManager.putRolePermissionOverride(id, allowList, denyList);
         }
     }
 

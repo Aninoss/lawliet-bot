@@ -51,6 +51,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
 
         ticketData.getTicketChannels()
                 .addMapAddListener(this::addTicketChannel)
+                .addMapUpdateListener(this::addTicketChannel)
                 .addMapRemoveListener(this::removeTicketChannel);
 
         ticketData.getStaffRoleIds()
@@ -85,7 +86,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
     }
 
     private Map<Long, TicketChannel> getTicketChannels(long serverId) {
-        return new DBDataLoad<TicketChannel>("TicketOpenChannel", "channelId, userId, messageChannelId, messageMessageId", "serverId = ?",
+        return new DBDataLoad<TicketChannel>("TicketOpenChannel", "channelId, userId, messageChannelId, messageMessageId, assigned", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getMap(
                 TicketChannel::getTextChannelId,
@@ -94,18 +95,20 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
                         resultSet.getLong(1),
                         resultSet.getLong(2),
                         resultSet.getLong(3),
-                        resultSet.getLong(4)
+                        resultSet.getLong(4),
+                        resultSet.getBoolean(5)
                 )
         );
     }
 
     private void addTicketChannel(TicketChannel ticketChannel) {
-        MySQLManager.asyncUpdate("INSERT IGNORE INTO TicketOpenChannel (serverId, channelId, userId, messageChannelId, messageMessageId) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO TicketOpenChannel (serverId, channelId, userId, messageChannelId, messageMessageId, assigned) VALUES (?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, ticketChannel.getGuildId());
             preparedStatement.setLong(2, ticketChannel.getTextChannelId());
             preparedStatement.setLong(3, ticketChannel.getMemberId());
             preparedStatement.setLong(4, ticketChannel.getAnnouncementChannelId());
             preparedStatement.setLong(5, ticketChannel.getAnnouncementMessageId());
+            preparedStatement.setBoolean(6, ticketChannel.isAssigned());
         });
     }
 

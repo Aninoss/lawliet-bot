@@ -1101,6 +1101,7 @@ CREATE TABLE `TicketOpenChannel` (
   `userId` bigint unsigned NOT NULL,
   `messageChannelId` bigint unsigned NOT NULL,
   `messageMessageId` bigint unsigned NOT NULL,
+  `assigned` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`serverId`,`channelId`),
   CONSTRAINT `TicketOpenChannelServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1347,4 +1348,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-09-11 17:32:46
+-- Dump completed on 2021-09-12 15:05:12
