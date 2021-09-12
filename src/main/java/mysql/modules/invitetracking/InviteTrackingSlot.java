@@ -36,8 +36,8 @@ public class InviteTrackingSlot extends DataWithGuild implements MemberAsset {
         return lastMessage;
     }
 
-    public boolean isActivated() {
-        return !lastMessage.isBefore(invitedDate.plusDays(7));
+    public boolean isRetained() {
+        return isActive() || !lastMessage.isBefore(invitedDate.plusDays(7));
     }
 
     public boolean isActive() {

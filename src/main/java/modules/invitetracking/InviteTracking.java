@@ -3,8 +3,10 @@ package modules.invitetracking;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import commands.runnables.utilitycategory.InviteTrackingCommand;
 import core.CustomObservableMap;
+import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.invitetracking.DBInviteTracking;
@@ -12,29 +14,38 @@ import mysql.modules.invitetracking.GuildInvite;
 import mysql.modules.invitetracking.InviteTrackingSlot;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 
 public class InviteTracking {
 
-    public static InviteMetrics generateInviteMetrics(long guildId, long inviterUserId) {
+    public static InviteMetrics generateInviteMetrics(Guild guild, long inviterUserId) {
         int invites = 0;
-        int activated = 0;
+        int onServer = 0;
+        int retained = 0;
         int active = 0;
-        for (InviteTrackingSlot inviteTrackingSlot : DBInviteTracking.getInstance().retrieve(guildId).getInviteTrackingSlots().values()) {
+
+        HashSet<Long> serverMemberIds = MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
+                .map(ISnowflake::getIdLong)
+                .collect(Collectors.toCollection(HashSet::new));
+        for (InviteTrackingSlot inviteTrackingSlot : DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots().values()) {
             if (inviteTrackingSlot.getInviterUserId() == inviterUserId) {
                 invites++;
-                if (inviteTrackingSlot.isActivated()) {
-                    activated++;
-                }
-                if (inviteTrackingSlot.isActive()) {
-                    active++;
+                if (serverMemberIds.contains(inviteTrackingSlot.getMemberId())) {
+                    onServer++;
+                    if (inviteTrackingSlot.isRetained()) {
+                        retained++;
+                        if (inviteTrackingSlot.isActive()) {
+                            active++;
+                        }
+                    }
                 }
             }
         }
 
-        return new InviteMetrics(invites, activated, active);
+        return new InviteMetrics(invites, onServer, retained, active);
     }
 
     public static void memberActivity(Member member) {

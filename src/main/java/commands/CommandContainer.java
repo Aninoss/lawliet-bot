@@ -116,11 +116,12 @@ public class CommandContainer {
         commandList.add(ChannelInfoCommand.class);
         commandList.add(MemberInfoCommand.class);
         commandList.add(AvatarCommand.class);
+        commandList.add(InvitesCommand.class);
         commandList.add(CommandUsagesCommand.class);
         commandList.add(PingCommand.class);
         commandList.add(NewCommand.class);
         commandList.add(StatsCommand.class);
-        commandList.add(InviteCommand.class);
+        commandList.add(AddCommand.class);
         commandList.add(UpvoteCommand.class);
 
         //FISHERY SETTINGS

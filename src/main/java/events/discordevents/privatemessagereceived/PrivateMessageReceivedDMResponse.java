@@ -35,8 +35,8 @@ public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbst
             if (Program.publicVersion()) {
                 eb = EmbedFactory.getEmbedError()
                         .setTitle("❌ Not Supported")
-                        .setDescription("Commands via dm are not supported, you need to invite Lawliet into a server!");
-                actionRowList = ActionRows.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, "Invite Lawliet"));
+                        .setDescription("Commands via dm are not supported, you need to add Lawliet to a server!");
+                actionRowList = ActionRows.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, "Add Lawliet"));
             } else {
                 eb = EmbedFactory.getEmbedError()
                         .setTitle("❌ Not Supported")

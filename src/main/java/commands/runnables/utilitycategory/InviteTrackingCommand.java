@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Member;
         trigger = "invitetracking",
         userGuildPermissions = Permission.MANAGE_SERVER,
         botGuildPermissions = Permission.MANAGE_SERVER,
+        releaseDate = { 2021, 9, 20 },
         emoji = "✉️",
         usesExtEmotes = true,
         executableWithoutArgs = true,
