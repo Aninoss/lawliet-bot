@@ -13,7 +13,8 @@ public class BooruImageDownloader {
 
     public CompletableFuture<Optional<BooruImage>> getPicture(long guildId, String domain, String searchTerm,
                                                               boolean animatedOnly, boolean explicit,
-                                                              Set<String> filters, List<String> skippedResults
+                                                              Set<String> filters, List<String> skippedResults,
+                                                              boolean test
     ) throws ExecutionException {
         JSONArray filtersJson = new JSONArray();
         filters = new HashSet<>(filters);
@@ -31,11 +32,16 @@ public class BooruImageDownloader {
         json.put("explicit", explicit);
         json.put("filters", filtersJson);
         json.put("skippedResults", skippedResultsJson);
+        json.put("test", test);
 
         return RestClient.WEBCACHE.post("booru", "application/json", json.toString())
                 .thenApply(response -> {
                     String content = response.getBody();
                     if (content.startsWith("{")) {
+                        if (test) {
+                            return Optional.of(new BooruImage());
+                        }
+
                         JSONObject responseJson = new JSONObject(content);
                         BooruImage booruImage = new BooruImage()
                                 .setScore(responseJson.getInt("score"))

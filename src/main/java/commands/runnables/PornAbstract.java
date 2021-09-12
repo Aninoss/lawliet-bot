@@ -180,7 +180,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     private boolean checkServiceAvailable() {
         try {
-            return booruImageDownloader.getPicture(0L, getDomain(), "", false, isExplicit(), Collections.emptySet(), Collections.emptyList()).get().isPresent();
+            return booruImageDownloader.getPicture(0L, getDomain(), "", false, isExplicit(), Collections.emptySet(), Collections.emptyList(), true).get().isPresent();
         } catch (InterruptedException | ExecutionException | NoSuchElementException e) {
             //Ignore
             return false;
@@ -322,7 +322,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         for (int i = 0; i < amount; i++) {
             try {
                 futures.add(
-                        booruImageDownloader.getPicture(guildId, domain, search, animatedOnly, explicit, nsfwFilter, usedResults)
+                        booruImageDownloader.getPicture(guildId, domain, search, animatedOnly, explicit, nsfwFilter, usedResults, false)
                 );
             } catch (ExecutionException e) {
                 MainLogger.get().error("Error while downloading porn", e);
