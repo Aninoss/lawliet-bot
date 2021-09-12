@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import commands.runnables.utilitycategory.InviteTrackingCommand;
 import core.CustomObservableMap;
+import core.ExceptionLogger;
 import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import mysql.modules.guild.DBGuild;
@@ -70,40 +71,41 @@ public class InviteTracking {
             Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
 
             if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, guild, Permission.MANAGE_SERVER)) {
-                guild.retrieveInvites().queue(guildInvites -> {
-                    CustomObservableMap<String, GuildInvite> databaseInvites = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getGuildInvites();
-                    long inviterId = 0L;
+                collectInvites(guild)
+                        .thenAccept(guildInvites -> {
+                            CustomObservableMap<String, GuildInvite> databaseInvites = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getGuildInvites();
+                            long inviterId = -1;
 
-                    for (Invite invite : guildInvites) {
-                        int inviteUses = invite.getUses();
-                        int databaseUses = 0;
-                        GuildInvite guildInvite = databaseInvites.get(invite.getCode());
-                        if (guildInvite != null) {
-                            databaseUses = guildInvite.getUses();
-                        }
+                            for (TempInvite invite : guildInvites) {
+                                int inviteUses = invite.uses;
+                                int databaseUses = 0;
+                                GuildInvite guildInvite = databaseInvites.get(invite.code);
+                                if (guildInvite != null) {
+                                    databaseUses = guildInvite.getUses();
+                                }
 
-                        if (inviteUses > databaseUses) {
-                            if (inviterId == 0L && inviteUses == databaseUses + 1) {
-                                inviterId = invite.getInviter().getIdLong();
-                            } else {
-                                inviterId = 0L;
-                                break;
+                                if (inviteUses > databaseUses) {
+                                    if (inviterId == -1 && inviteUses == databaseUses + 1) {
+                                        inviterId = invite.inviter;
+                                    } else {
+                                        inviterId = -1;
+                                        break;
+                                    }
+                                }
                             }
-                        }
-                    }
 
-                    if (inviterId != 0L) {
-                        CustomObservableMap<Long, InviteTrackingSlot> inviteTrackingSlots = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots();
-                        if (!inviteTrackingSlots.containsKey(member.getIdLong())) {
-                            InviteTrackingSlot newSlot = new InviteTrackingSlot(guild.getIdLong(), member.getIdLong(), inviterId, LocalDate.now(), LocalDate.now());
-                            inviteTrackingSlots.put(member.getIdLong(), newSlot);
-                        }
-                        future.complete(inviterId);
-                    } else {
-                        future.completeExceptionally(new NoSuchElementException("No inviter found"));
-                    }
-                    synchronizeGuildInvites(guild.getIdLong(), databaseInvites, guildInvites);
-                }, future::completeExceptionally);
+                            if (inviterId != -1) {
+                                CustomObservableMap<Long, InviteTrackingSlot> inviteTrackingSlots = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots();
+                                if (!inviteTrackingSlots.containsKey(member.getIdLong())) {
+                                    InviteTrackingSlot newSlot = new InviteTrackingSlot(guild.getIdLong(), member.getIdLong(), inviterId, LocalDate.now(), LocalDate.now());
+                                    inviteTrackingSlots.put(member.getIdLong(), newSlot);
+                                }
+                                future.complete(inviterId);
+                            } else {
+                                future.completeExceptionally(new NoSuchElementException("No inviter found"));
+                            }
+                            synchronizeGuildInvites(guild.getIdLong(), databaseInvites, guildInvites);
+                        }).exceptionally(ExceptionLogger.get());
             } else {
                 future.completeExceptionally(new PermissionException("Missing permissions"));
             }
@@ -119,23 +121,24 @@ public class InviteTracking {
 
         Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
         if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, guild, Permission.MANAGE_SERVER)) {
-            guild.retrieveInvites().queue(guildInvites -> {
-                CustomObservableMap<String, GuildInvite> databaseInvites = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getGuildInvites();
-                synchronizeGuildInvites(guild.getIdLong(), databaseInvites, guildInvites);
-                future.complete(null);
-            }, future::completeExceptionally);
+            collectInvites(guild)
+                    .thenAccept(guildInvites -> {
+                        CustomObservableMap<String, GuildInvite> databaseInvites = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getGuildInvites();
+                        synchronizeGuildInvites(guild.getIdLong(), databaseInvites, guildInvites);
+                        future.complete(null);
+                    }).exceptionally(ExceptionLogger.get());
         }
 
         return future;
     }
 
-    private static void synchronizeGuildInvites(long guildId, CustomObservableMap<String, GuildInvite> databaseInvites, List<Invite> guildInvites) {
+    private static void synchronizeGuildInvites(long guildId, CustomObservableMap<String, GuildInvite> databaseInvites, List<TempInvite> guildInvites) {
         /* add missing invites to database */
         HashSet<String> inviteCodes = new HashSet<>();
-        for (Invite invite : guildInvites) {
-            inviteCodes.add(invite.getCode());
-            if (!databaseInvites.containsKey(invite.getCode()) || invite.getUses() != databaseInvites.get(invite.getCode()).getUses()) {
-                databaseInvites.put(invite.getCode(), new GuildInvite(guildId, invite.getCode(), invite.getInviter().getIdLong(), invite.getUses()));
+        for (TempInvite invite : guildInvites) {
+            inviteCodes.add(invite.code);
+            if (!databaseInvites.containsKey(invite.code) || invite.uses != databaseInvites.get(invite.code).getUses()) {
+                databaseInvites.put(invite.code, new GuildInvite(guildId, invite.code, invite.inviter, invite.uses));
             }
         }
 
@@ -145,6 +148,59 @@ public class InviteTracking {
                 databaseInvites.remove(guildInvite.getCode());
             }
         }
+    }
+
+    private static CompletableFuture<List<TempInvite>> collectInvites(Guild guild) {
+        CompletableFuture<List<TempInvite>> future = new CompletableFuture<>();
+        ArrayList<TempInvite> inviteList = new ArrayList<>();
+        boolean[] completed = new boolean[2];
+
+        if (guild.getVanityCode() != null) {
+            guild.retrieveVanityInvite().queue(vanityInvite -> {
+                inviteList.add(new TempInvite(
+                        vanityInvite.getCode(),
+                        vanityInvite.getUses(),
+                        0L
+                ));
+                completed[0] = true;
+                if (completed[1]) {
+                    future.complete(inviteList);
+                }
+            }, future::completeExceptionally);
+        } else {
+            completed[0] = true;
+        }
+
+        guild.retrieveInvites().queue(invites -> {
+            for (Invite invite : invites) {
+                inviteList.add(new TempInvite(
+                        invite.getCode(),
+                        invite.getUses(),
+                        invite.getInviter().getIdLong()
+                ));
+            }
+            completed[1] = true;
+            if (completed[0]) {
+                future.complete(inviteList);
+            }
+        }, future::completeExceptionally);
+
+        return future;
+    }
+
+
+    private static class TempInvite {
+
+        private final String code;
+        private final int uses;
+        private final long inviter;
+
+        public TempInvite(String code, int uses, long inviter) {
+            this.code = code;
+            this.uses = uses;
+            this.inviter = inviter;
+        }
+
     }
 
 }

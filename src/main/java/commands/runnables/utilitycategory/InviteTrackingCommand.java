@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         emoji = "✉️",
         usesExtEmotes = true,
         executableWithoutArgs = true,
-        aliases = { "invtracking", "invitet", "invt", "invtracker" }
+        aliases = { "invitetracker", "invtracking", "invitet", "invt", "invtracker" }
 )
 public class InviteTrackingCommand extends NavigationAbstract {
 

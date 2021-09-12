@@ -763,7 +763,7 @@ DROP TABLE IF EXISTS `ServerInvites`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `ServerInvites` (
   `serverId` bigint unsigned NOT NULL,
-  `code` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
+  `code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `userId` bigint unsigned NOT NULL,
   `usages` int unsigned NOT NULL,
   PRIMARY KEY (`serverId`,`code`),
@@ -1364,4 +1364,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-09-12 17:53:14
+-- Dump completed on 2021-09-12 21:36:27
