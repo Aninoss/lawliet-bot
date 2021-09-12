@@ -13,13 +13,13 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
-@DiscordEvent
+@DiscordEvent(allowBots = true)
 public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
 
     @Override
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
         InviteTrackingData inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
-        if (!event.getUser().isBot() && inviteTrackingData.isActive()) {
+        if (inviteTrackingData.isActive()) {
             InviteTracking.registerMemberJoin(event.getMember())
                     .thenAccept(userId -> sendLog(inviteTrackingData, event.getMember(), userId))
                     .exceptionally(e -> {
