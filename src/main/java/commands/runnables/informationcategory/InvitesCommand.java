@@ -9,7 +9,6 @@ import core.atomicassets.AtomicMember;
 import core.utils.StringUtil;
 import modules.invitetracking.InviteMetrics;
 import modules.invitetracking.InviteTracking;
-import mysql.modules.guild.DBGuild;
 import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.InviteTrackingSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -32,7 +31,7 @@ public class InvitesCommand extends MemberAccountAbstract {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
-        if (DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).isInviteTracking()) {
+        if (DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).isActive()) {
             return super.onTrigger(event, args);
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedError(

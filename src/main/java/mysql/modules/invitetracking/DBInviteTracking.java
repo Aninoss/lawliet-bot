@@ -1,11 +1,13 @@
 package mysql.modules.invitetracking;
 
+import java.sql.Types;
 import java.util.Map;
+import java.util.Optional;
 import mysql.DBDataLoad;
-import mysql.DBMapCache;
+import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
 
-public class DBInviteTracking extends DBMapCache<Long, InviteTrackingData> {
+public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingData> {
 
     private static final DBInviteTracking ourInstance = new DBInviteTracking();
 
@@ -17,11 +19,44 @@ public class DBInviteTracking extends DBMapCache<Long, InviteTrackingData> {
     }
 
     @Override
+    protected void save(InviteTrackingData inviteTrackingData) {
+        MySQLManager.asyncUpdate("REPLACE INTO InviteTracking (serverId, active, channelId) VALUES (?, ?, ?);", preparedStatement -> {
+            preparedStatement.setLong(1, inviteTrackingData.getGuildId());
+            preparedStatement.setBoolean(2, inviteTrackingData.isActive());
+
+            Optional<Long> channelIdOpt = inviteTrackingData.getTextChannelId();
+            if (channelIdOpt.isPresent()) {
+                preparedStatement.setLong(3, channelIdOpt.get());
+            } else {
+                preparedStatement.setNull(3, Types.BIGINT);
+            }
+        });
+    }
+
+    @Override
     protected InviteTrackingData load(Long guildId) throws Exception {
-        InviteTrackingData inviteTrackerData = new InviteTrackingData(
-                guildId,
-                getInviteTrackerSlots(guildId),
-                getGuildInvites(guildId)
+        InviteTrackingData inviteTrackerData = MySQLManager.get(
+                "SELECT active, channelId FROM InviteTracking WHERE serverId = ?;",
+                preparedStatement -> preparedStatement.setLong(1, guildId),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return new InviteTrackingData(
+                                guildId,
+                                resultSet.getBoolean(1),
+                                resultSet.getLong(2),
+                                getInviteTrackerSlots(guildId),
+                                getGuildInvites(guildId)
+                        );
+                    } else {
+                        return new InviteTrackingData(
+                                guildId,
+                                false,
+                                null,
+                                getInviteTrackerSlots(guildId),
+                                getGuildInvites(guildId)
+                        );
+                    }
+                }
         );
 
         inviteTrackerData.getInviteTrackingSlots()

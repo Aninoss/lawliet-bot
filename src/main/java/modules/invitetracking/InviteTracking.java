@@ -11,6 +11,7 @@ import core.PermissionCheckRuntime;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.GuildInvite;
+import mysql.modules.invitetracking.InviteTrackingData;
 import mysql.modules.invitetracking.InviteTrackingSlot;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -49,9 +50,9 @@ public class InviteTracking {
     }
 
     public static void memberActivity(Member member) {
-        if (DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).isInviteTracking()) {
-            InviteTrackingSlot inviteTrackingSlot = DBInviteTracking.getInstance()
-                    .retrieve(member.getGuild().getIdLong())
+        InviteTrackingData inviteTrackingData = DBInviteTracking.getInstance().retrieve(member.getGuild().getIdLong());
+        if (inviteTrackingData.isActive()) {
+            InviteTrackingSlot inviteTrackingSlot = inviteTrackingData
                     .getInviteTrackingSlots()
                     .get(member.getIdLong());
 
