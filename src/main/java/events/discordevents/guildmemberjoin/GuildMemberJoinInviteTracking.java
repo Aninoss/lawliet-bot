@@ -1,5 +1,6 @@
 package events.discordevents.guildmemberjoin;
 
+import java.util.Collections;
 import java.util.Locale;
 import commands.Category;
 import core.ShardManager;
@@ -12,6 +13,7 @@ import mysql.modules.invitetracking.InviteTrackingData;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 @DiscordEvent(allowBots = true)
 public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
@@ -50,8 +52,11 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
                 }
             }
 
-            channel.sendMessage(TextManager.getString(locale, Category.UTILITY, "invitetracking_log", n, member.getAsMention(), inviterTag))
-                    .queue();
+            MessageAction messageAction = channel.sendMessage(TextManager.getString(locale, Category.UTILITY, "invitetracking_log", n, member.getAsMention(), inviterTag));
+            if (!inviteTrackingData.getPing()) {
+                messageAction = messageAction.allowedMentions(Collections.emptySet());
+            }
+            messageAction.queue();
         });
     }
 

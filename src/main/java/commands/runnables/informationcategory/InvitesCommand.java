@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "invites",
-        releaseDate = { 2021, 9, 20 },
+        releaseDate = { 2021, 9, 21 },
         emoji = "✉️",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,

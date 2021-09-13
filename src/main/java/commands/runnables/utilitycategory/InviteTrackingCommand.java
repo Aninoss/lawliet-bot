@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
         trigger = "invitetracking",
         userGuildPermissions = Permission.MANAGE_SERVER,
         botGuildPermissions = Permission.MANAGE_SERVER,
-        releaseDate = { 2021, 9, 20 },
+        releaseDate = { 2021, 9, 21 },
         emoji = "✉️",
         usesExtEmotes = true,
         executableWithoutArgs = true,
@@ -89,6 +89,11 @@ public class InviteTrackingCommand extends NavigationAbstract {
                 setState(1);
                 return true;
             }
+            case 2 -> {
+                inviteTrackingData.togglePing();
+                setLog(LogStatus.SUCCESS, getString("pingset", inviteTrackingData.getPing()));
+                return true;
+            }
         }
         return false;
     }
@@ -113,7 +118,8 @@ public class InviteTrackingCommand extends NavigationAbstract {
         setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), inviteTrackingData.isActive()), true)
-                .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(inviteTrackingData.getTextChannel().map(IMentionable::getAsMention).orElse(notSet)), true);
+                .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(inviteTrackingData.getTextChannel().map(IMentionable::getAsMention).orElse(notSet)), true)
+                .addField(getString("state0_mping"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), inviteTrackingData.getPing()), true);
     }
 
     @Draw(state = SET_LOGCHANNEL)

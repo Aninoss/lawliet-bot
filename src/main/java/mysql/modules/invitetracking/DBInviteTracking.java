@@ -19,24 +19,9 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
     }
 
     @Override
-    protected void save(InviteTrackingData inviteTrackingData) {
-        MySQLManager.asyncUpdate("REPLACE INTO InviteTracking (serverId, active, channelId) VALUES (?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, inviteTrackingData.getGuildId());
-            preparedStatement.setBoolean(2, inviteTrackingData.isActive());
-
-            Optional<Long> channelIdOpt = inviteTrackingData.getTextChannelId();
-            if (channelIdOpt.isPresent()) {
-                preparedStatement.setLong(3, channelIdOpt.get());
-            } else {
-                preparedStatement.setNull(3, Types.BIGINT);
-            }
-        });
-    }
-
-    @Override
     protected InviteTrackingData load(Long guildId) throws Exception {
         InviteTrackingData inviteTrackerData = MySQLManager.get(
-                "SELECT active, channelId FROM InviteTracking WHERE serverId = ?;",
+                "SELECT active, channelId, ping FROM InviteTracking WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, guildId),
                 resultSet -> {
                     if (resultSet.next()) {
@@ -44,6 +29,7 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
                                 guildId,
                                 resultSet.getBoolean(1),
                                 resultSet.getLong(2),
+                                resultSet.getBoolean(3),
                                 getInviteTrackerSlots(guildId),
                                 getGuildInvites(guildId)
                         );
@@ -52,6 +38,7 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
                                 guildId,
                                 false,
                                 null,
+                                false,
                                 getInviteTrackerSlots(guildId),
                                 getGuildInvites(guildId)
                         );
@@ -68,6 +55,23 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
                 .addMapRemoveListener(this::removeGuildInvite);
 
         return inviteTrackerData;
+    }
+
+    @Override
+    protected void save(InviteTrackingData inviteTrackingData) {
+        MySQLManager.asyncUpdate("REPLACE INTO InviteTracking (serverId, active, channelId, ping) VALUES (?, ?, ?, ?);", preparedStatement -> {
+            preparedStatement.setLong(1, inviteTrackingData.getGuildId());
+            preparedStatement.setBoolean(2, inviteTrackingData.isActive());
+
+            Optional<Long> channelIdOpt = inviteTrackingData.getTextChannelId();
+            if (channelIdOpt.isPresent()) {
+                preparedStatement.setLong(3, channelIdOpt.get());
+            } else {
+                preparedStatement.setNull(3, Types.BIGINT);
+            }
+
+            preparedStatement.setBoolean(4, inviteTrackingData.getPing());
+        });
     }
 
     private Map<Long, InviteTrackingSlot> getInviteTrackerSlots(long guildId) {
