@@ -34,7 +34,7 @@ public class RealLifeAssCommand extends RealbooruAbstract {
                 "orgasm", "1boy", "2boys", "penis", "penetration", "double_penetration", "fellatio", "handjob",
                 "oral", "threesome", "anal", "vaginal", "vaginal_sex", "doggy_style", "squirt", "squirting",
                 "vaginal_penetration", "fingering", "cum", "buttjob", "cum_in_pussy", "vaginal_insertion",
-                "mia_khalifa", "reverse_cowgirl_position", "riding", "enema"));
+                "mia_khalifa", "reverse_cowgirl_position", "riding", "enema", "breasts"));
         return filters;
     }
 

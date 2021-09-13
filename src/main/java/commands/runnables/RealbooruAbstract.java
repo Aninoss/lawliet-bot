@@ -11,7 +11,7 @@ public abstract class RealbooruAbstract extends PornPredefinedAbstract {
 
     @Override
     protected Set<String> getAdditionalFilters() {
-        return Set.of("anthro", "fisting", "pissing", "pee", "peeing", "piss", "doll", "what");
+        return Set.of("anthro", "fisting", "pissing", "pee", "peeing", "piss", "doll", "what", "diaper");
     }
 
     @Override
