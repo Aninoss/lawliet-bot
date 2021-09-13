@@ -249,6 +249,7 @@ public class CommandContainer {
         commandList.add(DanbooruCommand.class);
         //commandList.add(KonachanCommand.class);
         commandList.add(RealLifePornCommand.class);
+        commandList.add(RealLifeAnalCommand.class);
         commandList.add(RealLifeBoobsCommand.class);
         commandList.add(RealLifeAssCommand.class);
         commandList.add(RealLifePussy.class);
@@ -258,6 +259,7 @@ public class CommandContainer {
         commandList.add(RealLifeLesbianCommand.class);
         commandList.add(HentaiCommand.class);
         commandList.add(ThreeDHentaiCommand.class);
+        commandList.add(HentaiAnalCommand.class);
         commandList.add(HentaiBlowjobCommand.class);
         commandList.add(HentaiPussy.class);
         commandList.add(HentaiDick.class);

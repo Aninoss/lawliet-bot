@@ -28,7 +28,7 @@ public class YuriCommand extends Rule34HentaiAbstract {
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("futa"));
+        filters.addAll(Set.of("futa", "futanari"));
         return filters;
     }
 

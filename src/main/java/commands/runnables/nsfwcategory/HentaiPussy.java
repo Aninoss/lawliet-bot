@@ -33,7 +33,7 @@ public class HentaiPussy extends DanbooruAbstract {
                 "deep_penetration", "machine", "electrostimulation", "anilingus", "double_anal", "double_penetration",
                 "toy", "face_fuck", "censored", "ass", "breasts", "pregnant", "nipples", "cigarette", "cartoon",
                 "riding", "strap-on", "large_insertion", "vaginal_insertion", "gaping", "pee", "peeing", "piss",
-                "pissing", "futa", "penis"));
+                "pissing", "futa", "futanari", "penis"));
         return filters;
     }
 
