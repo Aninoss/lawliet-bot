@@ -160,14 +160,20 @@ public abstract class Command implements OnTriggerListener {
 
     public synchronized CompletableFuture<Void> redrawMessageWithoutComponents() {
         setActionRows();
-        if (drawMessage.getEmbeds().size() > 1) {
-            ArrayList<MessageEmbed> embeds = new ArrayList<>();
-            for (int i = 1; i < drawMessage.getEmbeds().size(); i++) {
-                embeds.add(drawMessage.getEmbeds().get(i));
+        if (drawMessage.getEmbeds().size() > 0) {
+            if (drawMessage.getEmbeds().size() > 1) {
+                ArrayList<MessageEmbed> embeds = new ArrayList<>();
+                for (int i = 1; i < drawMessage.getEmbeds().size(); i++) {
+                    embeds.add(drawMessage.getEmbeds().get(i));
+                }
+                setAdditionalEmbeds(embeds);
             }
-            setAdditionalEmbeds(embeds);
+            List<MessageEmbed> embeds = drawMessage.getEmbeds();
+            return drawMessage(new EmbedBuilder(embeds.get(0)))
+                    .thenApply(m -> null);
+        } else {
+            return CompletableFuture.failedFuture(new NoSuchElementException("No such embed to redraw"));
         }
-        return drawMessage(new EmbedBuilder(drawMessage.getEmbeds().get(0))).thenApply(m -> null);
     }
 
     public synchronized CompletableFuture<Long> drawMessage(EmbedBuilder eb) {
