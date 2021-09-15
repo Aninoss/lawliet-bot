@@ -234,7 +234,15 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             controlButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_BACK, TextManager.getString(getLocale(), TextManager.GENERAL, "list_back")));
         }
         if (loadComponents) {
-            actionRows = getActionRows();
+            List<ActionRow> tempActionRows = getActionRows();
+            if (tempActionRows != null &&
+                    tempActionRows.size() > 0 &&
+                    tempActionRows.get(tempActionRows.size() - 1).getComponents().stream().anyMatch(component -> BUTTON_ID_BACK.equals(component.getId()))
+            ) {
+                actionRows = tempActionRows.subList(0, tempActionRows.size() - 1);
+            } else {
+                actionRows = tempActionRows;
+            }
         }
         if (actionRows != null && actionRows.size() > 0) {
             pageMax = Math.max(0, actionRows.size() - 1) / MAX_ROWS_PER_PAGE;
