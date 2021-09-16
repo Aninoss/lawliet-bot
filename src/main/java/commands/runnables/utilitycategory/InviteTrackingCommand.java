@@ -94,6 +94,11 @@ public class InviteTrackingCommand extends NavigationAbstract {
                 setLog(LogStatus.SUCCESS, getString("pingset", inviteTrackingData.getPing()));
                 return true;
             }
+            case 3 -> {
+                inviteTrackingData.toggleAdvanced();
+                setLog(LogStatus.SUCCESS, getString("advancedset", inviteTrackingData.isAdvanced()));
+                return true;
+            }
         }
         return false;
     }
@@ -119,7 +124,8 @@ public class InviteTrackingCommand extends NavigationAbstract {
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), inviteTrackingData.isActive()), true)
                 .addField(getString("state0_mchannel"), StringUtil.escapeMarkdown(inviteTrackingData.getTextChannel().map(IMentionable::getAsMention).orElse(notSet)), true)
-                .addField(getString("state0_mping"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), inviteTrackingData.getPing()), true);
+                .addField(getString("state0_mping"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), inviteTrackingData.getPing()), true)
+                .addField(getString("state0_madvanced"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), inviteTrackingData.isAdvanced()), true);
     }
 
     @Draw(state = SET_LOGCHANNEL)

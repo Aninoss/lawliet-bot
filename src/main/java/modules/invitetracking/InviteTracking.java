@@ -63,8 +63,8 @@ public class InviteTracking {
         }
     }
 
-    public static CompletableFuture<Long> registerMemberJoin(Member member) {
-        CompletableFuture<Long> future = new CompletableFuture<>();
+    public static CompletableFuture<TempInvite> registerMemberJoin(Member member) {
+        CompletableFuture<TempInvite> future = new CompletableFuture<>();
 
         try {
             Guild guild = member.getGuild();
@@ -74,7 +74,7 @@ public class InviteTracking {
                 collectInvites(guild)
                         .thenAccept(guildInvites -> {
                             CustomObservableMap<String, GuildInvite> databaseInvites = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getGuildInvites();
-                            long inviterId = -1;
+                            TempInvite tempInvite = null;
 
                             for (TempInvite invite : guildInvites) {
                                 int inviteUses = invite.uses;
@@ -85,22 +85,22 @@ public class InviteTracking {
                                 }
 
                                 if (inviteUses > databaseUses) {
-                                    if (inviterId == -1 && inviteUses == databaseUses + 1) {
-                                        inviterId = invite.inviter;
+                                    if (tempInvite == null) {
+                                        tempInvite = invite;
                                     } else {
-                                        inviterId = -1;
+                                        tempInvite = null;
                                         break;
                                     }
                                 }
                             }
 
-                            if (inviterId != -1) {
+                            if (tempInvite != null) {
                                 CustomObservableMap<Long, InviteTrackingSlot> inviteTrackingSlots = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots();
                                 if (!inviteTrackingSlots.containsKey(member.getIdLong())) {
-                                    InviteTrackingSlot newSlot = new InviteTrackingSlot(guild.getIdLong(), member.getIdLong(), inviterId, LocalDate.now(), LocalDate.now());
+                                    InviteTrackingSlot newSlot = new InviteTrackingSlot(guild.getIdLong(), member.getIdLong(), tempInvite.inviter, LocalDate.now(), LocalDate.now());
                                     inviteTrackingSlots.put(member.getIdLong(), newSlot);
                                 }
-                                future.complete(inviterId);
+                                future.complete(tempInvite);
                             } else {
                                 future.completeExceptionally(new NoSuchElementException("No inviter found"));
                             }
@@ -189,7 +189,7 @@ public class InviteTracking {
     }
 
 
-    private static class TempInvite {
+    public static class TempInvite {
 
         private final String code;
         private final int uses;
@@ -199,6 +199,18 @@ public class InviteTracking {
             this.code = code;
             this.uses = uses;
             this.inviter = inviter;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public int getUses() {
+            return uses;
+        }
+
+        public long getInviter() {
+            return inviter;
         }
 
     }

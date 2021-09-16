@@ -21,7 +21,7 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
     @Override
     protected InviteTrackingData load(Long guildId) throws Exception {
         InviteTrackingData inviteTrackerData = MySQLManager.get(
-                "SELECT active, channelId, ping FROM InviteTracking WHERE serverId = ?;",
+                "SELECT active, channelId, ping, advanced FROM InviteTracking WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, guildId),
                 resultSet -> {
                     if (resultSet.next()) {
@@ -30,6 +30,7 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
                                 resultSet.getBoolean(1),
                                 resultSet.getLong(2),
                                 resultSet.getBoolean(3),
+                                resultSet.getBoolean(4),
                                 getInviteTrackerSlots(guildId),
                                 getGuildInvites(guildId)
                         );
@@ -39,6 +40,7 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
                                 false,
                                 null,
                                 false,
+                                true,
                                 getInviteTrackerSlots(guildId),
                                 getGuildInvites(guildId)
                         );
@@ -59,7 +61,7 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
 
     @Override
     protected void save(InviteTrackingData inviteTrackingData) {
-        MySQLManager.asyncUpdate("REPLACE INTO InviteTracking (serverId, active, channelId, ping) VALUES (?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO InviteTracking (serverId, active, channelId, ping, advanced) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, inviteTrackingData.getGuildId());
             preparedStatement.setBoolean(2, inviteTrackingData.isActive());
 
@@ -71,6 +73,7 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
             }
 
             preparedStatement.setBoolean(4, inviteTrackingData.getPing());
+            preparedStatement.setBoolean(5, inviteTrackingData.isAdvanced());
         });
     }
 

@@ -44,7 +44,6 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     private Status status = Status.ACTIVE;
     private final boolean useCalculatedMultiplicator;
     private final boolean allowBet;
-    private boolean canBeCanceled = true;
     private boolean retryRequestAdded = false;
 
     public CasinoAbstract(Locale locale, String prefix, boolean allowBet, boolean useCalculatedMultiplicator) {
@@ -200,7 +199,6 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         if (status == Status.ACTIVE) {
             if (hasCancelButton() && event.getComponentId().equals(BUTTON_ID_QUIT)) {
-                canBeCanceled = false;
                 cancel(event.getMember(), false, true);
                 return true;
             } else {
