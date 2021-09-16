@@ -406,7 +406,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         if (getState() == UPDATE_EMOJI) {
             event.getReaction().removeReaction(event.getUser()).queue();
             processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
-            return true;
+            processDraw(event.getMember(), false);
+            return false;
         }
         return false;
     }

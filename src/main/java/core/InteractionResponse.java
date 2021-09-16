@@ -45,7 +45,7 @@ public class InteractionResponse {
     }
 
     public boolean isValid() {
-        Instant interactionEnd = event.getTimeCreated().toInstant().plus(Duration.ofMinutes(15));
+        Instant interactionEnd = event.getTimeCreated().toInstant().plus(Duration.ofMinutes(14));
         return Instant.now().isBefore(interactionEnd);
     }
 

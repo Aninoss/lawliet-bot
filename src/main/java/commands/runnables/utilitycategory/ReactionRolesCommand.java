@@ -407,7 +407,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                 event.getReaction().removeReaction(event.getUser()).queue();
             }
-            return calculateEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
+            processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
+            processDraw(event.getMember(), false);
+            return false;
         }
 
         return false;
@@ -513,23 +515,6 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 multipleRoles,
                 emojiConnections
         );
-    }
-
-    private boolean calculateEmoji(String emoji) {
-        if (emoji == null || (!EmojiUtil.emojiIsUnicode(emoji) && !ShardManager.emoteIsKnown(emoji))) {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
-            return true;
-        }
-
-        for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-            if (emojiConnection.getEmojiTag().equals(emoji)) {
-                setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
-                return true;
-            }
-        }
-
-        emojiTemp = emoji;
-        return true;
     }
 
     @Draw(state = ADD_OR_EDIT)
@@ -714,12 +699,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         this.atomicTextChannel = new AtomicTextChannel(message.getGuildId(), message.getTextChannelId());
     }
 
-    private boolean giveRole(GuildMessageReactionAddEvent event) {
+    private void giveRole(GuildMessageReactionAddEvent event) {
         for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
             if (emojiConnection.isEmoji(event.getReactionEmote())) {
                 Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getGuild(), emojiConnection.getConnection());
                 if (rOpt.isEmpty()) {
-                    return true;
+                    return;
                 }
 
                 Role r = rOpt.get();
@@ -728,11 +713,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                             .reason(getCommandLanguage().getTitle())
                             .complete();
                 }
-                return true;
+                return;
             }
         }
 
-        return false;
     }
 
     private boolean removeMultipleRoles(GuildMessageReactionAddEvent event) {

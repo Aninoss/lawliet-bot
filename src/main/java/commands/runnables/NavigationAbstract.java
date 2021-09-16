@@ -220,7 +220,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return null;
     }
 
-    private CompletableFuture<Long> processDraw(Member member, boolean loadComponents) {
+    public CompletableFuture<Long> processDraw(Member member, boolean loadComponents) {
         Locale locale = getLocale();
         EmbedBuilder eb;
         try {

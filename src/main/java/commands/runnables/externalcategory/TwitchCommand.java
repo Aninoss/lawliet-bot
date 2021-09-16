@@ -113,12 +113,10 @@ public class TwitchCommand extends Command implements OnAlertListener {
         EmbedBuilder eb = getEmbed(twitchStream);
 
         if (slot.getArgs().isEmpty()) {
-            long messageId = slot.sendMessage(true, eb.build()).get(); /* always post current twitch status at first run */
-            slot.setMessageId(messageId);
+            slot.sendMessage(true, eb.build()).ifPresent(slot::setMessageId); /* always post current twitch status at first run */
         } else if (twitchStream.isLive()) {
             if (slot.getArgs().get().equals("false")) {
-                long messageId = slot.sendMessage(true, eb.build()).get(); /* post twitch status if live and not live before */
-                slot.setMessageId(messageId);
+                slot.sendMessage(true, eb.build()).ifPresent(slot::setMessageId); /* post twitch status if live and not live before */
             } else {
                 slot.editMessage(true, eb.build()); /* edit twitch status if live and live before */
             }

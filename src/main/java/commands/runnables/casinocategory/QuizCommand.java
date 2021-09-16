@@ -35,7 +35,8 @@ import org.json.JSONObject;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         deleteOnTimeOut = true,
         executableWithoutArgs = true,
-        usesExtEmotes = true
+        usesExtEmotes = true,
+        aliases = { "trivia" }
 )
 public class QuizCommand extends CasinoAbstract {
 
@@ -71,6 +72,11 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         question = StringUtil.decryptString(data.getString("question"));
+        if (question == null || question.isEmpty()) {
+            event.getChannel().sendMessageEmbeds(EmbedFactory.getApiDownEmbed(getLocale(), "opentdb.com").build())
+                    .queue();
+            return false;
+        }
 
         ArrayList<String> orderedAnswers = new ArrayList<>();
         orderedAnswers.add(StringUtil.decryptString(data.getString("correct_answer")));
