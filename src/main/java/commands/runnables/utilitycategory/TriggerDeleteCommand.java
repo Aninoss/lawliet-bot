@@ -25,7 +25,7 @@ public class TriggerDeleteCommand extends CommandOnOffSwitchAbstract {
 
     @Override
     protected boolean isActive(Member member) {
-        return DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).isCommandAuthorMessageRemove();
+        return DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively();
     }
 
     @Override

@@ -89,7 +89,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     try {
                         CommandManager.manage(event, command, args, getStartTime());
                     } catch (Throwable e) {
-                        ExceptionUtil.handleCommandException(e, command, event.getChannel());
+                        ExceptionUtil.handleCommandException(e, command);
                     }
                 }
             }
@@ -112,7 +112,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     try {
                         for (int i = 0; i < Math.min(3, messages.size()); i++) {
                             Message message = messages.get(i);
-                            MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getChannel(), message, true);
+                            MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getChannel(), event.getMessage(), message, true);
                         }
                     } catch (Throwable throwable) {
                         MainLogger.get().error("Exception in Auto Quote", throwable);

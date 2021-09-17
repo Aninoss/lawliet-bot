@@ -2,18 +2,18 @@ package commands.runnables;
 
 import java.time.Instant;
 import java.util.Locale;
+import commands.Category;
 import commands.Command;
 import commands.CommandManager;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
-import commands.Category;
-import modules.fishery.FisheryStatus;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import modules.fishery.FisheryStatus;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.gamestatistics.DBGameStatistics;
@@ -102,9 +102,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 registerMessageInputListener(event.getMember(), false);
                 return true;
             } else {
-                event.getChannel()
-                        .sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0")).build())
-                        .queue();
+                drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0")));
                 return false;
             }
         } catch (Throwable e) {

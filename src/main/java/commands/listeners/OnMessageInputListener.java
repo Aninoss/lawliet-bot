@@ -65,7 +65,7 @@ public interface OnMessageInputListener extends Drawable {
             }
         } catch (Throwable e) {
             command.getTextChannel().ifPresent(channel -> {
-                ExceptionUtil.handleCommandException(e, command, channel);
+                ExceptionUtil.handleCommandException(e, command);
             });
         }
     }
@@ -95,7 +95,7 @@ public interface OnMessageInputListener extends Drawable {
             }
             return messageInputResponse;
         } catch (Throwable e) {
-            ExceptionUtil.handleCommandException(e, command, event.getChannel());
+            ExceptionUtil.handleCommandException(e, command);
             return MessageInputResponse.ERROR;
         } finally {
             isProcessing.set(false);

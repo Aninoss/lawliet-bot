@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import core.EmbedFactory;
 import core.TextManager;
-import core.components.ActionRows;
 import core.internet.HttpHeader;
 import core.internet.HttpRequest;
 import core.utils.MentionUtil;
@@ -45,14 +44,13 @@ public abstract class DeepAIAbstract extends Command {
                     .setImage(result);
 
             Button button = Button.of(ButtonStyle.LINK, result, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"));
-            event.getChannel().sendMessageEmbeds(eb.build())
-                    .setActionRows(ActionRows.of(button))
-                    .queue();
+            setComponents(button);
+            drawMessageNew(eb);
             return true;
         }
 
         EmbedBuilder notFound = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
-        event.getChannel().sendMessageEmbeds(notFound.build()).queue();
+        drawMessageNew(notFound);
         return false;
     }
 

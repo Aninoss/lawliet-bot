@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.utils.IOUtil;
@@ -48,6 +49,8 @@ public class DiscordConnector {
         ShardManager.init(shardMin, shardMax, totalShards);
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageAction.setDefaultMentions(EnumSet.complementOf(deny));
+        MessageAction.setDefaultMentionRepliedUser(false);
+        AllowedMentions.setDefaultMentionRepliedUser(false);
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {

@@ -39,7 +39,7 @@ public abstract class MemberAccountAbstract extends Command {
     }
 
     protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) throws Throwable {
-        channel.sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb);
     }
 
     @Override

@@ -8,7 +8,6 @@ import commands.runnables.utilitycategory.TriggerDeleteCommand;
 import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import core.Program;
-import core.cache.ServerPatreonBoostCache;
 import core.schedule.MainScheduler;
 import core.utils.ExceptionUtil;
 import mysql.modules.commandusages.DBCommandUsages;
@@ -40,7 +39,7 @@ public interface OnTriggerListener {
             }
             return onTrigger(event, args);
         } catch (Throwable e) {
-            ExceptionUtil.handleCommandException(e, command, event.getChannel());
+            ExceptionUtil.handleCommandException(e, command);
             return false;
         } finally {
             isProcessing.set(false);
@@ -59,8 +58,7 @@ public interface OnTriggerListener {
 
     private void processTriggerDelete(GuildMessageReceivedEvent event) {
         GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-        if (guildBean.isCommandAuthorMessageRemove() &&
-                ServerPatreonBoostCache.get(event.getGuild().getIdLong()) &&
+        if (guildBean.isCommandAuthorMessageRemoveEffectively() &&
                 PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), TriggerDeleteCommand.class, event.getChannel(), Permission.MESSAGE_MANAGE)
         ) {
             event.getMessage().delete().queue();

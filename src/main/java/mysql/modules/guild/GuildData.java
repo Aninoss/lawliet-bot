@@ -2,6 +2,7 @@ package mysql.modules.guild;
 
 import java.util.Locale;
 import java.util.Optional;
+import core.cache.ServerPatreonBoostCache;
 import modules.fishery.FisheryStatus;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -104,6 +105,10 @@ public class GuildData extends DataWithGuild {
         return commandAuthorMessageRemove;
     }
 
+    public boolean isCommandAuthorMessageRemoveEffectively() {
+        return isCommandAuthorMessageRemove() && ServerPatreonBoostCache.get(getGuildId());
+    }
+
     public boolean hasFisheryCoinsGivenLimit() {
         return fisheryCoinsGivenLimit;
     }
@@ -190,7 +195,7 @@ public class GuildData extends DataWithGuild {
     }
 
     public void setCommandAuthorMessageRemove(boolean active) {
-        if (this.isCommandAuthorMessageRemove() != active) {
+        if (this.commandAuthorMessageRemove != active) {
             toggleCommandAuthorMessageRemove();
         }
     }

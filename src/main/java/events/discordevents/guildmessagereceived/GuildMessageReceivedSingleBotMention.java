@@ -3,6 +3,7 @@ package events.discordevents.guildmessagereceived;
 import core.ShardManager;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
+import core.utils.JDAUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
@@ -20,7 +21,7 @@ public class GuildMessageReceivedSingleBotMention extends GuildMessageReceivedAb
 
             String text = TextManager.getString(guildBean.getLocale(), TextManager.GENERAL, "bot_ping_help", guildBean.getPrefix());
             if (BotPermissionUtil.canWrite(event.getChannel())) {
-                event.getChannel().sendMessage(text).queue();
+                JDAUtil.replyMessage(event.getMessage(), text).queue();
             }
 
             return false;

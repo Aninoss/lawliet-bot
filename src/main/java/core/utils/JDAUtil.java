@@ -2,14 +2,17 @@ package core.utils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.CheckReturnValue;
 import core.ShardManager;
 import core.components.ActionRows;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class JDAUtil {
 
@@ -96,6 +99,35 @@ public class JDAUtil {
         return ShardManager.getAnyJDA().get().openPrivateChannelById(userId).flatMap(
                 channel -> channel.sendFile(file)
         );
+    }
+
+    public static MessageAction replyMessage(Message originalMessage, String content) {
+        MessageAction messageAction = originalMessage.getTextChannel().sendMessage(content);
+        messageAction = messageActionSetMessageReference(messageAction, originalMessage);
+        return messageAction;
+    }
+
+    public static MessageAction replyMessageEmbeds(Message originalMessage, List<MessageEmbed> embeds) {
+        MessageAction messageAction = originalMessage.getTextChannel().sendMessageEmbeds(embeds);
+        messageAction = messageActionSetMessageReference(messageAction, originalMessage);
+        return messageAction;
+    }
+
+    public static MessageAction replyMessageEmbeds(Message originalMessage, MessageEmbed embed, MessageEmbed... other) {
+        MessageAction messageAction = originalMessage.getTextChannel().sendMessageEmbeds(embed, other);
+        messageAction = messageActionSetMessageReference(messageAction, originalMessage);
+        return messageAction;
+    }
+
+    public static MessageAction messageActionSetMessageReference(MessageAction messageAction, Message originalMessage) {
+        return messageActionSetMessageReference(messageAction, originalMessage.getTextChannel(), originalMessage.getIdLong());
+    }
+
+    public static MessageAction messageActionSetMessageReference(MessageAction messageAction, TextChannel textChannel, long messageId) {
+        if (BotPermissionUtil.can(textChannel, Permission.MESSAGE_HISTORY)) {
+            messageAction = messageAction.referenceById(messageId);
+        }
+        return messageAction;
     }
 
 }

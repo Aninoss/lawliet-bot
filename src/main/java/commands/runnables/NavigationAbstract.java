@@ -91,7 +91,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                         .exceptionally(ExceptionLogger.get());
             }
         } catch (Throwable throwable) {
-            ExceptionUtil.handleCommandException(throwable, this, event.getTextChannel());
+            ExceptionUtil.handleCommandException(throwable, this);
         }
         return changed;
     }
@@ -278,7 +278,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                     return messageId;
                 })
                 .exceptionally(e -> {
-                    ExceptionUtil.handleCommandException(e, this, getTextChannel().get());
+                    ExceptionUtil.handleCommandException(e, this);
                     return null;
                 });
     }

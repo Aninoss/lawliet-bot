@@ -43,13 +43,11 @@ public abstract class RolePlayAbstract extends Command {
         boolean mentionPresent = !mention.getMentionText().isEmpty();
 
         if (!mentionPresent && mention.containedBlockedUser()) {
-            message.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedDefault(
-                            this,
-                            TextManager.getString(getLocale(), TextManager.GENERAL, "alone")
-                    )
-                            .setImage("https://cdn.discordapp.com/attachments/736277561373491265/736277600053493770/hug.gif").build())
-                    .queue();
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(
+                    this,
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "alone")
+            ).setImage("https://cdn.discordapp.com/attachments/736277561373491265/736277600053493770/hug.gif");
+            drawMessageNew(eb);
             return false;
         }
 
@@ -71,7 +69,7 @@ public abstract class RolePlayAbstract extends Command {
                     .setImage(gifUrl);
         }
 
-        message.getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb);
         return true;
     }
 
@@ -88,7 +86,7 @@ public abstract class RolePlayAbstract extends Command {
                 getString("template", "**" + StringUtil.escapeMarkdown(event.getMessage().getMember().getEffectiveName()) + "**") + quote
         ).setImage(gifUrl);
 
-        event.getMessage().getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb);
         return true;
     }
 

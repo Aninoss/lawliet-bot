@@ -16,10 +16,8 @@ import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
 import core.components.ActionRows;
 import core.schedule.MainScheduler;
-import core.utils.BotPermissionUtil;
-import core.utils.EmbedUtil;
-import core.utils.EmojiUtil;
-import core.utils.StringUtil;
+import core.utils.*;
+import mysql.modules.guild.DBGuild;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -33,6 +31,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.json.JSONObject;
 
 public abstract class Command implements OnTriggerListener {
@@ -93,12 +92,16 @@ public abstract class Command implements OnTriggerListener {
             loadingReactionSet = true;
 
             String reaction = EmojiUtil.getLoadingEmojiTag(message.getTextChannel());
-            message.addReaction(reaction).queue();
+            if (!DBGuild.getInstance().retrieve(message.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively()) {
+                message.addReaction(reaction).queue();
+            }
             MainScheduler.poll(100, getTrigger() + "_loading", () -> {
                 if (isProcessing.get()) {
                     return true;
                 } else {
-                    message.removeReaction(reaction).queue();
+                    if (!DBGuild.getInstance().retrieve(message.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively()) {
+                        message.removeReaction(reaction).queue();
+                    }
                     loadingReactionSet = false;
                     return false;
                 }
@@ -176,71 +179,115 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
-    public synchronized CompletableFuture<Long> drawMessage(EmbedBuilder eb) {
-        EmbedUtil.addLog(eb, logStatus, log);
+    public CompletableFuture<Long> drawMessageNew(EmbedBuilder eb) {
+        return drawMessage(eb, true);
+    }
 
+    public CompletableFuture<Long> drawMessageNew(String content) {
+        return drawMessage(content, true);
+    }
+
+    public CompletableFuture<Long> drawMessage(EmbedBuilder eb) {
+        return drawMessage(eb, false);
+    }
+
+    public CompletableFuture<Long> drawMessage(String content) {
+        return drawMessage(content, false);
+    }
+
+    private CompletableFuture<Long> drawMessage(EmbedBuilder eb, boolean newMessage) {
+        TextChannel channel = getTextChannel().get();
+        if (BotPermissionUtil.canWriteEmbed(channel)) {
+            EmbedUtil.addLog(eb, logStatus, log);
+            return drawMessage(channel, null, eb, newMessage);
+        } else {
+            return CompletableFuture.failedFuture(new PermissionException("Missing permissions"));
+        }
+    }
+
+    private CompletableFuture<Long> drawMessage(String content, boolean newMessage) {
+        return drawMessage(getTextChannel().get(), content, null, newMessage);
+    }
+
+    private synchronized CompletableFuture<Long> drawMessage(TextChannel channel, String content, EmbedBuilder eb, boolean newMessage) {
         CompletableFuture<Long> future = new CompletableFuture<>();
-        getTextChannel().ifPresentOrElse(channel -> {
+        ArrayList<MessageEmbed> embeds = new ArrayList<>();
+        try {
+            if (eb != null) {
+                embeds.add(eb.build());
+            }
             if (BotPermissionUtil.canWriteEmbed(channel)) {
-                ArrayList<MessageEmbed> embeds = new ArrayList<>();
-                try {
-                    embeds.add(eb.build());
-                    embeds.addAll(additionalEmbeds);
-                    additionalEmbeds = Collections.emptyList();
-                } catch (Throwable e) {
-                    StringBuilder sb = new StringBuilder("Embed exception with fields:");
-                    eb.getFields().forEach(field -> sb
-                            .append("\nKey: \"")
-                            .append(field.getName())
-                            .append("\"; Value: \"")
-                            .append(field.getValue())
-                            .append("\"")
-                    );
-                    MainLogger.get().error(sb.toString(), e);
-                    throw e;
-                }
+                embeds.addAll(additionalEmbeds);
+            }
+            additionalEmbeds = Collections.emptyList();
+        } catch (Throwable e) {
+            StringBuilder sb = new StringBuilder("Embed exception with fields:");
+            if (eb != null) {
+                eb.getFields().forEach(field -> sb
+                        .append("\nKey: \"")
+                        .append(field.getName())
+                        .append("\"; Value: \"")
+                        .append(field.getValue())
+                        .append("\"")
+                );
+            }
+            MainLogger.get().error(sb.toString(), e);
+            throw e;
+        }
 
-                if (actionRows == null) {
-                    actionRows = Collections.emptyList();
-                }
+        if (actionRows == null) {
+            actionRows = Collections.emptyList();
+        }
 
-                HashSet<String> usedIds = new HashSet<>();
-                for (ActionRow actionRow : actionRows) {
-                    for (Component component : actionRow.getComponents()) {
-                        if (usedIds.contains(component.getId())) {
-                            future.completeExceptionally(new Exception("Duplicate custom id \"" + component.getId() + "\""));
-                            return;
-                        }
-                        usedIds.add(component.getId());
+        HashSet<String> usedIds = new HashSet<>();
+        for (ActionRow actionRow : actionRows) {
+            for (Component component : actionRow.getComponents()) {
+                if (component.getId() != null) {
+                    if (usedIds.contains(component.getId())) {
+                        future.completeExceptionally(new Exception("Duplicate custom id \"" + component.getId() + "\""));
+                        return future;
                     }
+                    usedIds.add(component.getId());
                 }
+            }
+        }
 
-                RestAction<Message> action;
-                if (drawMessage == null) {
-                    action = channel.sendMessageEmbeds(embeds)
+        RestAction<Message> action;
+        if (drawMessage == null || newMessage) {
+            MessageAction messageAction;
+            if (content != null) {
+                messageAction = JDAUtil.replyMessage(guildMessageReceivedEvent.getMessage(), content)
+                        .setEmbeds(embeds);
+            } else {
+                messageAction = JDAUtil.replyMessageEmbeds(guildMessageReceivedEvent.getMessage(), embeds);
+            }
+            action = messageAction.setActionRows(actionRows);
+        } else {
+            if (interactionResponse != null &&
+                    interactionResponse.isValid() &&
+                    (BotPermissionUtil.canUseExternalEmojisInInteraction(channel) || !getCommandProperties().usesExtEmotes())
+            ) {
+                action = interactionResponse.editMessageEmbeds(embeds, actionRows);
+            } else {
+                if (content != null) {
+                    action = channel.editMessageById(drawMessage.getIdLong(), content)
+                            .setEmbeds(embeds)
                             .setActionRows(actionRows);
                 } else {
-                    if (interactionResponse != null &&
-                            interactionResponse.isValid() &&
-                            (BotPermissionUtil.canUseExternalEmojisInInteraction(channel) || !getCommandProperties().usesExtEmotes())
-                    ) {
-                        action = interactionResponse.editMessageEmbeds(embeds, actionRows);
-                    } else {
-                        action = channel.editMessageEmbedsById(drawMessage.getIdLong(), embeds)
-                                .setActionRows(actionRows);
-                    }
+                    action = channel.editMessageEmbedsById(drawMessage.getIdLong(), embeds)
+                            .setActionRows(actionRows);
                 }
-                action.queue(message -> {
-                    drawMessage = message;
-                    future.complete(drawMessage.getIdLong());
-                }, e -> {
-                    MainLogger.get().error("Draw exception for \"{}\"", getTrigger(), e);
-                    future.completeExceptionally(e);
-                });
-            } else {
-                future.completeExceptionally(new PermissionException("Missing permissions"));
             }
-        }, () -> future.completeExceptionally(new NoSuchElementException("No such text channel")));
+        }
+        action.queue(message -> {
+            if (!newMessage) {
+                drawMessage = message;
+            }
+            future.complete(message.getIdLong());
+        }, e -> {
+            MainLogger.get().error("Draw exception for \"{}\"", getTrigger(), e);
+            future.completeExceptionally(e);
+        });
 
         resetLog();
         return future;

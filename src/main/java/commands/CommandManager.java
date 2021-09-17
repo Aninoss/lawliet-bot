@@ -88,7 +88,7 @@ public class CommandManager {
                     maybeSendBotInvite(event, command.getLocale());
                 }
             } catch (Throwable e) {
-                ExceptionUtil.handleCommandException(e, command, event.getChannel());
+                ExceptionUtil.handleCommandException(e, command);
             } finally {
                 CommandContainer.cleanUp();
             }
@@ -106,7 +106,7 @@ public class CommandManager {
                     .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite"));
 
             Button button = Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_REMINDER_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"));
-            event.getChannel().sendMessageEmbeds(eb.build())
+            JDAUtil.replyMessageEmbeds(event.getMessage(), eb.build())
                     .setActionRows(ActionRows.of(button))
                     .queue();
         }
@@ -276,12 +276,9 @@ public class CommandManager {
 
     private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text, boolean autoDelete, Button... buttons) {
         if (BotPermissionUtil.canWrite(event.getChannel())) {
-            MessageAction messageAction = event.getChannel().sendMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
+            MessageAction messageAction = JDAUtil.replyMessage(event.getMessage(), TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
                     .setActionRows(ActionRows.of(buttons));
 
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
-                messageAction = messageAction.reference(event.getMessage());
-            }
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
             } else {
@@ -296,12 +293,9 @@ public class CommandManager {
                 eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
             }
 
-            MessageAction messageAction = event.getChannel().sendMessageEmbeds(eb.build())
+            MessageAction messageAction = JDAUtil.replyMessageEmbeds(event.getMessage(), eb.build())
                     .setActionRows(ActionRows.of(buttons));
 
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_HISTORY)) {
-                messageAction = messageAction.reference(event.getMessage());
-            }
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
             } else {

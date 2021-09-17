@@ -286,21 +286,21 @@ public class BotPermissionUtil {
         }
     }
 
-    public static <T extends GuildChannel> ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
+    public static ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
                                                                           IPermissionHolder permissionHolder, boolean allow, Permission... permissions
     ) {
         return addPermission(parentChannel, channelManager, parentChannel.getPermissionOverride(permissionHolder), allow,
                 permissionHolder instanceof Member, permissionHolder.getIdLong(), permissions);
     }
 
-    public static <T extends GuildChannel> ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
+    public static ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
                                                                           PermissionOverride permissionOverride, boolean allow, Permission... permissions
     ) {
         return addPermission(parentChannel, channelManager, permissionOverride, allow,
                 permissionOverride.isMemberOverride(), permissionOverride.getIdLong(), permissions);
     }
 
-    private static <T extends GuildChannel> ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
+    private static ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
                                                                          PermissionOverride permissionOverride, boolean allow, boolean memberOverride,
                                                                          long id, Permission... permissions
     ) {

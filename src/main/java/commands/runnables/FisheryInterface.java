@@ -23,14 +23,13 @@ public interface FisheryInterface extends OnTriggerListener {
         if (status == FisheryStatus.ACTIVE) {
             return onFisheryAccess(event, args);
         } else {
-            event.getChannel()
-                    .sendMessageEmbeds(
-                            EmbedFactory.getEmbedError(
-                                    command,
-                                    TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("{PREFIX}", command.getPrefix()),
-                                    TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_title")
-                            ).build()
-                    ).queue();
+            command.drawMessageNew(
+                    EmbedFactory.getEmbedError(
+                            command,
+                            TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("{PREFIX}", command.getPrefix()),
+                            TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_title")
+                    )
+            );
             return false;
         }
     }

@@ -93,7 +93,7 @@ public interface OnInteractionListener extends Drawable {
             }
         } catch (Throwable e) {
             command.getTextChannel().ifPresent(channel -> {
-                ExceptionUtil.handleCommandException(e, command, channel);
+                ExceptionUtil.handleCommandException(e, command);
             });
         }
 
@@ -117,7 +117,7 @@ public interface OnInteractionListener extends Drawable {
                 }
             }
         } catch (Throwable e) {
-            ExceptionUtil.handleCommandException(e, command, event.getTextChannel());
+            ExceptionUtil.handleCommandException(e, command);
         }
 
         if (command.getDrawMessage().isPresent()) {
