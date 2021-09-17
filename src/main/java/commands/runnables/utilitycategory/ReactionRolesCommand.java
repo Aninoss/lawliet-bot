@@ -600,7 +600,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             Button button = Button.of(
                     ButtonStyle.PRIMARY,
                     String.valueOf(i),
-                    new AtomicRole(getGuildId().get(), roleId).getName(),
+                    StringUtil.shortenString(new AtomicRole(getGuildId().get(), roleId).getName(), 80),
                     Emoji.fromMarkdown(emojiConnection.getEmojiTag())
             );
             buttons.add(button);
