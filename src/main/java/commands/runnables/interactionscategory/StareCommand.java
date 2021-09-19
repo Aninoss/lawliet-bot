@@ -105,7 +105,8 @@ public class StareCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736260687633842216/881902309519528006/stare.gif",
                 "https://cdn.discordapp.com/attachments/736260687633842216/881902383024734288/stare.gif",
                 "https://cdn.discordapp.com/attachments/736260687633842216/881902458861932575/stare.gif",
-                "https://cdn.discordapp.com/attachments/736260687633842216/881902518102270002/stare.gif"
+                "https://cdn.discordapp.com/attachments/736260687633842216/881902518102270002/stare.gif",
+                "https://cdn.discordapp.com/attachments/736260687633842216/887273588191789086/stare.gif"
         );
     }
 
