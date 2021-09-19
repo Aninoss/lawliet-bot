@@ -117,7 +117,7 @@ public class YouTubeMP3Command extends Command {
                     .addFile(mp3File);
         }).queue(m -> {
             mp3File.delete();
-            drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("success")))
+            drawMessage(EmbedFactory.getEmbedDefault(this, getString("success")))
                     .exceptionally(ExceptionLogger.get());
         }, e -> {
             MainLogger.get().error("Ytmp3 Error", e);
