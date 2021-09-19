@@ -12,6 +12,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
@@ -63,16 +64,15 @@ public class ClearCommand extends Command implements OnButtonListener {
 
             if (!interrupt) {
                 deregisterListenersWithComponents();
-                drawMessage(eb);
+                drawMessage(eb).exceptionally(ExceptionLogger.get());
             }
 
             event.getChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessage().getId()))
                     .queueAfter(8, TimeUnit.SECONDS);
             return true;
         } else {
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, getString("wrong_args", "2", "500")).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args", "2", "500")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
     }

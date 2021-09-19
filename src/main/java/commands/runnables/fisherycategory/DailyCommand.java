@@ -12,6 +12,7 @@ import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.cache.PatreonCache;
 import core.components.ActionRows;
 import core.utils.EmbedUtil;
@@ -81,9 +82,9 @@ public class DailyCommand extends Command implements FisheryInterface {
             );
 
             MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build();
-            event.getChannel().sendMessageEmbeds(eb.build(), userChangeValueEmbed)
-                    .setActionRows(rows)
-                    .queue();
+            setActionRows(rows);
+            setAdditionalEmbeds(userChangeValueEmbed);
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
 
             return true;
         } else {
@@ -93,7 +94,7 @@ public class DailyCommand extends Command implements FisheryInterface {
             eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
 
             eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("next", TimeFormat.DATE_TIME_SHORT.atInstant(nextDaily).toString()), false);
-            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
     }

@@ -11,11 +11,12 @@ import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
-import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.utils.EmbedUtil;
 import modules.animenews.AnimeNewsArticle;
 import modules.animenews.AnimeNewsDownloader;
+import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -41,7 +42,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
         } else {
             eb = EmbedFactory.getApiDownEmbed(getLocale(), getPrefix() + getTrigger());
         }
-        event.getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 

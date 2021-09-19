@@ -12,6 +12,7 @@ import constants.Emojis;
 import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.MentionList;
 import core.mention.MentionValue;
@@ -28,7 +29,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -54,18 +54,16 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
 
         List<TextChannel> channels = channelMention.getList();
         if (channels.size() > 1) {
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, getString("twochannels")).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("twochannels")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
         TextChannel channel = channels.size() == 0 ? event.getChannel() : channels.get(0);
         if (!BotPermissionUtil.canWriteEmbed(channel)) {
             String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, error).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, error))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -79,14 +77,14 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
                 new Permission[] { Permission.MESSAGE_WRITE }
         );
         if (missingPermissionsEmbed != null) {
-            event.getChannel().sendMessageEmbeds(missingPermissionsEmbed.build()).queue();
+            drawMessageNew(missingPermissionsEmbed)
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
         if (!BotPermissionUtil.memberCanMentionRoles(channel, event.getMember(), args)) {
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention")).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -95,16 +93,14 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         String messageText = timeMention.getFilteredArgs();
 
         if (minutes <= 0 || minutes > 999 * 24 * 60) {
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, getString("notime")).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("notime")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
         if (messageText.isEmpty()) {
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, getString("notext")).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("notext")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -114,9 +110,10 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
                 .addField(getString("content"), StringUtil.shortenString(messageText, 1024), false);
         EmbedUtil.addLog(eb, LogStatus.WARNING, getString("dontremovemessage"));
 
-        event.getChannel().sendMessageEmbeds(eb.build())
-                .setActionRows(ActionRow.of(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))))
-                .queue(message -> insertReminderBean(event.getChannel(), channel, minutes, messageText, message));
+        setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
+        drawMessageNew(eb)
+                .thenAccept(message -> insertReminderBean(event.getChannel(), channel, minutes, messageText, message))
+                .exceptionally(ExceptionLogger.get());;
 
         return true;
     }

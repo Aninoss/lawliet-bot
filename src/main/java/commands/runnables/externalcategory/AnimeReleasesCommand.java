@@ -10,14 +10,15 @@ import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
-import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.utils.EmbedUtil;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import modules.PostBundle;
 import modules.animerelease.AnimeReleasePost;
 import modules.animerelease.AnimeReleasesDownloader;
+import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -41,12 +42,12 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
 
         if (posts.getPosts().size() > 0) {
             EmbedBuilder eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), getEmbed(posts.getPosts().get(0)), getPrefix(), getTrigger());
-            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return true;
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                     .setDescription(getString("no_results", false, args));
-            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
     }

@@ -6,9 +6,9 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.ExternalLinks;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.Program;
 import core.ShardManager;
-import core.components.ActionRows;
 import core.utils.BotUtil;
 import core.utils.StringUtil;
 import mysql.modules.version.DBVersion;
@@ -70,9 +70,8 @@ public class StatsCommand extends Command {
                 ) + "\n\n" + getString("translator", dephordName, neverCookFirstName, laleName)
         );
 
-        event.getChannel().sendMessageEmbeds(eb.build())
-                .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, getString("invite"))))
-                .queue();
+        setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, getString("invite")));
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 

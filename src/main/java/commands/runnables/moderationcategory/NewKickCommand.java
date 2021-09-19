@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import commands.listeners.CommandProperties;
 import commands.Category;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.MemberCacheController;
 import core.TextManager;
 import core.mention.MentionList;
@@ -44,9 +45,8 @@ public class NewKickCommand extends WarnCommand {
         MentionValue<Long> mention = MentionUtil.getTimeMinutes(args);
         minutes = mention.getValue();
         if (minutes <= 0) {
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.MODERATION, "newkick_notime")).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.MODERATION, "newkick_notime")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 

@@ -9,10 +9,11 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import constants.Emojis;
-import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.internet.HttpCache;
 import core.utils.EmbedUtil;
+import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -40,7 +41,7 @@ public class SalmonCommand extends Command implements OnAlertListener {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         EmbedBuilder eb = getEmbed(false);
         EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
-        event.getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 

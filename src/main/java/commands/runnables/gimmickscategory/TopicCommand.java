@@ -32,7 +32,7 @@ public class TopicCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException, ExecutionException, InterruptedException {
-        event.getChannel().sendMessageEmbeds(getEmbed(event.getChannel()).build()).queue();
+        drawMessage(getEmbed(event.getChannel())).exceptionally(ExceptionLogger.get());
         return true;
     }
 

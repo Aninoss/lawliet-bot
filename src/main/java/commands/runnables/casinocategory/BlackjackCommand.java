@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
+import commands.Category;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
-import commands.Category;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
@@ -56,10 +57,6 @@ public class BlackjackCommand extends CasinoAbstract {
             }
         }
 
-        setComponents(
-                Button.of(ButtonStyle.PRIMARY, BUTTON_ID_HIT, getString("hit")),
-                Button.of(ButtonStyle.SECONDARY, BUTTON_ID_STAND, getString("stand"))
-        );
         return true;
     }
 
@@ -76,13 +73,12 @@ public class BlackjackCommand extends CasinoAbstract {
                     MainScheduler.schedule(TIME_BEFORE_END, "blackjack_player_overdrew", () -> {
                         lose(event.getMember());
                         setLog(LogStatus.LOSE, getString("toomany", 0));
-                        drawMessage(draw(event.getMember()));
+                        drawMessage(draw(event.getMember())).exceptionally(ExceptionLogger.get());
                     });
                 }
                 return true;
             } else if (event.getComponentId().equals(BUTTON_ID_STAND)) {
                 turnForPlayer = false;
-                setActionRows();
                 deregisterListeners();
 
                 setLog(LogStatus.SUCCESS, getString("stopcard", 0));
@@ -101,14 +97,14 @@ public class BlackjackCommand extends CasinoAbstract {
         getCardsForPlayer(PlayerType.DEALER).add(new GameCard());
         setLog(LogStatus.SUCCESS, getString("getcard", 1));
         cardRecentDrawn = PlayerType.DEALER;
-        drawMessage(draw(member));
+        drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
 
         int cardsValue = getCardsValue(PlayerType.DEALER);
         if (cardsValue >= 17) {
             if (cardsValue <= 21) {
                 MainScheduler.schedule(TIME_BETWEEN_EVENTS, "blackjack_cpu_stop", () -> {
                     setLog(LogStatus.SUCCESS, getString("stopcard", 1));
-                    drawMessage(draw(member));
+                    drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
 
                     MainScheduler.schedule(TIME_BEFORE_END, "blackjack_checkresults", () -> {
                         HashMap<PlayerType, Boolean> hasBlackJackMap = new HashMap<>();
@@ -122,12 +118,12 @@ public class BlackjackCommand extends CasinoAbstract {
                         if (hasBlackJackMap.get(PlayerType.PLAYER) && !hasBlackJackMap.get(PlayerType.DEALER)) {
                             win(member);
                             setLog(LogStatus.WIN, getString("blackjack", 0));
-                            drawMessage(draw(member));
+                            drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
                             return;
                         } else if (hasBlackJackMap.get(PlayerType.DEALER) && !hasBlackJackMap.get(PlayerType.PLAYER)) {
                             lose(member);
                             setLog(LogStatus.LOSE, getString("blackjack", 1));
-                            drawMessage(draw(member));
+                            drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
                             return;
                         }
 
@@ -138,15 +134,15 @@ public class BlackjackCommand extends CasinoAbstract {
 
                         if (points[0] == points[1]) {
                             endGame(member);
-                            drawMessage(draw(member));
+                            drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
                         } else if (points[0] < points[1]) {
                             win(member);
                             setLog(LogStatus.WIN, getString("21", 0));
-                            drawMessage(draw(member));
+                            drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
                         } else if (points[0] > points[1]) {
                             lose(member);
                             setLog(LogStatus.LOSE, getString("21", 1));
-                            drawMessage(draw(member));
+                            drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
                         }
                     });
                 });
@@ -154,7 +150,7 @@ public class BlackjackCommand extends CasinoAbstract {
                 MainScheduler.schedule(TIME_BEFORE_END, "blackjack_cpu_overdrew", () -> {
                     win(member);
                     setLog(LogStatus.WIN, getString("toomany", 1));
-                    drawMessage(draw(member));
+                    drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
                 });
             }
             return false;
@@ -177,6 +173,13 @@ public class BlackjackCommand extends CasinoAbstract {
                         true
                 );
         cardRecentDrawn = null;
+
+        if (turnForPlayer) {
+            setComponents(
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_HIT, getString("hit")),
+                    Button.of(ButtonStyle.SECONDARY, BUTTON_ID_STAND, getString("stand"))
+            );
+        }
 
         if (coinsInput != 0) {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));

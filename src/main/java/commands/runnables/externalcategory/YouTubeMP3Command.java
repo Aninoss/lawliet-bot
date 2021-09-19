@@ -17,7 +17,6 @@ import core.utils.EmojiUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import modules.YouTubeMeta;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
 
@@ -43,8 +42,8 @@ public class YouTubeMP3Command extends Command {
         args = args.replace("<", "").replace(">", "");
 
         if (args.isEmpty()) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build())
-                    .queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -54,17 +53,19 @@ public class YouTubeMP3Command extends Command {
 
         Optional<AudioTrackInfo> metaOpt = youTubeMeta.getFromVideoURL(args);
         if (metaOpt.isEmpty() || metaOpt.get().isStream) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), args)).build()).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), args)))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
         AudioTrackInfo meta = metaOpt.get();
         if (meta.length >= MINUTES_CAP * 60_000) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("toolong", String.valueOf(MINUTES_CAP))).build()).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("toolong", String.valueOf(MINUTES_CAP))))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
-        Message message = event.getChannel().sendMessageEmbeds(
+        drawMessage(
                 EmbedFactory.getEmbedDefault(
                         this,
                         getString(
@@ -72,8 +73,8 @@ public class YouTubeMP3Command extends Command {
                                 StringUtil.escapeMarkdownInField(meta.title),
                                 EmojiUtil.getLoadingEmojiMention(event.getChannel())
                         )
-                ).build()
-        ).complete();
+                )
+        ).exceptionally(ExceptionLogger.get());
 
         if (sendApiRequest("https://www.youtube.com/watch?v=" + meta.identifier)) {
             Pattern filePattern = Pattern.compile(String.format(".*\\[%s\\]\\.[A-Za-z0-9]*$", Pattern.quote(meta.identifier)));
@@ -82,17 +83,17 @@ public class YouTubeMP3Command extends Command {
                 List<File> validFiles = getValidFiles(new LocalFile("data/youtube-dl"), filePattern);
 
                 if (validFiles.size() == 1 && validFiles.get(0).getAbsolutePath().endsWith(".mp3")) {
-                    handleFile(event, message, meta, validFiles.get(0));
+                    handleFile(event, meta, validFiles.get(0));
                     return true;
                 }
             }
         }
 
-        event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
+        drawMessage(EmbedFactory.getEmbedError(
                 this,
                 getString("error"),
                 TextManager.getString(getLocale(), TextManager.GENERAL, "error")
-        ).build()).queue();
+        )).exceptionally(ExceptionLogger.get());
         return false;
     }
 
@@ -110,19 +111,19 @@ public class YouTubeMP3Command extends Command {
                 .orElse(false);
     }
 
-    private void handleFile(GuildMessageReceivedEvent event, Message message, AudioTrackInfo meta, File mp3File) {
+    private void handleFile(GuildMessageReceivedEvent event, AudioTrackInfo meta, File mp3File) {
         JDAUtil.sendPrivateMessage(event.getMember().getIdLong(), privateChannel -> {
             return privateChannel.sendMessage(getString("success_dm", StringUtil.escapeMarkdownInField(meta.title), StringUtil.escapeMarkdownInField(meta.author)))
                     .addFile(mp3File);
         }).queue(m -> {
             mp3File.delete();
-            message.editMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("success")).build()).queue();
+            drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("success")))
+                    .exceptionally(ExceptionLogger.get());
         }, e -> {
             MainLogger.get().error("Ytmp3 Error", e);
             mp3File.delete();
-            message.editMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_dms"), TextManager.getString(getLocale(), TextManager.GENERAL, "error")).build()
-            ).queue();
+            drawMessage(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_dms"), TextManager.getString(getLocale(), TextManager.GENERAL, "error")))
+                    .exceptionally(ExceptionLogger.get());
         });
     }
 

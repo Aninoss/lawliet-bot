@@ -9,6 +9,7 @@ import commands.listeners.CommandProperties;
 import commands.Category;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.MemberCacheController;
 import core.TextManager;
 import core.mention.Mention;
@@ -60,9 +61,8 @@ public class JailCommand extends WarnCommand {
 
         if (notManagableRoles.size() > 0) {
             Mention mention = MentionUtil.getMentionedStringOfRoles(getLocale(), notManagableRoles);
-            event.getChannel()
-                    .sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", mention.isMultiple(), mention.getMentionText())).build())
-                    .queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", mention.isMultiple(), mention.getMentionText())))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 

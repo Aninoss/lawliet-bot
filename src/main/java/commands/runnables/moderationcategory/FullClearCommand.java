@@ -5,20 +5,21 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import commands.Category;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
-import commands.Category;
 import constants.Emojis;
-import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.ClearResults;
+import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -63,7 +64,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
             if (!interrupt) {
                 deregisterListenersWithComponents();
-                drawMessage(eb);
+                drawMessage(eb).exceptionally(ExceptionLogger.get());
             }
 
             event.getChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessage().getId()))
@@ -79,9 +80,8 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
             if (StringUtil.stringIsLong(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
                 return Optional.of(Integer.parseInt(str));
             } else {
-                channel.sendMessageEmbeds(
-                        EmbedFactory.getEmbedError(this, getString("wrong_args", "0", "20159")).build()
-                ).queue();
+                drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args", "0", "20159")))
+                        .exceptionally(ExceptionLogger.get());
                 return Optional.empty();
             }
         } else {

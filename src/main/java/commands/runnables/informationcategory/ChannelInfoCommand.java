@@ -6,6 +6,7 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
@@ -64,7 +65,7 @@ public class ChannelInfoCommand extends Command {
             }
         }
 
-        event.getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 

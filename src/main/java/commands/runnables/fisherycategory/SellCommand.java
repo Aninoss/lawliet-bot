@@ -3,11 +3,12 @@ package commands.runnables.fisherycategory;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.FisheryInterface;
-import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -49,7 +50,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
                 .getMemberData(event.getMember().getIdLong());
         if (args.length() > 0) {
             boolean success = process(event.getMember(), args);
-            drawMessage(eb);
+            drawMessage(eb).exceptionally(ExceptionLogger.get());
             return success;
         } else {
             this.eb = EmbedFactory.getEmbedDefault(

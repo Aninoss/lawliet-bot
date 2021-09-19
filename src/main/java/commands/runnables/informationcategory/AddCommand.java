@@ -5,8 +5,8 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.ExternalLinks;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
-import core.components.ActionRows;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -28,9 +28,8 @@ public class AddCommand extends Command {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template"));
-        event.getChannel().sendMessageEmbeds(eb.build())
-                .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, TextManager.getString(getLocale(), TextManager.GENERAL, "invite_button"))))
-                .queue();
+        setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, TextManager.getString(getLocale(), TextManager.GENERAL, "invite_button")));
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 

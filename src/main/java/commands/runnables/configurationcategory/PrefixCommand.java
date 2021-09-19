@@ -4,6 +4,7 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
@@ -49,20 +50,21 @@ public class PrefixCommand extends Command {
                             .queue();
                 }
 
-                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("changed", args)).build()).queue();
+                drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("changed", args)))
+                        .exceptionally(ExceptionLogger.get());
                 return true;
             } else {
-                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
+                drawMessageNew(EmbedFactory.getEmbedError(
                         this,
                         TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "5")
-                ).build()).queue();
+                )).exceptionally(ExceptionLogger.get());
                 return false;
             }
         } else {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
+            drawMessageNew(EmbedFactory.getEmbedError(
                     this,
                     getString("no_arg")
-            ).build()).queue();
+            )).exceptionally(ExceptionLogger.get());
             return false;
         }
     }

@@ -9,6 +9,7 @@ import java.util.function.Function;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
+import core.ExceptionLogger;
 import core.MainLogger;
 import core.MemberCacheController;
 import core.RestActionQueue;
@@ -17,6 +18,7 @@ import core.utils.EmojiUtil;
 import core.utils.ExceptionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
@@ -74,7 +76,9 @@ public interface OnReactionListener extends Drawable {
             if (command.getDrawMessageId().isEmpty()) {
                 EmbedBuilder eb = draw(member);
                 if (eb != null) {
-                    return command.drawMessage(eb);
+                    return command.drawMessage(eb)
+                            .thenApply(ISnowflake::getIdLong)
+                            .exceptionally(ExceptionLogger.get());
                 }
             } else {
                 return CompletableFuture.completedFuture(command.getDrawMessageId().get());
@@ -136,7 +140,8 @@ public interface OnReactionListener extends Drawable {
                 CommandContainer.refreshListeners(command);
                 EmbedBuilder eb = draw(event.getMember());
                 if (eb != null) {
-                    ((Command) this).drawMessage(eb);
+                    ((Command) this).drawMessage(eb)
+                            .exceptionally(ExceptionLogger.get());
                 }
             }
         } catch (Throwable e) {

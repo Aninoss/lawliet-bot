@@ -6,6 +6,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Emojis;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.RandomPicker;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
@@ -29,13 +30,13 @@ public class FortuneCommand extends Command {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         Message message = event.getMessage();
         if (args.length() > 0) {
-            event.getChannel().sendMessageEmbeds(getEmbed(message, args).build()).queue();
+            drawMessageNew(getEmbed(message, args)).exceptionally(ExceptionLogger.get());
             return true;
         } else {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
+            drawMessageNew(EmbedFactory.getEmbedError(
                     this,
                     getString("no_arg")
-            ).build()).queue();
+            )).exceptionally(ExceptionLogger.get());
             return false;
         }
     }

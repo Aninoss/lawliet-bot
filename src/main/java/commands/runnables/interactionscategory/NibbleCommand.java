@@ -7,6 +7,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.AssetIds;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.RandomPicker;
 import core.TextManager;
 import core.mention.MentionList;
@@ -52,7 +53,7 @@ public class NibbleCommand extends Command {
         List<Member> userList = userMention.getList();
         if (userList.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions"));
-            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
         Member user1 = userList.get(0);
@@ -62,7 +63,7 @@ public class NibbleCommand extends Command {
                 AssetIds.OWNER_USER_ID != user0.getIdLong()
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_user"));
-            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -75,7 +76,7 @@ public class NibbleCommand extends Command {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", user0.getEffectiveName(), user1.getEffectiveName(), text))
                 .setImage(gifUrl);
-        event.getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
 
         return true;
     }

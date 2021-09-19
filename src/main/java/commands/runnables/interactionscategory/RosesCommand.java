@@ -7,12 +7,12 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.AssetIds;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.RandomPicker;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -47,14 +47,13 @@ public class RosesCommand extends Command {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        Guild guild = event.getGuild();
         Member user0 = event.getMember();
 
         MentionList<Member> userMention = MentionUtil.getMembers(event.getMessage(), args);
         List<Member> userList = userMention.getList();
         if (userList.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions"));
-            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
         Member user1 = userList.get(0);
@@ -64,14 +63,14 @@ public class RosesCommand extends Command {
                 AssetIds.OWNER_USER_ID != user0.getIdLong()
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_user"));
-            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
 
         int index = pickRosesIndex(args);
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", index, user0.getEffectiveName(), user1.getEffectiveName()))
                 .setImage(getGifForIndex(index, user0.getIdLong() == SEELE_USER_ID));
-        event.getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
 
         return true;
     }

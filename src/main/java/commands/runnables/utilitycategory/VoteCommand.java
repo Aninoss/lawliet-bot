@@ -3,6 +3,7 @@ package commands.runnables.utilitycategory;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticReactionAddListener;
@@ -10,6 +11,7 @@ import commands.listeners.OnStaticReactionRemoveListener;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.QuickUpdater;
 import core.RestActionQueue;
 import core.cache.VoteCache;
@@ -43,7 +45,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         args = args.replace("\n", "").trim();
         if (args.startsWith("|")) args = args.substring(1);
         String[] argsParts = args.split("\\|");
@@ -51,8 +53,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
             String topic = argsParts[0].trim();
 
             if (topic.length() == 0) {
-                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("no_topic")).build())
-                        .queue();
+                drawMessageNew(EmbedFactory.getEmbedError(this, getString("no_topic"))).exceptionally(ExceptionLogger.get());
                 return false;
             } else {
                 String[] answers = new String[argsParts.length - 1];
@@ -64,7 +65,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
                 VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMember().getIdLong());
                 EmbedBuilder eb = getEmbed(voteInfo, true);
-                Message message = event.getChannel().sendMessageEmbeds(eb.build()).complete();
+                Message message = drawMessageNew(eb).get();
                 registerStaticReactionMessage(message);
                 VoteCache.put(message.getIdLong(), voteInfo);
 
@@ -78,8 +79,8 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
                 return true;
             }
         } else {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("wrong_args")).build())
-                    .queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
     }

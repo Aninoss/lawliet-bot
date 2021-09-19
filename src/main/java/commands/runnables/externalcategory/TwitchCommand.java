@@ -9,11 +9,12 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import constants.Emojis;
-import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
+import modules.schedulers.AlertResponse;
 import modules.twitch.TwitchDownloader;
 import modules.twitch.TwitchStream;
 import modules.twitch.TwitchUser;
@@ -39,8 +40,8 @@ public class TwitchCommand extends Command implements OnAlertListener {
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException {
         if (args.isEmpty()) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build())
-                    .queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -50,12 +51,12 @@ public class TwitchCommand extends Command implements OnAlertListener {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(TextManager.getNoResultsString(getLocale(), args));
-            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
 
         EmbedBuilder eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), getEmbed(streamOpt.get()), getPrefix(), getTrigger());
-        event.getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 

@@ -7,6 +7,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.EmbedUtil;
@@ -43,7 +44,8 @@ public class GiveCommand extends Command implements FisheryInterface {
         list.removeIf(member -> member.getUser().isBot() || member.getIdLong() == event.getMember().getIdLong());
 
         if (list.size() == 0) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")).build()).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -63,8 +65,8 @@ public class GiveCommand extends Command implements FisheryInterface {
                 value = cap;
                 limitCapped = true;
             } else {
-                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdown(user1.getEffectiveName()))).build())
-                        .queue();
+                drawMessageNew(EmbedFactory.getEmbedError(this, getString("cap_reached", StringUtil.escapeMarkdown(user1.getEffectiveName()))))
+                        .exceptionally(ExceptionLogger.get());
                 return false;
             }
         }
@@ -93,20 +95,20 @@ public class GiveCommand extends Command implements FisheryInterface {
                     EmbedUtil.addLog(eb, LogStatus.WARNING, getString("cap_reached", StringUtil.escapeMarkdownInField(user1.getEffectiveName())));
                 }
 
-                event.getChannel().sendMessageEmbeds(eb.build()).queue();
+                drawMessageNew(eb).exceptionally(ExceptionLogger.get());
                 return true;
             } else {
                 if (fisheryUser0.getCoins() <= 0) {
-                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("nocoins")).build())
-                            .queue();
+                    drawMessageNew(EmbedFactory.getEmbedError(this, getString("nocoins")))
+                            .exceptionally(ExceptionLogger.get());
                 } else {
-                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")).build())
-                            .queue();
+                    drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")))
+                            .exceptionally(ExceptionLogger.get());
                 }
             }
         } else {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")).build())
-                    .queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")))
+                    .exceptionally(ExceptionLogger.get());
         }
 
         return false;

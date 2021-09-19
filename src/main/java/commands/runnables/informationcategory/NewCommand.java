@@ -10,6 +10,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import constants.AssetIds;
+import core.ExceptionLogger;
 import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
 import core.TextManager;
@@ -45,7 +46,8 @@ public class NewCommand extends Command implements OnAlertListener {
         // without args
         if (args.length() == 0) {
             List<VersionSlot> versions = versionData.getCurrentVersions(1);
-            event.getChannel().sendMessageEmbeds(getEmbedNormal(event.getMember(), versions, true).build()).queue();
+            drawMessageNew(getEmbedNormal(event.getMember(), versions, true))
+                    .exceptionally(ExceptionLogger.get());
             return true;
         } else {
             // number
@@ -54,20 +56,17 @@ public class NewCommand extends Command implements OnAlertListener {
                 if (i >= 1) {
                     if (i <= 10) {
                         List<VersionSlot> versions = versionData.getCurrentVersions(i);
-                        event.getChannel().sendMessageEmbeds(
-                                getEmbedNormal(event.getMember(), versions, false).build()
-                        ).queue();
+                        drawMessageNew(getEmbedNormal(event.getMember(), versions, false))
+                                .exceptionally(ExceptionLogger.get());
                         return true;
                     } else {
-                        event.getChannel().sendMessageEmbeds(
-                                EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_large", "10")).build()
-                        ).queue();
+                        drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_large", "10")))
+                                .exceptionally(ExceptionLogger.get());
                         return false;
                     }
                 } else {
-                    event.getChannel().sendMessageEmbeds(
-                            EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")).build()
-                    ).queue();
+                    drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "1")))
+                            .exceptionally(ExceptionLogger.get());
                     return false;
                 }
             } else {
@@ -75,14 +74,12 @@ public class NewCommand extends Command implements OnAlertListener {
                 List<VersionSlot> versions = versionData.getSlots().stream().filter(slot -> askVersions.contains(slot.getVersion())).collect(Collectors.toList());
 
                 if (versions.size() > 0) {
-                    event.getChannel().sendMessageEmbeds(
-                            getEmbedNormal(event.getMember(), versions, false).build()
-                    ).queue();
+                    drawMessageNew(getEmbedNormal(event.getMember(), versions, false))
+                            .exceptionally(ExceptionLogger.get());
                     return true;
                 } else {
-                    event.getChannel().sendMessageEmbeds(
-                            EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), args)).build()
-                    ).queue();
+                    drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), args)))
+                            .exceptionally(ExceptionLogger.get());
                     return false;
                 }
             }

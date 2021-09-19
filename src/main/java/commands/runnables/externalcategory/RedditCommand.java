@@ -5,12 +5,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import commands.Category;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
-import commands.Category;
-import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.components.ActionRows;
 import core.utils.EmbedUtil;
@@ -19,6 +19,7 @@ import core.utils.StringUtil;
 import modules.PostBundle;
 import modules.reddit.RedditDownloader;
 import modules.reddit.RedditPost;
+import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -57,7 +58,8 @@ public class RedditCommand extends Command implements OnAlertListener {
         }
 
         if (args.length() == 0) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")).build()).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         } else {
             RedditPost post;
@@ -68,21 +70,20 @@ public class RedditCommand extends Command implements OnAlertListener {
 
             if (post != null) {
                 if (post.isNsfw() && !event.getChannel().isNSFW()) {
-                    event.getChannel().sendMessageEmbeds(EmbedFactory.getNSFWBlockEmbed(getLocale()).build())
-                            .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())))
-                            .queue();
+                    setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
+                    drawMessageNew(EmbedFactory.getNSFWBlockEmbed(getLocale())).exceptionally(ExceptionLogger.get());
                     return false;
                 }
 
                 EmbedBuilder eb = getEmbed(post);
                 EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
-                event.getChannel().sendMessageEmbeds(eb.build()).queue();
+                drawMessageNew(eb).exceptionally(ExceptionLogger.get());
                 return true;
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                         .setDescription(TextManager.getNoResultsString(getLocale(), args));
-                event.getChannel().sendMessageEmbeds(eb.build()).queue();
+                drawMessageNew(eb).exceptionally(ExceptionLogger.get());
                 return false;
             }
         }

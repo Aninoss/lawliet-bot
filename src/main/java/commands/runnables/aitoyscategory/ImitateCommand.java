@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.*;
@@ -59,7 +60,7 @@ public class ImitateCommand extends Command {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
         }
 
-        drawMessage(eb);
+        drawMessage(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 

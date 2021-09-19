@@ -1,5 +1,6 @@
 package commands;
 
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -56,6 +57,8 @@ public abstract class Command implements OnTriggerListener {
     private boolean canHaveTimeOut = true;
     private List<ActionRow> actionRows = Collections.emptyList();
     private List<MessageEmbed> additionalEmbeds = Collections.emptyList();
+    private final Map<String, InputStream> fileAttachmentMap = new HashMap<>();
+    private Collection<Message.MentionType> allowedMentions = MessageAction.getDefaultMentions();
     private String memberEffectiveName;
     private String memberMention;
     private String memberEffectiveAvatarUrl;
@@ -117,6 +120,14 @@ public abstract class Command implements OnTriggerListener {
         this.additionalEmbeds = additionalEmbeds;
     }
 
+    public void addFileAttachment(InputStream data, String name) {
+        this.fileAttachmentMap.put(name, data);
+    }
+
+    public void setAllowedMentions(Collection<Message.MentionType> allowedMentions) {
+        this.allowedMentions = allowedMentions;
+    }
+
     public void setActionRows(ActionRow... actionRows) {
         this.actionRows = List.of(actionRows);
     }
@@ -161,41 +172,23 @@ public abstract class Command implements OnTriggerListener {
         return buttonList;
     }
 
-    public synchronized CompletableFuture<Void> redrawMessageWithoutComponents() {
-        setActionRows();
-        if (drawMessage.getEmbeds().size() > 0) {
-            if (drawMessage.getEmbeds().size() > 1) {
-                ArrayList<MessageEmbed> embeds = new ArrayList<>();
-                for (int i = 1; i < drawMessage.getEmbeds().size(); i++) {
-                    embeds.add(drawMessage.getEmbeds().get(i));
-                }
-                setAdditionalEmbeds(embeds);
-            }
-            List<MessageEmbed> embeds = drawMessage.getEmbeds();
-            return drawMessage(new EmbedBuilder(embeds.get(0)))
-                    .thenApply(m -> null);
-        } else {
-            return CompletableFuture.failedFuture(new NoSuchElementException("No such embed to redraw"));
-        }
-    }
-
-    public CompletableFuture<Long> drawMessageNew(EmbedBuilder eb) {
+    public CompletableFuture<Message> drawMessageNew(EmbedBuilder eb) {
         return drawMessage(eb, true);
     }
 
-    public CompletableFuture<Long> drawMessageNew(String content) {
+    public CompletableFuture<Message> drawMessageNew(String content) {
         return drawMessage(content, true);
     }
 
-    public CompletableFuture<Long> drawMessage(EmbedBuilder eb) {
+    public CompletableFuture<Message> drawMessage(EmbedBuilder eb) {
         return drawMessage(eb, false);
     }
 
-    public CompletableFuture<Long> drawMessage(String content) {
+    public CompletableFuture<Message> drawMessage(String content) {
         return drawMessage(content, false);
     }
 
-    private CompletableFuture<Long> drawMessage(EmbedBuilder eb, boolean newMessage) {
+    private CompletableFuture<Message> drawMessage(EmbedBuilder eb, boolean newMessage) {
         TextChannel channel = getTextChannel().get();
         if (BotPermissionUtil.canWriteEmbed(channel)) {
             EmbedUtil.addLog(eb, logStatus, log);
@@ -205,92 +198,104 @@ public abstract class Command implements OnTriggerListener {
         }
     }
 
-    private CompletableFuture<Long> drawMessage(String content, boolean newMessage) {
+    private CompletableFuture<Message> drawMessage(String content, boolean newMessage) {
         return drawMessage(getTextChannel().get(), content, null, newMessage);
     }
 
-    private synchronized CompletableFuture<Long> drawMessage(TextChannel channel, String content, EmbedBuilder eb, boolean newMessage) {
-        CompletableFuture<Long> future = new CompletableFuture<>();
-        ArrayList<MessageEmbed> embeds = new ArrayList<>();
+    private synchronized CompletableFuture<Message> drawMessage(TextChannel channel, String content, EmbedBuilder eb, boolean newMessage) {
         try {
-            if (eb != null) {
-                embeds.add(eb.build());
+            CompletableFuture<Message> future = new CompletableFuture<>();
+            ArrayList<MessageEmbed> embeds = new ArrayList<>();
+            try {
+                if (eb != null) {
+                    embeds.add(eb.build());
+                }
+                if (BotPermissionUtil.canWriteEmbed(channel)) {
+                    embeds.addAll(additionalEmbeds);
+                }
+            } catch (Throwable e) {
+                StringBuilder sb = new StringBuilder("Embed exception with fields:");
+                if (eb != null) {
+                    eb.getFields().forEach(field -> sb
+                            .append("\nKey: \"")
+                            .append(field.getName())
+                            .append("\"; Value: \"")
+                            .append(field.getValue())
+                            .append("\"")
+                    );
+                }
+                MainLogger.get().error(sb.toString(), e);
+                throw e;
             }
-            if (BotPermissionUtil.canWriteEmbed(channel)) {
-                embeds.addAll(additionalEmbeds);
-            }
-            additionalEmbeds = Collections.emptyList();
-        } catch (Throwable e) {
-            StringBuilder sb = new StringBuilder("Embed exception with fields:");
-            if (eb != null) {
-                eb.getFields().forEach(field -> sb
-                        .append("\nKey: \"")
-                        .append(field.getName())
-                        .append("\"; Value: \"")
-                        .append(field.getValue())
-                        .append("\"")
-                );
-            }
-            MainLogger.get().error(sb.toString(), e);
-            throw e;
-        }
 
-        if (actionRows == null) {
-            actionRows = Collections.emptyList();
-        }
+            if (actionRows == null) {
+                actionRows = Collections.emptyList();
+            }
 
-        HashSet<String> usedIds = new HashSet<>();
-        for (ActionRow actionRow : actionRows) {
-            for (Component component : actionRow.getComponents()) {
-                if (component.getId() != null) {
-                    if (usedIds.contains(component.getId())) {
-                        future.completeExceptionally(new Exception("Duplicate custom id \"" + component.getId() + "\""));
-                        return future;
+            HashSet<String> usedIds = new HashSet<>();
+            for (ActionRow actionRow : actionRows) {
+                for (Component component : actionRow.getComponents()) {
+                    if (component.getId() != null) {
+                        if (usedIds.contains(component.getId())) {
+                            future.completeExceptionally(new Exception("Duplicate custom id \"" + component.getId() + "\""));
+                            return future;
+                        }
+                        usedIds.add(component.getId());
                     }
-                    usedIds.add(component.getId());
                 }
             }
-        }
 
-        RestAction<Message> action;
-        if (drawMessage == null || newMessage) {
-            MessageAction messageAction;
-            if (content != null) {
-                messageAction = JDAUtil.replyMessage(guildMessageReceivedEvent.getMessage(), content)
-                        .setEmbeds(embeds);
-            } else {
-                messageAction = JDAUtil.replyMessageEmbeds(guildMessageReceivedEvent.getMessage(), embeds);
-            }
-            action = messageAction.setActionRows(actionRows);
-        } else {
-            if (interactionResponse != null &&
-                    interactionResponse.isValid() &&
-                    (BotPermissionUtil.canUseExternalEmojisInInteraction(channel) || !getCommandProperties().usesExtEmotes())
-            ) {
-                action = interactionResponse.editMessageEmbeds(embeds, actionRows);
-            } else {
+            RestAction<Message> action;
+            if (drawMessage == null || newMessage) {
+                MessageAction messageAction;
                 if (content != null) {
-                    action = channel.editMessageById(drawMessage.getIdLong(), content)
-                            .setEmbeds(embeds)
-                            .setActionRows(actionRows);
+                    messageAction = JDAUtil.replyMessage(guildMessageReceivedEvent.getMessage(), content)
+                            .setEmbeds(embeds);
                 } else {
-                    action = channel.editMessageEmbedsById(drawMessage.getIdLong(), embeds)
-                            .setActionRows(actionRows);
+                    messageAction = JDAUtil.replyMessageEmbeds(guildMessageReceivedEvent.getMessage(), embeds);
+                }
+                if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
+                    if (fileAttachmentMap.size() > 0) {
+                        for (String fileName : fileAttachmentMap.keySet()) {
+                            messageAction = messageAction.addFile(fileAttachmentMap.get(fileName), fileName);
+                        }
+                    }
+                }
+                messageAction = messageAction.allowedMentions(allowedMentions);
+                action = messageAction.setActionRows(actionRows);
+            } else {
+                if (interactionResponse != null &&
+                        interactionResponse.isValid() &&
+                        (BotPermissionUtil.canUseExternalEmojisInInteraction(channel) || !getCommandProperties().usesExtEmotes())
+                ) {
+                    action = interactionResponse.editMessageEmbeds(embeds, actionRows);
+                } else {
+                    if (content != null) {
+                        action = channel.editMessageById(drawMessage.getIdLong(), content)
+                                .setEmbeds(embeds)
+                                .setActionRows(actionRows)
+                                .allowedMentions(allowedMentions);
+                    } else {
+                        action = channel.editMessageEmbedsById(drawMessage.getIdLong(), embeds)
+                                .allowedMentions(allowedMentions)
+                                .setActionRows(actionRows);
+                    }
                 }
             }
-        }
-        action.queue(message -> {
-            if (!newMessage) {
-                drawMessage = message;
-            }
-            future.complete(message.getIdLong());
-        }, e -> {
-            MainLogger.get().error("Draw exception for \"{}\"", getTrigger(), e);
-            future.completeExceptionally(e);
-        });
+            action.queue(message -> {
+                if (!newMessage) {
+                    drawMessage = message;
+                }
+                future.complete(message);
+            }, e -> {
+                MainLogger.get().error("Draw exception for \"{}\"", getTrigger(), e);
+                future.completeExceptionally(e);
+            });
 
-        resetLog();
-        return future;
+            return future;
+        } finally {
+            resetDrawState();
+        }
     }
 
     public void resetDrawMessage() {
@@ -322,9 +327,13 @@ public abstract class Command implements OnTriggerListener {
         this.logStatus = logStatus;
     }
 
-    public void resetLog() {
+    public void resetDrawState() {
         this.log = "";
         this.logStatus = null;
+        this.actionRows = Collections.emptyList();
+        this.additionalEmbeds = Collections.emptyList();
+        this.fileAttachmentMap.clear();
+        this.allowedMentions = MessageAction.getDefaultMentions();
     }
 
     public void registerStaticReactionMessage(Message message) {

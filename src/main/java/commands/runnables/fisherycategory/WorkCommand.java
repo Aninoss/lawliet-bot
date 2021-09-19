@@ -6,17 +6,18 @@ import java.util.Optional;
 import java.util.Random;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
-import modules.fishery.FisheryGear;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
+import modules.fishery.FisheryGear;
 import mysql.modules.autowork.DBAutoWork;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -57,7 +58,6 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
         Optional<Instant> nextWork = fisheryMemberBean.checkNextWork();
         if (nextWork.isEmpty()) {
             setArea();
-            setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             registerButtonListener(event.getMember());
             registerMessageInputListener(event.getMember(), false);
             return true;
@@ -71,7 +71,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
             }
 
             eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("next", TimeFormat.RELATIVE.atInstant(nextWork.get()).toString()), false);
-            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
     }
@@ -124,6 +124,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, areaBuilder.toString());
         if (active) {
             eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("instructions", StringUtil.escapeMarkdown(member.getEffectiveName()), EMOJIS[fishFocus]), false);
+            setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
         }
 
         return eb;

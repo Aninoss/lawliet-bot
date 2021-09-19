@@ -4,6 +4,7 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -43,13 +44,9 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
         }
 
         if (size > entriesPerPage) {
-            setComponents(
-                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
-                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"))
-            );
             registerButtonListener(member);
         } else {
-            drawMessage(draw(member));
+            drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
         }
     }
 
@@ -75,6 +72,13 @@ public abstract class ListAbstract extends Command implements OnButtonListener {
         for (int i = page * entriesPerPage; i < size && eb.getFields().size() < entriesPerPage; i++) {
             Pair<String, String> entry = getEntry(i);
             eb.addField(entry.getKey(), entry.getValue(), false);
+        }
+
+        if (size > entriesPerPage) {
+            setComponents(
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"))
+            );
         }
 
         eb = postProcessEmbed(eb);

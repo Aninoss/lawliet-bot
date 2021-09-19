@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.RandomPicker;
 import core.mention.Mention;
 import core.utils.MentionUtil;
@@ -78,7 +79,7 @@ public class CelebrateCommand extends Command {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, text)
                 .setImage(gifUrl);
-        event.getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
     }
 
 }

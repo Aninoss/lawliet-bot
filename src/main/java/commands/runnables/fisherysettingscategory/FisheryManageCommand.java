@@ -12,6 +12,7 @@ import constants.Emojis;
 import constants.LogStatus;
 import constants.Settings;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
@@ -68,8 +69,8 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         });
 
         if (list.isEmpty()) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")).build())
-                    .queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -97,20 +98,20 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
             } else if (type == 3 + FisheryGear.values().length) {
                 fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
-                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag())).build())
-                        .queue();
+                drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag())))
+                        .exceptionally(ExceptionLogger.get());
                 return true;
             } else {
                 String amountString = args.substring(typeString.length()).trim();
                 String valueBefore = valueOfProperty(type);
                 if (updateValues(type, amountString)) {
                     String valueNow = valueOfProperty(type);
-                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, getString("set", fisheryMemberGroup.getAsTag(), emojiOfProperty(type), valueBefore, valueNow)).build())
-                            .queue();
+                    drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("set", fisheryMemberGroup.getAsTag(), emojiOfProperty(type), valueBefore, valueNow)))
+                            .exceptionally(ExceptionLogger.get());
                     return true;
                 } else {
-                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")).build())
-                            .queue();
+                    drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")))
+                            .exceptionally(ExceptionLogger.get());
                     return false;
                 }
             }

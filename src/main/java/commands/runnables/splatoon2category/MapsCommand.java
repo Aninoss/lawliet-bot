@@ -9,6 +9,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import constants.Emojis;
+import core.ExceptionLogger;
 import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
 import core.internet.HttpCache;
@@ -39,7 +40,7 @@ public class MapsCommand extends Command implements OnAlertListener {
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
         EmbedBuilder eb = getEmbed(false);
         EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
-        event.getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 

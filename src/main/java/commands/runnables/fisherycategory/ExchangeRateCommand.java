@@ -7,8 +7,8 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
-import modules.schedulers.AlertResponse;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.cache.PatreonCache;
 import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
@@ -17,6 +17,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.fishery.ExchangeRate;
 import modules.fishery.Fishery;
+import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -49,7 +50,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
             registerButtonListener(event.getMember());
         } else {
             textInclude = getString("forecast_patreon");
-            drawMessage(generateEmbed(false));
+            drawMessage(generateEmbed(false)).exceptionally(ExceptionLogger.get());
         }
         return true;
     }

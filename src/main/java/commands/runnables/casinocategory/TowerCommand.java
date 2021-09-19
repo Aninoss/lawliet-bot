@@ -42,10 +42,6 @@ public class TowerCommand extends CasinoAbstract {
     @Override
     public boolean onGameStart(GuildMessageReceivedEvent event, String args) {
         showMoreText = true;
-        setComponents(
-                Button.of(ButtonStyle.PRIMARY, "0", getString("raise", StringUtil.doubleToString(MULTIPLIER_STEP, 2, getLocale()))),
-                Button.of(ButtonStyle.SECONDARY, "1", getString("sell"))
-        );
         return true;
     }
 
@@ -100,6 +96,13 @@ public class TowerCommand extends CasinoAbstract {
                 StringUtil.numToString(coinsInput),
                 StringUtil.doubleToString(towerMultiplier, 2, getLocale())
         ), false);
+
+        if (getStatus() == Status.ACTIVE) {
+            setComponents(
+                    Button.of(ButtonStyle.PRIMARY, "0", getString("raise", StringUtil.doubleToString(MULTIPLIER_STEP, 2, getLocale()))),
+                    Button.of(ButtonStyle.SECONDARY, "1", getString("sell"))
+            );
+        }
 
         showMoreText = false;
         crashed = false;

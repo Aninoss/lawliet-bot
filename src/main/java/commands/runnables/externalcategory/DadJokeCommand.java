@@ -7,10 +7,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Language;
-import core.EmbedFactory;
-import core.FileManager;
-import core.LocalFile;
-import core.RandomPicker;
+import core.*;
 import core.internet.HttpRequest;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
@@ -43,7 +40,7 @@ public class DadJokeCommand extends Command {
                     .getString("text");
         }
 
-        event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedDefault(this, joke).build()).queue();
+        drawMessageNew(EmbedFactory.getEmbedDefault(this, joke)).exceptionally(ExceptionLogger.get());
         return true;
     }
 

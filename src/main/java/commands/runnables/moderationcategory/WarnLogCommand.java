@@ -6,6 +6,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -71,14 +72,10 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
     @Override
     protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
         if (warningSlots.size() > ENTRIES_PER_PAGE) {
-            setComponents(
-                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
-                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"))
-            );
             ebCache = eb;
             registerButtonListener(member);
         } else {
-            drawMessage(eb);
+            drawMessage(eb).exceptionally(ExceptionLogger.get());
         }
     }
 
@@ -129,6 +126,13 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
                 StringUtil.numToString(serverWarningsData.getWarnings().size())
         ), false);
         setFooter(eb);
+
+        if (warningSlots.size() > ENTRIES_PER_PAGE) {
+            setComponents(
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"))
+            );
+        }
 
         return eb;
     }

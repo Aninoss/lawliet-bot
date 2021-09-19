@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.RandomPicker;
 import core.utils.MentionUtil;
 import modules.graphics.ShipGraphics;
@@ -42,8 +43,8 @@ public class ShipCommand extends Command {
         }
 
         if (list.size() != 2) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("not_2")).build())
-                    .queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("not_2")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -65,17 +66,16 @@ public class ShipCommand extends Command {
         addLoadingReactionInstantly();
         InputStream is = ShipGraphics.createImageShip(list.get(0).getUser(), list.get(1).getUser(), n, percentage);
         if (is == null) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("noavatar")).build()).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("noavatar")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setImage("attachment://ship.png");
 
-        event.getChannel().sendMessageEmbeds(eb.build())
-                .addFile(is, "ship.png")
-                .queue();
-
+        addFileAttachment(is, "ship.png");
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 

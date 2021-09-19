@@ -273,9 +273,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         }
 
         return drawMessage(eb)
-                .thenApply(messageId -> {
+                .thenApply(message -> {
                     setActionRows();
-                    return messageId;
+                    return message.getIdLong();
                 })
                 .exceptionally(e -> {
                     ExceptionUtil.handleCommandException(e, this);

@@ -5,6 +5,7 @@ import java.util.function.Function;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
+import core.ExceptionLogger;
 import core.MainLogger;
 import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
@@ -60,7 +61,8 @@ public interface OnMessageInputListener extends Drawable {
             if (draw && command.getDrawMessageId().isEmpty()) {
                 EmbedBuilder eb = draw(member);
                 if (eb != null) {
-                    command.drawMessage(eb);
+                    command.drawMessage(eb)
+                            .exceptionally(ExceptionLogger.get());
                 }
             }
         } catch (Throwable e) {
@@ -90,7 +92,8 @@ public interface OnMessageInputListener extends Drawable {
 
                 EmbedBuilder eb = draw(event.getMember());
                 if (eb != null) {
-                    ((Command) this).drawMessage(eb);
+                    ((Command) this).drawMessage(eb)
+                            .exceptionally(ExceptionLogger.get());
                 }
             }
             return messageInputResponse;

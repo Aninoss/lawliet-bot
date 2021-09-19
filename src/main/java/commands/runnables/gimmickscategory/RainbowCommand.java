@@ -6,8 +6,8 @@ import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
-import core.components.ActionRows;
 import core.utils.StringUtil;
 import modules.graphics.RainbowGraphics;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -53,13 +53,13 @@ public class RainbowCommand extends MemberAccountAbstract {
 
     @Override
     protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
-        channel.sendMessageEmbeds(eb.build())
-                .addFile(inputStream, "avatar.png")
-                .queue(message -> {
-                    message.editMessageEmbeds(eb.build())
-                            .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, message.getEmbeds().get(0).getImage().getUrl(), TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"))))
-                            .queue();
-                });
+        addFileAttachment(inputStream, "avatar.png");
+        drawMessage(eb)
+                .thenAccept(message -> {
+                    setComponents(Button.of(ButtonStyle.LINK, message.getEmbeds().get(0).getImage().getUrl(), TextManager.getString(getLocale(), TextManager.GENERAL, "download_image")));
+                    drawMessage(eb).exceptionally(ExceptionLogger.get());
+                })
+                .exceptionally(ExceptionLogger.get());
     }
 
 }

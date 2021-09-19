@@ -7,10 +7,10 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import constants.Settings;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.PatreonData;
 import core.ShardManager;
 import core.cache.PatreonCache;
-import core.components.ActionRows;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -55,9 +55,8 @@ public class PatreonCommand extends Command {
         sb.append(getString("andmanymore"));
 
         eb.addField(getString("slot_title"), sb.toString(), false);
-        event.getChannel().sendMessageEmbeds(eb.build())
-                .setActionRows(ActionRows.of(EmbedFactory.getPatreonBlockButtons(getLocale())))
-                .queue();
+        setComponents(EmbedFactory.getPatreonBlockButtons(getLocale()));
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 

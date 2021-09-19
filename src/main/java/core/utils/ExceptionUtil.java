@@ -40,7 +40,7 @@ public class ExceptionUtil {
             command.drawMessageNew(EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code))
                     .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""))
-            );
+            ).exceptionally(ExceptionLogger.get());
         }
 
         if (submitToDeveloper) {

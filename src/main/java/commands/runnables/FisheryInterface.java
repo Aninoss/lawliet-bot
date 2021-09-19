@@ -2,9 +2,10 @@ package commands.runnables;
 
 import commands.Command;
 import commands.listeners.OnTriggerListener;
-import modules.fishery.FisheryStatus;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
+import modules.fishery.FisheryStatus;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -29,7 +30,7 @@ public interface FisheryInterface extends OnTriggerListener {
                             TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("{PREFIX}", command.getPrefix()),
                             TextManager.getString(command.getLocale(), TextManager.GENERAL, "fishing_notactive_title")
                     )
-            );
+            ).exceptionally(ExceptionLogger.get());
             return false;
         }
     }

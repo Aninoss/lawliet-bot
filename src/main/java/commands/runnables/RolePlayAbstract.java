@@ -4,6 +4,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.RandomPicker;
 import core.TextManager;
 import core.mention.Mention;
@@ -47,7 +48,7 @@ public abstract class RolePlayAbstract extends Command {
                     this,
                     TextManager.getString(getLocale(), TextManager.GENERAL, "alone")
             ).setImage("https://cdn.discordapp.com/attachments/736277561373491265/736277600053493770/hug.gif");
-            drawMessageNew(eb);
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -69,7 +70,7 @@ public abstract class RolePlayAbstract extends Command {
                     .setImage(gifUrl);
         }
 
-        drawMessageNew(eb);
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 
@@ -86,7 +87,7 @@ public abstract class RolePlayAbstract extends Command {
                 getString("template", "**" + StringUtil.escapeMarkdown(event.getMessage().getMember().getEffectiveName()) + "**") + quote
         ).setImage(gifUrl);
 
-        drawMessageNew(eb);
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 

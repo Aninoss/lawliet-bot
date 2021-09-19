@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.cache.MessageCache;
 import core.mention.MentionList;
@@ -71,7 +72,7 @@ public class QuoteCommand extends Command {
             eb = EmbedFactory.getEmbedError(this, getString("noarg", event.getMessage().getMember().getAsMention()));
         }
 
-        event.getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return false;
     }
 

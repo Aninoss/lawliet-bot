@@ -48,7 +48,6 @@ public class HangmanCommand extends CasinoAbstract {
         List<String> wordList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "hangman_" + getLocale().getDisplayName() + ".txt"));
         answer = wordList.get(r.nextInt(wordList.size()));
         progress = new boolean[answer.length()];
-        setComponents(BUTTON_CANCEL);
         return true;
     }
 
@@ -85,6 +84,9 @@ public class HangmanCommand extends CasinoAbstract {
         }
 
         wrongAnswer = false;
+        if (getStatus() == Status.ACTIVE) {
+            setComponents(BUTTON_CANCEL);
+        }
         return eb;
     }
 

@@ -10,6 +10,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import constants.Emojis;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.Mention;
 import core.utils.BotPermissionUtil;
@@ -53,9 +54,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
 
         /* check for no role mention */
         if (roles.isEmpty()) {
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, getString("no_role")).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("no_role"))).exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -65,9 +64,8 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
                 .collect(Collectors.toList());
         if (rolesMissingPermissions.size() > 0) {
             Mention mention = MentionUtil.getMentionedStringOfRoles(getLocale(), rolesMissingPermissions);
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", mention.isMultiple(), mention.getMentionText())).build()
-            ).queue();
+            drawMessageNew( EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", mention.isMultiple(), mention.getMentionText())))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -77,9 +75,8 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
                 .collect(Collectors.toList());
         if (rolesMissingPermissions.size() > 0) {
             Mention mention = MentionUtil.getMentionedStringOfRoles(getLocale(), rolesMissingPermissions);
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", mention.isMultiple(), mention.getMentionText())).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", mention.isMultiple(), mention.getMentionText())))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -88,9 +85,8 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
 
         /* check for busy */
         if (futureOpt.isEmpty()) {
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, getString("busy_desc"), getString("busy_title")).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("busy_desc"), getString("busy_title")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -109,9 +105,11 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     private void onAssignmentFinished(boolean success) {
         deregisterListenersWithComponents();
         if (success) {
-            drawMessage(EmbedFactory.getEmbedDefault(this, getString("success_desc", rolesMention.isMultiple(), rolesMention.getMentionText())));
+            drawMessage(EmbedFactory.getEmbedDefault(this, getString("success_desc", rolesMention.isMultiple(), rolesMention.getMentionText())))
+                    .exceptionally(ExceptionLogger.get());
         } else {
-            drawMessage(EmbedFactory.getEmbedError(this, getString("canceled_desc", rolesMention.isMultiple(), rolesMention.getMentionText()), getString("canceled_title")));
+            drawMessage(EmbedFactory.getEmbedError(this, getString("canceled_desc", rolesMention.isMultiple(), rolesMention.getMentionText()), getString("canceled_title")))
+                    .exceptionally(ExceptionLogger.get());
         }
     }
 

@@ -2,12 +2,13 @@ package commands.runnables.casinocategory;
 
 import java.util.Locale;
 import java.util.Random;
+import commands.Category;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
-import commands.Category;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
@@ -164,7 +165,7 @@ public class SlotCommand extends CasinoAbstract {
 
     private void unlockFruit(Member member, int i) {
         progress = i + 1;
-        drawMessage(draw(member));
+        drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
     }
 
     private String getSpinningWheel(int i) {
@@ -186,7 +187,7 @@ public class SlotCommand extends CasinoAbstract {
             win(member, WIN_POSSIBILITIES[winLevel - 1] / WIN_POSSIBILITIES.length * WIN_AMOUNT_ADJUSTMENT[winLevel - 1] - 1);
             setLog(LogStatus.WIN, getString("end", winLevel));
         }
-        drawMessage(draw(member));
+        drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
     }
 
 }

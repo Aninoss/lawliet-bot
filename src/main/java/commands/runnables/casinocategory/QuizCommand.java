@@ -5,13 +5,14 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import commands.Category;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
-import commands.Category;
 import constants.Emojis;
 import constants.LogStatus;
 import constants.Settings;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.components.ActionRows;
 import core.internet.HttpRequest;
@@ -73,8 +74,7 @@ public class QuizCommand extends CasinoAbstract {
 
         question = StringUtil.decryptString(data.getString("question"));
         if (question == null || question.trim().isEmpty()) {
-            event.getChannel().sendMessageEmbeds(EmbedFactory.getApiDownEmbed(getLocale(), "opentdb.com").build())
-                    .queue();
+            drawMessageNew(EmbedFactory.getApiDownEmbed(getLocale(), "opentdb.com")).exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -154,7 +154,7 @@ public class QuizCommand extends CasinoAbstract {
     private void onTimeUp(Member member) {
         if (getStatus() == Status.ACTIVE) {
             onAnswerSelected(member, -1);
-            drawMessage(draw(member));
+            drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
         }
     }
 

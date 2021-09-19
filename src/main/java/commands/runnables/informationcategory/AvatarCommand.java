@@ -4,8 +4,8 @@ import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
-import core.components.ActionRows;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -37,9 +37,8 @@ public class AvatarCommand extends MemberAccountAbstract {
 
     @Override
     protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
-        channel.sendMessageEmbeds(eb.build())
-                .setActionRows(ActionRows.of(Button.of(ButtonStyle.LINK, avatarUrl, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"))))
-                .queue();
+        setComponents(Button.of(ButtonStyle.LINK, avatarUrl, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image")));
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
     }
 
 }

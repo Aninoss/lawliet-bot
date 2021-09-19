@@ -5,6 +5,7 @@ import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import modules.graphics.TriggerGraphics;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -38,9 +39,8 @@ public class TriggerCommand extends MemberAccountAbstract {
 
     @Override
     protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
-        channel.sendMessageEmbeds(eb.build())
-                .addFile(inputStream, "trigger.gif")
-                .queue();
+        addFileAttachment(inputStream, "trigger.gif");
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
     }
 
 }

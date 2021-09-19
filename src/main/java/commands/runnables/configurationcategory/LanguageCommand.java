@@ -9,6 +9,7 @@ import commands.listeners.OnSelectionMenuListener;
 import constants.ExternalLinks;
 import constants.Language;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -51,7 +52,8 @@ public class LanguageCommand extends Command implements OnSelectionMenuListener 
             }
 
             if (language == null) {
-                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("invalid", args)).build()).queue();
+                drawMessageNew(EmbedFactory.getEmbedError(this, getString("invalid", args)))
+                        .exceptionally(ExceptionLogger.get());
                 return false;
             } else {
                 setLocale(language.getLocale());
@@ -59,7 +61,8 @@ public class LanguageCommand extends Command implements OnSelectionMenuListener 
                 if (language.isDeepLGenerated()) {
                     setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.GITHUB, getString("github")));
                 }
-                drawMessage(EmbedFactory.getEmbedDefault(this, getString("set", language.isDeepLGenerated(), getString(language.name()), ExternalLinks.GITHUB)));
+                drawMessage(EmbedFactory.getEmbedDefault(this, getString("set", language.isDeepLGenerated(), getString(language.name()), ExternalLinks.GITHUB)))
+                        .exceptionally(ExceptionLogger.get());
                 return true;
             }
         } else {

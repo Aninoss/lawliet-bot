@@ -2,11 +2,12 @@ package commands.runnables.casinocategory;
 
 import java.util.Locale;
 import java.util.Random;
+import commands.Category;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
-import commands.Category;
 import constants.Emojis;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
@@ -112,7 +113,7 @@ public class CoinFlipCommand extends CasinoAbstract {
 
         MainScheduler.schedule(3000, "coinflip_cputhrow", () -> {
             selection[1] = new Random().nextBoolean() ? 1 : 0;
-            drawMessage(draw(member));
+            drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
 
             MainScheduler.schedule(1000, "coinflip_results", () -> {
                 if (selection[0] == selection[1]) {
@@ -121,7 +122,7 @@ public class CoinFlipCommand extends CasinoAbstract {
                     lose(member);
                 }
 
-                drawMessage(draw(member));
+                drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
             });
         });
     }

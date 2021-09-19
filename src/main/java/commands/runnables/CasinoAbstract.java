@@ -10,6 +10,7 @@ import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -45,6 +46,8 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     private final boolean useCalculatedMultiplicator;
     private final boolean allowBet;
     private boolean retryRequestAdded = false;
+    private EmbedBuilder lastEmbedBuilder;
+    private boolean hasCancelButton;
 
     public CasinoAbstract(Locale locale, String prefix, boolean allowBet, boolean useCalculatedMultiplicator) {
         super(locale, prefix);
@@ -102,7 +105,8 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 registerMessageInputListener(event.getMember(), false);
                 return true;
             } else {
-                drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0")));
+                drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "too_small", "0")))
+                        .exceptionally(ExceptionLogger.get());
                 return false;
             }
         } catch (Throwable e) {
@@ -196,7 +200,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     @Override
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         if (status == Status.ACTIVE) {
-            if (hasCancelButton() && event.getComponentId().equals(BUTTON_ID_QUIT)) {
+            if (hasCancelButton && event.getComponentId().equals(BUTTON_ID_QUIT)) {
                 cancel(event.getMember(), false, true);
                 return true;
             } else {
@@ -204,16 +208,13 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             }
         } else if (event.getComponentId().equals(BUTTON_ID_RETRY)) {
             deregisterListeners();
-            redrawMessageWithoutComponents();
+            setActionRows();
+            drawMessage(lastEmbedBuilder).exceptionally(ExceptionLogger.get());
             Command command = CommandManager.createCommandByClass(this.getClass(), getLocale(), getPrefix());
             getGuildMessageReceivedEvent().ifPresent(e -> CommandManager.manage(e, command, String.valueOf(coinsInput), Instant.now()));
             return false;
         }
         return false;
-    }
-
-    private boolean hasCancelButton() {
-        return getActionRows().stream().anyMatch(b -> b.getButtons().contains(BUTTON_CANCEL));
     }
 
     public MessageInputResponse onMessageInputCasino(GuildMessageReceivedEvent event, String input) throws Throwable {
@@ -230,7 +231,9 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
 
     @Override
     public EmbedBuilder draw(Member member) {
-        return drawCasino(getMemberEffectiveName().orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()))), coinsInput);
+        lastEmbedBuilder = drawCasino(getMemberEffectiveName().orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()))), coinsInput);
+        hasCancelButton = getActionRows().stream().anyMatch(b -> b.getButtons().contains(BUTTON_CANCEL));
+        return lastEmbedBuilder;
     }
 
     @Override
@@ -240,7 +243,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 cancel(member, true, false);
                 EmbedBuilder eb = draw(member);
                 if (eb != null) {
-                    drawMessage(eb);
+                    drawMessage(eb).exceptionally(ExceptionLogger.get());
                 }
             }, () -> {
                 FisheryMemberData memberData = DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get());

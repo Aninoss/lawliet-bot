@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.internet.HttpHeader;
 import core.internet.HttpRequest;
@@ -45,12 +46,12 @@ public abstract class DeepAIAbstract extends Command {
 
             Button button = Button.of(ButtonStyle.LINK, result, TextManager.getString(getLocale(), TextManager.GENERAL, "download_image"));
             setComponents(button);
-            drawMessageNew(eb);
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return true;
         }
 
         EmbedBuilder notFound = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "imagenotfound"));
-        drawMessageNew(notFound);
+        drawMessageNew(notFound).exceptionally(ExceptionLogger.get());
         return false;
     }
 

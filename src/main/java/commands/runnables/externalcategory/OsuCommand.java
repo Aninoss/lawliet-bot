@@ -9,6 +9,7 @@ import constants.Emojis;
 import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -94,14 +95,10 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
 
     @Override
     protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) {
-        channel.sendMessageEmbeds(eb.build())
-                .setActionRows(getActionRows())
-                .queue(message -> {
-                    if (memberIsAuthor) {
-                        setDrawMessage(message);
-                        registerButtonListener(member);
-                    }
-                });
+        drawMessage(eb).exceptionally(ExceptionLogger.get());
+        if (memberIsAuthor) {
+            registerButtonListener(member, false);
+        }
     }
 
     @Override
@@ -119,8 +116,6 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
             if (osuUsernameOpt.isPresent()) {
                 String osuUsername = osuUsernameOpt.get();
                 if (!osuUsername.equals(GUEST)) {
-                    setActionRows();
-                    deregisterListeners();
                     Optional<OsuAccount> osuAccountOptional = OsuAccountDownloader.download(osuUsername, gameMode).get();
                     this.osuName = osuUsername;
                     this.osuAccount = osuAccountOptional.orElse(null);
@@ -132,8 +127,6 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
 
             OsuAccountSync.add(event.getMember().getIdLong(), osuUsername -> {
                 if (!osuUsername.equals(GUEST)) {
-                    setActionRows();
-                    deregisterListeners();
                     OsuAccountSync.remove(event.getMember().getIdLong());
                     OsuAccountDownloader.download(osuUsername, gameMode)
                             .thenAccept(osuAccountOptional -> {
@@ -142,7 +135,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
                                 osuAccountOptional
                                         .ifPresent(o -> DBOsuAccounts.getInstance().retrieve().put(getMemberId().get(), new OsuAccountData(getMemberId().get(), o.getOsuId())));
                                 this.status = Status.DEFAULT;
-                                drawMessage(draw(event.getMember()));
+                                drawMessage(draw(event.getMember())).exceptionally(ExceptionLogger.get());
                             });
                 }
             });
@@ -180,7 +173,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
                 } else {
                     eb = EmbedFactory.getEmbedError(this)
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                            .setDescription(TextManager.getNoResultsString(getLocale(), osuName));
+                            .setDescription(TextManager.getNoResultsString(getLocale(), osuName != null ? osuName : ""));
                 }
                 return eb;
         }

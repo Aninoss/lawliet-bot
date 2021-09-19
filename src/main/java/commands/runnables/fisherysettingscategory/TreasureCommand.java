@@ -5,6 +5,7 @@ import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.BotPermissionUtil;
@@ -40,9 +41,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
 
         if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
             String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, error).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, error)).exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -51,19 +50,17 @@ public class TreasureCommand extends Command implements FisheryInterface {
             if (StringUtil.stringIsInt(args)) {
                 amount = Integer.parseInt(args);
                 if (amount < 1 || amount > 30) {
-                    event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
+                    drawMessageNew(EmbedFactory.getEmbedError(
                             this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")
-                            ).build()
-                    ).queue();
+                    )).exceptionally(ExceptionLogger.get());
                     return false;
                 }
             } else {
-                event.getChannel().sendMessageEmbeds(EmbedFactory.getEmbedError(
+                drawMessageNew(EmbedFactory.getEmbedError(
                         this,
                         TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")
-                        ).build()
-                ).queue();
+                )).exceptionally(ExceptionLogger.get());
                 return false;
             }
         }

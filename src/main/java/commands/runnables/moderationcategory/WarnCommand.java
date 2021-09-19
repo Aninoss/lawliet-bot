@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import commands.Category;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
-import commands.Category;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.Mention;
 import core.mention.MentionList;
@@ -103,7 +104,7 @@ public class WarnCommand extends Command implements OnButtonListener {
         checkAllProcess(event.getMember());
         if (memberMissingAccessList.size() > 0 || botMissingAcccessList.size() > 0) {
             status = Status.ERROR;
-            drawMessage(draw(event.getMember()));
+            drawMessage(draw(event.getMember())).exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -116,7 +117,7 @@ public class WarnCommand extends Command implements OnButtonListener {
             registerButtonListener(event.getMember());
         } else {
             boolean success = execute(event.getChannel(), event.getMember());
-            drawMessage(draw(event.getMember()));
+            drawMessage(draw(event.getMember())).exceptionally(ExceptionLogger.get());
             return success;
         }
 
@@ -138,7 +139,8 @@ public class WarnCommand extends Command implements OnButtonListener {
         MentionList<User> userMention = getUserList(message, args);
         userList = userMention.getList();
         if (userList.size() == 0) {
-            message.getChannel().sendMessageEmbeds(getNoMentionEmbed().build()).queue();
+            drawMessageNew(getNoMentionEmbed())
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 

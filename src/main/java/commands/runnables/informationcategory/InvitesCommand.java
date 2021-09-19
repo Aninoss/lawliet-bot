@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import constants.Emojis;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.atomicassets.AtomicMember;
 import core.utils.StringUtil;
 import modules.invitetracking.InviteMetrics;
@@ -39,7 +40,7 @@ public class InvitesCommand extends MemberAccountAbstract {
                     getString("trackingnotenabled_description"),
                     getString("trackingnotenabled_title")
             );
-            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
     }

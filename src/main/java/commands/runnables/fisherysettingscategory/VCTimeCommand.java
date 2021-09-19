@@ -3,10 +3,11 @@ package commands.runnables.fisherysettingscategory;
 import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
-import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.StringUtil;
 import mysql.modules.guild.DBGuild;
@@ -43,7 +44,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         if (args.length() > 0) {
-            drawMessage(mainExecution(event, args));
+            drawMessage(mainExecution(event, args)).exceptionally(ExceptionLogger.get());
         } else {
             this.eb = EmbedFactory.getEmbedDefault(
                     this,
@@ -110,7 +111,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
             return true;
         } else if (event.getComponentId().equals(BUTTON_ID_CANCEL)) {
             deregisterListenersWithComponentMessage();
-            return true;
+            return false;
         }
         return false;
     }

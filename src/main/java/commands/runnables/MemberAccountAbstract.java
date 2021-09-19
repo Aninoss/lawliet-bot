@@ -2,6 +2,7 @@ package commands.runnables;
 
 import java.util.Locale;
 import commands.Command;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.EmbedUtil;
@@ -39,7 +40,7 @@ public abstract class MemberAccountAbstract extends Command {
     }
 
     protected void sendMessage(Member member, TextChannel channel, EmbedBuilder eb) throws Throwable {
-        drawMessageNew(eb);
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
     }
 
     @Override

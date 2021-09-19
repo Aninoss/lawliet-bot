@@ -5,6 +5,7 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -34,7 +35,7 @@ public class PingCommand extends Command {
                 StringUtil.numToString(milisGateway),
                 StringUtil.numToString(milisRest)
         ));
-        event.getChannel().sendMessageEmbeds(eb.build()).queue();
+        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
 
         return true;
     }

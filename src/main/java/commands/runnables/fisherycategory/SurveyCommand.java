@@ -12,18 +12,18 @@ import commands.listeners.OnStaticButtonListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.LogStatus;
-import modules.schedulers.AlertResponse;
-import core.EmbedFactory;
-import core.PermissionCheckRuntime;
-import core.ShardManager;
-import core.TextManager;
-import core.utils.*;
+import core.*;
+import core.utils.EmbedUtil;
+import core.utils.StringUtil;
+import core.utils.TimeUtil;
 import javafx.util.Pair;
+import modules.schedulers.AlertResponse;
 import mysql.modules.survey.*;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -53,9 +53,11 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws IOException, InterruptedException {
         SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(event.getMember());
 
-        event.getChannel().sendMessageEmbeds(surveyEmbeds.resultEmbed.build(), surveyEmbeds.newEmbed.build())
-                .setActionRows(surveyEmbeds.actionRows)
-                .queue(this::registerStaticReactionMessage);
+        setActionRows(surveyEmbeds.actionRows);
+        setAdditionalEmbeds(surveyEmbeds.newEmbed.build());
+        drawMessageNew(surveyEmbeds.resultEmbed)
+                .thenAccept(this::registerStaticReactionMessage)
+                .exceptionally(ExceptionLogger.get());
         return true;
     }
 

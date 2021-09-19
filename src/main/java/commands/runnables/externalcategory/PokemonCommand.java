@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import commands.Category;
 import commands.Command;
 import commands.listeners.CommandProperties;
-import commands.Category;
 import constants.Language;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
-import core.internet.HttpResponse;
 import core.internet.HttpCache;
+import core.internet.HttpResponse;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -35,11 +36,11 @@ public class PokemonCommand extends Command {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(TextManager.getNoResultsString(getLocale(), args));
-            event.getChannel().sendMessageEmbeds(eb.build()).queue();
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
 
-        event.getChannel().sendMessageEmbeds(getEmbed(pokemon).build()).queue();
+        drawMessageNew(getEmbed(pokemon)).exceptionally(ExceptionLogger.get());
         return true;
     }
 

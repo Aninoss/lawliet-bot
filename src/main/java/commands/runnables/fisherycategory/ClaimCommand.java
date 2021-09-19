@@ -10,7 +10,7 @@ import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.components.ActionRows;
+import core.ExceptionLogger;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
@@ -60,9 +60,8 @@ public class ClaimCommand extends Command implements FisheryInterface {
             }
 
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
-            event.getChannel().sendMessageEmbeds(eb.build())
-                    .setActionRows(ActionRows.of(upvoteButton))
-                    .queue();
+            setComponents(upvoteButton);
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         } else {
             long fishes = Fishery.getClaimValue(userBean);
@@ -72,9 +71,9 @@ public class ClaimCommand extends Command implements FisheryInterface {
             EmbedUtil.addLog(eb, LogStatus.WARNING, getString("reminder"));
 
             MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fishes * upvotesUnclaimed, 0).build();
-            event.getChannel().sendMessageEmbeds(eb.build(), userChangeValueEmbed)
-                    .setActionRows(ActionRows.of(upvoteButton))
-                    .queue();
+            setComponents(upvoteButton);
+            setAdditionalEmbeds(userChangeValueEmbed);
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return true;
         }
     }

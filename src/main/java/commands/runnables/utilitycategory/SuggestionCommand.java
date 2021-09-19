@@ -9,10 +9,7 @@ import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
 import constants.AssetIds;
 import constants.Emojis;
-import core.EmbedFactory;
-import core.PermissionCheckRuntime;
-import core.QuickUpdater;
-import core.RatelimitManager;
+import core.*;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
@@ -78,24 +75,22 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                         );
                     });
 
-                    event.getChannel().sendMessageEmbeds(
-                            EmbedFactory.getEmbedDefault(this, getString("success")).build()
-                    ).queue();
+                    drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("success")))
+                            .exceptionally(ExceptionLogger.get());
                     return true;
                 } else {
-                    event.getChannel().sendMessageEmbeds(
-                            EmbedFactory.getEmbedError(this, getString("ratelimit"), getString("ratelimit_title")).build()
-                    ).queue();
+                    drawMessageNew(
+                            EmbedFactory.getEmbedError(this, getString("ratelimit"), getString("ratelimit_title")))
+                            .exceptionally(ExceptionLogger.get());
                 }
             } else {
-                event.getChannel().sendMessageEmbeds(
-                        EmbedFactory.getEmbedError(this, getString("channelnotfound"), getString("channelnotfound_title")).build()
-                ).queue();
+                drawMessageNew(
+                        EmbedFactory.getEmbedError(this, getString("channelnotfound"), getString("channelnotfound_title")))
+                        .exceptionally(ExceptionLogger.get());
             }
         } else {
-            event.getChannel().sendMessageEmbeds(
-                    EmbedFactory.getEmbedError(this, getString("notactive"), getString("notactive_title")).build()
-            ).queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("notactive"), getString("notactive_title")))
+                    .exceptionally(ExceptionLogger.get());
         }
         return false;
     }

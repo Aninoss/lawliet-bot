@@ -4,6 +4,7 @@ import java.util.Locale;
 import commands.Command;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -44,7 +45,8 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
 
             if (option == -1) {
                 String invalid = TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", args);
-                drawMessageNew(EmbedFactory.getEmbedError(this, invalid));
+                drawMessageNew(EmbedFactory.getEmbedError(this, invalid))
+                        .exceptionally(ExceptionLogger.get());
                 return false;
             }
 
@@ -56,7 +58,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
                 eb = EmbedFactory.getEmbedDefault(this, getErrorText())
                         .setColor(EmbedFactory.FAILED_EMBED_COLOR);
             }
-            drawMessageNew(eb);
+            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         } else {
             setComponents(
                     Button.of(ButtonStyle.SUCCESS, "true", TextManager.getString(getLocale(), TextManager.GENERAL, "function_button", 1)),

@@ -6,6 +6,7 @@ import java.util.Optional;
 import commands.listeners.CommandProperties;
 import commands.Category;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.Mention;
 import core.mention.MentionValue;
@@ -50,16 +51,14 @@ public class MuteCommand extends WarnCommand {
         ModerationData moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         Optional<Role> muteRoleOpt = moderationBean.getMuteRole();
         if (muteRoleOpt.isEmpty()) {
-            event.getChannel()
-                    .sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.MODERATION, "mute_norole", getPrefix())).build())
-                    .queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.MODERATION, "mute_norole", getPrefix())))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
         if (!BotPermissionUtil.canManage(muteRoleOpt.get())) {
-            event.getChannel()
-                    .sendMessageEmbeds(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, muteRoleOpt.get().getAsMention())).build())
-                    .queue();
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", false, muteRoleOpt.get().getAsMention())))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
