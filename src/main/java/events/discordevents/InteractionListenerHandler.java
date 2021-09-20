@@ -26,6 +26,15 @@ public interface InteractionListenerHandler <T extends GenericComponentInteracti
                                         .setEphemeral(true)
                                         .queue();
                             }
+                            case DENY_WITHOUT_AUTHOR_MENTION -> {
+                                EmbedBuilder eb = EmbedFactory.getEmbedError(
+                                        listener.getCommand(),
+                                        TextManager.getString(listener.getCommand().getLocale(), TextManager.GENERAL, "button_listener_denied_no_mention")
+                                );
+                                event.replyEmbeds(eb.build())
+                                        .setEphemeral(true)
+                                        .queue();
+                            }
                         }
                     });
         }

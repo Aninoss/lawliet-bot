@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 public class CommandListenerMeta<T> {
 
-    public enum CheckResponse { IGNORE, DENY, ACCEPT }
+    public enum CheckResponse { IGNORE, DENY, DENY_WITHOUT_AUTHOR_MENTION, ACCEPT }
 
     private final long authorId;
     private final Function<T, CheckResponse> validityChecker;

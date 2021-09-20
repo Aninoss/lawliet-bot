@@ -3,6 +3,7 @@ package core;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -28,6 +29,10 @@ public class InteractionResponse {
             return event.getHook().editOriginalEmbeds(embeds)
                     .setActionRows(actionRows);
         }
+    }
+
+    public RestAction<Message> replyEmbeds(List<MessageEmbed> embeds, boolean ephemeral) {
+        return replyEmbeds(embeds, Collections.emptyList(), ephemeral);
     }
 
     public RestAction<Message> replyEmbeds(List<MessageEmbed> embeds, Collection<ActionRow> actionRows, boolean ephemeral) {

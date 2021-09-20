@@ -10,7 +10,6 @@ import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.cache.PatreonCache;
-import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -85,7 +84,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     public boolean onButton(ButtonClickEvent event) throws Throwable {
         if (getInteractionResponse().isValid()) {
             boolean canUseExternalEmoji = BotPermissionUtil.canUseExternalEmojisInInteraction(event.getGuildChannel());
-            getInteractionResponse().replyEmbeds(List.of(generateUserEmbed(canUseExternalEmoji).build()), ActionRows.of(), true)
+            getInteractionResponse().replyEmbeds(List.of(generateUserEmbed(canUseExternalEmoji).build()), true)
                     .queue();
         }
         return false;
