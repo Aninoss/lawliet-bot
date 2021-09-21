@@ -14,7 +14,7 @@ import commands.runnables.RolePlayAbstract;
 public class YaoiCuddleCommand extends RolePlayAbstract {
 
     public YaoiCuddleCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279883776262144/yaoicuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279889224925214/yaoicuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279896518557787/yaoicuddle.gif",

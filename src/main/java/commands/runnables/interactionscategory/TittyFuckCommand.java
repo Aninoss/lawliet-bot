@@ -15,7 +15,7 @@ import commands.runnables.RolePlayAbstract;
 public class TittyFuckCommand extends RolePlayAbstract {
 
     public TittyFuckCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/834844814671478824/834844931423993946/tittyfuck.gif",
                 "https://cdn.discordapp.com/attachments/834844814671478824/834844958598758421/tittyfuck.gif",
                 "https://cdn.discordapp.com/attachments/834844814671478824/834844969951952916/tittyfuck.gif",

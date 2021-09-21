@@ -13,7 +13,7 @@ import commands.runnables.RolePlayAbstract;
 public class YuriKissCommand extends RolePlayAbstract {
 
     public YuriKissCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/736281091534618674/736281096764784780/yurikiss.gif",
                 "https://cdn.discordapp.com/attachments/736281091534618674/736281104201285732/yurikiss.gif",
                 "https://cdn.discordapp.com/attachments/736281091534618674/736281115098087506/yurikiss.gif",

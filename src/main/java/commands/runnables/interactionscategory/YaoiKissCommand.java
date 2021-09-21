@@ -13,7 +13,7 @@ import commands.runnables.RolePlayAbstract;
 public class YaoiKissCommand extends RolePlayAbstract {
 
     public YaoiKissCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/736280745601007737/736280751187689482/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/736280753842683994/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/736280757068234823/yaoikiss.gif",

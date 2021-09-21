@@ -13,7 +13,7 @@ import commands.runnables.RolePlayAbstract;
 public class KissCommand extends RolePlayAbstract {
 
     public KissCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280301571145769/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280306797248512/kiss.gif",
                 "https://cdn.discordapp.com/attachments/736280297171058759/736280315030667384/kiss.gif",

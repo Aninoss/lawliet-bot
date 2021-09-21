@@ -14,7 +14,7 @@ import commands.runnables.RolePlayAbstract;
 public class PatCommand extends RolePlayAbstract {
 
     public PatCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/736275536317382717/736275542193733702/pat.gif",
                 "https://cdn.discordapp.com/attachments/736275536317382717/736275544949260368/pat.gif",
                 "https://cdn.discordapp.com/attachments/736275536317382717/736275548061302886/pat.gif",

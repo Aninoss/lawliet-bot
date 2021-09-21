@@ -14,7 +14,7 @@ import commands.runnables.RolePlayAbstract;
 public class CuddleCommand extends RolePlayAbstract {
 
     public CuddleCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279565739229275/cuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279573867659394/cuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279549121396816/736279582050877530/cuddle.gif",

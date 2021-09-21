@@ -341,7 +341,9 @@ public class MentionUtil {
         return new MentionList<>(input, emojiList);
     }
 
-    private static Mention getMentionStringOfMentions(ArrayList<String> mentions, Locale locale, String filteredOriginalText, boolean multi, boolean containedBlockedUser) {
+    private static Mention getMentionStringOfMentions(ArrayList<String> mentions, Locale locale, String filteredOriginalText,
+                                                      boolean multi, boolean containedBlockedUser, List<ISnowflake> elementList
+    ) {
         if (mentions.size() > 1 && !multi) multi = true;
 
         int size = Math.min(5, mentions.size());
@@ -362,13 +364,14 @@ public class MentionUtil {
             sb.append("**");
         }
 
-        return new Mention(sb.toString(), filteredOriginalText, multi, containedBlockedUser);
+        return new Mention(sb.toString(), filteredOriginalText, multi, containedBlockedUser, elementList);
     }
 
     public static Mention getMentionedString(Locale locale, Message message, String args, Member blockedMember) {
         boolean multi = false;
         AtomicBoolean containedBlockedUser = new AtomicBoolean(false);
-        final ArrayList<String> mentions = new ArrayList<>();
+        ArrayList<String> mentions = new ArrayList<>();
+        ArrayList<ISnowflake> elementList = new ArrayList<>();
 
         /* add usernames */
         MentionList<Member> memberMention = MentionUtil.getMembers(message, args);
@@ -376,6 +379,7 @@ public class MentionUtil {
             if (blockedMember != null && member.getIdLong() == blockedMember.getIdLong()) {
                 containedBlockedUser.set(true);
             } else {
+                elementList.add(member);
                 mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName()));
             }
         });
@@ -401,31 +405,47 @@ public class MentionUtil {
                     .replace("@here", "");
         }
 
-        return getMentionStringOfMentions(mentions, locale, args, multi, containedBlockedUser.get());
+        return getMentionStringOfMentions(mentions, locale, args, multi, containedBlockedUser.get(), elementList);
     }
 
     public static Mention getMentionedStringOfGuilds(Locale locale, List<Guild> guildList) {
-        final ArrayList<String> mentions = new ArrayList<>();
-        guildList.forEach(guild -> mentions.add(StringUtil.escapeMarkdown(guild.getName())));
-        return getMentionStringOfMentions(mentions, locale, null, false, false);
+        ArrayList<String> mentions = new ArrayList<>();
+        ArrayList<ISnowflake> elementList = new ArrayList<>();
+        guildList.forEach(guild -> {
+            mentions.add(StringUtil.escapeMarkdown(guild.getName()));
+            elementList.add(guild);
+        });
+        return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
     }
 
     public static Mention getMentionedStringOfMembers(Locale locale, List<Member> memberList) {
-        final ArrayList<String> mentions = new ArrayList<>();
-        memberList.forEach(member -> mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName())));
-        return getMentionStringOfMentions(mentions, locale, null, false, false);
+        ArrayList<String> mentions = new ArrayList<>();
+        ArrayList<ISnowflake> elementList = new ArrayList<>();
+        memberList.forEach(member -> {
+            mentions.add(StringUtil.escapeMarkdown(member.getEffectiveName()));
+            elementList.add(member);
+        });
+        return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
     }
 
     public static Mention getMentionedStringOfDiscriminatedUsers(Locale locale, List<User> userList) {
-        final ArrayList<String> mentions = new ArrayList<>();
-        userList.forEach(user -> mentions.add(StringUtil.escapeMarkdown(user.getAsTag())));
-        return getMentionStringOfMentions(mentions, locale, null, false, false);
+        ArrayList<String> mentions = new ArrayList<>();
+        ArrayList<ISnowflake> elementList = new ArrayList<>();
+        userList.forEach(user -> {
+            mentions.add(StringUtil.escapeMarkdown(user.getAsTag()));
+            elementList.add(user);
+        });
+        return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
     }
 
     public static Mention getMentionedStringOfRoles(Locale locale, List<Role> roleList) {
-        final ArrayList<String> mentions = new ArrayList<>();
-        roleList.forEach(role -> mentions.add(StringUtil.escapeMarkdown(role.getName())));
-        return getMentionStringOfMentions(mentions, locale, null, false, false);
+        ArrayList<String> mentions = new ArrayList<>();
+        ArrayList<ISnowflake> elementList = new ArrayList<>();
+        roleList.forEach(role -> {
+            mentions.add(StringUtil.escapeMarkdown(role.getName()));
+            elementList.add(role);
+        });
+        return getMentionStringOfMentions(mentions, locale, null, false, false, elementList);
     }
 
     public static Optional<Role> getRoleByTag(Guild guild, String tag) {

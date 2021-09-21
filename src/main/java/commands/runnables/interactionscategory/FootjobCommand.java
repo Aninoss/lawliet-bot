@@ -15,7 +15,7 @@ import commands.runnables.RolePlayAbstract;
 public class FootjobCommand extends RolePlayAbstract {
 
     public FootjobCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/884506240179372112/884506336732278844/footjob.gif",
                 "https://cdn.discordapp.com/attachments/884506240179372112/884506467409989642/footjob.gif",
                 "https://cdn.discordapp.com/attachments/884506240179372112/884506586196885604/footjob.gif",

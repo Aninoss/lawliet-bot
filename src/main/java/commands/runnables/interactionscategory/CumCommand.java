@@ -15,7 +15,7 @@ import commands.runnables.RolePlayAbstract;
 public class CumCommand extends RolePlayAbstract {
 
     public CumCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/834500528426844160/834500917847916605/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/834500928869761044/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/834500940002230332/cum.gif",

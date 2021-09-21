@@ -1,27 +1,45 @@
 package commands.runnables;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import commands.Command;
+import constants.AssetIds;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.RandomPicker;
 import core.TextManager;
 import core.mention.Mention;
+import core.utils.EmbedUtil;
+import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public abstract class RolePlayAbstract extends Command {
 
+    private final BlockUserPair[] blockUserPairs = new BlockUserPair[] {
+            new BlockUserPair(321164798475894784L, 326714012022865930L),
+            new BlockUserPair(272037078919938058L, 395689348324130816L)
+    };
+
     private final boolean interactive;
+    private final boolean blockable;
     private final String[] gifs;
 
     public RolePlayAbstract(Locale locale, String prefix, boolean interactive, String... gifs) {
+        this(locale, prefix, interactive, false, gifs);
+    }
+
+    public RolePlayAbstract(Locale locale, String prefix, boolean interactive, boolean blockable, String... gifs) {
         super(locale, prefix);
         this.interactive = interactive;
+        this.blockable = blockable;
         this.gifs = gifs;
     }
 
@@ -50,6 +68,23 @@ public abstract class RolePlayAbstract extends Command {
             ).setImage("https://cdn.discordapp.com/attachments/736277561373491265/736277600053493770/hug.gif");
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
+        }
+
+        if (blockable) {
+            for (BlockUserPair blockUserPair : blockUserPairs) {
+                if (blockUserPair.isBlocked(event.getMember(), mention.getElementList())) {
+                    EmbedBuilder authorEmbed = EmbedFactory.getEmbedDefault()
+                            .setDescription(event.getMessage().getContentRaw());
+                    EmbedUtil.setMemberAuthor(authorEmbed, event.getMember());
+                    JDAUtil.sendPrivateMessage(AssetIds.OWNER_USER_ID, authorEmbed.build()).queue();
+
+                    String text = "**How disgusting! I refuse to run this command!**";
+                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, text)
+                            .setImage("https://cdn.discordapp.com/attachments/736271623098990792/834837745754964008/slap.gif");
+                    drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+                    return false;
+                }
+            }
         }
 
         String quote = "";
@@ -89,6 +124,24 @@ public abstract class RolePlayAbstract extends Command {
 
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
+    }
+
+    private static final class BlockUserPair {
+
+        private final long userId0;
+        private final long userId1;
+
+        public BlockUserPair(long userId0, long userId1) {
+            this.userId0 = userId0;
+            this.userId1 = userId1;
+        }
+
+        public boolean isBlocked(Member author, List<ISnowflake> elementList) {
+            List<Long> idList = elementList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
+            return author.getIdLong() == userId0 && idList.contains(userId1) ||
+                    author.getIdLong() == userId1 && idList.contains(userId0);
+        }
+
     }
 
 }

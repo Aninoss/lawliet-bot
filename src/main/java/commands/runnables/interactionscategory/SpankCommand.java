@@ -14,7 +14,7 @@ import commands.runnables.RolePlayAbstract;
 public class SpankCommand extends RolePlayAbstract {
 
     public SpankCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/736274084488282113/736274092105269308/spank.gif",
                 "https://cdn.discordapp.com/attachments/736274084488282113/736274104361025606/spank.gif",
                 "https://cdn.discordapp.com/attachments/736274084488282113/736274108337225818/spank.gif",

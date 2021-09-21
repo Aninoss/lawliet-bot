@@ -15,7 +15,7 @@ import commands.runnables.RolePlayAbstract;
 public class AssGrabCommand extends RolePlayAbstract {
 
     public AssGrabCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/834460432818241566/834461925894127651/assgrab.gif",
                 "https://cdn.discordapp.com/attachments/834460432818241566/834461937664000040/assgrab.gif",
                 "https://cdn.discordapp.com/attachments/834460432818241566/834461948993208340/assgrab.gif",

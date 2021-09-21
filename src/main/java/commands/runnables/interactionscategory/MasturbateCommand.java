@@ -15,7 +15,7 @@ import commands.runnables.RolePlayAbstract;
 public class MasturbateCommand extends RolePlayAbstract {
 
     public MasturbateCommand(Locale locale, String prefix) {
-        super(locale, prefix, true,
+        super(locale, prefix, true, true,
                 "https://cdn.discordapp.com/attachments/834831425651474442/834831559366279178/masturbate.gif",
                 "https://cdn.discordapp.com/attachments/834831425651474442/834831571130646648/masturbate.gif",
                 "https://cdn.discordapp.com/attachments/834831425651474442/834831584216481802/masturbate.gif",

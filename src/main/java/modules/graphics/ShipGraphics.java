@@ -53,6 +53,7 @@ public class ShipGraphics {
         g.drawImage(image, 0, 0, null);
         AttributedStringGenerator fontSimilarity = new AttributedStringGenerator(fsize);
         AttributedCharacterIterator simIterator = fontSimilarity.getIterator(percentage + "%");
+        percentage = Math.max(0, percentage);
         Color mainColor = new Color((int) Math.min((510.0 - (percentage / 100.0 * 255.0 * 2.0)), 255), (int) Math.min((percentage / 100.0 * 255.0 * 2.0), 255), 0);
         FontRenderContext frc = new FontRenderContext(null, true, true);
 
