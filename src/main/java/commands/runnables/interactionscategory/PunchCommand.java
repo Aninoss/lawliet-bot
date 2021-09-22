@@ -54,7 +54,8 @@ public class PunchCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736270998772383826/834837245462183936/punch.gif",
                 "https://cdn.discordapp.com/attachments/736270998772383826/834837260552896612/punch.gif",
                 "https://cdn.discordapp.com/attachments/736270998772383826/834837274155155546/punch.gif",
-                "https://cdn.discordapp.com/attachments/736270998772383826/871035786491985950/punch.gif"
+                "https://cdn.discordapp.com/attachments/736270998772383826/871035786491985950/punch.gif",
+                "https://cdn.discordapp.com/attachments/736270998772383826/890291777133772840/punch.gif"
         );
     }
 
