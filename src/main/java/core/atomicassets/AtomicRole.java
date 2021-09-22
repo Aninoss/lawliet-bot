@@ -43,8 +43,13 @@ public class AtomicRole implements MentionableAtomicAsset<Role> {
     }
 
     @Override
-    public Optional<String> getNameRaw() {
+    public Optional<String> getPrefixedNameRaw() {
         return get().map(r -> "@" + r.getName());
+    }
+
+    @Override
+    public Optional<String> getNameRaw() {
+        return get().map(Role::getName);
     }
 
     @Override

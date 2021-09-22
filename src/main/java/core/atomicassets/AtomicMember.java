@@ -44,8 +44,13 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
     }
 
     @Override
-    public Optional<String> getNameRaw() {
+    public Optional<String> getPrefixedNameRaw() {
         return get().map(m -> "@" + m.getEffectiveName());
+    }
+
+    @Override
+    public Optional<String> getNameRaw() {
+        return get().map(Member::getEffectiveName);
     }
 
     @Override

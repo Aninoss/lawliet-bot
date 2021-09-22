@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.ShardManager;
 import mysql.modules.guild.DBGuild;
+import net.dv8tion.jda.api.entities.AbstractChannel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 
@@ -43,8 +44,13 @@ public class AtomicVoiceChannel implements MentionableAtomicAsset<VoiceChannel> 
     }
 
     @Override
-    public Optional<String> getNameRaw() {
+    public Optional<String> getPrefixedNameRaw() {
         return get().map(v -> "@" + v.getName());
+    }
+
+    @Override
+    public Optional<String> getNameRaw() {
+        return get().map(AbstractChannel::getName);
     }
 
     @Override

@@ -43,8 +43,13 @@ public class AtomicTextChannel implements MentionableAtomicAsset<TextChannel> {
     }
 
     @Override
-    public Optional<String> getNameRaw() {
+    public Optional<String> getPrefixedNameRaw() {
         return get().map(c -> "#" + c.getName());
+    }
+
+    @Override
+    public Optional<String> getNameRaw() {
+        return get().map(TextChannel::getName);
     }
 
     @Override

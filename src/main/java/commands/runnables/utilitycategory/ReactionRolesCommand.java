@@ -539,7 +539,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         for (int i = 0; i < reactionMessages.size(); i++) {
             ReactionMessage reactionMessage = reactionMessages.get(i);
             AtomicTextChannel channel = new AtomicTextChannel(reactionMessage.getGuildId(), reactionMessage.getTextChannelId());
-            options[i] = getString("state2_template", reactionMessage.getTitle(), channel.getName());
+            options[i] = getString("state2_template", reactionMessage.getTitle(), channel.getPrefixedName());
         }
 
         setComponents(options);
@@ -600,7 +600,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             Button button = Button.of(
                     ButtonStyle.PRIMARY,
                     String.valueOf(i),
-                    StringUtil.shortenString(new AtomicRole(getGuildId().get(), roleId).getName(), 80),
+                    StringUtil.shortenString(new AtomicRole(getGuildId().get(), roleId).getPrefixedName(), 80),
                     Emoji.fromMarkdown(emojiConnection.getEmojiTag())
             );
             buttons.add(button);

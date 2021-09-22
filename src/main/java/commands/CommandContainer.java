@@ -5,9 +5,9 @@ import java.util.*;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
+import commands.listeners.OnAlertListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
-import commands.listeners.OnAlertListener;
 import commands.runnables.aitoyscategory.ColorCommand;
 import commands.runnables.aitoyscategory.DeepDreamCommand;
 import commands.runnables.aitoyscategory.ImitateCommand;
@@ -156,6 +156,7 @@ public class CommandContainer {
         commandList.add(QuizCommand.class);
         commandList.add(AnimeQuizCommand.class);
         commandList.add(TowerCommand.class);
+        commandList.add(BingoCommand.class);
 
         //INTERACTIONS
         commandList.add(AngryCommand.class);

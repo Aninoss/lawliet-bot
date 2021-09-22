@@ -129,7 +129,7 @@ public class NavigationHelper<T> {
         if (type == Type.Unknown) {
             nameFunction = Object::toString;
         } else {
-            nameFunction = obj -> ((MentionableAtomicAsset<?>) obj).getName();
+            nameFunction = obj -> ((MentionableAtomicAsset<?>) obj).getPrefixedName();
         }
 
         String[] strings = new String[srcList.size()];

@@ -15,6 +15,13 @@ public interface MentionableAtomicAsset<T extends IMentionable> extends IMention
 
     Locale getLocale();
 
+    Optional<String> getPrefixedNameRaw();
+
+    default String getPrefixedName() {
+        return getPrefixedNameRaw()
+                .orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));
+    }
+
     Optional<String> getNameRaw();
 
     default String getName() {

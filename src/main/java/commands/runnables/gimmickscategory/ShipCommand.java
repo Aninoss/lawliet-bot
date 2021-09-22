@@ -9,9 +9,12 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.listeners.CommandProperties;
+import constants.AssetIds;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.RandomPicker;
+import core.utils.EmbedUtil;
+import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import modules.graphics.ShipGraphics;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -60,6 +63,10 @@ public class ShipCommand extends Command {
             percentage = 100;
         }
         if (list.get(0).getIdLong() == 321164798475894784L && list.get(1).getIdLong() == 326714012022865930L) {
+            EmbedBuilder authorEmbed = EmbedFactory.getEmbedDefault()
+                    .setDescription(event.getMessage().getContentRaw());
+            EmbedUtil.setMemberAuthor(authorEmbed, event.getMember());
+            JDAUtil.sendPrivateMessage(AssetIds.OWNER_USER_ID, authorEmbed.build()).queue();
             percentage = -999;
         }
 

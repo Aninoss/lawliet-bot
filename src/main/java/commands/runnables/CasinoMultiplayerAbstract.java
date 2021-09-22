@@ -9,10 +9,12 @@ import commands.Command;
 import commands.CommandListenerMeta;
 import commands.listeners.OnButtonListener;
 import constants.Emojis;
+import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
+import core.mention.Mention;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.FisheryStatus;
@@ -30,7 +32,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public abstract class CasinoMultiplayerAbstract extends Command implements OnButtonListener {
 
-    public enum Status { WAITING_FOR_PLAYERS, PLAYING }
+    public enum Status { WAITING_FOR_PLAYERS, PLAYING, END }
 
     public static final String BUTTON_ID_JOIN = "join";
     public static final String BUTTON_ID_LEAVE = "leave";
@@ -44,6 +46,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     private final long playersMin;
     private final long playersMax;
     private final ArrayList<AtomicMember> playerList = new ArrayList<>();
+    private EmbedBuilder lastEmbedBuilder;
 
     public CasinoMultiplayerAbstract(Locale locale, String prefix, long playersMin, long playersMax) {
         super(locale, prefix);
@@ -51,7 +54,11 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         this.playersMax = playersMax;
     }
 
-    public abstract boolean onGameStart(GuildMessageReceivedEvent event, String args) throws Throwable;
+    public boolean onGamePrepare(GuildMessageReceivedEvent event, String args) throws Throwable {
+        return true;
+    }
+
+    public abstract void onGameStart(List<AtomicMember> players) throws Throwable;
 
     public abstract boolean onButtonCasino(ButtonClickEvent event, int player) throws Throwable;
 
@@ -59,7 +66,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
-        if (!onGameStart(event, args)) {
+        if (!onGamePrepare(event, args)) {
             return false;
         }
 
@@ -139,6 +146,12 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
             getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
             return false;
         } else {
+            if (fisheryGuildData == null) {
+                playerList.add(new AtomicMember(event.getMember()));
+                setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join_log", event.getMember().getEffectiveName()));
+                return true;
+            }
+
             FisheryMemberData fisheryMemberData = fisheryGuildData.getMemberData(event.getMember().getIdLong());
             if (fisheryMemberData.getCoins() >= coinsInput) {
                 fisheryMemberData.addCoinsHidden(coinsInput);
@@ -159,7 +172,9 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
             getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
             return false;
         } else {
-            fisheryGuildData.getMemberData(event.getMember().getIdLong()).addCoinsHidden(-coinsInput);
+            if (fisheryGuildData != null) {
+                fisheryGuildData.getMemberData(event.getMember().getIdLong()).addCoinsHidden(-coinsInput);
+            }
             playerList.removeIf(m -> m.getIdLong() == event.getMember().getIdLong());
             if (playerList.size() > 0) {
                 setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_leave_log", event.getMember().getEffectiveName()));
@@ -171,9 +186,10 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         }
     }
 
-    private boolean onButtonStart(ButtonClickEvent event) {
+    private boolean onButtonStart(ButtonClickEvent event) throws Throwable {
         if (playerList.size() >= playersMin) {
             if (event.getMember().getIdLong() == playerList.get(0).getIdLong()) {
+                onGameStart(getPlayerList());
                 status = Status.PLAYING;
                 return true;
             } else {
@@ -182,36 +198,66 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
                 return false;
             }
         } else {
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_start_notenough"));
+            getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
             return false;
         }
     }
 
+    protected void end(List<Integer> winners) {
+        deregisterListeners();
+
+        long totalCoinsInput = coinsInput * playerList.size();
+        long price = totalCoinsInput / winners.size() - coinsInput;
+        ArrayList<Member> winnersMembers = new ArrayList<>();
+        for (int player = 0; player < playerList.size(); player++) {
+            AtomicMember atomicMember = playerList.get(player);
+            if (fisheryGuildData != null) {
+                FisheryMemberData fisheryMemberData = fisheryGuildData.getMemberData(atomicMember.getIdLong());
+                fisheryMemberData.addCoinsHidden(-coinsInput);
+                if (winners.contains(player)) {
+                    fisheryMemberData.addCoinsRaw(price);
+                    atomicMember.get().ifPresent(winnersMembers::add);
+                } else {
+                    fisheryMemberData.addCoinsRaw(-coinsInput);
+                }
+            } else if (winners.contains(player)) {
+                atomicMember.get().ifPresent(winnersMembers::add);
+            }
+        }
+
+        Mention mention = MentionUtil.getMentionedStringOfMembers(getLocale(), winnersMembers);
+        String key = price != 1 ? "casino_multiplayer_win" : "casino_multiplayer_win_singlecoin";
+        String text = TextManager.getString(getLocale(), Category.CASINO, key,
+                mention.isMultiple(),
+                mention.getMentionText().replace("**", ""),
+                StringUtil.numToString(price)
+        );
+        setLog(LogStatus.WIN, text);
+        status = Status.END;
+    }
+
     @Override
     public EmbedBuilder draw(Member member) throws Throwable {
-        switch (status) {
-            case WAITING_FOR_PLAYERS -> {
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                        .addField(TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_players", StringUtil.numToString(playersMin)), generatePlayersList(), false)
-                        .addField(Emojis.ZERO_WIDTH_SPACE, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_template", "", StringUtil.numToString(coinsInput)), false);
+        if (status == Status.WAITING_FOR_PLAYERS) {
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
+                    .addField(TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_players", StringUtil.numToString(playersMin)), generatePlayersList(), false)
+                    .addField(Emojis.ZERO_WIDTH_SPACE, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_template", "", StringUtil.numToString(coinsInput)), false);
 
-                Button startButton = Button.of(ButtonStyle.SUCCESS, BUTTON_ID_START, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_start"), Emoji.fromUnicode(EMOJI_HOST));
-                if (playerList.size() < playersMin) {
-                    startButton = startButton.asDisabled();
-                }
-                setComponents(
-                        Button.of(ButtonStyle.PRIMARY, BUTTON_ID_JOIN, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join")),
-                        Button.of(ButtonStyle.DANGER, BUTTON_ID_LEAVE, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_leave")),
-                        startButton
-                );
+            Button startButton = Button.of(ButtonStyle.SUCCESS, BUTTON_ID_START, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_start"), Emoji.fromUnicode(EMOJI_HOST));
+            if (playerList.size() < playersMin) {
+                startButton = startButton.asDisabled();
+            }
+            setComponents(
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_JOIN, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join")),
+                    Button.of(ButtonStyle.DANGER, BUTTON_ID_LEAVE, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_leave")),
+                    startButton
+            );
 
-                return eb;
-            }
-            case PLAYING -> {
-                return drawCasino(member);
-            }
-            default -> {
-                return null;
-            }
+            return eb;
+        } else {
+            lastEmbedBuilder = drawCasino(member);
+            return lastEmbedBuilder;
         }
     }
 
@@ -232,7 +278,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
 
     @Override
     public void onListenerTimeOut() {
-        if (status == Status.WAITING_FOR_PLAYERS) {
+        if (status == Status.WAITING_FOR_PLAYERS && fisheryGuildData != null) {
             for (AtomicMember atomicMember : playerList) {
                 fisheryGuildData.getMemberData(atomicMember.getIdLong()).addCoinsHidden(-coinsInput);
             }
@@ -241,6 +287,10 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
 
     public List<AtomicMember> getPlayerList() {
         return Collections.unmodifiableList(playerList);
+    }
+
+    public long getCoinsInput() {
+        return coinsInput;
     }
 
 }
