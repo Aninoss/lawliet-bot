@@ -126,6 +126,7 @@ public abstract class RolePlayAbstract extends Command {
         return true;
     }
 
+
     private static final class BlockUserPair {
 
         private final long userId0;

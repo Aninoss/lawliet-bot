@@ -38,6 +38,8 @@ public abstract class PornSearchAbstract extends PornAbstract {
             case "dxd", "highschool_dxd" -> search = "high_school_dxd";
             case "zerotwo", "zero_two", "zero two" -> search = "zero_two_(darling_in_the_franxx)";
             case "rem" -> search = "rem_(re:zero)";
+            case "brawl star" -> search = "brawl_stars";
+            case "brawl stars" -> search = "brawl_stars";
         }
 
         int maxTags = getMaxTags();
