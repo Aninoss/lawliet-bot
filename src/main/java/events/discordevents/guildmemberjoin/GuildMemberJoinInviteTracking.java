@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
-@DiscordEvent(allowBots = true)
+@DiscordEvent(allowBots = true, allowBannedUser = true)
 public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
 
     @Override

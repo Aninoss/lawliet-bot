@@ -6,7 +6,7 @@ import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.invitetracking.InviteTracking;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
-@DiscordEvent(priority = EventPriority.LOW)
+@DiscordEvent(priority = EventPriority.LOW, allowBannedUser = true)
 public class GuildMessageReceivedInviteTracking extends GuildMessageReceivedAbstract {
 
     @Override

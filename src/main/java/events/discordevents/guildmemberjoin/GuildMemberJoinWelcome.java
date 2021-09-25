@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
-@DiscordEvent(allowBots = true)
+@DiscordEvent(allowBots = true, allowBannedUser = true)
 public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
 
     @Override

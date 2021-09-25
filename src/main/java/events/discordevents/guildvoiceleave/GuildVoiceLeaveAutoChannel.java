@@ -5,7 +5,7 @@ import events.discordevents.eventtypeabstracts.GuildVoiceLeaveAbstract;
 import modules.AutoChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 
-@DiscordEvent(allowBots = true)
+@DiscordEvent(allowBots = true, allowBannedUser = true)
 public class GuildVoiceLeaveAutoChannel extends GuildVoiceLeaveAbstract {
 
     @Override

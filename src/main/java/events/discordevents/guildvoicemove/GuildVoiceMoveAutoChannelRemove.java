@@ -5,12 +5,11 @@ import events.discordevents.eventtypeabstracts.GuildVoiceMoveAbstract;
 import modules.AutoChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 
-@DiscordEvent(allowBots = true)
-public class GuildVoiceMoveAutoChannel extends GuildVoiceMoveAbstract {
+@DiscordEvent(allowBots = true, allowBannedUser = true)
+public class GuildVoiceMoveAutoChannelRemove extends GuildVoiceMoveAbstract {
 
     @Override
     public boolean onGuildVoiceMove(GuildVoiceMoveEvent event) {
-        AutoChannel.processCreate(event.getChannelJoined(), event.getMember());
         AutoChannel.processRemove(event.getChannelLeft());
         return true;
     }
