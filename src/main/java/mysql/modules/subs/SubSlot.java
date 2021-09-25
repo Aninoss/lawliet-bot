@@ -6,6 +6,7 @@ import commands.Category;
 import core.TextManager;
 import core.assets.UserAsset;
 import core.utils.JDAUtil;
+import mysql.modules.bannedusers.DBBannedUsers;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.components.Button;
 
@@ -41,21 +42,23 @@ public class SubSlot extends Observable implements UserAsset {
     }
 
     public void sendEmbed(Locale locale, EmbedBuilder eb, Button... buttons) {
-        eb.setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
-        JDAUtil.sendPrivateMessage(userId, eb.build(), buttons).queue(v -> {
-            if (errors > 0) {
-                errors = 0;
-                setChanged();
-                notifyObservers();
-            }
-        }, e -> {
-            if (++errors >= 3) {
-                DBSubs.getInstance().retrieve(command).remove(userId);
-            } else {
-                setChanged();
-                notifyObservers();
-            }
-        });
+        if (!DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId)) {
+            eb.setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
+            JDAUtil.sendPrivateMessage(userId, eb.build(), buttons).queue(v -> {
+                if (errors > 0) {
+                    errors = 0;
+                    setChanged();
+                    notifyObservers();
+                }
+            }, e -> {
+                if (++errors >= 3) {
+                    DBSubs.getInstance().retrieve(command).remove(userId);
+                } else {
+                    setChanged();
+                    notifyObservers();
+                }
+            });
+        }
     }
 
 }
