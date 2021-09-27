@@ -1,6 +1,7 @@
 package commands.runnables.casinocategory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import commands.Category;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoMultiplayerAbstract;
@@ -71,7 +72,21 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
         if (playerToBoard[player] == -1) {
             boardToPlayer[boardId] = player;
             playerToBoard[player] = boardId;
-            if (Arrays.stream(playerToBoard).allMatch(p -> p != -1)) {
+            List<Integer> remainingBoards = Arrays.stream(boards)
+                    .map(BingoBoard::getId)
+                    .filter(id -> boardToPlayer[id] == -1)
+                    .collect(Collectors.toList());
+            if (remainingBoards.size() == 1) {
+                List<Integer> remainingPlayers = Arrays.stream(boards)
+                        .map(BingoBoard::getId)
+                        .filter(id -> playerToBoard[id] == -1)
+                        .collect(Collectors.toList());
+
+                int newBoardId = remainingBoards.get(0);
+                int newPlayer = remainingPlayers.get(0);
+                boardToPlayer[newBoardId] = newPlayer;
+                playerToBoard[newPlayer] = newBoardId;
+
                 deregisterListeners();
                 selectionMode = false;
                 startDisclosure(event.getMember());
@@ -91,7 +106,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
     private void disclosureStep(Member member) {
         if (disclosurePending) {
             disclosurePending = false;
-            MainScheduler.schedule(1500, "Bingo-Disclosure", () -> disclosureStep(member));
+            MainScheduler.schedule(2000, "Bingo-Disclosure", () -> disclosureStep(member));
         } else {
             ArrayList<Integer> winners = new ArrayList<>();
             for (int player = 0; player < playerToBoard.length; player++) {

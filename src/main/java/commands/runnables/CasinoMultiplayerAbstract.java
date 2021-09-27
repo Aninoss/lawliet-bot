@@ -146,6 +146,12 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
             getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
             return false;
         } else {
+            if (playerList.size() >= playersMax) {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join_toomany"));
+                getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
+                return false;
+            }
+
             if (fisheryGuildData == null) {
                 playerList.add(new AtomicMember(event.getMember()));
                 setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join_log", event.getMember().getEffectiveName()));
@@ -208,7 +214,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         deregisterListeners();
 
         long totalCoinsInput = coinsInput * playerList.size();
-        long price = totalCoinsInput / winners.size() - coinsInput;
+        long price = totalCoinsInput / winners.size();
         ArrayList<Member> winnersMembers = new ArrayList<>();
         for (int player = 0; player < playerList.size(); player++) {
             AtomicMember atomicMember = playerList.get(player);
@@ -216,7 +222,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
                 FisheryMemberData fisheryMemberData = fisheryGuildData.getMemberData(atomicMember.getIdLong());
                 fisheryMemberData.addCoinsHidden(-coinsInput);
                 if (winners.contains(player)) {
-                    fisheryMemberData.addCoinsRaw(price);
+                    fisheryMemberData.addCoinsRaw(price - coinsInput);
                     atomicMember.get().ifPresent(winnersMembers::add);
                 } else {
                     fisheryMemberData.addCoinsRaw(-coinsInput);
