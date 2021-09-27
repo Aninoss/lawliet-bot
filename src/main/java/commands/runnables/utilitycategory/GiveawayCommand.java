@@ -369,35 +369,50 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 return true;
 
             case 7:
-                Optional<Long> messageIdOpt = sendMessage();
-                if (messageIdOpt.isPresent()) {
-                    setState(SENT);
-                    deregisterListeners();
-                    GiveawayData giveawayData = new GiveawayData(
-                            event.getGuild().getIdLong(),
-                            channel.getIdLong(),
-                            messageIdOpt.get(),
-                            emoji,
-                            amountOfWinners,
-                            instant,
-                            durationMinutes,
-                            title,
-                            description,
-                            imageLink,
-                            true
-                    );
-                    if (!giveawayMap.containsKey(giveawayData.getMessageId())) {
-                        GiveawayScheduler.loadGiveawayBean(giveawayData);
-                    }
-
-                    giveawayMap.put(giveawayData.getMessageId(), giveawayData);
+                if (editMode) {
+                    send(event, true);
                 } else {
-                    setLog(LogStatus.FAILURE, getString("error"));
+                    send(event, false);
                 }
                 return true;
 
+            case 8:
+                if (editMode) {
+                    send(event, false);
+                    return true;
+                } else {
+                    return false;
+                }
+
             default:
                 return false;
+        }
+    }
+
+    private void send(ButtonClickEvent event, boolean endPrematurely) {
+        Optional<Long> messageIdOpt = sendMessage();
+        if (messageIdOpt.isPresent()) {
+            setState(SENT);
+            deregisterListeners();
+            GiveawayData giveawayData = new GiveawayData(
+                    event.getGuild().getIdLong(),
+                    channel.getIdLong(),
+                    messageIdOpt.get(),
+                    emoji,
+                    amountOfWinners,
+                    instant,
+                    endPrematurely ? 0 : durationMinutes,
+                    title,
+                    description,
+                    imageLink,
+                    true
+            );
+            if (endPrematurely || !giveawayMap.containsKey(giveawayData.getMessageId())) {
+                GiveawayScheduler.loadGiveawayBean(giveawayData);
+            }
+            giveawayMap.put(giveawayData.getMessageId(), giveawayData);
+        } else {
+            setLog(LogStatus.FAILURE, getString("error"));
         }
     }
 
@@ -406,7 +421,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         if (getState() == UPDATE_EMOJI) {
             event.getReaction().removeReaction(event.getUser()).queue();
             processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
-            processDraw(event.getMember(), false);
+            processDraw(event.getMember(), true);
             return false;
         }
         return false;
@@ -507,7 +522,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Draw(state = REROLL_MESSAGE)
     public EmbedBuilder onDrawRerollMessage(Member member) {
         String[] options = getCompletedGiveawaySlots().stream()
-                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), new AtomicTextChannel(member.getGuild().getIdLong(), giveawayData.getTextChannelId()).getPrefixedName()))
+                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), new AtomicTextChannel(member.getGuild().getIdLong(), giveawayData.getTextChannelId()).getName()))
                 .toArray(String[]::new);
         setComponents(options);
         return EmbedFactory.getEmbedDefault(this, getString("state12_description"), getString("state12_title"));
@@ -516,7 +531,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Draw(state = CONFIGURE_MESSAGE)
     public EmbedBuilder onDrawConfigureMessage(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-        setComponents(getString("state3_options").split("\n"));
+        if (editMode) {
+            setComponents(getString("state3_options_edit").split("\n"));
+        } else {
+            setComponents(getString("state3_options").split("\n"));
+        }
 
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_" + (editMode ? "edit" : "new")))
                 .addField(getString("state3_mtitle"), title, false)

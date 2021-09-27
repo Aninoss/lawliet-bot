@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @CommandProperties(
         trigger = "bingo",
-        releaseDate = { 2021, 9, 30 },
+        releaseDate = { 2021, 10, 5 },
         emoji = "🎱",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         executableWithoutArgs = true,
