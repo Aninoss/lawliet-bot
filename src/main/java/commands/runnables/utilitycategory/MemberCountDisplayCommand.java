@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.managers.ChannelManager;
 
@@ -142,7 +143,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                                         permissionOverride.getDeniedRaw() | Permission.VOICE_CONNECT.getRawValue()
                                 );
                             }
-                        } catch (InsufficientPermissionException e) {
+                        } catch (InsufficientPermissionException | ErrorResponseException e) {
                             //Ignore
                             setLog(LogStatus.FAILURE, getString("nopermissions"));
                             return true;
@@ -167,7 +168,14 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                                 permissionBot != null ? permissionBot.getDeniedRaw() & ~permissionBotOverride : 0
                         );
 
-                        manager.complete();
+                        try {
+                            manager.complete();
+                        } catch (ErrorResponseException e) {
+                            //Ignore
+                            setLog(LogStatus.FAILURE, getString("nopermissions"));
+                            return true;
+                        }
+
                         memberCountBean.getMemberCountBeanSlots().put(voiceChannel.getIdLong(), new MemberCountDisplaySlot(event.getGuild().getIdLong(), voiceChannel.getIdLong(), currentName));
                         MemberCountDisplay.manage(getLocale(), event.getGuild());
 
