@@ -177,7 +177,7 @@ public class InviteTracking {
                 inviteList.add(new TempInvite(
                         invite.getCode(),
                         invite.getUses(),
-                        invite.getInviter().getIdLong()
+                        invite.getInviter().getIdLong() //TODO: fix null?
                 ));
             }
             completed[1] = true;

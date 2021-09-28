@@ -62,39 +62,43 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
 
     @Override
     public synchronized boolean onButtonCasino(ButtonClickEvent event, int player) throws Throwable {
-        int boardId = Integer.parseInt(event.getComponentId());
-        if (boardToPlayer[boardId] != -1) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("boardused"));
-            getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
-            return false;
-        }
-
-        if (playerToBoard[player] == -1) {
-            boardToPlayer[boardId] = player;
-            playerToBoard[player] = boardId;
-            List<Integer> remainingBoards = Arrays.stream(boards)
-                    .map(BingoBoard::getId)
-                    .filter(id -> boardToPlayer[id] == -1)
-                    .collect(Collectors.toList());
-            if (remainingBoards.size() == 1) {
-                List<Integer> remainingPlayers = Arrays.stream(boards)
-                        .map(BingoBoard::getId)
-                        .filter(id -> playerToBoard[id] == -1)
-                        .collect(Collectors.toList());
-
-                int newBoardId = remainingBoards.get(0);
-                int newPlayer = remainingPlayers.get(0);
-                boardToPlayer[newBoardId] = newPlayer;
-                playerToBoard[newPlayer] = newBoardId;
-
-                deregisterListeners();
-                selectionMode = false;
-                startDisclosure(event.getMember());
+        if (StringUtil.stringIsInt(event.getComponentId())) {
+            int boardId = Integer.parseInt(event.getComponentId());
+            if (boardToPlayer[boardId] != -1) {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("boardused"));
+                getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
+                return false;
             }
-            return true;
+
+            if (playerToBoard[player] == -1) {
+                boardToPlayer[boardId] = player;
+                playerToBoard[player] = boardId;
+                List<Integer> remainingBoards = Arrays.stream(boards)
+                        .map(BingoBoard::getId)
+                        .filter(id -> boardToPlayer[id] == -1)
+                        .collect(Collectors.toList());
+                if (remainingBoards.size() == 1) {
+                    List<Integer> remainingPlayers = Arrays.stream(boards)
+                            .map(BingoBoard::getId)
+                            .filter(id -> playerToBoard[id] == -1)
+                            .collect(Collectors.toList());
+
+                    int newBoardId = remainingBoards.get(0);
+                    int newPlayer = remainingPlayers.get(0);
+                    boardToPlayer[newBoardId] = newPlayer;
+                    playerToBoard[newPlayer] = newBoardId;
+
+                    deregisterListeners();
+                    selectionMode = false;
+                    startDisclosure(event.getMember());
+                }
+                return true;
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("playeralreadyset"));
+                getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
+                return false;
+            }
         } else {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("playeralreadyset"));
-            getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
             return false;
         }
     }
