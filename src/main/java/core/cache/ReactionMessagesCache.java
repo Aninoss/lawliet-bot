@@ -85,7 +85,7 @@ public class ReactionMessagesCache {
             emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
         }
 
-        return Optional.of(new ReactionMessage(
+        ReactionMessage reactionMessage = new ReactionMessage(
                 message.getGuild().getIdLong(),
                 message.getTextChannel().getIdLong(),
                 message.getIdLong(),
@@ -95,7 +95,8 @@ public class ReactionMessagesCache {
                 removeRole,
                 multipleRoles,
                 emojiConnections
-        ));
+        );
+        return Optional.of(reactionMessage);
     }
 
 }

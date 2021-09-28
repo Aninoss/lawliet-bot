@@ -157,11 +157,12 @@ public class InviteTracking {
 
         if (guild.getVanityCode() != null) {
             guild.retrieveVanityInvite().queue(vanityInvite -> {
-                inviteList.add(new TempInvite(
+                TempInvite tempInvite = new TempInvite(
                         vanityInvite.getCode(),
                         vanityInvite.getUses(),
                         0L
-                ));
+                );
+                inviteList.add(tempInvite);
                 completed[0] = true;
                 if (completed[1]) {
                     future.complete(inviteList);
