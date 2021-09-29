@@ -9,6 +9,7 @@ import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.ShardManager;
 import core.TextManager;
+import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
@@ -78,8 +79,8 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
                 MessageAction messageAction;
                 if (inviteTrackingData.isAdvanced()) {
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                            .setAuthor(member.getUser().getAsTag(), null, member.getUser().getEffectiveAvatarUrl())
                             .setDescription(text);
+                    EmbedUtil.setMemberAuthor(eb, member);
 
                     if (invite != null) {
                         InviteMetrics inviteMetrics = InviteTracking.generateInviteMetrics(member.getGuild(), invite.getInviter());
