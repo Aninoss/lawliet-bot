@@ -6,9 +6,12 @@ import java.util.Optional;
 import commands.Category;
 import commands.Command;
 import commands.runnables.utilitycategory.TicketCommand;
+import constants.Emojis;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
+import core.cache.TicketProtocolCache;
+import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import mysql.modules.guild.DBGuild;
@@ -19,8 +22,11 @@ import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.managers.ChannelManager;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class Ticket {
 
@@ -48,9 +54,15 @@ public class Ticket {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
                     .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", ticketTextChannel.getName(), memberMention));
-            textChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), " ")
-                    .setEmbeds(eb.build())
-                    .queue();
+
+            MessageAction messageAction = textChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), Emojis.ZERO_WIDTH_SPACE)
+                    .setEmbeds(eb.build());
+            String csvUrl = TicketProtocolCache.getUrl(ticketChannel.getTextChannelId());
+            if (csvUrl != null) {
+                Button button = Button.of(ButtonStyle.LINK, csvUrl, TextManager.getString(locale, Category.UTILITY, "ticket_csv_download"));
+                messageAction = messageAction.setActionRows(ActionRows.of(button));
+            }
+            messageAction.queue();
         }
     }
 

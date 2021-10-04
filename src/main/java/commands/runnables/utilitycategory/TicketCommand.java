@@ -1,26 +1,28 @@
 package commands.runnables.utilitycategory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnStaticButtonListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.*;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.MentionableAtomicAsset;
+import core.cache.ServerPatreonBoostCache;
+import core.cache.TicketProtocolCache;
 import core.components.ActionRows;
-import core.utils.BotPermissionUtil;
-import core.utils.EmojiUtil;
-import core.utils.MentionUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import modules.Ticket;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
@@ -33,6 +35,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 @CommandProperties(
         trigger = "ticket",
@@ -163,10 +166,19 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return true;
 
             case 5:
-                setState(GREETING_TEXT);
+                if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                    ticketData.toggleProtocol();
+                    setLog(LogStatus.SUCCESS, getString("protocol_set", ticketData.getProtocolEffectively()));
+                } else {
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                }
                 return true;
 
             case 6:
+                setState(GREETING_TEXT);
+                return true;
+
+            case 7:
                 setState(CREATE_TICKET_MESSAGE);
                 return true;
 
@@ -270,6 +282,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true)
                 .addField(getString("state0_mmembercanclose"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.memberCanClose()), true)
                 .addField(getString("state0_massign"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getAssignToAll()), true)
+                .addField(getString("state0_mprotocol", Emojis.COMMAND_ICON_PATREON), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getProtocolEffectively()), true)
                 .addField(getString("state0_mcreatemessage"), StringUtil.escapeMarkdown(ticketData.getCreateMessage().orElse(notSet)), false);
     }
 
@@ -321,7 +334,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         } else if (ticketChannel != null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), TICKET_CLOSE_EMOJI)) {
             boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
             if (isStaff || ticketData.memberCanClose()) {
-                onTicketRemove(event.getChannel());
+                onTicketRemove(ticketData, event.getChannel());
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
                 event.getChannel().sendMessageEmbeds(eb.build())
@@ -340,7 +353,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         } else if (ticketChannel != null && event.getComponentId().equals(BUTTON_ID_CLOSE)) {
             boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
             if (isStaff || ticketData.memberCanClose()) {
-                onTicketRemove(event.getTextChannel());
+                onTicketRemove(ticketData, event.getTextChannel());
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
                 event.replyEmbeds(eb.build())
@@ -370,10 +383,68 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         }
     }
 
-    private void onTicketRemove(TextChannel channel) {
-        channel.delete()
-                .reason(getCommandLanguage().getTitle())
-                .queue();
+    private void onTicketRemove(TicketData ticketData, TextChannel channel) {
+        AuditableRestAction<Void> channelDeleteRestAction = channel.delete()
+                .reason(getCommandLanguage().getTitle());
+
+        if (ticketData.getProtocolEffectively()) {
+            GlobalThreadPool.getExecutorService().submit(() -> {
+                MessageHistory messageHistory = channel.getHistory();
+                List<Message> messageLoadList;
+                do {
+                    messageLoadList = messageHistory.retrievePast(100).complete();
+                } while (messageLoadList.size() == 100);
+
+                ArrayList<Message> messageList = new ArrayList<>(messageHistory.getRetrievedHistory());
+                Collections.reverse(messageList);
+
+                ArrayList<String[]> csvRows = new ArrayList<>();
+                csvRows.add(getString("csv_titles").split("\n"));
+                DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                        .withLocale(Locale.US);
+                long lastAuthorId = 0L;
+                Instant lastMessageTime = null;
+                for (Message message : messageList) {
+                    if (message.getContentDisplay().length() > 0 || message.getAttachments().size() > 0) {
+                        String content = message.getContentDisplay();
+                        String[] row = new String[] { " ", " ", content.length() > 0 ? content : " ", " " };
+
+                        if (message.getAuthor().getIdLong() != lastAuthorId || lastMessageTime == null ||
+                                message.getTimeCreated().toInstant().isAfter(lastMessageTime.plus(Duration.ofMinutes(15)))
+                        ) {
+                            row[0] = formatter.format(message.getTimeCreated());
+                            row[1] = message.getAuthor().getAsTag();
+                        }
+
+                        if (message.getAttachments().size() > 0) {
+                            StringBuilder attachments = new StringBuilder();
+                            for (Message.Attachment attachment : message.getAttachments()) {
+                                if (attachments.length() > 0) {
+                                    attachments.append("\n");
+                                }
+                                attachments.append(attachment.getUrl());
+                            }
+                            row[3] = attachments.toString();
+                        }
+
+                        lastAuthorId = message.getAuthor().getIdLong();
+                        lastMessageTime = message.getTimeCreated().toInstant();
+                        csvRows.add(row);
+                    }
+                }
+
+                LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("tickets/%d.csv", System.nanoTime()));
+                try(InputStream is = CSVGenerator.generateInputStream(csvRows)) {
+                    FileUtil.writeInputStreamToFile(is, tempFile);
+                } catch (IOException e) {
+                    MainLogger.get().error("Error", e);
+                }
+                TicketProtocolCache.setUrl(channel.getIdLong(), tempFile.cdnGetUrl());
+                channelDeleteRestAction.queue();
+            });
+        } else {
+            channelDeleteRestAction.queue();
+        }
     }
 
     private void setupNewTicketChannel(TicketData ticketData, TextChannel textChannel, Member member) {
