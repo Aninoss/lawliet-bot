@@ -34,7 +34,7 @@ public class ShipCommand extends Command {
             new CustomShipValues(272037078919938058L, 368521195940741122L, 100),
             new CustomShipValues(397209883793162240L, 710120672499728426L, 100),
             new CustomShipValues(444821134936899605L, 547064638597234688L, 777),
-            new CustomShipValues(321164798475894784L, 326714012022865930L, -999),
+            new CustomShipValues(326714012022865930L, -999),
     };
 
     public ShipCommand(Locale locale, String prefix) {
@@ -98,9 +98,17 @@ public class ShipCommand extends Command {
             this.percentage = percentage;
         }
 
+        public CustomShipValues(long userId0, int percentage) {
+            this.userId0 = userId0;
+            this.userId1 = 0L;
+            this.percentage = percentage;
+        }
+
         public Integer getPercentage(Member member0, Member member1) {
             if ((member0.getIdLong() == userId0 && member1.getIdLong() == userId1) ||
-                    (member0.getIdLong() == userId1 && member1.getIdLong() == userId0)
+                    (member0.getIdLong() == userId1 && member1.getIdLong() == userId0) ||
+                    (member0.getIdLong() == userId0 && userId1 == 0) ||
+                    (member1.getIdLong() == userId0 && userId1 == 0)
             ) {
                 return percentage;
             } else {

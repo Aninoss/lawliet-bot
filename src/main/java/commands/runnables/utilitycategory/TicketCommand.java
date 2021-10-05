@@ -22,6 +22,8 @@ import core.atomicassets.MentionableAtomicAsset;
 import core.cache.ServerPatreonBoostCache;
 import core.cache.TicketProtocolCache;
 import core.components.ActionRows;
+import core.lock.Lock;
+import core.lock.LockOccupiedException;
 import core.utils.*;
 import modules.Ticket;
 import mysql.modules.ticket.DBTicket;
@@ -389,58 +391,62 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
         if (ticketData.getProtocolEffectively()) {
             GlobalThreadPool.getExecutorService().submit(() -> {
-                MessageHistory messageHistory = channel.getHistory();
-                List<Message> messageLoadList;
-                do {
-                    messageLoadList = messageHistory.retrievePast(100).complete();
-                } while (messageLoadList.size() == 100);
+                try (Lock lock = new Lock(TicketCommand.class)) {
+                    MessageHistory messageHistory = channel.getHistory();
+                    List<Message> messageLoadList;
+                    do {
+                        messageLoadList = messageHistory.retrievePast(100).complete();
+                    } while (messageLoadList.size() == 100);
 
-                ArrayList<Message> messageList = new ArrayList<>(messageHistory.getRetrievedHistory());
-                Collections.reverse(messageList);
+                    ArrayList<Message> messageList = new ArrayList<>(messageHistory.getRetrievedHistory());
+                    Collections.reverse(messageList);
 
-                ArrayList<String[]> csvRows = new ArrayList<>();
-                csvRows.add(getString("csv_titles").split("\n"));
-                DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                        .withLocale(Locale.US);
-                long lastAuthorId = 0L;
-                Instant lastMessageTime = null;
-                for (Message message : messageList) {
-                    if (message.getContentDisplay().length() > 0 || message.getAttachments().size() > 0) {
-                        String content = message.getContentDisplay();
-                        String[] row = new String[] { " ", " ", content.length() > 0 ? content : " ", " " };
+                    ArrayList<String[]> csvRows = new ArrayList<>();
+                    csvRows.add(getString("csv_titles").split("\n"));
+                    DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                            .withLocale(Locale.US);
+                    long lastAuthorId = 0L;
+                    Instant lastMessageTime = null;
+                    for (Message message : messageList) {
+                        if (message.getContentDisplay().length() > 0 || message.getAttachments().size() > 0) {
+                            String content = message.getContentDisplay();
+                            String[] row = new String[] { " ", " ", content.length() > 0 ? content : " ", " " };
 
-                        if (message.getAuthor().getIdLong() != lastAuthorId || lastMessageTime == null ||
-                                message.getTimeCreated().toInstant().isAfter(lastMessageTime.plus(Duration.ofMinutes(15)))
-                        ) {
-                            row[0] = formatter.format(message.getTimeCreated());
-                            row[1] = message.getAuthor().getAsTag();
-                        }
-
-                        if (message.getAttachments().size() > 0) {
-                            StringBuilder attachments = new StringBuilder();
-                            for (Message.Attachment attachment : message.getAttachments()) {
-                                if (attachments.length() > 0) {
-                                    attachments.append("\n");
-                                }
-                                attachments.append(attachment.getUrl());
+                            if (message.getAuthor().getIdLong() != lastAuthorId || lastMessageTime == null ||
+                                    message.getTimeCreated().toInstant().isAfter(lastMessageTime.plus(Duration.ofMinutes(15)))
+                            ) {
+                                row[0] = formatter.format(message.getTimeCreated());
+                                row[1] = message.getAuthor().getAsTag();
                             }
-                            row[3] = attachments.toString();
+
+                            if (message.getAttachments().size() > 0) {
+                                StringBuilder attachments = new StringBuilder();
+                                for (Message.Attachment attachment : message.getAttachments()) {
+                                    if (attachments.length() > 0) {
+                                        attachments.append("\n");
+                                    }
+                                    attachments.append(attachment.getUrl());
+                                }
+                                row[3] = attachments.toString();
+                            }
+
+                            lastAuthorId = message.getAuthor().getIdLong();
+                            lastMessageTime = message.getTimeCreated().toInstant();
+                            csvRows.add(row);
                         }
-
-                        lastAuthorId = message.getAuthor().getIdLong();
-                        lastMessageTime = message.getTimeCreated().toInstant();
-                        csvRows.add(row);
                     }
-                }
 
-                LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("tickets/%d.csv", System.nanoTime()));
-                try(InputStream is = CSVGenerator.generateInputStream(csvRows)) {
-                    FileUtil.writeInputStreamToFile(is, tempFile);
-                } catch (IOException e) {
-                    MainLogger.get().error("Error", e);
+                    LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("tickets/%d.csv", System.nanoTime()));
+                    try (InputStream is = CSVGenerator.generateInputStream(csvRows)) {
+                        FileUtil.writeInputStreamToFile(is, tempFile);
+                    } catch (IOException e) {
+                        MainLogger.get().error("Error", e);
+                    }
+                    TicketProtocolCache.setUrl(channel.getIdLong(), tempFile.cdnGetUrl());
+                    channelDeleteRestAction.queue();
+                } catch (LockOccupiedException e) {
+                    //Ignore
                 }
-                TicketProtocolCache.setUrl(channel.getIdLong(), tempFile.cdnGetUrl());
-                channelDeleteRestAction.queue();
             });
         } else {
             channelDeleteRestAction.queue();
