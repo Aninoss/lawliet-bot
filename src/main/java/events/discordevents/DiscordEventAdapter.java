@@ -5,7 +5,9 @@ import core.*;
 import events.discordevents.eventtypeabstracts.*;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.channel.text.TextChannelCreateEvent;
 import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.api.events.channel.voice.VoiceChannelCreateEvent;
 import net.dv8tion.jda.api.events.channel.voice.VoiceChannelDeleteEvent;
 import net.dv8tion.jda.api.events.channel.voice.update.VoiceChannelUpdateUserLimitEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -17,6 +19,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdatePendingEvent;
+import net.dv8tion.jda.api.events.guild.override.GenericPermissionOverrideEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateBoostCountEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
@@ -165,9 +168,27 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     @Override
+    public void onTextChannelCreate(@NotNull TextChannelCreateEvent event) {
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> TextChannelCreateAbstract.onTextChannelCreateStatic(event, getListenerList(TextChannelCreateAbstract.class)));
+    }
+
+    @Override
+    public void onVoiceChannelCreate(@NotNull VoiceChannelCreateEvent event) {
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> VoiceChannelCreateAbstract.onVoiceChannelCreateStatic(event, getListenerList(VoiceChannelCreateAbstract.class)));
+    }
+
+    @Override
     public void onTextChannelDelete(@NotNull TextChannelDeleteEvent event) {
         GlobalThreadPool.getExecutorService()
                 .submit(() -> TextChannelDeleteAbstract.onTextChannelDeleteStatic(event, getListenerList(TextChannelDeleteAbstract.class)));
+    }
+
+    @Override
+    public void onGenericPermissionOverride(@NotNull GenericPermissionOverrideEvent event) {
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GenericPermissionOverrideAbstract.onGenericPermissionOverrideStatic(event, getListenerList(GenericPermissionOverrideAbstract.class)));
     }
 
     @Override

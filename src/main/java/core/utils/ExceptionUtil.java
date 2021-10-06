@@ -7,6 +7,7 @@ import commands.Command;
 import commands.runnables.NavigationAbstract;
 import constants.AssetIds;
 import core.*;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public class ExceptionUtil {
 
@@ -37,10 +38,10 @@ public class ExceptionUtil {
         String code = Long.toHexString(Math.abs(transmitStackTrace.hashCode())).toUpperCase();
 
         if (postErrorMessage) {
-            command.drawMessageNew(EmbedFactory.getEmbedError()
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code))
-                    .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""))
-            ).exceptionally(ExceptionLogger.get());
+                    .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""));
+            command.getTextChannel().ifPresent(textChannel -> textChannel.sendMessageEmbeds(eb.build()).queue());
         }
 
         if (submitToDeveloper) {

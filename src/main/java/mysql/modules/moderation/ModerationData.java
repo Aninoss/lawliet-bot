@@ -3,6 +3,7 @@ package mysql.modules.moderation;
 import java.util.List;
 import java.util.Optional;
 import core.CustomObservableList;
+import core.cache.ServerPatreonBoostCache;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -12,6 +13,7 @@ public class ModerationData extends DataWithGuild {
     private Long announcementChannelId;
     private boolean question;
     private Long muteRoleId;
+    private boolean enforceMuteRole;
     private int autoKick;
     private int autoBan;
     private int autoMute;
@@ -25,15 +27,16 @@ public class ModerationData extends DataWithGuild {
     private int autoJailDuration;
     private final CustomObservableList<Long> jailRoleIds;
 
-    public ModerationData(long serverId, Long announcementChannelId, boolean question, Long muteRoleId, int autoKick,
-                          int autoBan, int autoMute, int autoJail, int autoKickDays, int autoBanDays, int autoMuteDays,
-                          int autoJailDays, int autoBanDuration, int autoMuteDuration, int autoJailDuration,
-                          List<Long> jailRoleIds
+    public ModerationData(long serverId, Long announcementChannelId, boolean question, Long muteRoleId,
+                          boolean enforceMuteRole, int autoKick, int autoBan, int autoMute, int autoJail,
+                          int autoKickDays, int autoBanDays, int autoMuteDays, int autoJailDays, int autoBanDuration,
+                          int autoMuteDuration, int autoJailDuration, List<Long> jailRoleIds
     ) {
         super(serverId);
         this.announcementChannelId = announcementChannelId;
         this.question = question;
         this.muteRoleId = muteRoleId;
+        this.enforceMuteRole = enforceMuteRole;
         this.autoKick = autoKick;
         this.autoBan = autoBan;
         this.autoMute = autoMute;
@@ -64,7 +67,7 @@ public class ModerationData extends DataWithGuild {
         return getGuild().map(guild -> guild.getRoleById(muteRoleId != null ? muteRoleId : 0L));
     }
 
-    public boolean isQuestion() {
+    public boolean getQuestion() {
         return question;
     }
 
@@ -175,6 +178,20 @@ public class ModerationData extends DataWithGuild {
 
     public CustomObservableList<Long> getJailRoleIds() {
         return jailRoleIds;
+    }
+
+    public boolean getEnforceMuteRole() {
+        return enforceMuteRole;
+    }
+
+    public boolean getEnforceMuteRoleEffectively() {
+        return getEnforceMuteRole() && ServerPatreonBoostCache.get(getGuildId());
+    }
+
+    public void toggleEnforceMuteRole() {
+        this.enforceMuteRole = !this.enforceMuteRole;
+        setChanged();
+        notifyObservers();
     }
 
 }

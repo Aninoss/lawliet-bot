@@ -5,14 +5,17 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.runnables.NavigationAbstract;
-import constants.LogStatus;
 import commands.listeners.MessageInputResponse;
+import commands.runnables.NavigationAbstract;
+import constants.Emojis;
+import constants.LogStatus;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
+import core.cache.ServerPatreonBoostCache;
+import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -39,7 +42,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 )
 public class ModSettingsCommand extends NavigationAbstract {
 
-    private ModerationData moderationBean;
+    private ModerationData moderationData;
     private int autoKickTemp;
     private int autoBanTemp;
     private int autoMuteTemp;
@@ -56,8 +59,8 @@ public class ModSettingsCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
-        jailRoles = AtomicRole.transformIdList(event.getGuild(), moderationBean.getJailRoleIds());
+        moderationData = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
+        jailRoles = AtomicRole.transformIdList(event.getGuild(), moderationData.getJailRoleIds());
         jailRolesNavigationHelper = new NavigationHelper<>(this, jailRoles, AtomicRole.class, 20);
         checkRolesWithLog(event.getMember(), jailRoles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
         registerNavigationListener(event.getMember());
@@ -75,7 +78,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                 } else {
                     TextChannel channel = channelsList.get(0);
                     if (checkWriteInChannelWithLog(channel)) {
-                        moderationBean.setAnnouncementChannelId(channel.getIdLong());
+                        moderationData.setAnnouncementChannelId(channel.getIdLong());
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
                         return MessageInputResponse.SUCCESS;
@@ -120,7 +123,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                 if (StringUtil.stringIsInt(input)) {
                     int value = Integer.parseInt(input);
                     if (value >= 1) {
-                        moderationBean.setAutoKick(autoKickTemp, value);
+                        moderationData.setAutoKick(autoKickTemp, value);
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return MessageInputResponse.SUCCESS;
@@ -157,9 +160,10 @@ public class ModSettingsCommand extends NavigationAbstract {
                 } else {
                     Role role = roleList.get(0);
                     if (checkRoleWithLog(event.getMember(), role)) {
-                        moderationBean.setMuteRoleId(role.getIdLong());
+                        moderationData.setMuteRoleId(role.getIdLong());
                         setLog(LogStatus.SUCCESS, getString("muteroleset"));
                         setState(0);
+                        Mute.enforceMuteRole(event.getGuild());
                         return MessageInputResponse.SUCCESS;
                     } else {
                         return MessageInputResponse.FAILED;
@@ -169,7 +173,7 @@ public class ModSettingsCommand extends NavigationAbstract {
             case 7:
                 long minutes = MentionUtil.getTimeMinutes(input).getValue();
                 if (minutes > 0) {
-                    moderationBean.setAutoBan(autoBanTemp, autoBanDaysTemp, (int) minutes);
+                    moderationData.setAutoBan(autoBanTemp, autoBanDaysTemp, (int) minutes);
                     setLog(LogStatus.SUCCESS, getString("autobanset"));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
@@ -213,7 +217,7 @@ public class ModSettingsCommand extends NavigationAbstract {
             case 10:
                 minutes = MentionUtil.getTimeMinutes(input).getValue();
                 if (minutes > 0) {
-                    moderationBean.setAutoMute(autoMuteTemp, autoMuteDaysTemp, (int) minutes);
+                    moderationData.setAutoMute(autoMuteTemp, autoMuteDaysTemp, (int) minutes);
                     setLog(LogStatus.SUCCESS, getString("automuteset"));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
@@ -261,7 +265,7 @@ public class ModSettingsCommand extends NavigationAbstract {
             case 15:
                 minutes = MentionUtil.getTimeMinutes(input).getValue();
                 if (minutes > 0) {
-                    moderationBean.setAutoJail(autoJailTemp, autoJailDaysTemp, (int) minutes);
+                    moderationData.setAutoJail(autoJailTemp, autoJailDaysTemp, (int) minutes);
                     setLog(LogStatus.SUCCESS, getString("autojailset"));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
@@ -289,8 +293,8 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 1:
-                        moderationBean.toggleQuestion();
-                        setLog(LogStatus.SUCCESS, getString("setquestion", moderationBean.isQuestion()));
+                        moderationData.toggleQuestion();
+                        setLog(LogStatus.SUCCESS, getString("setquestion", moderationData.getQuestion()));
                         return true;
 
                     case 2:
@@ -298,30 +302,44 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 3:
-                        jailRolesNavigationHelper.startDataAdd(11);
+                        if (moderationData.getEnforceMuteRoleEffectively() || BotPermissionUtil.can(event.getGuild(), Permission.ADMINISTRATOR)) {
+                            if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                                moderationData.toggleEnforceMuteRole();
+                                setLog(LogStatus.SUCCESS, getString("enforceset", moderationData.getEnforceMuteRoleEffectively()));
+                                Mute.enforceMuteRole(event.getGuild());
+                            } else {
+                                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                            }
+                        } else {
+                            setLog(LogStatus.FAILURE, getString("noadmin"));
+                        }
                         return true;
 
                     case 4:
-                        jailRolesNavigationHelper.startDataRemove(12);
+                        jailRolesNavigationHelper.startDataAdd(11);
                         return true;
 
                     case 5:
-                        if (moderationBean.getMuteRole().isPresent()) {
+                        jailRolesNavigationHelper.startDataRemove(12);
+                        return true;
+
+                    case 6:
+                        if (moderationData.getMuteRole().isPresent()) {
                             setState(8);
                         } else {
                             setLog(LogStatus.FAILURE, getString("nomute"));
                         }
                         return true;
 
-                    case 6:
+                    case 7:
                         setState(13);
                         return true;
 
-                    case 7:
+                    case 8:
                         setState(2);
                         return true;
 
-                    case 8:
+                    case 9:
                         setState(3);
                         return true;
 
@@ -336,7 +354,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setAnnouncementChannelId(null);
+                        moderationData.setAnnouncementChannelId(null);
                         setLog(LogStatus.SUCCESS, getString("channelreset"));
                         setState(0);
                         return true;
@@ -352,7 +370,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setAutoKick(0, 0);
+                        moderationData.setAutoKick(0, 0);
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return true;
@@ -368,7 +386,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setAutoBan(0, 0, 0);
+                        moderationData.setAutoBan(0, 0, 0);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
@@ -384,7 +402,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setAutoKick(autoKickTemp, 0);
+                        moderationData.setAutoKick(autoKickTemp, 0);
                         setLog(LogStatus.SUCCESS, getString("autokickset"));
                         setState(0);
                         return true;
@@ -415,7 +433,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setMuteRoleId(null);
+                        moderationData.setMuteRoleId(null);
                         setLog(LogStatus.SUCCESS, getString("muterolereset"));
                         setState(0);
                         return true;
@@ -431,7 +449,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setAutoBan(autoBanTemp, autoBanDaysTemp, 0);
+                        moderationData.setAutoBan(autoBanTemp, autoBanDaysTemp, 0);
                         setLog(LogStatus.SUCCESS, getString("autobanset"));
                         setState(0);
                         return true;
@@ -447,7 +465,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setAutoMute(0, 0, 0);
+                        moderationData.setAutoMute(0, 0, 0);
                         setLog(LogStatus.SUCCESS, getString("automuteset"));
                         setState(0);
                         return true;
@@ -478,7 +496,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setAutoMute(autoMuteTemp, autoMuteDaysTemp, 0);
+                        moderationData.setAutoMute(autoMuteTemp, autoMuteDaysTemp, 0);
                         setLog(LogStatus.SUCCESS, getString("automuteset"));
                         setState(0);
                         return true;
@@ -504,7 +522,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setAutoJail(0, 0, 0);
+                        moderationData.setAutoJail(0, 0, 0);
                         setLog(LogStatus.SUCCESS, getString("autojailset"));
                         setState(0);
                         return true;
@@ -535,7 +553,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 0:
-                        moderationBean.setAutoJail(autoJailTemp, autoJailDaysTemp, 0);
+                        moderationData.setAutoJail(autoJailTemp, autoJailDaysTemp, 0);
                         setLog(LogStatus.SUCCESS, getString("autojailset"));
                         setState(0);
                         return true;
@@ -564,15 +582,16 @@ public class ModSettingsCommand extends NavigationAbstract {
                 }
 
                 return EmbedFactory.getEmbedDefault(this, content)
-                        .addField(getString("state0_mchannel"), moderationBean.getAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
-                        .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationBean.isQuestion()), true)
-                        .addField(getString("state0_mmuterole"), moderationBean.getMuteRole().map(IMentionable::getAsMention).orElse(notSet), true)
+                        .addField(getString("state0_mchannel"), moderationData.getAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
+                        .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationData.getQuestion()), true)
+                        .addField(getString("state0_mmuterole"), moderationData.getMuteRole().map(IMentionable::getAsMention).orElse(notSet), true)
+                        .addField(getString("state0_menforcemute", Emojis.COMMAND_ICON_PATREON), getString("state0_menforcemute_desc", StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationData.getEnforceMuteRoleEffectively())), true)
                         .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(jailRoles, getLocale(), IMentionable::getAsMention), true)
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc",
-                                getAutoModString(textChannel, moderationBean.getAutoMute(), moderationBean.getAutoMuteDays(), moderationBean.getAutoMuteDuration()),
-                                getAutoModString(textChannel, moderationBean.getAutoJail(), moderationBean.getAutoJailDays(), moderationBean.getAutoJailDuration()),
-                                getAutoModString(textChannel, moderationBean.getAutoKick(), moderationBean.getAutoKickDays(), 0),
-                                getAutoModString(textChannel, moderationBean.getAutoBan(), moderationBean.getAutoBanDays(), moderationBean.getAutoBanDuration())
+                                getAutoModString(textChannel, moderationData.getAutoMute(), moderationData.getAutoMuteDays(), moderationData.getAutoMuteDuration()),
+                                getAutoModString(textChannel, moderationData.getAutoJail(), moderationData.getAutoJailDays(), moderationData.getAutoJailDuration()),
+                                getAutoModString(textChannel, moderationData.getAutoKick(), moderationData.getAutoKickDays(), 0),
+                                getAutoModString(textChannel, moderationData.getAutoBan(), moderationData.getAutoBanDays(), moderationData.getAutoBanDuration())
                         ), false);
 
             case 1:

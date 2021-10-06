@@ -4,8 +4,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import commands.Command;
+import commands.runnables.moderationcategory.ModSettingsCommand;
 import core.MemberCacheController;
+import core.PermissionCheckRuntime;
+import core.utils.BotPermissionUtil;
 import modules.schedulers.ServerMuteScheduler;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
@@ -91,6 +96,28 @@ public class Mute {
         });
 
         return leakedChannels;
+    }
+
+    public static void enforceMuteRole(Guild guild) {
+        ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
+        Role role = moderationData.getMuteRole().orElse(null);
+        if (role != null && moderationData.getEnforceMuteRoleEffectively()) {
+            Locale locale = moderationData.getGuildData().getLocale();
+            guild.getCategories().forEach(category -> enforceMuteOnGuildChannel(locale, role, category));
+            guild.getTextChannels().forEach(channel -> enforceMuteOnGuildChannel(locale, role, channel));
+        }
+    }
+
+    private static void enforceMuteOnGuildChannel(Locale locale, Role muteRole, GuildChannel guildChannel) {
+        PermissionOverride permissionOverride = guildChannel.getPermissionOverride(muteRole);
+        if ((permissionOverride == null || !permissionOverride.getDenied().contains(Permission.MESSAGE_WRITE)) &&
+                PermissionCheckRuntime.botHasPermission(locale, ModSettingsCommand.class, guildChannel.getGuild(), Permission.ADMINISTRATOR)
+        ) {
+            System.out.println(guildChannel.getName()); //TODO
+            BotPermissionUtil.addPermission(guildChannel, guildChannel.getManager(), muteRole, false, Permission.MESSAGE_WRITE)
+                    .reason(Command.getCommandLanguage(ModSettingsCommand.class, locale).getTitle())
+                    .queue();
+        }
     }
 
 }

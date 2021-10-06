@@ -106,7 +106,7 @@ public class CommandManager {
                     .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invite"));
 
             Button button = Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_REMINDER_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"));
-            JDAUtil.replyMessageEmbeds(event.getMessage(), eb.build())
+            event.getChannel().sendMessageEmbeds(eb.build())
                     .setActionRows(ActionRows.of(button))
                     .queue();
         }
