@@ -464,6 +464,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         /* create message */
         ticketData.getCreateMessage().ifPresent(createMessage -> {
             textChannel.sendMessage(createMessage)
+                    .allowedMentions(null)
                     .queue();
         });
 
