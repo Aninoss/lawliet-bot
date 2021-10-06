@@ -408,7 +408,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 event.getReaction().removeReaction(event.getUser()).queue();
             }
             processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
-            processDraw(event.getMember(), false);
+            processDraw(event.getMember(), true);
             return false;
         }
 
