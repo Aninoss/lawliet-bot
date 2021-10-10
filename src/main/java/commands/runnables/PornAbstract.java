@@ -1,5 +1,7 @@
 package commands.runnables;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -169,7 +171,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         ArrayList<Button> buttons = new ArrayList<>();
         String tag = pornImages.size() > 1 ? "porn_source" : "porn_source_single";
         for (int i = 0; i < pornImages.size(); i++) {
-            buttons.add(Button.of(ButtonStyle.LINK, pornImages.get(i).getPageUrl(), TextManager.getString(getLocale(), Category.NSFW, tag, String.valueOf(i + 1))));
+            String url = ExternalLinks.REPORT_URL + URLEncoder.encode(pornImages.get(i).getImageUrl(), StandardCharsets.UTF_8);
+            Button button = Button.of(ButtonStyle.LINK, url, TextManager.getString(getLocale(), Category.NSFW, tag, String.valueOf(i + 1)));
+            buttons.add(button);
         }
         return buttons;
     }

@@ -71,6 +71,14 @@ public class SendEvent {
         );
     }
 
+    public static CompletableFuture<Void> sendUnreport(String url) {
+        return process(
+                "UNREPORT",
+                Map.of("url", url),
+                responseJson -> null
+        );
+    }
+
     public static CompletableFuture<JSONObject> sendEmpty(String event) {
         return SyncManager.getClient().send(event, new JSONObject());
     }
