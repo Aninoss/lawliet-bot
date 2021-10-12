@@ -74,7 +74,7 @@ public class ShardManager {
 
     public static synchronized void increaseGlobalErrorCounter() {
         MainLogger.get().warn("Shard error counter: {}", ++globalErrors);
-        if (globalErrors >= 4) {
+        if (globalErrors >= 6) {
             System.err.println("EXIT - Too many shard errors (" + Program.getClusterId() + ")");
             System.exit(6);
         }
@@ -390,7 +390,7 @@ public class ShardManager {
                 alive = false;
             } else {
                 MainLogger.get().debug("No data from shard {}", jda.getShardInfo().getShardId());
-                if (++errors % 4 == 3) {    /* reconnect after 30 seconds */
+                if (++errors % 5 == 4) {    /* reconnect after 40 seconds */
                     active = false;
                     ShardManager.increaseGlobalErrorCounter();
                     MainLogger.get().warn("Shard {} temporarily offline", jda.getShardInfo().getShardId());

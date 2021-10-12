@@ -597,11 +597,21 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         for (int i = 0; i < tempConnections.size(); i++) {
             EmojiConnection emojiConnection = tempConnections.get(i);
             long roleId = StringUtil.filterLongFromString(emojiConnection.getConnection());
+            long emoteId = EmojiUtil.extractIdFromEmoteMention(emojiConnection.getEmojiTag());
+            Emoji emoji = null;
+            if (emoteId == 0L) {
+                emoji = Emoji.fromUnicode(emojiConnection.getEmojiTag());
+            } else {
+                boolean known = ShardManager.getEmoteById(emoteId).isPresent();
+                if (known) {
+                    emoji = Emoji.fromMarkdown(emojiConnection.getEmojiTag());
+                }
+            }
             Button button = Button.of(
                     ButtonStyle.PRIMARY,
                     String.valueOf(i),
                     StringUtil.shortenString(new AtomicRole(getGuildId().get(), roleId).getPrefixedName(), 80),
-                    Emoji.fromMarkdown(emojiConnection.getEmojiTag())
+                    emoji
             );
             buttons.add(button);
         }

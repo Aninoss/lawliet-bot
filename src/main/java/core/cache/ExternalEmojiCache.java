@@ -13,7 +13,7 @@ import websockets.syncserver.SendEvent;
 public class ExternalEmojiCache {
 
     private static final LoadingCache<Long, Optional<String>> cache = CacheBuilder.newBuilder()
-            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .expireAfterWrite(1, TimeUnit.MINUTES)
             .build(new CacheLoader<>() {
                        @Override
                        public Optional<String> load(@NonNull Long emojiId) throws ExecutionException, InterruptedException {
