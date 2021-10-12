@@ -11,6 +11,7 @@ import core.PermissionCheckRuntime;
 import modules.Mod;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
+import mysql.modules.ticket.DBTicket;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -29,7 +30,9 @@ public abstract class AutoModAbstract {
      * returns true if the message is fine
      */
     public boolean check() {
-        if (!message.getAuthor().isBot() && checkCondition(message)) {
+        boolean isTicketChannel = DBTicket.getInstance().retrieve(message.getGuild().getIdLong()).getTicketChannels()
+                .containsKey(message.getTextChannel().getIdLong());
+        if (!message.getAuthor().isBot() && !isTicketChannel && checkCondition(message)) {
             try {
                 GuildData guildBean = DBGuild.getInstance().retrieve(message.getGuild().getIdLong());
                 Class<? extends Command> commandClass = getCommandClass();
