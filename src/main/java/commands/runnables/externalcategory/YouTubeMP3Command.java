@@ -7,6 +7,10 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.Command;
 import commands.listeners.CommandProperties;
@@ -16,7 +20,6 @@ import core.internet.HttpResponse;
 import core.utils.EmojiUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
-import modules.YouTubeMeta;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
 
@@ -31,7 +34,11 @@ import org.json.JSONObject;
 public class YouTubeMP3Command extends Command {
 
     private final static int MINUTES_CAP = 30;
-    private final static YouTubeMeta youTubeMeta = new YouTubeMeta();
+    private static final AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+
+    static {
+        playerManager.registerSourceManager(new YoutubeAudioSourceManager(false));
+    }
 
     public YouTubeMP3Command(Locale locale, String prefix) {
         super(locale, prefix);
@@ -51,14 +58,14 @@ public class YouTubeMP3Command extends Command {
             args = args.split("&")[0];
         }
 
-        Optional<AudioTrackInfo> metaOpt = youTubeMeta.getFromVideoURL(args);
-        if (metaOpt.isEmpty() || metaOpt.get().isStream) {
+        AudioTrack audioTrack = AudioManager.fetchAudioTrack(args, playerManager).get();
+        if (audioTrack == null || audioTrack.getInfo().isStream) {
             drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), args)))
                     .exceptionally(ExceptionLogger.get());
             return false;
         }
 
-        AudioTrackInfo meta = metaOpt.get();
+        AudioTrackInfo meta = audioTrack.getInfo();
         if (meta.length >= MINUTES_CAP * 60_000) {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("toolong", String.valueOf(MINUTES_CAP))))
                     .exceptionally(ExceptionLogger.get());
