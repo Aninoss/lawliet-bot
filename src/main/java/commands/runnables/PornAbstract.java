@@ -171,7 +171,8 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         ArrayList<Button> buttons = new ArrayList<>();
         String tag = pornImages.size() > 1 ? "porn_source" : "porn_source_single";
         for (int i = 0; i < pornImages.size(); i++) {
-            String url = ExternalLinks.REPORT_URL + URLEncoder.encode(pornImages.get(i).getImageUrl(), StandardCharsets.UTF_8);
+            String encodedImageUrl = Base64.getEncoder().encodeToString(pornImages.get(i).getImageUrl().getBytes());
+            String url = ExternalLinks.REPORT_URL + URLEncoder.encode(encodedImageUrl, StandardCharsets.UTF_8);
             Button button = Button.of(ButtonStyle.LINK, url, TextManager.getString(getLocale(), Category.NSFW, tag, String.valueOf(i + 1)));
             buttons.add(button);
         }
