@@ -61,7 +61,8 @@ public class ShootCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/860573431534452796/860583319359062016/shoot.gif",
                 "https://cdn.discordapp.com/attachments/860573431534452796/860583425697382430/shoot.gif",
                 "https://cdn.discordapp.com/attachments/860573431534452796/860583524997005343/shoot.gif",
-                "https://cdn.discordapp.com/attachments/860573431534452796/863573405944905748/shoot.gif"
+                "https://cdn.discordapp.com/attachments/860573431534452796/863573405944905748/shoot.gif",
+                "https://cdn.discordapp.com/attachments/860573431534452796/897788005211832340/shoot.gif"
         );
     }
 
