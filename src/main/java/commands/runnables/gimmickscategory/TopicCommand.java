@@ -7,16 +7,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
-import modules.schedulers.AlertResponse;
 import core.*;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
+import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "topic",
@@ -31,7 +31,7 @@ public class TopicCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException, ExecutionException, InterruptedException {
+    public boolean onTrigger(CommandEvent event, String args) throws IOException, ExecutionException, InterruptedException {
         drawMessage(getEmbed(event.getChannel())).exceptionally(ExceptionLogger.get());
         return true;
     }

@@ -3,8 +3,9 @@ package commands.runnables.moderationcategory;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.Optional;
-import commands.listeners.CommandProperties;
 import commands.Category;
+import commands.CommandEvent;
+import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
@@ -19,7 +20,6 @@ import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
@@ -47,7 +47,7 @@ public class MuteCommand extends WarnCommand {
     }
 
     @Override
-    protected boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
+    protected boolean setUserListAndReason(CommandEvent event, String args) throws Throwable {
         ModerationData moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         Optional<Role> muteRoleOpt = moderationBean.getMuteRole();
         if (muteRoleOpt.isEmpty()) {

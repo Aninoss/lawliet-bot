@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Category;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import constants.Language;
 import core.EmbedFactory;
@@ -13,7 +14,6 @@ import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "weaknesstype",
@@ -51,7 +51,7 @@ public class WeaknessTypeCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         List<Integer> types = retrieveTypes(event, args);
         if (types.size() == 0) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
@@ -103,7 +103,7 @@ public class WeaknessTypeCommand extends Command {
         return true;
     }
 
-    protected String getContent(GuildMessageReceivedEvent event, String args, List<Integer> types) {
+    protected String getContent(CommandEvent event, String args, List<Integer> types) {
         String[] typesString = TextManager.getString(getLocale(), Category.EXTERNAL, "weaknesstype_types").split("\n");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < typesString.length; i++) {
@@ -118,7 +118,7 @@ public class WeaknessTypeCommand extends Command {
     }
 
 
-    protected List<Integer> retrieveTypes(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+    protected List<Integer> retrieveTypes(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         args = " " + args + " ";
         ArrayList<Integer> types = new ArrayList<>();
         for (Language l : Language.values()) {

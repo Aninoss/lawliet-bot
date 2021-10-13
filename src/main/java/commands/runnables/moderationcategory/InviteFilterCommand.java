@@ -3,10 +3,11 @@ package commands.runnables.moderationcategory;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
@@ -47,7 +48,7 @@ public class InviteFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         spBlockBean = DBSPBlock.getInstance().retrieve(event.getGuild().getIdLong());
         ignoredUsers = AtomicMember.transformIdList(event.getGuild(), spBlockBean.getIgnoredUserIds());
         logReceivers = AtomicMember.transformIdList(event.getGuild(), spBlockBean.getLogReceiverUserIds());
@@ -60,7 +61,7 @@ public class InviteFilterCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                List<Member> userIgnoredList = MentionUtil.getMembers(event.getMessage(), input).getList();
+                List<Member> userIgnoredList = MentionUtil.getMembers(event.getGuild(), input).getList();
                 if (userIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
@@ -73,7 +74,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                 }
 
             case 2:
-                List<TextChannel> channelIgnoredList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+                List<TextChannel> channelIgnoredList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
                 if (channelIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
@@ -86,7 +87,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                 }
 
             case 3:
-                List<Member> logRecieverList = MentionUtil.getMembers(event.getMessage(), input).getList();
+                List<Member> logRecieverList = MentionUtil.getMembers(event.getGuild(), input).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;

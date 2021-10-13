@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import commands.Category;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnSelectionMenuListener;
 import constants.ExternalLinks;
@@ -17,7 +18,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
@@ -40,7 +40,7 @@ public class LanguageCommand extends Command implements OnSelectionMenuListener 
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         if (args.length() > 0) {
             Language language = null;
             for (Language l : LANGUAGES) {

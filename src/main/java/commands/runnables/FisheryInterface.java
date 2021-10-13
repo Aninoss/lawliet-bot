@@ -1,24 +1,24 @@
 package commands.runnables;
 
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.OnTriggerListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import modules.fishery.FisheryStatus;
 import mysql.modules.guild.DBGuild;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public interface FisheryInterface extends OnTriggerListener {
 
-    boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable;
+    boolean onFisheryAccess(CommandEvent event, String args) throws Throwable;
 
     @Override
-    default boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    default boolean onTrigger(CommandEvent event, String args) throws Throwable {
         return onFisheryTrigger(event, args);
     }
 
-    default boolean onFisheryTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    default boolean onFisheryTrigger(CommandEvent event, String args) throws Throwable {
         Command command = (Command) this;
         FisheryStatus status = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {

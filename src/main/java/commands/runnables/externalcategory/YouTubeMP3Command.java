@@ -13,6 +13,7 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.*;
 import core.internet.HttpRequest;
@@ -20,7 +21,7 @@ import core.internet.HttpResponse;
 import core.utils.EmojiUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Member;
 import org.json.JSONObject;
 
 @CommandProperties(
@@ -45,7 +46,7 @@ public class YouTubeMP3Command extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         args = args.replace("<", "").replace(">", "");
 
         if (args.isEmpty()) {
@@ -90,7 +91,7 @@ public class YouTubeMP3Command extends Command {
                 List<File> validFiles = getValidFiles(new LocalFile("data/youtube-dl"), filePattern);
 
                 if (validFiles.size() == 1 && validFiles.get(0).getAbsolutePath().endsWith(".mp3")) {
-                    handleFile(event, meta, validFiles.get(0));
+                    handleFile(event.getMember(), meta, validFiles.get(0));
                     return true;
                 }
             }
@@ -118,8 +119,8 @@ public class YouTubeMP3Command extends Command {
                 .orElse(false);
     }
 
-    private void handleFile(GuildMessageReceivedEvent event, AudioTrackInfo meta, File mp3File) {
-        JDAUtil.sendPrivateMessage(event.getMember().getIdLong(), privateChannel -> {
+    private void handleFile(Member member, AudioTrackInfo meta, File mp3File) {
+        JDAUtil.sendPrivateMessage(member.getIdLong(), privateChannel -> {
             return privateChannel.sendMessage(getString("success_dm", StringUtil.escapeMarkdownInField(meta.title), StringUtil.escapeMarkdownInField(meta.author)))
                     .addFile(mp3File);
         }).queue(m -> {

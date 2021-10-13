@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import commands.Command;
 import commands.CommandContainer;
+import commands.CommandEvent;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
 import commands.runnables.ListAbstract;
@@ -12,7 +13,6 @@ import javafx.util.Pair;
 import mysql.modules.commandusages.CommandUsagesData;
 import mysql.modules.commandusages.DBCommandUsages;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "commandusages",
@@ -32,7 +32,7 @@ public class CommandUsagesCommand extends ListAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
         for (Class<? extends Command> clazz : CommandContainer.getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             commandUsages.add(new Pair<>(DBCommandUsages.getInstance().retrieve(command.getTrigger()), command.getCommandProperties().emoji()));

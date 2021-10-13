@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import commands.Category;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.runnables.FisheryInterface;
@@ -53,15 +54,15 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
-        MentionList<Member> userMentions = MentionUtil.getMembers(event.getMessage(), args);
+    public boolean onFisheryAccess(CommandEvent event, String args) {
+        MentionList<Member> userMentions = MentionUtil.getMembers(event.getGuild(), args);
         ArrayList<Member> list = userMentions
                 .getList()
                 .stream()
                 .filter(member -> !member.getUser().isBot())
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        MentionList<Role> roleMentions = MentionUtil.getRoles(event.getMessage(), userMentions.getFilteredArgs());
+        MentionList<Role> roleMentions = MentionUtil.getRoles(event.getGuild(), userMentions.getFilteredArgs());
         roleMentions.getList().forEach(role -> {
             event.getGuild().getMembersWithRoles(role).stream()
                     .filter(member -> !member.getUser().isBot() && !list.contains(member))

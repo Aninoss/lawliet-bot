@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -22,6 +23,7 @@ import core.atomicassets.MentionableAtomicAsset;
 import core.cache.ServerPatreonBoostCache;
 import core.cache.TicketProtocolCache;
 import core.components.ActionRows;
+import core.interactionresponse.ComponentInteractionResponse;
 import core.lock.Lock;
 import core.lock.LockOccupiedException;
 import core.utils.*;
@@ -73,7 +75,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
         staffRoles = AtomicRole.transformIdList(event.getGuild(), ticketData.getStaffRoleIds());
         staffRoleNavigationHelper = new NavigationHelper<>(this, staffRoles, AtomicRole.class, MAX_ROLES);
@@ -83,13 +85,13 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @ControllerMessage(state = ADD_STAFF_ROLE)
     public MessageInputResponse onMessageAddStaffRole(GuildMessageReceivedEvent event, String input) {
-        List<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
+        List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
         return staffRoleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), MAIN);
     }
 
     @ControllerMessage(state = ANNOUNCEMENT_CHANNEL)
     public MessageInputResponse onMessageAnnouncementChannel(GuildMessageReceivedEvent event, String input) {
-        List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+        List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
         if (channelList.size() == 0) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
             return MessageInputResponse.FAILED;
@@ -111,7 +113,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @ControllerMessage(state = CREATE_TICKET_MESSAGE)
     public MessageInputResponse onMessageCreateTicketMessage(GuildMessageReceivedEvent event, String input) {
-        List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+        List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
         if (channelList.size() == 0) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
             return MessageInputResponse.FAILED;
@@ -363,7 +365,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         .queue();
             }
         }
-        new InteractionResponse(event).complete();
+        new ComponentInteractionResponse(event).complete();
     }
 
     private boolean memberIsStaff(Member member, List<Long> staffRoleIds) {

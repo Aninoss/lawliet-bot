@@ -1,6 +1,7 @@
 package commands.runnables.informationcategory;
 
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import constants.AssetIds;
@@ -8,7 +9,6 @@ import core.EmbedFactory;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
@@ -25,7 +25,7 @@ public class MemberInfoCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) {
+    protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) {
         String[] type = getString("type").split("\n");
         int typeN = 0;
         if (!member.getUser().isBot()) {

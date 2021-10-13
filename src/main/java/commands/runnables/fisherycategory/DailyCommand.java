@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
@@ -24,7 +25,6 @@ import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
@@ -45,7 +45,7 @@ public class DailyCommand extends Command implements FisheryInterface {
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
         FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         if (!userBean.getDailyReceived().equals(LocalDate.now())) {
             long fish = userBean.getMemberGear(FisheryGear.DAILY).getEffect();

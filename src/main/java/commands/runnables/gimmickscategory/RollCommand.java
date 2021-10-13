@@ -3,6 +3,7 @@ package commands.runnables.gimmickscategory;
 import java.util.Locale;
 import java.util.Random;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -10,7 +11,6 @@ import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "roll",
@@ -25,7 +25,7 @@ public class RollCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         Random n = new Random();
         double drawn, border;
         boolean userMentioned = true;

@@ -1,6 +1,7 @@
 package commands.runnables.informationcategory;
 
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
@@ -9,7 +10,6 @@ import core.TextManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
@@ -29,7 +29,7 @@ public class AvatarCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
+    protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         avatarUrl = member.getUser().getEffectiveAvatarUrl() + "?size=2048";
         return EmbedFactory.getEmbedDefault(this, getString("template", member.getEffectiveName()))
                 .setImage(avatarUrl);

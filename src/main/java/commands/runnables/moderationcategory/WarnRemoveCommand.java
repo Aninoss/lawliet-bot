@@ -1,6 +1,7 @@
 package commands.runnables.moderationcategory;
 
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.CustomObservableList;
 import core.EmbedFactory;
@@ -16,7 +17,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "warnremove",
@@ -37,7 +37,7 @@ public class WarnRemoveCommand extends WarnCommand {
     }
 
     @Override
-    protected boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
+    protected boolean setUserListAndReason(CommandEvent event, String args) throws Throwable {
         for (String part : args.split(" ")) {
             if (StringUtil.stringIsLong(part)) {
                 long value = Math.min(Long.parseLong(part), MAX);

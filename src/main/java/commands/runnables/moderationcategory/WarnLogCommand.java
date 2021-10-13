@@ -2,6 +2,7 @@ package commands.runnables.moderationcategory;
 
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import commands.runnables.MemberAccountAbstract;
@@ -20,7 +21,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -50,7 +50,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
     }
 
     @Override
-    protected EmbedBuilder processUser(GuildMessageReceivedEvent event, User user, boolean userIsAuthor, String args) throws Throwable {
+    protected EmbedBuilder processUser(CommandEvent event, User user, boolean userIsAuthor, String args) throws Throwable {
         Member member = event.getGuild().getMemberById(user.getIdLong());
         serverWarningsData = DBServerWarnings.getInstance().retrieve(new Pair<>(event.getGuild().getIdLong(), user.getIdLong()));
         avatarUrl = user.getEffectiveAvatarUrl();

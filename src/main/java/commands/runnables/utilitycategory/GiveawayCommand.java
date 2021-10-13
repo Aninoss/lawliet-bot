@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnReactionListener;
@@ -85,7 +86,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         giveawayMap = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
         title = getString("title");
         registerNavigationListener(event.getMember());
@@ -95,7 +96,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @ControllerMessage(state = ADD_MESSAGE)
     public MessageInputResponse onMessageAddMessage(GuildMessageReceivedEvent event, String input) {
-        List<TextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+        List<TextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getGuild(), input).getList();
         if (serverTextChannel.size() > 0) {
             if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
                 channel = new AtomicTextChannel(serverTextChannel.get(0));

@@ -1,16 +1,17 @@
 package commands.runnables.gimmickscategory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "say",
@@ -26,8 +27,10 @@ public class SayCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+        List<Message.Attachment> attachments = event.isGuildMessageReceivedEvent()
+                ? event.getGuildMessageReceivedEvent().getMessage().getAttachments()
+                : Collections.emptyList();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(args)
                 .setFooter(getString("author", event.getMember().getUser().getAsTag()));

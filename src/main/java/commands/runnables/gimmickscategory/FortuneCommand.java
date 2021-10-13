@@ -3,6 +3,7 @@ package commands.runnables.gimmickscategory;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import constants.Emojis;
 import core.EmbedFactory;
@@ -11,8 +12,7 @@ import core.RandomPicker;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Member;
 
 @CommandProperties(
         trigger = "fortune",
@@ -27,10 +27,9 @@ public class FortuneCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        Message message = event.getMessage();
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         if (args.length() > 0) {
-            drawMessageNew(getEmbed(message, args)).exceptionally(ExceptionLogger.get());
+            drawMessageNew(getEmbed(event.getMember(), args)).exceptionally(ExceptionLogger.get());
             return true;
         } else {
             drawMessageNew(EmbedFactory.getEmbedError(
@@ -41,9 +40,9 @@ public class FortuneCommand extends Command {
         }
     }
 
-    private EmbedBuilder getEmbed(Message message, String question) throws ExecutionException, InterruptedException {
+    private EmbedBuilder getEmbed(Member member, String question) throws ExecutionException, InterruptedException {
         question = StringUtil.shortenString(question, 1024);
-        int n = RandomPicker.pick(getTrigger(), message.getGuild().getIdLong(), 27).get();
+        int n = RandomPicker.pick(getTrigger(), member.getGuild().getIdLong(), 27).get();
         String answerRaw = getString("answer_" + n);
 
         String answer = answerRaw;
@@ -54,7 +53,7 @@ public class FortuneCommand extends Command {
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .addField(getString("question", StringUtil.escapeMarkdown(message.getMember().getEffectiveName())), question, false)
+                .addField(getString("question", StringUtil.escapeMarkdown(member.getEffectiveName())), question, false)
                 .addField(getString("answer"), answer, false);
 
         if (answerRaw.equals("%GifNo")) {

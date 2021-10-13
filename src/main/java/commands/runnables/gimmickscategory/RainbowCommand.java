@@ -3,6 +3,7 @@ package commands.runnables.gimmickscategory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
@@ -14,7 +15,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
@@ -35,7 +35,7 @@ public class RainbowCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws IOException {
+    protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws IOException {
         long opacity = StringUtil.filterLongFromString(args);
         if (opacity == -1) {
             opacity = 50;

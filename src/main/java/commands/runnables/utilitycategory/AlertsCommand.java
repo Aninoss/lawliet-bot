@@ -6,15 +6,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import commands.Category;
-import commands.Command;
-import commands.CommandContainer;
-import commands.CommandManager;
+import commands.*;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnAlertListener;
 import commands.runnables.NavigationAbstract;
-import constants.*;
+import constants.Emojis;
+import constants.ExternalLinks;
+import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.ShardManager;
@@ -66,7 +65,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         serverId = event.getGuild().getIdLong();
         channelId = event.getChannel().getIdLong();
         alerts = DBTracker.getInstance().retrieve(event.getGuild().getIdLong());

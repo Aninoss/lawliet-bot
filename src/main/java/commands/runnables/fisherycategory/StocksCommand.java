@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.runnables.FisheryInterface;
@@ -61,7 +62,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
         currentStock = Stock.values()[0];
         fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         registerNavigationListener(event.getMember());

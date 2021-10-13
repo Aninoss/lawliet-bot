@@ -14,6 +14,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Category;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.OnAlertListener;
 import constants.ExternalLinks;
 import constants.RegexPatterns;
@@ -37,7 +38,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
@@ -67,7 +67,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
         List<String> nsfwFiltersList = DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords();
         HashSet<String> nsfwFilters = new HashSet<>();
         nsfwFiltersList.forEach(filter -> nsfwFilters.add(filter.toLowerCase()));
@@ -132,14 +132,14 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                 }
                 return false;
             } catch (NoSuchElementException e) {
-                postApiUnavailable(event);
+                postApiUnavailable(event.getChannel());
                 return false;
             }
 
             if (pornImages.size() == 0) {
                 if (first) {
                     if (!checkServiceAvailable()) {
-                        postApiUnavailable(event);
+                        postApiUnavailable(event.getChannel());
                     } else {
                         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
                             drawMessageNew(noResultsEmbed(args)).exceptionally(ExceptionLogger.get());
@@ -188,8 +188,8 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         }
     }
 
-    private void postApiUnavailable(GuildMessageReceivedEvent event) {
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+    private void postApiUnavailable(TextChannel textChannel) {
+        if (BotPermissionUtil.canWriteEmbed(textChannel)) {
             drawMessageNew(apiUnavailableEmbed()).exceptionally(ExceptionLogger.get());
         } else {
             drawMessageNew(apiUnavailableString()).exceptionally(ExceptionLogger.get());

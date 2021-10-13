@@ -2,6 +2,7 @@ package commands.runnables.fisherycategory;
 
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
@@ -45,7 +46,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
+    public boolean onFisheryAccess(CommandEvent event, String args) {
         userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
         if (args.length() > 0) {

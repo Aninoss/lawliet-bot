@@ -8,7 +8,6 @@ import core.mention.MentionList;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 
 @CommandProperties(
@@ -25,12 +24,12 @@ public class UnbanCommand extends WarnCommand {
     }
 
     @Override
-    protected MentionList<User> getUserList(Message message, String args) {
-        List<User> userBanList = message.getGuild().retrieveBanList().complete().stream()
+    protected MentionList<User> getUserList(Guild guild, String args) {
+        List<User> userBanList = guild.retrieveBanList().complete().stream()
                 .map(Guild.Ban::getUser)
                 .collect(Collectors.toList());
 
-        return MentionUtil.getUsers(message, args, userBanList);
+        return MentionUtil.getUsers(args, userBanList);
     }
 
     @Override

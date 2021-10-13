@@ -2,11 +2,12 @@ package commands.runnables.casinocategory;
 
 import java.io.IOException;
 import java.util.*;
-import commands.listeners.CommandProperties;
-import commands.runnables.CasinoAbstract;
 import commands.Category;
-import constants.LogStatus;
+import commands.CommandEvent;
+import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
+import commands.runnables.CasinoAbstract;
+import constants.LogStatus;
 import core.EmbedFactory;
 import core.FileManager;
 import core.LocalFile;
@@ -43,7 +44,7 @@ public class HangmanCommand extends CasinoAbstract {
     }
 
     @Override
-    public boolean onGameStart(GuildMessageReceivedEvent event, String args) throws IOException {
+    public boolean onGameStart(CommandEvent event, String args) throws IOException {
         Random r = new Random();
         List<String> wordList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "hangman_" + getLocale().getDisplayName() + ".txt"));
         answer = wordList.get(r.nextInt(wordList.size()));

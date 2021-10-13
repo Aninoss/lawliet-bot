@@ -3,10 +3,11 @@ package commands.runnables.fisherysettingscategory;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import constants.Settings;
 import core.CustomObservableList;
 import core.EmbedFactory;
@@ -49,7 +50,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
 
@@ -62,7 +63,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                List<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
+                List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
                 if (roleList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
@@ -99,7 +100,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 }
 
             case 3:
-                List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+                List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;

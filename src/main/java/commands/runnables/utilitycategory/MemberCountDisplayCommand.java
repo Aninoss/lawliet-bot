@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.ListGen;
 import core.MemberCacheController;
@@ -48,7 +49,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         memberCountBean = DBMemberCountDisplays.getInstance().retrieve(event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
         return true;

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
@@ -21,7 +22,6 @@ import mysql.modules.upvotes.DBUpvotes;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -42,7 +42,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
+    public boolean onFisheryAccess(CommandEvent event, String args) {
         Instant nextUpvote = DBUpvotes.getInstance().retrieve().getLastUpvote(event.getMember().getIdLong()).plus(12, ChronoUnit.HOURS);
         FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         int upvotesUnclaimed = userBean.getUpvoteStack();

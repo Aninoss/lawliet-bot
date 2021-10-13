@@ -2,6 +2,7 @@ package commands.runnables.fisherysettingscategory;
 
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
@@ -41,10 +42,10 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         if (args.length() > 0) {
-            drawMessage(mainExecution(event, args)).exceptionally(ExceptionLogger.get());
+            drawMessage(mainExecution(args)).exceptionally(ExceptionLogger.get());
         } else {
             this.eb = EmbedFactory.getEmbedDefault(
                     this,
@@ -65,7 +66,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
         return true;
     }
 
-    private EmbedBuilder mainExecution(GuildMessageReceivedEvent event, String args) {
+    private EmbedBuilder mainExecution(String args) {
         if (args.equalsIgnoreCase("unlimited")) {
             return markUnlimited();
         }
@@ -99,7 +100,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     @Override
     public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
         deregisterListenersWithComponents();
-        this.eb = mainExecution(event, input);
+        this.eb = mainExecution(input);
         return MessageInputResponse.SUCCESS;
     }
 

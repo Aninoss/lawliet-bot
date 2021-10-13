@@ -2,6 +2,7 @@ package commands.runnables.fisherysettingscategory;
 
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import core.EmbedFactory;
@@ -14,7 +15,6 @@ import core.utils.StringUtil;
 import modules.fishery.Fishery;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "treasure",
@@ -31,9 +31,9 @@ public class TreasureCommand extends Command implements FisheryInterface {
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
+    public boolean onFisheryAccess(CommandEvent event, String args) {
         TextChannel channel = event.getChannel();
-        MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
+        MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
         if (channelMention.getList().size() > 0) {
             channel = channelMention.getList().get(0);
             args = channelMention.getFilteredArgs().trim();

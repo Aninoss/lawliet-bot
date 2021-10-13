@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -18,7 +19,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "quote",
@@ -35,14 +35,16 @@ public class QuoteCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        List<Message> directMessage = MentionUtil.getMessageWithLinks(event.getMessage(), args).get().getList();
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+        List<Message> directMessage = MentionUtil.getMessageWithLinks(event.getGuild(), args).get().getList();
 
         // message link
         if (directMessage.size() > 0) {
             for (Message message : directMessage) {
                 if (BotPermissionUtil.canReadHistory(message.getTextChannel())) {
-                    MessageQuote.postQuote(getPrefix(), getLocale(), event.getChannel(), event.getMessage(), message, false);
+                    Message m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getChannel(), message, false);
+                    setActionRows(m.getActionRows());
+                    drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
                     return true;
                 }
             }
@@ -50,7 +52,7 @@ public class QuoteCommand extends Command {
 
         EmbedBuilder eb;
         if (args.length() > 0) {
-            MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
+            MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
             String newString = channelMention.getFilteredArgs();
             TextChannel channel = channelMention.getList().isEmpty() ? event.getChannel() : channelMention.getList().get(0);
 
@@ -58,7 +60,9 @@ public class QuoteCommand extends Command {
             if (StringUtil.stringIsLong(newString)) {
                 try {
                     Message message = MessageCache.retrieveMessage(channel, Long.parseLong(newString)).get();
-                    MessageQuote.postQuote(getPrefix(), getLocale(), event.getChannel(), event.getMessage(), message, false);
+                    Message m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getChannel(), message, false);
+                    setActionRows(m.getActionRows());
+                    drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
                     return true;
                 } catch (ExecutionException | InterruptedException e) {
                     //Ignore
@@ -69,7 +73,7 @@ public class QuoteCommand extends Command {
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                     .setDescription(getString("noresult_channel", newString, channel.getAsMention()));
         } else {
-            eb = EmbedFactory.getEmbedError(this, getString("noarg", event.getMessage().getMember().getAsMention()));
+            eb = EmbedFactory.getEmbedError(this, getString("noarg", event.getMember().getAsMention()));
         }
 
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());

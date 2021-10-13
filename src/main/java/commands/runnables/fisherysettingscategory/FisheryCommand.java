@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import commands.Category;
+import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -64,7 +65,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
         ignoredChannels = AtomicTextChannel.transformIdList(event.getGuild(), fisheryGuildBean.getIgnoredChannelIds());
@@ -76,7 +77,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     @Override
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
-            List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+            List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
             return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMessage().getMember(), 0);
         }
 

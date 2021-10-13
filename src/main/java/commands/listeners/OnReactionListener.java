@@ -96,8 +96,8 @@ public interface OnReactionListener extends Drawable {
         Command command = (Command) this;
         command.getDrawMessageId().ifPresent(messageId -> {
             command.getTextChannel().ifPresent(channel -> {
-                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE)) {
-                    Collection<String> messageIds = List.of(String.valueOf(messageId), command.getGuildMessageReceivedEvent().get().getMessageId());
+                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE) && command.getCommandEvent().isGuildMessageReceivedEvent()) {
+                    Collection<String> messageIds = List.of(String.valueOf(messageId), command.getCommandEvent().getGuildMessageReceivedEvent().getMessageId());
                     channel.deleteMessagesByIds(messageIds).queue();
                 } else if (BotPermissionUtil.canReadHistory(channel)) {
                     channel.deleteMessageById(messageId).queue();

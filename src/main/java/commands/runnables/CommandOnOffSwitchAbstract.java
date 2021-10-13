@@ -2,6 +2,7 @@ package commands.runnables;
 
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -10,7 +11,6 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
@@ -33,7 +33,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
     protected abstract boolean setActive(Member member, boolean active);
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         if (args.length() > 0) {
             int option = -1;
             for (int i = 0; i < ACTIVE_ARGS.length; i++) {

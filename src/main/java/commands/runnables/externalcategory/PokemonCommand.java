@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Category;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import constants.Language;
 import core.EmbedFactory;
@@ -15,7 +16,6 @@ import core.internet.HttpCache;
 import core.internet.HttpResponse;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "pokemon",
@@ -30,7 +30,7 @@ public class PokemonCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         Pokemon pokemon = fetchPokemon(args);
         if (pokemon == null) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)

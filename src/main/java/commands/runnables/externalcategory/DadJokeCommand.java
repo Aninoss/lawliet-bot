@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import constants.Language;
 import core.*;
 import core.internet.HttpRequest;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.json.JSONObject;
 
 @CommandProperties(
@@ -24,7 +24,7 @@ public class DadJokeCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException, ExecutionException, InterruptedException {
+    public boolean onTrigger(CommandEvent event, String args) throws IOException, ExecutionException, InterruptedException {
         String joke;
 
         if (Language.from(getLocale()) == Language.DE) {

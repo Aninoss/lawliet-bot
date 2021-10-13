@@ -3,6 +3,7 @@ package commands.runnables.interactionscategory;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -11,7 +12,6 @@ import core.mention.Mention;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "celebrate",
@@ -36,9 +36,9 @@ public class CelebrateCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         Member member0 = event.getMember();
-        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getMessage(), args, null);
+        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, null);
 
         if (mention.getMentionText().isEmpty()) {
             mentionBlank(event, args, member0);
@@ -49,7 +49,7 @@ public class CelebrateCommand extends Command {
         return true;
     }
 
-    private void mentionUsed(GuildMessageReceivedEvent event, String args, Member author, String mention) throws ExecutionException, InterruptedException {
+    private void mentionUsed(CommandEvent event, String args, Member author, String mention) throws ExecutionException, InterruptedException {
         String text;
         if (args.equalsIgnoreCase("with") || args.equals("mit")) {
             text = getString("template_mention_with", author.getEffectiveName(), mention);
@@ -63,7 +63,7 @@ public class CelebrateCommand extends Command {
         send(event, text);
     }
 
-    private void mentionBlank(GuildMessageReceivedEvent event, String args, Member author) throws ExecutionException, InterruptedException {
+    private void mentionBlank(CommandEvent event, String args, Member author) throws ExecutionException, InterruptedException {
         String text;
         if (args.isEmpty()) {
             text = getString("template_nomention_notext", author.getEffectiveName());
@@ -73,7 +73,7 @@ public class CelebrateCommand extends Command {
         send(event, text);
     }
 
-    private void send(GuildMessageReceivedEvent event, String text) throws ExecutionException, InterruptedException {
+    private void send(CommandEvent event, String text) throws ExecutionException, InterruptedException {
         String[] gifs = getGifs();
         String gifUrl = gifs[RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), gifs.length).get()];
 

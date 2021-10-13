@@ -3,13 +3,13 @@ package commands.runnables.informationcategory;
 import java.time.Instant;
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "ping",
@@ -23,7 +23,7 @@ public class PingCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         Instant startTime = (Instant) getAttachments().get("starting_time");
         long milisInternal = TimeUtil.getMillisBetweenInstants(startTime, Instant.now());
         long milisGateway = event.getJDA().getGatewayPing();

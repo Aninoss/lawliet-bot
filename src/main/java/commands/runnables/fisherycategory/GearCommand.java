@@ -3,15 +3,16 @@ package commands.runnables.fisherycategory;
 import java.awt.*;
 import java.util.List;
 import java.util.Locale;
+import commands.Category;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryMemberAccountInterface;
-import commands.Category;
-import modules.fishery.FisheryGear;
 import core.EmbedFactory;
 import core.TextManager;
 import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
+import modules.fishery.FisheryGear;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.fisheryusers.FisheryMemberGearData;
@@ -19,7 +20,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "gear",
@@ -37,7 +37,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
     }
 
     @Override
-    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
+    protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         if (!member.getUser().isBot()) {
             List<Role> buyableRoles = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getRoles();
             FisheryMemberData fisheryMemberBean = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong());

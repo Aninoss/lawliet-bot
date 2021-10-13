@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import commands.Command;
+import commands.CommandEvent;
 import constants.AssetIds;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -18,8 +19,6 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public abstract class RolePlayAbstract extends Command {
 
@@ -44,7 +43,7 @@ public abstract class RolePlayAbstract extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         if (interactive) {
             return onTriggerInteractive(event, args);
         } else {
@@ -56,9 +55,8 @@ public abstract class RolePlayAbstract extends Command {
         return interactive;
     }
 
-    public boolean onTriggerInteractive(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        Message message = event.getMessage();
-        Mention mention = MentionUtil.getMentionedString(getLocale(), message, args, event.getMember());
+    public boolean onTriggerInteractive(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, event.getMember());
         boolean mentionPresent = !mention.getMentionText().isEmpty();
 
         if (!mentionPresent && mention.containedBlockedUser()) {
@@ -74,7 +72,7 @@ public abstract class RolePlayAbstract extends Command {
             for (BlockUserPair blockUserPair : blockUserPairs) {
                 if (blockUserPair.isBlocked(event.getMember(), mention.getElementList())) {
                     EmbedBuilder authorEmbed = EmbedFactory.getEmbedDefault()
-                            .setDescription(event.getMessage().getContentRaw());
+                            .setDescription(args);
                     EmbedUtil.setMemberAuthor(authorEmbed, event.getMember());
                     JDAUtil.sendPrivateMessage(AssetIds.OWNER_USER_ID, authorEmbed.build()).queue();
 
@@ -109,7 +107,7 @@ public abstract class RolePlayAbstract extends Command {
         return true;
     }
 
-    public boolean onTriggerNonInteractive(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTriggerNonInteractive(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         String gifUrl = gifs[RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), gifs.length).get()];
 
         String quote = "";
@@ -119,7 +117,7 @@ public abstract class RolePlayAbstract extends Command {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,
-                getString("template", "**" + StringUtil.escapeMarkdown(event.getMessage().getMember().getEffectiveName()) + "**") + quote
+                getString("template", "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**") + quote
         ).setImage(gifUrl);
 
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());

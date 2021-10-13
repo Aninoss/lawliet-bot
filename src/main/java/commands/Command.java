@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import commands.listeners.*;
 import constants.LogStatus;
-import core.InteractionResponse;
+import core.interactionresponse.InteractionResponse;
 import core.MainLogger;
 import core.Program;
 import core.TextManager;
@@ -24,8 +24,8 @@ import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
 import org.json.JSONObject;
 
 public abstract class Command implements OnTriggerListener {
@@ -52,7 +53,7 @@ public abstract class Command implements OnTriggerListener {
     private Message drawMessage = null;
     private LogStatus logStatus = null;
     private String log = "";
-    private GuildMessageReceivedEvent guildMessageReceivedEvent = null;
+    private CommandEvent commandEvent = null;
     private InteractionResponse interactionResponse;
     private boolean canHaveTimeOut = true;
     private List<ActionRow> actionRows = Collections.emptyList();
@@ -81,8 +82,8 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public void addLoadingReactionInstantly() {
-        if (isProcessing != null) {
-            addLoadingReactionInstantly(guildMessageReceivedEvent.getMessage(), isProcessing);
+        if (isProcessing != null && commandEvent.isGuildMessageReceivedEvent()) {
+            addLoadingReactionInstantly(commandEvent.getGuildMessageReceivedEvent().getMessage(), isProcessing);
         }
     }
 
@@ -247,22 +248,43 @@ public abstract class Command implements OnTriggerListener {
 
             RestAction<Message> action;
             if (drawMessage == null || newMessage) {
-                MessageAction messageAction;
-                if (content != null) {
-                    messageAction = JDAUtil.replyMessage(guildMessageReceivedEvent.getMessage(), content)
-                            .setEmbeds(embeds);
-                } else {
-                    messageAction = JDAUtil.replyMessageEmbeds(guildMessageReceivedEvent.getMessage(), embeds);
-                }
-                if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
-                    if (fileAttachmentMap.size() > 0) {
-                        for (String fileName : fileAttachmentMap.keySet()) {
-                            messageAction = messageAction.addFile(fileAttachmentMap.get(fileName), fileName);
+                if (commandEvent.isGuildMessageReceivedEvent()) {
+                    MessageAction messageAction;
+                    Message message = commandEvent.getGuildMessageReceivedEvent().getMessage();
+                    if (content != null) {
+                        messageAction = JDAUtil.replyMessage(message, content)
+                                .setEmbeds(embeds);
+                    } else {
+                        messageAction = JDAUtil.replyMessageEmbeds(message, embeds);
+                    }
+                    if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
+                        if (fileAttachmentMap.size() > 0) {
+                            for (String fileName : fileAttachmentMap.keySet()) {
+                                messageAction = messageAction.addFile(fileAttachmentMap.get(fileName), fileName);
+                            }
                         }
                     }
+                    messageAction = messageAction.allowedMentions(allowedMentions);
+                    action = messageAction.setActionRows(actionRows);
+                } else {
+                    WebhookMessageAction<Message> messageAction;
+                    InteractionHook interactionHook = commandEvent.getSlashCommandEvent().getHook();
+                    if (content != null) {
+                        messageAction = interactionHook.sendMessage(content)
+                                .addEmbeds(embeds);
+                    } else {
+                        messageAction = interactionHook.sendMessageEmbeds(embeds);
+                    }
+                    if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
+                        if (fileAttachmentMap.size() > 0) {
+                            for (String fileName : fileAttachmentMap.keySet()) {
+                                messageAction = messageAction.addFile(fileAttachmentMap.get(fileName), fileName);
+                            }
+                        }
+                    }
+                    messageAction = messageAction.allowedMentions(allowedMentions);
+                    action = messageAction.addActionRows(actionRows);
                 }
-                messageAction = messageAction.allowedMentions(allowedMentions);
-                action = messageAction.setActionRows(actionRows);
             } else {
                 if (interactionResponse != null &&
                         interactionResponse.isValid() &&
@@ -516,12 +538,12 @@ public abstract class Command implements OnTriggerListener {
         memberTag = member.getUser().getAsTag();
     }
 
-    public Optional<GuildMessageReceivedEvent> getGuildMessageReceivedEvent() {
-        return Optional.ofNullable(guildMessageReceivedEvent);
+    public CommandEvent getCommandEvent() {
+        return commandEvent;
     }
 
-    public void setGuildMessageReceivedEvent(GuildMessageReceivedEvent event) {
-        this.guildMessageReceivedEvent = event;
+    public void setCommandEvent(CommandEvent commandEvent) {
+        this.commandEvent = commandEvent;
     }
 
     public void setInteractionResponse(InteractionResponse interactionResponse) {

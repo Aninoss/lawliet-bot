@@ -4,10 +4,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import commands.Command;
 import commands.CommandContainer;
+import commands.CommandEvent;
 import commands.runnables.utilitycategory.TriggerDeleteCommand;
 import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import core.Program;
+import core.interactionresponse.InteractionResponse;
+import core.interactionresponse.SlashCommandResponse;
 import core.schedule.MainScheduler;
 import core.utils.ExceptionUtil;
 import mysql.modules.commandusages.DBCommandUsages;
@@ -18,21 +21,28 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public interface OnTriggerListener {
 
-    boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable;
+    boolean onTrigger(CommandEvent event, String args) throws Throwable;
 
-    default boolean processTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    default boolean processTrigger(CommandEvent event, String args) throws Throwable {
         Command command = (Command) this;
+        if (event.isSlashCommandEvent()) {
+            InteractionResponse interactionResponse = new SlashCommandResponse(event.getSlashCommandEvent().getHook());
+            command.setInteractionResponse(interactionResponse);
+        }
+
         AtomicBoolean isProcessing = new AtomicBoolean(true);
         command.setAtomicAssets(event.getChannel(), event.getMember());
-        command.setGuildMessageReceivedEvent(event);
+        command.setCommandEvent(event);
 
         if (Program.publicVersion()) {
             DBCommandUsages.getInstance().retrieve(command.getTrigger()).increase();
         }
 
-        command.addLoadingReaction(event.getMessage(), isProcessing);
+        if (event.isGuildMessageReceivedEvent()) {
+            command.addLoadingReaction(event.getGuildMessageReceivedEvent().getMessage(), isProcessing);
+            processTriggerDelete(event.getGuildMessageReceivedEvent());
+        }
         addKillTimer(isProcessing);
-        processTriggerDelete(event);
         try {
             if (command.getCommandProperties().requiresFullMemberCache()) {
                 MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();

@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import commands.Category;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
@@ -28,9 +29,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.requests.RestAction;
 
 @CommandProperties(
         trigger = "fullclear",
@@ -51,12 +52,13 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws InterruptedException, ExecutionException {
+    public boolean onTrigger(CommandEvent event, String args) throws InterruptedException, ExecutionException {
         Optional<Integer> hoursMin = extractHoursMin(event.getChannel(), args);
         if (hoursMin.isPresent()) {
             long messageId = registerButtonListener(event.getMember()).get();
             TimeUnit.SECONDS.sleep(1);
-            ClearResults clearResults = fullClear(event.getChannel(), hoursMin.get(), event.getMessage().getIdLong(), messageId);
+            long authorMessageId = event.isGuildMessageReceivedEvent() ? event.getGuildMessageReceivedEvent().getMessage().getIdLong() : 0L;
+            ClearResults clearResults = fullClear(event.getChannel(), hoursMin.get(), authorMessageId, messageId);
 
             String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
@@ -67,8 +69,13 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                 drawMessage(eb).exceptionally(ExceptionLogger.get());
             }
 
-            event.getChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessage().getId()))
-                    .queueAfter(8, TimeUnit.SECONDS);
+            RestAction<Void> restAction;
+            if (event.isGuildMessageReceivedEvent()) {
+                restAction = event.getChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getGuildMessageReceivedEvent().getMessage().getId()));
+            } else {
+                restAction = event.getChannel().deleteMessageById(messageId);
+            }
+            restAction.queueAfter(8, TimeUnit.SECONDS);
             return true;
         } else {
             return false;

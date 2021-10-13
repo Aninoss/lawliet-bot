@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticButtonListener;
 import constants.Emojis;
@@ -28,7 +29,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -48,8 +48,8 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getMessage(), args);
+    public boolean onTrigger(CommandEvent event, String args) {
+        MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
         args = channelMention.getFilteredArgs();
 
         List<TextChannel> channels = channelMention.getList();

@@ -3,6 +3,7 @@ package commands.runnables.informationcategory;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import constants.ExternalLinks;
 import core.EmbedFactory;
@@ -13,7 +14,6 @@ import core.utils.BotUtil;
 import core.utils.StringUtil;
 import mysql.modules.version.DBVersion;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -32,7 +32,7 @@ public class StatsCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         String dephordName = "???";
         try {
             dephordName = ShardManager.fetchUserById(303085910784737281L).get().getAsTag();

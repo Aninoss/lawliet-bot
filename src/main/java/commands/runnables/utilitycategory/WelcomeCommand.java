@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.LocalFile;
 import core.TextManager;
@@ -45,7 +46,7 @@ public class WelcomeCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(event.getGuild().getIdLong());
         welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteInChannelWithLog);
         welcomeMessageBean.getGoodbyeChannel().ifPresent(this::checkWriteInChannelWithLog);
@@ -85,7 +86,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 return MessageInputResponse.FAILED;
 
             case 3:
-                List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+                List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
@@ -129,7 +130,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 return MessageInputResponse.FAILED;
 
             case 7:
-                channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+                channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
                 if (channelList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;

@@ -9,7 +9,7 @@ import constants.Language;
 import core.ShardManager;
 import core.TextManager;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
@@ -219,13 +219,13 @@ public final class StringUtil {
         return "**" + getEmojiForBoolean(channel, bool) + " " + TextManager.getString(locale, TextManager.GENERAL, "onoff", bool) + "**";
     }
 
-    public static String solveVariablesOfCommandText(String string, Message message, String prefix) {
+    public static String solveVariablesOfCommandText(String string, TextChannel textChannel, Member member, String prefix) {
         return string
-                .replace("{#CHANNEL}", message.getTextChannel().getAsMention())
-                .replace("{MESSAGE_ID}", message.getId())
-                .replace("{CHANNEL_ID}", message.getChannel().getId())
-                .replace("{GUILD_ID}", message.getGuild().getId())
-                .replace("{@USER}", message.getMember().getAsMention())
+                .replace("{#CHANNEL}", textChannel.getAsMention())
+                .replace("{MESSAGE_ID}", "708943085144506418")
+                .replace("{CHANNEL_ID}", textChannel.getId())
+                .replace("{GUILD_ID}", textChannel.getGuild().getId())
+                .replace("{@USER}", member.getAsMention())
                 .replace("{@BOT}", ShardManager.getSelf().getAsMention())
                 .replace("%Prefix", prefix);
     }

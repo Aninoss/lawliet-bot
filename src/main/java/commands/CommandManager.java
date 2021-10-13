@@ -31,10 +31,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 public class CommandManager {
@@ -42,7 +41,7 @@ public class CommandManager {
     private final static int SEC_UNTIL_REMOVAL = 20;
     private final static Random random = new Random();
 
-    public static void manage(GuildMessageReceivedEvent event, Command command, String args, Instant startTime) {
+    public static void manage(CommandEvent event, Command command, String args, Instant startTime) {
         if (checkCoolDown(event, command) &&
                 checkRunningCommands(event, command)
         ) {
@@ -58,7 +57,7 @@ public class CommandManager {
         });
     }
 
-    private static void process(GuildMessageReceivedEvent event, Command command, String args, Instant startTime) {
+    private static void process(CommandEvent event, Command command, String args, Instant startTime) {
         if (botCanPost(event, command) &&
                 isWhiteListed(event, command) &&
                 botCanUseEmbeds(event, command) &&
@@ -95,7 +94,7 @@ public class CommandManager {
         }
     }
 
-    private static void maybeSendBotInvite(GuildMessageReceivedEvent event, Locale locale) {
+    private static void maybeSendBotInvite(CommandEvent event, Locale locale) {
         if (random.nextInt(180) == 0 &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER) &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MESSAGE_MANAGE) &&
@@ -112,7 +111,7 @@ public class CommandManager {
         }
     }
 
-    private static boolean checkRunningCommands(GuildMessageReceivedEvent event, Command command) {
+    private static boolean checkRunningCommands(CommandEvent event, Command command) {
         if (command instanceof PingCommand) command.getAttachments().put("start_instant", Instant.now());
         if (RunningCheckerManager.canUserRunCommand(
                 command,
@@ -140,7 +139,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkCoolDown(GuildMessageReceivedEvent event, Command command) {
+    private static boolean checkCoolDown(CommandEvent event, Command command) {
         if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 || PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())) {
             return true;
         }
@@ -167,7 +166,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkReleased(GuildMessageReceivedEvent event, Command command) {
+    private static boolean checkReleased(CommandEvent event, Command command) {
         LocalDate releaseDate = command.getReleaseDate().orElse(LocalDate.now());
         if (!releaseDate.isAfter(LocalDate.now()) ||
                 PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) > 1 ||
@@ -193,7 +192,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkPatreon(GuildMessageReceivedEvent event, Command command) {
+    private static boolean checkPatreon(CommandEvent event, Command command) {
         if (!command.getCommandProperties().patreonRequired() ||
                 PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) > 1 ||
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())
@@ -210,7 +209,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkPermissions(GuildMessageReceivedEvent event, Command command) {
+    private static boolean checkPermissions(CommandEvent event, Command command) {
         EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
                 command.getLocale(),
                 event.getChannel(),
@@ -230,7 +229,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean checkTurnedOn(GuildMessageReceivedEvent event, Command command) {
+    private static boolean checkTurnedOn(CommandEvent event, Command command) {
         if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
                 DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong()).commandIsTurnedOn(command)
         ) {
@@ -250,11 +249,11 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean canRunOnGuild(GuildMessageReceivedEvent event, Command command) {
+    private static boolean canRunOnGuild(CommandEvent event, Command command) {
         return command.canRunOnGuild(event.getGuild().getIdLong(), event.getMember().getIdLong());
     }
 
-    private static boolean botCanUseEmbeds(GuildMessageReceivedEvent event, Command command) {
+    private static boolean botCanUseEmbeds(CommandEvent event, Command command) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || !command.getCommandProperties().requiresEmbeds()) {
             return true;
         }
@@ -264,7 +263,7 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean isNSFWCompliant(GuildMessageReceivedEvent event, Command command) {
+    private static boolean isNSFWCompliant(CommandEvent event, Command command) {
         if (!command.getCommandProperties().nsfw() || event.getChannel().isNSFW()) {
             return true;
         }
@@ -274,11 +273,9 @@ public class CommandManager {
         return false;
     }
 
-    private static void sendErrorNoEmbed(GuildMessageReceivedEvent event, Locale locale, String text, boolean autoDelete, Button... buttons) {
+    private static void sendErrorNoEmbed(CommandEvent event, Locale locale, String text, boolean autoDelete, Button... buttons) {
         if (BotPermissionUtil.canWrite(event.getChannel())) {
-            MessageAction messageAction = JDAUtil.replyMessage(event.getMessage(), TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
-                    .setActionRows(ActionRows.of(buttons));
-
+            RestAction<Message> messageAction = event.replyMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text), ActionRows.of(buttons));
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
             } else {
@@ -287,15 +284,13 @@ public class CommandManager {
         }
     }
 
-    private static void sendError(GuildMessageReceivedEvent event, Locale locale, EmbedBuilder eb, boolean autoDelete, Button... buttons) {
+    private static void sendError(CommandEvent event, Locale locale, EmbedBuilder eb, boolean autoDelete, Button... buttons) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             if (autoDelete) {
                 eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
             }
 
-            MessageAction messageAction = JDAUtil.replyMessageEmbeds(event.getMessage(), eb.build())
-                    .setActionRows(ActionRows.of(buttons));
-
+            RestAction<Message> messageAction = event.replyMessageEmbeds(List.of(eb.build()), ActionRows.of(buttons));
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
             } else {
@@ -304,19 +299,26 @@ public class CommandManager {
         }
     }
 
-    private static void autoRemoveMessageAfterCountdown(GuildMessageReceivedEvent event, Message message) {
+    private static void autoRemoveMessageAfterCountdown(CommandEvent event, Message message) {
         MainScheduler.schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, "command_manager_error_countdown", () -> {
             if (BotPermissionUtil.can(event.getChannel())) {
-                if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
-                    event.getChannel().deleteMessages(Arrays.asList(message, event.getMessage())).queue();
-                } else {
-                    message.delete().queue();
+                ArrayList<Message> messageList = new ArrayList<>();
+                if (message != null) {
+                    messageList.add(message);
+                }
+                if (event.isGuildMessageReceivedEvent() && BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+                    messageList.add(event.getGuildMessageReceivedEvent().getMessage());
+                }
+                if (messageList.size() >= 2) {
+                    event.getChannel().deleteMessages(messageList).queue();
+                } else if (messageList.size() >= 1) {
+                    event.getChannel().deleteMessageById(messageList.get(0).getId()).queue();
                 }
             }
         });
     }
 
-    private static boolean isWhiteListed(GuildMessageReceivedEvent event, Command command) {
+    private static boolean isWhiteListed(CommandEvent event, Command command) {
         if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
                 DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).isWhiteListed(event.getChannel().getIdLong())
         ) {
@@ -336,15 +338,18 @@ public class CommandManager {
         return false;
     }
 
-    private static boolean botCanPost(GuildMessageReceivedEvent event, Command command) {
+    private static boolean botCanPost(CommandEvent event, Command command) {
         if (BotPermissionUtil.canWrite(event.getChannel())) {
             return true;
         }
 
-        if (BotPermissionUtil.canReadHistory(event.getChannel(), Permission.MESSAGE_ADD_REACTION)) {
+        if (event.isGuildMessageReceivedEvent() &&
+                BotPermissionUtil.canReadHistory(event.getChannel(), Permission.MESSAGE_ADD_REACTION)
+        ) {
+            Message message = event.getGuildMessageReceivedEvent().getMessage();
             RestActionQueue restActionQueue = new RestActionQueue();
-            restActionQueue.attach(event.getMessage().addReaction(Emojis.X));
-            restActionQueue.attach(event.getMessage().addReaction("✍️"))
+            restActionQueue.attach(message.addReaction(Emojis.X));
+            restActionQueue.attach(message.addReaction("✍️"))
                     .getCurrentRestAction()
                     .queue();
         }

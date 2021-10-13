@@ -3,6 +3,7 @@ package commands.runnables.moderationcategory;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.mention.Mention;
@@ -18,7 +19,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
@@ -39,7 +39,7 @@ public class BanCommand extends WarnCommand {
     }
 
     @Override
-    protected boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
+    protected boolean setUserListAndReason(CommandEvent event, String args) throws Throwable {
         MentionValue<Long> mention = MentionUtil.getTimeMinutes(args);
         this.minutes = mention.getValue();
         return super.setUserListAndReason(event, mention.getFilteredArgs());

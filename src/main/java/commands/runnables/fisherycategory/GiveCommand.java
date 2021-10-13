@@ -3,6 +3,7 @@ package commands.runnables.fisherycategory;
 import java.util.ArrayList;
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import constants.LogStatus;
@@ -18,8 +19,6 @@ import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "give",
@@ -37,9 +36,8 @@ public class GiveCommand extends Command implements FisheryInterface {
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
-        Message message = event.getMessage();
-        MentionList<Member> memberMentioned = MentionUtil.getMembers(message, args);
+    public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
+        MentionList<Member> memberMentioned = MentionUtil.getMembers(event.getGuild(), args);
         ArrayList<Member> list = new ArrayList<>(memberMentioned.getList());
         list.removeIf(member -> member.getUser().isBot() || member.getIdLong() == event.getMember().getIdLong());
 

@@ -3,6 +3,7 @@ package commands.runnables.casinocategory;
 import java.util.Locale;
 import java.util.Random;
 import commands.Category;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
 import constants.Emojis;
@@ -17,7 +18,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
@@ -45,7 +45,7 @@ public class SlotCommand extends CasinoAbstract {
     }
 
     @Override
-    public boolean onGameStart(GuildMessageReceivedEvent event, String args) {
+    public boolean onGameStart(CommandEvent event, String args) {
         double n = new Random().nextDouble();
 
         winLevel = 0;

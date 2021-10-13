@@ -1,6 +1,7 @@
 package commands.runnables.informationcategory;
 
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import constants.Emojis;
@@ -14,7 +15,6 @@ import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.InviteTrackingSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "invites",
@@ -31,7 +31,7 @@ public class InvitesCommand extends MemberAccountAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
         if (DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).isActive()) {
             return super.onTrigger(event, args);
         } else {
@@ -46,7 +46,7 @@ public class InvitesCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) {
+    protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) {
         InviteMetrics inviteMetrics = InviteTracking.generateInviteMetrics(event.getGuild(), member.getIdLong());
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setTitle(null)

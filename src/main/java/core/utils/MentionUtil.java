@@ -27,18 +27,14 @@ import net.dv8tion.jda.api.entities.*;
 
 public class MentionUtil {
 
-    public static MentionList<Member> getMembers(Message message, String input) {
-        MemberCacheController.getInstance().loadMembersFull(message.getGuild()).join();
-        return getMembers(message, input, message.getGuild().getMembers());
+    public static MentionList<Member> getMembers(Guild guild, String input) {
+        MemberCacheController.getInstance().loadMembersFull(guild).join();
+        return getMembers(guild, input, guild.getMembers());
     }
 
-    public static MentionList<Member> getMembers(Message message, String input, List<Member> members) {
-        MemberCacheController.getInstance().loadMembersFull(message.getGuild()).join();
-        ArrayList<Member> list = new ArrayList<>(message.getMentionedMembers());
-        if (!input.contains(ShardManager.getSelfIdString())) {
-            list.remove(message.getGuild().getSelfMember());
-        }
-        list.removeIf(member -> !members.contains(member));
+    public static MentionList<Member> getMembers(Guild guild, String input, List<Member> members) {
+        MemberCacheController.getInstance().loadMembersFull(guild).join();
+        ArrayList<Member> list = new ArrayList<>();
 
         for (Member member : list) {
             input = input
@@ -61,27 +57,15 @@ public class MentionUtil {
         );
     }
 
-    public static MentionList<User> getUsers(Message message, String input) {
-        MemberCacheController.getInstance().loadMembersFull(message.getGuild()).join();
-        return getUsers(message, input, message.getGuild().getMembers().stream().map(Member::getUser).collect(Collectors.toList()));
+    public static MentionList<User> getUsers(Guild guild, String input) {
+        MemberCacheController.getInstance().loadMembersFull(guild).join();
+        return getUsers(input, guild.getMembers().stream().map(Member::getUser).collect(Collectors.toList()));
     }
 
-    public static MentionList<User> getUsers(Message message, String input, List<User> users) {
-        ArrayList<User> list = message.getMentionedMembers().stream().map(Member::getUser).collect(Collectors.toCollection(ArrayList::new));
-        if (!input.contains(ShardManager.getSelfIdString())) {
-            list.remove(message.getGuild().getSelfMember().getUser());
-        }
-        list.removeIf(user -> !users.contains(user));
-
-        for (User user : list) {
-            input = input
-                    .replace(getUserAsMention(user.getIdLong(), false), "")
-                    .replace(getUserAsMention(user.getIdLong(), true), "");
-        }
-
+    public static MentionList<User> getUsers(String input, List<User> users) {
         return generateMentionList(
                 users,
-                list,
+                new ArrayList<>(),
                 input,
                 u -> ((User) u).getId(),
                 u -> "@" + ((User) u).getAsTag(),
@@ -135,17 +119,10 @@ public class MentionUtil {
         });
     }
 
-    public static MentionList<Role> getRoles(Message message, String input) {
-        ArrayList<Role> list = new ArrayList<>(message.getMentionedRoles());
-        list.removeIf(role -> !message.getGuild().getRoles().contains(role));
-
-        for (Role role : list) {
-            input = input.replace(role.getAsMention(), "");
-        }
-
+    public static MentionList<Role> getRoles(Guild guild, String input) {
         return generateMentionList(
-                message.getGuild().getRoles(),
-                list,
+                guild.getRoles(),
+                new ArrayList<>(),
                 input,
                 r -> ((Role) r).getId(),
                 r -> "@" + ((Role) r).getName(),
@@ -153,17 +130,10 @@ public class MentionUtil {
         );
     }
 
-    public static MentionList<TextChannel> getTextChannels(Message message, String input) {
-        ArrayList<TextChannel> list = new ArrayList<>(message.getMentionedChannels());
-        list.removeIf(channel -> !message.getGuild().getTextChannels().contains(channel));
-
-        for (TextChannel channel : list) {
-            input = input.replace(channel.getAsMention(), "");
-        }
-
+    public static MentionList<TextChannel> getTextChannels(Guild guild, String input) {
         return generateMentionList(
-                message.getGuild().getTextChannels(),
-                list,
+                guild.getTextChannels(),
+                new ArrayList<>(),
                 input,
                 c -> ((TextChannel) c).getId(),
                 c -> "#" + ((TextChannel) c).getName(),
@@ -297,10 +267,9 @@ public class MentionUtil {
         return false;
     }
 
-    public static CompletableFuture<MentionList<Message>> getMessageWithLinks(Message message, String link) {
+    public static CompletableFuture<MentionList<Message>> getMessageWithLinks(Guild guild, String link) {
         return FutureUtil.supplyAsync(() -> {
             ArrayList<Message> list = new ArrayList<>();
-            Guild guild = message.getGuild();
             String guildId = guild.getId();
             Matcher m = Message.JUMP_URL_PATTERN.matcher(link);
             while (m.find()) {
@@ -367,14 +336,14 @@ public class MentionUtil {
         return new Mention(sb.toString(), filteredOriginalText, multi, containedBlockedUser, elementList);
     }
 
-    public static Mention getMentionedString(Locale locale, Message message, String args, Member blockedMember) {
+    public static Mention getMentionedString(Locale locale, Guild guild, String args, Member blockedMember) {
         boolean multi = false;
         AtomicBoolean containedBlockedUser = new AtomicBoolean(false);
         ArrayList<String> mentions = new ArrayList<>();
         ArrayList<ISnowflake> elementList = new ArrayList<>();
 
         /* add usernames */
-        MentionList<Member> memberMention = MentionUtil.getMembers(message, args);
+        MentionList<Member> memberMention = MentionUtil.getMembers(guild, args);
         memberMention.getList().forEach(member -> {
             if (blockedMember != null && member.getIdLong() == blockedMember.getIdLong()) {
                 containedBlockedUser.set(true);
@@ -386,12 +355,12 @@ public class MentionUtil {
         args = memberMention.getFilteredArgs();
 
         /* add role names */
-        MentionList<Role> roleMention = MentionUtil.getRoles(message, args);
+        MentionList<Role> roleMention = MentionUtil.getRoles(guild, args);
         roleMention.getList().forEach(role -> mentions.add(StringUtil.escapeMarkdown(role.getName())));
         args = roleMention.getFilteredArgs();
 
         /* add everyone mention */
-        if (message.mentionsEveryone() || args.contains("everyone") || args.contains("@here")) {
+        if (args.contains("everyone") || args.contains("@here")) {
             if (mentions.isEmpty()) {
                 mentions.add(TextManager.getString(locale, TextManager.GENERAL, "everyone_start"));
             } else {

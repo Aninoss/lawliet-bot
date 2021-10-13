@@ -2,10 +2,11 @@ package commands.runnables.utilitycategory;
 
 import java.util.List;
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
@@ -38,7 +39,7 @@ public class AutoChannelCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
         return true;

@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
@@ -53,7 +54,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) {
+    public boolean onFisheryAccess(CommandEvent event, String args) {
         fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         Optional<Instant> nextWork = fisheryMemberBean.checkNextWork();
         if (nextWork.isEmpty()) {

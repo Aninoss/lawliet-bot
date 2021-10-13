@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
@@ -26,9 +27,9 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.requests.RestAction;
 
 @CommandProperties(
         trigger = "clear",
@@ -49,14 +50,15 @@ public class ClearCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws InterruptedException, ExecutionException {
+    public boolean onTrigger(CommandEvent event, String args) throws InterruptedException, ExecutionException {
         if (args.length() > 0 && StringUtil.stringIsLong(args) && Long.parseLong(args) >= 2 && Long.parseLong(args) <= 500) {
             boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 ||
                     PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
             long messageId = registerButtonListener(event.getMember()).get();
             TimeUnit.SECONDS.sleep(1);
-            ClearResults clearResults = clear(event.getChannel(), patreon, Integer.parseInt(args), event.getMessage().getIdLong(), messageId);
+            long authorMessageId = event.isGuildMessageReceivedEvent() ? event.getGuildMessageReceivedEvent().getMessage().getIdLong() : 0L;
+            ClearResults clearResults = clear(event.getChannel(), patreon, Integer.parseInt(args), authorMessageId, messageId);
 
             String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
@@ -67,8 +69,13 @@ public class ClearCommand extends Command implements OnButtonListener {
                 drawMessage(eb).exceptionally(ExceptionLogger.get());
             }
 
-            event.getChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessage().getId()))
-                    .queueAfter(8, TimeUnit.SECONDS);
+            RestAction<Void> restAction;
+            if (event.isGuildMessageReceivedEvent()) {
+                restAction = event.getChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getGuildMessageReceivedEvent().getMessage().getId()));
+            } else {
+                restAction = event.getChannel().deleteMessageById(messageId);
+            }
+            restAction.queueAfter(8, TimeUnit.SECONDS);
             return true;
         } else {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args", "2", "500")))

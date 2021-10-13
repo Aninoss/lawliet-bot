@@ -2,6 +2,7 @@ package commands.runnables.utilitycategory;
 
 import java.util.List;
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
@@ -44,7 +45,7 @@ public class InviteTrackingCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
         return true;
@@ -52,7 +53,7 @@ public class InviteTrackingCommand extends NavigationAbstract {
 
     @ControllerMessage(state = SET_LOGCHANNEL)
     public MessageInputResponse onMessageSetLogChannel(GuildMessageReceivedEvent event, String input) {
-        List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+        List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
         if (channelList.size() == 0) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
             return MessageInputResponse.FAILED;

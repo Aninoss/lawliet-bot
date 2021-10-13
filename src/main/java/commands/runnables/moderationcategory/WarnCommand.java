@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import commands.Category;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
@@ -22,9 +23,11 @@ import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
@@ -64,8 +67,8 @@ public class WarnCommand extends Command implements OnButtonListener {
         this.sendLogWarnings = sendLogWarnings;
     }
 
-    protected MentionList<User> getUserList(Message message, String args) throws Throwable {
-        MentionList<Member> memberMention = MentionUtil.getMembers(message, args);
+    protected MentionList<User> getUserList(Guild guild, String args) throws Throwable {
+        MentionList<Member> memberMention = MentionUtil.getMembers(guild, args);
         ArrayList<User> userList = memberMention.getList().stream()
                 .map(Member::getUser)
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -96,7 +99,7 @@ public class WarnCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
         if (!setUserListAndReason(event, args)) {
             return false;
         }
@@ -134,9 +137,8 @@ public class WarnCommand extends Command implements OnButtonListener {
         }
     }
 
-    protected boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
-        Message message = event.getMessage();
-        MentionList<User> userMention = getUserList(message, args);
+    protected boolean setUserListAndReason(CommandEvent event, String args) throws Throwable {
+        MentionList<User> userMention = getUserList(event.getGuild(), args);
         userList = userMention.getList();
         if (userList.size() == 0) {
             drawMessageNew(getNoMentionEmbed())
@@ -145,7 +147,7 @@ public class WarnCommand extends Command implements OnButtonListener {
         }
 
         reason = userMention.getFilteredArgs().trim();
-        reason = JDAUtil.resolveMentions(event.getMessage(), reason);
+        reason = JDAUtil.resolveMentions(event.getGuild(), reason);
         reason = StringUtil.shortenString(reason, CHAR_LIMIT);
 
         return true;

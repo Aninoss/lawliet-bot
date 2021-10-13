@@ -2,6 +2,7 @@ package commands.runnables.externalcategory;
 
 import java.util.Locale;
 import java.util.Optional;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import commands.runnables.MemberAccountAbstract;
@@ -24,7 +25,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
@@ -55,7 +55,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     }
 
     @Override
-    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
+    protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         this.memberIsAuthor = memberIsAuthor;
 
         boolean userExists = false;

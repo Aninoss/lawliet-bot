@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import constants.Settings;
 import core.EmbedFactory;
@@ -13,7 +14,6 @@ import core.ShardManager;
 import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "patreon",
@@ -35,7 +35,7 @@ public class PatreonCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         patreonData = PatreonCache.getInstance().getAsync();
 
         String content = getString("info",

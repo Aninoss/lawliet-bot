@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import commands.listeners.CommandProperties;
 import commands.Category;
+import commands.CommandEvent;
+import commands.listeners.CommandProperties;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -24,7 +25,6 @@ import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
@@ -52,7 +52,7 @@ public class JailCommand extends WarnCommand {
     }
 
     @Override
-    protected boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
+    protected boolean setUserListAndReason(CommandEvent event, String args) throws Throwable {
         ModerationData moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         Guild guild = event.getGuild();
         List<Role> notManagableRoles = moderationBean.getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong).stream()

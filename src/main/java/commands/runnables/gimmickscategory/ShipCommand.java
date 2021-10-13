@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -18,8 +19,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "ship",
@@ -42,9 +41,8 @@ public class ShipCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws IOException, ExecutionException, InterruptedException {
-        Message message = event.getMessage();
-        ArrayList<Member> list = new ArrayList<>(MentionUtil.getMembers(message, args).getList());
+    public boolean onTrigger(CommandEvent event, String args) throws IOException, ExecutionException, InterruptedException {
+        ArrayList<Member> list = new ArrayList<>(MentionUtil.getMembers(event.getGuild(), args).getList());
         if (list.size() == 1 && list.get(0).getIdLong() != event.getMember().getIdLong()) {
             list.add(event.getMember());
         }

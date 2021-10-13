@@ -2,11 +2,12 @@ package commands.runnables.configurationcategory;
 
 import java.util.List;
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
@@ -42,7 +43,7 @@ public class WhiteListCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         WhiteListedChannelsData whiteListedChannelsBean = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
         whiteListedChannels = AtomicTextChannel.transformIdList(event.getGuild(), whiteListedChannelsBean.getChannelIds());
         channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, AtomicTextChannel.class, MAX_CHANNELS);
@@ -53,7 +54,7 @@ public class WhiteListCommand extends NavigationAbstract {
     @Override
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
-            List<TextChannel> channelList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+            List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
             return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMessage().getMember(), 0);
         }
 

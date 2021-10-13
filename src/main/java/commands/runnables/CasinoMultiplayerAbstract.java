@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import commands.Category;
 import commands.Command;
+import commands.CommandEvent;
 import commands.CommandListenerMeta;
 import commands.listeners.OnButtonListener;
 import constants.Emojis;
@@ -26,7 +27,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
@@ -46,7 +46,6 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     private final long playersMin;
     private final long playersMax;
     private final ArrayList<AtomicMember> playerList = new ArrayList<>();
-    private EmbedBuilder lastEmbedBuilder;
 
     public CasinoMultiplayerAbstract(Locale locale, String prefix, long playersMin, long playersMax) {
         super(locale, prefix);
@@ -54,7 +53,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         this.playersMax = playersMax;
     }
 
-    public boolean onGamePrepare(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onGamePrepare(CommandEvent event, String args) throws Throwable {
         return true;
     }
 
@@ -65,7 +64,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     public abstract EmbedBuilder drawCasino(Member member) throws Throwable;
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
         if (!onGamePrepare(event, args)) {
             return false;
         }
@@ -262,8 +261,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
 
             return eb;
         } else {
-            lastEmbedBuilder = drawCasino(member);
-            return lastEmbedBuilder;
+            return drawCasino(member);
         }
     }
 

@@ -4,18 +4,16 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import commands.Command;
-import commands.CommandContainer;
-import commands.CommandListenerMeta;
-import commands.CommandManager;
+import commands.*;
+import commands.listeners.MessageInputResponse;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.informationcategory.HelpCommand;
-import commands.listeners.MessageInputResponse;
 import core.AsyncTimer;
 import core.MainLogger;
 import core.ShardManager;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
+import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
@@ -87,7 +85,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     }
 
                     try {
-                        CommandManager.manage(event, command, args, getStartTime());
+                        CommandManager.manage(new CommandEvent(event), command, args, getStartTime());
                     } catch (Throwable e) {
                         ExceptionUtil.handleCommandException(e, command);
                     }
@@ -106,13 +104,16 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
     private void checkAutoQuote(GuildMessageReceivedEvent event) {
         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-            MentionUtil.getMessageWithLinks(event.getMessage(), event.getMessage().getContentRaw()).thenAccept(mentionMessages -> {
+            MentionUtil.getMessageWithLinks(event.getGuild(), event.getMessage().getContentRaw()).thenAccept(mentionMessages -> {
                 List<Message> messages = mentionMessages.getList();
-                if (messages.size() > 0 && DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive()) {
+                if (messages.size() > 0 && DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive() && BotPermissionUtil.canWriteEmbed(event.getChannel())) {
                     try {
                         for (int i = 0; i < Math.min(3, messages.size()); i++) {
                             Message message = messages.get(i);
-                            MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getChannel(), event.getMessage(), message, true);
+                            Message m = MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getChannel(), message, true); //TODO: test
+                            JDAUtil.replyMessageEmbeds(event.getMessage(), m.getEmbeds().get(0))
+                                    .setActionRows(m.getActionRows())
+                                    .queue();
                         }
                     } catch (Throwable throwable) {
                         MainLogger.get().error("Exception in Auto Quote", throwable);

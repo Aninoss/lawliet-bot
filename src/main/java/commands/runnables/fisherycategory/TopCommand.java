@@ -1,6 +1,7 @@
 package commands.runnables.fisherycategory;
 
 import java.util.*;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import commands.runnables.ListAbstract;
@@ -15,7 +16,6 @@ import mysql.modules.fisheryusers.FisheryRecentFishGainsData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "top",
@@ -38,7 +38,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
         rankingSlots = new ArrayList<>();
         FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
         Map<Long, Long> recentFishGainsMap = fisheryGuildData.getAllRecentFishGains();

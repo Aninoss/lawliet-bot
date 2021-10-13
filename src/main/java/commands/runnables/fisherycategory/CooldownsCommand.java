@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnSelectionMenuListener;
 import commands.runnables.FisheryInterface;
@@ -26,7 +27,6 @@ import mysql.modules.upvotes.DBUpvotes;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
@@ -48,7 +48,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnSel
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
         this.fisheryMemberData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
         registerSelectionMenuListener(event.getMember());

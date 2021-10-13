@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import constants.Emojis;
@@ -22,7 +23,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
@@ -49,8 +49,8 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
-        List<Role> roles = MentionUtil.getRoles(event.getMessage(), args).getList();
+    public boolean onTrigger(CommandEvent event, String args) {
+        List<Role> roles = MentionUtil.getRoles(event.getGuild(), args).getList();
 
         /* check for no role mention */
         if (roles.isEmpty()) {

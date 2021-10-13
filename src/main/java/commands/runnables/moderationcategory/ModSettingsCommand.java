@@ -3,6 +3,7 @@ package commands.runnables.moderationcategory;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -58,7 +59,7 @@ public class ModSettingsCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         moderationData = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         jailRoles = AtomicRole.transformIdList(event.getGuild(), moderationData.getJailRoleIds());
         jailRolesNavigationHelper = new NavigationHelper<>(this, jailRoles, AtomicRole.class, 20);
@@ -71,7 +72,7 @@ public class ModSettingsCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                List<TextChannel> channelsList = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+                List<TextChannel> channelsList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
                 if (channelsList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
@@ -153,7 +154,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                 }
 
             case 6:
-                List<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
+                List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
                 if (roleList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
@@ -227,7 +228,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                 }
 
             case 11:
-                roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
+                roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
                 return jailRolesNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMessage().getMember(), 0);
 
             case 13:

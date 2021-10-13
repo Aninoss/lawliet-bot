@@ -3,6 +3,7 @@ package commands.runnables.informationcategory;
 import java.util.Locale;
 import java.util.Optional;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -10,7 +11,6 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
@@ -27,7 +27,7 @@ public class ServerInfoCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         Guild guild = event.getGuild();
 
         long bots = guild.getMembers().stream().filter(m -> m.getUser().isBot()).count();

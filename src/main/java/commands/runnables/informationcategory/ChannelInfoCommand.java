@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -15,7 +16,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
@@ -32,10 +32,10 @@ public class ChannelInfoCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         boolean noMention = false;
         Guild guild = event.getGuild();
-        ArrayList<TextChannel> list = new ArrayList<>(MentionUtil.getTextChannels(event.getMessage(), args).getList());
+        ArrayList<TextChannel> list = new ArrayList<>(MentionUtil.getTextChannels(event.getGuild(), args).getList());
         if (list.size() == 0) {
             list.add(event.getChannel());
             noMention = true;

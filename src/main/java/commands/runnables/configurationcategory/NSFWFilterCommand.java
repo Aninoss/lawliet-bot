@@ -1,10 +1,11 @@
 package commands.runnables.configurationcategory;
 
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
@@ -35,7 +36,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         keywords = DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords();
         registerNavigationListener(event.getMember());
         return true;

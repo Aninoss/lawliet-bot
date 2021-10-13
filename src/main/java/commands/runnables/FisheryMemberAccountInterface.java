@@ -1,7 +1,7 @@
 package commands.runnables;
 
 import java.util.Locale;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import commands.CommandEvent;
 
 public abstract class FisheryMemberAccountInterface extends MemberAccountAbstract implements FisheryInterface {
 
@@ -10,12 +10,12 @@ public abstract class FisheryMemberAccountInterface extends MemberAccountAbstrac
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
         return onFisheryTrigger(event, args);
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
         return super.onTrigger(event, args);
     }
 

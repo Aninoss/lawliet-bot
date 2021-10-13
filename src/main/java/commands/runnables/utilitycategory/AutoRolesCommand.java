@@ -3,10 +3,11 @@ package commands.runnables.utilitycategory;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
-import commands.runnables.NavigationAbstract;
 import commands.listeners.MessageInputResponse;
+import commands.runnables.NavigationAbstract;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
@@ -42,7 +43,7 @@ public class AutoRolesCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         AutoRolesData autoRolesBean = DBAutoRoles.getInstance().retrieve(event.getGuild().getIdLong());
         roles = AtomicRole.transformIdList(event.getGuild(), autoRolesBean.getRoleIds());
         roleNavigationHelper = new NavigationHelper<>(this, roles, AtomicRole.class, MAX_ROLES);
@@ -54,7 +55,7 @@ public class AutoRolesCommand extends NavigationAbstract {
     @Override
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state == 1) {
-            List<Role> roleList = MentionUtil.getRoles(event.getMessage(), input).getList();
+            List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
             return roleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), 0);
         }
 

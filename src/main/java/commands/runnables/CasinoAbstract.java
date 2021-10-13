@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Locale;
 import commands.Category;
 import commands.Command;
+import commands.CommandEvent;
 import commands.CommandManager;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnButtonListener;
@@ -56,14 +57,14 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         this.useCalculatedMultiplicator = useCalculatedMultiplicator;
     }
 
-    public abstract boolean onGameStart(GuildMessageReceivedEvent event, String args) throws Throwable;
+    public abstract boolean onGameStart(CommandEvent event, String args) throws Throwable;
 
     public abstract boolean onButtonCasino(ButtonClickEvent event) throws Throwable;
 
     public abstract EmbedBuilder drawCasino(String playerName, long coinsInput);
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
         try {
             if (!allowBet) {
                 setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "nobet"));
@@ -211,7 +212,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             setActionRows();
             drawMessage(lastEmbedBuilder).exceptionally(ExceptionLogger.get());
             Command command = CommandManager.createCommandByClass(this.getClass(), getLocale(), getPrefix());
-            getGuildMessageReceivedEvent().ifPresent(e -> CommandManager.manage(e, command, String.valueOf(coinsInput), Instant.now()));
+            CommandManager.manage(getCommandEvent(), command, String.valueOf(coinsInput), Instant.now());
             return false;
         }
         return false;

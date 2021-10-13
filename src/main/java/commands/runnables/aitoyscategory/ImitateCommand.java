@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -17,7 +18,6 @@ import modules.textai.TextAI;
 import modules.textai.TextAICache;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "imitate",
@@ -37,8 +37,8 @@ public class ImitateCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        MentionList<Member> memberMentions = MentionUtil.getMembers(event.getMessage(), args);
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+        MentionList<Member> memberMentions = MentionUtil.getMembers(event.getGuild(), args);
         List<Member> members = memberMentions.getList();
 
         ArrayList<Message> tempMessageCache = new ArrayList<>();

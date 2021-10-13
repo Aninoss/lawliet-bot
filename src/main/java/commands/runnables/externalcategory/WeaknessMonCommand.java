@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-import commands.listeners.CommandProperties;
 import commands.Category;
+import commands.CommandEvent;
+import commands.listeners.CommandProperties;
 import core.TextManager;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "weaknessmon",
@@ -24,7 +24,7 @@ public class WeaknessMonCommand extends WeaknessTypeCommand {
     }
 
     @Override
-    protected String getContent(GuildMessageReceivedEvent event, String args, List<Integer> types) {
+    protected String getContent(CommandEvent event, String args, List<Integer> types) {
         String[] typesString = TextManager.getString(getLocale(), Category.EXTERNAL, "weaknesstype_types").split("\n");
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < typesString.length; i++) {
@@ -40,7 +40,7 @@ public class WeaknessMonCommand extends WeaknessTypeCommand {
     }
 
     @Override
-    protected List<Integer> retrieveTypes(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+    protected List<Integer> retrieveTypes(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         pokemon = PokemonCommand.fetchPokemon(args);
         if (pokemon == null) {
             return new ArrayList<>();

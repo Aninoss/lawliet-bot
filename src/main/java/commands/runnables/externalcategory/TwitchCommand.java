@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import constants.Emojis;
@@ -21,7 +22,6 @@ import modules.twitch.TwitchUser;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "twitch",
@@ -38,7 +38,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException {
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException {
         if (args.isEmpty()) {
             drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")))
                     .exceptionally(ExceptionLogger.get());

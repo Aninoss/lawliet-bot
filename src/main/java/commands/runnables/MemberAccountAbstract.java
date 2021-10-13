@@ -2,6 +2,7 @@ package commands.runnables;
 
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.MentionList;
@@ -11,7 +12,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public abstract class MemberAccountAbstract extends Command {
 
@@ -31,11 +31,11 @@ public abstract class MemberAccountAbstract extends Command {
         found = true;
     }
 
-    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
+    protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         return null;
     }
 
-    protected EmbedBuilder processUser(GuildMessageReceivedEvent event, User user, boolean userIsAuthor, String args) throws Throwable {
+    protected EmbedBuilder processUser(CommandEvent event, User user, boolean userIsAuthor, String args) throws Throwable {
         return null;
     }
 
@@ -44,13 +44,13 @@ public abstract class MemberAccountAbstract extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
         boolean userMentioned = false;
         EmbedBuilder eb;
 
         if (includeNotInGuild) {
             User user = event.getMember().getUser();
-            MentionList<User> userMention = MentionUtil.getUsers(event.getMessage(), args);
+            MentionList<User> userMention = MentionUtil.getUsers(event.getGuild(), args);
 
             if (userMention.getList().size() > 0) {
                 user = userMention.getList().get(0);
@@ -66,7 +66,7 @@ public abstract class MemberAccountAbstract extends Command {
             eb = processUser(event, user, user.getIdLong() == event.getMember().getIdLong(), userMention.getFilteredArgs());
         } else {
             Member member = event.getMember();
-            MentionList<Member> memberMention = MentionUtil.getMembers(event.getMessage(), args);
+            MentionList<Member> memberMention = MentionUtil.getMembers(event.getGuild(), args);
 
             if (memberMention.getList().size() > 0) {
                 member = memberMention.getList().get(0);

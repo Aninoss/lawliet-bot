@@ -1,10 +1,12 @@
 package commands.runnables;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.CommandEvent;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
@@ -13,7 +15,6 @@ import core.internet.HttpRequest;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import org.json.JSONObject;
@@ -25,9 +26,11 @@ public abstract class DeepAIAbstract extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         String url = null;
-        List<Message.Attachment> attachmentList = event.getMessage().getAttachments();
+        List<Message.Attachment> attachmentList = event.isGuildMessageReceivedEvent()
+                ? event.getGuildMessageReceivedEvent().getMessage().getAttachments()
+                : Collections.emptyList();
 
         if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
             Message.Attachment messageAttachment = attachmentList.get(0);

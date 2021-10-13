@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import constants.AssetIds;
 import core.EmbedFactory;
@@ -13,9 +14,7 @@ import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "nibble",
@@ -45,11 +44,10 @@ public class NibbleCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws ExecutionException, InterruptedException {
-        Guild guild = event.getGuild();
+    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         Member user0 = event.getMember();
 
-        MentionList<Member> userMention = MentionUtil.getMembers(event.getMessage(), args);
+        MentionList<Member> userMention = MentionUtil.getMembers(event.getGuild(), args);
         List<Member> userList = userMention.getList();
         if (userList.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions"));

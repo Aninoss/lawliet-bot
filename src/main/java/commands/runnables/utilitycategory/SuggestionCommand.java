@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Locale;
 import java.util.Optional;
 import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
@@ -19,7 +20,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
@@ -41,14 +41,14 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         SuggestionsData suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
         if (suggestionsBean.isActive()) {
             Optional<TextChannel> channelOpt = suggestionsBean.getTextChannel();
             if (channelOpt.isPresent() && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.MESSAGE_WRITE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION)) {
                 if (ratelimitManager.checkAndSet(event.getMember().getIdLong(), 1, Duration.ofMinutes(1)).isEmpty()) {
                     TextChannel channel = channelOpt.get();
-                    String author = event.getMessage().getMember().getUser().getAsTag();
+                    String author = event.getMember().getUser().getAsTag();
                     String content = StringUtil.shortenString(args, 1024);
 
                     MessageAction messageAction = channel.sendMessageEmbeds(generateEmbed(content, StringUtil.escapeMarkdown(author), generateFooter(0, 0)).build());

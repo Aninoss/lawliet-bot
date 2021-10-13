@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import commands.CommandEvent;
 import commands.listeners.*;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
@@ -81,7 +82,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         registerNavigationListener(event.getMember());
         registerReactionListener(event.getMember());
         return true;
@@ -89,7 +90,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @ControllerMessage(state = ADD_MESSAGE)
     public MessageInputResponse onMessageAddMessage(GuildMessageReceivedEvent event, String input) {
-        List<TextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getMessage(), input).getList();
+        List<TextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getGuild(), input).getList();
         if (serverTextChannel.size() > 0) {
             if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
                 atomicTextChannel = new AtomicTextChannel(serverTextChannel.get(0));
@@ -161,7 +162,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         if (input.length() > 0) {
             boolean ok = false;
             List<String> emojis = MentionUtil.getEmojis(event.getMessage(), input).getList();
-            List<Role> roles = MentionUtil.getRoles(event.getMessage(), input).getList();
+            List<Role> roles = MentionUtil.getRoles(event.getGuild(), input).getList();
 
             if (emojis.size() > 0) {
                 if (processEmoji(emojis.get(0))) {

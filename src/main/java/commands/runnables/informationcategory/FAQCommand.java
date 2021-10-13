@@ -2,11 +2,11 @@ package commands.runnables.informationcategory;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.ListAbstract;
 import core.TextManager;
 import javafx.util.Pair;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "faq",
@@ -22,7 +22,7 @@ public class FAQCommand extends ListAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
         slots = new ArrayList<>();
         for (int i = 0; i < TextManager.getKeySize(TextManager.FAQ) / 2; i++) {
             String question = TextManager.getString(getLocale(), TextManager.FAQ, String.format("faq.%d.question", i)).replace("{PREFIX}", getPrefix());

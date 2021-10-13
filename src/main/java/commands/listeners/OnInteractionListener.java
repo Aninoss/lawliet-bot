@@ -11,7 +11,8 @@ import commands.CommandListenerMeta;
 import constants.ExceptionFunction;
 import constants.ExceptionRunnable;
 import core.ExceptionLogger;
-import core.InteractionResponse;
+import core.interactionresponse.ComponentInteractionResponse;
+import core.interactionresponse.InteractionResponse;
 import core.MainLogger;
 import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
@@ -34,8 +35,8 @@ public interface OnInteractionListener extends Drawable {
         Command command = (Command) this;
         command.getDrawMessageId().ifPresent(messageId -> {
             command.getTextChannel().ifPresent(channel -> {
-                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE)) {
-                    Collection<String> messageIds = List.of(String.valueOf(messageId), command.getGuildMessageReceivedEvent().get().getMessageId());
+                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE) && command.getCommandEvent().isGuildMessageReceivedEvent()) {
+                    Collection<String> messageIds = List.of(String.valueOf(messageId), command.getCommandEvent().getGuildMessageReceivedEvent().getMessageId());
                     channel.deleteMessagesByIds(messageIds).queue();
                 } else if (BotPermissionUtil.canReadHistory(channel)) {
                     channel.deleteMessageById(messageId).queue();
@@ -106,7 +107,7 @@ public interface OnInteractionListener extends Drawable {
 
     default <T extends GenericComponentInteractionCreateEvent> void processInteraction(T event, ExceptionFunction<T, Boolean> task) {
         Command command = (Command) this;
-        InteractionResponse interactionResponse = new InteractionResponse(event);
+        InteractionResponse interactionResponse = new ComponentInteractionResponse(event);
         command.setInteractionResponse(interactionResponse);
 
         try {

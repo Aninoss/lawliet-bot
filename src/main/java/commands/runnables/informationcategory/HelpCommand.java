@@ -8,10 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import commands.Category;
-import commands.Command;
-import commands.CommandContainer;
-import commands.CommandManager;
+import commands.*;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnAlertListener;
@@ -60,7 +57,7 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         searchTerm = args;
         commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
@@ -91,7 +88,7 @@ public class HelpCommand extends NavigationAbstract {
                 String className = searchTerm.split(":")[1];
                 Command command = CommandManager.createCommandByClassName(className, getLocale(), getPrefix());
 
-                CommandManager.manage(getGuildMessageReceivedEvent().get(), command, "", Instant.now());
+                CommandManager.manage(getCommandEvent(), command, "", Instant.now());
                 return false;
             }
 
@@ -116,7 +113,7 @@ public class HelpCommand extends NavigationAbstract {
         setActionRows();
 
         EmbedBuilder eb;
-        if ((eb = checkCommand(arg)) == null) {
+        if ((eb = checkCommand(member, arg)) == null) {
             if ((eb = checkCategory(member, channel, arg)) == null) {
                 eb = checkMainPage(member);
                 if (arg.length() > 0) {
@@ -128,7 +125,7 @@ public class HelpCommand extends NavigationAbstract {
         return eb;
     }
 
-    private EmbedBuilder checkCommand(String arg) {
+    private EmbedBuilder checkCommand(Member member, String arg) {
         boolean noArgs = false;
         if (getAttachments().has("noargs")) {
             getAttachments().remove("noargs");
@@ -157,7 +154,7 @@ public class HelpCommand extends NavigationAbstract {
                 StringBuilder examples = new StringBuilder();
                 int exampleNumber = 0;
                 for (String line : TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_examples").split("\n")) {
-                    line = StringUtil.solveVariablesOfCommandText(line, getGuildMessageReceivedEvent().get().getMessage(), getPrefix());
+                    line = StringUtil.solveVariablesOfCommandText(line, getTextChannel().get(), member, getPrefix());
                     examples.append("• ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                     exampleNumber++;
                 }

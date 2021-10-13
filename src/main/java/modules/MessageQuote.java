@@ -7,26 +7,22 @@ import commands.runnables.gimmickscategory.QuoteCommand;
 import core.EmbedFactory;
 import core.TextManager;
 import core.components.ActionRows;
-import core.utils.BotPermissionUtil;
-import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 public class MessageQuote {
 
-    public static void postQuote(String prefix, Locale locale, TextChannel channel, Message referenceMessage, Message searchedMessage, boolean showAutoQuoteTurnOff) {
-        if (!BotPermissionUtil.canWriteEmbed(channel)) {
-            return;
-        }
-
+    public static Message postQuote(String prefix, Locale locale, TextChannel channel, Message searchedMessage,
+                                    boolean showAutoQuoteTurnOff) {
         if (searchedMessage.getTextChannel().isNSFW() && !channel.isNSFW()) {
-            JDAUtil.replyMessageEmbeds(referenceMessage, EmbedFactory.getNSFWBlockEmbed(locale).build())
+            return new MessageBuilder()
+                    .setEmbeds(EmbedFactory.getNSFWBlockEmbed(locale).build())
                     .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(locale)))
-                    .queue();
-            return;
+                    .build();
         }
 
         EmbedBuilder eb;
@@ -70,7 +66,9 @@ public class MessageQuote {
                         searchedMessage.getAuthor().getEffectiveAvatarUrl()
                 );
 
-        JDAUtil.replyMessageEmbeds(referenceMessage, eb.build()).queue();
+        return new MessageBuilder()
+                .setEmbeds(eb.build())
+                .build();
     }
 
 }

@@ -2,12 +2,12 @@ package commands.runnables.gimmickscategory;
 
 import java.util.Locale;
 import java.util.Random;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "kira",
@@ -22,7 +22,7 @@ public class KiraCommand extends MemberAccountAbstract {
     }
 
     @Override
-    protected EmbedBuilder processMember(GuildMessageReceivedEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
+    protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         Random r = new Random(member.hashCode());
         int percent = r.nextInt(101);
         return EmbedFactory.getEmbedDefault(this, getString("template", member.getEffectiveName(), String.valueOf(percent)))

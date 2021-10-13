@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.CheckReturnValue;
+import core.MemberCacheController;
 import core.ShardManager;
 import core.components.ActionRows;
 import net.dv8tion.jda.api.Permission;
@@ -30,18 +31,21 @@ public class JDAUtil {
         return Optional.empty();
     }
 
-    public static String resolveMentions(Message message, String content) {
-        for (Member member : message.getMentionedMembers()) {
+    public static String resolveMentions(Guild guild, String content) {
+        for (Member member : MemberCacheController.getInstance().loadMembersFull(guild).join()) {
             content = content.replace(MentionUtil.getUserAsMention(member.getIdLong(), true), "@" + member.getEffectiveName())
                     .replace(MentionUtil.getUserAsMention(member.getIdLong(), false), "@" + member.getEffectiveName());
         }
-        for (TextChannel channel : message.getMentionedChannels()) {
+        for (TextChannel channel : guild.getTextChannels()) {
             content = content.replace(channel.getAsMention(), "#" + channel.getName());
         }
-        for (Role role : message.getMentionedRoles()) {
+        for (VoiceChannel channel : guild.getVoiceChannels()) {
+            content = content.replace(channel.getAsMention(), "#" + channel.getName());
+        }
+        for (Role role : guild.getRoles()) {
             content = content.replace(role.getAsMention(), "@" + role.getName());
         }
-        for (Emote emote : message.getEmotes()) {
+        for (Emote emote : guild.getEmotes()) {
             content = content.replace(emote.getAsMention(), ":" + emote.getName() + ":");
         }
         return content;

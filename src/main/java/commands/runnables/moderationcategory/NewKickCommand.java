@@ -5,8 +5,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import commands.listeners.CommandProperties;
 import commands.Category;
+import commands.CommandEvent;
+import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MemberCacheController;
@@ -18,9 +19,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 @CommandProperties(
         trigger = "newkick",
@@ -41,7 +40,7 @@ public class NewKickCommand extends WarnCommand {
     }
 
     @Override
-    protected boolean setUserListAndReason(GuildMessageReceivedEvent event, String args) throws Throwable {
+    protected boolean setUserListAndReason(CommandEvent event, String args) throws Throwable {
         MentionValue<Long> mention = MentionUtil.getTimeMinutes(args);
         minutes = mention.getValue();
         if (minutes <= 0) {
@@ -54,8 +53,8 @@ public class NewKickCommand extends WarnCommand {
     }
 
     @Override
-    protected MentionList<User> getUserList(Message message, String args) {
-        List<User> userList = MemberCacheController.getInstance().loadMembersFull(message.getGuild()).join().stream()
+    protected MentionList<User> getUserList(Guild guild, String args) {
+        List<User> userList = MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
                 .filter(m -> m.hasTimeJoined() && m.getTimeJoined().toInstant().isAfter(Instant.now().minus(Duration.ofMinutes(minutes))))
                 .map(Member::getUser)
                 .collect(Collectors.toList());

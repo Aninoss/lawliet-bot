@@ -4,11 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
@@ -51,7 +52,7 @@ public class WordFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(GuildMessageReceivedEvent event, String args) {
+    public boolean onTrigger(CommandEvent event, String args) {
         bannedWordsBean = DBBannedWords.getInstance().retrieve(event.getGuild().getIdLong());
         ignoredUsers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getIgnoredUserIds());
         logReceivers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getLogReceiverUserIds());
@@ -64,7 +65,7 @@ public class WordFilterCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                List<Member> memberIgnoredList = MentionUtil.getMembers(event.getMessage(), input).getList();
+                List<Member> memberIgnoredList = MentionUtil.getMembers(event.getGuild(), input).getList();
                 if (memberIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
@@ -77,7 +78,7 @@ public class WordFilterCommand extends NavigationAbstract {
                 }
 
             case 2:
-                List<Member> logRecieverList = MentionUtil.getMembers(event.getMessage(), input).getList();
+                List<Member> logRecieverList = MentionUtil.getMembers(event.getGuild(), input).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;

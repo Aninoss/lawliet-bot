@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
@@ -52,7 +53,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     }
 
     @Override
-    public boolean onFisheryAccess(GuildMessageReceivedEvent event, String args) throws Throwable {
+    public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         fisheryGuildBean = fisheryMemberBean.getFisheryGuildData();
