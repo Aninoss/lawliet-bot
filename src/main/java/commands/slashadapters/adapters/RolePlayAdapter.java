@@ -21,7 +21,8 @@ public class RolePlayAdapter extends SlashAdapter {
                 .addOption(OptionType.USER, "member2", "Who should be involved?", false)
                 .addOption(OptionType.USER, "member3", "Who should be involved?", false)
                 .addOption(OptionType.USER, "member4", "Who should be involved?", false)
-                .addOption(OptionType.USER, "member5", "Who should be involved?", false);
+                .addOption(OptionType.USER, "member5", "Who should be involved?", false)
+                .addOption(OptionType.BOOLEAN, "everyone", "If you want to mention everyone", false);
     }
 
     @Override

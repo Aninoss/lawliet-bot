@@ -3,6 +3,7 @@ package commands.slashadapters;
 import java.util.Arrays;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 public abstract class SlashAdapter {
@@ -31,7 +32,11 @@ public abstract class SlashAdapter {
         StringBuilder argsBuilder = new StringBuilder();
         for (OptionMapping option : event.getOptions()) {
             if (Arrays.stream(exceptions).noneMatch(exception -> option.getName().equals(exception))) {
-                argsBuilder.append(option.getAsString()).append(" ");
+                if (option.getType() == OptionType.BOOLEAN && option.getAsBoolean()) {
+                    argsBuilder.append(option.getName()).append(" ");
+                } else {
+                    argsBuilder.append(option.getAsString()).append(" ");
+                }
             }
         }
         return argsBuilder.toString();
