@@ -34,18 +34,12 @@ public class MentionUtil {
 
     public static MentionList<Member> getMembers(Guild guild, String input, List<Member> members) {
         MemberCacheController.getInstance().loadMembersFull(guild).join();
-        ArrayList<Member> list = new ArrayList<>();
-
-        for (Member member : list) {
-            input = input
-                    .replace(getUserAsMention(member.getIdLong(), true), "")
-                    .replace(getUserAsMention(member.getIdLong(), false), "");
-        }
-
         return generateMentionList(
                 members,
-                list,
+                new ArrayList<>(),
                 input,
+                u -> getUserAsMention(((Member) u).getIdLong(), true),
+                u -> getUserAsMention(((Member) u).getIdLong(), false),
                 u -> ((Member) u).getId(),
                 u -> "@" + ((Member) u).getUser().getAsTag(),
                 u -> "@" + ((Member) u).getUser().getName(),
@@ -67,6 +61,8 @@ public class MentionUtil {
                 users,
                 new ArrayList<>(),
                 input,
+                u -> getUserAsMention(((User) u).getIdLong(), true),
+                u -> getUserAsMention(((User) u).getIdLong(), false),
                 u -> ((User) u).getId(),
                 u -> "@" + ((User) u).getAsTag(),
                 u -> "@" + ((User) u).getName(),
@@ -124,6 +120,7 @@ public class MentionUtil {
                 guild.getRoles(),
                 new ArrayList<>(),
                 input,
+                r -> ((Role) r).getAsMention(),
                 r -> ((Role) r).getId(),
                 r -> "@" + ((Role) r).getName(),
                 r -> ((Role) r).getName()
@@ -135,6 +132,7 @@ public class MentionUtil {
                 guild.getTextChannels(),
                 new ArrayList<>(),
                 input,
+                c -> ((TextChannel) c).getAsMention(),
                 c -> ((TextChannel) c).getId(),
                 c -> "#" + ((TextChannel) c).getName(),
                 c -> ((TextChannel) c).getName()
@@ -148,7 +146,7 @@ public class MentionUtil {
                 message.getGuild().getVoiceChannels(),
                 list,
                 input,
-                c -> "<#" + ((VoiceChannel) c).getId() + ">",
+                c -> ((VoiceChannel) c).getAsMention(),
                 c -> ((VoiceChannel) c).getId(),
                 c -> "#" + ((VoiceChannel) c).getName(),
                 c -> ((VoiceChannel) c).getName()
@@ -439,7 +437,7 @@ public class MentionUtil {
 
         str = reformatForDigits(str);
         Matcher m = RegexPatterns.AMOUNT_FILTER_PATTERN.matcher(str);
-        while(m.find()) {
+        while (m.find()) {
             double value = Double.parseDouble(m.group("digits").replace(",", "."));
             String unit = m.group("unit").toLowerCase();
 
@@ -492,7 +490,7 @@ public class MentionUtil {
 
         for (Pair<Pattern, Integer> patternIntegerPair : unitList) {
             Matcher matcher = patternIntegerPair.getKey().matcher(str);
-            while(matcher.find()) {
+            while (matcher.find()) {
                 String groupStr = matcher.group();
                 min += StringUtil.filterLongFromString(groupStr) * patternIntegerPair.getValue();
                 str = str.replace(groupStr, "");

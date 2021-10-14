@@ -409,10 +409,11 @@ public abstract class Command implements OnTriggerListener {
 
     public CommandLanguage getCommandLanguage() {
         String title = getString("title");
+        String descShort = getString("description");
         String descLong = getString("helptext");
         String usage = getString("usage");
         String examples = getString("examples");
-        return new CommandLanguage(title, descLong, usage, examples);
+        return new CommandLanguage(title, descShort, descLong, usage, examples);
     }
 
     public Permission[] getAdjustedUserGuildPermissions() {
@@ -617,10 +618,11 @@ public abstract class Command implements OnTriggerListener {
         Category category = getCategory(clazz);
 
         String title = TextManager.getString(locale, category, trigger + "_title");
+        String descShort = TextManager.getString(locale, category, trigger + "_description");
         String descLong = TextManager.getString(locale, category, trigger + "_helptext");
         String usage = TextManager.getString(locale, category, trigger + "_usage");
         String examples = TextManager.getString(locale, category, trigger + "_examples");
-        return new CommandLanguage(title, descLong, usage, examples);
+        return new CommandLanguage(title, descShort, descLong, usage, examples);
     }
 
 }

@@ -2,8 +2,11 @@ package events.discordevents.eventtypeabstracts;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import core.EmbedFactory;
 import events.discordevents.DiscordEventAbstract;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 public abstract class SlashCommandAbstract extends DiscordEventAbstract {
 
@@ -21,6 +24,11 @@ public abstract class SlashCommandAbstract extends DiscordEventAbstract {
 
     public static void onSlashCommandStatic(SlashCommandEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         if (event.getGuild() == null) {
+            ArrayList<ActionRow> actionRowList = new ArrayList<>();
+            EmbedBuilder eb = EmbedFactory.getCommandDMEmbed(actionRowList);
+            event.replyEmbeds(eb.build())
+                    .addActionRows(actionRowList)
+                    .queue();
             return;
         }
 

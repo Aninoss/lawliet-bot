@@ -6,6 +6,7 @@ import core.utils.BotUtil;
 public class Program {
 
     private static boolean stopped = false;
+    private static boolean newVersion = false;
     private final static Instant startTime = Instant.now();
 
     public static void init() {
@@ -40,6 +41,14 @@ public class Program {
 
     public static Instant getStartTime() {
         return startTime;
+    }
+
+    public static boolean isNewVersion() {
+        return newVersion;
+    }
+
+    public static void setNewVersion() {
+        Program.newVersion = true;
     }
 
 }

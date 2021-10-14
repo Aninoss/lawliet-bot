@@ -1,7 +1,9 @@
 package core;
 
 import java.util.EnumSet;
+import java.util.List;
 import javax.security.auth.login.LoginException;
+import commands.SlashCommandManager;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
@@ -13,6 +15,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AllowedMentions;
@@ -112,6 +115,25 @@ public class DiscordConnector {
         ShardManager.start();
         SyncManager.setFullyConnected();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
+
+        try {
+            List<CommandData> commandDataList = SlashCommandManager.initialize();
+            if (Program.productionMode()) {
+                if (Program.isNewVersion()) {
+                    ShardManager.getAnyJDA().get()
+                            .updateCommands()
+                            .addCommands(commandDataList)
+                            .queue();
+                }
+            } else {
+                ShardManager.getLocalGuildById(692893461736718417L).get()
+                        .updateCommands()
+                        .addCommands(commandDataList)
+                        .queue();
+            }
+        } catch (Throwable e) {
+            MainLogger.get().error("Exception on slash commands load", e);
+        }
     }
 
     public static void updateActivity(JDA jda) {

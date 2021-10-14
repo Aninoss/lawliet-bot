@@ -23,8 +23,7 @@ import net.dv8tion.jda.api.entities.Member;
 public abstract class RolePlayAbstract extends Command {
 
     private final BlockUserPair[] blockUserPairs = new BlockUserPair[] {
-            new BlockUserPair(321164798475894784L, 326714012022865930L),
-            new BlockUserPair(272037078919938058L, 395689348324130816L)
+            new BlockUserPair(321164798475894784L, 326714012022865930L)
     };
 
     private final boolean interactive;

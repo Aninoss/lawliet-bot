@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.CommandEvent;
+import commands.listeners.CommandProperties;
 import commands.listeners.*;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;

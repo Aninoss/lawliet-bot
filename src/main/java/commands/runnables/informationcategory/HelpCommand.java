@@ -37,6 +37,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
+import org.json.JSONObject;
 
 @CommandProperties(
         trigger = "help",
@@ -122,6 +123,11 @@ public class HelpCommand extends NavigationAbstract {
             }
         }
 
+        JSONObject attachments = getAttachments();
+        if (attachments.has("error")) {
+            setLog(LogStatus.FAILURE, attachments.getString("error"));
+            attachments.remove("error");
+        }
         return eb;
     }
 
@@ -144,7 +150,7 @@ public class HelpCommand extends NavigationAbstract {
                 }
 
                 buttonMap.clear();
-                buttonMap.put(-1, "cat:" + currentCategory);
+                buttonMap.put(-1, "cat:" + currentCategory.getId());
 
                 StringBuilder usage = new StringBuilder();
                 for (String line : TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_usage").split("\n")) {

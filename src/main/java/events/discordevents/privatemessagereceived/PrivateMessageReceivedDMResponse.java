@@ -1,22 +1,17 @@
 package events.discordevents.privatemessagereceived;
 
 import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
+import java.util.ArrayList;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import constants.ExternalLinks;
 import core.EmbedFactory;
 import core.Program;
-import core.components.ActionRows;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.PrivateMessageReceivedAbstract;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 @DiscordEvent
 public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbstract {
@@ -30,18 +25,8 @@ public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbst
         User user = event.getAuthor();
         if (Program.getClusterId() == 1 && !usersDmNotified.asMap().containsKey(user.getIdLong())) {
             usersDmNotified.put(user.getIdLong(), true);
-            EmbedBuilder eb;
-            List<ActionRow> actionRowList = Collections.emptyList();
-            if (Program.publicVersion()) {
-                eb = EmbedFactory.getEmbedError()
-                        .setTitle("❌ Not Supported")
-                        .setDescription("Commands via dm are not supported, you need to add Lawliet to a server!");
-                actionRowList = ActionRows.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, "Add Lawliet"));
-            } else {
-                eb = EmbedFactory.getEmbedError()
-                        .setTitle("❌ Not Supported")
-                        .setDescription("Commands via dm are not supported!");
-            }
+            ArrayList<ActionRow> actionRowList = new ArrayList<>();
+            EmbedBuilder eb = EmbedFactory.getCommandDMEmbed(actionRowList);
             event.getMessage()
                     .replyEmbeds(eb.build())
                     .setActionRows(actionRowList)

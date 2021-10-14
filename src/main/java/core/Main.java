@@ -68,9 +68,9 @@ public class Main {
 
     private static void initializeUpdate() {
         VersionData versionData = DBVersion.getInstance().retrieve();
-
         String currentVersionDB = versionData.getCurrentVersion().getVersion();
         if (!BotUtil.getCurrentVersion().equals(currentVersionDB)) {
+            Program.setNewVersion();
             versionData.getSlots().add(new VersionSlot(BotUtil.getCurrentVersion(), Instant.now()));
         }
     }

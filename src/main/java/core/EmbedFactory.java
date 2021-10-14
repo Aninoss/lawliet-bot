@@ -1,6 +1,7 @@
 package core;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Locale;
 import commands.Command;
 import constants.ExternalLinks;
@@ -8,6 +9,7 @@ import constants.Language;
 import constants.Settings;
 import core.utils.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
@@ -119,6 +121,21 @@ public class EmbedFactory {
                 TextManager.getString(command.getLocale(), TextManager.GENERAL, "process_abort_description"),
                 TextManager.getString(command.getLocale(), TextManager.GENERAL, "process_abort_title")
         );
+    }
+
+    public static EmbedBuilder getCommandDMEmbed(ArrayList<ActionRow> actionRowList) {
+        EmbedBuilder eb;
+        if (Program.publicVersion()) {
+            eb = EmbedFactory.getEmbedError()
+                    .setTitle("❌ Not Supported")
+                    .setDescription("Commands via dm are not supported, you need to add Lawliet to a server!");
+            actionRowList.add(ActionRow.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, "Add Lawliet")));
+        } else {
+            eb = EmbedFactory.getEmbedError()
+                    .setTitle("❌ Not Supported")
+                    .setDescription("Commands via dm are not supported!");
+        }
+        return eb;
     }
 
 }

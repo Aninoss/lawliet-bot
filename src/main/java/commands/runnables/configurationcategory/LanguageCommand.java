@@ -2,9 +2,7 @@ package commands.runnables.configurationcategory;
 
 import java.util.List;
 import java.util.Locale;
-import commands.Category;
-import commands.Command;
-import commands.CommandEvent;
+import commands.*;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnSelectionMenuListener;
 import constants.ExternalLinks;

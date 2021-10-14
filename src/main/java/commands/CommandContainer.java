@@ -351,7 +351,6 @@ public class CommandContainer {
         return fullList;
     }
 
-
     public static synchronized <T> void registerListener(Class<?> clazz, CommandListenerMeta<T> commandListenerMeta) {
         Cache<Long, CommandListenerMeta<?>> cache = listenerMap.computeIfAbsent(
                 clazz,
