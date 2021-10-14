@@ -191,7 +191,7 @@ public abstract class Command implements OnTriggerListener {
 
     private CompletableFuture<Message> drawMessage(EmbedBuilder eb, boolean newMessage) {
         TextChannel channel = getTextChannel().get();
-        if (BotPermissionUtil.canWriteEmbed(channel)) {
+        if (BotPermissionUtil.canWriteEmbed(channel) || interactionResponse != null || commandEvent.isSlashCommandEvent()) {
             EmbedUtil.addLog(eb, logStatus, log);
             return drawMessage(channel, null, eb, newMessage);
         } else {

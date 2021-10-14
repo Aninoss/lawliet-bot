@@ -200,7 +200,7 @@ public class CommandManager {
             return true;
         }
 
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || event.isSlashCommandEvent()) {
             sendError(event, command.getLocale(), EmbedFactory.getPatreonBlockEmbed(command.getLocale()), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         } else if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
             sendErrorNoEmbed(event, command.getLocale(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description_noembed"), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
@@ -223,9 +223,7 @@ public class CommandManager {
             return true;
         }
 
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-            sendError(event, command.getLocale(), errEmbed, true);
-        }
+        sendError(event, command.getLocale(), errEmbed, true);
         return false;
     }
 
@@ -274,7 +272,7 @@ public class CommandManager {
     }
 
     private static void sendErrorNoEmbed(CommandEvent event, Locale locale, String text, boolean autoDelete, Button... buttons) {
-        if (BotPermissionUtil.canWrite(event.getChannel())) {
+        if (BotPermissionUtil.canWrite(event.getChannel()) || event.isSlashCommandEvent()) {
             RestAction<Message> messageAction = event.replyMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text), ActionRows.of(buttons));
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
@@ -285,7 +283,7 @@ public class CommandManager {
     }
 
     private static void sendError(CommandEvent event, Locale locale, EmbedBuilder eb, boolean autoDelete, Button... buttons) {
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || event.isSlashCommandEvent()) {
             if (autoDelete) {
                 eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
             }
@@ -339,7 +337,7 @@ public class CommandManager {
     }
 
     private static boolean botCanPost(CommandEvent event, Command command) {
-        if (BotPermissionUtil.canWrite(event.getChannel())) {
+        if (BotPermissionUtil.canWrite(event.getChannel()) || event.isSlashCommandEvent()) {
             return true;
         }
 
