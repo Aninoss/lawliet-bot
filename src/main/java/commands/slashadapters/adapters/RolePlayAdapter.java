@@ -17,7 +17,7 @@ public class RolePlayAdapter extends SlashAdapter {
     public CommandData addOptions(CommandData commandData) {
         return commandData
                 .addOption(OptionType.STRING, "gesture", "Which type of interaction? (e.g. hug, kiss)", true)
-                .addOption(OptionType.USER, "member1", "Who should be involved?", false)
+                .addOption(OptionType.USER, "member", "Who should be involved?", false)
                 .addOption(OptionType.USER, "member2", "Who should be involved?", false)
                 .addOption(OptionType.USER, "member3", "Who should be involved?", false)
                 .addOption(OptionType.USER, "member4", "Who should be involved?", false)

@@ -476,6 +476,11 @@ public abstract class Command implements OnTriggerListener {
             }
         }
 
+        if (commandProperties.requiresEmbeds()) {
+            permissions = Arrays.copyOf(permissions, permissions.length + 1);
+            permissions[permissions.length - 1] = Permission.MESSAGE_EMBED_LINKS;
+        }
+
         return permissions;
     }
 

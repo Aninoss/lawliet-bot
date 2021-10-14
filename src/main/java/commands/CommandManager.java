@@ -98,7 +98,7 @@ public class CommandManager {
         if (random.nextInt(180) == 0 &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER) &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MESSAGE_MANAGE) &&
-                BotPermissionUtil.canWriteEmbed(event.getChannel())
+                (BotPermissionUtil.canWriteEmbed(event.getChannel()) || event.isSlashCommandEvent())
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setThumbnail(ShardManager.getSelf().getAvatarUrl())
@@ -126,7 +126,7 @@ public class CommandManager {
         if (CoolDownManager.getCoolDownData(event.getMember().getIdLong()).canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_desc");
 
-            if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+            if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || event.isSlashCommandEvent()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_title"))
                         .setDescription(desc);
@@ -153,7 +153,7 @@ public class CommandManager {
         if (cooldownUserData.canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, String.valueOf(waitingSec.get()));
 
-            if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+            if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || event.isSlashCommandEvent()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
                         .setDescription(desc);
@@ -178,7 +178,7 @@ public class CommandManager {
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description");
         String waitTime = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_releaseday", TimeFormat.DATE_TIME_SHORT.atInstant(TimeUtil.localDateToInstant(releaseDate)).toString());
 
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || event.isSlashCommandEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setColor(Settings.PATREON_COLOR)
                     .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
@@ -202,7 +202,7 @@ public class CommandManager {
 
         if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || event.isSlashCommandEvent()) {
             sendError(event, command.getLocale(), EmbedFactory.getPatreonBlockEmbed(command.getLocale()), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
-        } else if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+        } else if (BotPermissionUtil.canWrite(event.getChannel())) {
             sendErrorNoEmbed(event, command.getLocale(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description_noembed"), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         }
 
@@ -235,8 +235,7 @@ public class CommandManager {
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_description");
-
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || event.isSlashCommandEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_title", command.getPrefix()))
                     .setDescription(desc);
@@ -252,7 +251,7 @@ public class CommandManager {
     }
 
     private static boolean botCanUseEmbeds(CommandEvent event, Command command) {
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || !command.getCommandProperties().requiresEmbeds()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || !command.getCommandProperties().requiresEmbeds() || event.isSlashCommandEvent()) {
             return true;
         }
 
