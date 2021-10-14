@@ -113,7 +113,6 @@ public class Mute {
         if ((permissionOverride == null || !permissionOverride.getDenied().contains(Permission.MESSAGE_WRITE)) &&
                 PermissionCheckRuntime.botHasPermission(locale, ModSettingsCommand.class, guildChannel.getGuild(), Permission.ADMINISTRATOR)
         ) {
-            System.out.println(guildChannel.getName()); //TODO
             BotPermissionUtil.addPermission(guildChannel, guildChannel.getManager(), muteRole, false, Permission.MESSAGE_WRITE)
                     .reason(Command.getCommandLanguage(ModSettingsCommand.class, locale).getTitle())
                     .queue();

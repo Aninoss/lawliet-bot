@@ -110,7 +110,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     try {
                         for (int i = 0; i < Math.min(3, messages.size()); i++) {
                             Message message = messages.get(i);
-                            Message m = MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getChannel(), message, true); //TODO: test
+                            Message m = MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getChannel(), message, true);
                             JDAUtil.replyMessageEmbeds(event.getMessage(), m.getEmbeds().get(0))
                                     .setActionRows(m.getActionRows())
                                     .queue();
