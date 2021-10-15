@@ -68,7 +68,7 @@ public class VoteCache {
 
         for (int i = 0; i < choices.length; i++) {
             String choiceLine = choiceString.split("\n")[i];
-            choices[i] = choiceLine.split("\\|")[1];
+            choices[i] = choiceLine.substring(choiceLine.split("\\|")[0].length() + 1);
         }
 
         for (int i = 0; i < choices.length; i++) {

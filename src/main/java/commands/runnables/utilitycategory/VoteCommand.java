@@ -46,9 +46,13 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
-        args = args.replace("\n", "").trim();
-        if (args.startsWith("|")) args = args.substring(1);
+        args = args.replace("\n", "").replace("\\|", "<sep>");
+        if (args.startsWith("|")) args = args.substring(1).trim();
         String[] argsParts = args.split("\\|");
+        for (int i = 0; i < argsParts.length; i++) {
+            argsParts[i] = argsParts[i].replace("<sep>", "|");
+        }
+
         if (argsParts.length >= 3 && argsParts.length <= 13) {
             String topic = argsParts[0].trim();
 

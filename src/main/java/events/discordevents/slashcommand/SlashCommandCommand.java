@@ -3,7 +3,6 @@ package events.discordevents.slashcommand;
 import java.util.Locale;
 import java.util.function.Function;
 import commands.Command;
-import commands.CommandContainer;
 import commands.CommandEvent;
 import commands.CommandManager;
 import commands.SlashCommandManager;
@@ -35,23 +34,20 @@ public class SlashCommandCommand extends SlashCommandAbstract {
         }
 
         GuildData guildData = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-        String trigger = slashCommandMeta.getTrigger();
-        String args = slashCommandMeta.getArgs();
+        String args = slashCommandMeta.getArgs().trim();
         String prefix = guildData.getPrefix();
         Locale locale = guildData.getLocale();
-        Class<? extends Command> clazz = CommandContainer.getCommandMap().get(trigger);
-        if (clazz != null) {
-            Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
-            Function<Locale, String> errorFunction = slashCommandMeta.getErrorFunction();
-            if (errorFunction != null) {
-                command.getAttachments().put("error", errorFunction.apply(locale));
-            }
+        Class<? extends Command> clazz = slashCommandMeta.getCommandClass();
+        Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+        Function<Locale, String> errorFunction = slashCommandMeta.getErrorFunction();
+        if (errorFunction != null) {
+            command.getAttachments().put("error", errorFunction.apply(locale));
+        }
 
-            try {
-                CommandManager.manage(new CommandEvent(event), command, args, getStartTime());
-            } catch (Throwable e) {
-                ExceptionUtil.handleCommandException(e, command);
-            }
+        try {
+            CommandManager.manage(new CommandEvent(event), command, args, getStartTime());
+        } catch (Throwable e) {
+            ExceptionUtil.handleCommandException(e, command);
         }
 
         return true;

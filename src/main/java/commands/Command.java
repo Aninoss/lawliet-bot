@@ -466,6 +466,10 @@ public abstract class Command implements OnTriggerListener {
         }
 
         if (this instanceof OnReactionListener || this instanceof OnStaticReactionAddListener || this instanceof OnStaticReactionRemoveListener) {
+            if (Arrays.stream(permissions).noneMatch(permission -> permission == Permission.VIEW_CHANNEL)) {
+                permissions = Arrays.copyOf(permissions, permissions.length + 1);
+                permissions[permissions.length - 1] = Permission.VIEW_CHANNEL;
+            }
             if (Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_HISTORY)) {
                 permissions = Arrays.copyOf(permissions, permissions.length + 1);
                 permissions[permissions.length - 1] = Permission.MESSAGE_HISTORY;
@@ -473,6 +477,13 @@ public abstract class Command implements OnTriggerListener {
             if (Arrays.stream(permissions).noneMatch(permission -> permission == Permission.MESSAGE_ADD_REACTION)) {
                 permissions = Arrays.copyOf(permissions, permissions.length + 1);
                 permissions[permissions.length - 1] = Permission.MESSAGE_ADD_REACTION;
+            }
+        }
+
+        if (this instanceof OnMessageInputListener) {
+            if (Arrays.stream(permissions).noneMatch(permission -> permission == Permission.VIEW_CHANNEL)) {
+                permissions = Arrays.copyOf(permissions, permissions.length + 1);
+                permissions[permissions.length - 1] = Permission.VIEW_CHANNEL;
             }
         }
 

@@ -1,6 +1,11 @@
 package commands.slashadapters;
 
 import java.util.Arrays;
+import commands.Category;
+import commands.Command;
+import commands.CommandContainer;
+import constants.Language;
+import core.TextManager;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -14,21 +19,31 @@ public abstract class SlashAdapter {
 
     public String name() {
         Slash slash = getClass().getAnnotation(Slash.class);
-        return slash.name();
+        String name = slash.name();
+        if (name.isEmpty()) {
+            name = Command.getCommandProperties(slash.command()).trigger();
+        }
+        return name;
     }
 
     public String description() {
         Slash slash = getClass().getAnnotation(Slash.class);
-        return slash.description();
+        String description = slash.description();
+        if (description.isEmpty()) {
+            String trigger = name();
+            Class<? extends Command> clazz = CommandContainer.getCommandMap().get(trigger);
+            Category category = Command.getCategory(clazz);
+            description = TextManager.getString(Language.EN.getLocale(), category, trigger + "_description");
+        }
+        return description;
     }
 
     public CommandData generateCommandData() {
-        Slash slash = getClass().getAnnotation(Slash.class);
-        CommandData commandData = new CommandData(slash.name(), slash.description());
+        CommandData commandData = new CommandData(name(), description());
         return addOptions(commandData);
     }
 
-    protected static String generateArgs(SlashCommandEvent event, String... exceptions) {
+    protected static String collectArgs(SlashCommandEvent event, String... exceptions) {
         StringBuilder argsBuilder = new StringBuilder();
         for (OptionMapping option : event.getOptions()) {
             if (Arrays.stream(exceptions).noneMatch(exception -> option.getName().equals(exception))) {

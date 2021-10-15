@@ -3,6 +3,7 @@ package commands.slashadapters.adapters;
 import commands.Category;
 import commands.Command;
 import commands.CommandContainer;
+import commands.runnables.informationcategory.HelpCommand;
 import commands.slashadapters.Slash;
 import commands.slashadapters.SlashAdapter;
 import commands.slashadapters.SlashMeta;
@@ -31,10 +32,10 @@ public class RolePlayAdapter extends SlashAdapter {
         Class<? extends Command> clazz = CommandContainer.getCommandMap().get(type);
         if (clazz != null) {
             if (Command.getCategory(clazz) == Category.INTERACTIONS) {
-                return new SlashMeta(type, generateArgs(event, "gesture"));
+                return new SlashMeta(clazz, collectArgs(event, "gesture"));
             }
         }
-        return new SlashMeta("help", "interactions", locale -> TextManager.getString(locale, TextManager.COMMANDS, "slash_error_invalidgesture", type));
+        return new SlashMeta(HelpCommand.class, "interactions", locale -> TextManager.getString(locale, TextManager.COMMANDS, "slash_error_invalidgesture", type));
     }
 
 }
