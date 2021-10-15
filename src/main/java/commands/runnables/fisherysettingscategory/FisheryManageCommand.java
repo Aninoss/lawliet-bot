@@ -85,7 +85,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             switch (typeString.toLowerCase()) {
                 case "fish", "fishes" -> type = 0;
                 case "coins", "coin" -> type = 1;
-                case "daily", "dailystreak", "streak" -> type = 2;
+                case "daily", "daily_streak", "dailystreak", "streak" -> type = 2;
                 case "reset", "remove", "delete", "clear" -> type = 3 + FisheryGear.values().length;
                 default -> {
                     FisheryGear gear = FisheryGear.parse(typeString);

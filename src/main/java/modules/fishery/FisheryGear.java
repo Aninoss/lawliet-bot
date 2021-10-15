@@ -34,10 +34,10 @@ public enum FisheryGear {
 
     public static FisheryGear parse(String str) {
         return switch (str.toLowerCase()) {
-            case "fishingrod", "rod", "message", "messages" -> FisheryGear.MESSAGE;
-            case "fishingrobot", "robot", "fishingbot", "bot", "day", "daily", "dailies" -> FisheryGear.DAILY;
-            case "fishingnet", "net", "vc", "voice", "voicechannel", "voicechannels" -> FisheryGear.VOICE;
-            case "metal", "detector", "detectors", "metaldetector", "metaldetectors", "treasurechest", "treasurechests", "chest", "chests" -> FisheryGear.TREASURE;
+            case "fishing_rod", "fishingrod", "rod", "message", "messages" -> FisheryGear.MESSAGE;
+            case "fishing_robot", "fishingrobot", "robot", "fishingbot", "bot", "day", "daily", "dailies" -> FisheryGear.DAILY;
+            case "fishing_net", "fishingnet", "net", "vc", "voice", "voicechannel", "voicechannels" -> FisheryGear.VOICE;
+            case "metal", "detector", "detectors", "metal_detector", "metaldetector", "metaldetectors", "treasurechest", "treasurechests", "chest", "chests" -> FisheryGear.TREASURE;
             case "role", "roles", "buyablerole", "buyableroles", "fisheryrole", "fisheryroles" -> FisheryGear.ROLE;
             case "survey", "surveys" -> FisheryGear.SURVEY;
             case "work", "working", "salary" -> FisheryGear.WORK;

@@ -23,9 +23,9 @@ public interface OnTriggerListener {
 
     boolean onTrigger(CommandEvent event, String args) throws Throwable;
 
-    default boolean processTrigger(CommandEvent event, String args) throws Throwable {
+    default boolean processTrigger(CommandEvent event, String args, boolean freshCommand) throws Throwable {
         Command command = (Command) this;
-        if (event.isSlashCommandEvent()) {
+        if (freshCommand && event.isSlashCommandEvent()) {
             InteractionResponse interactionResponse = new SlashCommandResponse(event.getSlashCommandEvent().getHook());
             command.setInteractionResponse(interactionResponse);
         }

@@ -151,7 +151,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
                 case "coins", "coin" -> {
                     return OrderBy.COINS;
                 }
-                case "daily", "dailystreak", "streak" -> {
+                case "daily", "daily_streak", "dailystreak", "streak" -> {
                     return OrderBy.DAILY_STREAK;
                 }
                 default -> {}

@@ -42,10 +42,14 @@ public class CommandManager {
     private final static Random random = new Random();
 
     public static void manage(CommandEvent event, Command command, String args, Instant startTime) {
+        manage(event, command, args, startTime, true);
+    }
+
+    public static void manage(CommandEvent event, Command command, String args, Instant startTime, boolean freshCommand) {
         if (checkCoolDown(event, command) &&
                 checkRunningCommands(event, command)
         ) {
-            process(event, command, args, startTime);
+            process(event, command, args, startTime, freshCommand);
         }
 
         command.getCompletedListeners().forEach(runnable -> {
@@ -57,7 +61,7 @@ public class CommandManager {
         });
     }
 
-    private static void process(CommandEvent event, Command command, String args, Instant startTime) {
+    private static void process(CommandEvent event, Command command, String args, Instant startTime, boolean freshCommand) {
         if (botCanPost(event, command) &&
                 isWhiteListed(event, command) &&
                 botCanUseEmbeds(event, command) &&
@@ -82,7 +86,7 @@ public class CommandManager {
                     command.getAttachments().put("starting_time", startTime);
                 }
 
-                boolean success = command.processTrigger(event, args);
+                boolean success = command.processTrigger(event, args, freshCommand);
                 if (success && Program.publicVersion()) {
                     maybeSendBotInvite(event, command.getLocale());
                 }

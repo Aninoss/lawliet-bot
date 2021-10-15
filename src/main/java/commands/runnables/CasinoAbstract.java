@@ -124,6 +124,10 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         return status;
     }
 
+    public boolean allowBet() {
+        return allowBet;
+    }
+
     protected void endGame(Member member) {
         endGame(member, true);
     }
@@ -212,7 +216,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             setActionRows();
             drawMessage(lastEmbedBuilder).exceptionally(ExceptionLogger.get());
             Command command = CommandManager.createCommandByClass(this.getClass(), getLocale(), getPrefix());
-            CommandManager.manage(getCommandEvent(), command, String.valueOf(coinsInput), Instant.now());
+            CommandManager.manage(getCommandEvent(), command, String.valueOf(coinsInput), Instant.now(), false);
             return false;
         }
         return false;

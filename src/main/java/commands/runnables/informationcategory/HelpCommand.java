@@ -89,7 +89,7 @@ public class HelpCommand extends NavigationAbstract {
                 String className = searchTerm.split(":")[1];
                 Command command = CommandManager.createCommandByClassName(className, getLocale(), getPrefix());
 
-                CommandManager.manage(getCommandEvent(), command, "", Instant.now());
+                CommandManager.manage(getCommandEvent(), command, "", Instant.now(), false);
                 return false;
             }
 

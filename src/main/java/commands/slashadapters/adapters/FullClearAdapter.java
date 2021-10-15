@@ -13,7 +13,7 @@ public class FullClearAdapter extends SlashAdapter {
 
     public CommandData addOptions(CommandData commandData) {
         return commandData
-                .addOption(OptionType.NUMBER, "time_in_hours", "Only remove messages which are older than x hours", false);
+                .addOption(OptionType.INTEGER, "time_in_hours", "Only remove messages which are older than x hours", false);
     }
 
     @Override

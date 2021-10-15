@@ -13,7 +13,7 @@ public class ClearAdapter extends SlashAdapter {
 
     public CommandData addOptions(CommandData commandData) {
         return commandData
-                .addOption(OptionType.NUMBER, "amount", "How many messages shall be removed? (2 - 500)", true);
+                .addOption(OptionType.INTEGER, "amount", "How many messages shall be removed? (2 - 500)", true);
     }
 
     @Override

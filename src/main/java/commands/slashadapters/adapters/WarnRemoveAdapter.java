@@ -20,7 +20,7 @@ public class WarnRemoveAdapter extends SlashAdapter {
                 .addOption(OptionType.USER, "member5", "The user to lose a specific number of warns", false)
                 .addOption(OptionType.STRING, "member_id", "The user to lose a specific number of warns", false)
                 .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
-                .addOption(OptionType.NUMBER, "amount", "How many warns shall be removed?", false)
+                .addOption(OptionType.INTEGER, "amount", "How many warns shall be removed?", false)
                 .addOption(OptionType.BOOLEAN, "all", "Remove all warns", false);
     }
 

@@ -18,9 +18,9 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         requiresFullMemberCache = true,
         aliases = { "userinfos", "userstat", "userstats", "accountinfo", "whois", "memberinfo", "user", "member" }
 )
-public class MemberInfoCommand extends MemberAccountAbstract {
+public class UserInfoCommand extends MemberAccountAbstract {
 
-    public MemberInfoCommand(Locale locale, String prefix) {
+    public UserInfoCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
