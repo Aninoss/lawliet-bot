@@ -334,7 +334,9 @@ public class MentionUtil {
         return new Mention(sb.toString(), filteredOriginalText, multi, containedBlockedUser, elementList);
     }
 
-    public static Mention getMentionedString(Locale locale, Guild guild, String args, Member blockedMember) {
+    public static Mention getMentionedString(Locale locale, Guild guild, String args, Member blockedMember,
+                                             Collection<Member> membersInclude
+    ) {
         boolean multi = false;
         AtomicBoolean containedBlockedUser = new AtomicBoolean(false);
         ArrayList<String> mentions = new ArrayList<>();
@@ -342,7 +344,9 @@ public class MentionUtil {
 
         /* add usernames */
         MentionList<Member> memberMention = MentionUtil.getMembers(guild, args);
-        memberMention.getList().forEach(member -> {
+        HashSet<Member> memberSet = new HashSet<>(memberMention.getList());
+        memberSet.addAll(membersInclude);
+        memberSet.forEach(member -> {
             if (blockedMember != null && member.getIdLong() == blockedMember.getIdLong()) {
                 containedBlockedUser.set(true);
             } else {

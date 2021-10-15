@@ -1,5 +1,6 @@
 package commands.runnables.interactionscategory;
 
+import java.util.Collections;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
@@ -38,7 +39,7 @@ public class CelebrateCommand extends Command {
     @Override
     public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         Member member0 = event.getMember();
-        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, null);
+        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, null, Collections.emptyList());
 
         if (mention.getMentionText().isEmpty()) {
             mentionBlank(event, args, member0);
