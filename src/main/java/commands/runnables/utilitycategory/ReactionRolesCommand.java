@@ -135,8 +135,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public MessageInputResponse onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException, ExecutionException, InterruptedException {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
-            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("reactionroles/%d.png", System.nanoTime()));
-            boolean success = FileUtil.downloadImageAttachment(attachments.get(0), tempFile);
+            Message.Attachment attachment = attachments.get(0);
+            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("reactionroles/%d.%s", System.nanoTime(), attachment.getFileExtension()));
+            boolean success = FileUtil.downloadImageAttachment(attachment, tempFile);
             if (success) {
                 banner = uploadFile(tempFile);
                 setLog(LogStatus.SUCCESS, getString("imageset"));

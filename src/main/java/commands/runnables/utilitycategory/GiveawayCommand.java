@@ -190,8 +190,9 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     public MessageInputResponse onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException, ExecutionException, InterruptedException {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
-            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%d.png", System.nanoTime()));
-            boolean success = FileUtil.downloadImageAttachment(attachments.get(0), tempFile);
+            Message.Attachment attachment = attachments.get(0);
+            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%d.%s", System.nanoTime(), attachment.getFileExtension()));
+            boolean success = FileUtil.downloadImageAttachment(attachment, tempFile);
             if (success) {
                 imageLink = uploadFile(tempFile);
                 setLog(LogStatus.SUCCESS, getString("imageset"));
