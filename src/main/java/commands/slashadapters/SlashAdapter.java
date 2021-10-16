@@ -38,6 +38,11 @@ public abstract class SlashAdapter {
         return description;
     }
 
+    public Class<? extends Command> commandClass() {
+        Slash slash = getClass().getAnnotation(Slash.class);
+        return slash.command();
+    }
+
     public CommandData generateCommandData() {
         CommandData commandData = new CommandData(name(), description());
         return addOptions(commandData);
