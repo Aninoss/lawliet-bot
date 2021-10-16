@@ -18,7 +18,7 @@ public final class InternetUtil {
     }
 
     public static String getUrlFromInputStream(InputStream inputStream, String fileExt) throws ExecutionException, InterruptedException, IOException {
-        LocalFile cdnFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%d.%s", System.nanoTime(), fileExt));
+        LocalFile cdnFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%s.%s", RandomUtil.generateRandomString(30), fileExt));
         return FileUtil.writeInputStreamToFile(inputStream, cdnFile);
     }
 

@@ -438,7 +438,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         }
                     }
 
-                    LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("tickets/%d.csv", System.nanoTime()));
+                    LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("tickets/%s.csv", RandomUtil.generateRandomString(30)));
                     try (InputStream is = CSVGenerator.generateInputStream(csvRows)) {
                         FileUtil.writeInputStreamToFile(is, tempFile);
                     } catch (IOException e) {

@@ -1,6 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -187,11 +186,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerMessage(state = UPDATE_IMAGE)
-    public MessageInputResponse onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException, ExecutionException, InterruptedException {
+    public MessageInputResponse onMessageUpdateImage(GuildMessageReceivedEvent event, String input) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
             Message.Attachment attachment = attachments.get(0);
-            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%d.%s", System.nanoTime(), attachment.getFileExtension()));
+            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
             boolean success = FileUtil.downloadImageAttachment(attachment, tempFile);
             if (success) {
                 imageLink = uploadFile(tempFile);

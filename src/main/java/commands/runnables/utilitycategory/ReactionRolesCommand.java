@@ -1,15 +1,12 @@
 package commands.runnables.utilitycategory;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.CommandEvent;
-import commands.listeners.CommandProperties;
 import commands.listeners.*;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
@@ -132,11 +129,11 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerMessage(state = UPDATE_IMAGE)
-    public MessageInputResponse onMessageUpdateImage(GuildMessageReceivedEvent event, String input) throws IOException, ExecutionException, InterruptedException {
+    public MessageInputResponse onMessageUpdateImage(GuildMessageReceivedEvent event, String input) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
             Message.Attachment attachment = attachments.get(0);
-            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("reactionroles/%d.%s", System.nanoTime(), attachment.getFileExtension()));
+            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("reactionroles/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
             boolean success = FileUtil.downloadImageAttachment(attachment, tempFile);
             if (success) {
                 banner = uploadFile(tempFile);
