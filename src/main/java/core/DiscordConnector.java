@@ -119,7 +119,7 @@ public class DiscordConnector {
         try {
             List<CommandData> commandDataList = SlashCommandManager.initialize();
             if (Program.productionMode()) {
-                if (Program.isNewVersion()) {
+                if (Program.getClusterId() == 1 && Program.isNewVersion()) {
                     ShardManager.getAnyJDA().get()
                             .updateCommands()
                             .addCommands(commandDataList)
