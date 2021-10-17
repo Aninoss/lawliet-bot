@@ -86,7 +86,7 @@ public class YouTubeMP3Command extends Command {
 
         if (sendApiRequest("https://www.youtube.com/watch?v=" + meta.identifier)) {
             Pattern filePattern = Pattern.compile(String.format(".*\\[%s\\]\\.[A-Za-z0-9]*$", Pattern.quote(meta.identifier)));
-            for (int i = 0; i < 500; i++) {
+            for (int i = 0; i < 1000; i++) {
                 Thread.sleep(100);
                 List<File> validFiles = getValidFiles(new LocalFile("data/youtube-dl"), filePattern);
 
