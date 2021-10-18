@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import commands.CommandContainer;
+import commands.SlashCommandManager;
 import commands.runningchecker.RunningCheckerManager;
 import constants.Language;
 import core.cache.PatreonCache;
@@ -43,6 +44,8 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("commands_update_all", Console::onCommandsUpdateAll);
+        tasks.put("commands_update", Console::onCommandsUpdate);
         tasks.put("reminder_daily", Console::onReminderDaily);
         tasks.put("actions_servers", Console::onActionsServers);
         tasks.put("actions", Console::onActions);
@@ -80,6 +83,27 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onCommandsUpdateAll(String[] args) { //TODO: Test / Debug
+        MainLogger.get().info("Updating all slash commands on all shards");
+        ShardManager.getConnectedLocalJDAs().forEach(jda -> {
+            jda.updateCommands()
+                    .addCommands(SlashCommandManager.initialize())
+                    .complete();
+        });
+        MainLogger.get().info("Completed");
+    }
+
+    private static void onCommandsUpdate(String[] args) {
+        if (Program.getClusterId() == 1) {
+            MainLogger.get().info("Updating all slash commands");
+            ShardManager.getAnyJDA().get()
+                    .updateCommands()
+                    .addCommands(SlashCommandManager.initialize())
+                    .complete();
+            MainLogger.get().info("Completed");
+        }
     }
 
     private static void onReminderDaily(String[] args) {
