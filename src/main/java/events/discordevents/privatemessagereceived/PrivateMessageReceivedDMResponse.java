@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import constants.AssetIds;
 import core.EmbedFactory;
 import core.Program;
 import events.discordevents.DiscordEvent;
@@ -23,7 +24,7 @@ public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbst
     @Override
     public boolean onPrivateMessageReceived(PrivateMessageReceivedEvent event) throws Throwable {
         User user = event.getAuthor();
-        if (Program.getClusterId() == 1 && !usersDmNotified.asMap().containsKey(user.getIdLong())) {
+        if (Program.getClusterId() == 1 && !usersDmNotified.asMap().containsKey(user.getIdLong()) && event.getAuthor().getIdLong() != AssetIds.OWNER_USER_ID) {
             usersDmNotified.put(user.getIdLong(), true);
             ArrayList<ActionRow> actionRowList = new ArrayList<>();
             EmbedBuilder eb = EmbedFactory.getCommandDMEmbed(actionRowList);

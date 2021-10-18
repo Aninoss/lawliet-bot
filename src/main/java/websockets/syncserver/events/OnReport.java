@@ -14,11 +14,18 @@ public class OnReport implements SyncServerFunction {
 
     @Override
     public JSONObject apply(JSONObject jsonObject) {
-        String url = jsonObject.getString("url");
+        String content = jsonObject.getString("url");
+        if (jsonObject.has("text")) {
+            content += "\n```" + jsonObject.getString("text") + "```";
+        }
+
         ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get()
                 .getTextChannelById(896872855248183316L)
-                .sendMessage(url)
-                .setActionRows(ActionRows.of(Button.of(ButtonStyle.PRIMARY, "allow", "Unblock")))
+                .sendMessage(content)
+                .setActionRows(ActionRows.of(
+                        Button.of(ButtonStyle.PRIMARY, "allow", "Allow"),
+                        Button.of(ButtonStyle.SECONDARY, "lock", "Lock On / Off")
+                ))
                 .complete();
         return null;
     }
