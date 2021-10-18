@@ -18,7 +18,7 @@ public class OnReport implements SyncServerFunction {
         ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get()
                 .getTextChannelById(896872855248183316L)
                 .sendMessage(url)
-                .setActionRows(ActionRows.of(Button.of(ButtonStyle.PRIMARY, "allow", "Allow")))
+                .setActionRows(ActionRows.of(Button.of(ButtonStyle.PRIMARY, "allow", "Unblock")))
                 .complete();
         return null;
     }

@@ -53,7 +53,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
     @Override
     public boolean onTrigger(CommandEvent event, String args) throws InterruptedException, ExecutionException {
-        Optional<Integer> hoursMin = extractHoursMin(event.getChannel(), args);
+        Optional<Integer> hoursMin = extractHoursMin(args);
         if (hoursMin.isPresent()) {
             long messageId = registerButtonListener(event.getMember()).get();
             TimeUnit.SECONDS.sleep(1);
@@ -78,17 +78,17 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
             restAction.queueAfter(8, TimeUnit.SECONDS);
             return true;
         } else {
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args", "0", "20159")))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
     }
 
-    private Optional<Integer> extractHoursMin(TextChannel channel, String str) {
+    private Optional<Integer> extractHoursMin(String str) {
         if (str.length() > 0) {
             if (StringUtil.stringIsLong(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
                 return Optional.of(Integer.parseInt(str));
             } else {
-                drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args", "0", "20159")))
-                        .exceptionally(ExceptionLogger.get());
                 return Optional.empty();
             }
         } else {
@@ -96,8 +96,8 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         }
     }
 
-    private ClearResults fullClear(TextChannel channel, int hours) throws InterruptedException {
-        return fullClear(channel, hours, 0L);
+    private void fullClear(TextChannel channel, int hours) throws InterruptedException {
+        fullClear(channel, hours, 0L);
     }
 
     private ClearResults fullClear(TextChannel channel, int hours, long... messageIdsIgnore) throws InterruptedException {
@@ -144,7 +144,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
         TextChannel textChannel = slot.getTextChannel().get();
         if (PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), textChannel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
-            Optional<Integer> hoursMin = extractHoursMin(textChannel, slot.getCommandKey());
+            Optional<Integer> hoursMin = extractHoursMin(slot.getCommandKey());
             if (hoursMin.isPresent()) {
                 fullClear(textChannel, hoursMin.get());
                 if (slot.getEffectiveUserMessage().isPresent()) {
@@ -152,6 +152,9 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                 }
                 slot.setNextRequest(Instant.now().plus(1, ChronoUnit.HOURS));
                 return AlertResponse.CONTINUE_AND_SAVE;
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_args", "0", "20159"));
+                textChannel.sendMessageEmbeds(eb.build()).queue();
             }
         }
 
