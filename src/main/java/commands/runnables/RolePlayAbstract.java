@@ -65,7 +65,10 @@ public abstract class RolePlayAbstract extends Command {
                 (messageReference = event.getGuildMessageReceivedEvent().getMessage().getMessageReference()) != null &&
                 (messageReferenceMessage = messageReference.getMessage()) != null
         ) {
-            membersInclude.add(messageReferenceMessage.getMember());
+            Member member = messageReferenceMessage.getMember();
+            if (member != null) {
+                membersInclude.add(member);
+            }
         }
 
         Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, event.getMember(), membersInclude);

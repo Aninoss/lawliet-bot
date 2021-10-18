@@ -190,12 +190,16 @@ public abstract class Command implements OnTriggerListener {
     }
 
     private CompletableFuture<Message> drawMessage(EmbedBuilder eb, boolean newMessage) {
-        TextChannel channel = getTextChannel().get();
-        if (BotPermissionUtil.canWriteEmbed(channel) || interactionResponse != null || commandEvent.isSlashCommandEvent()) {
-            EmbedUtil.addLog(eb, logStatus, log);
-            return drawMessage(channel, null, eb, newMessage);
+        TextChannel channel = getTextChannel().orElse(null);
+        if (channel != null) {
+            if (BotPermissionUtil.canWriteEmbed(channel) || interactionResponse != null || commandEvent.isSlashCommandEvent()) {
+                EmbedUtil.addLog(eb, logStatus, log);
+                return drawMessage(channel, null, eb, newMessage);
+            } else {
+                return CompletableFuture.failedFuture(new PermissionException("Missing permissions"));
+            }
         } else {
-            return CompletableFuture.failedFuture(new PermissionException("Missing permissions"));
+            return CompletableFuture.failedFuture(new NoSuchElementException("Missing text channel"));
         }
     }
 
