@@ -47,7 +47,7 @@ public class NibbleCommand extends Command {
     public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         Member user0 = event.getMember();
 
-        MentionList<Member> userMention = MentionUtil.getMembers(event.getGuild(), args);
+        MentionList<Member> userMention = MentionUtil.getMembers(event.getGuild(), args, event.getRepliedMember());
         List<Member> userList = userMention.getList();
         if (userList.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions"));

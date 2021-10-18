@@ -50,7 +50,7 @@ public abstract class MemberAccountAbstract extends Command {
 
         if (includeNotInGuild) {
             User user = event.getMember().getUser();
-            MentionList<User> userMention = MentionUtil.getUsers(event.getGuild(), args);
+            MentionList<User> userMention = MentionUtil.getUsers(event.getGuild(), args, event.getRepliedMember());
 
             if (userMention.getList().size() > 0) {
                 user = userMention.getList().get(0);
@@ -66,7 +66,7 @@ public abstract class MemberAccountAbstract extends Command {
             eb = processUser(event, user, user.getIdLong() == event.getMember().getIdLong(), userMention.getFilteredArgs());
         } else {
             Member member = event.getMember();
-            MentionList<Member> memberMention = MentionUtil.getMembers(event.getGuild(), args);
+            MentionList<Member> memberMention = MentionUtil.getMembers(event.getGuild(), args, event.getRepliedMember());
 
             if (memberMention.getList().size() > 0) {
                 member = memberMention.getList().get(0);

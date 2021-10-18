@@ -27,16 +27,16 @@ import net.dv8tion.jda.api.entities.*;
 
 public class MentionUtil {
 
-    public static MentionList<Member> getMembers(Guild guild, String input) {
+    public static MentionList<Member> getMembers(Guild guild, String input, Member memberInclude) {
         MemberCacheController.getInstance().loadMembersFull(guild).join();
-        return getMembers(guild, input, guild.getMembers());
+        return getMembers(guild, input, guild.getMembers(), memberInclude);
     }
 
-    public static MentionList<Member> getMembers(Guild guild, String input, List<Member> members) {
+    public static MentionList<Member> getMembers(Guild guild, String input, List<Member> members, Member memberInclude) {
         MemberCacheController.getInstance().loadMembersFull(guild).join();
         return generateMentionList(
                 members,
-                new ArrayList<>(),
+                memberInclude != null ? new ArrayList<>(List.of(memberInclude)) : new ArrayList<>(),
                 input,
                 u -> getUserAsMention(((Member) u).getIdLong(), true),
                 u -> getUserAsMention(((Member) u).getIdLong(), false),
@@ -51,15 +51,15 @@ public class MentionUtil {
         );
     }
 
-    public static MentionList<User> getUsers(Guild guild, String input) {
+    public static MentionList<User> getUsers(Guild guild, String input, Member memberInclude) {
         MemberCacheController.getInstance().loadMembersFull(guild).join();
-        return getUsers(input, guild.getMembers().stream().map(Member::getUser).collect(Collectors.toList()));
+        return getUsers(input, guild.getMembers().stream().map(Member::getUser).collect(Collectors.toList()), memberInclude);
     }
 
-    public static MentionList<User> getUsers(String input, List<User> users) {
+    public static MentionList<User> getUsers(String input, List<User> users, Member memberInclude) {
         return generateMentionList(
                 users,
-                new ArrayList<>(),
+                memberInclude != null ? new ArrayList<>(List.of(memberInclude.getUser())) : new ArrayList<>(),
                 input,
                 u -> getUserAsMention(((User) u).getIdLong(), true),
                 u -> getUserAsMention(((User) u).getIdLong(), false),
@@ -140,11 +140,9 @@ public class MentionUtil {
     }
 
     public static MentionList<VoiceChannel> getVoiceChannels(Message message, String input) {
-        ArrayList<VoiceChannel> list = new ArrayList<>();
-
         return generateMentionList(
                 message.getGuild().getVoiceChannels(),
-                list,
+                new ArrayList<>(),
                 input,
                 c -> ((VoiceChannel) c).getAsMention(),
                 c -> ((VoiceChannel) c).getId(),
@@ -154,10 +152,6 @@ public class MentionUtil {
     }
 
     private static <T> MentionList<T> generateMentionList(Collection<T> sourceList, ArrayList<T> mentionList, String input, MentionFunction... functions) {
-        if (mentionList.size() > 0) {
-            return new MentionList<>(input, mentionList);
-        }
-
         for (MentionFunction function : functions) {
             boolean found = false;
 
@@ -334,18 +328,15 @@ public class MentionUtil {
         return new Mention(sb.toString(), filteredOriginalText, multi, containedBlockedUser, elementList);
     }
 
-    public static Mention getMentionedString(Locale locale, Guild guild, String args, Member blockedMember,
-                                             Collection<Member> membersInclude
-    ) {
+    public static Mention getMentionedString(Locale locale, Guild guild, String args, Member blockedMember, Member memberInclude) {
         boolean multi = false;
         AtomicBoolean containedBlockedUser = new AtomicBoolean(false);
         ArrayList<String> mentions = new ArrayList<>();
         ArrayList<ISnowflake> elementList = new ArrayList<>();
 
         /* add usernames */
-        MentionList<Member> memberMention = MentionUtil.getMembers(guild, args);
+        MentionList<Member> memberMention = MentionUtil.getMembers(guild, args, memberInclude);
         HashSet<Member> memberSet = new HashSet<>(memberMention.getList());
-        memberSet.addAll(membersInclude);
         memberSet.forEach(member -> {
             if (blockedMember != null && member.getIdLong() == blockedMember.getIdLong()) {
                 containedBlockedUser.set(true);

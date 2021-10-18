@@ -3,6 +3,7 @@ package commands.runnables.moderationcategory;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
@@ -24,12 +25,12 @@ public class UnbanCommand extends WarnCommand {
     }
 
     @Override
-    protected MentionList<User> getUserList(Guild guild, String args) {
-        List<User> userBanList = guild.retrieveBanList().complete().stream()
+    protected MentionList<User> getUserList(CommandEvent event, String args) {
+        List<User> userBanList = event.getGuild().retrieveBanList().complete().stream()
                 .map(Guild.Ban::getUser)
                 .collect(Collectors.toList());
 
-        return MentionUtil.getUsers(args, userBanList);
+        return MentionUtil.getUsers(args, userBanList, event.getRepliedMember());
     }
 
     @Override

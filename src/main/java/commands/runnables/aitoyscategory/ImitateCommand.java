@@ -38,7 +38,7 @@ public class ImitateCommand extends Command {
 
     @Override
     public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
-        MentionList<Member> memberMentions = MentionUtil.getMembers(event.getGuild(), args);
+        MentionList<Member> memberMentions = MentionUtil.getMembers(event.getGuild(), args, event.getRepliedMember());
         List<Member> members = memberMentions.getList();
 
         ArrayList<Message> tempMessageCache = new ArrayList<>();

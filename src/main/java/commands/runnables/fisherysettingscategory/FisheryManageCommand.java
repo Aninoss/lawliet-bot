@@ -55,7 +55,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) {
-        MentionList<Member> userMentions = MentionUtil.getMembers(event.getGuild(), args);
+        MentionList<Member> userMentions = MentionUtil.getMembers(event.getGuild(), args, event.getRepliedMember());
         ArrayList<Member> list = userMentions
                 .getList()
                 .stream()

@@ -61,7 +61,7 @@ public class InviteFilterCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                List<Member> userIgnoredList = MentionUtil.getMembers(event.getGuild(), input).getList();
+                List<Member> userIgnoredList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
                 if (userIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
@@ -87,7 +87,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                 }
 
             case 3:
-                List<Member> logRecieverList = MentionUtil.getMembers(event.getGuild(), input).getList();
+                List<Member> logRecieverList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;

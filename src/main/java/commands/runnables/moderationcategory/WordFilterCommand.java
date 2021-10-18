@@ -65,7 +65,7 @@ public class WordFilterCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
-                List<Member> memberIgnoredList = MentionUtil.getMembers(event.getGuild(), input).getList();
+                List<Member> memberIgnoredList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
                 if (memberIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
@@ -78,7 +78,7 @@ public class WordFilterCommand extends NavigationAbstract {
                 }
 
             case 2:
-                List<Member> logRecieverList = MentionUtil.getMembers(event.getGuild(), input).getList();
+                List<Member> logRecieverList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;

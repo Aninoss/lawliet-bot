@@ -37,7 +37,7 @@ public class GiveCommand extends Command implements FisheryInterface {
 
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
-        MentionList<Member> memberMentioned = MentionUtil.getMembers(event.getGuild(), args);
+        MentionList<Member> memberMentioned = MentionUtil.getMembers(event.getGuild(), args, event.getRepliedMember());
         ArrayList<Member> list = new ArrayList<>(memberMentioned.getList());
         list.removeIf(member -> member.getUser().isBot() || member.getIdLong() == event.getMember().getIdLong());
 

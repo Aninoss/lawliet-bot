@@ -53,8 +53,8 @@ public class NewKickCommand extends WarnCommand {
     }
 
     @Override
-    protected MentionList<User> getUserList(Guild guild, String args) {
-        List<User> userList = MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
+    protected MentionList<User> getUserList(CommandEvent event, String args) {
+        List<User> userList = MemberCacheController.getInstance().loadMembersFull(event.getGuild()).join().stream()
                 .filter(m -> m.hasTimeJoined() && m.getTimeJoined().toInstant().isAfter(Instant.now().minus(Duration.ofMinutes(minutes))))
                 .map(Member::getUser)
                 .collect(Collectors.toList());

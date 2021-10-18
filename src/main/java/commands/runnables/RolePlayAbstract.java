@@ -1,6 +1,5 @@
 package commands.runnables;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -20,8 +19,6 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageReference;
 
 public abstract class RolePlayAbstract extends Command {
 
@@ -58,20 +55,7 @@ public abstract class RolePlayAbstract extends Command {
     }
 
     public boolean onTriggerInteractive(CommandEvent event, String args) throws ExecutionException, InterruptedException {
-        MessageReference messageReference;
-        Message messageReferenceMessage;
-        ArrayList<Member> membersInclude = new ArrayList<>();
-        if (event.isGuildMessageReceivedEvent() &&
-                (messageReference = event.getGuildMessageReceivedEvent().getMessage().getMessageReference()) != null &&
-                (messageReferenceMessage = messageReference.getMessage()) != null
-        ) {
-            Member member = messageReferenceMessage.getMember();
-            if (member != null) {
-                membersInclude.add(member);
-            }
-        }
-
-        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, event.getMember(), membersInclude);
+        Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, event.getMember(), event.getRepliedMember());
         boolean mentionPresent = !mention.getMentionText().isEmpty();
 
         if (!mentionPresent && mention.containedBlockedUser()) {

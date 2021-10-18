@@ -5,10 +5,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import core.utils.JDAUtil;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.channel.text.GenericTextChannelEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -82,6 +79,22 @@ public class CommandEvent extends GenericTextChannelEvent {
     @Nonnull
     public Member getMember() {
         return member;
+    }
+
+    @Nullable
+    public Member getRepliedMember() {
+        MessageReference messageReference;
+        Message messageReferenceMessage;
+        Member member;
+        if (guildMessageReceivedEvent != null &&
+                (messageReference = guildMessageReceivedEvent.getMessage().getMessageReference()) != null &&
+                (messageReferenceMessage = messageReference.getMessage()) != null &&
+                (member = messageReferenceMessage.getMember()) != null
+        ) {
+            return member;
+        } else {
+            return null;
+        }
     }
 
 }

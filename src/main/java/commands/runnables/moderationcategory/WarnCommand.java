@@ -67,8 +67,9 @@ public class WarnCommand extends Command implements OnButtonListener {
         this.sendLogWarnings = sendLogWarnings;
     }
 
-    protected MentionList<User> getUserList(Guild guild, String args) throws Throwable {
-        MentionList<Member> memberMention = MentionUtil.getMembers(guild, args);
+    protected MentionList<User> getUserList(CommandEvent event, String args) throws Throwable {
+        Guild guild = event.getGuild();
+        MentionList<Member> memberMention = MentionUtil.getMembers(guild, args, event.getRepliedMember());
         ArrayList<User> userList = memberMention.getList().stream()
                 .map(Member::getUser)
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -138,7 +139,7 @@ public class WarnCommand extends Command implements OnButtonListener {
     }
 
     protected boolean setUserListAndReason(CommandEvent event, String args) throws Throwable {
-        MentionList<User> userMention = getUserList(event.getGuild(), args);
+        MentionList<User> userMention = getUserList(event, args);
         userList = userMention.getList();
         if (userList.size() == 0) {
             drawMessageNew(getNoMentionEmbed())
