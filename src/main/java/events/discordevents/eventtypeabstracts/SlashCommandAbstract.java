@@ -24,11 +24,13 @@ public abstract class SlashCommandAbstract extends DiscordEventAbstract {
 
     public static void onSlashCommandStatic(SlashCommandEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         if (event.getGuild() == null) {
-            ArrayList<ActionRow> actionRowList = new ArrayList<>();
-            EmbedBuilder eb = EmbedFactory.getCommandDMEmbed(actionRowList);
-            event.replyEmbeds(eb.build())
-                    .addActionRows(actionRowList)
-                    .queue();
+            if (event.getJDA().getShardInfo().getShardId() == 0) {
+                ArrayList<ActionRow> actionRowList = new ArrayList<>();
+                EmbedBuilder eb = EmbedFactory.getCommandDMEmbed(actionRowList);
+                event.replyEmbeds(eb.build())
+                        .addActionRows(actionRowList)
+                        .queue();
+            }
             return;
         }
 
