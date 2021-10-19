@@ -10,6 +10,7 @@ import mysql.MySQLManager;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionData;
 import mysql.modules.version.VersionSlot;
+import org.apache.commons.lang3.SystemUtils;
 import websockets.syncserver.SyncManager;
 
 public class Main {
@@ -45,8 +46,10 @@ public class Main {
                 initializeUpdate();
             }
 
-            MainLogger.get().info("Waiting for sync server");
-            SyncManager.connect();
+            if (Program.productionMode() || SystemUtils.IS_OS_WINDOWS) {
+                MainLogger.get().info("Waiting for sync server");
+                SyncManager.connect();
+            }
 
             if (!Program.productionMode()) {
                 DiscordConnector.connect(0, 0, 1);
