@@ -15,6 +15,7 @@ import events.discordevents.eventtypeabstracts.SlashCommandAbstract;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 @DiscordEvent
@@ -30,6 +31,10 @@ public class SlashCommandCommand extends SlashCommandAbstract {
                     .setDescription(TextManager.getString(guildData.getLocale(), TextManager.GENERAL, "invalid_noargs"));
             event.getHook().sendMessageEmbeds(eb.build())
                     .queue();
+            return true;
+        }
+
+        if (event.getChannel().getType() != ChannelType.TEXT) {
             return true;
         }
 
