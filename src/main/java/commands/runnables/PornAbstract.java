@@ -170,12 +170,22 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
     private List<Button> generateButtons(List<BooruImage> pornImages) {
         ArrayList<Button> buttons = new ArrayList<>();
         String tag = pornImages.size() > 1 ? "porn_source" : "porn_source_single";
+        StringBuilder reportArgsBuilder = new StringBuilder();
         for (int i = 0; i < pornImages.size(); i++) {
-            String encodedImageUrl = Base64.getEncoder().encodeToString(pornImages.get(i).getImageUrl().getBytes());
-            String url = ExternalLinks.REPORT_URL + URLEncoder.encode(encodedImageUrl, StandardCharsets.UTF_8);
-            Button button = Button.of(ButtonStyle.LINK, url, TextManager.getString(getLocale(), Category.NSFW, tag, String.valueOf(i + 1)));
+            BooruImage pornImage = pornImages.get(i);
+            Button button = Button.of(ButtonStyle.LINK, pornImage.getPageUrl(), TextManager.getString(getLocale(), Category.NSFW, tag, String.valueOf(i + 1)));
             buttons.add(button);
+
+            String encodedImageUrl = Base64.getEncoder().encodeToString(pornImage.getImageUrl().getBytes());
+            if (reportArgsBuilder.length() > 0) {
+                reportArgsBuilder.append(",");
+            }
+            reportArgsBuilder.append(encodedImageUrl);
         }
+
+        String url = ExternalLinks.REPORT_URL + URLEncoder.encode(reportArgsBuilder.toString(), StandardCharsets.UTF_8);
+        Button reportButton = Button.of(ButtonStyle.LINK, url, TextManager.getString(getLocale(), Category.NSFW, "porn_report"));
+        buttons.add(reportButton);
         return buttons;
     }
 
@@ -256,7 +266,8 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessageEmbeds(eb.build()).complete();
                 return AlertResponse.STOP_AND_DELETE;
-            } if (e.getCause() instanceof TooManyTagsException) {
+            }
+            if (e.getCause() instanceof TooManyTagsException) {
                 EmbedBuilder eb = tooManyTagsEmbed(((TooManyTagsException) e.getCause()).getMaxTags());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 channel.sendMessageEmbeds(eb.build()).complete();
