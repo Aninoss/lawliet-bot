@@ -204,7 +204,9 @@ public abstract class Command implements OnTriggerListener {
     }
 
     private CompletableFuture<Message> drawMessage(String content, boolean newMessage) {
-        return drawMessage(getTextChannel().get(), content, null, newMessage);
+        return getTextChannel()
+                .map(channel -> drawMessage(channel, content, null, newMessage))
+                .orElse(CompletableFuture.failedFuture(new NoSuchElementException("No such channel")));
     }
 
     private synchronized CompletableFuture<Message> drawMessage(TextChannel channel, String content, EmbedBuilder eb, boolean newMessage) {
