@@ -176,14 +176,14 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             Button button = Button.of(ButtonStyle.LINK, pornImage.getPageUrl(), TextManager.getString(getLocale(), Category.NSFW, tag, String.valueOf(i + 1)));
             buttons.add(button);
 
-            String encodedImageUrl = Base64.getEncoder().encodeToString(pornImage.getImageUrl().getBytes());
             if (reportArgsBuilder.length() > 0) {
                 reportArgsBuilder.append(",");
             }
-            reportArgsBuilder.append(encodedImageUrl);
+            reportArgsBuilder.append(pornImage.getImageUrl());
         }
 
-        String url = ExternalLinks.REPORT_URL + URLEncoder.encode(reportArgsBuilder.toString(), StandardCharsets.UTF_8);
+        String encodedArgs = Base64.getEncoder().encodeToString(reportArgsBuilder.toString().getBytes());
+        String url = ExternalLinks.REPORT_URL + URLEncoder.encode(encodedArgs, StandardCharsets.UTF_8);
         Button reportButton = Button.of(ButtonStyle.LINK, url, TextManager.getString(getLocale(), Category.NSFW, "porn_report"));
         buttons.add(reportButton);
         return buttons;
