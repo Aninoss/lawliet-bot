@@ -40,6 +40,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
+import org.apache.commons.text.WordUtils;
 
 @CommandProperties(
         trigger = "ticket",
@@ -411,7 +412,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                     Instant lastMessageTime = null;
                     for (Message message : messageList) {
                         if (message.getContentDisplay().length() > 0 || message.getAttachments().size() > 0) {
-                            String content = message.getContentDisplay();
+                            String content = WordUtils.wrap(message.getContentDisplay(), 100);
                             String[] row = new String[] { " ", " ", content.length() > 0 ? content : " ", " " };
 
                             if (message.getAuthor().getIdLong() != lastAuthorId || lastMessageTime == null ||
