@@ -151,4 +151,9 @@ public final class TimeUtil {
         return System.currentTimeMillis() / 3_600_000L;
     }
 
+    public static int currentHourOfDay() {
+        Calendar calendar = Calendar.getInstance();
+        return calendar.get(Calendar.HOUR_OF_DAY);
+    }
+
 }

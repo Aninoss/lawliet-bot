@@ -9,6 +9,7 @@ import commands.runnables.fisherysettingscategory.FisheryCommand;
 import commands.runnables.moderationcategory.JailCommand;
 import commands.runnables.moderationcategory.MuteCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
+import core.utils.TimeUtil;
 import modules.fishery.FisheryStatus;
 import core.PermissionCheckRuntime;
 import core.RestActionQueue;
@@ -62,10 +63,12 @@ public class JoinRoles {
                 .transform(guild::getRoleById, ISnowflake::getIdLong)
         ) {
             if (PermissionCheckRuntime.botCanManageRoles(locale, AutoRolesCommand.class, role)) {
+                int currentHour = TimeUtil.currentHourOfDay();
                 if (role.getIdLong() != 462410205288726531L ||
                         (aninossRaidProtection.check(member, role) &&
-                                member.getUser().getTimeCreated().toInstant().plus(1, ChronoUnit.HOURS).isBefore(Instant.now()))
-                ) {
+                                member.getUser().getTimeCreated().toInstant().plus(1, ChronoUnit.HOURS).isBefore(Instant.now()) &&
+                                currentHour >= 6 && currentHour < 23)
+                        ) {
                     rolesToAdd.add(role);
                 }
             }
