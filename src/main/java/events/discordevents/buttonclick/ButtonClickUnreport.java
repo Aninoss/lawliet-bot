@@ -19,7 +19,7 @@ public class ButtonClickUnreport extends ButtonClickAbstract implements Interact
         if (event.getChannel().getIdLong() == 896872855248183316L) {
             event.deferEdit().queue();
             if (event.getComponentId().equals("allow")) {
-                SendEvent.sendUnreport(event.getMessage().getContentRaw()).join();
+                SendEvent.sendUnreport(event.getMessage().getContentRaw().split("\n")[0]).join();
                 event.getMessage().delete().queue();
             } else if (event.getComponentId().equals("lock")) {
                 List<Component> components = event.getMessage().getActionRows().get(0).getComponents();
