@@ -194,6 +194,14 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     private boolean onButtonStart(ButtonClickEvent event) throws Throwable {
         if (playerList.size() >= playersMin) {
             if (event.getMember().getIdLong() == playerList.get(0).getIdLong()) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 1; i < playerList.size(); i++) {
+                    AtomicMember player = playerList.get(i);
+                    sb.append(player.getAsMention());
+                }
+                drawMessageNew(sb.toString())
+                        .thenAccept(m -> m.delete().queue())
+                        .exceptionally(ExceptionLogger.get());
                 onGameStart(getPlayerList());
                 status = Status.PLAYING;
                 return true;
