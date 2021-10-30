@@ -287,6 +287,8 @@ public class CommandContainer {
         commandList.add(PokemonCommand.class);
         commandList.add(WeaknessTypeCommand.class);
         commandList.add(WeaknessMonCommand.class);
+        commandList.add(HeineCommand.class);
+        commandList.add(TartagliaNSFWCommand.class);
 
         for (Class<? extends Command> clazz : commandList) {
             Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");
@@ -299,11 +301,10 @@ public class CommandContainer {
             if (command instanceof OnStaticReactionRemoveListener) {
                 staticReactionRemoveCommands.add(((OnStaticReactionRemoveListener) command).getClass());
             }
-            if (command instanceof OnAlertListener) {
-                trackerCommands.add(((OnAlertListener) command).getClass());
-            }
-
             if (command.canRunOnGuild(0L, 0L)) {
+                if (command instanceof OnAlertListener) {
+                    trackerCommands.add(((OnAlertListener) command).getClass());
+                }
                 addCommandCategoryMap(command);
             }
         }

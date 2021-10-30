@@ -176,8 +176,7 @@ public class AlertsCommand extends NavigationAbstract {
         }
 
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(arg, getLocale(), getPrefix());
-        if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnAlertListener)) {
-            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));
+        if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnAlertListener) || !commandOpt.get().canRunOnGuild(0L, 0L)) {
             return null;
         }
 
