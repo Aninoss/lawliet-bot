@@ -98,7 +98,8 @@ public class HugCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736277561373491265/881895870746996766/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/881895989374488617/hug.gif",
                 "https://cdn.discordapp.com/attachments/736277561373491265/881896230525992991/hug.gif",
-                "https://cdn.discordapp.com/attachments/736277561373491265/893594251961700372/hug.gif"
+                "https://cdn.discordapp.com/attachments/736277561373491265/893594251961700372/hug.gif",
+                "https://cdn.discordapp.com/attachments/736277561373491265/904068109302915072/hug.gif"
         );
     }
 

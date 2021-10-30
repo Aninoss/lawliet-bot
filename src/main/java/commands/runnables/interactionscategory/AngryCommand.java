@@ -59,7 +59,8 @@ public class AngryCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736258706383175720/745278166981017620/angry.gif",
                 "https://cdn.discordapp.com/attachments/736258706383175720/772196563313360896/angry.gif",
                 "https://cdn.discordapp.com/attachments/736258706383175720/772196703045550125/angry.gif",
-                "https://cdn.discordapp.com/attachments/736258706383175720/821077468382232606/angry.gif"
+                "https://cdn.discordapp.com/attachments/736258706383175720/821077468382232606/angry.gif",
+                "https://cdn.discordapp.com/attachments/736258706383175720/904067905874976818/angry.gif"
         );
     }
 
