@@ -70,22 +70,17 @@ public class WarnCommand extends Command implements OnButtonListener {
     protected MentionList<User> getUserList(CommandEvent event, String args) throws Throwable {
         Guild guild = event.getGuild();
         MentionList<Member> memberMention = MentionUtil.getMembers(guild, args, event.getRepliedMember());
-        ArrayList<User> userList = memberMention.getList().stream()
+        List<User> userList = memberMention.getList().stream()
                 .map(Member::getUser)
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toList());
 
         if (includeNotInGuild) {
-            MentionList<User> userMention = MentionUtil.getUsersFromString(memberMention.getFilteredArgs(), false).get();
-            userMention.getList().forEach(user -> {
-                if (!userList.contains(user)) {
-                    userList.add(user);
-                }
-            });
-
-            return new MentionList<>(userMention.getFilteredArgs(), userList);
-        } else {
-            return new MentionList<>(memberMention.getFilteredArgs(), userList);
+            MentionList<User> userMention = MentionUtil.getUsersFromString(args, false).get();
+            if (userMention.getList().size() > 0) {
+                return userMention;
+            }
         }
+        return new MentionList<>(memberMention.getFilteredArgs(), userList);
     }
 
     protected void process(Guild guild, User target, String reason) throws Throwable {
