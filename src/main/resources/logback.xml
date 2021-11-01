@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STD_OUT" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>ERROR</level>
             <onMatch>DENY</onMatch>
@@ -13,24 +13,47 @@
         </encoder>
     </appender>
 
-    <appender name="stderr" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STD_ERR" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>ERROR</level>
             <onMatch>NEUTRAL</onMatch>
             <onMismatch>DENY</onMismatch>
         </filter>
-
         <filter class="core.ExceptionFilter"/>
 
         <target>System.err</target>
         <encoder>
-            <pattern>${CLUSTER} - %d [%-5level] %msg%n</pattern>
+            <pattern>${CLUSTER} - %d [%thread] [%-5level] %msg%n</pattern>
         </encoder>
     </appender>
 
+    <appender name="DISCORD" class="com.github.napstr.logback.DiscordAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>NEUTRAL</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <filter class="core.ExceptionFilter"/>
+
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>${CLUSTER} - %d [%thread] [%-5level]%n> %msg%n```java%n%ex{full}```</pattern>
+        </layout>
+        <username>Bot Error</username>
+        <avatarUrl>https://lawlietbot.xyz/styles/img/bot_icon_small.png</avatarUrl>
+        <tts>false</tts>
+    </appender>
+
+    <appender name="ASYNC_DISCORD" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="DISCORD" />
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
     <root level="INFO">
-        <appender-ref ref="stdout" />
-        <appender-ref ref="stderr" />
+        <appender-ref ref="STD_OUT" />
+        <appender-ref ref="STD_ERR" />
+        <appender-ref ref="ASYNC_DISCORD" />
     </root>
 
 </configuration>
