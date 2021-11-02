@@ -184,8 +184,8 @@ public class CommandManager {
 
         if (BotPermissionUtil.canWriteEmbed(event.getChannel()) || event.isSlashCommandEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setColor(Settings.PATREON_COLOR)
-                    .setAuthor(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
+                    .setColor(Settings.PREMIUM_COLOR)
+                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"))
                     .setDescription(desc);
             eb.addField(Emojis.ZERO_WIDTH_SPACE, waitTime, false);
             sendError(event, command.getLocale(), eb, false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));

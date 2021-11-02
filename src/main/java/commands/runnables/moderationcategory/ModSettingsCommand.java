@@ -586,7 +586,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                         .addField(getString("state0_mchannel"), moderationData.getAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationData.getQuestion()), true)
                         .addField(getString("state0_mmuterole"), moderationData.getMuteRole().map(IMentionable::getAsMention).orElse(notSet), true)
-                        .addField(getString("state0_menforcemute", Emojis.COMMAND_ICON_PATREON), getString("state0_menforcemute_desc", StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationData.getEnforceMuteRoleEffectively())), true)
+                        .addField(getString("state0_menforcemute", Emojis.COMMAND_ICON_PREMIUM), getString("state0_menforcemute_desc", StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationData.getEnforceMuteRoleEffectively())), true)
                         .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(jailRoles, getLocale(), IMentionable::getAsMention), true)
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc",
                                 getAutoModString(textChannel, moderationData.getAutoMute(), moderationData.getAutoMuteDays(), moderationData.getAutoMuteDuration()),

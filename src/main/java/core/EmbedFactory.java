@@ -89,8 +89,7 @@ public class EmbedFactory {
 
     public static Button[] getPatreonBlockButtons(Locale locale) {
         return new Button[] {
-                Button.of(ButtonStyle.LINK,ExternalLinks.PATREON_PAGE, TextManager.getString(locale, TextManager.GENERAL, "patreon_button_patreon")),
-                Button.of(ButtonStyle.LINK, ExternalLinks.UNLOCK_SERVER_WEBSITE, TextManager.getString(locale, TextManager.GENERAL, "patreon_button_unlock"))
+                Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE, TextManager.getString(locale, TextManager.GENERAL, "patreon_button_unlock"))
         };
     }
 
@@ -98,14 +97,12 @@ public class EmbedFactory {
         String desc = TextManager.getString(
                 locale,
                 TextManager.GENERAL,
-                "patreon_description",
-                ExternalLinks.PATREON_PAGE,
-                ExternalLinks.UNLOCK_SERVER_WEBSITE
+                "patreon_description"
         );
 
         return EmbedFactory.getEmbedDefault()
-                .setColor(Settings.PATREON_COLOR)
-                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "patreon_title"), ExternalLinks.PATREON_PAGE, "https://c5.patreon.com/external/favicon/favicon-32x32.png?v=69kMELnXkB")
+                .setColor(Settings.PREMIUM_COLOR)
+                .setTitle(TextManager.getString(locale, TextManager.GENERAL, "patreon_title"))
                 .setDescription(desc);
     }
 

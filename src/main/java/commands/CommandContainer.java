@@ -110,7 +110,7 @@ public class CommandContainer {
 
         //INFORMATION
         commandList.add(HelpCommand.class);
-        commandList.add(PatreonCommand.class);
+        commandList.add(PremiumCommand.class);
         commandList.add(FAQCommand.class);
         commandList.add(ServerInfoCommand.class);
         commandList.add(ChannelInfoCommand.class);

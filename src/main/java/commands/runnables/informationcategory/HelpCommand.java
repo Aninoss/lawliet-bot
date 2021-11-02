@@ -322,7 +322,7 @@ public class HelpCommand extends NavigationAbstract {
             }
         }
 
-        eb.setDescription(getString("premium", ExternalLinks.PATREON_PAGE) + "\n" + Emojis.ZERO_WIDTH_SPACE);
+        eb.setDescription(getString("premium", ExternalLinks.PREMIUM_WEBSITE) + "\n" + Emojis.ZERO_WIDTH_SPACE);
         addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, false);
     }
 
@@ -429,7 +429,7 @@ public class HelpCommand extends NavigationAbstract {
         }
         if (includeNSFW) sb.append(getString("commandproperties_NSFW", CommandIcon.NSFW.get(channel))).append("\n");
         if (includePatreon) {
-            sb.append(getString("commandproperties_PATREON", CommandIcon.PATREON.get(channel), ExternalLinks.PATREON_PAGE)).append("\n");
+            sb.append(getString("commandproperties_PATREON", CommandIcon.PATREON.get(channel), ExternalLinks.PREMIUM_WEBSITE)).append("\n");
         }
 
         eb.addField(Emojis.ZERO_WIDTH_SPACE, sb.toString(), false);
@@ -452,7 +452,7 @@ public class HelpCommand extends NavigationAbstract {
                     ExternalLinks.SERVER_INVITE_URL,
                     ExternalLinks.BOT_INVITE_URL,
                     ExternalLinks.UPVOTE_URL,
-                    ExternalLinks.PATREON_PAGE,
+                    ExternalLinks.PREMIUM_WEBSITE,
                     ExternalLinks.FEATURE_REQUESTS_WEBSITE
             ), true);
         }
@@ -481,7 +481,7 @@ public class HelpCommand extends NavigationAbstract {
         public static final CommandIcon LOCKED = new CommandIcon(Emojis.COMMAND_ICON_LOCKED, "¹");
         public static final CommandIcon ALERTS = new CommandIcon(Emojis.COMMAND_ICON_ALERTS, "²");
         public static final CommandIcon NSFW = new CommandIcon(Emojis.COMMAND_ICON_NSFW, "³");
-        public static final CommandIcon PATREON = new CommandIcon(Emojis.COMMAND_ICON_PATREON, "⁴");
+        public static final CommandIcon PATREON = new CommandIcon(Emojis.COMMAND_ICON_PREMIUM, "⁴");
 
         private final String emojiTag;
         private final String unicodeAlternative;

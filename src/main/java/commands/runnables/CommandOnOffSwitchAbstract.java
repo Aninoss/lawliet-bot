@@ -55,8 +55,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
             if (setActive(event.getMember(), active)) {
                 eb = EmbedFactory.getEmbedDefault(this, getSetText(event.getMember()));
             } else {
-                eb = EmbedFactory.getEmbedDefault(this, getErrorText())
-                        .setColor(EmbedFactory.FAILED_EMBED_COLOR);
+                eb = generateErrorEmbed();
             }
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         } else {
@@ -88,8 +87,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
                 return EmbedFactory.getEmbedDefault(this, getSetText(member));
 
             case ERROR:
-                return EmbedFactory.getEmbedDefault(this, getErrorText())
-                        .setColor(EmbedFactory.FAILED_EMBED_COLOR);
+                return generateErrorEmbed();
 
             default:
                 String onOffText = StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), isActive(member));
@@ -104,8 +102,9 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
         );
     }
 
-    private String getErrorText() {
-        return getString("error");
+    protected EmbedBuilder generateErrorEmbed() {
+        return EmbedFactory.getEmbedDefault(this, getString("error"))
+                .setColor(EmbedFactory.FAILED_EMBED_COLOR);
     }
 
 }

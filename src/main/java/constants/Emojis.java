@@ -49,7 +49,7 @@ public interface Emojis {
     String COMMAND_ICON_LOCKED = "<:icon_locked:652188097911717910>";
     String COMMAND_ICON_ALERTS = "<:icon_tracker:654051035249115147>";
     String COMMAND_ICON_NSFW = "<:icon_nsfw:652188472295292998>";
-    String COMMAND_ICON_PATREON = "<:icon_patreon:703937256070709258>";
+    String COMMAND_ICON_PREMIUM = "<:icon_premium:905196889216024597>";
 
     String SPLATOON_REGULAR = "<:regular:400445711486943235>";
     String SPLATOON_LEAGUE = "<:league:400445711432286209>";

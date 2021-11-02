@@ -14,6 +14,7 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
+import core.TextManager;
 import core.cache.PatreonCache;
 import core.components.ActionRows;
 import core.utils.EmbedUtil;
@@ -78,7 +79,7 @@ public class DailyCommand extends Command implements FisheryInterface {
 
             List<ActionRow> rows = ActionRows.of(
                     Button.of(ButtonStyle.LINK, ExternalLinks.UPVOTE_URL, getString("upvote")),
-                    Button.of(ButtonStyle.LINK, ExternalLinks.PATREON_PAGE, getString("patreon"))
+                    Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_button_unlock"))
             );
 
             MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build();

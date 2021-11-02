@@ -16,12 +16,12 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 @CommandProperties(
-        trigger = "patreon",
+        trigger = "premium",
         emoji = "\uD83D\uDCB3",
         executableWithoutArgs = true,
-        aliases = { "donate", "donation", "premium" }
+        aliases = { "donate", "donation", "patreon" }
 )
-public class PatreonCommand extends Command {
+public class PremiumCommand extends Command {
 
     private final long[] USER_ID_NOT_VISIBLE = {
             397209883793162240L,
@@ -30,7 +30,7 @@ public class PatreonCommand extends Command {
 
     private PatreonData patreonData;
 
-    public PatreonCommand(Locale locale, String prefix) {
+    public PremiumCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
@@ -39,7 +39,7 @@ public class PatreonCommand extends Command {
         patreonData = PatreonCache.getInstance().getAsync();
 
         String content = getString("info",
-                getString("status", PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false)),
+                StringUtil.getOnOffForBoolean(event.getChannel(), getLocale(), PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false) > 0),
                 StringUtil.getOnOffForBoolean(event.getChannel(), getLocale(), PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong()))
         );
 
@@ -68,7 +68,7 @@ public class PatreonCommand extends Command {
                 .map(userId -> ShardManager.fetchUserById(userId).join())
                 .filter(Objects::nonNull)
                 .forEach(user -> {
-                    String value = getString("slot_value", patreonTier);
+                    String value = getString("slot_value");
                     patreonUsers.append(getString("slot", StringUtil.escapeMarkdown(user.getAsTag()), value))
                             .append("\n");
                 });

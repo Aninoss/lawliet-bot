@@ -18,6 +18,7 @@ import commands.CommandEvent;
 import commands.listeners.OnAlertListener;
 import constants.ExternalLinks;
 import constants.RegexPatterns;
+import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MainLogger;
@@ -84,12 +85,15 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
             if (!patreon && (amount < 1 || amount > 20)) {
                 if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-                    drawMessageNew(EmbedFactory.getEmbedError(
+                    EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                             this,
-                            TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PATREON_PAGE, "30")
-                    )).exceptionally(ExceptionLogger.get());
+                            TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, "30")
+                    );
+                    eb.setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_title"))
+                            .setColor(Settings.PREMIUM_COLOR);
+                    drawMessageNew(eb).exceptionally(ExceptionLogger.get());
                 } else {
-                    drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PATREON_PAGE, "30"))
+                    drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, "30"))
                             .exceptionally(ExceptionLogger.get());
                 }
                 return false;

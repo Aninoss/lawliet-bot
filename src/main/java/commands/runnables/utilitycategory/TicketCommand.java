@@ -287,7 +287,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true)
                 .addField(getString("state0_mmembercanclose"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.memberCanClose()), true)
                 .addField(getString("state0_massign"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getAssignToAll()), true)
-                .addField(getString("state0_mprotocol", Emojis.COMMAND_ICON_PATREON), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getProtocolEffectively()), true)
+                .addField(getString("state0_mprotocol", Emojis.COMMAND_ICON_PREMIUM), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getProtocolEffectively()), true)
                 .addField(getString("state0_mcreatemessage"), StringUtil.escapeMarkdown(ticketData.getCreateMessage().orElse(notSet)), false);
     }
 
