@@ -7,12 +7,14 @@ import commands.Category;
 import commands.Command;
 import commands.runnables.utilitycategory.TicketCommand;
 import constants.Emojis;
+import constants.LogStatus;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.cache.TicketProtocolCache;
 import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
+import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
@@ -48,16 +50,19 @@ public class Ticket {
         TextChannel textChannel = ticketTextChannel.getGuild().getTextChannelById(ticketChannel.getAnnouncementChannelId());
         if (textChannel != null) {
             Class<TicketCommand> clazz = TicketCommand.class;
+            String csvUrl = TicketProtocolCache.getUrl(ticketChannel.getTextChannelId());
             Locale locale = ticketChannel.getGuildData().getLocale();
             String title = Command.getCommandProperties(clazz).emoji() + " " + Command.getCommandLanguage(clazz, locale).getTitle();
             String memberMention = MentionUtil.getUserAsMention(ticketChannel.getMemberId(), true);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
                     .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", ticketTextChannel.getName(), memberMention));
+            if (csvUrl != null) {
+                EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.UTILITY, "ticket_csv_warning"));
+            }
 
             MessageAction messageAction = textChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), Emojis.ZERO_WIDTH_SPACE)
                     .setEmbeds(eb.build());
-            String csvUrl = TicketProtocolCache.getUrl(ticketChannel.getTextChannelId());
             if (csvUrl != null) {
                 Button button = Button.of(ButtonStyle.LINK, csvUrl, TextManager.getString(locale, Category.UTILITY, "ticket_csv_download"));
                 messageAction = messageAction.setActionRows(ActionRows.of(button));
