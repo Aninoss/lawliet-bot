@@ -18,7 +18,7 @@ public class AutoWorkData {
     }
 
     public boolean isActive(long userId) {
-        return userList.contains(userId) && PatreonCache.getInstance().getUserTier(userId, false) >= 2;
+        return userList.contains(userId) && PatreonCache.getInstance().hasPremium(userId, false);
     }
 
     public void setActive(long userId, boolean active) {

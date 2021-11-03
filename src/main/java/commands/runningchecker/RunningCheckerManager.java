@@ -44,7 +44,7 @@ public class RunningCheckerManager {
     }
 
     private static int getMaxAmount(long guildId, long userId) {
-        return PatreonCache.getInstance().getUserTier(userId, true) >= 3 || PatreonCache.getInstance().isUnlocked(guildId) ? 2 : 1;
+        return PatreonCache.getInstance().hasPremium(userId, true) || PatreonCache.getInstance().isUnlocked(guildId) ? 2 : 1;
     }
 
     private static void stopAndRemoveOutdatedRunningCommands(ArrayList<RunningCheckerSlot> runningCommandsList) {

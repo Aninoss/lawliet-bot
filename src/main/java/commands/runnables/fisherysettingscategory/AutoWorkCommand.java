@@ -30,7 +30,7 @@ public class AutoWorkCommand extends CommandOnOffSwitchAbstract {
 
     @Override
     protected boolean setActive(Member member, boolean active) {
-        if (!active || PatreonCache.getInstance().getUserTier(member.getIdLong(), false) >= 2) {
+        if (!active || PatreonCache.getInstance().hasPremium(member.getIdLong(), false)) {
             DBAutoWork.getInstance().retrieve().setActive(member.getIdLong(), active);
             return true;
         } else {

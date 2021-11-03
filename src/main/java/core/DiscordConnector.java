@@ -4,6 +4,7 @@ import java.util.EnumSet;
 import java.util.List;
 import javax.security.auth.login.LoginException;
 import commands.SlashCommandManager;
+import constants.AssetIds;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
@@ -126,7 +127,7 @@ public class DiscordConnector {
                             .queue();
                 }
             } else {
-                ShardManager.getLocalGuildById(692893461736718417L).get()
+                ShardManager.getLocalGuildById(AssetIds.BETA_SERVER_ID).get()
                         .updateCommands()
                         .addCommands(commandDataList)
                         .queue();

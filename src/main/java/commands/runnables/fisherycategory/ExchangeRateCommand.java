@@ -44,7 +44,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
 
     @Override
     public boolean onTrigger(CommandEvent event, String args) {
-        if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false) >= 2) {
+        if (PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), false)) {
             setComponents(Button.of(ButtonStyle.PRIMARY, "forecast", getString("forecast_button")));
             registerButtonListener(event.getMember());
         } else {

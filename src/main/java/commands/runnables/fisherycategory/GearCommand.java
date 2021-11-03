@@ -45,7 +45,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
                     .setDescription(getString("desc", StringUtil.numToString(fisheryMemberBean.getFish()), StringUtil.numToString(fisheryMemberBean.getCoins())));
             EmbedUtil.setFooter(eb, this);
 
-            boolean patreon = PatreonCache.getInstance().getUserTier(member.getIdLong(), false) >= 1;
+            boolean patreon = PatreonCache.getInstance().hasPremium(member.getIdLong(), false);
             String patreonEmoji = "\uD83D\uDC51";
             String displayName = member.getEffectiveName();
             while (displayName.length() > 0 && displayName.startsWith(patreonEmoji)) {

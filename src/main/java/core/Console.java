@@ -183,7 +183,7 @@ public class Console {
 
     private static void onPatreon(String[] args) {
         long userId = Long.parseLong(args[1]);
-        MainLogger.get().info("Patreon stats of user {}: {}", userId, PatreonCache.getInstance().getUserTier(userId, false));
+        MainLogger.get().info("Patreon stats of user {}: {}", userId, PatreonCache.getInstance().hasPremium(userId, false));
     }
 
     private static void onPatreonGuild(String[] args) {

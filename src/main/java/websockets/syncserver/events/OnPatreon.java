@@ -14,7 +14,7 @@ public class OnPatreon implements SyncServerFunction {
     public JSONObject apply(JSONObject jsonObject) {
         PatreonData patreonData = PatreonCache.patreonDataFromJson(jsonObject);
         PatreonCache.getInstance().setValue(patreonData);
-        MainLogger.get().info("Received new Patreon list with {} users ({} old) and {} unlocked guilds", patreonData.getUserMap().size(), patreonData.getOldUsersList().size(), patreonData.getGuildList().size());
+        MainLogger.get().info("Received new Patreon list with {} users ({} old) and {} unlocked guilds", patreonData.getUserList().size(), patreonData.getOldUserList().size(), patreonData.getGuildList().size());
         return null;
     }
 

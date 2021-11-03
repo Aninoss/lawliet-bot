@@ -69,7 +69,7 @@ public class AlertsCommand extends NavigationAbstract {
         serverId = event.getGuild().getIdLong();
         channelId = event.getChannel().getIdLong();
         alerts = DBTracker.getInstance().retrieve(event.getGuild().getIdLong());
-        patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 ||
+        patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
         controll(args, event.getMember());
@@ -187,7 +187,7 @@ public class AlertsCommand extends NavigationAbstract {
         }
 
         if (command.getCommandProperties().patreonRequired() &&
-                PatreonCache.getInstance().getUserTier(getMemberId().get(), true) < 2 &&
+                !PatreonCache.getInstance().hasPremium(getMemberId().get(), true) &&
                 !PatreonCache.getInstance().isUnlocked(getGuildId().get())
         ) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
@@ -261,7 +261,7 @@ public class AlertsCommand extends NavigationAbstract {
             return MessageInputResponse.SUCCESS;
         } else {
             if (PatreonCache.getInstance().isUnlocked(getGuildId().get()) ||
-                    PatreonCache.getInstance().getUserTier(getMemberId().get(), true) >= 3
+                    PatreonCache.getInstance().hasPremium(getMemberId().get(), true)
             ) {
                 if (!BotPermissionUtil.memberCanMentionRoles(getTextChannel().get(), member, args)) {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention"));

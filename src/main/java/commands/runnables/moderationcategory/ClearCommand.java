@@ -52,7 +52,7 @@ public class ClearCommand extends Command implements OnButtonListener {
     @Override
     public boolean onTrigger(CommandEvent event, String args) throws InterruptedException, ExecutionException {
         if (args.length() > 0 && StringUtil.stringIsLong(args) && Long.parseLong(args) >= 2 && Long.parseLong(args) <= 500) {
-            boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 ||
+            boolean patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                     PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
             long messageId = registerButtonListener(event.getMember()).get();

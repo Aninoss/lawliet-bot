@@ -144,7 +144,7 @@ public class CommandManager {
     }
 
     private static boolean checkCoolDown(CommandEvent event, Command command) {
-        if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 3 || PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())) {
+        if (PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) || PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())) {
             return true;
         }
         CoolDownUserData cooldownUserData = CoolDownManager.getCoolDownData(event.getMember().getIdLong());
@@ -173,7 +173,7 @@ public class CommandManager {
     private static boolean checkReleased(CommandEvent event, Command command) {
         LocalDate releaseDate = command.getReleaseDate().orElse(LocalDate.now());
         if (!releaseDate.isAfter(LocalDate.now()) ||
-                PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) > 1 ||
+                PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())
         ) {
             return true;
@@ -198,7 +198,7 @@ public class CommandManager {
 
     private static boolean checkPatreon(CommandEvent event, Command command) {
         if (!command.getCommandProperties().patreonRequired() ||
-                PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) > 1 ||
+                PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong())
         ) {
             return true;

@@ -539,7 +539,7 @@ public class FisheryMemberData implements MemberAsset {
                                                               long coinsPrevious, Long newDailyStreak,
                                                               long dailyStreakPrevious, boolean isBanned
     ) {
-        boolean patreon = PatreonCache.getInstance().getUserTier(memberId, false) >= 1;
+        boolean patreon = PatreonCache.getInstance().hasPremium(memberId, false);
 
         String patreonEmoji = "👑";
         String displayName = member.getEffectiveName();

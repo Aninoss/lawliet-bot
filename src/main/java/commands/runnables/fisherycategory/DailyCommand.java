@@ -61,7 +61,7 @@ public class DailyCommand extends Command implements FisheryInterface {
                 bonusCombo = Math.round(fish * 0.25);
             }
 
-            if (PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false) >= 2) {
+            if (PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), false)) {
                 bonusDonation = Math.round((fish + bonusCombo) * 0.5);
             }
 

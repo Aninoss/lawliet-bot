@@ -1,7 +1,6 @@
 package core.cache;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
 import constants.AssetIds;
 import core.PatreonData;
@@ -20,19 +19,19 @@ public class PatreonCache extends SingleCache<PatreonData> {
     private PatreonCache() {
     }
 
-    public int getUserTier(long userId, boolean requiresOld) {
+    public boolean hasPremium(long userId, boolean requiresOld) {
         if (userId == AssetIds.OWNER_USER_ID) {
-            return 6;
+            return true;
         }
 
         PatreonData patreonData = getAsync();
         if (patreonData == null ||
-                (!patreonData.getOldUsersList().contains(userId) && requiresOld)
+                (!patreonData.getOldUserList().contains(userId) && requiresOld)
         ) {
-            return 0;
+            return false;
         }
 
-        return patreonData.getUserMap().getOrDefault(userId, 0);
+        return patreonData.getUserList().contains(userId);
     }
 
     public boolean isUnlocked(long guildId) {
@@ -59,17 +58,19 @@ public class PatreonCache extends SingleCache<PatreonData> {
     }
 
     public static PatreonData patreonDataFromJson(JSONObject responseJson) {
-        HashMap<Long, Integer> patreonUserTiers = new HashMap<>();
-        ArrayList<Long> unlockedGuilds = new ArrayList<>();
-        ArrayList<Long> oldUsers = new ArrayList<>();
+        HashSet<Long> userList = new HashSet<>();
+        HashSet<Long> unlockedGuilds = new HashSet<>();
+        HashSet<Long> oldUsers = new HashSet<>();
+        HashSet<Long> highPayingUserList = new HashSet<>();
 
         JSONArray usersArray = responseJson.getJSONArray("users");
         for (int i = 0; i < usersArray.length(); i++) {
             JSONObject userJson = usersArray.getJSONObject(i);
-            patreonUserTiers.put(
-                    userJson.getLong("user_id"),
-                    userJson.getInt("tier")
-            );
+            long userId = userJson.getLong("user_id");
+            userList.add(userId);
+            if (userJson.getInt("tier") >= 4) {
+                highPayingUserList.add(userId);
+            }
         }
 
         JSONArray guildsArray = responseJson.getJSONArray("guilds");
@@ -82,7 +83,7 @@ public class PatreonCache extends SingleCache<PatreonData> {
             oldUsers.add(oldUsersArray.getLong(i));
         }
 
-        return new PatreonData(patreonUserTiers, unlockedGuilds, oldUsers);
+        return new PatreonData(userList, unlockedGuilds, oldUsers, highPayingUserList);
     }
 
 }

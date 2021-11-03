@@ -6,7 +6,6 @@ import java.util.Objects;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.PatreonData;
@@ -39,7 +38,7 @@ public class PremiumCommand extends Command {
         patreonData = PatreonCache.getInstance().getAsync();
 
         String content = getString("info",
-                StringUtil.getOnOffForBoolean(event.getChannel(), getLocale(), PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), false) > 0),
+                StringUtil.getOnOffForBoolean(event.getChannel(), getLocale(), PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), false)),
                 StringUtil.getOnOffForBoolean(event.getChannel(), getLocale(), PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong()))
         );
 
@@ -48,28 +47,22 @@ public class PremiumCommand extends Command {
                 .addBlankField(false);
 
         addLoadingReactionInstantly();
-        StringBuilder sb = new StringBuilder();
-        for (int i = Settings.PATREON_ROLE_IDS.length - 1; i >= 3; i--) {
-            sb.append(getPatreonUsersString(i));
-        }
-        sb.append(getString("andmanymore"));
 
-        eb.addField(getString("slot_title"), sb.toString(), false);
+        eb.addField(getString("slot_title"), getPatreonUsersString() + getString("andmanymore"), false);
         setComponents(EmbedFactory.getPatreonBlockButtons(getLocale()));
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }
 
-    private String getPatreonUsersString(int patreonTier) {
+    private String getPatreonUsersString() {
         StringBuilder patreonUsers = new StringBuilder();
 
-        patreonData.getUserMap().keySet().stream()
-                .filter(userId -> patreonData.getUserMap().get(userId) == patreonTier + 1 && Arrays.stream(USER_ID_NOT_VISIBLE).noneMatch(uid -> uid == userId))
+        patreonData.getHighPayingUserList().stream()
+                .filter(userId -> Arrays.stream(USER_ID_NOT_VISIBLE).noneMatch(uid -> uid == userId))
                 .map(userId -> ShardManager.fetchUserById(userId).join())
                 .filter(Objects::nonNull)
                 .forEach(user -> {
-                    String value = getString("slot_value");
-                    patreonUsers.append(getString("slot", StringUtil.escapeMarkdown(user.getAsTag()), value))
+                    patreonUsers.append(getString("slot", StringUtil.escapeMarkdown(user.getAsTag())))
                             .append("\n");
                 });
 

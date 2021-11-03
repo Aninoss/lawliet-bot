@@ -100,7 +100,7 @@ public class MemberCacheController implements MemberCachePolicy {
                 member.getIdLong() == AssetIds.OWNER_USER_ID ||
                 guild.getMemberCount() >= BIG_SERVER_THRESHOLD ||
                 guildIsCached(guild) ||
-                (Program.productionMode() && PatreonCache.getInstance().getUserTier(member.getIdLong(), false) >= 2) ||
+                (Program.productionMode() && PatreonCache.getInstance().hasPremium(member.getIdLong(), false)) ||
                 DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().map(muteRole -> member.getRoles().contains(muteRole)).orElse(false) ||
                 DBSubs.getInstance().retrieve(DBSubs.Command.WORK).containsKey(member.getIdLong());
     }

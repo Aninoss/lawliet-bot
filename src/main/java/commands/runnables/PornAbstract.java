@@ -80,7 +80,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             String group = m.group();
             args = args.replaceFirst(group, "").replace("  ", " ").trim();
             amount = Long.parseLong(group);
-            boolean patreon = PatreonCache.getInstance().getUserTier(event.getMember().getIdLong(), true) >= 2 ||
+            boolean patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                     PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
             if (!patreon && (amount < 1 || amount > 20)) {

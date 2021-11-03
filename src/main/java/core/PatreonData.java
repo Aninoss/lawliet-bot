@@ -1,30 +1,35 @@
 package core;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 
 public class PatreonData {
 
-    private final HashMap<Long, Integer> userMap;
-    private final List<Long> guildList;
-    private final List<Long> oldUsersList;
+    private final HashSet<Long> userList;
+    private final HashSet<Long> guildList;
+    private final HashSet<Long> oldUserList;
+    private final HashSet<Long> highPayingUserList;
 
-    public PatreonData(HashMap<Long, Integer> userMap, List<Long> guildList, List<Long> oldUsersList) {
-        this.userMap = userMap;
+    public PatreonData(HashSet<Long> userList, HashSet<Long> guildList, HashSet<Long> oldUserList, HashSet<Long> highPayingUserList) {
+        this.userList = userList;
         this.guildList = guildList;
-        this.oldUsersList = oldUsersList;
+        this.oldUserList = oldUserList;
+        this.highPayingUserList = highPayingUserList;
     }
 
-    public HashMap<Long, Integer> getUserMap() {
-        return userMap;
+    public HashSet<Long> getUserList() {
+        return userList;
     }
 
-    public List<Long> getGuildList() {
+    public HashSet<Long> getGuildList() {
         return guildList;
     }
 
-    public List<Long> getOldUsersList() {
-        return oldUsersList;
+    public HashSet<Long> getOldUserList() {
+        return oldUserList;
+    }
+
+    public HashSet<Long> getHighPayingUserList() {
+        return highPayingUserList;
     }
 
 }
