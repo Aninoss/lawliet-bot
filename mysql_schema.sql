@@ -365,7 +365,7 @@ CREATE TABLE `FeatureRequestBoosts` (
   `boostUserId` bigint unsigned NOT NULL,
   PRIMARY KEY (`id`,`boostDatetime`,`boostUserId`),
   CONSTRAINT `FeatureRequestsBase` FOREIGN KEY (`id`) REFERENCES `FeatureRequests` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=393 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=433 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -384,7 +384,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=410 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=440 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -552,6 +552,7 @@ CREATE TABLE `Moderation` (
   `channelId` bigint unsigned DEFAULT NULL,
   `question` tinyint(1) NOT NULL DEFAULT '0',
   `muteRoleId` bigint unsigned DEFAULT NULL,
+  `enforceMuteRole` tinyint(1) NOT NULL DEFAULT '0',
   `autoKick` int unsigned NOT NULL DEFAULT '0',
   `autoBan` int unsigned NOT NULL DEFAULT '0',
   `autoMute` int unsigned NOT NULL DEFAULT '0',
@@ -1102,6 +1103,7 @@ CREATE TABLE `Ticket` (
   `createMessage` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `assignToAll` tinyint unsigned NOT NULL DEFAULT '1',
   `protocol` tinyint unsigned NOT NULL DEFAULT '0',
+  `ping` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`serverId`),
   CONSTRAINT `TicketServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1367,4 +1369,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-10-04 13:32:45
+-- Dump completed on 2021-11-03 18:53:38

@@ -161,16 +161,21 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 return true;
 
             case 3:
+                ticketData.togglePingStaff();
+                setLog(LogStatus.SUCCESS, getString("ping_set", ticketData.getPingStaff()));
+                return true;
+
+            case 4:
                 ticketData.toggleMemberCanClose();
                 setLog(LogStatus.SUCCESS, getString("membercanclose_set", ticketData.memberCanClose()));
                 return true;
 
-            case 4:
+            case 5:
                 ticketData.toggleAssignToAll();
                 setLog(LogStatus.SUCCESS, getString("assign_set", ticketData.getAssignToAll()));
                 return true;
 
-            case 5:
+            case 6:
                 if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
                     ticketData.toggleProtocol();
                     setLog(LogStatus.SUCCESS, getString("protocol_set", ticketData.getProtocolEffectively()));
@@ -179,11 +184,11 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 }
                 return true;
 
-            case 6:
+            case 7:
                 setState(GREETING_TEXT);
                 return true;
 
-            case 7:
+            case 8:
                 setState(CREATE_TICKET_MESSAGE);
                 return true;
 
@@ -285,6 +290,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mannouncement"), StringUtil.escapeMarkdown(ticketData.getAnnouncementTextChannel().map(GuildChannel::getAsMention).orElse(notSet)), true)
                 .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                .addField(getString("state0_mping"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getPingStaff()), true)
                 .addField(getString("state0_mmembercanclose"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.memberCanClose()), true)
                 .addField(getString("state0_massign"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getAssignToAll()), true)
                 .addField(getString("state0_mprotocol", Emojis.COMMAND_ICON_PREMIUM), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getProtocolEffectively()), true)
@@ -477,7 +483,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), announcementChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
                 announcementNotPosted.set(false);
                 EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault(this, getString("announcement_open", member.getAsMention(), textChannel.getAsMention()));
-                announcementChannel.sendMessage(getRolePing(textChannel.getGuild(), ticketData))
+                announcementChannel.sendMessage(ticketData.getPingStaff() ? getRolePing(textChannel.getGuild(), ticketData) : " ")
                         .setEmbeds(ebAnnouncement.build())
                         .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
                         .queue(m -> {
