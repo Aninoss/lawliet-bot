@@ -1,23 +1,22 @@
 package core;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class PatreonData {
 
-    private final HashSet<Long> userList;
+    private final HashMap<Long, Integer> userTierMap;
     private final HashSet<Long> guildList;
     private final HashSet<Long> oldUserList;
-    private final HashSet<Long> highPayingUserList;
 
-    public PatreonData(HashSet<Long> userList, HashSet<Long> guildList, HashSet<Long> oldUserList, HashSet<Long> highPayingUserList) {
-        this.userList = userList;
+    public PatreonData(HashMap<Long, Integer> userTierMap, HashSet<Long> guildList, HashSet<Long> oldUserList) {
+        this.userTierMap = userTierMap;
         this.guildList = guildList;
         this.oldUserList = oldUserList;
-        this.highPayingUserList = highPayingUserList;
     }
 
-    public HashSet<Long> getUserList() {
-        return userList;
+    public HashMap<Long, Integer> getUserTierMap() {
+        return userTierMap;
     }
 
     public HashSet<Long> getGuildList() {
@@ -26,10 +25,6 @@ public class PatreonData {
 
     public HashSet<Long> getOldUserList() {
         return oldUserList;
-    }
-
-    public HashSet<Long> getHighPayingUserList() {
-        return highPayingUserList;
     }
 
 }
