@@ -15,6 +15,9 @@ public class OnReport implements SyncServerFunction {
     @Override
     public JSONObject apply(JSONObject jsonObject) {
         String content = jsonObject.getString("url");
+        if (jsonObject.has("ip_hash")) {
+            content += "\nIP Hash: " + jsonObject.getInt("ip_hash");
+        }
         if (jsonObject.has("text")) {
             content += "\n```" + jsonObject.getString("text") + "```";
         }
