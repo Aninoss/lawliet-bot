@@ -174,11 +174,13 @@ public class InviteTracking {
 
         guild.retrieveInvites().queue(invites -> {
             for (Invite invite : invites) {
-                inviteList.add(new TempInvite(
-                        invite.getCode(),
-                        invite.getUses(),
-                        invite.getInviter().getIdLong()
-                ));
+                if (invite.getInviter() != null) {
+                    inviteList.add(new TempInvite(
+                            invite.getCode(),
+                            invite.getUses(),
+                            invite.getInviter().getIdLong()
+                    ));
+                }
             }
             completed[1] = true;
             if (completed[0]) {
