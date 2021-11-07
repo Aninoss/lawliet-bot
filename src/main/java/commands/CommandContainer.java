@@ -161,6 +161,7 @@ public class CommandContainer {
         //INTERACTIONS
         commandList.add(AngryCommand.class);
         commandList.add(AwkwardCommand.class);
+        commandList.add(BegCommand.class);
         commandList.add(BlushCommand.class);
         commandList.add(BoredCommand.class);
         commandList.add(CryCommand.class);
