@@ -74,7 +74,8 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
                 new Permission[0],
                 new Permission[] { Permission.MESSAGE_WRITE },
                 new Permission[0],
-                new Permission[] { Permission.MESSAGE_WRITE }
+                new Permission[] { Permission.MESSAGE_WRITE },
+                new Permission[0]
         );
         if (missingPermissionsEmbed != null) {
             drawMessageNew(missingPermissionsEmbed)
@@ -144,6 +145,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
                 event.getTextChannel(),
                 event.getMember(),
                 new Permission[]{ Permission.MANAGE_SERVER },
+                new Permission[0],
                 new Permission[0],
                 new Permission[0],
                 new Permission[0]

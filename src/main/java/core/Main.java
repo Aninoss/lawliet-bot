@@ -21,7 +21,7 @@ import websockets.syncserver.SyncManager;
 public class Main {
 
     public static void main(String[] args) {
-        try {
+        try { //TODO: remove?
             TextManager.getString(new Locale("en_US"), "casino", "casino_retry");
         } catch (Throwable e) {
             MainLogger.get().error("Error", e);

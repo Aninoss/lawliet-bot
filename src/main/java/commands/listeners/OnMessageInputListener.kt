@@ -23,7 +23,7 @@ interface OnMessageInputListener : Drawable {
     fun registerMessageInputListener(member: Member, draw: Boolean = true) {
         val command = this as Command
         registerMessageInputListener(member, draw) { event ->
-            val ok = event.member.idLong == member.idLong &&
+            val ok = event.member!!.idLong == member.idLong &&
                     event.channel.idLong == command.textChannelId.orElse(0L)
             if (ok) CheckResponse.ACCEPT else CheckResponse.IGNORE
         }
@@ -77,7 +77,7 @@ interface OnMessageInputListener : Drawable {
                         event.message.delete().queue()
                     }
                 }
-                val eb = draw(event.member)
+                val eb = draw(event.member!!)
                 if (eb != null) {
                     (this as Command).drawMessage(eb).exceptionally(ExceptionLogger.get())
                 }

@@ -36,7 +36,7 @@ interface OnInteractionListener : Drawable {
         command.drawMessageId.ifPresent { messageId: Long ->
             command.textChannel.ifPresent { channel: TextChannel ->
                 if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE) && command.commandEvent.isGuildMessageReceivedEvent) {
-                    val messageIds = listOf(messageId.toString(), command.commandEvent.guildMessageReceivedEvent.messageId)
+                    val messageIds = listOf(messageId.toString(), command.commandEvent.guildMessageReceivedEvent!!.messageId)
                     channel.deleteMessagesByIds(messageIds).queue()
                 } else if (BotPermissionUtil.canReadHistory(channel)) {
                     channel.deleteMessageById(messageId).queue()
@@ -110,7 +110,7 @@ interface OnInteractionListener : Drawable {
             }
             if (task.apply(event)) {
                 CommandContainer.refreshListeners(command)
-                val eb = draw(event.member)
+                val eb = draw(event.member!!)
                 if (eb != null) {
                     (this as Command).drawMessage(eb)
                         .exceptionally(ExceptionLogger.get())

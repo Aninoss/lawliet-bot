@@ -1,9 +1,6 @@
 package core.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 import core.EmbedFactory;
 import core.MemberCacheController;
@@ -18,14 +15,16 @@ public class BotPermissionUtil {
 
     public static EmbedBuilder getUserAndBotPermissionMissingEmbed(Locale locale, GuildChannel channel, Member member,
                                                                    Permission[] userGuildPermissions, Permission[] userChannelPermissions,
-                                                                   Permission[] botGuildPermissions, Permission[] botChannelPermissions
+                                                                   Permission[] botGuildPermissions, Permission[] botChannelPermissions,
+                                                                   Permission[] everyoneChannelPermissions
     ) {
         List<Permission> userPermission = new ArrayList<>(getMissingPermissions(member, userGuildPermissions));
         userPermission.addAll(getMissingPermissions(channel, member, userChannelPermissions));
         List<Permission> botPermission = new ArrayList<>(getMissingPermissions(channel.getGuild().getSelfMember(), botGuildPermissions));
         botPermission.addAll(getMissingPermissions(channel, channel.getGuild().getSelfMember(), botChannelPermissions));
+        List<Permission> everyonePermission = getMissingPermissions(channel, channel.getGuild().getPublicRole(), everyoneChannelPermissions);
 
-        return getUserPermissionMissingEmbed(locale, userPermission, botPermission);
+        return getUserPermissionMissingEmbed(locale, userPermission, botPermission, everyonePermission);
     }
 
     public static String getBotPermissionsMissingText(Locale locale, GuildChannel channel, Permission... permissions) {
@@ -48,7 +47,7 @@ public class BotPermissionUtil {
     public static EmbedBuilder getBotPermissionMissingEmbed(Locale locale, GuildChannel channel, Permission[] botGuildPermissions, Permission[] botChannelPermissions) {
         List<Permission> botPermission = new ArrayList<>(getMissingPermissions(channel.getGuild().getSelfMember(), botGuildPermissions));
         botPermission.addAll(getMissingPermissions(channel, channel.getGuild().getSelfMember(), botChannelPermissions));
-        return getUserPermissionMissingEmbed(locale, new ArrayList<>(), botPermission);
+        return getUserPermissionMissingEmbed(locale, Collections.emptyList(), botPermission, Collections.emptyList());
     }
 
     public static List<Permission> getMissingPermissions(Member member, Permission... permissions) {
@@ -66,9 +65,15 @@ public class BotPermissionUtil {
                 .collect(Collectors.toList());
     }
 
-    public static EmbedBuilder getUserPermissionMissingEmbed(Locale locale, List<Permission> userPermissions, List<Permission> botPermissions) {
+    public static List<Permission> getMissingPermissions(GuildChannel channel, Role role, Permission... permissions) {
+        return Arrays.stream(permissions)
+                .filter(permission -> !role.hasPermission(channel, permission))
+                .collect(Collectors.toList());
+    }
+
+    public static EmbedBuilder getUserPermissionMissingEmbed(Locale locale, List<Permission> userPermissions, List<Permission> botPermissions, List<Permission> everyonePermission) {
         EmbedBuilder eb = null;
-        if (userPermissions.size() != 0 || botPermissions.size() != 0) {
+        if (userPermissions.size() != 0 || botPermissions.size() != 0 || everyonePermission.size() != 0) {
             eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
 
@@ -90,6 +95,16 @@ public class BotPermissionUtil {
                     desc.append("\n");
                 }
                 eb.addField(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_bot"), desc.toString(), false);
+            }
+
+            if (everyonePermission.size() > 0) {
+                StringBuilder desc = new StringBuilder();
+                for (Permission permission : everyonePermission) {
+                    desc.append("• ");
+                    desc.append(TextManager.getString(locale, TextManager.PERMISSIONS, permission.name()));
+                    desc.append("\n");
+                }
+                eb.addField(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_everyone"), desc.toString(), false);
             }
         }
 
