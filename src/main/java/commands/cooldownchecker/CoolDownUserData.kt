@@ -1,48 +1,45 @@
-package commands.cooldownchecker;
+package commands.cooldownchecker
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Optional;
-import constants.Settings;
-import core.schedule.MainScheduler;
+import constants.Settings
+import core.schedule.MainScheduler
+import java.time.Duration
+import java.time.Instant
+import java.util.*
 
-public class CoolDownUserData {
+class CoolDownUserData {
 
-    private final ArrayList<Instant> commandInstants = new ArrayList<>();
-    private boolean canPostCoolDownMessage = true;
+    private val commandInstants = ArrayList<Instant>()
+    private var canPostCoolDownMessage = true
 
-    public Optional<Integer> getWaitingSec(int coolDown) {
-        clean();
-
-        if (commandInstants.size() >= Settings.COOLDOWN_MAX_ALLOWED) {
-            Duration duration = Duration.between(Instant.now(), commandInstants.get(0));
-            MainScheduler.schedule(commandInstants.get(0), "cool_down_post", () -> this.canPostCoolDownMessage = true);
-            return Optional.of((int) (duration.getSeconds() + 1));
+    fun getWaitingSec(coolDown: Int): Optional<Int> {
+        clean()
+        if (commandInstants.size >= Settings.COOLDOWN_MAX_ALLOWED) {
+            val duration = Duration.between(Instant.now(), commandInstants[0])
+            MainScheduler.schedule(commandInstants[0], "cool_down_post") { canPostCoolDownMessage = true }
+            return Optional.of((duration.seconds + 1).toInt())
         }
-
-        commandInstants.add(Instant.now().plusSeconds(coolDown));
-        return Optional.empty();
+        commandInstants.add(Instant.now().plusSeconds(coolDown.toLong()))
+        return Optional.empty()
     }
 
-    public synchronized boolean canPostCoolDownMessage() {
+    @Synchronized
+    fun canPostCoolDownMessage(): Boolean {
         if (canPostCoolDownMessage) {
-            canPostCoolDownMessage = false;
-            return true;
+            canPostCoolDownMessage = false
+            return true
         }
-
-        return false;
+        return false
     }
 
-    private void clean() {
-        while (commandInstants.size() > 0 && commandInstants.get(0).isBefore(Instant.now())) {
-            commandInstants.remove(0);
+    private fun clean() {
+        while (commandInstants.size > 0 && commandInstants[0].isBefore(Instant.now())) {
+            commandInstants.removeAt(0)
         }
     }
 
-    public boolean isEmpty() {
-        clean();
-        return commandInstants.isEmpty();
-    }
-
+    val isEmpty: Boolean
+        get() {
+            clean()
+            return commandInstants.isEmpty()
+        }
 }

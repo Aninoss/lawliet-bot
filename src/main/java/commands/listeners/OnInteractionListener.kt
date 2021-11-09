@@ -1,134 +1,126 @@
-package commands.listeners;
+package commands.listeners
 
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-import commands.Command;
-import commands.CommandContainer;
-import commands.CommandListenerMeta;
-import constants.ExceptionFunction;
-import constants.ExceptionRunnable;
-import core.ExceptionLogger;
-import core.interactionresponse.ComponentInteractionResponse;
-import core.interactionresponse.InteractionResponse;
-import core.MainLogger;
-import core.MemberCacheController;
-import core.utils.BotPermissionUtil;
-import core.utils.ExceptionUtil;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ISnowflake;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
+import commands.Command
+import commands.CommandContainer
+import commands.CommandListenerMeta
+import commands.CommandListenerMeta.CheckResponse
+import constants.ExceptionFunction
+import constants.ExceptionRunnable
+import core.ExceptionLogger
+import core.MainLogger
+import core.MemberCacheController
+import core.interactionresponse.ComponentInteractionResponse
+import core.interactionresponse.InteractionResponse
+import core.utils.BotPermissionUtil
+import core.utils.ExceptionUtil
+import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent
+import java.util.concurrent.CompletableFuture
+import java.util.function.Function
 
-public interface OnInteractionListener extends Drawable {
+interface OnInteractionListener : Drawable {
 
-    default void deregisterListenersWithComponents() {
-        Command command = (Command) this;
-        command.setActionRows();
-        command.deregisterListeners();
+    @JvmDefault
+    fun deregisterListenersWithComponents() {
+        val command = this as Command
+        command.setActionRows()
+        command.deregisterListeners()
     }
 
-    default void deregisterListenersWithComponentMessage() {
-        Command command = (Command) this;
-        command.getDrawMessageId().ifPresent(messageId -> {
-            command.getTextChannel().ifPresent(channel -> {
-                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE) && command.getCommandEvent().isGuildMessageReceivedEvent()) {
-                    Collection<String> messageIds = List.of(String.valueOf(messageId), command.getCommandEvent().getGuildMessageReceivedEvent().getMessageId());
-                    channel.deleteMessagesByIds(messageIds).queue();
+    @JvmDefault
+    fun deregisterListenersWithComponentMessage() {
+        val command = this as Command
+        command.drawMessageId.ifPresent { messageId: Long ->
+            command.textChannel.ifPresent { channel: TextChannel ->
+                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE) && command.commandEvent.isGuildMessageReceivedEvent) {
+                    val messageIds = listOf(messageId.toString(), command.commandEvent.guildMessageReceivedEvent.messageId)
+                    channel.deleteMessagesByIds(messageIds).queue()
                 } else if (BotPermissionUtil.canReadHistory(channel)) {
-                    channel.deleteMessageById(messageId).queue();
+                    channel.deleteMessageById(messageId).queue()
                 }
-            });
-        });
-        command.deregisterListeners();
-        command.resetDrawMessage();
+            }
+        }
+        command.deregisterListeners()
+        command.resetDrawMessage()
     }
 
-    default CompletableFuture<Long> registerInteractionListener(Member member, ExceptionRunnable overriddenMethod, Class<?> clazz, boolean draw) {
-        return registerInteractionListener(member, event -> {
-            if (event.getMessageIdLong() == ((Command) this).getDrawMessageId().orElse(0L)) {
-                return event.getUser().getIdLong() == member.getIdLong() ? CommandListenerMeta.CheckResponse.ACCEPT : CommandListenerMeta.CheckResponse.DENY;
+    fun registerInteractionListener(member: Member, clazz: Class<*>, draw: Boolean, overriddenMethod: ExceptionRunnable): CompletableFuture<Long> {
+        return registerInteractionListener(member, { event: GenericComponentInteractionCreateEvent ->
+            if (event.messageIdLong == (this as Command).drawMessageId.orElse(0L)) {
+                if (event.user.idLong == member.idLong) {
+                    CheckResponse.ACCEPT
+                } else {
+                    CheckResponse.DENY
+                }
             }
-            return CommandListenerMeta.CheckResponse.IGNORE;
-        }, overriddenMethod, clazz, draw);
+            CheckResponse.IGNORE
+        }, clazz, draw, overriddenMethod)
     }
 
-    default <T extends GenericComponentInteractionCreateEvent> CompletableFuture<Long> registerInteractionListener(Member member, Function<T, CommandListenerMeta.CheckResponse> validityChecker,
-                                                                                                                   ExceptionRunnable overriddenMethod, Class<?> clazz,
-                                                                                                                   boolean draw
-    ) {
-        Command command = (Command) this;
-
-        Runnable onTimeOut = () -> {
+    fun <T : GenericComponentInteractionCreateEvent> registerInteractionListener(member: Member, validityChecker: Function<T, CheckResponse>,
+                                                                                 clazz: Class<*>, draw: Boolean, overriddenMethod: ExceptionRunnable
+    ): CompletableFuture<Long> {
+        val command = this as Command
+        val onTimeOut = {
             try {
-                command.deregisterListeners();
-                command.onListenerTimeOutSuper();
-            } catch (Throwable throwable) {
-                MainLogger.get().error("Exception on time out", throwable);
+                command.deregisterListeners()
+                command.onListenerTimeOutSuper()
+            } catch (throwable: Throwable) {
+                MainLogger.get().error("Exception on time out", throwable)
             }
-        };
-
-        Runnable onOverridden = () -> {
+        }
+        val onOverridden = {
             try {
-                overriddenMethod.run();
-            } catch (Throwable throwable) {
-                MainLogger.get().error("Exception on overridden", throwable);
+                overriddenMethod.run()
+            } catch (throwable: Throwable) {
+                MainLogger.get().error("Exception on overridden", throwable)
             }
-        };
-
-        CommandListenerMeta<T> commandListenerMeta =
-                new CommandListenerMeta<>(member.getIdLong(), validityChecker, onTimeOut, onOverridden, command);
-        CommandContainer.registerListener(clazz, commandListenerMeta);
-
+        }
+        val commandListenerMeta = CommandListenerMeta(member.idLong, validityChecker, onTimeOut, onOverridden, command)
+        CommandContainer.registerListener(clazz, commandListenerMeta)
         try {
             if (draw) {
-                if (command.getDrawMessageId().isEmpty()) {
-                    EmbedBuilder eb = draw(member);
+                if (command.drawMessageId.isEmpty) {
+                    val eb = draw(member)
                     if (eb != null) {
                         return command.drawMessage(eb)
-                                .thenApply(ISnowflake::getIdLong)
-                                .exceptionally(ExceptionLogger.get());
+                            .thenApply { obj: Message -> obj.idLong }
+                            .exceptionally(ExceptionLogger.get())
                     }
                 } else {
-                    return CompletableFuture.completedFuture(command.getDrawMessageId().get());
+                    return CompletableFuture.completedFuture(command.drawMessageId.get())
                 }
             }
-        } catch (Throwable e) {
-            command.getTextChannel().ifPresent(channel -> {
-                ExceptionUtil.handleCommandException(e, command);
-            });
+        } catch (e: Throwable) {
+            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command) }
         }
-
-        return CompletableFuture.failedFuture(new NoSuchElementException("No message sent"));
+        return CompletableFuture.failedFuture(NoSuchElementException("No message sent"))
     }
 
-    default <T extends GenericComponentInteractionCreateEvent> void processInteraction(T event, ExceptionFunction<T, Boolean> task) {
-        Command command = (Command) this;
-        InteractionResponse interactionResponse = new ComponentInteractionResponse(event);
-        command.setInteractionResponse(interactionResponse);
-
+    fun <T : GenericComponentInteractionCreateEvent> processInteraction(event: T, task: ExceptionFunction<T, Boolean>) {
+        val command = this as Command
+        val interactionResponse: InteractionResponse = ComponentInteractionResponse(event)
+        command.interactionResponse = interactionResponse
         try {
-            if (command.getCommandProperties().requiresFullMemberCache()) {
-                MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
+            if (command.commandProperties.requiresFullMemberCache) {
+                MemberCacheController.getInstance().loadMembersFull(event.guild).get()
             }
             if (task.apply(event)) {
-                CommandContainer.refreshListeners(command);
-                EmbedBuilder eb = draw(event.getMember());
+                CommandContainer.refreshListeners(command)
+                val eb = draw(event.member)
                 if (eb != null) {
-                    ((Command) this).drawMessage(eb)
-                            .exceptionally(ExceptionLogger.get());
+                    (this as Command).drawMessage(eb)
+                        .exceptionally(ExceptionLogger.get())
                 }
             }
-        } catch (Throwable e) {
-            ExceptionUtil.handleCommandException(e, command);
+        } catch (e: Throwable) {
+            ExceptionUtil.handleCommandException(e, command)
         }
-
-        if (command.getDrawMessage().isPresent()) {
-            interactionResponse.complete();
+        if (command.drawMessage.isPresent) {
+            interactionResponse.complete()
         }
     }
-
 }

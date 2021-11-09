@@ -1,52 +1,30 @@
-package commands.listeners;
+package commands.listeners
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.Permission
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface CommandProperties {
+@Retention(AnnotationRetention.RUNTIME)
+annotation class CommandProperties(
 
-    String trigger();
+    val trigger: String,
+    val aliases: Array<String> = [],
+    val emoji: String,
+    val nsfw: Boolean = false,
+    val executableWithoutArgs: Boolean,
+    val deleteOnTimeOut: Boolean = false,
+    val botChannelPermissions: Array<Permission> = [],
+    val botGuildPermissions: Array<Permission> = [],
+    val userChannelPermissions: Array<Permission> = [],
+    val userGuildPermissions: Array<Permission> = [],
+    val requiresEmbeds: Boolean = true,
+    val maxCalculationTimeSec: Int = 30,
+    val patreonRequired: Boolean = false,
+    val exclusiveGuilds: LongArray = [],
+    val exclusiveUsers: LongArray = [],
+    val turnOffTimeout: Boolean = false,
+    val releaseDate: IntArray = [],
+    val onlyPublicVersion: Boolean = false,
+    val turnOffLoadingReaction: Boolean = false,
+    val usesExtEmotes: Boolean = false,
+    val requiresFullMemberCache: Boolean = false
 
-    String[] aliases() default {};
-
-    String emoji();
-
-    boolean nsfw() default false;
-
-    boolean executableWithoutArgs();
-
-    boolean deleteOnTimeOut() default false;
-
-    Permission[] botChannelPermissions() default {};
-
-    Permission[] botGuildPermissions() default {};
-
-    Permission[] userChannelPermissions() default {};
-
-    Permission[] userGuildPermissions() default {};
-
-    boolean requiresEmbeds() default true;
-
-    int maxCalculationTimeSec() default 30;
-
-    boolean patreonRequired() default false;
-
-    long[] exclusiveGuilds() default {};
-
-    long[] exclusiveUsers() default {};
-
-    boolean turnOffTimeout() default false;
-
-    int[] releaseDate() default {};
-
-    boolean onlyPublicVersion() default false;
-
-    boolean turnOffLoadingReaction() default false;
-
-    boolean usesExtEmotes() default false;
-
-    boolean requiresFullMemberCache() default false;
-
-}
+)

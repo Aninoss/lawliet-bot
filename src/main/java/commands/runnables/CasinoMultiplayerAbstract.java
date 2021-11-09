@@ -101,7 +101,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
 
     public void startLobby(Member member) {
         playerList.add(new AtomicMember(member));
-        registerButtonListener(member, event -> {
+        registerButtonListener(member, true, event -> {
             if (event.getMessageIdLong() == getDrawMessageId().orElse(0L)) {
                 return status == Status.WAITING_FOR_PLAYERS || playerList.stream().anyMatch(m -> m.getIdLong() == event.getMember().getIdLong())
                         ? CommandListenerMeta.CheckResponse.ACCEPT
@@ -109,7 +109,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
             } else {
                 return CommandListenerMeta.CheckResponse.IGNORE;
             }
-        }, true);
+        });
     }
 
     @Override

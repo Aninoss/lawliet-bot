@@ -1,6 +1,6 @@
-package commands.listeners;
+package commands.listeners
 
-public enum MessageInputResponse {
+enum class MessageInputResponse {
 
     SUCCESS, FAILED, ERROR
 

@@ -1,25 +1,24 @@
-package commands.cooldownchecker;
+package commands.cooldownchecker
 
-import java.util.concurrent.TimeUnit;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import constants.Settings;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import com.google.common.cache.CacheBuilder
+import com.google.common.cache.CacheLoader
+import constants.Settings
+import java.util.concurrent.TimeUnit
 
-public class CoolDownManager {
+object CoolDownManager {
 
-    private static final LoadingCache<Long, CoolDownUserData> coolDownUserDataMap = CacheBuilder.newBuilder()
-            .expireAfterAccess(Settings.COOLDOWN_TIME_SEC, TimeUnit.SECONDS)
-            .build(new CacheLoader<>() {
-                @Override
-                public CoolDownUserData load(@NonNull Long userId) {
-                    return new CoolDownUserData();
-                }
-            });
+    private val coolDownUserDataMap = CacheBuilder.newBuilder()
+        .expireAfterAccess(Settings.COOLDOWN_TIME_SEC.toLong(), TimeUnit.SECONDS)
+        .build(object : CacheLoader<Long, CoolDownUserData>() {
+            override fun load(userId: Long): CoolDownUserData {
+                return CoolDownUserData()
+            }
+        })
 
-    public static synchronized CoolDownUserData getCoolDownData(long userId) {
-        return coolDownUserDataMap.getUnchecked(userId);
+    @JvmStatic
+    @Synchronized
+    fun getCoolDownData(userId: Long): CoolDownUserData {
+        return coolDownUserDataMap.getUnchecked(userId)
     }
 
 }

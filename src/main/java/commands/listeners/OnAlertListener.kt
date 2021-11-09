@@ -1,12 +1,13 @@
-package commands.listeners;
+package commands.listeners
 
-import modules.schedulers.AlertResponse;
-import mysql.modules.tracker.TrackerData;
+import modules.schedulers.AlertResponse
+import mysql.modules.tracker.TrackerData
 
-public interface OnAlertListener {
+interface OnAlertListener {
 
-    AlertResponse onTrackerRequest(TrackerData slot) throws Throwable;
+    @Throws(Throwable::class)
+    fun onTrackerRequest(slot: TrackerData): AlertResponse
 
-    boolean trackerUsesKey();
+    fun trackerUsesKey(): Boolean
 
 }

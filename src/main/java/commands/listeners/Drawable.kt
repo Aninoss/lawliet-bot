@@ -1,10 +1,11 @@
-package commands.listeners;
+package commands.listeners
 
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.entities.Member
 
-public interface Drawable {
+interface Drawable {
 
-    EmbedBuilder draw(Member member) throws Throwable;
+    @Throws(Throwable::class)
+    fun draw(member: Member): EmbedBuilder?
 
 }

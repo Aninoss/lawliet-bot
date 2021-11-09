@@ -1,32 +1,34 @@
-package commands.listeners;
+package commands.listeners
 
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-import commands.CommandListenerMeta;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import commands.CommandListenerMeta.CheckResponse
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
+import java.util.concurrent.CompletableFuture
+import java.util.function.Function
 
-public interface OnButtonListener extends OnInteractionListener {
+interface OnButtonListener : OnInteractionListener {
 
-    boolean onButton(ButtonClickEvent event) throws Throwable;
+    @Throws(Throwable::class)
+    fun onButton(event: ButtonClickEvent): Boolean
 
-    default CompletableFuture<Long> registerButtonListener(Member member) {
-        return registerButtonListener(member, true);
+    fun registerButtonListener(member: Member): CompletableFuture<Long> {
+        return registerButtonListener(member, true)
     }
 
-    default CompletableFuture<Long> registerButtonListener(Member member, boolean draw) {
-        return registerInteractionListener(member, this::onButtonOverridden, OnButtonListener.class, draw);
+    fun registerButtonListener(member: Member, draw: Boolean): CompletableFuture<Long> {
+        return registerInteractionListener(member, OnButtonListener::class.java, draw) { onButtonOverridden() }
     }
 
-    default CompletableFuture<Long> registerButtonListener(Member member, Function<ButtonClickEvent, CommandListenerMeta.CheckResponse> validityChecker, boolean draw) {
-        return registerInteractionListener(member, validityChecker, this::onButtonOverridden, OnButtonListener.class, draw);
+    fun registerButtonListener(member: Member, draw: Boolean, validityChecker: Function<ButtonClickEvent, CheckResponse>): CompletableFuture<Long> {
+        return registerInteractionListener(member, validityChecker, OnButtonListener::class.java, draw) { onButtonOverridden() }
     }
 
-    default void processButton(ButtonClickEvent event) {
-        processInteraction(event, this::onButton);
+    fun processButton(event: ButtonClickEvent) {
+        processInteraction(event) { onButton(it) }
     }
 
-    default void onButtonOverridden() throws Throwable {
+    @Throws(Throwable::class)
+    fun onButtonOverridden() {
     }
 
 }

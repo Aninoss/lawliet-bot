@@ -1,111 +1,98 @@
-package commands.listeners;
+package commands.listeners
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import commands.Command;
-import commands.CommandContainer;
-import commands.CommandListenerMeta;
-import core.ExceptionLogger;
-import core.MainLogger;
-import core.MemberCacheController;
-import core.utils.BotPermissionUtil;
-import core.utils.ExceptionUtil;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import commands.Command
+import commands.CommandContainer
+import commands.CommandListenerMeta
+import commands.CommandListenerMeta.CheckResponse
+import core.ExceptionLogger
+import core.MainLogger
+import core.MemberCacheController
+import core.utils.BotPermissionUtil
+import core.utils.ExceptionUtil
+import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.function.Function
 
-public interface OnMessageInputListener extends Drawable {
+interface OnMessageInputListener : Drawable {
 
-    MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable;
+    @Throws(Throwable::class)
+    fun onMessageInput(event: GuildMessageReceivedEvent, input: String): MessageInputResponse?
 
-    default void registerMessageInputListener(Member member) {
-        registerMessageInputListener(member, true);
+    fun registerMessageInputListener(member: Member, draw: Boolean = true) {
+        val command = this as Command
+        registerMessageInputListener(member, draw) { event ->
+            val ok = event.member.idLong == member.idLong &&
+                    event.channel.idLong == command.textChannelId.orElse(0L)
+            if (ok) CheckResponse.ACCEPT else CheckResponse.IGNORE
+        }
     }
 
-    default void registerMessageInputListener(Member member, boolean draw) {
-        Command command = (Command) this;
-        registerMessageInputListener(member, draw, event -> {
-                    boolean ok = event.getMember().getIdLong() == member.getIdLong() &&
-                            event.getChannel().getIdLong() == command.getTextChannelId().orElse(0L);
-                    return ok ? CommandListenerMeta.CheckResponse.ACCEPT : CommandListenerMeta.CheckResponse.IGNORE;
-                }
-        );
-    }
-
-    default void registerMessageInputListener(Member member, boolean draw, Function<GuildMessageReceivedEvent, CommandListenerMeta.CheckResponse> validityChecker) {
-        Command command = (Command) this;
-
-        Runnable onTimeOut = () -> {
+    fun registerMessageInputListener(member: Member, draw: Boolean, validityChecker: Function<GuildMessageReceivedEvent, CheckResponse>) {
+        val command = this as Command
+        val onTimeOut = {
             try {
-                command.deregisterListeners();
-                command.onListenerTimeOutSuper();
-            } catch (Throwable throwable) {
-                MainLogger.get().error("Exception on time out", throwable);
+                command.deregisterListeners()
+                command.onListenerTimeOutSuper()
+            } catch (throwable: Throwable) {
+                MainLogger.get().error("Exception on time out", throwable)
             }
-        };
-
-        Runnable onOverridden = () -> {
+        }
+        val onOverridden = {
             try {
-                onMessageInputOverridden();
-            } catch (Throwable throwable) {
-                MainLogger.get().error("Exception on overridden", throwable);
+                onMessageInputOverridden()
+            } catch (throwable: Throwable) {
+                MainLogger.get().error("Exception on overridden", throwable)
             }
-        };
-
-        CommandListenerMeta<GuildMessageReceivedEvent> commandListenerMeta =
-                new CommandListenerMeta<>(member.getIdLong(), validityChecker, onTimeOut, onOverridden, command);
-        CommandContainer.registerListener(OnMessageInputListener.class, commandListenerMeta);
-
+        }
+        val commandListenerMeta = CommandListenerMeta(member.idLong, validityChecker, onTimeOut, onOverridden, command)
+        CommandContainer.registerListener(OnMessageInputListener::class.java, commandListenerMeta)
         try {
-            if (draw && command.getDrawMessageId().isEmpty()) {
-                EmbedBuilder eb = draw(member);
+            if (draw && command.drawMessageId.isEmpty) {
+                val eb = draw(member)
                 if (eb != null) {
                     command.drawMessage(eb)
-                            .exceptionally(ExceptionLogger.get());
+                        .exceptionally(ExceptionLogger.get())
                 }
             }
-        } catch (Throwable e) {
-            command.getTextChannel().ifPresent(channel -> {
-                ExceptionUtil.handleCommandException(e, command);
-            });
+        } catch (e: Throwable) {
+            command.textChannel.ifPresent { channel -> ExceptionUtil.handleCommandException(e, command) }
         }
     }
 
-    default MessageInputResponse processMessageInput(GuildMessageReceivedEvent event) {
-        Command command = (Command) this;
-        AtomicBoolean isProcessing = new AtomicBoolean(true);
-
-        command.addLoadingReaction(event.getMessage(), isProcessing);
+    fun processMessageInput(event: GuildMessageReceivedEvent): MessageInputResponse? {
+        val command = this as Command
+        val isProcessing = AtomicBoolean(true)
+        command.addLoadingReaction(event.message, isProcessing)
         try {
-            if (command.getCommandProperties().requiresFullMemberCache()) {
-                MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
+            if (command.commandProperties.requiresFullMemberCache) {
+                MemberCacheController.getInstance().loadMembersFull(event.guild).get()
             }
-            MessageInputResponse messageInputResponse = onMessageInput(event, event.getMessage().getContentRaw());
+            val messageInputResponse = onMessageInput(event, event.message.contentRaw)
             if (messageInputResponse != null) {
-                if (messageInputResponse == MessageInputResponse.SUCCESS) {
-                    CommandContainer.refreshListeners(command);
-                    if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
-                        event.getMessage().delete().queue();
+                if (messageInputResponse === MessageInputResponse.SUCCESS) {
+                    CommandContainer.refreshListeners(command)
+                    if (BotPermissionUtil.can(event.channel, Permission.MESSAGE_MANAGE)) {
+                        event.message.delete().queue()
                     }
                 }
-
-                EmbedBuilder eb = draw(event.getMember());
+                val eb = draw(event.member)
                 if (eb != null) {
-                    ((Command) this).drawMessage(eb)
-                            .exceptionally(ExceptionLogger.get());
+                    (this as Command).drawMessage(eb).exceptionally(ExceptionLogger.get())
                 }
             }
-            return messageInputResponse;
-        } catch (Throwable e) {
-            ExceptionUtil.handleCommandException(e, command);
-            return MessageInputResponse.ERROR;
+            return messageInputResponse
+        } catch (e: Throwable) {
+            ExceptionUtil.handleCommandException(e, command)
+            return MessageInputResponse.ERROR
         } finally {
-            isProcessing.set(false);
+            isProcessing.set(false)
         }
     }
 
-    default void onMessageInputOverridden() throws Throwable {
+    @Throws(Throwable::class)
+    fun onMessageInputOverridden() {
     }
 
 }
