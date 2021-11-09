@@ -215,7 +215,7 @@ public class CommandManager {
 
     private static boolean checkPermissions(CommandEvent event, Command command) {
         Permission[] botChannelPermissions = command.getAdjustedBotChannelPermissions();
-        Permission[] everyoneChannelPermissions = Arrays.stream(botChannelPermissions).anyMatch(p -> p == Permission.MESSAGE_EXT_EMOJI) && event.isSlashCommandEvent()
+        Permission[] everyoneChannelPermissions = Arrays.stream(botChannelPermissions).anyMatch(p -> p == Permission.MESSAGE_EXT_EMOJI)
                 ? new Permission[] { Permission.MESSAGE_EXT_EMOJI }
                 : new Permission[0];
 

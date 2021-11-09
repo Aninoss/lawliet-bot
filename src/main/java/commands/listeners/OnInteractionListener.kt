@@ -48,20 +48,22 @@ interface OnInteractionListener : Drawable {
     }
 
     fun registerInteractionListener(member: Member, clazz: Class<*>, draw: Boolean, overriddenMethod: ExceptionRunnable): CompletableFuture<Long> {
-        return registerInteractionListener(member, { event: GenericComponentInteractionCreateEvent ->
+        return registerInteractionListener(member, clazz, draw, overriddenMethod) { event: GenericComponentInteractionCreateEvent ->
             if (event.messageIdLong == (this as Command).drawMessageId.orElse(0L)) {
                 if (event.user.idLong == member.idLong) {
                     CheckResponse.ACCEPT
                 } else {
                     CheckResponse.DENY
                 }
+            } else {
+                CheckResponse.DENY
             }
-            CheckResponse.IGNORE
-        }, clazz, draw, overriddenMethod)
+        }
     }
 
-    fun <T : GenericComponentInteractionCreateEvent> registerInteractionListener(member: Member, validityChecker: Function<T, CheckResponse>,
-                                                                                 clazz: Class<*>, draw: Boolean, overriddenMethod: ExceptionRunnable
+    fun <T : GenericComponentInteractionCreateEvent> registerInteractionListener(member: Member, clazz: Class<*>, draw: Boolean,
+                                                                                 overriddenMethod: ExceptionRunnable,
+                                                                                 validityChecker: Function<T, CheckResponse>
     ): CompletableFuture<Long> {
         val command = this as Command
         val onTimeOut = {
@@ -123,4 +125,5 @@ interface OnInteractionListener : Drawable {
             interactionResponse.complete()
         }
     }
+
 }

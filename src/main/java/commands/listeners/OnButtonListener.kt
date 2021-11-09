@@ -16,11 +16,11 @@ interface OnButtonListener : OnInteractionListener {
     }
 
     fun registerButtonListener(member: Member, draw: Boolean): CompletableFuture<Long> {
-        return registerInteractionListener(member, OnButtonListener::class.java, draw) { onButtonOverridden() }
+        return registerInteractionListener(member, OnButtonListener::class.java, draw, { onButtonOverridden() })
     }
 
-    fun registerButtonListener(member: Member, draw: Boolean, validityChecker: Function<ButtonClickEvent, CheckResponse>): CompletableFuture<Long> {
-        return registerInteractionListener(member, validityChecker, OnButtonListener::class.java, draw) { onButtonOverridden() }
+    fun registerButtonListener(member: Member, draw: Boolean, validityChecker: (ButtonClickEvent) -> CheckResponse): CompletableFuture<Long> {
+        return registerInteractionListener(member, OnButtonListener::class.java, draw, { onButtonOverridden() }, validityChecker)
     }
 
     fun processButton(event: ButtonClickEvent) {

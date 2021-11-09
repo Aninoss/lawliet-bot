@@ -19,7 +19,7 @@ public interface OnSelectionMenuListener extends OnInteractionListener {
     }
 
     default CompletableFuture<Long> registerSelectionMenuListener(Member member, Function<SelectionMenuEvent, CommandListenerMeta.CheckResponse> validityChecker, boolean draw) {
-        return registerInteractionListener(member, validityChecker, OnSelectionMenuListener.class, draw, this::onSelectionMenuOverridden);
+        return registerInteractionListener(member, OnSelectionMenuListener.class, draw, this::onSelectionMenuOverridden, validityChecker);
     }
 
     default void processSelectionMenu(SelectionMenuEvent event) {

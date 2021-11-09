@@ -29,7 +29,7 @@ interface OnMessageInputListener : Drawable {
         }
     }
 
-    fun registerMessageInputListener(member: Member, draw: Boolean, validityChecker: Function<GuildMessageReceivedEvent, CheckResponse>) {
+    fun registerMessageInputListener(member: Member, draw: Boolean, validityChecker: (GuildMessageReceivedEvent) -> CheckResponse) {
         val command = this as Command
         val onTimeOut = {
             try {
