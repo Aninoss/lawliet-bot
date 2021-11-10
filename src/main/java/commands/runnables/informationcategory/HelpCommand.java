@@ -492,7 +492,7 @@ public class HelpCommand extends NavigationAbstract {
         }
 
         public String get(TextChannel channel) {
-            if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI)) {
+            if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI) && BotPermissionUtil.canUseExternalEmojisInInteraction(channel)) {
                 return emojiTag;
             } else {
                 return unicodeAlternative;

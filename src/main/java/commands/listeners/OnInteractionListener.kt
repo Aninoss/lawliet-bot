@@ -19,7 +19,6 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent
 import java.util.concurrent.CompletableFuture
-import java.util.function.Function
 
 interface OnInteractionListener : Drawable {
 
@@ -56,14 +55,14 @@ interface OnInteractionListener : Drawable {
                     CheckResponse.DENY
                 }
             } else {
-                CheckResponse.DENY
+                CheckResponse.IGNORE
             }
         }
     }
 
     fun <T : GenericComponentInteractionCreateEvent> registerInteractionListener(member: Member, clazz: Class<*>, draw: Boolean,
                                                                                  overriddenMethod: ExceptionRunnable,
-                                                                                 validityChecker: Function<T, CheckResponse>
+                                                                                 validityChecker: (T) -> CheckResponse
     ): CompletableFuture<Long> {
         val command = this as Command
         val onTimeOut = {
