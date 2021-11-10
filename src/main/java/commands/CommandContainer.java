@@ -235,7 +235,6 @@ public class CommandContainer {
         commandList.add(MemeCommand.class);
         commandList.add(WholesomeCommand.class);
         commandList.add(TwitchCommand.class);
-        commandList.add(YouTubeMP3Command.class);
         commandList.add(OsuCommand.class);
         commandList.add(AnimeNewsCommand.class);
         commandList.add(AnimeReleasesCommand.class);
