@@ -21,6 +21,7 @@ import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "animenews",
@@ -34,7 +35,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         List<AnimeNewsArticle> articles = AnimeNewsDownloader.retrieveArticles(getLocale());
         EmbedBuilder eb;
         if (articles != null && articles.size() > 0) {
@@ -54,7 +55,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
+    public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
         List<AnimeNewsArticle> articles = AnimeNewsDownloader.retrieveArticles(getLocale());
         if (articles == null || articles.size() == 0) {

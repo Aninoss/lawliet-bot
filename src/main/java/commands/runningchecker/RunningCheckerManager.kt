@@ -1,63 +1,61 @@
-package commands.runningchecker;
+package commands.runningchecker
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import commands.Command;
-import core.cache.PatreonCache;
+import com.google.common.cache.CacheBuilder
+import commands.Command
+import core.cache.PatreonCache
+import java.time.Duration
+import java.time.Instant
 
-public class RunningCheckerManager {
+object RunningCheckerManager {
 
-    private static final Cache<Long, ArrayList<RunningCheckerSlot>> runningCommandsCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(1))
-            .build();
+    private val runningCommandsCache = CacheBuilder.newBuilder()
+        .expireAfterAccess(Duration.ofMinutes(1))
+        .build<Long, ArrayList<RunningCheckerSlot>>()
 
-    public static synchronized boolean canUserRunCommand(Command command, long guildId, long userId, int shardId, int maxCalculationTimeSec) {
-        ArrayList<RunningCheckerSlot> runningCommandsList = runningCommandsCache.asMap().computeIfAbsent(userId, k -> new ArrayList<>());
-        stopAndRemoveOutdatedRunningCommands(runningCommandsList);
+    @JvmStatic
+    @get:Synchronized
+    val runningCommandsMap: HashMap<Long, ArrayList<RunningCheckerSlot>>
+        get() = HashMap(runningCommandsCache.asMap())
 
-        if (runningCommandsList.isEmpty() || runningCommandsList.size() < getMaxAmount(guildId, userId)) {
-            final RunningCheckerSlot runningCheckerSlot = new RunningCheckerSlot(userId, shardId, maxCalculationTimeSec, !command.getCommandProperties().turnOffTimeout());
-            runningCommandsList.add(runningCheckerSlot);
-            removeOnThreadEnd(command, runningCommandsList, runningCheckerSlot, userId);
-
-            return true;
+    @JvmStatic
+    @Synchronized
+    fun canUserRunCommand(command: Command, guildId: Long, userId: Long, shardId: Int, maxCalculationTimeSec: Int): Boolean {
+        val runningCommandsList = runningCommandsCache.asMap().computeIfAbsent(userId) { k: Long -> ArrayList() }
+        stopAndRemoveOutdatedRunningCommands(runningCommandsList)
+        if (runningCommandsList.isEmpty() || runningCommandsList.size < getMaxAmount(guildId, userId)) {
+            val runningCheckerSlot = RunningCheckerSlot(userId, shardId, maxCalculationTimeSec, !command.commandProperties.turnOffTimeout)
+            runningCommandsList.add(runningCheckerSlot)
+            removeOnThreadEnd(command, runningCommandsList, runningCheckerSlot, userId)
+            return true
         }
-
-        return false;
+        return false
     }
 
-    private static void removeOnThreadEnd(Command command, ArrayList<RunningCheckerSlot> runningCommandsList, RunningCheckerSlot runningCheckerSlot, long userId) {
-        command.addCompletedListener(() -> {
-            remove(runningCommandsList, runningCheckerSlot, userId);
-        });
+    private fun removeOnThreadEnd(command: Command, runningCommandsList: ArrayList<RunningCheckerSlot>, runningCheckerSlot: RunningCheckerSlot,
+                                  userId: Long
+    ) {
+        command.addCompletedListener { remove(runningCommandsList, runningCheckerSlot, userId) }
     }
 
-    private static synchronized void remove(ArrayList<RunningCheckerSlot> runningCommandsList, RunningCheckerSlot runningCheckerSlot, long userId) {
-        runningCommandsList.remove(runningCheckerSlot);
+    @Synchronized
+    private fun remove(runningCommandsList: ArrayList<RunningCheckerSlot>, runningCheckerSlot: RunningCheckerSlot, userId: Long) {
+        runningCommandsList.remove(runningCheckerSlot)
         if (runningCommandsList.isEmpty()) {
-            runningCommandsCache.invalidate(userId);
+            runningCommandsCache.invalidate(userId)
         }
     }
 
-    private static int getMaxAmount(long guildId, long userId) {
-        return PatreonCache.getInstance().hasPremium(userId, true) || PatreonCache.getInstance().isUnlocked(guildId) ? 2 : 1;
+    private fun getMaxAmount(guildId: Long, userId: Long): Int {
+        return if (PatreonCache.getInstance().hasPremium(userId, true) || PatreonCache.getInstance().isUnlocked(guildId)) 2 else 1
     }
 
-    private static void stopAndRemoveOutdatedRunningCommands(ArrayList<RunningCheckerSlot> runningCommandsList) {
-        new ArrayList<>(runningCommandsList).stream()
-                .filter(runningCheckerSlot -> Instant.now().isAfter(runningCheckerSlot.getInstant().plusSeconds(runningCheckerSlot.getMaxCalculationTimeSec())))
-                .forEach(runningCheckerSlot -> {
-                    runningCheckerSlot.stop();
-                    runningCommandsList.remove(runningCheckerSlot);
-                });
-    }
-
-    public static synchronized HashMap<Long, ArrayList<RunningCheckerSlot>> getRunningCommandsMap() {
-        return new HashMap<>(runningCommandsCache.asMap());
+    private fun stopAndRemoveOutdatedRunningCommands(runningCommandsList: ArrayList<RunningCheckerSlot>) {
+        ArrayList(runningCommandsList).stream()
+            .filter { runningCheckerSlot: RunningCheckerSlot -> Instant.now().isAfter(runningCheckerSlot.instant.plusSeconds(runningCheckerSlot.maxCalculationTimeSec.toLong())) }
+            .forEach { runningCheckerSlot: RunningCheckerSlot ->
+                runningCheckerSlot.stop()
+                runningCommandsList.remove(runningCheckerSlot)
+            }
     }
 
 }

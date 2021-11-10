@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class CasinoAbstract extends Command implements OnButtonListener, OnMessageInputListener {
 
@@ -64,7 +65,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     public abstract EmbedBuilder drawCasino(String playerName, long coinsInput);
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
         try {
             if (!allowBet) {
                 setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "nobet"));
@@ -203,7 +204,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         if (status == Status.ACTIVE) {
             if (hasCancelButton && event.getComponentId().equals(BUTTON_ID_QUIT)) {
                 cancel(event.getMember(), false, true);
@@ -227,7 +228,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     }
 
     @Override
-    public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
+    public MessageInputResponse onMessageInput(@NotNull GuildMessageReceivedEvent event, @NotNull String input) throws Throwable {
         if (status == Status.ACTIVE) {
             return onMessageInputCasino(event, input);
         }
@@ -235,7 +236,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     }
 
     @Override
-    public EmbedBuilder draw(Member member) {
+    public EmbedBuilder draw(@NotNull Member member) {
         lastEmbedBuilder = drawCasino(getMemberEffectiveName().orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getMemberId().get()))), coinsInput);
         hasCancelButton = getActionRows().stream().anyMatch(b -> b.getButtons().contains(BUTTON_CANCEL));
         return lastEmbedBuilder;

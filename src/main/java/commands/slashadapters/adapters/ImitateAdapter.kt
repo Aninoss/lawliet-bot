@@ -1,34 +1,31 @@
-package commands.slashadapters.adapters;
+package commands.slashadapters.adapters
 
-import commands.runnables.aitoyscategory.ImitateCommand;
-import commands.slashadapters.Slash;
-import commands.slashadapters.SlashAdapter;
-import commands.slashadapters.SlashMeta;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import commands.runnables.aitoyscategory.ImitateCommand
+import commands.slashadapters.Slash
+import commands.slashadapters.SlashAdapter
+import commands.slashadapters.SlashMeta
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.interactions.commands.OptionType
+import net.dv8tion.jda.api.interactions.commands.build.CommandData
 
-@Slash(command = ImitateCommand.class)
-public class ImitateAdapter extends SlashAdapter {
+@Slash(command = ImitateCommand::class)
+class ImitateAdapter : SlashAdapter() {
 
-    public CommandData addOptions(CommandData commandData) {
+    public override fun addOptions(commandData: CommandData): CommandData {
         return commandData
-                .addOption(OptionType.USER, "member", "Request for another server member", false)
-                .addOption(OptionType.BOOLEAN, "everyone", "Request for the whole server", false);
+            .addOption(OptionType.USER, "member", "Request for another server member", false)
+            .addOption(OptionType.BOOLEAN, "everyone", "Request for the whole server", false)
     }
 
-    @Override
-    public SlashMeta process(SlashCommandEvent event) {
-        String args;
-        OptionMapping everyone = event.getOption("everyone");
-        if (everyone != null && everyone.getAsBoolean()) {
-            args = "everyone";
+    override fun process(event: SlashCommandEvent): SlashMeta {
+        val args: String
+        val everyone = event.getOption("everyone")
+        args = if (everyone?.asBoolean ?: false) {
+            "everyone"
         } else {
-            args = collectArgs(event, "everyone");
+            collectArgs(event, "everyone")
         }
-
-        return new SlashMeta(ImitateCommand.class, args);
+        return SlashMeta(ImitateCommand::class.java, args)
     }
 
 }

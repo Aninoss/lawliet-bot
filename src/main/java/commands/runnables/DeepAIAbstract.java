@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 public abstract class DeepAIAbstract extends Command {
@@ -26,7 +27,7 @@ public abstract class DeepAIAbstract extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         String url = null;
         List<Message.Attachment> attachmentList = event.isGuildMessageReceivedEvent()
                 ? event.getGuildMessageReceivedEvent().getMessage().getAttachments()

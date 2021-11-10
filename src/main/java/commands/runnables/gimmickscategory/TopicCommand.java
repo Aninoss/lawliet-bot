@@ -17,6 +17,7 @@ import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "topic",
@@ -31,7 +32,7 @@ public class TopicCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws IOException, ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws IOException, ExecutionException, InterruptedException {
         drawMessage(getEmbed(event.getChannel())).exceptionally(ExceptionLogger.get());
         return true;
     }
@@ -45,7 +46,7 @@ public class TopicCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
+    public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         final int MIN_MINUTES = 10;
         final int MAX_MINUTES = 10080;
         String key = slot.getCommandKey();

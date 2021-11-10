@@ -15,6 +15,7 @@ import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.InviteTrackingSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "invites",
@@ -31,7 +32,7 @@ public class InvitesCommand extends MemberAccountAbstract {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
         if (DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).isActive()) {
             return super.onTrigger(event, args);
         } else {

@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class CasinoMultiplayerAbstract extends Command implements OnButtonListener {
 
@@ -64,7 +65,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     public abstract EmbedBuilder drawCasino(Member member) throws Throwable;
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
         if (!onGamePrepare(event, args)) {
             return false;
         }
@@ -113,7 +114,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         switch (status) {
             case WAITING_FOR_PLAYERS -> {
                 return switch (event.getComponentId()) {
@@ -251,7 +252,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     }
 
     @Override
-    public EmbedBuilder draw(Member member) throws Throwable {
+    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         if (status == Status.WAITING_FOR_PLAYERS) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                     .addField(TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_players", StringUtil.numToString(playersMin)), generatePlayersList(), false)

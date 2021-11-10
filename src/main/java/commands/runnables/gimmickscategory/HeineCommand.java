@@ -8,6 +8,7 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.RandomPicker;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "heine",
@@ -32,7 +33,7 @@ public class HeineCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
         String gifUrl = gifs[RandomPicker.pick(getTrigger(), 0L, gifs.length).get()];
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle("Heine Gif")

@@ -12,6 +12,7 @@ import core.mention.Mention;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "celebrate",
@@ -36,7 +37,7 @@ public class CelebrateCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         Member member0 = event.getMember();
         Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, null, event.getRepliedMember());
 

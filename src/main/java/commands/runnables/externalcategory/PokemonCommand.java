@@ -16,6 +16,7 @@ import core.internet.HttpCache;
 import core.internet.HttpResponse;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "pokemon",
@@ -30,7 +31,7 @@ public class PokemonCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         Pokemon pokemon = fetchPokemon(args);
         if (pokemon == null) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)

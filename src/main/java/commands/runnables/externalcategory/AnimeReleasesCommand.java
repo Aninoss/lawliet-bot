@@ -23,6 +23,7 @@ import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "crunchyroll",
@@ -37,7 +38,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         PostBundle<AnimeReleasePost> posts = AnimeReleasesDownloader.getPosts(getLocale(), null, args);
 
         if (posts.getPosts().size() > 0) {
@@ -79,7 +80,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
+    public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         boolean first = slot.getArgs().isEmpty();
         PostBundle<AnimeReleasePost> postBundle = AnimeReleasesDownloader.getPosts(getLocale(), slot.getArgs().orElse(null), slot.getCommandKey());

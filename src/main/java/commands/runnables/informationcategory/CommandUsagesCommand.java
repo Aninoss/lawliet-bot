@@ -13,6 +13,7 @@ import javafx.util.Pair;
 import mysql.modules.commandusages.CommandUsagesData;
 import mysql.modules.commandusages.DBCommandUsages;
 import net.dv8tion.jda.api.Permission;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "commandusages",
@@ -32,7 +33,7 @@ public class CommandUsagesCommand extends ListAbstract {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
         for (Class<? extends Command> clazz : CommandContainer.getFullCommandList()) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             commandUsages.add(new Pair<>(DBCommandUsages.getInstance().retrieve(command.getTrigger()), command.getCommandProperties().emoji()));

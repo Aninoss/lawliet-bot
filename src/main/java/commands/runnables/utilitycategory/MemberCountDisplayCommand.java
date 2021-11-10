@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.managers.ChannelManager;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "mcdisplays",
@@ -49,7 +50,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         memberCountBean = DBMemberCountDisplays.getInstance().retrieve(event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
         return true;

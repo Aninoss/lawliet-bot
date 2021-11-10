@@ -1,8 +1,7 @@
-package commands.slashadapters.adapters;
+package commands.slashadapters.adapters
 
-import commands.runnables.nsfwcategory.Rule34Command;
-import commands.slashadapters.Slash;
+import commands.runnables.nsfwcategory.Rule34Command
+import commands.slashadapters.Slash
 
-@Slash(command = Rule34Command.class)
-public class Rule34Adapter extends BooruSearchAdapterAbstract {
-}
+@Slash(command = Rule34Command::class)
+class Rule34Adapter : BooruSearchAdapterAbstract()

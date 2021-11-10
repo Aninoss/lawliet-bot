@@ -41,6 +41,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import org.apache.commons.text.WordUtils;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "ticket",
@@ -76,7 +77,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
         staffRoles = AtomicRole.transformIdList(event.getGuild(), ticketData.getStaffRoleIds());
         staffRoleNavigationHelper = new NavigationHelper<>(this, staffRoles, AtomicRole.class, MAX_ROLES);
@@ -333,7 +334,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @Override
-    public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) throws Throwable {
+    public void onStaticReactionAdd(@NotNull Message message, @NotNull GuildMessageReactionAddEvent event) throws Throwable {
         TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
         TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
 

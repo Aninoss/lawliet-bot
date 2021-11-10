@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "ship",
@@ -41,7 +42,7 @@ public class ShipCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws IOException, ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws IOException, ExecutionException, InterruptedException {
         ArrayList<Member> list = new ArrayList<>(MentionUtil.getMembers(event.getGuild(), args, event.getRepliedMember()).getList());
         if (list.size() == 1 && list.get(0).getIdLong() != event.getMember().getIdLong()) {
             list.add(event.getMember());

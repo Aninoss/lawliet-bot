@@ -10,6 +10,7 @@ import commands.listeners.CommandProperties;
 import constants.Language;
 import core.*;
 import core.internet.HttpRequest;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 @CommandProperties(
@@ -24,7 +25,7 @@ public class DadJokeCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws IOException, ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws IOException, ExecutionException, InterruptedException {
         String joke;
 
         if (Language.from(getLocale()) == Language.DE) {

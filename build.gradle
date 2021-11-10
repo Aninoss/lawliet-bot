@@ -45,7 +45,8 @@ dependencies {
     implementation 'org.apache.commons:commons-text:1.9'
     implementation 'redis.clients:jedis:3.6.0'
     implementation 'com.github.napstr:logback-discord-appender:1.0.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0-RC2'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.0-RC2'
 
     /* logging */
     implementation 'ch.qos.logback:logback-classic:1.2.3'

@@ -1,16 +1,11 @@
-package commands.slashadapters;
+package commands.slashadapters
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import commands.Command;
+import commands.Command
+import kotlin.reflect.KClass
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Slash {
-
-    String name() default "";
-
-    Class<? extends Command> command() default Command.class;
-
-    String description() default "";
-
-}
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Slash(
+    val name: String = "",
+    val command: KClass<out Command> = Command::class,
+    val description: String = ""
+)

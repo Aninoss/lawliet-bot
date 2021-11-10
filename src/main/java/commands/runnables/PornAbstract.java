@@ -42,6 +42,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class PornAbstract extends Command implements OnAlertListener {
 
@@ -68,7 +69,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
         List<String> nsfwFiltersList = DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords();
         HashSet<String> nsfwFilters = new HashSet<>();
         nsfwFiltersList.forEach(filter -> nsfwFilters.add(filter.toLowerCase()));
@@ -252,7 +253,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
     }
 
     @Override
-    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
+    public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         TextChannel channel = slot.getTextChannel().get();
 
         ArrayList<String> nsfwFiltersList = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(slot.getGuildId()).getKeywords());

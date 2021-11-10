@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "osu",
@@ -102,7 +103,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         if (event.getComponentId().equals(BUTTON_ID_CONNECT)) {
             this.status = Status.CONNECTING;
             DBOsuAccounts.getInstance().retrieve().remove(event.getMember().getIdLong());
@@ -152,7 +153,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     }
 
     @Override
-    public EmbedBuilder draw(Member member) {
+    public EmbedBuilder draw(@NotNull Member member) {
         switch (status) {
             case CONNECTING:
                 setComponents(

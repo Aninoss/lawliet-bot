@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class CommandOnOffSwitchAbstract extends Command implements OnButtonListener {
 
@@ -33,7 +34,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
     protected abstract boolean setActive(Member member, boolean active);
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         if (args.length() > 0) {
             int option = -1;
             for (int i = 0; i < ACTIVE_ARGS.length; i++) {
@@ -69,7 +70,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         deregisterListenersWithComponents();
         boolean active = Boolean.parseBoolean(event.getComponentId());
         if (setActive(event.getMember(), active)) {
@@ -81,7 +82,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
     }
 
     @Override
-    public EmbedBuilder draw(Member member) {
+    public EmbedBuilder draw(@NotNull Member member) {
         switch (mode) {
             case SET:
                 return EmbedFactory.getEmbedDefault(this, getSetText(member));

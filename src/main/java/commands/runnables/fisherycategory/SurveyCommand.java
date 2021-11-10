@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "survey",
@@ -226,7 +227,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     }
 
     @Override
-    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
+    public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         SurveyData currentSurvey = DBSurvey.getInstance().getCurrentSurvey();
         if (slot.getArgs().isPresent() && currentSurvey.getSurveyId() <= Integer.parseInt(slot.getArgs().get())) {
             return AlertResponse.CONTINUE;

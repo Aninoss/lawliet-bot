@@ -14,6 +14,7 @@ import core.ShardManager;
 import core.cache.PatreonCache;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "premium",
@@ -35,7 +36,7 @@ public class PremiumCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         patreonData = PatreonCache.getInstance().getAsync();
 
         String content = getString("info",

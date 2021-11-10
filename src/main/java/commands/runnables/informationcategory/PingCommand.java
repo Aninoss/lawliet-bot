@@ -10,6 +10,7 @@ import core.ExceptionLogger;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "ping",
@@ -23,7 +24,7 @@ public class PingCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         Instant startTime = (Instant) getAttachments().get("starting_time");
         long milisInternal = TimeUtil.getMillisBetweenInstants(startTime, Instant.now());
         long milisGateway = event.getJDA().getGatewayPing();

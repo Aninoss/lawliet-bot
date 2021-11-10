@@ -8,13 +8,14 @@ import core.ExceptionLogger;
 import core.TextManager;
 import modules.fishery.FisheryStatus;
 import mysql.modules.guild.DBGuild;
+import org.jetbrains.annotations.NotNull;
 
 public interface FisheryInterface extends OnTriggerListener {
 
     boolean onFisheryAccess(CommandEvent event, String args) throws Throwable;
 
     @Override
-    default boolean onTrigger(CommandEvent event, String args) throws Throwable {
+    default boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
         return onFisheryTrigger(event, args);
     }
 

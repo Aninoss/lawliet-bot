@@ -13,6 +13,7 @@ import core.utils.RandomUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "fortune",
@@ -27,7 +28,7 @@ public class FortuneCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         if (args.length() > 0) {
             drawMessageNew(getEmbed(event.getMember(), args)).exceptionally(ExceptionLogger.get());
             return true;

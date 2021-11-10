@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "giveaway",
@@ -85,7 +86,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         giveawayMap = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
         title = getString("title");
         registerNavigationListener(event.getMember());
@@ -418,7 +419,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+    public boolean onReaction(@NotNull GenericGuildMessageReactionEvent event) throws Throwable {
         if (getState() == UPDATE_EMOJI) {
             event.getReaction().removeReaction(event.getUser()).queue();
             processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));

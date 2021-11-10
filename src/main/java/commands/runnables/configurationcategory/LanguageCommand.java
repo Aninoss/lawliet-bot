@@ -2,7 +2,9 @@ package commands.runnables.configurationcategory;
 
 import java.util.List;
 import java.util.Locale;
-import commands.*;
+import commands.Category;
+import commands.Command;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnSelectionMenuListener;
 import constants.ExternalLinks;
@@ -19,6 +21,7 @@ import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "language",
@@ -38,7 +41,7 @@ public class LanguageCommand extends Command implements OnSelectionMenuListener 
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         if (args.length() > 0) {
             Language language = null;
             for (Language l : LANGUAGES) {
@@ -90,7 +93,7 @@ public class LanguageCommand extends Command implements OnSelectionMenuListener 
     }
 
     @Override
-    public EmbedBuilder draw(Member member) throws Throwable {
+    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         Language language = Language.from(getLocale());
         if (set && language.isDeepLGenerated()) {
             setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.GITHUB, getString("github")));

@@ -1,8 +1,7 @@
-package commands.slashadapters.adapters;
+package commands.slashadapters.adapters
 
-import commands.runnables.externalcategory.SoftYaoiCommand;
-import commands.slashadapters.Slash;
+import commands.runnables.externalcategory.SoftYaoiCommand
+import commands.slashadapters.Slash
 
-@Slash(command = SoftYaoiCommand.class)
-public class SoftYaoiAdapter extends BooruPredeterminedAdapterAbstract {
-}
+@Slash(command = SoftYaoiCommand::class)
+class SoftYaoiAdapter : BooruPredeterminedAdapterAbstract()

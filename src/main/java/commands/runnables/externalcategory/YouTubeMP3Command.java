@@ -22,6 +22,7 @@ import core.utils.EmojiUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.entities.Member;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 @CommandProperties(
@@ -46,7 +47,7 @@ public class YouTubeMP3Command extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         args = args.replace("<", "").replace(">", "");
 
         if (args.isEmpty()) {

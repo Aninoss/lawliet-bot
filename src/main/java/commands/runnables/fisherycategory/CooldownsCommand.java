@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "cooldowns",
@@ -78,7 +79,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnSel
     }
 
     @Override
-    public EmbedBuilder draw(Member member) throws Throwable {
+    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         DBSubs.Command[] commands = DBSubs.Command.values();
 
         SelectionMenu.Builder builder = SelectionMenu.create("reminders");

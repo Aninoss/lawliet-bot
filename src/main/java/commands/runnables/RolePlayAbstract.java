@@ -19,6 +19,7 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class RolePlayAbstract extends Command {
 
@@ -42,7 +43,7 @@ public abstract class RolePlayAbstract extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         if (interactive) {
             return onTriggerInteractive(event, args);
         } else {

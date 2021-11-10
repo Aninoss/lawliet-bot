@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "work",
@@ -78,7 +79,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageInput(@NotNull GuildMessageReceivedEvent event, @NotNull String input) {
         if (StringUtil.stringIsInt(input)) {
             int number = Integer.parseInt(input);
             if (number >= 0 && number <= area.length * area[0].length) {
@@ -102,7 +103,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         deregisterListenersWithComponents();
         active = false;
         fisheryMemberBean.removeWork();
@@ -111,7 +112,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public EmbedBuilder draw(Member member) throws Throwable {
+    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         StringBuilder areaBuilder = new StringBuilder();
 
         for (int y = 0; y < area.length; y++) {

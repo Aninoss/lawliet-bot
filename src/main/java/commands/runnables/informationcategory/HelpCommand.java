@@ -37,6 +37,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 @CommandProperties(
@@ -58,7 +59,7 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         searchTerm = args;
         commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());

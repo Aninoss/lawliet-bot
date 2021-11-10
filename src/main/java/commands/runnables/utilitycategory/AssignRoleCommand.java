@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "assignroles",
@@ -49,7 +50,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         List<Role> roles = MentionUtil.getRoles(event.getGuild(), args).getList();
 
         /* check for no role mention */
@@ -114,7 +115,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         event.deferEdit().queue();
         deregisterListenersWithComponents();
         roleAssigner.cancel(event.getGuild().getIdLong());
@@ -122,7 +123,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw(Member member) throws Throwable {
+    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         return EmbedFactory.getEmbedDefault(
                 this,
                 getString("loading", rolesMention.isMultiple(), rolesMention.getMentionText(), EmojiUtil.getLoadingEmojiMention(getTextChannel().orElse(null)), CANCEL_EMOJI)

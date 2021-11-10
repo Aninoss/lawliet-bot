@@ -11,6 +11,7 @@ import core.TextManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "add",
@@ -26,7 +27,7 @@ public class AddCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template"));
         setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, TextManager.getString(getLocale(), TextManager.GENERAL, "invite_button")));
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());

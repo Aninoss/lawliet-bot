@@ -1,6 +1,7 @@
 package commands;
 
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -8,7 +9,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import commands.listeners.*;
 import constants.LogStatus;
-import core.interactionresponse.InteractionResponse;
 import core.MainLogger;
 import core.Program;
 import core.TextManager;
@@ -16,8 +16,10 @@ import core.atomicassets.AtomicGuild;
 import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
 import core.components.ActionRows;
+import core.interactionresponse.InteractionResponse;
 import core.schedule.MainScheduler;
 import core.utils.*;
+import kotlin.reflect.KClass;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
@@ -633,6 +635,15 @@ public abstract class Command implements OnTriggerListener {
 
     public static CommandProperties getCommandProperties(Class<? extends Command> clazz) {
         return clazz.getAnnotation(CommandProperties.class);
+    }
+
+    public static CommandProperties getCommandProperties(KClass<? extends Command> clazz) { //TODO: kotlin compatability
+        for (Annotation annotation : clazz.getAnnotations()) {
+            if (annotation instanceof CommandProperties) {
+                return (CommandProperties) annotation;
+            }
+        }
+        throw new NoSuchElementException("No such annotation");
     }
 
     public static CommandLanguage getCommandLanguage(Class<? extends Command> clazz, Locale locale) {

@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "suggestion",
@@ -41,7 +42,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         SuggestionsData suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
         if (suggestionsBean.isActive()) {
             Optional<TextChannel> channelOpt = suggestionsBean.getTextChannel();
@@ -111,12 +112,12 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
     }
 
     @Override
-    public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
+    public void onStaticReactionAdd(@NotNull Message message, @NotNull GuildMessageReactionAddEvent event) {
         onReactionStatic(event, true);
     }
 
     @Override
-    public void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) {
+    public void onStaticReactionRemove(@NotNull Message message, @NotNull GuildMessageReactionRemoveEvent event) {
         onReactionStatic(event, false);
     }
 

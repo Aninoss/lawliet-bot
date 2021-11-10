@@ -1,65 +1,68 @@
-package commands.slashadapters;
+package commands.slashadapters
 
-import java.util.Arrays;
-import commands.Category;
-import commands.Command;
-import commands.CommandContainer;
-import constants.Language;
-import core.TextManager;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import commands.Command
+import commands.CommandContainer
+import constants.Language
+import core.TextManager
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.interactions.commands.OptionType
+import net.dv8tion.jda.api.interactions.commands.build.CommandData
+import java.util.*
+import kotlin.reflect.KClass
 
-public abstract class SlashAdapter {
+abstract class SlashAdapter {
 
-    protected abstract CommandData addOptions(CommandData commandData);
+    protected abstract fun addOptions(commandData: CommandData): CommandData
 
-    public abstract SlashMeta process(SlashCommandEvent event);
+    abstract fun process(event: SlashCommandEvent): SlashMeta
 
-    public String name() {
-        Slash slash = getClass().getAnnotation(Slash.class);
-        String name = slash.name();
+    fun name(): String {
+        val slash = javaClass.getAnnotation(Slash::class.java)
+        var name = slash.name
         if (name.isEmpty()) {
-            name = Command.getCommandProperties(slash.command()).trigger();
+            name = Command.getCommandProperties(slash.command).trigger
         }
-        return name;
+        return name
     }
 
-    public String description() {
-        Slash slash = getClass().getAnnotation(Slash.class);
-        String description = slash.description();
+    fun description(): String {
+        val slash = javaClass.getAnnotation(Slash::class.java)
+        var description = slash.description
         if (description.isEmpty()) {
-            String trigger = name();
-            Class<? extends Command> clazz = CommandContainer.getCommandMap().get(trigger);
-            Category category = Command.getCategory(clazz);
-            description = TextManager.getString(Language.EN.getLocale(), category, trigger + "_description");
+            val trigger = name()
+            val clazz = CommandContainer.getCommandMap()[trigger]!!
+            val category = Command.getCategory(clazz)
+            description = TextManager.getString(Language.EN.locale, category, trigger + "_description")
         }
-        return description;
+        return description
     }
 
-    public Class<? extends Command> commandClass() {
-        Slash slash = getClass().getAnnotation(Slash.class);
-        return slash.command();
+    fun commandClass(): KClass<out Command> {
+        val slash = javaClass.getAnnotation(Slash::class.java)
+        return slash.command
     }
 
-    public CommandData generateCommandData() {
-        CommandData commandData = new CommandData(name(), description());
-        return addOptions(commandData);
+    fun generateCommandData(): CommandData {
+        val commandData = CommandData(name(), description())
+        return addOptions(commandData)
     }
 
-    protected static String collectArgs(SlashCommandEvent event, String... exceptions) {
-        StringBuilder argsBuilder = new StringBuilder();
-        for (OptionMapping option : event.getOptions()) {
-            if (Arrays.stream(exceptions).noneMatch(exception -> option.getName().equals(exception))) {
-                if (option.getType() == OptionType.BOOLEAN && option.getAsBoolean()) {
-                    argsBuilder.append(option.getName()).append(" ");
-                } else {
-                    argsBuilder.append(option.getAsString()).append(" ");
+    companion object {
+
+        @JvmStatic
+        protected fun collectArgs(event: SlashCommandEvent, vararg exceptions: String): String {
+            val argsBuilder = StringBuilder()
+            for (option in event.options) {
+                if (Arrays.stream(exceptions).noneMatch { exception: String -> option.name == exception }) {
+                    if (option.type == OptionType.BOOLEAN && option.asBoolean) {
+                        argsBuilder.append(option.name).append(" ")
+                    } else {
+                        argsBuilder.append(option.asString).append(" ")
+                    }
                 }
             }
+            return argsBuilder.toString()
         }
-        return argsBuilder.toString();
-    }
 
+    }
 }

@@ -14,6 +14,7 @@ import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "weaknesstype",
@@ -51,7 +52,7 @@ public class WeaknessTypeCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         List<Integer> types = retrieveTypes(event, args);
         if (types.size() == 0) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)

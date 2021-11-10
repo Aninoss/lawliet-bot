@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "channelinfo",
@@ -32,7 +33,7 @@ public class ChannelInfoCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         boolean noMention = false;
         Guild guild = event.getGuild();
         ArrayList<TextChannel> list = new ArrayList<>(MentionUtil.getTextChannels(event.getGuild(), args).getList());

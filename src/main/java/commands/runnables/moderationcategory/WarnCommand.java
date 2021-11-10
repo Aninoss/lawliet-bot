@@ -30,6 +30,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "warn",
@@ -95,7 +96,7 @@ public class WarnCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws Throwable {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
         if (!setUserListAndReason(event, args)) {
             return false;
         }
@@ -198,7 +199,7 @@ public class WarnCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         deregisterListenersWithComponents();
         boolean confirm = Boolean.parseBoolean(event.getComponentId());
         if (confirm) {
@@ -211,7 +212,7 @@ public class WarnCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public EmbedBuilder draw(Member member) {
+    public EmbedBuilder draw(@NotNull Member member) {
         switch (status) {
             case COMPLETED:
                 EmbedBuilder eb = getSuccessEmbed();

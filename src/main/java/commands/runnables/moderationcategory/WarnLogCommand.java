@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "warnlog",
@@ -80,7 +81,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         if (event.getComponentId().equals(BUTTON_ID_PREVIOUS)) {
             page--;
             if (page < 0) page = getPageSize() - 1;
@@ -94,7 +95,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
     }
 
     @Override
-    public EmbedBuilder draw(Member member) throws Throwable {
+    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         if (ebCache != null) {
             EmbedBuilder eb = ebCache;
             ebCache = null;

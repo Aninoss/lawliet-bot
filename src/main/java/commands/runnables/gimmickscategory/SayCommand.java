@@ -12,6 +12,7 @@ import core.ExceptionLogger;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "say",
@@ -27,7 +28,7 @@ public class SayCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         List<Message.Attachment> attachments = event.isGuildMessageReceivedEvent()
                 ? event.getGuildMessageReceivedEvent().getMessage().getAttachments()
                 : Collections.emptyList();

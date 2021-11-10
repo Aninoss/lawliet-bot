@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "reminder",
@@ -48,7 +49,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
         args = channelMention.getFilteredArgs();
 
@@ -114,7 +115,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
         drawMessageNew(eb)
                 .thenAccept(message -> insertReminderBean(event.getChannel(), channel, minutes, messageText, message))
-                .exceptionally(ExceptionLogger.get());;
+                .exceptionally(ExceptionLogger.get());
 
         return true;
     }

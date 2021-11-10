@@ -1,8 +1,7 @@
-package commands.slashadapters.adapters;
+package commands.slashadapters.adapters
 
-import commands.runnables.nsfwcategory.DanbooruCommand;
-import commands.slashadapters.Slash;
+import commands.runnables.nsfwcategory.DanbooruCommand
+import commands.slashadapters.Slash
 
-@Slash(command = DanbooruCommand.class)
-public class DanbooruAdapter extends BooruSearchAdapterAbstract {
-}
+@Slash(command = DanbooruCommand::class)
+class DanbooruAdapter : BooruSearchAdapterAbstract()

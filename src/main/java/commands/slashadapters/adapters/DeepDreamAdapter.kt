@@ -1,16 +1,15 @@
-package commands.slashadapters.adapters;
+package commands.slashadapters.adapters
 
-import commands.runnables.aitoyscategory.DeepDreamCommand;
-import commands.slashadapters.Slash;
-import commands.slashadapters.SlashMeta;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import commands.runnables.aitoyscategory.DeepDreamCommand
+import commands.slashadapters.Slash
+import commands.slashadapters.SlashMeta
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 
-@Slash(command = DeepDreamCommand.class)
-public class DeepDreamAdapter extends AIAdapterAbstract {
+@Slash(command = DeepDreamCommand::class)
+class DeepDreamAdapter : AIAdapterAbstract() {
 
-    @Override
-    public SlashMeta process(SlashCommandEvent event) {
-        return new SlashMeta(DeepDreamCommand.class, collectArgs(event));
+    override fun process(event: SlashCommandEvent): SlashMeta {
+        return SlashMeta(DeepDreamCommand::class.java, collectArgs(event))
     }
 
 }

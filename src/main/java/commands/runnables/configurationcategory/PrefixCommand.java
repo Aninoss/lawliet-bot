@@ -13,6 +13,7 @@ import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "prefix",
@@ -27,7 +28,7 @@ public class PrefixCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         Guild guild = event.getGuild();
         if (args.length() > 0) {
             if (args.length() <= 5) {

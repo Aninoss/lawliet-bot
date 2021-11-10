@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "sell",
@@ -75,13 +76,13 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
+    public MessageInputResponse onMessageInput(@NotNull GuildMessageReceivedEvent event, @NotNull String input) throws Throwable {
         deregisterListenersWithComponents();
         return process(event.getMember(), input) ? MessageInputResponse.SUCCESS : MessageInputResponse.FAILED;
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         deregisterListenersWithComponents();
         if (event.getComponentId().equals(BUTTON_ID_CANCEL)) {
             markNoInterest();
@@ -92,7 +93,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public EmbedBuilder draw(Member member) throws Throwable {
+    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         return this.eb;
     }
 

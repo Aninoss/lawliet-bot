@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEve
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "reactionroles",
@@ -80,7 +81,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         registerNavigationListener(event.getMember());
         registerReactionListener(event.getMember());
         return true;
@@ -402,7 +403,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Override
-    public boolean onReaction(GenericGuildMessageReactionEvent event) throws Throwable {
+    public boolean onReaction(@NotNull GenericGuildMessageReactionEvent event) throws Throwable {
         if (getState() == ADD_SLOT) {
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                 event.getReaction().removeReaction(event.getUser()).queue();
@@ -645,7 +646,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Override
-    public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
+    public void onStaticReactionAdd(@NotNull Message message, @NotNull GuildMessageReactionAddEvent event) {
         Member member = event.getMember();
         updateValuesFromMessage(ReactionMessagesCache.get(message).get());
         if (!blockCache.asMap().containsKey(member.getIdLong())) {
@@ -735,7 +736,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Override
-    public void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) {
+    public void onStaticReactionRemove(@NotNull Message message, @NotNull GuildMessageReactionRemoveEvent event) {
         updateValuesFromMessage(ReactionMessagesCache.get(message).get());
         if (removeRole) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {

@@ -24,6 +24,7 @@ import mysql.modules.version.VersionData;
 import mysql.modules.version.VersionSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "new",
@@ -40,7 +41,7 @@ public class NewCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         versionData = DBVersion.getInstance().retrieve();
 
         // without args
@@ -114,7 +115,7 @@ public class NewCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
+    public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
             long messageId = slot.sendMessage(true, getVersionsEmbed(newestSlot).build()).orElse(0L);

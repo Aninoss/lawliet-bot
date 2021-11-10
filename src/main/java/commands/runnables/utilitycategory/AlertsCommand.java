@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "alerts",
@@ -65,7 +66,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         serverId = event.getGuild().getIdLong();
         channelId = event.getChannel().getIdLong();
         alerts = DBTracker.getInstance().retrieve(event.getGuild().getIdLong());

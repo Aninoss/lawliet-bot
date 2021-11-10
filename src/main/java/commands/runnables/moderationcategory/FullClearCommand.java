@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "fullclear",
@@ -52,7 +53,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws InterruptedException, ExecutionException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
         Optional<Integer> hoursMin = extractHoursMin(args);
         if (hoursMin.isPresent()) {
             long messageId = registerButtonListener(event.getMember()).get();
@@ -141,7 +142,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     }
 
     @Override
-    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
+    public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         TextChannel textChannel = slot.getTextChannel().get();
         if (PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), textChannel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
             Optional<Integer> hoursMin = extractHoursMin(slot.getCommandKey());
@@ -167,14 +168,14 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         deregisterListenersWithComponents();
         interrupt = true;
         return true;
     }
 
     @Override
-    public EmbedBuilder draw(Member member) throws Throwable {
+    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         if (!interrupt) {
             setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), Category.MODERATION, "clear_progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get()), Emojis.X));

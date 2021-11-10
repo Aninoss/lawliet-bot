@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "vctime",
@@ -42,7 +43,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         if (args.length() > 0) {
             drawMessage(mainExecution(args)).exceptionally(ExceptionLogger.get());
@@ -98,14 +99,14 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     }
 
     @Override
-    public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
+    public MessageInputResponse onMessageInput(@NotNull GuildMessageReceivedEvent event, @NotNull String input) throws Throwable {
         deregisterListenersWithComponents();
         this.eb = mainExecution(input);
         return MessageInputResponse.SUCCESS;
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         if (event.getComponentId().equals(BUTTON_ID_UNLIMITED)) {
             deregisterListenersWithComponents();
             this.eb = markUnlimited();
@@ -118,7 +119,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     }
 
     @Override
-    public EmbedBuilder draw(Member member) throws Throwable {
+    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         return this.eb;
     }
 

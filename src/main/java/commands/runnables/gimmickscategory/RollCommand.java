@@ -11,6 +11,7 @@ import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "roll",
@@ -25,7 +26,7 @@ public class RollCommand extends Command {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         Random n = new Random();
         double drawn, border;
         boolean userMentioned = true;

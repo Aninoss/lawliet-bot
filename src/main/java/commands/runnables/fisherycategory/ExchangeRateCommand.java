@@ -25,6 +25,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "exch",
@@ -43,7 +44,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         if (PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), false)) {
             setComponents(Button.of(ButtonStyle.PRIMARY, "forecast", getString("forecast_button")));
             registerButtonListener(event.getMember());
@@ -81,7 +82,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         if (getInteractionResponse().isValid()) {
             boolean canUseExternalEmoji = BotPermissionUtil.canUseExternalEmojisInInteraction(event.getGuildChannel());
             getInteractionResponse().replyEmbeds(List.of(generateUserEmbed(canUseExternalEmoji).build()), true)
@@ -91,14 +92,14 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     }
 
     @Override
-    public EmbedBuilder draw(Member member) {
+    public EmbedBuilder draw(@NotNull Member member) {
         EmbedBuilder eb = generateEmbed(false);
         EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
         return eb;
     }
 
     @Override
-    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
+    public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         slot.sendMessage(true, generateEmbed(true).build());
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));
 

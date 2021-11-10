@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "vote",
@@ -45,7 +46,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         args = args.replace("\n", "").replace("\\|", "<sep>");
         if (args.startsWith("|")) args = args.substring(1).trim();
         String[] argsParts = args.split("\\|");
@@ -113,7 +114,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
     }
 
     @Override
-    public void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) {
+    public void onStaticReactionAdd(@NotNull Message message, @NotNull GuildMessageReactionAddEvent event) {
         VoteCache.get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
             if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
                     voteInfo.getCreatorId().isPresent() &&
@@ -150,7 +151,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
     }
 
     @Override
-    public void onStaticReactionRemove(Message message, GuildMessageReactionRemoveEvent event) {
+    public void onStaticReactionRemove(@NotNull Message message, @NotNull GuildMessageReactionRemoveEvent event) {
         VoteCache.get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
                 .ifPresent(voteInfo -> {
                     if (voteInfo.getVotes(event.getUserIdLong()) == 0) {

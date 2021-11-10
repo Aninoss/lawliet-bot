@@ -4,7 +4,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import commands.Command;
 import commands.CommandContainer;
@@ -23,6 +26,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener, OnSelectionMenuListener {
 
@@ -50,7 +54,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Override
-    public MessageInputResponse onMessageInput(GuildMessageReceivedEvent event, String input) throws Throwable {
+    public MessageInputResponse onMessageInput(@NotNull GuildMessageReceivedEvent event, @NotNull String input) throws Throwable {
         MessageInputResponse messageInputResponse = controllerMessage(event, input, state);
         if (messageInputResponse != null) {
             processDraw(event.getMember(), true).exceptionally(ExceptionLogger.get());
@@ -60,7 +64,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Override
-    public boolean onButton(ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
         boolean changed = true;
         boolean loadComponents = true;
         try {
@@ -190,7 +194,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Override
-    public EmbedBuilder draw(Member member) {
+    public EmbedBuilder draw(@NotNull Member member) {
         return null;
     }
 

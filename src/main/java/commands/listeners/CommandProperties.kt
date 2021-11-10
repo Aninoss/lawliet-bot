@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.Permission
 
 @Retention(AnnotationRetention.RUNTIME)
 annotation class CommandProperties(
-
     val trigger: String,
     val aliases: Array<String> = [],
     val emoji: String,
@@ -26,5 +25,4 @@ annotation class CommandProperties(
     val turnOffLoadingReaction: Boolean = false,
     val usesExtEmotes: Boolean = false,
     val requiresFullMemberCache: Boolean = false
-
 )

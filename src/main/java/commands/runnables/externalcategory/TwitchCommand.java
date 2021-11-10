@@ -22,6 +22,7 @@ import modules.twitch.TwitchUser;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "twitch",
@@ -38,7 +39,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(CommandEvent event, String args) throws ExecutionException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException {
         if (args.isEmpty()) {
             drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")))
                     .exceptionally(ExceptionLogger.get());
@@ -82,7 +83,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public AlertResponse onTrackerRequest(TrackerData slot) throws Throwable {
+    public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(5, ChronoUnit.MINUTES));
         TextChannel channel = slot.getTextChannel().get();
 
