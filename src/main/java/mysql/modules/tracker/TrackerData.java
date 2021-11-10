@@ -1,13 +1,12 @@
 package mysql.modules.tracker;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
@@ -15,6 +14,8 @@ import club.minnced.discord.webhook.send.AllowedMentions;
 import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import core.MainLogger;
 import core.ShardManager;
 import core.assets.TextChannelAsset;
@@ -34,6 +35,9 @@ import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 public class TrackerData extends DataWithGuild implements TextChannelAsset {
 
     private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2, new CountingThreadFactory(() -> "JDA", "WebHook", false));
+    private static final Cache<Long, WebhookClient> webhookClientMap = CacheBuilder.newBuilder()
+            .expireAfterAccess(Duration.ofHours(1))
+            .build();
 
     private final long channelId;
     private Long messageId;
@@ -44,7 +48,6 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
     private String webhookUrl;
     private final String userMessage;
     private final Instant creationTime;
-    private WebhookClient webhookClient;
     private boolean active = true;
     private boolean preferWebhook = true;
 
@@ -213,20 +216,20 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
                                                     List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
         Optional<TextChannel> channelOpt = getTextChannel();
         if (channelOpt.isPresent()) {
-            if (webhookClient == null) {
-                webhookClient = new WebhookClientBuilder(webhookUrl)
-                        .setWait(true)
-                        .setExecutorService(executor)
-                        .setAllowedMentions(AllowedMentions.all())
-                        .build();
-            }
-
-            List<WebhookEmbed> webhookEmbeds = embeds.stream()
-                    .limit(10)
-                    .map(eb -> WebhookEmbedBuilder.fromJDA(eb).build())
-                    .collect(Collectors.toList());
-
             try {
+                WebhookClient webhookClient = webhookClientMap.get(channelId, () -> {
+                    return new WebhookClientBuilder(webhookUrl)
+                            .setWait(true)
+                            .setExecutorService(executor)
+                            .setAllowedMentions(AllowedMentions.all())
+                            .build();
+                });
+
+                List<WebhookEmbed> webhookEmbeds = embeds.stream()
+                        .limit(10)
+                        .map(eb -> WebhookEmbedBuilder.fromJDA(eb).build())
+                        .collect(Collectors.toList());
+
                 WebhookMessageBuilder wmb = new WebhookMessageBuilderAdvanced()
                         .setActionRows(actionRows)
                         .setAvatarUrl(channelOpt.get().getGuild().getSelfMember().getUser().getEffectiveAvatarUrl());
@@ -250,9 +253,9 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
             } catch (Throwable e) {
                 Optional<Long> messageIdOpt = Optional.empty();
                 if (e.toString().contains("10015")) { /* Unknown Webhook */
-                    this.webhookClient = null;
+                    webhookClientMap.invalidate(channelId);
                     this.webhookUrl = null;
-                    messageIdOpt =  processMessageViaRest(true, acceptUserMessage, content, embeds, actionRows);
+                    messageIdOpt = processMessageViaRest(true, acceptUserMessage, content, embeds, actionRows);
                 } else if (e.toString().contains("10008") || e.toString().contains("50005")) { /* Unknown Message || Another User */
                     messageIdOpt = processMessageViaWebhook(true, acceptUserMessage, content, embeds, actionRows);
                 }
