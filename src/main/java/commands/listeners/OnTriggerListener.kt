@@ -1,77 +1,75 @@
-package commands.listeners;
+package commands.listeners
 
-import java.time.temporal.ChronoUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import commands.Command;
-import commands.CommandContainer;
-import commands.CommandEvent;
-import commands.runnables.utilitycategory.TriggerDeleteCommand;
-import core.MemberCacheController;
-import core.PermissionCheckRuntime;
-import core.Program;
-import core.interactionresponse.InteractionResponse;
-import core.interactionresponse.SlashCommandResponse;
-import core.schedule.MainScheduler;
-import core.utils.ExceptionUtil;
-import mysql.modules.commandusages.DBCommandUsages;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import commands.Command
+import commands.CommandContainer
+import commands.CommandEvent
+import commands.runnables.utilitycategory.TriggerDeleteCommand
+import core.MemberCacheController
+import core.PermissionCheckRuntime
+import core.Program
+import core.interactionresponse.InteractionResponse
+import core.interactionresponse.SlashCommandResponse
+import core.schedule.MainScheduler
+import core.utils.ExceptionUtil
+import mysql.modules.commandusages.DBCommandUsages
+import mysql.modules.guild.DBGuild
+import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import java.time.temporal.ChronoUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
-public interface OnTriggerListener {
+interface OnTriggerListener {
 
-    boolean onTrigger(CommandEvent event, String args) throws Throwable;
+    @Throws(Throwable::class)
+    fun onTrigger(event: CommandEvent, args: String): Boolean
 
-    default boolean processTrigger(CommandEvent event, String args, boolean freshCommand) throws Throwable {
-        Command command = (Command) this;
-        if (freshCommand && event.isSlashCommandEvent()) {
-            InteractionResponse interactionResponse = new SlashCommandResponse(event.getSlashCommandEvent().getHook());
-            command.setInteractionResponse(interactionResponse);
+    @Throws(Throwable::class)
+    fun processTrigger(event: CommandEvent, args: String, freshCommand: Boolean): Boolean {
+        val command = this as Command
+        if (freshCommand && event.isSlashCommandEvent) {
+            val interactionResponse: InteractionResponse = SlashCommandResponse(event.slashCommandEvent.hook)
+            command.interactionResponse = interactionResponse
         }
-
-        AtomicBoolean isProcessing = new AtomicBoolean(true);
-        command.setAtomicAssets(event.getChannel(), event.getMember());
-        command.setCommandEvent(event);
-
+        val isProcessing = AtomicBoolean(true)
+        command.setAtomicAssets(event.channel, event.member)
+        command.commandEvent = event
         if (Program.publicVersion()) {
-            DBCommandUsages.getInstance().retrieve(command.getTrigger()).increase();
+            DBCommandUsages.getInstance().retrieve(command.trigger).increase()
         }
-
-        if (event.isGuildMessageReceivedEvent()) {
-            command.addLoadingReaction(event.getGuildMessageReceivedEvent().getMessage(), isProcessing);
-            processTriggerDelete(event.getGuildMessageReceivedEvent());
+        if (event.isGuildMessageReceivedEvent) {
+            command.addLoadingReaction(event.guildMessageReceivedEvent.message, isProcessing)
+            processTriggerDelete(event.guildMessageReceivedEvent)
         }
-        addKillTimer(isProcessing);
+        addKillTimer(isProcessing)
         try {
-            if (command.getCommandProperties().requiresFullMemberCache()) {
-                MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
+            if (command.commandProperties.requiresFullMemberCache) {
+                MemberCacheController.getInstance().loadMembersFull(event.guild).get()
             }
-            return onTrigger(event, args);
-        } catch (Throwable e) {
-            ExceptionUtil.handleCommandException(e, command);
-            return false;
+            return onTrigger(event, args)
+        } catch (e: Throwable) {
+            ExceptionUtil.handleCommandException(e, command)
+            return false
         } finally {
-            isProcessing.set(false);
+            isProcessing.set(false)
         }
     }
 
-    private void addKillTimer(AtomicBoolean isProcessing) {
-        Command command = (Command) this;
-        Thread commandThread = Thread.currentThread();
-        MainScheduler.schedule(command.getCommandProperties().maxCalculationTimeSec(), ChronoUnit.SECONDS, "command_timeout", () -> {
-            if (!command.getCommandProperties().turnOffTimeout()) {
-                CommandContainer.addCommandTerminationStatus(command, commandThread, isProcessing.get());
+    private fun addKillTimer(isProcessing: AtomicBoolean) {
+        val command = this as Command
+        val commandThread = Thread.currentThread()
+        MainScheduler.schedule(command.commandProperties.maxCalculationTimeSec.toLong(), ChronoUnit.SECONDS, "command_timeout") {
+            if (!command.commandProperties.turnOffTimeout) {
+                CommandContainer.addCommandTerminationStatus(command, commandThread, isProcessing.get())
             }
-        });
+        }
     }
 
-    private void processTriggerDelete(GuildMessageReceivedEvent event) {
-        GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-        if (guildBean.isCommandAuthorMessageRemoveEffectively() &&
-                PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), TriggerDeleteCommand.class, event.getChannel(), Permission.MESSAGE_MANAGE)
+    private fun processTriggerDelete(event: GuildMessageReceivedEvent) {
+        val guildBean = DBGuild.getInstance().retrieve(event.guild.idLong)
+        if (guildBean.isCommandAuthorMessageRemoveEffectively &&
+            PermissionCheckRuntime.botHasPermission(guildBean.locale, TriggerDeleteCommand::class.java, event.channel, Permission.MESSAGE_MANAGE)
         ) {
-            event.getMessage().delete().queue();
+            event.message.delete().queue()
         }
     }
 

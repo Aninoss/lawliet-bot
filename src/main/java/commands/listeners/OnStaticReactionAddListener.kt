@@ -1,10 +1,11 @@
-package commands.listeners;
+package commands.listeners
 
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
 
-public interface OnStaticReactionAddListener {
+interface OnStaticReactionAddListener {
 
-    void onStaticReactionAdd(Message message, GuildMessageReactionAddEvent event) throws Throwable;
+    @Throws(Throwable::class)
+    fun onStaticReactionAdd(message: Message, event: GuildMessageReactionAddEvent)
 
 }

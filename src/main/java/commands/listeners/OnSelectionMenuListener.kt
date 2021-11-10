@@ -1,32 +1,33 @@
-package commands.listeners;
+package commands.listeners
 
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-import commands.CommandListenerMeta;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
+import commands.CommandListenerMeta.CheckResponse
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent
+import java.util.concurrent.CompletableFuture
 
-public interface OnSelectionMenuListener extends OnInteractionListener {
+interface OnSelectionMenuListener : OnInteractionListener {
 
-    boolean onSelectionMenu(SelectionMenuEvent event) throws Throwable;
+    @Throws(Throwable::class)
+    fun onSelectionMenu(event: SelectionMenuEvent): Boolean
 
-    default CompletableFuture<Long> registerSelectionMenuListener(Member member) {
-        return registerSelectionMenuListener(member, true);
+    fun registerSelectionMenuListener(member: Member): CompletableFuture<Long> {
+        return registerSelectionMenuListener(member, true)
     }
 
-    default CompletableFuture<Long> registerSelectionMenuListener(Member member, boolean draw) {
-        return registerInteractionListener(member, OnSelectionMenuListener.class, draw, this::onSelectionMenuOverridden);
+    fun registerSelectionMenuListener(member: Member, draw: Boolean): CompletableFuture<Long> {
+        return registerInteractionListener(member, OnSelectionMenuListener::class.java, draw) { onSelectionMenuOverridden() }
     }
 
-    default CompletableFuture<Long> registerSelectionMenuListener(Member member, Function<SelectionMenuEvent, CommandListenerMeta.CheckResponse> validityChecker, boolean draw) {
-        return registerInteractionListener(member, OnSelectionMenuListener.class, draw, this::onSelectionMenuOverridden, validityChecker);
+    fun registerSelectionMenuListener(member: Member, validityChecker: (SelectionMenuEvent) -> CheckResponse, draw: Boolean): CompletableFuture<Long> {
+        return registerInteractionListener(member, OnSelectionMenuListener::class.java, draw, { onSelectionMenuOverridden() }, validityChecker)
     }
 
-    default void processSelectionMenu(SelectionMenuEvent event) {
-        processInteraction(event, this::onSelectionMenu);
+    fun processSelectionMenu(event: SelectionMenuEvent) {
+        processInteraction(event) { onSelectionMenu(it) }
     }
 
-    default void onSelectionMenuOverridden() throws Throwable {
+    @Throws(Throwable::class)
+    fun onSelectionMenuOverridden() {
     }
 
 }

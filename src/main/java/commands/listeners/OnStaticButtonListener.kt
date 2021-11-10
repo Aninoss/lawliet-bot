@@ -1,9 +1,10 @@
-package commands.listeners;
+package commands.listeners
 
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
 
-public interface OnStaticButtonListener {
+interface OnStaticButtonListener {
 
-    void onStaticButton(ButtonClickEvent event) throws Throwable;
+    @Throws(Throwable::class)
+    fun onStaticButton(event: ButtonClickEvent)
 
 }
