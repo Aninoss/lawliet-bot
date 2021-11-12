@@ -218,7 +218,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
         if (channelOpt.isPresent()) {
             try {
                 WebhookClient webhookClient = webhookClientMap.get(channelId, () -> {
-                    return new WebhookClientBuilder(webhookUrl)
+                    return new WebhookClientBuilder(webhookUrl.replace("https://discord.com", "https://" + System.getenv("DISCORD_DOMAIN")))
                             .setWait(true)
                             .setExecutorService(executor)
                             .setAllowedMentions(AllowedMentions.all())
