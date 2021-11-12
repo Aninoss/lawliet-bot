@@ -14,6 +14,10 @@ public class CustomInterceptor implements Interceptor {
     @Override
     public @NotNull Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
+        request = request.newBuilder()
+                .url(request.url().url().toString().replace("https://discord.com", "https://" + System.getenv("DISCORD_DOMAIN")))
+                .build();
+
         if (RegexPatterns.INTERACTION.matcher(request.url().encodedPath()).matches()) {
             Request newRequest = request.newBuilder().removeHeader("authorization").build();
             return chain.proceed(newRequest);
