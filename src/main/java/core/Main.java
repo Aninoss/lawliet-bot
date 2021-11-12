@@ -3,10 +3,6 @@ package core;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import ch.qos.logback.classic.AsyncAppender;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import com.github.napstr.logback.DiscordAppender;
 import com.jockie.jda.memory.MemoryOptimizations;
 import core.emoji.EmojiTable;
 import core.utils.BotUtil;
@@ -15,7 +11,6 @@ import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionData;
 import mysql.modules.version.VersionSlot;
 import org.apache.commons.lang3.SystemUtils;
-import org.slf4j.LoggerFactory;
 import websockets.syncserver.SyncManager;
 
 public class Main {
@@ -35,7 +30,6 @@ public class Main {
 
         installMemoryOptimizations();
         try {
-            registerErrorWebhook();
             Program.init();
             createTempDir();
 
@@ -61,13 +55,6 @@ public class Main {
             MainLogger.get().error("EXIT - Error on startup", e);
             System.exit(4);
         }
-    }
-
-    private static void registerErrorWebhook() {
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        AsyncAppender discordAsync = (AsyncAppender) lc.getLogger(Logger.ROOT_LOGGER_NAME).getAppender("ASYNC_DISCORD");
-        DiscordAppender discordAppender = (DiscordAppender) discordAsync.getAppender("DISCORD");
-        discordAppender.setWebhookUri(System.getenv("ERROR_WEBHOOK"));
     }
 
     private static void installMemoryOptimizations() {
