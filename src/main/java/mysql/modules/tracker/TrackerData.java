@@ -351,7 +351,7 @@ public class TrackerData extends DataWithGuild implements TextChannelAsset {
 
     @Override
     public int hashCode() {
-        return Objects.hash(channelId, commandTrigger, commandKey, creationTime);
+        return Objects.hash(channelId, commandTrigger, commandKey, creationTime.getEpochSecond());
     }
 
 }

@@ -18,6 +18,7 @@ import events.scheduleevents.events.FisheryVoiceChannelObserver;
 import events.scheduleevents.events.ReminderDaily;
 import javafx.util.Pair;
 import modules.repair.MainRepair;
+import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
@@ -44,7 +45,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
-        tasks.put("commands_update_all", Console::onCommandsUpdateAll);
+        tasks.put("alerts_reset", Console::onAlertsReset);
         tasks.put("commands_update", Console::onCommandsUpdate);
         tasks.put("reminder_daily", Console::onReminderDaily);
         tasks.put("actions_servers", Console::onActionsServers);
@@ -85,14 +86,9 @@ public class Console {
         tasks.put("send_channel", Console::onSendChannel);
     }
 
-    private static void onCommandsUpdateAll(String[] args) { //TODO: Test / Debug
-        MainLogger.get().info("Updating all slash commands on all shards");
-        ShardManager.getConnectedLocalJDAs().forEach(jda -> {
-            jda.updateCommands()
-                    .addCommands(SlashCommandManager.initialize())
-                    .complete();
-        });
-        MainLogger.get().info("Completed");
+    private static void onAlertsReset(String[] args) {
+        AlertScheduler.reset();
+        MainLogger.get().info("Alerts reset completed");
     }
 
     private static void onCommandsUpdate(String[] args) {

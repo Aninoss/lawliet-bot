@@ -26,15 +26,20 @@ import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class AlertScheduler {
 
-    private static final ScheduledExecutorService executorService =
-            Executors.newScheduledThreadPool(5, new CountingThreadFactory(() -> "Main", "Alerts", false));
+    private static ScheduledExecutorService executorService;
 
     public static void start() {
         try {
+            executorService = Executors.newScheduledThreadPool(5, new CountingThreadFactory(() -> "Main", "Alerts", false));
             DBTracker.getInstance().retrieveAll().forEach(AlertScheduler::loadAlert);
         } catch (Throwable e) {
             MainLogger.get().error("Could not start alerts", e);
         }
+    }
+
+    public static void reset() {
+        executorService.shutdownNow();
+        start();
     }
 
     public static void loadAlert(TrackerData slot) {
