@@ -19,10 +19,7 @@ import commands.listeners.OnAlertListener;
 import constants.ExternalLinks;
 import constants.RegexPatterns;
 import constants.Settings;
-import core.EmbedFactory;
-import core.ExceptionLogger;
-import core.MainLogger;
-import core.TextManager;
+import core.*;
 import core.cache.PatreonCache;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
@@ -184,7 +181,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             if (reportArgsBuilder.length() > 0) {
                 reportArgsBuilder.append(",");
             }
-            reportArgsBuilder.append(pornImage.getImageUrl());
+            reportArgsBuilder.append(pornImage.getOriginalImageUrl());
         }
 
         String encodedArgs = Base64.getEncoder().encodeToString(reportArgsBuilder.toString().getBytes());
@@ -263,7 +260,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         try {
             pornImages = alertsCache.get(
                     getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFiltersList),
-                    () -> getBooruImages(0L, nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>())
+                    () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>())
             );
         } catch (ExecutionException e) {
             if (e.getCause() instanceof IllegalTagException) {

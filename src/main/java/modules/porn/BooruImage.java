@@ -5,6 +5,7 @@ import java.time.Instant;
 public class BooruImage {
 
     private String imageUrl;
+    private String originalImageUrl;
     private String pageUrl;
     private int score;
     private Instant instant;
@@ -16,6 +17,15 @@ public class BooruImage {
 
     public BooruImage setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+        return this;
+    }
+
+    public String getOriginalImageUrl() {
+        return originalImageUrl;
+    }
+
+    public BooruImage setOriginalImageUrl(String originalImageUrl) {
+        this.originalImageUrl = originalImageUrl;
         return this;
     }
 

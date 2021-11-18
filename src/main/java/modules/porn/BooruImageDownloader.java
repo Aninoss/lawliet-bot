@@ -46,6 +46,7 @@ public class BooruImageDownloader {
                         BooruImage booruImage = new BooruImage()
                                 .setScore(responseJson.getInt("score"))
                                 .setImageUrl(responseJson.getString("imageUrl"))
+                                .setOriginalImageUrl(responseJson.getString("originalImageUrl"))
                                 .setPageUrl(responseJson.getString("pageUrl"))
                                 .setVideo(responseJson.getBoolean("video"))
                                 .setInstant(Instant.parse(responseJson.getString("instant")));
