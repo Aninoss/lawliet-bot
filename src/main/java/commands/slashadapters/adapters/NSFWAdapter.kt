@@ -21,7 +21,7 @@ class NSFWAdapter : SlashAdapter() {
         for (clazz in CommandContainer.getFullCommandList()) {
             val command = CommandManager.createCommandByClass(clazz, Language.EN.locale, "/")
             if (command is PornPredefinedAbstract && command.getCommandProperties().nsfw) {
-                triggerList.add(command.getTrigger())
+                triggerList.add(command.trigger)
             }
         }
         triggerList.sortWith { obj: String, string: String -> obj.compareTo(string) }

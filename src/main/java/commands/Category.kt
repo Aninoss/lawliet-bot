@@ -1,8 +1,6 @@
-package commands;
+package commands
 
-import java.util.Arrays;
-
-public enum Category {
+enum class Category(val id: String, val emoji: String, val isIndependent: Boolean) {
 
     GIMMICKS("gimmicks", "🪀", true),
     AI_TOYS("aitoys", "🤖", true),
@@ -19,32 +17,36 @@ public enum Category {
     SPLATOON_2("splatoon_2", "🦑", true),
     PATREON_ONLY("patreon_only", "⭐", false);
 
-    private final String id;
-    private final String emoji;
-    private final boolean independent;
+    companion object {
 
-    Category(String id, String emoji, boolean independent) {
-        this.id = id;
-        this.emoji = emoji;
-        this.independent = independent;
-    }
+        @JvmStatic
+        fun independentValues(): Array<Category> {
+            return values()
+                .filter { obj: Category -> obj.isIndependent }
+                .toTypedArray()
+        }
 
-    public String getId() {
-        return id;
-    }
+        @JvmStatic
+        fun findCategoryByCommand(c: Class<out Command>): Category? {
+            val categoryName = c.getPackage().name.split(".")[2]
+            return when(categoryName) {
+                "gimmickscategory" -> GIMMICKS
+                "nsfwcategory" -> NSFW
+                "configurationcategory" -> CONFIGURATION
+                "utilitycategory" -> UTILITY
+                "informationcategory" -> INFORMATION
+                "splatoon2category" -> SPLATOON_2
+                "interactionscategory" -> INTERACTIONS
+                "externalcategory" -> EXTERNAL
+                "fisherysettingscategory" -> FISHERY_SETTINGS
+                "fisherycategory" -> FISHERY
+                "casinocategory" -> CASINO
+                "moderationcategory" -> MODERATION
+                "aitoyscategory" -> AI_TOYS
+                else -> null
+            }
+        }
 
-    public String getEmoji() {
-        return emoji;
-    }
-
-    public boolean isIndependent() {
-        return independent;
-    }
-
-    public static Category[] independentValues() {
-        return Arrays.stream(values())
-                .filter(Category::isIndependent)
-                .toArray(Category[]::new);
     }
 
 }
