@@ -213,6 +213,7 @@ public class CommandContainer {
         commandList.add(YaoiCuddleCommand.class);
         commandList.add(YaoiHugCommand.class);
         commandList.add(YaoiKissCommand.class);
+        commandList.add(YeetCommand.class);
         commandList.add(YuriCuddleCommand.class);
         commandList.add(YuriHugCommand.class);
         commandList.add(YuriKissCommand.class);
