@@ -26,7 +26,9 @@ public class YaoiCuddleCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279927313268786/yaoicuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279930203013270/yaoicuddle.gif",
                 "https://cdn.discordapp.com/attachments/736279874452455454/736279935152554044/yaoicuddle.gif",
-                "https://cdn.discordapp.com/attachments/736279874452455454/736279946741153882/yaoicuddle.gif"
+                "https://cdn.discordapp.com/attachments/736279874452455454/736279946741153882/yaoicuddle.gif",
+                "https://cdn.discordapp.com/attachments/736279874452455454/912101261183160351/yaoicuddle.gif",
+                "https://cdn.discordapp.com/attachments/736279874452455454/912101389449166868/yaoicuddle.gif"
         );
     }
 
