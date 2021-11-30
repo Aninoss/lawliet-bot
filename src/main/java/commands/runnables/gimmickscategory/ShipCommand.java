@@ -35,6 +35,7 @@ public class ShipCommand extends Command {
             new CustomShipValues(397209883793162240L, 710120672499728426L, 100),
             new CustomShipValues(444821134936899605L, 547064638597234688L, 777),
             new CustomShipValues(326714012022865930L, -999),
+            new CustomShipValues(368521195940741122L, 844717861132959809L, 100),
     };
 
     public ShipCommand(Locale locale, String prefix) {

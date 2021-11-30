@@ -55,7 +55,7 @@ public class FisheryVoiceChannelObserver implements ExceptionRunnable {
             try {
                 List<Member> validMembers = getValidVCMembers(voiceChannel);
                 VoiceChannel afkVoice = guild.getAfkChannel();
-                if (validMembers.size() > (Program.productionMode() ? 1 : 0) &&
+                if (validMembers.size() >= (Program.productionMode() ? 2 : 1) &&
                         (afkVoice == null || voiceChannel.getIdLong() != afkVoice.getIdLong())
                 ) {
                     validMembers.forEach(member -> {

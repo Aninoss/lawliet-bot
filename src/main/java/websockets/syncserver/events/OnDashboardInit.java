@@ -1,6 +1,7 @@
 package websockets.syncserver.events;
 
 import constants.Language;
+import core.ShardManager;
 import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
 import org.json.JSONArray;
@@ -14,7 +15,12 @@ public class OnDashboardInit implements SyncServerFunction {
     @Override
     public JSONObject apply(JSONObject jsonObject) {
         JSONObject resultJson = new JSONObject();
-        addTitles(jsonObject, resultJson);
+        long guildId = jsonObject.getLong("guild_id");
+        boolean ok = ShardManager.getLocalGuildById(guildId).isPresent();
+        resultJson.put("ok", ok);
+        if (ok) {
+            addTitles(jsonObject, resultJson);
+        }
         return resultJson;
     }
 

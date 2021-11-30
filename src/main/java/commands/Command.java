@@ -71,7 +71,7 @@ public abstract class Command implements OnTriggerListener {
         this.locale = locale;
         this.prefix = prefix;
         commandProperties = this.getClass().getAnnotation(CommandProperties.class);
-        category = CategoryCalculator.getCategoryByCommand(this.getClass());
+        category = Category.findCategoryByCommand(this.getClass());
     }
 
     public void addLoadingReaction(Message message, AtomicBoolean isProcessing) {
@@ -630,7 +630,7 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public static Category getCategory(Class<? extends Command> clazz) {
-        return CategoryCalculator.getCategoryByCommand(clazz);
+        return Category.findCategoryByCommand(clazz);
     }
 
     public static CommandProperties getCommandProperties(Class<? extends Command> clazz) {
