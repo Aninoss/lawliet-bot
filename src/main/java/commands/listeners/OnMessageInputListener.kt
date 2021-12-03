@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.function.Function
 
 interface OnMessageInputListener : Drawable {
 
@@ -57,7 +56,7 @@ interface OnMessageInputListener : Drawable {
                 }
             }
         } catch (e: Throwable) {
-            command.textChannel.ifPresent { channel -> ExceptionUtil.handleCommandException(e, command) }
+            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command) }
         }
     }
 

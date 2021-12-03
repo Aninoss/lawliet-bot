@@ -637,7 +637,7 @@ public abstract class Command implements OnTriggerListener {
         return clazz.getAnnotation(CommandProperties.class);
     }
 
-    public static CommandProperties getCommandProperties(KClass<? extends Command> clazz) { //TODO: kotlin compatability
+    public static CommandProperties getCommandProperties(KClass<? extends Command> clazz) {
         for (Annotation annotation : clazz.getAnnotations()) {
             if (annotation instanceof CommandProperties) {
                 return (CommandProperties) annotation;

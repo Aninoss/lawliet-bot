@@ -19,7 +19,6 @@ import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactio
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
 import net.dv8tion.jda.api.exceptions.PermissionException
 import java.util.*
-import java.util.List
 import java.util.concurrent.CompletableFuture
 
 interface OnReactionListener : Drawable {
@@ -76,7 +75,7 @@ interface OnReactionListener : Drawable {
                 return CompletableFuture.completedFuture(command.drawMessageId.get())
             }
         } catch (e: Throwable) {
-            command.textChannel.ifPresent { channel: TextChannel -> ExceptionUtil.handleCommandException(e, command) }
+            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command) }
         }
         return CompletableFuture.failedFuture(NoSuchElementException("No message sent"))
     }
@@ -86,7 +85,7 @@ interface OnReactionListener : Drawable {
         command.drawMessageId.ifPresent { messageId: Long ->
             command.textChannel.ifPresent { channel: TextChannel ->
                 if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE) && command.commandEvent.isGuildMessageReceivedEvent()) {
-                    val messageIds: Collection<String> = List.of(messageId.toString(), command.commandEvent!!.guildMessageReceivedEvent!!.messageId)
+                    val messageIds: Collection<String> = listOf(messageId.toString(), command.commandEvent!!.guildMessageReceivedEvent!!.messageId)
                     channel.deleteMessagesByIds(messageIds).queue()
                 } else if (BotPermissionUtil.canReadHistory(channel)) {
                     channel.deleteMessageById(messageId).queue()
@@ -103,7 +102,7 @@ interface OnReactionListener : Drawable {
             command.textChannel.ifPresentOrElse({ channel: TextChannel ->
                 if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_MANAGE)) {
                     channel.clearReactionsById(messageId)
-                        .queue({ v: Void? -> future.complete(null) }) { ex: Throwable -> future.completeExceptionally(ex) }
+                        .queue({ future.complete(null) }) { ex: Throwable -> future.completeExceptionally(ex) }
                 } else {
                     future.completeExceptionally(PermissionException("Missing permissions"))
                 }

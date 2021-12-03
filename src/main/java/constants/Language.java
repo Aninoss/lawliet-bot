@@ -19,6 +19,15 @@ public enum Language {
         throw new NoSuchElementException("Invalid locale");
     }
 
+    public static Language from(String localeString) {
+        for (Language lang : Language.values()) {
+            if (lang.getLocale().getDisplayName().toLowerCase().startsWith(localeString)) {
+                return lang;
+            }
+        }
+        throw new NoSuchElementException("Invalid locale");
+    }
+
     private final Locale locale;
     private final String flag;
     private final boolean deepLGenerated;

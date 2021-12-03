@@ -20,7 +20,7 @@ object RunningCheckerManager {
     @JvmStatic
     @Synchronized
     fun canUserRunCommand(command: Command, guildId: Long, userId: Long, shardId: Int, maxCalculationTimeSec: Int): Boolean {
-        val runningCommandsList = runningCommandsCache.asMap().computeIfAbsent(userId) { k: Long -> ArrayList() }
+        val runningCommandsList = runningCommandsCache.asMap().computeIfAbsent(userId) { ArrayList() }
         stopAndRemoveOutdatedRunningCommands(runningCommandsList)
         if (runningCommandsList.isEmpty() || runningCommandsList.size < getMaxAmount(guildId, userId)) {
             val runningCheckerSlot = RunningCheckerSlot(userId, shardId, maxCalculationTimeSec, !command.commandProperties.turnOffTimeout)

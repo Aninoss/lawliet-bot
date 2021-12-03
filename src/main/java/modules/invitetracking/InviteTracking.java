@@ -5,10 +5,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import commands.runnables.utilitycategory.InviteTrackingCommand;
-import core.CustomObservableMap;
-import core.ExceptionLogger;
-import core.MemberCacheController;
-import core.PermissionCheckRuntime;
+import constants.AssetIds;
+import core.*;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.GuildInvite;
@@ -180,6 +178,8 @@ public class InviteTracking {
                             invite.getUses(),
                             invite.getInviter().getIdLong()
                     ));
+                } else if (guild.getIdLong() == AssetIds.ANICORD_SERVER_ID) {
+                    MainLogger.get().error("Invite error for {}", invite.getCode()); //TODO
                 }
             }
             completed[1] = true;

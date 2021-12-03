@@ -38,7 +38,7 @@ interface OnTriggerListener {
         }
         if (event.isGuildMessageReceivedEvent()) {
             command.addLoadingReaction(event.guildMessageReceivedEvent!!.message, isProcessing)
-            processTriggerDelete(event.guildMessageReceivedEvent!!)
+            processTriggerDelete(event.guildMessageReceivedEvent)
         }
         addKillTimer(isProcessing)
         try {
