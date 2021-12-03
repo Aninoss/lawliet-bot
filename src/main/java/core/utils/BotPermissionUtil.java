@@ -67,7 +67,7 @@ public class BotPermissionUtil {
 
     public static List<Permission> getMissingPermissions(GuildChannel channel, Role role, Permission... permissions) {
         return Arrays.stream(permissions)
-                .filter(permission -> !role.hasPermission(channel, permission))
+                .filter(permission -> !role.getPermissionsExplicit(channel).contains(permission))
                 .collect(Collectors.toList());
     }
 
