@@ -141,7 +141,8 @@ public class InviteTracking {
         }
 
         /* remove invalid invites from database */
-        for (GuildInvite guildInvite : new ArrayList<>(databaseInvites.values())) {
+        GuildInvite[] invites = databaseInvites.values().toArray(new GuildInvite[0]);
+        for (GuildInvite guildInvite : invites) {
             if (!inviteCodes.contains(guildInvite.getCode())) {
                 databaseInvites.remove(guildInvite.getCode());
             }
