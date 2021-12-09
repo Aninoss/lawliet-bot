@@ -1,7 +1,9 @@
 package dashboard
 
+import commands.Category
 import core.MemberCacheController
 import core.ShardManager
+import core.TextManager
 import core.utils.BotPermissionUtil
 import dashboard.container.DashboardContainer
 import net.dv8tion.jda.api.Permission
@@ -46,6 +48,30 @@ abstract class DashboardCategory(val guildId: Long, val userId: Long, val locale
                     .filter { !BotPermissionUtil.can(member, it) }
             } ?: emptyList()
         } ?: emptyList()
+    }
+
+    fun getString(category: String, key: String, vararg args: String): String {
+        return TextManager.getString(locale, category, key, *args)
+    }
+
+    fun getString(category: String, key: String, option: Int, vararg args: String): String {
+        return TextManager.getString(locale, category, key, option, *args)
+    }
+
+    fun getString(category: String, key: String, secondOption: Boolean, vararg args: String): String {
+        return TextManager.getString(locale, category, key, secondOption, *args)
+    }
+
+    fun getString(category: Category, key: String, vararg args: String): String {
+        return TextManager.getString(locale, category, key, *args)
+    }
+
+    fun getString(category: Category, key: String, option: Int, vararg args: String): String {
+        return TextManager.getString(locale, category, key, option, *args)
+    }
+
+    fun getString(category: Category, key: String, secondOption: Boolean, vararg args: String): String {
+        return TextManager.getString(locale, category, key, secondOption, *args)
     }
 
 }

@@ -44,7 +44,7 @@ public class OnDashboardCategoryInit implements SyncServerFunction {
     private JSONArray generateMissingPermissionsJson(Locale locale, List<Permission> permissions) {
         JSONArray permissionsJson = new JSONArray();
         permissions.forEach(p -> {
-            String permissionName = TextManager.getString(locale, TextManager.PERMISSIONS, p.getName());
+            String permissionName = TextManager.getString(locale, TextManager.PERMISSIONS, p.name());
             permissionsJson.put(permissionName);
         });
         return permissionsJson;
