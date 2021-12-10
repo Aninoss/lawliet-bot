@@ -68,7 +68,14 @@ public class SyncManager {
     private static void addEvent(SyncServerFunction function) {
         SyncServerEvent event = function.getClass().getAnnotation(SyncServerEvent.class);
         if (event != null) {
-            client.addEventHandler(event.event(), function);
+            client.addEventHandler(event.event(), requestJson -> {
+                try {
+                    return function.apply(requestJson);
+                } catch (Throwable e) {
+                    MainLogger.get().error("Uncached websocket error", e);
+                    return null;
+                }
+            });
         }
     }
 

@@ -1,8 +1,10 @@
 package dashboard.pages
 
 import core.TextManager
+import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
+import dashboard.component.DashboardButton
 import dashboard.component.DashboardText
 import dashboard.container.DashboardContainer
 import dashboard.container.VerticalContainer
@@ -19,7 +21,13 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale): DashboardCat
 
     override fun generateComponents(): DashboardContainer {
         val mainContainer = VerticalContainer()
-        mainContainer.add(DashboardText("You are gay!"))
+        val button = DashboardButton("Test") {
+            println("TEST")
+            ActionResult(true)
+                .withSuccessMessage("YAY")
+        }
+        mainContainer.add(button)
+        mainContainer.add(DashboardText(Random().nextInt().toString()))
         return mainContainer
     }
 
