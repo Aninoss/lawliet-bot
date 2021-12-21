@@ -3,7 +3,7 @@ package websockets.syncserver.events;
 import core.MemberCacheController;
 import core.ShardManager;
 import core.utils.BotPermissionUtil;
-import dashboard.component.DashboardDiscordEntitySelection;
+import dashboard.component.DashboardComboBox;
 import net.dv8tion.jda.api.entities.Member;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,7 +20,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
 
         long userId = jsonObject.getLong("user_id");
         long guildId = jsonObject.getLong("guild_id");
-        DashboardDiscordEntitySelection.DataType type = DashboardDiscordEntitySelection.DataType.valueOf(jsonObject.getString("type"));
+        DashboardComboBox.DataType type = DashboardComboBox.DataType.valueOf(jsonObject.getString("type"));
         String filterText = jsonObject.getString("filter_text").toLowerCase();
         int offset = jsonObject.getInt("offset");
         int limit = jsonObject.getInt("limit");
@@ -33,7 +33,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                         .limit(limit)
                         .forEach(m -> {
                             JSONObject json = new JSONObject();
-                            json.put("id", m.getIdLong());
+                            json.put("id", m.getId());
                             json.put("name", m.getUser().getAsTag());
                             entitiesJson.put(json);
                         });
@@ -44,7 +44,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                         .limit(limit)
                         .forEach(r -> {
                             JSONObject json = new JSONObject();
-                            json.put("id", r.getIdLong());
+                            json.put("id", r.getId());
                             json.put("name", r.getName());
                             entitiesJson.put(json);
                         });
@@ -57,7 +57,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                             .limit(limit)
                             .forEach(c -> {
                                 JSONObject json = new JSONObject();
-                                json.put("id", c.getIdLong());
+                                json.put("id", c.getId());
                                 json.put("name", "#" + c.getName());
                                 entitiesJson.put(json);
                             });
@@ -71,7 +71,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                             .limit(limit)
                             .forEach(c -> {
                                 JSONObject json = new JSONObject();
-                                json.put("id", c.getIdLong());
+                                json.put("id", c.getId());
                                 json.put("name", c.getName());
                                 entitiesJson.put(json);
                             });

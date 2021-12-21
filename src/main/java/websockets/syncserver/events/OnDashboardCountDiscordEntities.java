@@ -3,7 +3,7 @@ package websockets.syncserver.events;
 import core.MemberCacheController;
 import core.ShardManager;
 import core.utils.BotPermissionUtil;
-import dashboard.component.DashboardDiscordEntitySelection;
+import dashboard.component.DashboardComboBox;
 import net.dv8tion.jda.api.entities.Member;
 import org.json.JSONObject;
 import websockets.syncserver.SyncServerEvent;
@@ -18,7 +18,7 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
 
         long userId = jsonObject.getLong("user_id");
         long guildId = jsonObject.getLong("guild_id");
-        DashboardDiscordEntitySelection.DataType type = DashboardDiscordEntitySelection.DataType.valueOf(jsonObject.getString("type"));
+        DashboardComboBox.DataType type = DashboardComboBox.DataType.valueOf(jsonObject.getString("type"));
         String filterText = jsonObject.getString("filter_text").toLowerCase();
 
         long count = ShardManager.getLocalGuildById(guildId).map(guild -> switch (type) {
@@ -43,6 +43,8 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
                         .filter(c -> c.getName().toLowerCase().contains(filterText) && BotPermissionUtil.can(c) && BotPermissionUtil.can(member, c))
                         .count();
             }
+
+            default -> 0L;
         }).orElse(0L);
 
         resultJson.put("count", count);

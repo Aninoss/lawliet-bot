@@ -46,7 +46,7 @@ dependencies {
     implementation 'redis.clients:jedis:3.6.0'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0-RC2'
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.0-RC2'
-    implementation 'com.github.Aninoss:lawliet-dashboard-components:aa3c7b3cac'
+    implementation 'com.github.Aninoss:lawliet-dashboard-components:2b0b39c8cf'
 
     /* logging */
     implementation 'ch.qos.logback:logback-classic:1.2.3'
