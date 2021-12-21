@@ -4,11 +4,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import modules.fishery.FisheryStatus;
 import core.GlobalThreadPool;
 import core.MainLogger;
-import core.Program;
 import modules.fishery.Fishery;
+import modules.fishery.FisheryStatus;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
@@ -23,38 +22,26 @@ import websockets.syncserver.SyncServerFunction;
 @SyncServerEvent(event = "TOPGG")
 public class OnTopGG implements SyncServerFunction {
 
-    private final boolean firstClusterRequired;
-
-    public OnTopGG() {
-        this(true);
-    }
-
-    public OnTopGG(boolean firstClusterRequired) {
-        this.firstClusterRequired = firstClusterRequired;
-    }
-
     @Override
     public JSONObject apply(JSONObject jsonObject) {
-        if (Program.getClusterId() == 1 || !firstClusterRequired) {
-            long userId = jsonObject.getLong("user");
-            if (DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId)) {
-                return null;
-            }
+        long userId = jsonObject.getLong("user");
+        if (DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId)) {
+            return null;
+        }
 
-            String type = jsonObject.getString("type");
-            boolean isWeekend = jsonObject.has("isWeekend") && jsonObject.getBoolean("isWeekend");
+        String type = jsonObject.getString("type");
+        boolean isWeekend = jsonObject.has("isWeekend") && jsonObject.getBoolean("isWeekend");
 
-            if (type.equals("upvote")) {
-                GlobalThreadPool.getExecutorService().submit(() -> {
-                    try {
-                        processUpvote(userId, isWeekend);
-                    } catch (ExecutionException | InterruptedException e) {
-                        MainLogger.get().error("Exception", e);
-                    }
-                });
-            } else {
-                MainLogger.get().error("Wrong type: " + type);
-            }
+        if (type.equals("upvote")) {
+            GlobalThreadPool.getExecutorService().submit(() -> {
+                try {
+                    processUpvote(userId, isWeekend);
+                } catch (ExecutionException | InterruptedException e) {
+                    MainLogger.get().error("Exception", e);
+                }
+            });
+        } else {
+            MainLogger.get().error("Wrong type: " + type);
         }
         return null;
     }

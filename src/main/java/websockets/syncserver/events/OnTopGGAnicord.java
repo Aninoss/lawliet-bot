@@ -14,10 +14,6 @@ import websockets.syncserver.SyncServerEvent;
 @SyncServerEvent(event = "TOPGG_ANICORD")
 public class OnTopGGAnicord extends OnTopGG {
 
-    public OnTopGGAnicord() {
-        super(false);
-    }
-
     @Override
     protected void processUpvote(long userId, boolean isWeekend) {
         Guild guild = ShardManager.getLocalGuildById(AssetIds.ANICORD_SERVER_ID).get();
