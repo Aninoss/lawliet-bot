@@ -7,12 +7,8 @@ import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.utils.BotPermissionUtil;
-import core.utils.StringUtil;
-import mysql.modules.guild.DBGuild;
+import modules.Prefix;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -29,28 +25,9 @@ public class PrefixCommand extends Command {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        Guild guild = event.getGuild();
         if (args.length() > 0) {
             if (args.length() <= 5) {
-                DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setPrefix(args);
-
-                if (BotPermissionUtil.can(guild, Permission.NICKNAME_CHANGE)) {
-                    Member self = guild.getSelfMember();
-                    String nickname = self.getEffectiveName().trim();
-                    String[] nicknameArray = nickname.split("\\[");
-
-                    String effectiveNickname;
-                    if (nicknameArray.length == 2 && nicknameArray[1].contains("]")) {
-                        effectiveNickname = nicknameArray[0].trim() + " [" + args + "]";
-                    } else {
-                        effectiveNickname = nickname + " [" + args + "]";
-                    }
-
-                    guild.modifyNickname(self, StringUtil.shortenString(effectiveNickname, 32))
-                            .reason(getCommandLanguage().getTitle())
-                            .queue();
-                }
-
+                Prefix.changePrefix(event.getGuild(), getLocale(), args);
                 drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("changed", args)))
                         .exceptionally(ExceptionLogger.get());
                 return true;

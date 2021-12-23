@@ -34,7 +34,7 @@ public class OnDashboardAction implements SyncServerFunction {
                         resultJson.put("error_message", actionResult.getErrorMessage());
                     }
                 } else {
-                    String errorMessage = category.getString(TextManager.GENERAL, "misingpermissions");
+                    String errorMessage = category.getString(TextManager.GENERAL, "dashboard_missingpermissions");
                     resultJson.put("ok", true);
                     resultJson.put("redraw", false);
                     resultJson.put("error_message", errorMessage);

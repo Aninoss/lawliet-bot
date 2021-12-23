@@ -22,7 +22,9 @@ public class AutoQuoteData extends DataWithGuild {
     }
 
     public void setActive(boolean active) {
-        if (this.isActive() != active) toggleActive();
+        if (this.isActive() != active) {
+            toggleActive();
+        }
     }
 
 }

@@ -4,25 +4,40 @@ import commands.Category
 import core.MemberCacheController
 import core.ShardManager
 import core.TextManager
+import core.atomicassets.AtomicGuild
+import core.atomicassets.AtomicMember
 import core.utils.BotPermissionUtil
 import dashboard.container.DashboardContainer
+import dashboard.container.VerticalContainer
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.Guild
 import org.json.JSONObject
 import java.util.*
 
-abstract class DashboardCategory(val guildId: Long, val userId: Long, val locale: Locale) {
+abstract class DashboardCategory(private val guildId: Long, private val userId: Long, val locale: Locale) {
 
+    val atomicGuild: AtomicGuild
+    val atomicMember: AtomicMember
     val properties: DashboardProperties
-        get() = this.javaClass.getAnnotation(DashboardProperties::class.java)
 
     private var components: DashboardContainer? = null
 
+    init {
+        atomicGuild = AtomicGuild(guildId)
+        atomicMember = AtomicMember(guildId, userId)
+        properties = this.javaClass.getAnnotation(DashboardProperties::class.java)
+    }
+
     abstract fun retrievePageTitle(): String
 
-    abstract fun generateComponents(): DashboardContainer
+    abstract fun generateComponents(guild: Guild, mainContainer: VerticalContainer)
 
     fun draw(): DashboardContainer {
-        components = generateComponents()
+        val mainContainer = VerticalContainer()
+        components = mainContainer
+        atomicGuild.get().ifPresent { guild ->
+            generateComponents(guild, mainContainer)
+        }
         return components!!
     }
 
