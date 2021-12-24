@@ -51,7 +51,7 @@ import org.jetbrains.annotations.NotNull;
         emoji = "🎟️",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "tickets" }
+        aliases = { "tickets", "supportticket", "supporttickets" }
 )
 public class TicketCommand extends NavigationAbstract implements OnStaticReactionAddListener, OnStaticButtonListener {
 

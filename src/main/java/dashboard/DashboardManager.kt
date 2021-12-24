@@ -1,7 +1,7 @@
 package dashboard
 
 import com.google.common.cache.CacheBuilder
-import dashboard.pages.GeneralCategory
+import dashboard.pages.*
 import java.time.Duration
 import java.util.*
 import kotlin.reflect.KClass
@@ -18,7 +18,20 @@ object DashboardManager {
 
     init {
         pageClasses = listOf(
-            GeneralCategory::class
+            GeneralCategory::class,
+            CommandManagementCategory::class,
+            FisheryCategory::class,
+            NSFWCategory::class,
+            ModerationCategory::class,
+            InviteTrackingCategory::class,
+            GiveawayCategory::class,
+            ReactionRolesCategory::class,
+            AutoRolesCategory::class,
+            WelcomeCategory::class,
+            TicketCategory::class,
+            SuggestionsCategory::class,
+            AutoChannelCategory::class,
+            MemberCountDisplaysCategory::class,
         )
     }
 

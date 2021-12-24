@@ -34,7 +34,7 @@ import java.util.*
 class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
     override fun retrievePageTitle(): String {
-        return TextManager.getString(locale, TextManager.GENERAL, "dashboard_general")
+        return getString(TextManager.GENERAL, "dashboard_general")
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
