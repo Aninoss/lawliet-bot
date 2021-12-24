@@ -3,6 +3,7 @@ package websockets.syncserver.events;
 import java.util.Locale;
 import constants.Language;
 import core.ShardManager;
+import core.cache.PatreonCache;
 import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
 import org.json.JSONArray;
@@ -20,6 +21,7 @@ public class OnDashboardInit implements SyncServerFunction {
         boolean ok = ShardManager.getLocalGuildById(guildId).isPresent();
         resultJson.put("ok", ok);
         if (ok) {
+            resultJson.put("premium", PatreonCache.getInstance().isUnlocked(guildId));
             long userId = jsonObject.getLong("user_id");
             String localeString = jsonObject.getString("locale");
             Locale locale = Language.from(localeString).getLocale();
