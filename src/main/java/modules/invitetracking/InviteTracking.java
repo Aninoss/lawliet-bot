@@ -3,6 +3,7 @@ package modules.invitetracking;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import commands.runnables.utilitycategory.InviteTrackingCommand;
 import constants.AssetIds;
@@ -108,6 +109,7 @@ public class InviteTracking {
                 future.completeExceptionally(new PermissionException("Missing permissions"));
             }
         } catch (Throwable e) {
+            MainLogger.get().error("Invite error", e);
             future.completeExceptionally(e);
         }
 
@@ -155,7 +157,7 @@ public class InviteTracking {
         boolean[] completed = new boolean[2];
 
         if (guild.getVanityCode() != null) {
-            guild.retrieveVanityInvite().queue(vanityInvite -> {
+            guild.retrieveVanityInvite().queueAfter(1, TimeUnit.SECONDS, vanityInvite -> {
                 TempInvite tempInvite = new TempInvite(
                         vanityInvite.getCode(),
                         vanityInvite.getUses(),
@@ -171,7 +173,7 @@ public class InviteTracking {
             completed[0] = true;
         }
 
-        guild.retrieveInvites().queue(invites -> {
+        guild.retrieveInvites().queueAfter(1, TimeUnit.SECONDS, invites -> {
             for (Invite invite : invites) {
                 if (invite.getInviter() != null) {
                     inviteList.add(new TempInvite(
