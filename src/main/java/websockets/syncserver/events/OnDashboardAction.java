@@ -2,7 +2,6 @@ package websockets.syncserver.events;
 
 import java.util.List;
 import core.ShardManager;
-import core.TextManager;
 import dashboard.ActionResult;
 import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
@@ -34,10 +33,8 @@ public class OnDashboardAction implements SyncServerFunction {
                         resultJson.put("error_message", actionResult.getErrorMessage());
                     }
                 } else {
-                    String errorMessage = category.getString(TextManager.GENERAL, "dashboard_missingpermissions");
                     resultJson.put("ok", true);
-                    resultJson.put("redraw", false);
-                    resultJson.put("error_message", errorMessage);
+                    resultJson.put("redraw", true);
                 }
             }
         }
