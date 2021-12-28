@@ -82,10 +82,7 @@ public class MuteCommand extends WarnCommand {
 
     @Override
     protected boolean canProcessMember(Member executor, User target) {
-        Member member = executor.getGuild().getMember(target);
-        boolean hasEffect = !giveRole || member == null || !BotPermissionUtil.can(member, Permission.ADMINISTRATOR);
-        return BotPermissionUtil.canInteract(executor, target) &&
-                hasEffect;
+        return BotPermissionUtil.canInteract(executor, target);
     }
 
     @Override
