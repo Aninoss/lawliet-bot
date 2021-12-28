@@ -11,6 +11,7 @@ public interface ExternalLinks {
     String PREMIUM_WEBSITE = "https://lawlietbot.xyz/premium";
     String FEATURE_REQUESTS_WEBSITE = "https://lawlietbot.xyz/featurerequests";
     String FAQ_WEBSITE = "https://lawlietbot.xyz/faq";
+    String DASHBOARD_WEBSITE = "https://lawlietbot.xyz/dashboard";
     String GITHUB = "https://github.com/Aninoss/lawliet-bot";
     String REPORT_URL = "https://lawlietbot.xyz/report?content=";
 
