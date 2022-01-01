@@ -3,7 +3,6 @@ package modules.invitetracking;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import commands.runnables.utilitycategory.InviteTrackingCommand;
 import constants.AssetIds;
@@ -157,7 +156,7 @@ public class InviteTracking {
         boolean[] completed = new boolean[2];
 
         if (guild.getVanityCode() != null) {
-            guild.retrieveVanityInvite().queueAfter(1, TimeUnit.SECONDS, vanityInvite -> {
+            guild.retrieveVanityInvite().queue(vanityInvite -> {
                 TempInvite tempInvite = new TempInvite(
                         vanityInvite.getCode(),
                         vanityInvite.getUses(),
@@ -173,7 +172,7 @@ public class InviteTracking {
             completed[0] = true;
         }
 
-        guild.retrieveInvites().queueAfter(1, TimeUnit.SECONDS, invites -> {
+        guild.retrieveInvites().queue(invites -> {
             for (Invite invite : invites) {
                 if (invite.getInviter() != null) {
                     inviteList.add(new TempInvite(
