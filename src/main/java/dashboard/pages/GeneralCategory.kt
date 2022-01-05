@@ -55,8 +55,8 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             DBGuild.getInstance().retrieve(atomicGuild.idLong).locale = language.locale
             ActionResult(false)
         }
-        val locale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
-        val language = Language.from(locale)
+        val guildLocale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
+        val language = Language.from(guildLocale)
         languageSelect.selectedValue = DiscordEntity(language.name, getString(Category.CONFIGURATION, "language_" + language.name))
 
         val prefixField = DashboardTextField(Command.getCommandLanguage(PrefixCommand::class.java, locale).title, 1, 5) {
