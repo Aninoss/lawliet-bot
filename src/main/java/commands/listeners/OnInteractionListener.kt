@@ -15,7 +15,6 @@ import core.utils.BotPermissionUtil
 import core.utils.ExceptionUtil
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent
 import java.util.concurrent.CompletableFuture
@@ -88,7 +87,7 @@ interface OnInteractionListener : Drawable {
                     val eb = draw(member)
                     if (eb != null) {
                         return command.drawMessage(eb)
-                            .thenApply { obj: Message -> obj.idLong }
+                            .thenApply { it.idLong }
                             .exceptionally(ExceptionLogger.get())
                     }
                 } else {

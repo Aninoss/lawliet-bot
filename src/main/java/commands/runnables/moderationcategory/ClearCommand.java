@@ -2,10 +2,7 @@ package commands.runnables.moderationcategory;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import commands.Command;
@@ -56,7 +53,11 @@ public class ClearCommand extends Command implements OnButtonListener {
             boolean patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                     PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
-            long messageId = registerButtonListener(event.getMember()).get();
+            Long messageId = registerButtonListener(event.getMember()).join();
+            if (messageId == null) {
+                throw new NoSuchElementException("No such message id");
+            }
+
             TimeUnit.SECONDS.sleep(1);
             long authorMessageId = event.isGuildMessageReceivedEvent() ? event.getGuildMessageReceivedEvent().getMessage().getIdLong() : 0L;
             ClearResults clearResults = clear(event.getChannel(), patreon, Integer.parseInt(args), authorMessageId, messageId);
