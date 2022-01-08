@@ -9,6 +9,7 @@ import javax.annotation.CheckReturnValue;
 import core.MemberCacheController;
 import core.ShardManager;
 import core.components.ActionRows;
+import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.components.Button;
@@ -128,7 +129,9 @@ public class JDAUtil {
     }
 
     public static MessageAction messageActionSetMessageReference(MessageAction messageAction, TextChannel textChannel, long messageId) {
-        if (BotPermissionUtil.can(textChannel, Permission.MESSAGE_HISTORY)) {
+        if (BotPermissionUtil.can(textChannel, Permission.MESSAGE_HISTORY) &&
+                !DBGuild.getInstance().retrieve(textChannel.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively()
+        ) {
             messageAction = messageAction.referenceById(messageId);
         }
         return messageAction;
