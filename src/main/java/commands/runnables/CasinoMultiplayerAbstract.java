@@ -192,7 +192,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         }
     }
 
-    private boolean onButtonStart(ButtonClickEvent event) throws Throwable {
+    private synchronized boolean onButtonStart(ButtonClickEvent event) throws Throwable {
         if (playerList.size() >= playersMin) {
             if (event.getMember().getIdLong() == playerList.get(0).getIdLong()) {
                 StringBuilder sb = new StringBuilder();
