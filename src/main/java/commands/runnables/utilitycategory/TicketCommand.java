@@ -342,7 +342,14 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
                 message.removeReaction(getCommandProperties().emoji(), event.getUser()).queue();
             }
-            onTicketCreate(ticketData, event.getChannel(), event.getMember());
+            Category category = event.getChannel().getParent();
+            if (category != null && category.getTextChannels().size() < 50) {
+                onTicketCreate(ticketData, event.getChannel(), event.getMember());
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
+                JDAUtil.sendPrivateMessage(event.getMember(), eb.build())
+                        .queue();
+            }
         } else if (ticketChannel != null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), TICKET_CLOSE_EMOJI)) {
             boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
             if (isStaff || ticketData.memberCanClose()) {
@@ -361,7 +368,15 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
 
         if (ticketChannel == null && event.getComponentId().equals(BUTTON_ID_CREATE)) {
-            onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
+            Category category = event.getTextChannel().getParent();
+            if (category != null && category.getTextChannels().size() < 50) {
+                onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
+                event.replyEmbeds(eb.build())
+                        .setEphemeral(true)
+                        .queue();
+            }
         } else if (ticketChannel != null && event.getComponentId().equals(BUTTON_ID_CLOSE)) {
             boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
             if (isStaff || ticketData.memberCanClose()) {
