@@ -53,11 +53,7 @@ public class ClearCommand extends Command implements OnButtonListener {
             boolean patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                     PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
-            Long messageId = registerButtonListener(event.getMember()).join();
-            if (messageId == null) {
-                throw new NoSuchElementException("No such message id");
-            }
-
+            long messageId = registerButtonListener(event.getMember()).join();
             TimeUnit.SECONDS.sleep(1);
             long authorMessageId = event.isGuildMessageReceivedEvent() ? event.getGuildMessageReceivedEvent().getMessage().getIdLong() : 0L;
             ClearResults clearResults = clear(event.getChannel(), patreon, Integer.parseInt(args), authorMessageId, messageId);

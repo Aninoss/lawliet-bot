@@ -18,12 +18,13 @@ public class OsuAccountDownloader {
                         return Optional.empty();
                     }
 
-                    String[] groups = StringUtil.extractGroups(content, "<script id=\"json-user\" type=\"application/json\">", "</script>");
+                    String[] groups = StringUtil.extractGroups(content, "data-initial-data=\"", "\"");
                     if (groups.length == 0) {
                         return Optional.empty();
                     }
 
-                    JSONObject data = new JSONObject(groups[0]);
+                    String json = StringUtil.decryptString(groups[0]);
+                    JSONObject data = new JSONObject(json).getJSONObject("user");
                     JSONObject stats = data.getJSONObject("statistics");
                     JSONObject country = data.getJSONObject("country");
                     JSONObject rank = stats.getJSONObject("rank");
