@@ -488,9 +488,11 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
         /* create message */
         ticketData.getCreateMessage().ifPresent(createMessage -> {
-            textChannel.sendMessage(createMessage)
-                    .allowedMentions(null)
-                    .queue();
+            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), textChannel, Permission.MESSAGE_WRITE)) {
+                textChannel.sendMessage(createMessage)
+                        .allowedMentions(null)
+                        .queue();
+            }
         });
 
         /* post announcement to staff channel */
