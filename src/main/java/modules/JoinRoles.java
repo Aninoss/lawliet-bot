@@ -9,11 +9,12 @@ import commands.runnables.fisherysettingscategory.FisheryCommand;
 import commands.runnables.moderationcategory.JailCommand;
 import commands.runnables.moderationcategory.MuteCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
-import core.utils.TimeUtil;
-import modules.fishery.FisheryStatus;
+import commands.runnables.utilitycategory.StickyRolesCommand;
 import core.PermissionCheckRuntime;
 import core.RestActionQueue;
 import core.utils.BotPermissionUtil;
+import core.utils.TimeUtil;
+import modules.fishery.FisheryStatus;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
@@ -21,6 +22,8 @@ import mysql.modules.guild.DBGuild;
 import mysql.modules.jails.DBJails;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.servermute.DBServerMute;
+import mysql.modules.stickyroles.DBStickyRoles;
+import mysql.modules.stickyroles.StickyRolesActionData;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
@@ -41,6 +44,7 @@ public class JoinRoles {
             } else {
                 getAutoRoles(locale, member, rolesToAdd);
                 getFisheryRoles(locale, member, rolesToAdd, new HashSet<>());
+                getStickyRoles(locale, member, rolesToAdd);
             }
             getMuteRole(locale, member, rolesToAdd);
 
@@ -113,6 +117,19 @@ public class JoinRoles {
         for (Role jailRole : jailRoles) {
             if (BotPermissionUtil.canManage(jailRole)) {
                 rolesToAdd.add(jailRole);
+            }
+        }
+    }
+
+    public static void getStickyRoles(Locale locale, Member member, HashSet<Role> rolesToAdd) {
+        Guild guild = member.getGuild();
+        for (StickyRolesActionData actionData : DBStickyRoles.getInstance().retrieve(guild.getIdLong()).getActions()) {
+            if (actionData.getMemberId() == member.getIdLong()) {
+                actionData.getRole().ifPresent(role -> {
+                    if (PermissionCheckRuntime.botCanManageRoles(locale, StickyRolesCommand.class, role)) {
+                        rolesToAdd.add(role);
+                    }
+                });
             }
         }
     }

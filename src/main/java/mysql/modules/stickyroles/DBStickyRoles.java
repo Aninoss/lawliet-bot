@@ -53,7 +53,7 @@ public class DBStickyRoles extends DBMapCache<Long, StickyRolesData> {
     }
 
     private void removeAction(StickyRolesActionData actionData) {
-        MySQLManager.asyncUpdate("DELETE FROM StickyRolesRoles WHERE serverId = ? AND userId = ? AND roleId = ?;", preparedStatement -> {
+        MySQLManager.asyncUpdate("DELETE FROM StickyRolesActions WHERE serverId = ? AND userId = ? AND roleId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, actionData.getGuildId());
             preparedStatement.setLong(2, actionData.getMemberId());
             preparedStatement.setLong(3, actionData.getRoleId());

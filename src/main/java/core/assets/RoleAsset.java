@@ -7,7 +7,7 @@ public interface RoleAsset extends GuildAsset {
 
     long getRoleId();
 
-    default Optional<Role> getTextChannel() {
+    default Optional<Role> getRole() {
         return getGuild().map(guild -> guild.getRoleById(getRoleId()));
     }
 
