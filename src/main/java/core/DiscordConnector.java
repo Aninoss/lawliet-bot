@@ -8,7 +8,6 @@ import constants.AssetIds;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
-import lavalink.client.io.jda.JdaLavalink;
 import modules.BumpReminder;
 import modules.repair.MainRepair;
 import modules.schedulers.*;
@@ -52,15 +51,10 @@ public class DiscordConnector {
 
         MainLogger.get().info("Bot is logging in...");
         ShardManager.init(shardMin, shardMax, totalShards);
-        AudioManager.init(totalShards);
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageAction.setDefaultMentions(EnumSet.complementOf(deny));
         MessageAction.setDefaultMentionRepliedUser(false);
         AllowedMentions.setDefaultMentionRepliedUser(false);
-
-        JdaLavalink jdaLavalink = AudioManager.getJdaLavalink();
-        jdaBuilder = jdaBuilder.addEventListeners(jdaLavalink)
-                .setVoiceDispatchInterceptor(jdaLavalink.getVoiceInterceptor());
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -93,7 +87,6 @@ public class DiscordConnector {
 
         checkConnectionCompleted();
         MainRepair.start(jda, 5);
-        AudioManager.start(jda.getSelfUser().getIdLong());
     }
 
     private synchronized static void checkConnectionCompleted() {

@@ -77,6 +77,7 @@ public class CommandContainer {
         commandList.add(ReactionRolesCommand.class);
         commandList.add(WelcomeCommand.class);
         commandList.add(AutoRolesCommand.class);
+        commandList.add(StickyRolesCommand.class);
         commandList.add(AutoChannelCommand.class);
         commandList.add(AutoQuoteCommand.class);
         commandList.add(AssignRoleCommand.class);

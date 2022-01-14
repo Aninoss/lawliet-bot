@@ -28,7 +28,6 @@ repositories {
 dependencies {
     implementation 'net.dv8tion:JDA:4.3.0_349'
     implementation 'club.minnced:discord-webhooks:0.5.8'
-    implementation 'com.github.freyacodes:Lavalink-Client:master-SNAPSHOT'
     implementation 'com.github.21Joakim:JDA-Memory-Optimizations:0.0.4'
     implementation 'mysql:mysql-connector-java:8.0.23'
     implementation 'org.apache.commons:commons-dbcp2:2.9.0'
