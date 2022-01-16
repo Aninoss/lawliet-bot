@@ -1,5 +1,6 @@
 package events.discordevents.guildmemberjoin;
 
+import core.ExceptionLogger;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.JoinRoles;
@@ -10,7 +11,8 @@ public class GuildMemberJoinRoles extends GuildMemberJoinAbstract {
 
     @Override
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
-        JoinRoles.process(event.getMember());
+        JoinRoles.process(event.getMember(), false)
+                .exceptionally(ExceptionLogger.get());
         return true;
     }
 

@@ -2,9 +2,11 @@ package modules;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
 import commands.runnables.moderationcategory.JailCommand;
 import commands.runnables.moderationcategory.MuteCommand;
@@ -21,6 +23,7 @@ import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.jails.DBJails;
 import mysql.modules.moderation.DBModeration;
+import mysql.modules.moderation.ModerationData;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.stickyroles.DBStickyRoles;
 import mysql.modules.stickyroles.StickyRolesActionData;
@@ -35,7 +38,18 @@ public class JoinRoles {
 
     private static final AninossRaidProtection aninossRaidProtection = new AninossRaidProtection();
 
-    public static void process(Member member) {
+    public static boolean guildIsRelevant(Guild guild) {
+        FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guild.getIdLong());
+        ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
+        return DBAutoRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds().size() > 0 ||
+                (fisheryGuildData.getGuildData().getFisheryStatus() == FisheryStatus.ACTIVE && fisheryGuildData.getRoleIds().size() > 0) ||
+                DBStickyRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds().size() > 0 ||
+                moderationData.getJailRoleIds().size() > 0 ||
+                moderationData.getMuteRoleId().isPresent();
+    }
+
+    public static CompletableFuture<Void> process(Member member, boolean bulk) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
         if (!member.isPending()) {
             HashSet<Role> rolesToAdd = new HashSet<>();
             Locale locale = DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).getLocale();
@@ -49,17 +63,31 @@ public class JoinRoles {
             }
             getMuteRole(locale, member, rolesToAdd);
 
+            rolesToAdd.removeIf(role -> member.getRoles().contains(role));
             if (rolesToAdd.size() > 0) {
-                RestActionQueue restActionQueue = new RestActionQueue();
-                for (Role role : rolesToAdd) {
-                    AuditableRestAction<Void> restAction = member.getGuild().addRoleToMember(member, role);
-                    restActionQueue.attach(restAction);
+                if (bulk) {
+                    member.getGuild().modifyMemberRoles(member, rolesToAdd, Collections.emptySet())
+                            .queue(v -> future.complete(null), future::completeExceptionally);
+                } else {
+                    RestActionQueue restActionQueue = new RestActionQueue();
+                    for (Role role : rolesToAdd) {
+                        AuditableRestAction<Void> restAction = member.getGuild().addRoleToMember(member, role);
+                        restActionQueue.attach(restAction);
+                    }
+                    if (restActionQueue.isSet()) {
+                        restActionQueue.getCurrentRestAction()
+                                .queue(v -> future.complete(null), future::completeExceptionally);
+                    } else {
+                        future.complete(null);
+                    }
                 }
-                if (restActionQueue.isSet()) {
-                    restActionQueue.getCurrentRestAction().queue();
-                }
+            } else {
+                future.complete(null);
             }
+        } else {
+            future.complete(null);
         }
+        return future;
     }
 
     public static void getAutoRoles(Locale locale, Member member, HashSet<Role> rolesToAdd) {

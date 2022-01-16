@@ -1,5 +1,6 @@
 package events.discordevents.guildmemberupdatepending;
 
+import core.ExceptionLogger;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberUpdatePendingAbstract;
 import modules.JoinRoles;
@@ -10,7 +11,8 @@ public class GuildMemberUpdatePendingJoinRoles extends GuildMemberUpdatePendingA
 
     @Override
     public boolean onGuildMemberUpdatePending(GuildMemberUpdatePendingEvent event) throws Throwable {
-        JoinRoles.process(event.getMember());
+        JoinRoles.process(event.getMember(), true)
+                .exceptionally(ExceptionLogger.get());
         return true;
     }
 
