@@ -43,8 +43,8 @@ public class JoinRoles {
                 getJailRoles(locale, member, rolesToAdd);
             } else {
                 getAutoRoles(locale, member, rolesToAdd);
-                getFisheryRoles(locale, member, rolesToAdd, new HashSet<>());
                 getStickyRoles(locale, member, rolesToAdd);
+                getFisheryRoles(locale, member, rolesToAdd, new HashSet<>());
             }
             getMuteRole(locale, member, rolesToAdd);
 
