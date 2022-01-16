@@ -27,6 +27,7 @@ object DashboardManager {
             GiveawayCategory::class,
             ReactionRolesCategory::class,
             AutoRolesCategory::class,
+            StickyRolesCategory::class,
             WelcomeCategory::class,
             TicketCategory::class,
             SuggestionsCategory::class,
