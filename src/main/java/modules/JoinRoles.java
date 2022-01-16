@@ -24,6 +24,7 @@ import mysql.modules.moderation.DBModeration;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.stickyroles.DBStickyRoles;
 import mysql.modules.stickyroles.StickyRolesActionData;
+import mysql.modules.stickyroles.StickyRolesData;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
@@ -123,8 +124,9 @@ public class JoinRoles {
 
     public static void getStickyRoles(Locale locale, Member member, HashSet<Role> rolesToAdd) {
         Guild guild = member.getGuild();
-        for (StickyRolesActionData actionData : DBStickyRoles.getInstance().retrieve(guild.getIdLong()).getActions()) {
-            if (actionData.getMemberId() == member.getIdLong()) {
+        StickyRolesData stickyRolesData =  DBStickyRoles.getInstance().retrieve(guild.getIdLong());
+        for (StickyRolesActionData actionData : stickyRolesData.getActions()) {
+            if (actionData.getMemberId() == member.getIdLong() && stickyRolesData.getRoleIds().contains(actionData.getRoleId())) {
                 actionData.getRole().ifPresent(role -> {
                     if (PermissionCheckRuntime.botCanManageRoles(locale, StickyRolesCommand.class, role)) {
                         rolesToAdd.add(role);

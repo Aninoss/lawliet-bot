@@ -2,23 +2,24 @@ package modules.repair;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryRolesCommand;
 import commands.runnables.utilitycategory.AutoRolesCommand;
-import modules.fishery.FisheryStatus;
+import commands.runnables.utilitycategory.StickyRolesCommand;
 import core.MainLogger;
 import core.MemberCacheController;
 import core.PermissionCheckRuntime;
+import modules.fishery.FisheryStatus;
 import mysql.modules.autoroles.AutoRolesData;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
+import mysql.modules.stickyroles.DBStickyRoles;
+import mysql.modules.stickyroles.StickyRolesData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -37,6 +38,7 @@ public class RolesRepair {
     public void run(JDA jda, int minutes) {
         for (Guild guild : jda.getGuilds()) {
             processAutoRoles(guild, minutes);
+            processStickyRoles(guild, minutes);
             processFisheryRoles(guild, minutes);
         }
     }
@@ -71,6 +73,31 @@ public class RolesRepair {
                             member,
                             roles
                     ));
+        }
+    }
+
+    private void processStickyRoles(Guild guild, int minutes) {
+        StickyRolesData stickyRolesData = DBStickyRoles.getInstance().retrieve(guild.getIdLong());
+        Locale locale = stickyRolesData.getGuildData().getLocale();
+        if (stickyRolesData.getRoleIds().size() > 0) {
+            MemberCacheController.getInstance().loadMembersFull(guild).join();
+            guild.getMembers().stream()
+                    .filter(member -> userJoinedRecently(member, minutes) && !member.isPending())
+                    .forEach(member -> {
+                        List<Role> roles = stickyRolesData.getActions().stream()
+                                .filter(actionData -> actionData.getMemberId() == member.getIdLong() && stickyRolesData.getRoleIds().contains(actionData.getRoleId()))
+                                .map(actionData -> actionData.getRole().orElse(null))
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+                        if (roles.size() > 0) {
+                            checkRoles(
+                                    locale,
+                                    Command.getCommandLanguage(StickyRolesCommand.class, locale).getTitle(),
+                                    member,
+                                    roles
+                            );
+                        }
+                    });
         }
     }
 
