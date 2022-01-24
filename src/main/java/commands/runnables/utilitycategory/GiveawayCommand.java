@@ -294,7 +294,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             durationMinutes = giveaway.getDurationMinutes();
             amountOfWinners = giveaway.getWinners();
             imageLink = giveaway.getImageUrl().orElse(null);
-            channel = new AtomicTextChannel(event.getGuild().getTextChannelById(giveaway.getTextChannelId()));
+            channel = new AtomicTextChannel(event.getGuild().getIdLong(), giveaway.getTextChannelId());
             instant = giveaway.getStart();
             emoji = giveaway.getEmoji();
             setState(CONFIGURE_MESSAGE);
