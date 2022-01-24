@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class HttpRequest {
 
-    private static final String USER_AGENT = String.format("Lawliet Discord Bot v%s made by Aninoss#7220", BotUtil.getCurrentVersion());
+    private static final String USER_AGENT = String.format("Lawliet Discord Bot v%s by Aninoss#7220 (https://lawlietbot.xyz/)", BotUtil.getCurrentVersion());
 
     private static final HttpClient httpClient = new HttpClient();
 
