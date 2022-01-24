@@ -421,9 +421,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Override
     public boolean onReaction(@NotNull GenericGuildMessageReactionEvent event) throws Throwable {
         if (getState() == UPDATE_EMOJI) {
-            event.getReaction().removeReaction(event.getUser()).queue();
             processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
-            processDraw(event.getMember(), true);
+            processDraw(event.getMember(), true).exceptionally(ExceptionLogger.get());
+            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+                event.getReaction().removeReaction(event.getUser()).queue();
+            }
             return false;
         }
         return false;
