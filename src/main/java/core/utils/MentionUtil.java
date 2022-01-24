@@ -86,24 +86,21 @@ public class MentionUtil {
                 }
 
                 if (StringUtil.stringIsLong(idString)) {
-                    long userId = Long.parseUnsignedLong(idString);
-                    if (!usedIds.contains(userId)) {
+                    long userId = Long.parseLong(idString);
+                    if (!usedIds.contains(userId) && NumberUtil.countDigits(userId) >= 17) {
                         usedIds.add(userId);
-                        if (NumberUtil.countDigits(userId) >= 17) {
-                            try {
-                                User user = ShardManager.fetchUserById(userId).get();
-                                if (!userList.contains(user)) {
-                                    userList.add(user);
-                                    newInput = newInput.replace(segment, "");
-                                    if (onlyOne) {
-                                        break;
-                                    }
+                        try {
+                            User user = ShardManager.fetchUserById(userId).get();
+                            if (!userList.contains(user)) {
+                                userList.add(user);
+                                newInput = newInput.replace(segment, "");
+                                if (onlyOne) {
+                                    break;
                                 }
-                            } catch (InterruptedException | ExecutionException e) {
-                                //Ignore
                             }
+                        } catch (InterruptedException | ExecutionException e) {
+                            //Ignore
                         }
-
                         if (usedIds.size() >= 10) {
                             break;
                         }
