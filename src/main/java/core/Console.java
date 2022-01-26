@@ -169,7 +169,9 @@ public class Console {
                 .exceptionally(ExceptionLogger.get())
                 .thenAccept(user -> {
                     MainLogger.get().info("@{}: {}", user.getAsTag(), text);
-                    JDAUtil.sendPrivateMessage(user, text).queue();
+                    JDAUtil.openPrivateChannel(user)
+                            .flatMap(messageChannel -> messageChannel.sendMessage(text))
+                            .queue();
                 });
     }
 

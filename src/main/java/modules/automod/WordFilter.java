@@ -3,9 +3,9 @@ package modules.automod;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import commands.Category;
 import commands.Command;
 import commands.runnables.moderationcategory.WordFilterCommand;
-import commands.Category;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
@@ -36,8 +36,11 @@ public class WordFilter extends AutoModAbstract {
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getTextChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), StringUtil.shortenString(message.getContentRaw(), 1024), true);
 
-        bannedWordsBean.getLogReceiverUserIds()
-                .forEach(memberId -> JDAUtil.sendPrivateMessage(memberId, eb.build()).queue());
+        for (Long userId : bannedWordsBean.getLogReceiverUserIds()) {
+            JDAUtil.openPrivateChannel(message.getJDA(), userId)
+                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                    .queue();
+        }
     }
 
     @Override

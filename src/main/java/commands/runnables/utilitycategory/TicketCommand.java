@@ -347,7 +347,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 onTicketCreate(ticketData, event.getChannel(), event.getMember());
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
-                JDAUtil.sendPrivateMessage(event.getMember(), eb.build())
+                JDAUtil.openPrivateChannel(event.getMember())
+                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
                         .queue();
             }
         } else if (ticketChannel != null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), TICKET_CLOSE_EMOJI)) {

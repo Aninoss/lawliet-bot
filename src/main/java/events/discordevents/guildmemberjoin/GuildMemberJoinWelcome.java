@@ -63,7 +63,9 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                             )
                     );
 
-            JDAUtil.sendPrivateMessage(member, eb.build()).queue();
+            JDAUtil.openPrivateChannel(member)
+                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                    .queue();
         }
     }
 

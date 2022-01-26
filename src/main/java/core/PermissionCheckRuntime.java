@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
@@ -62,7 +61,11 @@ public class PermissionCheckRuntime {
             eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
             eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime", channel != null, Command.getCommandProperties(c).trigger(), channel != null ? channel.getAsMention() : "", permissionsList));
 
-            Optional.ofNullable(guild.getOwner()).ifPresent(owner -> JDAUtil.sendPrivateMessage(owner, eb.build()).queue());
+            if (guild.getOwner() != null) {
+                JDAUtil.openPrivateChannel(guild.getOwner())
+                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                        .queue();
+            }
             setErrorInstant(id, Permission.getRaw(permissions));
         }
 
@@ -93,7 +96,11 @@ public class PermissionCheckRuntime {
             eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
             eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", Command.getCommandProperties(c).trigger(), rolesList));
 
-            Optional.ofNullable(guild.getOwner()).ifPresent(owner -> JDAUtil.sendPrivateMessage(owner, eb.build()).queue());
+            if (guild.getOwner() != null) {
+                JDAUtil.openPrivateChannel(guild.getOwner())
+                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                        .queue();
+            }
             setErrorInstant(guild.getIdLong(), PERMISSION_ROLE_POS);
         }
 

@@ -74,7 +74,9 @@ public abstract class RolePlayAbstract extends Command {
                     EmbedBuilder authorEmbed = EmbedFactory.getEmbedDefault()
                             .setDescription(args);
                     EmbedUtil.setMemberAuthor(authorEmbed, event.getMember());
-                    JDAUtil.sendPrivateMessage(AssetIds.OWNER_USER_ID, authorEmbed.build()).queue();
+                    JDAUtil.openPrivateChannel(event.getJDA(), AssetIds.OWNER_USER_ID)
+                            .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(authorEmbed.build()))
+                            .queue();
 
                     String text = "**How disgusting! I refuse to run this command!**";
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, text)

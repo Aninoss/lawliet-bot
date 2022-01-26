@@ -8,6 +8,7 @@ import commands.runnables.NavigationAbstract;
 import constants.AssetIds;
 import core.*;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 public class ExceptionUtil {
 
@@ -47,17 +48,17 @@ public class ExceptionUtil {
         if (submitToDeveloper) {
             int state = -1;
             if (command instanceof NavigationAbstract) {
-                state = ((NavigationAbstract)command).getState();
+                state = ((NavigationAbstract) command).getState();
             }
             MainLogger.get().error("Exception for command \"{}\" (state {}) and code {}", command.getTrigger(), state, code, throwable);
             if (Program.productionMode()) {
-                JDAUtil.sendPrivateMessage(
-                        AssetIds.OWNER_USER_ID,
-                        EmbedFactory.getEmbedError()
-                                .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code) + " \"" + command.getTrigger() + "\"")
-                                .setDescription(transmitStackTrace)
-                                .build()
-                ).queue();
+                MessageEmbed messageEmbed = EmbedFactory.getEmbedError()
+                        .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code) + " \"" + command.getTrigger() + "\"")
+                        .setDescription(transmitStackTrace)
+                        .build();
+                JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), AssetIds.OWNER_USER_ID)
+                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(messageEmbed))
+                        .queue();
             }
         }
     }

@@ -18,10 +18,9 @@ public class GuildMemberRoleRemovePatreonRole extends GuildMemberRoleRemoveAbstr
             for (long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getRoles().get(0).getIdLong() == roleId) {
                     MainLogger.get().info("PATREON LEFT {} ({})", event.getUser().getAsTag(), event.getUser().getId());
-                    JDAUtil.sendPrivateMessage(
-                            AssetIds.OWNER_USER_ID,
-                            "PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getAsTag())
-                    ).queue();
+                    JDAUtil.openPrivateChannel(event.getJDA(), AssetIds.OWNER_USER_ID)
+                            .flatMap(messageChannel -> messageChannel.sendMessage("PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getAsTag())))
+                            .queue();
                     break;
                 }
             }

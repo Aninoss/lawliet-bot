@@ -162,7 +162,9 @@ public class Mod {
             members.forEach(member -> {
                 if (!member.getUser().isBot()) {
                     try {
-                        JDAUtil.sendPrivateMessage(member, eb.build()).complete();
+                        JDAUtil.openPrivateChannel(member)
+                                .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                                .complete();
                     } catch (Throwable e) {
                         MainLogger.get().error("Exception", e);
                     }
@@ -183,7 +185,9 @@ public class Mod {
                     .forEach(member -> {
                         if (!member.getUser().isBot()) {
                             try {
-                                JDAUtil.sendPrivateMessage(member, eb.build()).complete();
+                                JDAUtil.openPrivateChannel(member)
+                                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                                        .complete();
                             } catch (Throwable e) {
                                 MainLogger.get().error("Exception", e);
                             }

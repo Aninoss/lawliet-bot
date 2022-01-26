@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import commands.Category;
 import commands.Command;
 import commands.runnables.moderationcategory.InviteFilterCommand;
 import constants.AssetIds;
-import commands.Category;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.cache.InviteCache;
@@ -62,8 +62,11 @@ public class InviteFilter extends AutoModAbstract {
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getTextChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), StringUtil.shortenString(content, 1024), false);
 
-        spBlockBean.getLogReceiverUserIds()
-                .forEach(memberId -> JDAUtil.sendPrivateMessage(memberId, eb.build()).queue());
+        for (Long userId : spBlockBean.getLogReceiverUserIds()) {
+            JDAUtil.openPrivateChannel(message.getJDA(), userId)
+                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                    .queue();
+        }
     }
 
     @Override

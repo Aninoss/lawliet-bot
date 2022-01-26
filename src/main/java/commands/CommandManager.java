@@ -363,10 +363,10 @@ public class CommandManager {
 
         if (!sendHelpDm(event.getMember(), command)) {
             if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR)) {
-                JDAUtil.sendPrivateMessage(
-                        event.getMember(),
-                        TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", StringUtil.escapeMarkdown(event.getChannel().getName()))
-                ).queue();
+                String text = TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", StringUtil.escapeMarkdown(event.getChannel().getName()));
+                JDAUtil.openPrivateChannel(event.getMember())
+                        .flatMap(messageChannel -> messageChannel.sendMessage(text))
+                        .queue();
             }
         }
 
@@ -379,7 +379,9 @@ public class CommandManager {
                     .setTitle(null);
             Member lawliet = member.getGuild().getSelfMember();
             EmbedUtil.setMemberAuthor(eb, lawliet);
-            JDAUtil.sendPrivateMessage(member, eb.build()).queue();
+            JDAUtil.openPrivateChannel(member)
+                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                    .queue();
             return true;
         }
         return false;

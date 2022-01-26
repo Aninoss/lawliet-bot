@@ -23,7 +23,9 @@ public class GuildMemberJoinVerifyPatreonServer extends GuildMemberJoinAbstract 
         ) {
             MainLogger.get().info("Kicking {} due to joining the beta server without a premium subscription", member.getId());
             String text = "You need to be a Lawliet premium subscriber to join this server: https://lawlietbot.xyz/premium";
-            JDAUtil.sendPrivateMessage(member, text).submit()
+            JDAUtil.openPrivateChannel(member)
+                    .flatMap(messageChannel -> messageChannel.sendMessage(text))
+                    .submit()
                     .thenRun(() -> event.getGuild().kick(member).queue());
             return false;
         }

@@ -19,10 +19,9 @@ public class GuildMemberRoleAddPatreonRole extends GuildMemberRoleAddAbstract {
             for (long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getRoles().get(0).getIdLong() == roleId) {
                     MainLogger.get().info("NEW PATREON {} ({})", event.getUser().getAsTag(), event.getUser().getId());
-                    JDAUtil.sendPrivateMessage(
-                            AssetIds.OWNER_USER_ID,
-                            "NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getAsTag())
-                    ).queue();
+                    JDAUtil.openPrivateChannel(event.getJDA(), AssetIds.OWNER_USER_ID)
+                            .flatMap(messageChannel -> messageChannel.sendMessage("NEW PATREON USER: " + StringUtil.escapeMarkdown(event.getUser().getAsTag())))
+                            .queue();
                     PatreonCache.getInstance().requestUpdate();
                     break;
                 }

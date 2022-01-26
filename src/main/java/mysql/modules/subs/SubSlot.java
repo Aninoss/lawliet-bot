@@ -3,8 +3,10 @@ package mysql.modules.subs;
 import java.util.Locale;
 import java.util.Observable;
 import commands.Category;
+import core.ShardManager;
 import core.TextManager;
 import core.assets.UserAsset;
+import core.components.ActionRows;
 import core.utils.JDAUtil;
 import mysql.modules.bannedusers.DBBannedUsers;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -44,20 +46,22 @@ public class SubSlot extends Observable implements UserAsset {
     public void sendEmbed(Locale locale, EmbedBuilder eb, Button... buttons) {
         if (!DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId)) {
             eb.setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
-            JDAUtil.sendPrivateMessage(userId, eb.build(), buttons).queue(v -> {
-                if (errors > 0) {
-                    errors = 0;
-                    setChanged();
-                    notifyObservers();
-                }
-            }, e -> {
-                if (++errors >= 3) {
-                    DBSubs.getInstance().retrieve(command).remove(userId);
-                } else {
-                    setChanged();
-                    notifyObservers();
-                }
-            });
+            JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
+                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()).setActionRows(ActionRows.of(buttons)))
+                    .queue(v -> {
+                        if (errors > 0) {
+                            errors = 0;
+                            setChanged();
+                            notifyObservers();
+                        }
+                    }, e -> {
+                        if (++errors >= 3) {
+                            DBSubs.getInstance().retrieve(command).remove(userId);
+                        } else {
+                            setChanged();
+                            notifyObservers();
+                        }
+                    });
         }
     }
 

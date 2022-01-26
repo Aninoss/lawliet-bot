@@ -19,10 +19,10 @@ public class LinkFilter {
         ) {
             message.delete().queue();
             if (guild.getIdLong() == AssetIds.ANICORD_SERVER_ID) {
-                JDAUtil.sendPrivateMessage(
-                        message.getMember(),
-                        "⚠️ Du benötigst den ersten Fischereirang, bevor du Links auf **Anicord** senden kannst!\nMehr Informationen dazu findest du auf <#608455541978824739>"
-                ).queue();
+                String text = "⚠️ Du benötigst den ersten Fischereirang, bevor du Links auf **Anicord** senden kannst!\nMehr Informationen dazu findest du auf <#608455541978824739>";
+                JDAUtil.openPrivateChannel(message.getMember())
+                        .flatMap(messageChannel -> messageChannel.sendMessage(text))
+                        .queue();
                 message.getGuild().getTextChannelById(819350890263085097L)
                         .sendMessage("LINK BLOCK FOR " + message.getAuthor().getAsTag() + " IN " + message.getTextChannel().getAsMention() + ": " + message.getContentRaw())
                         .queue();
