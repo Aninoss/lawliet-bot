@@ -52,8 +52,8 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
                     this,
                     getString(
                             "status",
-                            guildBean.getFisheryVcHoursCap().isPresent(),
-                            guildBean.getFisheryVcHoursCap().map(StringUtil::numToString).orElse(getString("unlimited"))
+                            guildBean.getFisheryVcHoursCapEffectively().isPresent(),
+                            guildBean.getFisheryVcHoursCapEffectively().map(StringUtil::numToString).orElse(getString("unlimited"))
                     )
             );
 
@@ -77,7 +77,6 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
         }
 
         int value = Integer.parseInt(args);
-
         if (value < 1 || value > 23) {
             return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "23"));
         }
@@ -87,7 +86,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     }
 
     private EmbedBuilder markUnlimited() {
-        guildBean.setFisheryVcHoursCap(null);
+        guildBean.setFisheryVcHoursCap(0);
         return EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(null), getString("unlimited")));
     }
 

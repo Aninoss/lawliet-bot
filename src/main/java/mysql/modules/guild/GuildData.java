@@ -10,7 +10,8 @@ import net.dv8tion.jda.api.entities.TextChannel;
 public class GuildData extends DataWithGuild {
 
     private final long guildId;
-    private long fisheryRoleMin, fisheryRoleMax;
+    private long fisheryRoleMin;
+    private long fisheryRoleMax;
     private String prefix;
     private Locale locale;
     private FisheryStatus fisheryStatus;
@@ -25,7 +26,7 @@ public class GuildData extends DataWithGuild {
 
     public GuildData(long guildId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles,
                      Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax,
-                     int fisheryVcHoursCap, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit,
+                     Integer fisheryVcHoursCap, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit,
                      boolean big
     ) {
         super(guildId);
@@ -38,11 +39,7 @@ public class GuildData extends DataWithGuild {
         this.fisherySingleRoles = fisherySingleRoles;
         this.fisheryTreasureChests = fisheryTreasureChests;
         this.fisheryReminders = fisheryReminders;
-        if (fisheryVcHoursCap == 0) {
-            this.fisheryVcHoursCap = null;
-        } else {
-            this.fisheryVcHoursCap = fisheryVcHoursCap;
-        }
+        this.fisheryVcHoursCap = fisheryVcHoursCap;
         this.fisheryAnnouncementChannelId = fisheryAnnouncementChannelId != null && fisheryAnnouncementChannelId != 0 ? fisheryAnnouncementChannelId : null;
         this.commandAuthorMessageRemove = commandAuthorMessageRemove;
         this.fisheryCoinsGivenLimit = fisheryCoinsGivenLimit;
@@ -95,6 +92,18 @@ public class GuildData extends DataWithGuild {
 
     public Optional<Integer> getFisheryVcHoursCap() {
         return Optional.ofNullable(fisheryVcHoursCap);
+    }
+
+    public Optional<Integer> getFisheryVcHoursCapEffectively() {
+        if (fisheryVcHoursCap != null && ServerPatreonBoostCache.get(getGuildId())) {
+            if (fisheryVcHoursCap != 0) {
+                return Optional.of(fisheryVcHoursCap);
+            } else {
+                return Optional.empty();
+            }
+        } else {
+            return Optional.of(5);
+        }
     }
 
     public boolean isSaved() {
@@ -172,7 +181,7 @@ public class GuildData extends DataWithGuild {
         notifyObservers();
     }
 
-    public void setFisheryVcHoursCap(Integer fisheryVcHoursCap) {
+    public void setFisheryVcHoursCap(int fisheryVcHoursCap) {
         if (this.fisheryVcHoursCap == null || !this.fisheryVcHoursCap.equals(fisheryVcHoursCap)) {
             this.fisheryVcHoursCap = fisheryVcHoursCap;
             setChanged();

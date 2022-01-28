@@ -10,17 +10,19 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import constants.CodeBlockColor;
-import modules.fishery.FisheryGear;
 import constants.LogStatus;
 import constants.Settings;
-import core.*;
+import core.CustomObservableList;
+import core.EmbedFactory;
+import core.MainLogger;
+import core.TextManager;
 import core.assets.MemberAsset;
 import core.cache.PatreonCache;
-import core.cache.ServerPatreonBoostCache;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
+import modules.fishery.FisheryGear;
 import modules.fishery.Stock;
 import modules.fishery.StockMarket;
 import mysql.RedisManager;
@@ -386,8 +388,8 @@ public class FisheryMemberData implements MemberAsset {
 
             Instant bannedUntil = RedisManager.parseInstant(bannedUntilResp.get());
             if (bannedUntil == null || bannedUntil.isBefore(Instant.now())) {
-                Optional<Integer> limitOpt = getGuildData().getFisheryVcHoursCap();
-                if (limitOpt.isPresent() && ServerPatreonBoostCache.get(getGuildId())) {
+                Optional<Integer> limitOpt = getGuildData().getFisheryVcHoursCapEffectively();
+                if (limitOpt.isPresent()) {
                     cleanDailyValues();
                     newMinutes = Math.min(newMinutes, limitOpt.get() * 60 - RedisManager.parseInteger(voiceMinutesResp.get()));
                 }

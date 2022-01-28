@@ -41,6 +41,10 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
                     if (resultSet.next()) {
+                        Integer fisheryVcHoursCap = resultSet.getInt(10);
+                        if (resultSet.wasNull()) {
+                            fisheryVcHoursCap = null;
+                        }
                         return new GuildData(
                                 serverId,
                                 resultSet.getString(1),
@@ -52,7 +56,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
                                 resultSet.getBoolean(7),
                                 resultSet.getLong(8),
                                 resultSet.getLong(9),
-                                resultSet.getInt(10),
+                                fisheryVcHoursCap,
                                 resultSet.getBoolean(11),
                                 resultSet.getBoolean(12),
                                 resultSet.getBoolean(13)
@@ -69,7 +73,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
                                 true,
                                 50000,
                                 800000000,
-                                0,
+                                null,
                                 false,
                                 true,
                                 false
