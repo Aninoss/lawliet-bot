@@ -1,10 +1,13 @@
 package modules.porn;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import constants.Settings;
+import core.MainLogger;
 import core.restclient.RestClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,16 +45,15 @@ public class BooruImageDownloader {
                             return Optional.of(new BooruImage());
                         }
 
-                        JSONObject responseJson = new JSONObject(content);
-                        BooruImage booruImage = new BooruImage()
-                                .setScore(responseJson.getInt("score"))
-                                .setImageUrl(responseJson.getString("imageUrl"))
-                                .setOriginalImageUrl(responseJson.getString("originalImageUrl"))
-                                .setPageUrl(responseJson.getString("pageUrl"))
-                                .setVideo(responseJson.getBoolean("video"))
-                                .setInstant(Instant.parse(responseJson.getString("instant")));
-
-                        return Optional.of(booruImage);
+                        ObjectMapper mapper = new ObjectMapper();
+                        mapper.registerModule(new JavaTimeModule());
+                        try {
+                            BooruImage booruImage = mapper.readValue(content, BooruImage.class);
+                            return Optional.of(booruImage);
+                        } catch (JsonProcessingException e) {
+                            MainLogger.get().error("Booru image parsing error", e);
+                            return Optional.empty();
+                        }
                     } else {
                         return Optional.empty();
                     }
