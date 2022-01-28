@@ -12,6 +12,7 @@ public class BooruRequest {
     private boolean animatedOnly;
     private boolean canBeVideo;
     private boolean explicit;
+    private boolean test;
     private List<String> filters;
     private List<String> skippedResults;
 
@@ -65,6 +66,11 @@ public class BooruRequest {
         return this;
     }
 
+    public BooruRequest setTest(boolean test) {
+        this.test = test;
+        return this;
+    }
+
     public long getGuildId() {
         return guildId;
     }
@@ -95,6 +101,10 @@ public class BooruRequest {
 
     public boolean getExplicit() {
         return explicit;
+    }
+
+    public boolean getTest() {
+        return test;
     }
 
     public List<String> getFilters() {

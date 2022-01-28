@@ -9,8 +9,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import constants.Settings;
 import core.MainLogger;
 import core.restclient.RestClient;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class BooruImageDownloader {
 
@@ -18,26 +16,23 @@ public class BooruImageDownloader {
                                                               boolean animatedOnly, boolean explicit,
                                                               Set<String> filters, List<String> skippedResults,
                                                               boolean test
-    ) throws ExecutionException {
-        JSONArray filtersJson = new JSONArray();
+    ) throws ExecutionException, JsonProcessingException {
         filters = new HashSet<>(filters);
         filters.addAll(Arrays.asList(Settings.NSFW_FILTERS));
-        filters.forEach(filtersJson::put);
 
-        JSONArray skippedResultsJson = new JSONArray();
-        skippedResults.forEach(skippedResultsJson::put);
+        BooruRequest booruRequest = new BooruRequest()
+                .setGuildId(guildId)
+                .setDomain(domain)
+                .setSearchTerm(searchTerm)
+                .setAnimatedOnly(animatedOnly)
+                .setExplicit(explicit)
+                .setFilters(List.copyOf(filters))
+                .setSkippedResults(skippedResults)
+                .setTest(test);
 
-        JSONObject json = new JSONObject();
-        json.put("guildId", guildId);
-        json.put("domain", domain);
-        json.put("searchTerm", searchTerm);
-        json.put("animatedOnly", animatedOnly);
-        json.put("explicit", explicit);
-        json.put("filters", filtersJson);
-        json.put("skippedResults", skippedResultsJson);
-        json.put("test", test);
-
-        return RestClient.WEBCACHE.post("booru", "application/json", json.toString())
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        return RestClient.WEBCACHE.post("booru", "application/json", mapper.writeValueAsString(booruRequest))
                 .thenApply(response -> {
                     String content = response.getBody();
                     if (content.startsWith("{")) {
@@ -45,8 +40,6 @@ public class BooruImageDownloader {
                             return Optional.of(new BooruImage());
                         }
 
-                        ObjectMapper mapper = new ObjectMapper();
-                        mapper.registerModule(new JavaTimeModule());
                         try {
                             BooruImage booruImage = mapper.readValue(content, BooruImage.class);
                             return Optional.of(booruImage);

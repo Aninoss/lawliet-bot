@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Category;
@@ -194,7 +195,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
     private boolean checkServiceAvailable() {
         try {
             return booruImageDownloader.getPicture(0L, getDomain(), "", false, isExplicit(), Collections.emptySet(), Collections.emptyList(), true).get().isPresent();
-        } catch (InterruptedException | ExecutionException | NoSuchElementException e) {
+        } catch (InterruptedException | ExecutionException | NoSuchElementException | JsonProcessingException e) {
             //Ignore
             return false;
         }
@@ -338,7 +339,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                 futures.add(
                         booruImageDownloader.getPicture(guildId, domain, search, animatedOnly, explicit, nsfwFilter, usedResults, false)
                 );
-            } catch (ExecutionException e) {
+            } catch (ExecutionException | JsonProcessingException e) {
                 MainLogger.get().error("Error while downloading porn", e);
             }
         }

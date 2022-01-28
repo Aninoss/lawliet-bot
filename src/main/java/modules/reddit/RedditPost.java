@@ -4,119 +4,141 @@ import java.time.Instant;
 
 public class RedditPost {
 
-    private String title, author, url, subreddit, domain, image, thumbnail, description, flair;
-    private int score, comments;
+    private String title;
+    private String author;
+    private String url;
+    private String subreddit;
+    private String domain;
+    private String image;
+    private String thumbnail;
+    private String description;
+    private String flair;
+    private int score;
+    private int comments;
     private boolean nsfw;
     private Instant instant;
 
     public RedditPost() {
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public void setUrl(String url) {
-        if (url.startsWith("/")) {
-            url = "https://www.reddit.com" + url;
-        }
-        this.url = url;
-    }
-
-    public void setSubreddit(String subreddit) {
-        this.subreddit = subreddit;
-    }
-
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public void setComments(int comments) {
-        this.comments = comments;
-    }
-
-    public void setNsfw(boolean nsfw) {
-        this.nsfw = nsfw;
-    }
-
     public String getTitle() {
         return title;
+    }
+
+    public RedditPost setTitle(String title) {
+        this.title = title;
+        return this;
     }
 
     public String getAuthor() {
         return author;
     }
 
+    public RedditPost setAuthor(String author) {
+        this.author = author;
+        return this;
+    }
+
     public String getUrl() {
         return url;
+    }
+
+    public RedditPost setUrl(String url) {
+        if (url.startsWith("/")) {
+            url = "https://www.reddit.com" + url;
+        }
+        this.url = url;
+        return this;
     }
 
     public String getSubreddit() {
         return subreddit;
     }
 
+    public RedditPost setSubreddit(String subreddit) {
+        this.subreddit = subreddit;
+        return this;
+    }
+
     public String getDomain() {
         return domain;
     }
 
-    public int getScore() {
-        return score;
-    }
-
-    public int getComments() {
-        return comments;
-    }
-
-    public boolean isNsfw() {
-        return nsfw;
+    public RedditPost setDomain(String domain) {
+        this.domain = domain;
+        return this;
     }
 
     public String getImage() {
         return image;
     }
 
-    public void setImage(String image) {
+    public RedditPost setImage(String image) {
         this.image = image;
+        return this;
     }
 
     public String getThumbnail() {
         return thumbnail;
     }
 
-    public void setThumbnail(String thumbnail) {
+    public RedditPost setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
+        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public RedditPost setDescription(String description) {
         this.description = description;
+        return this;
     }
 
     public String getFlair() {
         return flair;
     }
 
-    public void setFlair(String flair) {
+    public RedditPost setFlair(String flair) {
         this.flair = flair;
+        return this;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public RedditPost setScore(int score) {
+        this.score = score;
+        return this;
+    }
+
+    public int getComments() {
+        return comments;
+    }
+
+    public RedditPost setComments(int comments) {
+        this.comments = comments;
+        return this;
+    }
+
+    public boolean isNsfw() {
+        return nsfw;
+    }
+
+    public RedditPost setNsfw(boolean nsfw) {
+        this.nsfw = nsfw;
+        return this;
     }
 
     public Instant getInstant() {
         return instant;
     }
 
-    public void setInstant(Instant instant) {
+    public RedditPost setInstant(Instant instant) {
         this.instant = instant;
+        return this;
     }
 
 }
