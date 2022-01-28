@@ -45,7 +45,7 @@ public class FisheryVoiceChannelObserver implements ExceptionRunnable {
                         MainLogger.get().error("Could not manage vc fish observer", e);
                     }
                 });
-        MainLogger.get().info("VC Observer - {} Actions", actions.get());
+        MainLogger.get().info("Voice Channel Observer - {} Actions", actions.get());
     }
 
     private void manageVoiceFish(Guild guild, AtomicInteger actions) {

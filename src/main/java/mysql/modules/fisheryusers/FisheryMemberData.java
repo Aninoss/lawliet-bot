@@ -22,14 +22,13 @@ import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
+import events.scheduleevents.events.FisheryVoiceChannelObserver;
 import modules.fishery.FisheryGear;
 import modules.fishery.Stock;
 import modules.fishery.StockMarket;
 import mysql.RedisManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
@@ -578,6 +577,15 @@ public class FisheryMemberData implements MemberAsset {
 
         if (isBanned) {
             EmbedUtil.addLog(eb, LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "banned"));
+        } else {
+            Boolean voiceStatus = getVoiceStatus(member);
+            if (voiceStatus != null) {
+                EmbedUtil.addLog(
+                        eb,
+                        null,
+                        TextManager.getString(locale, TextManager.GENERAL, "voice_activity", voiceStatus)
+                );
+            }
         }
 
         return eb;
@@ -591,6 +599,28 @@ public class FisheryMemberData implements MemberAsset {
                 StringUtil.numToString(numberNow),
                 diffSign + StringUtil.numToString(diff)
         );
+    }
+
+    public Boolean getVoiceStatus(Member member) {
+        GuildVoiceState guildVoiceState = member.getVoiceState();
+        VoiceChannel voiceChannel;
+        if (guildVoiceState != null &&
+                guildVoiceState.inVoiceChannel() &&
+                (voiceChannel = guildVoiceState.getChannel()) != null
+        ) {
+            boolean active = FisheryVoiceChannelObserver.getValidVCMembers(voiceChannel).contains(member);
+            if (active) {
+                int voiceMinutes = RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_VOICE_MINUTES));
+                int voiceLimit = getGuildData().getFisheryVcHoursCapEffectively()
+                        .map(value -> value * 60)
+                        .orElse(Integer.MAX_VALUE);
+                return voiceMinutes < voiceLimit;
+            } else {
+                return false;
+            }
+        } else {
+            return null;
+        }
     }
 
     public void levelUp(FisheryGear gear) {
