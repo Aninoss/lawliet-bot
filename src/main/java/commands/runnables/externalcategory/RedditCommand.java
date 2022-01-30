@@ -132,7 +132,7 @@ public class RedditCommand extends Command implements OnAlertListener {
             slot.getTextChannel().get().sendMessageEmbeds(eb.build()).complete();
             return AlertResponse.STOP_AND_DELETE;
         } else {
-            slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
+            slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
             Optional<PostBundle<RedditPost>> postBundleOpt = redditDownloader.retrievePostsBulk(key, slot.getArgs().orElse(null)).get();
             TextChannel channel = slot.getTextChannel().get();
             boolean containsOnlyNsfw = true;
