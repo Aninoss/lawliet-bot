@@ -73,7 +73,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         nsfwFiltersList.forEach(filter -> nsfwFilters.add(filter.toLowerCase()));
         args = args.replace("`", "");
 
-        Matcher m = RegexPatterns.BOORU_AMOUNT_PATTERN.matcher(args);
+        Matcher m = RegexPatterns.BOORU_AMOUNT.matcher(args);
         long amount = 1;
         if (m.find()) {
             String group = m.group();

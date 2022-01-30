@@ -1,244 +1,118 @@
 package modules.reddit;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-import commands.Category;
-import constants.Language;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import constants.RegexPatterns;
 import core.MainLogger;
-import core.TextManager;
-import core.internet.HttpResponse;
-import core.internet.HttpCache;
-import core.utils.InternetUtil;
-import core.utils.StringUtil;
+import core.restclient.RestClient;
 import modules.PostBundle;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class RedditDownloader {
 
-    private final static int TIMEOUT_MIN = 60;
-
-    private Instant nextRequestBlockUntil = null;
-    private final SubredditCache subredditCache = new SubredditCache();
-
-    public RedditPost getImagePost(Locale locale, String sub) throws IOException, InterruptedException, ExecutionException {
-        sub = InternetUtil.escapeForURL(sub);
-
-        RedditPost redditPost;
-        int i = 0;
-        do {
-            redditPost = getPost(locale, sub);
-            i++;
-            if (i >= 50) break;
-        } while (redditPost == null || redditPost.getImage() == null || !InternetUtil.urlContainsImage(redditPost.getImage()));
-
-        return redditPost;
-    }
-
-    public RedditPost getPost(Locale locale, String sub) throws InterruptedException, ExecutionException {
-        if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil)) {
-            return null;
-        }
-
-        if (sub.startsWith("r/")) sub = sub.substring(2);
-        sub = InternetUtil.escapeForURL(sub.replace(" ", "_"));
-
-        Subreddit subreddit = subredditCache.get(sub);
-        String postReference = subreddit.getPostReference();
-        if (postReference.length() > 0) postReference = "&after=" + postReference;
-
-        String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1" + postReference;
-
-        HttpResponse httpResponse = HttpCache.get(downloadUrl).get();
-        JSONObject tempData = httpResponseToJson(httpResponse);
-        if (tempData == null) {
-            return null;
-        }
-
-        if (!tempData.isNull("after")) {
-            postReference = tempData.getString("after");
+    public CompletableFuture<Optional<RedditPost>> retrievePost(long guildId, String input, boolean nsfwAllowed) {
+        String[] inputExt = extractSubredditAndOrderBy(input);
+        if (inputExt != null) {
+            return RestClient.WEBCACHE.get("reddit/single/" + guildId + "/" + nsfwAllowed + "/" + inputExt[0] + "/" + inputExt[1])
+                    .thenApply(response -> {
+                        String content = response.getBody();
+                        if (content.startsWith("{")) {
+                            try {
+                                ObjectMapper mapper = new ObjectMapper();
+                                mapper.registerModule(new JavaTimeModule());
+                                RedditPost redditPost = mapper.readValue(content, RedditPost.class);
+                                return Optional.of(redditPost);
+                            } catch (JsonProcessingException e) {
+                                MainLogger.get().error("Reddit post parsing error", e);
+                                return Optional.empty();
+                            }
+                        } else {
+                            return Optional.empty();
+                        }
+                    });
         } else {
-            postReference = "";
+            return CompletableFuture.completedFuture(Optional.empty());
         }
-
-        JSONArray postData = filterPostData(tempData.getJSONArray("children"));
-        if (postData.length() <= 0) {
-            return null;
-        }
-
-        JSONObject data = postData.getJSONObject(subreddit.getRemainingIndex(postReference, postData.length())).getJSONObject("data");
-
-        return getPost(locale, data);
     }
 
-    public PostBundle<RedditPost> getPostTracker(Locale locale, String sub, String arg) throws InterruptedException, ExecutionException {
-        if (nextRequestBlockUntil != null && Instant.now().isBefore(nextRequestBlockUntil)) {
-            return null;
+    public CompletableFuture<Optional<PostBundle<RedditPost>>> retrievePostsBulk(String input, String args) {
+        String[] inputExt = extractSubredditAndOrderBy(input);
+        if (inputExt != null) {
+            return RestClient.WEBCACHE.get("reddit/bulk/" + inputExt[0] + "/" + inputExt[1])
+                    .thenApply(response -> {
+                        String content = response.getBody();
+                        if (content.startsWith("[")) {
+                            try {
+                                ObjectMapper mapper = new ObjectMapper();
+                                mapper.registerModule(new JavaTimeModule());
+                                List<RedditPost> redditPosts = mapper.readerForListOf(RedditPost.class)
+                                        .readValue(content);
+                                if (redditPosts.size() > 0) {
+                                    return Optional.of(processPostsBulk(redditPosts, args));
+                                } else {
+                                    return Optional.empty();
+                                }
+                            } catch (JsonProcessingException e) {
+                                MainLogger.get().error("Reddit post list parsing error", e);
+                                return Optional.empty();
+                            }
+                        } else {
+                            return Optional.empty();
+                        }
+                    });
+        } else {
+            return CompletableFuture.completedFuture(Optional.empty());
         }
-
-        if (sub.startsWith("r/")) sub = sub.substring(2);
-        sub = InternetUtil.escapeForURL(sub.replace(" ", "_"));
-
-        String downloadUrl = "https://www.reddit.com/r/" + sub + ".json?raw_json=1";
-
-        HttpResponse httpResponse = HttpCache.get(downloadUrl).get();
-        JSONObject tempData = httpResponseToJson(httpResponse);
-        if (tempData == null) {
-            return null;
-        }
-
-        JSONArray postData = filterPostData(tempData.getJSONArray("children"));
-        if (postData.length() <= 0) return null;
-
-        ArrayList<String> postedIdList = new ArrayList<>();
-        if (arg != null) postedIdList.addAll(Arrays.asList(arg.split("\\|")));
-
-        return trackerProcess(locale, postData, postedIdList);
     }
 
-    private JSONObject httpResponseToJson(HttpResponse httpResponse) {
-        if (httpResponse.getCode() / 100 != 2) {
-            return null;
+    private PostBundle<RedditPost> processPostsBulk(List<RedditPost> redditPosts, String args) {
+        ArrayList<RedditPost> newRedditPosts = new ArrayList<>();
+        ArrayList<String> usedIdList = new ArrayList<>();
+        if (args != null) {
+            usedIdList.addAll(Arrays.asList(args.split("\\|")));
         }
 
-        String dataString = httpResponse.getBody();
-        if (!dataString.startsWith("{")) {
-            return null;
-        }
-
-        JSONObject root = new JSONObject(dataString);
-        if (root.has("error") && root.getInt("error") == 429) {
-            nextRequestBlockUntil = Instant.now().plus(TIMEOUT_MIN, ChronoUnit.MINUTES);
-            return null;
-        }
-
-        return root.getJSONObject("data");
-    }
-
-    private PostBundle<RedditPost> trackerProcess(Locale locale, JSONArray postData, ArrayList<String> postedIdList) {
-        ArrayList<RedditPost> redditPosts = new ArrayList<>();
-        for (int i = 0; i < postData.length() - 1; i++) {
-            String name = postData.getJSONObject(i).getJSONObject("data").getString("name");
-
-            if (!postedIdList.contains(name)) {
-                RedditPost post = getPost(locale, postData.getJSONObject(i).getJSONObject("data"));
-                if (post == null) return null;
-
-                redditPosts.add(post);
-                postedIdList.add(name);
+        for (RedditPost redditPost : redditPosts) {
+            String id = redditPost.getId();
+            if (!usedIdList.contains(id)) {
+                newRedditPosts.add(redditPost);
+                usedIdList.add(id);
             }
         }
 
-        while (postedIdList.size() > 100) {
-            postedIdList.remove(0);
+        while (usedIdList.size() > 100) {
+            usedIdList.remove(0);
         }
 
         StringBuilder newArg = new StringBuilder();
-        for (int i = 0; i < postedIdList.size(); i++) {
-            if (i > 0) newArg.append("|");
-            newArg.append(postedIdList.get(i));
-        }
-
-        return new PostBundle<>(redditPosts, newArg.toString());
-    }
-
-    private JSONArray filterPostData(JSONArray postData) {
-        JSONArray newArray = new JSONArray();
-        for (int i = 0; i < postData.length() - 1; i++) {
-            JSONObject entry = postData.getJSONObject(i);
-            JSONObject data = entry.getJSONObject("data");
-            if (!data.has("stickied") || !data.getBoolean("stickied")) {
-                newArray.put(entry);
+        for (int i = 0; i < usedIdList.size(); i++) {
+            if (i > 0) {
+                newArg.append("|");
             }
+            newArg.append(usedIdList.get(i));
         }
 
-        return newArray;
+        return new PostBundle<>(newRedditPosts, newArg.toString());
     }
 
-    public boolean checkRedditConnection() {
-        try {
-            return getPost(Language.EN.getLocale(), "memes") != null;
-        } catch (InterruptedException | ExecutionException e) {
-            MainLogger.get().error("Error in reddit check", e);
-        }
-        return false;
-    }
-
-    private RedditPost getPost(Locale locale, JSONObject data) {
-        RedditPost post = new RedditPost();
-
-        String description;
-        String url;
-        String source;
-        String thumbnail;
-        String domain = "";
-        Object flair;
-
-        if (data.has("subreddit_name_prefixed")) post.setSubreddit(data.getString("subreddit_name_prefixed"));
-        post.setScore(data.has("score") ? data.getInt("score") : 0);
-        post.setComments(data.has("num_comments") ? data.getInt("num_comments") : 0);
-        post.setInstant(new Date(data.getLong("created_utc") * 1000L).toInstant());
-
-        if (!data.has("over_18")) return null;
-
-        post.setNsfw(data.getBoolean("over_18"));
-        post.setTitle(StringUtil.shortenString(data.getString("title"), 256));
-        post.setAuthor(data.getString("author"));
-
-        flair = data.get("link_flair_text");
-        if (flair != null && !("" + flair).equals("null") && !("" + flair).equals("") && !("" + flair).equals(" ")) {
-            post.setFlair(flair.toString());
-        }
-        description = data.getString("selftext");
-        url = data.getString("url");
-        post.setUrl(url);
-        source = "https://www.reddit.com" + data.getString("permalink");
-        thumbnail = data.getString("thumbnail");
-        if (url.contains("//")) {
-            domain = url.split("//")[1].replace("www.", "");
-            if (domain.contains("/")) domain = domain.split("/")[0];
-        }
-        boolean postSource = true;
-
-        if (data.has("post_hint") && data.getString("post_hint").equals("image")) {
-            post.setImage(url);
-            post.setUrl(source);
-            postSource = false;
-            domain = "reddit.com";
-        } else {
-            if (data.has("preview") && data.getJSONObject("preview").has("images")) {
-                post.setThumbnail(data.getJSONObject("preview").getJSONArray("images").getJSONObject(0).getJSONObject("source").getString("url"));
-            } else {
-                if (InternetUtil.urlContainsImage(url)) {
-                    post.setImage(url);
-                    post.setUrl(source);
-                    postSource = false;
-                    domain = "reddit.com";
-                } else if (thumbnail.toLowerCase().startsWith("http")) {
-                    post.setThumbnail(thumbnail);
-                }
+    private String[] extractSubredditAndOrderBy(String input) {
+        Matcher matcher = RegexPatterns.SUBREDDIT.matcher(input.replace(" ", "_"));
+        if (matcher.matches()) {
+            String subreddit = matcher.group("subreddit");
+            String orderBy = matcher.group("orderby");
+            if (orderBy == null) {
+                orderBy = "hot";
             }
-        }
-
-        if (postSource && !source.equals(url)) {
-            String linkText = TextManager.getString(locale, Category.EXTERNAL, "reddit_linktext", source);
-            description = StringUtil.shortenString(description, 2048 - linkText.length());
-            if (!description.equals("")) description += "\n\n";
-            description += linkText;
+            return new String[] { subreddit, orderBy };
         } else {
-            description = StringUtil.shortenString(description, 2048);
+            return null;
         }
-
-        post.setDescription(description);
-        post.setDomain(domain);
-
-        return post;
     }
 
 }

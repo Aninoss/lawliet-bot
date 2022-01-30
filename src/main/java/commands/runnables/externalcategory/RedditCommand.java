@@ -4,7 +4,9 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
@@ -48,13 +50,8 @@ public class RedditCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        if (forceSubreddit == null) {
-            args = args.trim();
-            if (args.startsWith("r/")) {
-                args = args.substring(2);
-            }
-        } else {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException, JsonProcessingException {
+        if (forceSubreddit != null) {
             args = forceSubreddit;
         }
 
@@ -63,36 +60,41 @@ public class RedditCommand extends Command implements OnAlertListener {
                     .exceptionally(ExceptionLogger.get());
             return false;
         } else {
-            RedditPost post;
-            int errors = 0;
-            do {
-                post = redditDownloader.getPost(getLocale(), args);
-            } while (++errors < 5 && post != null && (post.isNsfw() && !event.getChannel().isNSFW()));
+            String finalArgs = args;
+            return redditDownloader.retrievePost(event.getGuild().getIdLong(), args, event.getChannel().isNSFW()).get()
+                    .map(post -> {
+                        if (post.isNsfw() && !event.getChannel().isNSFW()) {
+                            setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
+                            drawMessageNew(EmbedFactory.getNSFWBlockEmbed(getLocale())).exceptionally(ExceptionLogger.get());
+                            return false;
+                        }
 
-            if (post != null) {
-                if (post.isNsfw() && !event.getChannel().isNSFW()) {
-                    setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
-                    drawMessageNew(EmbedFactory.getNSFWBlockEmbed(getLocale())).exceptionally(ExceptionLogger.get());
-                    return false;
-                }
-
-                EmbedBuilder eb = getEmbed(post);
-                EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
-                drawMessageNew(eb).exceptionally(ExceptionLogger.get());
-                return true;
-            } else {
-                EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                        .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                        .setDescription(TextManager.getNoResultsString(getLocale(), args));
-                drawMessageNew(eb).exceptionally(ExceptionLogger.get());
-                return false;
-            }
+                        EmbedBuilder eb = getEmbed(post);
+                        EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
+                        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+                        return true;
+                    }).orElseGet(() -> {
+                        EmbedBuilder eb = EmbedFactory.getEmbedError(this)
+                                .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
+                                .setDescription(TextManager.getNoResultsString(getLocale(), finalArgs));
+                        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+                        return false;
+                    });
         }
     }
 
     private EmbedBuilder getEmbed(RedditPost post) {
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, StringUtil.shortenString(post.getDescription(), 5000))
-                .setTitle(post.getTitle())
+        String desc = post.getDescription();
+        if (post.getSourceLink() != null) {
+            String add = TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_linktext", post.getSourceLink());
+            desc = StringUtil.shortenString(desc, 2048 - add.length());
+            desc += add;
+        } else {
+            desc = StringUtil.shortenString(desc, 2048);
+        }
+
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, desc)
+                .setTitle(StringUtil.shortenString(post.getTitle(), 256))
                 .setAuthor(post.getAuthor(), "https://www.reddit.com/user/" + post.getAuthor(), null)
                 .setTimestamp(post.getInstant());
 
@@ -118,7 +120,6 @@ public class RedditCommand extends Command implements OnAlertListener {
         }
 
         EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.EXTERNAL, "reddit_footer", flairText, StringUtil.numToString(post.getScore()), StringUtil.numToString(post.getComments()), post.getDomain()) + nsfwString);
-
         return eb;
     }
 
@@ -132,11 +133,12 @@ public class RedditCommand extends Command implements OnAlertListener {
             return AlertResponse.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
-            PostBundle<RedditPost> postBundle = redditDownloader.getPostTracker(getLocale(), key, slot.getArgs().orElse(null));
+            Optional<PostBundle<RedditPost>> postBundleOpt = redditDownloader.retrievePostsBulk(key, slot.getArgs().orElse(null)).get();
             TextChannel channel = slot.getTextChannel().get();
             boolean containsOnlyNsfw = true;
 
-            if (postBundle != null) {
+            if (postBundleOpt.isPresent()) {
+                PostBundle<RedditPost> postBundle = postBundleOpt.get();
                 ArrayList<MessageEmbed> embedList = new ArrayList<>();
                 for (int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     RedditPost post = postBundle.getPosts().get(i);

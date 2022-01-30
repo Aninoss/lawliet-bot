@@ -4,6 +4,7 @@ import java.time.Instant;
 
 public class RedditPost {
 
+    private String id;
     private String title;
     private String author;
     private String url;
@@ -13,12 +14,22 @@ public class RedditPost {
     private String thumbnail;
     private String description;
     private String flair;
+    private String sourceLink;
     private int score;
     private int comments;
     private boolean nsfw;
     private Instant instant;
 
     public RedditPost() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public RedditPost setId(String id) {
+        this.id = id;
+        return this;
     }
 
     public String getTitle() {
@@ -44,9 +55,6 @@ public class RedditPost {
     }
 
     public RedditPost setUrl(String url) {
-        if (url.startsWith("/")) {
-            url = "https://www.reddit.com" + url;
-        }
         this.url = url;
         return this;
     }
@@ -102,6 +110,15 @@ public class RedditPost {
 
     public RedditPost setFlair(String flair) {
         this.flair = flair;
+        return this;
+    }
+
+    public String getSourceLink() {
+        return sourceLink;
+    }
+
+    public RedditPost setSourceLink(String sourceLink) {
+        this.sourceLink = sourceLink;
         return this;
     }
 

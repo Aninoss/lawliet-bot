@@ -428,7 +428,7 @@ public class MentionUtil {
         }
 
         str = reformatForDigits(str);
-        Matcher m = RegexPatterns.AMOUNT_FILTER_PATTERN.matcher(str);
+        Matcher m = RegexPatterns.AMOUNT_FILTER.matcher(str);
         while (m.find()) {
             double value = Double.parseDouble(m.group("digits").replace(",", "."));
             String unit = m.group("unit").toLowerCase();
@@ -475,9 +475,9 @@ public class MentionUtil {
     public static MentionValue<Long> getTimeMinutes(String str) {
         long min = 0;
         List<Pair<Pattern, Integer>> unitList = List.of(
-                new Pair<>(RegexPatterns.MINUTES_PATTERN, 1),
-                new Pair<>(RegexPatterns.HOURS_PATTERN, 60),
-                new Pair<>(RegexPatterns.DAYS_PATTERN, 60 * 24)
+                new Pair<>(RegexPatterns.MINUTES, 1),
+                new Pair<>(RegexPatterns.HOURS, 60),
+                new Pair<>(RegexPatterns.DAYS, 60 * 24)
         );
 
         for (Pair<Pattern, Integer> patternIntegerPair : unitList) {
@@ -493,7 +493,7 @@ public class MentionUtil {
     }
 
     public static String reformatForDigits(String str) {
-        Pattern p = RegexPatterns.DIGIT_REFORMAT_PATTERN;
+        Pattern p = RegexPatterns.DIGIT_REFORMAT;
         Matcher m = p.matcher(str);
         while (m.find()) {
             String group = m.group();

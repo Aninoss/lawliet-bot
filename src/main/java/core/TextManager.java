@@ -69,7 +69,7 @@ public class TextManager {
         if (texts.containsKey(key)) {
             try {
                 String text = texts.getString(key);
-                String[] placeholders = extractGroups(RegexPatterns.TEXT_PLACEHOLDER_PATTERN, text);
+                String[] placeholders = extractGroups(RegexPatterns.TEXT_PLACEHOLDER, text);
                 text = processMultiOptions(text, option);
                 text = processReferences(text, placeholders, category, locale);
                 text = processParams(text, placeholders, args);
@@ -123,7 +123,7 @@ public class TextManager {
     }
 
     private static String processMultiOptions(String text, int option) {
-        String[] groups = extractGroups(RegexPatterns.TEXT_MULTIOPTION_PATTERN, text);
+        String[] groups = extractGroups(RegexPatterns.TEXT_MULTIOPTION, text);
 
         for (String group : groups) {
             if (group.contains("|")) {
