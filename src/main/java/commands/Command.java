@@ -99,14 +99,14 @@ public abstract class Command implements OnTriggerListener {
 
             String reaction = EmojiUtil.getLoadingEmojiTag(message.getTextChannel());
             if (!DBGuild.getInstance().retrieve(message.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively()) {
-                message.addReaction(reaction).queue();
+                // message.addReaction(reaction).queue(); TODO: test total impact
             }
             MainScheduler.poll(100, getTrigger() + "_loading", () -> {
                 if (isProcessing.get()) {
                     return true;
                 } else {
                     if (!DBGuild.getInstance().retrieve(message.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively()) {
-                        message.removeReaction(reaction).queue();
+                        //message.removeReaction(reaction).queue(); TODO: test total impact
                     }
                     loadingReactionSet = false;
                     return false;

@@ -339,9 +339,6 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
 
         if (ticketChannel == null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), getCommandProperties().emoji())) {
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
-                message.removeReaction(getCommandProperties().emoji(), event.getUser()).queue();
-            }
             Category category = event.getChannel().getParent();
             if (category != null && category.getTextChannels().size() < 50) {
                 onTicketCreate(ticketData, event.getChannel(), event.getMember());
