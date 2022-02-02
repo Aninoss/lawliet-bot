@@ -40,14 +40,14 @@ public class MentionUtil {
                 input,
                 u -> getUserAsMention(((Member) u).getIdLong(), true),
                 u -> getUserAsMention(((Member) u).getIdLong(), false),
-                u -> ((Member) u).getId(),
-                u -> "@" + ((Member) u).getUser().getAsTag(),
-                u -> "@" + ((Member) u).getUser().getName(),
-                u -> "@" + ((Member) u).getEffectiveName() + "#" + ((Member) u).getUser().getDiscriminator(),
-                u -> "@" + ((Member) u).getEffectiveName(),
-                u -> ((Member) u).getUser().getAsTag(),
-                u -> ((Member) u).getUser().getName(),
-                u -> ((Member) u).getEffectiveName()
+                u -> " " + ((Member) u).getId() + " ",
+                u -> " @" + ((Member) u).getUser().getAsTag() + " ",
+                u -> " @" + ((Member) u).getUser().getName() + " ",
+                u -> " @" + ((Member) u).getEffectiveName() + "#" + ((Member) u).getUser().getDiscriminator() + " ",
+                u -> " @" + ((Member) u).getEffectiveName() + " ",
+                u -> " " + ((Member) u).getUser().getAsTag() + " ",
+                u -> " " + ((Member) u).getUser().getName() + " ",
+                u -> " " + ((Member) u).getEffectiveName() + " "
         );
     }
 
@@ -63,11 +63,11 @@ public class MentionUtil {
                 input,
                 u -> getUserAsMention(((User) u).getIdLong(), true),
                 u -> getUserAsMention(((User) u).getIdLong(), false),
-                u -> ((User) u).getId(),
-                u -> "@" + ((User) u).getAsTag(),
-                u -> "@" + ((User) u).getName(),
-                u -> ((User) u).getAsTag(),
-                u -> ((User) u).getName()
+                u -> " " + ((User) u).getId() + " ",
+                u -> " @" + ((User) u).getAsTag() + " ",
+                u -> " @" + ((User) u).getName() + " ",
+                u -> " " + ((User) u).getAsTag() + " ",
+                u -> " " + ((User) u).getName() + " "
         );
     }
 
@@ -118,9 +118,9 @@ public class MentionUtil {
                 new ArrayList<>(),
                 input,
                 r -> ((Role) r).getAsMention(),
-                r -> ((Role) r).getId(),
-                r -> "@" + ((Role) r).getName(),
-                r -> ((Role) r).getName()
+                r -> " " + ((Role) r).getId() + " ",
+                r -> "@ " + ((Role) r).getName() + " ",
+                r -> " " + ((Role) r).getName() + " "
         );
     }
 
@@ -130,9 +130,9 @@ public class MentionUtil {
                 new ArrayList<>(),
                 input,
                 c -> ((TextChannel) c).getAsMention(),
-                c -> ((TextChannel) c).getId(),
-                c -> "#" + ((TextChannel) c).getName(),
-                c -> ((TextChannel) c).getName()
+                c -> " " + ((TextChannel) c).getId() + " ",
+                c -> " #" + ((TextChannel) c).getName() + " ",
+                c -> " " + ((TextChannel) c).getName() + " "
         );
     }
 
@@ -142,13 +142,15 @@ public class MentionUtil {
                 new ArrayList<>(),
                 input,
                 c -> ((VoiceChannel) c).getAsMention(),
-                c -> ((VoiceChannel) c).getId(),
-                c -> "#" + ((VoiceChannel) c).getName(),
-                c -> ((VoiceChannel) c).getName()
+                c -> " " + ((VoiceChannel) c).getId() + " ",
+                c -> " #" + ((VoiceChannel) c).getName() + " ",
+                c -> " " + ((VoiceChannel) c).getName() + " "
         );
     }
 
-    private static <T> MentionList<T> generateMentionList(Collection<T> sourceList, ArrayList<T> mentionList, String input, MentionFunction... functions) {
+    private static <T> MentionList<T> generateMentionList(Collection<T> sourceList, ArrayList<T> mentionList,
+                                                          String input, MentionFunction... functions
+    ) {
         for (MentionFunction function : functions) {
             boolean found = false;
 
@@ -172,10 +174,10 @@ public class MentionUtil {
         return new MentionList<>(input, mentionList);
     }
 
-    private static boolean matches(String str, String check) {
+    private static boolean matches(String input, String check) {
         check = check.toLowerCase();
-        str = " " + str.toLowerCase().replace("\n", " ") + " ";
-        return str.contains(" " + check + " ");
+        input = " " + input.toLowerCase().replace("\n", " ") + " ";
+        return input.contains(check);
     }
 
     public static MentionList<URL> getImages(String string) {

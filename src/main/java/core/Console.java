@@ -109,7 +109,12 @@ public class Console {
     }
 
     private static void onActionsServers(String[] args) {
-        List<Pair<Long, Integer>> guildActionCounts = RestLogger.countGuilds(20);
+        int limit = 20;
+        if (args.length > 1) {
+            limit = Integer.parseInt(args[1]);
+        }
+
+        List<Pair<Long, Integer>> guildActionCounts = RestLogger.countGuilds(limit);
         for (Pair<Long, Integer> guildActionCount : guildActionCounts) {
             MainLogger.get().info("{}: {} requests", guildActionCount.getKey(), guildActionCount.getValue());
         }
