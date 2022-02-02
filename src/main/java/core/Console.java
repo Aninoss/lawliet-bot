@@ -51,6 +51,7 @@ public class Console {
         tasks.put("actions_servers", Console::onActionsServers);
         tasks.put("actions", Console::onActions);
         tasks.put("stuck", Console::onStuck);
+        tasks.put("clear_routes", Console::onClearRoutes);
         tasks.put("routes", Console::onRoutes);
         tasks.put("patreon_fetch", Console::onPatreonFetch);
         tasks.put("survey", Console::onSurvey);
@@ -120,6 +121,11 @@ public class Console {
 
     private static void onStuck(String[] args) {
         MainLogger.get().info("Cluster {} command stuck counter: {}", Program.getClusterId(), CommandContainer.getCommandStuckCounter());
+    }
+
+    private static void onClearRoutes(String[] args) {
+        RequestRouteLogger.clear();
+        MainLogger.get().info("Routes cleared");
     }
 
     private static void onRoutes(String[] args) {

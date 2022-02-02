@@ -43,7 +43,7 @@ public class RestLogger {
     private static void cleanOutDatedActions() {
         while(actionEvents.size() > 0) {
             Instant actionEventInstant = actionEvents.getFirst().instant;
-            if (actionEventInstant.isBefore(Instant.now().minus(Duration.ofHours(1)))) {
+            if (actionEventInstant.isBefore(Instant.now().minus(Duration.ofMinutes(1)))) {
                 actionEvents.removeFirst();
             } else {
                 break;

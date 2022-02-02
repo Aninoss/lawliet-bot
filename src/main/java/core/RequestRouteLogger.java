@@ -18,6 +18,10 @@ public class RequestRouteLogger {
         routeMap.put(path, requestMeta);
     }
 
+    public static void clear() {
+        routeMap.clear();
+    }
+
     public static List<RequestMeta> getRoutes() {
         return new ArrayList<>(routeMap.values()).stream()
                 .sorted((e0, e1) -> Long.compare(e1.requests, e0.requests))
