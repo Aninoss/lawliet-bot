@@ -602,6 +602,7 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public Boolean getVoiceStatus(Member member) {
+        cleanDailyValues();
         GuildVoiceState guildVoiceState = member.getVoiceState();
         VoiceChannel voiceChannel;
         if (guildVoiceState != null &&
