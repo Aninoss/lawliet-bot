@@ -106,7 +106,7 @@ public class MemberCacheController implements MemberCachePolicy {
     }
 
     public void cacheGuild(Guild guild) {
-        guildAccessMap.put(guild.getIdLong(), Instant.now().plus(Duration.ofMinutes(30)));
+        guildAccessMap.put(guild.getIdLong(), Instant.now().plus(Duration.ofMinutes(10)));
     }
 
     public void cacheGuildIfNotExist(Guild guild) {

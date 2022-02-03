@@ -364,16 +364,18 @@ public class Console {
     private static void onThreads(String[] args) {
         StringBuilder sb = new StringBuilder();
 
+        int counter = 0;
         for (Thread t : Thread.getAllStackTraces().keySet()) {
             if (args.length < 2 || t.getName().matches(args[1])) {
                 sb.append(t.getName()).append(", ");
+                counter++;
             }
         }
 
         String str = sb.toString();
         if (str.length() >= 2) str = str.substring(0, str.length() - 2);
 
-        MainLogger.get().info("\n--- THREADS FOR CLUSTER {} ({}) ---\n{}\n", Program.getClusterId(), Thread.getAllStackTraces().size(), str);
+        MainLogger.get().info("\n--- THREADS FOR CLUSTER {} ({}) ---\n{}\n", Program.getClusterId(), counter, str);
     }
 
     private static void onMySQLConnect(String[] args) {

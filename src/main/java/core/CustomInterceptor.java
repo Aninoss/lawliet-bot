@@ -14,19 +14,21 @@ public class CustomInterceptor implements Interceptor {
     @Override
     public @NotNull Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        request = request.newBuilder()
-                .url(request.url().url().toString().replace("https://discord.com", "https://" + System.getenv("DISCORD_DOMAIN")))
-                .build();
+        if ("discord.com".equals(request.url().topPrivateDomain())) {
+            request = request.newBuilder()
+                    .url("https://" + System.getenv("DISCORD_DOMAIN") + request.url().encodedPath())
+                    .build();
 
-        if (RegexPatterns.INTERACTION.matcher(request.url().encodedPath()).matches()) {
-            Request newRequest = request.newBuilder().removeHeader("authorization").build();
-            return chain.proceed(newRequest);
-        }
+            if (RegexPatterns.INTERACTION.matcher(request.url().encodedPath()).matches()) {
+                Request newRequest = request.newBuilder().removeHeader("authorization").build();
+                return chain.proceed(newRequest);
+            }
 
-        try {
-            requestQuota();
-        } catch (InterruptedException e) {
-            MainLogger.get().error("Interrupted", e);
+            try {
+                requestQuota();
+            } catch (InterruptedException e) {
+                MainLogger.get().error("Interrupted", e);
+            }
         }
 
         return chain.proceed(request);

@@ -1,8 +1,6 @@
 package core;
 
 import java.time.Instant;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 import com.jockie.jda.memory.MemoryOptimizations;
 import core.emoji.EmojiTable;
 import core.utils.BotUtil;
@@ -16,18 +14,6 @@ import websockets.syncserver.SyncManager;
 public class Main {
 
     public static void main(String[] args) {
-        try { //TODO: remove?
-            TextManager.getString(new Locale("en_US"), "casino", "casino_retry");
-        } catch (Throwable e) {
-            MainLogger.get().error("Error", e);
-            try {
-                TimeUnit.SECONDS.sleep(5);
-            } catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
-            }
-            System.exit(1);
-        }
-
         installMemoryOptimizations();
         try {
             Program.init();

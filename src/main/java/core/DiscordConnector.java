@@ -3,8 +3,10 @@ package core;
 import java.util.EnumSet;
 import java.util.List;
 import javax.security.auth.login.LoginException;
+import com.neovisionaries.ws.client.WebSocketFactory;
 import commands.SlashCommandManager;
 import constants.AssetIds;
+import core.internet.HttpClient;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
@@ -21,7 +23,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import net.dv8tion.jda.internal.utils.IOUtil;
+import net.dv8tion.jda.internal.utils.config.ThreadingConfig;
 import websockets.syncserver.SyncManager;
 
 public class DiscordConnector {
@@ -29,7 +31,7 @@ public class DiscordConnector {
     private static boolean started = false;
     private static final ConcurrentSessionController concurrentSessionController = new ConcurrentSessionController();
 
-    private static JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
+    private static final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
             .setSessionController(concurrentSessionController)
             .setMemberCachePolicy(MemberCacheController.getInstance())
             .setChunkingFilter(new ChunkingFilterController())
@@ -37,7 +39,11 @@ public class DiscordConnector {
             .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)
             .setActivity(Activity.watching(getActivityText()))
-            .setHttpClient(IOUtil.newHttpClientBuilder().addInterceptor(new CustomInterceptor()).build())
+            .setHttpClient(HttpClient.getClient())
+            .setWebsocketFactory(new WebSocketFactory())
+            .setRateLimitPool(ThreadingConfig.newScheduler(16, () -> "JDA", "RateLimit", false))
+            .setGatewayPool(ThreadingConfig.newScheduler(8, () -> "JDA", "Gateway", true))
+            .setAudioPool(ThreadingConfig.newScheduler(1, () -> "JDA", "Audio", true))
             .addEventListeners(new DiscordEventAdapter());
 
     static {
@@ -56,7 +62,7 @@ public class DiscordConnector {
         MessageAction.setDefaultMentionRepliedUser(false);
         AllowedMentions.setDefaultMentionRepliedUser(false);
 
-        new Thread(() -> {
+        GlobalThreadPool.getExecutorService().submit(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
                 try {
                     jdaBuilder.useSharding(i, totalShards)
@@ -66,7 +72,7 @@ public class DiscordConnector {
                     System.exit(2);
                 }
             }
-        }, "Shard-Starter").start();
+        });
     }
 
     public static void reconnectApi(int shardId) {
