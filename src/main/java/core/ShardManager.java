@@ -19,9 +19,6 @@ import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.jetbrains.annotations.NotNull;
 import websockets.syncserver.SendEvent;
 
 public class ShardManager {
@@ -33,7 +30,7 @@ public class ShardManager {
     }
 
     private static final JDABlocker JDABlocker = new JDABlocker();
-    private static final HashMap<Integer, JDAExtended> jdaMap = new HashMap<>();
+    private static final HashMap<Integer, JDAWrapper> jdaMap = new HashMap<>();
     private static final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
     private static int shardIntervalMin = 0;
     private static int shardIntervalMax = 0;
@@ -101,15 +98,15 @@ public class ShardManager {
     }
 
     public static void addJDA(JDA jda) {
-        JDAExtended jdaExtended = jdaMap.get(jda.getShardInfo().getShardId());
-        if (jdaExtended != null) {
-            jdaExtended.getJDA().shutdown();
+        JDAWrapper jdaWrapper = jdaMap.get(jda.getShardInfo().getShardId());
+        if (jdaWrapper != null) {
+            jdaWrapper.getJDA().shutdown();
         }
-        jdaMap.put(jda.getShardInfo().getShardId(), new JDAExtended(jda));
+        jdaMap.put(jda.getShardInfo().getShardId(), new JDAWrapper(jda));
     }
 
     public static synchronized Optional<JDA> getJDA(int shard) {
-        return Optional.ofNullable(jdaMap.get(shard)).map(JDAExtended::getJDA);
+        return Optional.ofNullable(jdaMap.get(shard)).map(JDAWrapper::getJDA);
     }
 
     public static synchronized boolean jdaIsConnected(int shard) {
@@ -117,21 +114,20 @@ public class ShardManager {
     }
 
     public static synchronized Optional<JDA> getAnyJDA() {
-        return new ArrayList<>(jdaMap.values()).stream().findFirst().map(JDAExtended::getJDA);
+        return new ArrayList<>(jdaMap.values()).stream().findFirst().map(JDAWrapper::getJDA);
     }
 
     public static synchronized List<JDA> getConnectedLocalJDAs() {
         return new ArrayList<>(jdaMap.values()).stream()
-                .filter(JDAExtended::isActive)
-                .map(JDAExtended::getJDA)
+                .filter(JDAWrapper::isActive)
+                .map(JDAWrapper::getJDA)
                 .collect(Collectors.toList());
     }
 
     private static void startJDAPoller() {
         MainScheduler.poll(10, ChronoUnit.SECONDS, "api_poller", () -> {
             try {
-                new ArrayList<>(jdaMap.values())
-                        .forEach(JDAExtended::checkConnection);
+                new ArrayList<>(jdaMap.values()).forEach(JDAWrapper::checkConnection);
             } catch (Throwable e) {
                 MainLogger.get().error("Error while polling apis", e);
             }
@@ -196,7 +192,7 @@ public class ShardManager {
             return false;
         }
 
-        for (JDAExtended jda : jdaMap.values()) {
+        for (JDAWrapper jda : jdaMap.values()) {
             if (jda.getJDA().getGuilds().stream()
                     .anyMatch(guild -> guild.getIdLong() == guildId)
             ) {
@@ -213,7 +209,7 @@ public class ShardManager {
 
     public static List<Guild> getLocalGuilds() {
         ArrayList<Guild> guildList = new ArrayList<>();
-        for (JDAExtended jda : jdaMap.values()) {
+        for (JDAWrapper jda : jdaMap.values()) {
             jda.getJDA().getGuilds().stream()
                     .filter(guild -> JDABlocker.guildIsAvailable(guild.getIdLong()))
                     .forEach(guildList::add);
@@ -282,7 +278,7 @@ public class ShardManager {
     }
 
     public static Optional<User> getCachedUserById(long userId) {
-        for (JDAExtended jda : jdaMap.values()) {
+        for (JDAWrapper jda : jdaMap.values()) {
             User user = jda.getJDA().getUserById(userId);
             if (user != null) {
                 return Optional.of(user);
@@ -351,54 +347,6 @@ public class ShardManager {
     public static Optional<String> getEmoteById(long emojiId) {
         Optional<String> emojiOptional = getLocalEmoteById(emojiId).map(Emote::getAsMention);
         return emojiOptional.or(() -> ExternalEmojiCache.getEmoteById(emojiId));
-    }
-
-
-    private static class JDAExtended {
-
-        private final JDA jda;
-        private boolean alive = false;
-        private boolean active = true;
-        private int errors = 0;
-
-        public JDAExtended(JDA jda) {
-            this.jda = jda;
-            jda.addEventListener(new ListenerAdapter() {
-                @Override
-                public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-                    alive = true;
-                }
-            });
-        }
-
-        public JDA getJDA() {
-            return jda;
-        }
-
-        public JDA getJda() {
-            return jda;
-        }
-
-        public boolean isActive() {
-            return active;
-        }
-
-        public void checkConnection() {
-            if (alive) {
-                ShardManager.decreaseGlobalErrorCounter();
-                errors = 0;
-                alive = false;
-            } else {
-                MainLogger.get().debug("No data from shard {}", jda.getShardInfo().getShardId());
-                if (++errors % 5 == 4) {    /* reconnect after 40 seconds */
-                    active = false;
-                    ShardManager.increaseGlobalErrorCounter();
-                    MainLogger.get().warn("Shard {} temporarily offline", jda.getShardInfo().getShardId());
-                    ShardManager.reconnectShard(jda);
-                }
-            }
-        }
-
     }
 
 }
