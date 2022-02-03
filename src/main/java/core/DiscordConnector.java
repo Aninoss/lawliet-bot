@@ -86,7 +86,9 @@ public class DiscordConnector {
         MainLogger.get().info("Shard {} connection established", jda.getShardInfo().getShardId());
 
         checkConnectionCompleted();
-        MainRepair.start(jda, 20);
+        if (Program.productionMode()) {
+            MainRepair.start(jda, 20);
+        }
     }
 
     private synchronized static void checkConnectionCompleted() {
