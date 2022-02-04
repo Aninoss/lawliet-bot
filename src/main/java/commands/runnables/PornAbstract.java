@@ -259,10 +259,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         nsfwFiltersList.forEach(filter -> nsfwFilters.add(filter.toLowerCase()));
         List<BooruImage> pornImages;
         try {
-            pornImages = alertsCache.get(
-                    getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFiltersList),
+            String cacheKey = getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFiltersList);
+            pornImages = alertsCache.get(cacheKey,
                     () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>())
             );
+            if (pornImages.isEmpty()) {
+                alertsCache.invalidate(cacheKey);
+            }
         } catch (ExecutionException e) {
             if (e.getCause() instanceof IllegalTagException) {
                 EmbedBuilder eb = illegalTagsEmbed();
