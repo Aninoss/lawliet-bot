@@ -14,7 +14,7 @@ public interface RegexPatterns {
     Pattern TEXT_MULTIOPTION = Pattern.compile("(?<!\\\\)\\[(?<inner>[^]]*)]");
     Pattern EMOTE = Pattern.compile("<a?:(?<name>[^:]*):(?<id>[0-9]*)>");
     Pattern INTERACTION = Pattern.compile("^/api/v[0-9]*/(interactions|webhooks)/.*");
-    Pattern PHISHING_DOMAIN = Pattern.compile("(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]");
+    Pattern PHISHING_DOMAIN = Pattern.compile("(?:[A-z0-9](?:[A-z0-9-]{0,61}[A-z0-9])?\\.)+[A-z0-9][A-z0-9-]{0,61}[A-z0-9]");
     Pattern SUBREDDIT = Pattern.compile("^(r/)?(?<subreddit>[a-zA-Z0-9-_]*)(/(?<orderby>hot|new|top|controversial))?$");
 
 }
