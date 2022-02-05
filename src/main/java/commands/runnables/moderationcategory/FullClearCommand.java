@@ -56,7 +56,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
         Optional<Integer> hoursMin = extractHoursMin(args);
         if (hoursMin.isPresent()) {
-            long messageId = registerButtonListener(event.getMember()).join();
+            long messageId = registerButtonListener(event.getMember()).get();
             TimeUnit.SECONDS.sleep(1);
             long authorMessageId = event.isGuildMessageReceivedEvent() ? event.getGuildMessageReceivedEvent().getMessage().getIdLong() : 0L;
             ClearResults clearResults = fullClear(event.getChannel(), hoursMin.get(), authorMessageId, messageId);
