@@ -319,7 +319,7 @@ public abstract class Command implements OnTriggerListener {
                 }
                 future.complete(message);
             }, e -> {
-                MainLogger.get().error("Draw exception for \"{}\"", getTrigger(), ExceptionUtil.generateForStack(t));
+                MainLogger.get().error("Draw exception for \"{}\"", getTrigger(), ExceptionUtil.generateForStack(t, e.getLocalizedMessage()));
                 future.completeExceptionally(e);
             });
 

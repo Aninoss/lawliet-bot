@@ -102,7 +102,7 @@ public class RedditCommand extends Command implements OnAlertListener {
             eb.setThumbnail(post.getThumbnail());
         }
         if (InternetUtil.stringIsURL(post.getUrl())) {
-            eb.setTitle(post.getTitle(), post.getUrl());
+            eb.setTitle(StringUtil.shortenString(post.getTitle(), 256), post.getUrl());
         }
         if (InternetUtil.stringIsURL(post.getImage())) {
             eb.setImage(post.getImage());
