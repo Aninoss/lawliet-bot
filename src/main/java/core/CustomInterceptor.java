@@ -14,8 +14,6 @@ public class CustomInterceptor implements Interceptor {
     @Override
     public @NotNull Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        boolean discordRequest = "discord.com".equals(request.url().topPrivateDomain());
-
         request = request.newBuilder()
                 .url(request.url().url().toString().replace("https://discord.com", "https://" + System.getenv("DISCORD_DOMAIN")))
                 .build();
@@ -25,12 +23,10 @@ public class CustomInterceptor implements Interceptor {
             return chain.proceed(newRequest);
         }
 
-        if (discordRequest) {
-            try {
-                requestQuota();
-            } catch (InterruptedException e) {
-                MainLogger.get().error("Interrupted", e);
-            }
+        try {
+            requestQuota();
+        } catch (InterruptedException e) {
+            MainLogger.get().error("Interrupted", e);
         }
 
         return chain.proceed(request);

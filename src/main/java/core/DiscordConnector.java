@@ -5,7 +5,6 @@ import java.util.List;
 import javax.security.auth.login.LoginException;
 import commands.SlashCommandManager;
 import constants.AssetIds;
-import core.internet.HttpClient;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
@@ -22,6 +21,7 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.dv8tion.jda.internal.utils.IOUtil;
 import websockets.syncserver.SyncManager;
 
 public class DiscordConnector {
@@ -37,7 +37,7 @@ public class DiscordConnector {
             .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)
             .setActivity(Activity.watching(getActivityText()))
-            .setHttpClient(HttpClient.getClient())
+            .setHttpClient(IOUtil.newHttpClientBuilder().addInterceptor(new CustomInterceptor()).build())
             .addEventListeners(new DiscordEventAdapter());
 
     static {
