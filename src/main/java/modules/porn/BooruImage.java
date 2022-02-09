@@ -1,6 +1,7 @@
 package modules.porn;
 
 import java.time.Instant;
+import java.util.List;
 
 public class BooruImage {
 
@@ -10,6 +11,7 @@ public class BooruImage {
     private int score;
     private Instant instant;
     private boolean video;
+    private List<String> tags;
 
     public String getImageUrl() {
         return imageUrl;
@@ -62,6 +64,15 @@ public class BooruImage {
 
     public BooruImage setVideo(boolean video) {
         this.video = video;
+        return this;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public BooruImage setTags(List<String> tags) {
+        this.tags = tags;
         return this;
     }
 

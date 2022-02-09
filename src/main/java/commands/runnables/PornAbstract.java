@@ -110,10 +110,6 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             }
         }
 
-        if (this instanceof PornPredefinedAbstract) {
-            args = "";
-        }
-
         boolean first = true;
         ArrayList<String> usedResults = new ArrayList<>();
         do {
@@ -144,10 +140,15 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                     if (!checkServiceAvailable()) {
                         postApiUnavailable(event.getChannel());
                     } else {
+                        String effectiveArgs = args;
+                        if (this instanceof PornPredefinedAbstract) {
+                            effectiveArgs = "";
+                        }
+
                         if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
-                            drawMessageNew(noResultsEmbed(args)).exceptionally(ExceptionLogger.get());
+                            drawMessageNew(noResultsEmbed(effectiveArgs)).exceptionally(ExceptionLogger.get());
                         } else {
-                            drawMessageNew(noResultsString(args)).exceptionally(ExceptionLogger.get());
+                            drawMessageNew(noResultsString(effectiveArgs)).exceptionally(ExceptionLogger.get());
                         }
                     }
                     return false;
@@ -159,7 +160,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             amount -= pornImages.size();
             first = false;
 
-            Optional<Message> messageTemplateOpt = generatePostMessagesText(pornImages, args, event.getChannel(), 3);
+            Optional<Message> messageTemplateOpt = generatePostMessagesText(pornImages, event.getChannel(), 3);
             if (messageTemplateOpt.isPresent()) {
                 setComponents(generateButtons(pornImages));
                 drawMessageNew(messageTemplateOpt.get().getContentRaw()).exceptionally(ExceptionLogger.get());
@@ -295,7 +296,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         }
 
         List<Button> messageButtons = generateButtons(pornImages);
-        generatePostMessagesText(pornImages, slot.getCommandKey(), channel, 1)
+        generatePostMessagesText(pornImages, channel, 1)
                 .ifPresent(message -> {
                     try {
                         slot.sendMessage(true, message.getContentRaw(), ActionRow.of(messageButtons));
@@ -309,9 +310,31 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         return AlertResponse.CONTINUE_AND_SAVE;
     }
 
-    private Optional<Message> generatePostMessagesText(List<BooruImage> pornImages, String search, TextChannel channel, int max) {
-        StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title", this instanceof PornSearchAbstract, getCommandProperties().emoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"), getPrefix(), getTrigger(), search));
-        getNoticeOptional().ifPresent(notice -> sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice)).append("\n"));
+    private Optional<Message> generatePostMessagesText(List<BooruImage> pornImages, TextChannel channel, int max) {
+        StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title",
+                getCommandProperties().emoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"),
+                getPrefix(), getTrigger()));
+
+        String notice = getNoticeOptional().orElse(null);
+        if (notice != null) {
+            sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice))
+                    .append("\n");
+        } else if (this instanceof PornSearchAbstract) {
+            List<String> tags = pornImages.get(0).getTags();
+            sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_tags"))
+                    .append(" ");
+            for (int i = 0; i < tags.size(); i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+                sb.append("`")
+                        .append(tags.get(i))
+                        .append("`");
+            }
+            sb.append("\n");
+        }
+
+        sb.append("\n");
         for (int i = 0; i < Math.min(max, pornImages.size()); i++) {
             if (pornImages.get(i) != null) {
                 sb.append(pornImages.size() > 1 ? "[" + (i + 1) + "] " : "")

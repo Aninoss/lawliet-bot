@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import constants.RegexPatterns;
@@ -26,6 +27,7 @@ public class RedditDownloader {
                             try {
                                 ObjectMapper mapper = new ObjectMapper();
                                 mapper.registerModule(new JavaTimeModule());
+                                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                                 RedditPost redditPost = mapper.readValue(content, RedditPost.class);
                                 return Optional.of(redditPost);
                             } catch (JsonProcessingException e) {
@@ -51,6 +53,7 @@ public class RedditDownloader {
                             try {
                                 ObjectMapper mapper = new ObjectMapper();
                                 mapper.registerModule(new JavaTimeModule());
+                                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                                 List<RedditPost> redditPosts = mapper.readerForListOf(RedditPost.class)
                                         .readValue(content);
                                 if (redditPosts.size() > 0) {
