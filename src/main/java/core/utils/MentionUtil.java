@@ -157,7 +157,7 @@ public class MentionUtil {
             for (T t : sourceList) {
                 String tag = function.apply(t);
                 if (matches(input, tag)) {
-                    input = input.replaceAll("(?i)" + Pattern.quote(tag), "");
+                    input = input.replaceAll("(?i)" + Pattern.quote(tag.trim()), "");
                     if (!mentionList.contains(t)) {
                         mentionList.add(t);
                     }
