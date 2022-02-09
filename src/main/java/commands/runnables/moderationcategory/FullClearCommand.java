@@ -12,10 +12,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
 import constants.Emojis;
-import core.EmbedFactory;
-import core.ExceptionLogger;
-import core.PermissionCheckRuntime;
-import core.TextManager;
+import core.*;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
@@ -45,6 +42,8 @@ import org.jetbrains.annotations.NotNull;
         aliases = { "fclear", "allclear", "clearall" }
 )
 public class FullClearCommand extends Command implements OnAlertListener, OnButtonListener {
+
+    private static final Random random = new Random();
 
     private boolean interrupt = false;
 
@@ -147,11 +146,15 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         if (PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), textChannel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
             Optional<Integer> hoursMin = extractHoursMin(slot.getCommandKey());
             if (hoursMin.isPresent()) {
-                fullClear(textChannel, hoursMin.get());
-                if (slot.getEffectiveUserMessage().isPresent()) {
-                    slot.sendMessage(true, "");
+                try {
+                    fullClear(textChannel, hoursMin.get());
+                    if (slot.getEffectiveUserMessage().isPresent()) {
+                        slot.sendMessage(true, "");
+                    }
+                } catch (InterruptedException e) {
+                    //ignore
                 }
-                slot.setNextRequest(Instant.now().plus(1, ChronoUnit.HOURS));
+                slot.setNextRequest(Instant.now().plus(60 + random.nextInt(120), ChronoUnit.MINUTES));
                 return AlertResponse.CONTINUE_AND_SAVE;
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_args", "0", "20159"));

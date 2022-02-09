@@ -32,17 +32,16 @@ public class JDAWrapper {
 
     public void checkConnection() {
         if (alive) {
-            active = true; //TODO: check
+            ShardManager.decreaseGlobalErrorCounter();
             errors = 0;
             alive = false;
-            ShardManager.decreaseGlobalErrorCounter();
+            active = true;
         } else {
             MainLogger.get().debug("No data from shard {}", jda.getShardInfo().getShardId());
-            if (++errors % 5 == 4) {
+            if (++errors % 4 == 3) {
                 active = false;
-                MainLogger.get().warn("Shard {} temporarily offline", jda.getShardInfo().getShardId());
-                //ShardManager.reconnectShard(jda); TODO: check
                 ShardManager.increaseGlobalErrorCounter();
+                MainLogger.get().warn("Shard {} temporarily offline", jda.getShardInfo().getShardId());
             }
         }
     }

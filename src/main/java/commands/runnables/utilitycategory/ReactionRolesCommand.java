@@ -650,20 +650,22 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         Member member = event.getMember();
         updateValuesFromMessage(ReactionMessagesCache.get(message).get());
         if (!blockCache.asMap().containsKey(member.getIdLong())) {
-            try {
-                if (!multipleRoles) {
-                    blockCache.put(member.getIdLong(), true);
-                    if (removeMultipleRoles(event)) {
-                        return;
+            GlobalThreadPool.getExecutorService().submit(() -> {
+                try {
+                    if (!multipleRoles) {
+                        blockCache.put(member.getIdLong(), true);
+                        if (removeMultipleRoles(event)) {
+                            return;
+                        }
+                    }
+
+                    giveRole(event);
+                } finally {
+                    if (!multipleRoles) {
+                        blockCache.invalidate(member.getIdLong());
                     }
                 }
-
-                giveRole(event);
-            } finally {
-                if (!multipleRoles) {
-                    blockCache.invalidate(member.getIdLong());
-                }
-            }
+            });
         }
     }
 

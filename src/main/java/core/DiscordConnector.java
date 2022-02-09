@@ -3,7 +3,6 @@ package core;
 import java.util.EnumSet;
 import java.util.List;
 import javax.security.auth.login.LoginException;
-import com.neovisionaries.ws.client.WebSocketFactory;
 import commands.SlashCommandManager;
 import constants.AssetIds;
 import core.internet.HttpClient;
@@ -23,7 +22,6 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import net.dv8tion.jda.internal.utils.config.ThreadingConfig;
 import websockets.syncserver.SyncManager;
 
 public class DiscordConnector {
@@ -40,10 +38,6 @@ public class DiscordConnector {
             .disableCache(CacheFlag.ROLE_TAGS)
             .setActivity(Activity.watching(getActivityText()))
             .setHttpClient(HttpClient.getClient())
-            .setWebsocketFactory(new WebSocketFactory())
-            .setRateLimitPool(ThreadingConfig.newScheduler(16, () -> "JDA", "RateLimit", false))
-            .setGatewayPool(ThreadingConfig.newScheduler(8, () -> "JDA", "Gateway", true))
-            .setAudioPool(ThreadingConfig.newScheduler(1, () -> "JDA", "Audio", true))
             .addEventListeners(new DiscordEventAdapter());
 
     static {
@@ -62,7 +56,7 @@ public class DiscordConnector {
         MessageAction.setDefaultMentionRepliedUser(false);
         AllowedMentions.setDefaultMentionRepliedUser(false);
 
-        GlobalThreadPool.getExecutorService().submit(() -> {
+        new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
                 try {
                     jdaBuilder.useSharding(i, totalShards)
@@ -72,7 +66,7 @@ public class DiscordConnector {
                     System.exit(2);
                 }
             }
-        });
+        }, "Shard-Starter").start();
     }
 
     public static void reconnectApi(int shardId) {
