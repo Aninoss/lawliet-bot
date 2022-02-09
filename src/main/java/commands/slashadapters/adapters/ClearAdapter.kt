@@ -14,6 +14,11 @@ class ClearAdapter : SlashAdapter() {
     public override fun addOptions(commandData: CommandData): CommandData {
         return commandData
             .addOption(OptionType.INTEGER, "amount", "How many messages shall be removed? (2 - 500)", true)
+            .addOption(OptionType.USER, "member", "Filter by a member", false)
+            .addOption(OptionType.USER, "member2", "Filter by a member", false)
+            .addOption(OptionType.USER, "member3", "Filter by a member", false)
+            .addOption(OptionType.USER, "member4", "Filter by a member", false)
+            .addOption(OptionType.USER, "member5", "Filter by a member", false)
     }
 
     override fun process(event: SlashCommandEvent): SlashMeta {

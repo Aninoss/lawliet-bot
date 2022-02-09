@@ -16,9 +16,10 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.cache.PatreonCache;
+import core.mention.MentionList;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
-import core.utils.StringUtil;
+import core.utils.MentionUtil;
 import modules.ClearResults;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -45,6 +46,8 @@ import org.jetbrains.annotations.NotNull;
 public class ClearCommand extends Command implements OnButtonListener {
 
     private boolean interrupt = false;
+    private List<Member> memberFilter;
+    private long amount;
 
     public ClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -52,14 +55,19 @@ public class ClearCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
-        if (args.length() > 0 && StringUtil.stringIsLong(args) && Long.parseLong(args) >= 2 && Long.parseLong(args) <= 500) {
+        MentionList<Member> memberMention = MentionUtil.getMembers(event.getGuild(), args, null);
+        memberFilter = memberMention.getList();
+        args = memberMention.getFilteredArgs();
+        amount = MentionUtil.getAmountExt(args);
+
+        if (amount >= 2 && amount <= 500) {
             boolean patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                     PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
             long messageId = registerButtonListener(event.getMember()).get();
             TimeUnit.SECONDS.sleep(1);
             long authorMessageId = event.isGuildMessageReceivedEvent() ? event.getGuildMessageReceivedEvent().getMessage().getIdLong() : 0L;
-            ClearResults clearResults = clear(event.getChannel(), patreon, Integer.parseInt(args), authorMessageId, messageId);
+            ClearResults clearResults = clear(event.getChannel(), patreon, (int) amount, memberMention.getList(), authorMessageId, messageId);
 
             String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
@@ -85,7 +93,7 @@ public class ClearCommand extends Command implements OnButtonListener {
         }
     }
 
-    private ClearResults clear(TextChannel channel, boolean patreon, int count, long... messageIdsIgnore) throws InterruptedException {
+    private ClearResults clear(TextChannel channel, boolean patreon, int count, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
         int deleted = 0;
         boolean skipped = false;
         MessageHistory messageHistory = channel.getHistory();
@@ -102,9 +110,13 @@ public class ClearCommand extends Command implements OnButtonListener {
                 if (message.getTimeCreated().toInstant().isBefore(Instant.now().minus(14, ChronoUnit.DAYS))) {
                     skipped = true;
                     break;
-                } else if (!message.isPinned() && Arrays.stream(messageIdsIgnore).noneMatch(mId -> message.getIdLong() == mId)) {
-                    messagesDelete.add(message);
-                    deleted++;
+                } else if (Arrays.stream(messageIdsIgnore).noneMatch(mId -> message.getIdLong() == mId)) {
+                    if (!message.isPinned() &&
+                            (memberFilter.isEmpty() || memberFilter.contains(message.getMember()))
+                    ) {
+                        messagesDelete.add(message);
+                        deleted++;
+                    }
                     count--;
                     if (count <= 0) {
                         break;
@@ -163,7 +175,11 @@ public class ClearCommand extends Command implements OnButtonListener {
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         if (!interrupt) {
             setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
-            return EmbedFactory.getEmbedDefault(this, getString("progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+            if (memberFilter.isEmpty()) {
+                return EmbedFactory.getEmbedDefault(this, getString("progress", String.valueOf(amount), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+            } else {
+                return EmbedFactory.getEmbedDefault(this, getString("progress_filter", String.valueOf(amount), MentionUtil.getMentionedStringOfMembers(getLocale(), memberFilter).getMentionText(), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+            }
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
