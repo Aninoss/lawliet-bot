@@ -17,6 +17,7 @@ import core.ExceptionLogger;
 import core.TextManager;
 import core.cache.PatreonCache;
 import core.mention.MentionList;
+import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
@@ -48,6 +49,7 @@ public class ClearCommand extends Command implements OnButtonListener {
     private boolean interrupt = false;
     private List<Member> memberFilter;
     private long amount;
+    TextChannel channel;
 
     public ClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -55,6 +57,27 @@ public class ClearCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
+        MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
+        args = channelMention.getFilteredArgs();
+        channel = event.getChannel();
+        if (channelMention.getList().size() > 0) {
+            channel = channelMention.getList().get(0);
+        }
+        EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+                getLocale(),
+                channel,
+                event.getMember(),
+                new Permission[0],
+                new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
+                new Permission[0],
+                new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
+                new Permission[0]
+        );
+        if (errEmbed != null) {
+            drawMessageNew(errEmbed).exceptionally(ExceptionLogger.get());
+            return false;
+        }
+
         MentionList<Member> memberMention = MentionUtil.getMembers(event.getGuild(), args, null);
         memberFilter = memberMention.getList();
         args = memberMention.getFilteredArgs();
@@ -67,7 +90,7 @@ public class ClearCommand extends Command implements OnButtonListener {
             long messageId = registerButtonListener(event.getMember()).get();
             TimeUnit.SECONDS.sleep(1);
             long authorMessageId = event.isGuildMessageReceivedEvent() ? event.getGuildMessageReceivedEvent().getMessage().getIdLong() : 0L;
-            ClearResults clearResults = clear(event.getChannel(), patreon, (int) amount, memberMention.getList(), authorMessageId, messageId);
+            ClearResults clearResults = clear(channel, patreon, (int) amount, memberMention.getList(), authorMessageId, messageId);
 
             String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
@@ -176,9 +199,9 @@ public class ClearCommand extends Command implements OnButtonListener {
         if (!interrupt) {
             setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
             if (memberFilter.isEmpty()) {
-                return EmbedFactory.getEmbedDefault(this, getString("progress", String.valueOf(amount), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+                return EmbedFactory.getEmbedDefault(this, getString("progress", String.valueOf(amount), channel.getAsMention(), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
             } else {
-                return EmbedFactory.getEmbedDefault(this, getString("progress_filter", String.valueOf(amount), MentionUtil.getMentionedStringOfMembers(getLocale(), memberFilter).getMentionText(), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+                return EmbedFactory.getEmbedDefault(this, getString("progress_filter", String.valueOf(amount), MentionUtil.getMentionedStringOfMembers(getLocale(), memberFilter).getMentionText(), channel.getAsMention(), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
             }
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));

@@ -20,7 +20,6 @@ import core.interactionresponse.InteractionResponse;
 import core.schedule.MainScheduler;
 import core.utils.*;
 import kotlin.reflect.KClass;
-import mysql.modules.guild.DBGuild;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -96,18 +95,10 @@ public abstract class Command implements OnTriggerListener {
                 !getCommandProperties().turnOffLoadingReaction()
         ) {
             loadingReactionSet = true;
-
-            String reaction = EmojiUtil.getLoadingEmojiTag(message.getTextChannel());
-            if (!DBGuild.getInstance().retrieve(message.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively()) {
-                // message.addReaction(reaction).queue(); TODO: test total impact
-            }
             MainScheduler.poll(100, getTrigger() + "_loading", () -> {
                 if (isProcessing.get()) {
                     return true;
                 } else {
-                    if (!DBGuild.getInstance().retrieve(message.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively()) {
-                        //message.removeReaction(reaction).queue(); TODO: test total impact
-                    }
                     loadingReactionSet = false;
                     return false;
                 }
