@@ -5,17 +5,20 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
-import constants.Emojis;
-import core.*;
+import core.EmbedFactory;
+import core.ExceptionLogger;
+import core.PermissionCheckRuntime;
+import core.TextManager;
+import core.mention.MentionList;
+import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
-import core.utils.StringUtil;
+import core.utils.MentionUtil;
 import modules.ClearResults;
 import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
@@ -43,9 +46,13 @@ import org.jetbrains.annotations.NotNull;
 )
 public class FullClearCommand extends Command implements OnAlertListener, OnButtonListener {
 
+    private static final int HOURS_MAX = 20159;
     private static final Random random = new Random();
 
     private boolean interrupt = false;
+    private List<Member> memberFilter;
+    private long hoursMin;
+    TextChannel channel;
 
     public FullClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -53,12 +60,37 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
-        Optional<Integer> hoursMin = extractHoursMin(args);
-        if (hoursMin.isPresent()) {
+        MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
+        args = channelMention.getFilteredArgs();
+        channel = event.getChannel();
+        if (channelMention.getList().size() > 0) {
+            channel = channelMention.getList().get(0);
+        }
+        EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+                getLocale(),
+                channel,
+                event.getMember(),
+                new Permission[0],
+                new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
+                new Permission[0],
+                new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
+                new Permission[0]
+        );
+        if (errEmbed != null) {
+            drawMessageNew(errEmbed).exceptionally(ExceptionLogger.get());
+            return false;
+        }
+
+        MentionList<Member> memberMention = MentionUtil.getMembers(event.getGuild(), args, null);
+        memberFilter = memberMention.getList();
+        args = memberMention.getFilteredArgs();
+        hoursMin = Math.max(0, MentionUtil.getAmountExt(args));
+
+        if (hoursMin < HOURS_MAX) {
             long messageId = registerButtonListener(event.getMember()).get();
             TimeUnit.SECONDS.sleep(1);
             long authorMessageId = event.isGuildMessageReceivedEvent() ? event.getGuildMessageReceivedEvent().getMessage().getIdLong() : 0L;
-            ClearResults clearResults = fullClear(event.getChannel(), hoursMin.get(), authorMessageId, messageId);
+            ClearResults clearResults = fullClear(channel, (int) hoursMin, memberFilter, authorMessageId, messageId);
 
             String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
@@ -84,23 +116,11 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         }
     }
 
-    private Optional<Integer> extractHoursMin(String str) {
-        if (str.length() > 0) {
-            if (StringUtil.stringIsLong(str) && Long.parseLong(str) >= 0 && Long.parseLong(str) <= 20159) {
-                return Optional.of(Integer.parseInt(str));
-            } else {
-                return Optional.empty();
-            }
-        } else {
-            return Optional.of(0);
-        }
-    }
-
     private void fullClear(TextChannel channel, int hours) throws InterruptedException {
-        fullClear(channel, hours, 0L);
+        fullClear(channel, hours, Collections.emptyList(), 0L);
     }
 
-    private ClearResults fullClear(TextChannel channel, int hours, long... messageIdsIgnore) throws InterruptedException {
+    private ClearResults fullClear(TextChannel channel, int hours, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
         int deleted = 0;
         boolean tooOld = false;
 
@@ -119,10 +139,11 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                     break;
                 } else if (!message.isPinned() &&
                         Arrays.stream(messageIdsIgnore).noneMatch(mId -> message.getIdLong() == mId) &&
-                        message.getTimeCreated().toInstant().isBefore(Instant.now().minus(hours, ChronoUnit.HOURS))
+                        message.getTimeCreated().toInstant().isBefore(Instant.now().minus(hours, ChronoUnit.HOURS)) &&
+                        (memberFilter.isEmpty() || memberFilter.contains(message.getMember()))
                 ) {
-                        messagesDelete.add(message);
-                        deleted++;
+                    messagesDelete.add(message);
+                    deleted++;
                 }
             }
 
@@ -144,10 +165,10 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         TextChannel textChannel = slot.getTextChannel().get();
         if (PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), textChannel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
-            Optional<Integer> hoursMin = extractHoursMin(slot.getCommandKey());
-            if (hoursMin.isPresent()) {
+            long hoursMin = Math.max(0, MentionUtil.getAmountExt(slot.getCommandKey()));
+            if (hoursMin < HOURS_MAX) {
                 try {
-                    fullClear(textChannel, hoursMin.get());
+                    fullClear(textChannel, (int) hoursMin);
                     if (slot.getEffectiveUserMessage().isPresent()) {
                         slot.sendMessage(true, "");
                     }
@@ -181,7 +202,11 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         if (!interrupt) {
             setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
-            return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), Category.MODERATION, "clear_progress", EmojiUtil.getLoadingEmojiMention(getTextChannel().get()), Emojis.X));
+            if (memberFilter.isEmpty()) {
+                return EmbedFactory.getEmbedDefault(this, getString("progress", channel.getAsMention(), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+            } else {
+                return EmbedFactory.getEmbedDefault(this, getString("progress_filter", MentionUtil.getMentionedStringOfMembers(getLocale(), memberFilter).getMentionText(), channel.getAsMention(), EmojiUtil.getLoadingEmojiMention(getTextChannel().get())));
+            }
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort_description"));
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
