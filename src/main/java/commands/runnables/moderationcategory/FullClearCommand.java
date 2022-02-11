@@ -15,10 +15,7 @@ import core.ExceptionLogger;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.mention.MentionList;
-import core.utils.BotPermissionUtil;
-import core.utils.EmbedUtil;
-import core.utils.EmojiUtil;
-import core.utils.MentionUtil;
+import core.utils.*;
 import modules.ClearResults;
 import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
@@ -86,7 +83,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         args = memberMention.getFilteredArgs();
         hoursMin = Math.max(0, MentionUtil.getAmountExt(args));
 
-        if (hoursMin < HOURS_MAX) {
+        if (hoursMin <= HOURS_MAX) {
             long messageId = registerButtonListener(event.getMember()).get();
             TimeUnit.SECONDS.sleep(1);
             long authorMessageId = event.isGuildMessageReceivedEvent() ? event.getGuildMessageReceivedEvent().getMessage().getIdLong() : 0L;
@@ -110,7 +107,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
             restAction.queueAfter(8, TimeUnit.SECONDS);
             return true;
         } else {
-            drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args", "0", "20159")))
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args", "0", StringUtil.numToString(HOURS_MAX))))
                     .exceptionally(ExceptionLogger.get());
             return false;
         }
@@ -166,7 +163,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         TextChannel textChannel = slot.getTextChannel().get();
         if (PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), textChannel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
             long hoursMin = Math.max(0, MentionUtil.getAmountExt(slot.getCommandKey()));
-            if (hoursMin < HOURS_MAX) {
+            if (hoursMin <= HOURS_MAX) {
                 try {
                     fullClear(textChannel, (int) hoursMin);
                     if (slot.getEffectiveUserMessage().isPresent()) {
@@ -178,7 +175,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                 slot.setNextRequest(Instant.now().plus(60 + random.nextInt(120), ChronoUnit.MINUTES));
                 return AlertResponse.CONTINUE_AND_SAVE;
             } else {
-                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_args", "0", "20159"));
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_args", "0", StringUtil.numToString(HOURS_MAX)));
                 textChannel.sendMessageEmbeds(eb.build()).queue();
             }
         }
