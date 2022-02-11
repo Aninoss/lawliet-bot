@@ -1,5 +1,6 @@
 package mysql.modules.guild;
 
+import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Optional;
 import core.cache.ServerPatreonBoostCache;
@@ -23,11 +24,12 @@ public class GuildData extends DataWithGuild {
     private Long fisheryAnnouncementChannelId;
     private Integer fisheryVcHoursCap;
     private boolean big;
+    private LocalDate kicked;
 
     public GuildData(long guildId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles,
                      Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax,
                      Integer fisheryVcHoursCap, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit,
-                     boolean big
+                     boolean big, LocalDate kicked
     ) {
         super(guildId);
         this.guildId = guildId;
@@ -44,6 +46,7 @@ public class GuildData extends DataWithGuild {
         this.commandAuthorMessageRemove = commandAuthorMessageRemove;
         this.fisheryCoinsGivenLimit = fisheryCoinsGivenLimit;
         this.big = big;
+        this.kicked = kicked;
     }
 
     public long getFisheryRoleMin() {
@@ -116,6 +119,10 @@ public class GuildData extends DataWithGuild {
 
     public boolean isCommandAuthorMessageRemoveEffectively() {
         return isCommandAuthorMessageRemove() && ServerPatreonBoostCache.get(getGuildId());
+    }
+
+    public Optional<LocalDate> getKicked() {
+        return Optional.ofNullable(kicked);
     }
 
     public boolean hasFisheryCoinsGivenLimit() {
@@ -213,6 +220,14 @@ public class GuildData extends DataWithGuild {
         this.fisheryCoinsGivenLimit = !this.fisheryCoinsGivenLimit;
         setChanged();
         notifyObservers();
+    }
+
+    public void setKicked(LocalDate kicked) {
+        if (this.kicked == null || !this.kicked.equals(kicked)) {
+            this.kicked = kicked;
+            setChanged();
+            notifyObservers();
+        }
     }
 
 }
