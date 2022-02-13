@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.entities.*;
 public class VoteCache {
 
     private static final Cache<Long, VoteInfo> voteCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(30))
+            .expireAfterWrite(Duration.ofMinutes(60))
             .build();
 
     public static void put(long messageId, VoteInfo voteInfo) {
@@ -26,7 +26,6 @@ public class VoteCache {
 
     public static Optional<VoteInfo> get(TextChannel channel, long messageId, long userId, String emoji, boolean add) {
         VoteInfo voteInfo = voteCache.getIfPresent(messageId);
-
         if (voteInfo != null) {
             int i = -1;
             for (int j = 0; j < voteInfo.getSize(); j++) {
