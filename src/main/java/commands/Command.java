@@ -303,14 +303,14 @@ public abstract class Command implements OnTriggerListener {
                     }
                 }
             }
-            Thread t = Thread.currentThread();
+            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
             action.queue(message -> {
                 if (!newMessage) {
                     drawMessage = message;
                 }
                 future.complete(message);
             }, e -> {
-                MainLogger.get().error("Draw exception for \"{}\"", getTrigger(), ExceptionUtil.generateForStack(t, e.getLocalizedMessage()));
+                MainLogger.get().error("Draw exception for \"{}\"", getTrigger(), ExceptionUtil.generateForStack(stackTrace, e.getLocalizedMessage()));
                 future.completeExceptionally(e);
             });
 

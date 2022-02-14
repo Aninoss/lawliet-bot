@@ -79,8 +79,12 @@ public class ExceptionUtil {
     }
 
     public static Exception generateForStack(Thread t, String name) {
+        return generateForStack(t.getStackTrace(), name);
+    }
+
+    public static Exception generateForStack(StackTraceElement[] stackTrace, String name) {
         Exception e = new Exception(name);
-        e.setStackTrace(t.getStackTrace());
+        e.setStackTrace(stackTrace);
         return e;
     }
 
