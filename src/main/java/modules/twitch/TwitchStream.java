@@ -1,63 +1,76 @@
 package modules.twitch;
 
-import java.util.Optional;
-
 public class TwitchStream {
 
-    private final boolean live;
-    private final TwitchUser twitchUser;
-    private final String previewImage;
-    private final String game;
-    private final String status;
-    private final Integer viewers;
-    private final Integer followers;
+    private boolean live;
+    private String userId;
+    private TwitchUser twitchUser;
+    private String thumbnailUrl;
+    private String game;
+    private String title;
+    private Integer viewers;
 
-    public TwitchStream(TwitchUser twitchUser) {
-        this.live = false;
-        this.twitchUser = twitchUser;
-        this.previewImage = null;
-        this.game = null;
-        this.status = null;
-        this.viewers = null;
-        this.followers = null;
+    public boolean isLive() {
+        return live;
     }
 
-    public TwitchStream(TwitchUser twitchUser, String previewImage, String game, String status, int viewers, int followers) {
-        this.live = true;
-        this.twitchUser = twitchUser;
-        this.previewImage = previewImage;
-        this.game = game;
-        this.status = status;
-        this.viewers = viewers;
-        this.followers = followers;
+    public TwitchStream setLive(boolean live) {
+        this.live = live;
+        return this;
     }
 
-    public Optional<String> getPreviewImage() {
-        return Optional.ofNullable(previewImage);
+    public String getUserId() {
+        return userId;
     }
 
-    public Optional<String> getGame() {
-        return Optional.ofNullable(game);
-    }
-
-    public Optional<String> getStatus() {
-        return Optional.ofNullable(status);
+    public TwitchStream setUserId(String userId) {
+        this.userId = userId;
+        return this;
     }
 
     public TwitchUser getTwitchUser() {
         return twitchUser;
     }
 
-    public Optional<Integer> getViewers() {
-        return Optional.ofNullable(viewers);
+    public TwitchStream setTwitchUser(TwitchUser twitchUser) {
+        this.twitchUser = twitchUser;
+        return this;
     }
 
-    public Optional<Integer> getFollowers() {
-        return Optional.ofNullable(followers);
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
     }
 
-    public boolean isLive() {
-        return live;
+    public TwitchStream setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+        return this;
+    }
+
+    public String getGame() {
+        return game;
+    }
+
+    public TwitchStream setGame(String game) {
+        this.game = game;
+        return this;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public TwitchStream setTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    public Integer getViewers() {
+        return viewers;
+    }
+
+    public TwitchStream setViewers(Integer viewers) {
+        this.viewers = viewers;
+        return this;
     }
 
 }

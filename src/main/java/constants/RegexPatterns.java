@@ -16,5 +16,6 @@ public interface RegexPatterns {
     Pattern INTERACTION = Pattern.compile("^/api/v[0-9]*/(interactions|webhooks)/.*");
     Pattern PHISHING_DOMAIN = Pattern.compile("(?:[A-z0-9](?:[A-z0-9-]{0,61}[A-z0-9])?\\.)+[A-z0-9][A-z0-9-]{0,61}[A-z0-9]");
     Pattern SUBREDDIT = Pattern.compile("^(r/)?(?<subreddit>[a-zA-Z0-9-_]*)(/(?<orderby>hot|new|top|controversial))?$");
+    Pattern TWITCH = Pattern.compile("^[a-zA-Z0-9][\\w]{2,24}$");
 
 }

@@ -39,7 +39,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
     }
 
     @Override
-    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         if (args.isEmpty()) {
             drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")))
                     .exceptionally(ExceptionLogger.get());
@@ -47,7 +47,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
         }
 
         addLoadingReactionInstantly();
-        Optional<TwitchStream> streamOpt = twitchDownloader.getStream(args);
+        Optional<TwitchStream> streamOpt = twitchDownloader.retrieveStream(args).get();
         if (streamOpt.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                     .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
@@ -63,22 +63,23 @@ public class TwitchCommand extends Command implements OnAlertListener {
 
     private EmbedBuilder getEmbed(TwitchStream twitchStream) {
         TwitchUser twitchUser = twitchStream.getTwitchUser();
+        String channelUrl = "https://www.twitch.tv/" + twitchUser.getLogin();
         EmbedBuilder eb;
         if (twitchStream.isLive()) {
-            String twitchStatus = twitchStream.getStatus().get();
+            String twitchStatus = twitchStream.getTitle();
             eb = EmbedFactory.getEmbedDefault()
-                    .setAuthor(getString("streamer", twitchUser.getDisplayName(), twitchStream.getGame().get()), twitchUser.getChannelUrl(), TWITCH_ICON)
-                    .setTitle(twitchStatus.isEmpty() ? Emojis.ZERO_WIDTH_SPACE : twitchStatus, twitchUser.getChannelUrl())
-                    .setImage(twitchStream.getPreviewImage().get());
-            EmbedUtil.setFooter(eb, this, getString("footer", StringUtil.numToString(twitchStream.getViewers().get()), StringUtil.numToString(twitchStream.getFollowers().get())));
+                    .setAuthor(getString("streamer", twitchUser.getDisplayName(), twitchStream.getGame()), channelUrl, TWITCH_ICON)
+                    .setTitle(twitchStatus.isEmpty() ? Emojis.ZERO_WIDTH_SPACE : twitchStatus, channelUrl)
+                    .setImage(twitchStream.getThumbnailUrl());
+            EmbedUtil.setFooter(eb, this, getString("footer", StringUtil.numToString(twitchStream.getViewers())));
         } else {
             eb = EmbedFactory.getEmbedDefault()
-                    .setAuthor(twitchUser.getDisplayName(), twitchUser.getChannelUrl(), TWITCH_ICON)
+                    .setAuthor(twitchUser.getDisplayName(), channelUrl, TWITCH_ICON)
                     .setDescription(getString("offline", twitchUser.getDisplayName()));
             EmbedUtil.setFooter(eb, this);
         }
 
-        eb.setThumbnail(twitchUser.getLogoUrl());
+        eb.setThumbnail(twitchUser.getProfileImageUrl());
         return eb;
     }
 
@@ -88,16 +89,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
         TextChannel channel = slot.getTextChannel().get();
 
         Optional<TwitchStream> streamOpt;
-        try {
-            streamOpt = twitchDownloader.getStream(slot.getCommandKey());
-        } catch (Throwable e) {
-            if (slot.getArgs().isEmpty()) {
-                streamOpt = Optional.empty();
-            } else {
-                throw e;
-            }
-        }
-
+        streamOpt = twitchDownloader.retrieveStream(slot.getCommandKey()).get();
         if (streamOpt.isEmpty()) {
             if (slot.getArgs().isEmpty()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this)
