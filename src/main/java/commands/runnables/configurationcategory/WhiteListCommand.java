@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 )
 public class WhiteListCommand extends NavigationAbstract {
 
-    private static final int MAX_CHANNELS = 100;
+    public static final int MAX_CHANNELS = 100;
 
     private NavigationHelper<AtomicTextChannel> channelNavigationHelper;
     private CustomObservableList<AtomicTextChannel> whiteListedChannels;

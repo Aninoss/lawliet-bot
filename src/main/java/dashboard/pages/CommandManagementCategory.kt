@@ -1,17 +1,23 @@
 package dashboard.pages
 
+import commands.Category
 import commands.Command
 import commands.runnables.configurationcategory.CommandManagementCommand
-import core.TextManager
+import commands.runnables.configurationcategory.WhiteListCommand
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
 import dashboard.component.DashboardText
+import dashboard.component.DashboardTitle
+import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.VerticalContainer
+import mysql.modules.whitelistedchannels.DBWhiteListedChannels
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
-    id = "commandmanagement"
+    id = "commandmanagement",
+    userPermissions = [Permission.MANAGE_SERVER]
 )
 class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
@@ -20,8 +26,12 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        val text = getString(TextManager.GENERAL, "dashboard_wip", Command.getCommandProperties(CommandManagementCommand::class.java).trigger)
-        mainContainer.add(DashboardText(text))
+        val whitelistText = Command.getCommandLanguage(WhiteListCommand::class.java, locale).title
+        mainContainer.add(
+            DashboardTitle(whitelistText),
+            DashboardText(getString(Category.CONFIGURATION, "whitelist_state0_description")),
+            DashboardTextChannelComboBox("", guild.idLong, DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds, true, WhiteListCommand.MAX_CHANNELS)
+        )
     }
 
 }
