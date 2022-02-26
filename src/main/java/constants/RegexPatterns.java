@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 public interface RegexPatterns {
 
-    Pattern BOORU_AMOUNT = Pattern.compile("(?<![=><])\\b\\d{1,6}\\b");
+    Pattern BOORU_AMOUNT = Pattern.compile("(?<![:=><])\\b\\d{1,6}\\b");
     Pattern DIGIT_REFORMAT = Pattern.compile("\\b[0-9]+[\\s| ]+[0-9]");
     Pattern AMOUNT_FILTER = Pattern.compile("\\b(?<digits>\\d{1,16}([.|,]\\d{1,16})?)[\\s| ]*(?<unit>[\\w|%]*)");
     Pattern MINUTES = Pattern.compile("\\b\\d{1,4}[\\s| ]*m(in(utes?)?)?\\b");
