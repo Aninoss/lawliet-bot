@@ -51,7 +51,7 @@ import org.jetbrains.annotations.NotNull;
 )
 public class FisheryCommand extends NavigationAbstract implements OnStaticButtonListener {
 
-    private static final int MAX_CHANNELS = 50;
+    public static final int MAX_CHANNELS = 50;
 
     private GuildData guildBean;
     private boolean stopLock = true;
