@@ -205,7 +205,11 @@ public class BotPermissionUtil {
     }
 
     public static boolean canManage(Role role) {
-        return role.getGuild().getSelfMember().canInteract(role) &&
+        return canManage(role.getGuild().getSelfMember(), role);
+    }
+
+    public static boolean canManage(Member member, Role role) {
+        return member.canInteract(role) &&
                 !role.isManaged() &&
                 !role.isPublicRole();
     }

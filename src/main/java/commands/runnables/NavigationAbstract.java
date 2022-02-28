@@ -316,40 +316,40 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public boolean checkRolesWithLog(Member member, List<Role> roles) {
-        Guild guild = member.getGuild();
         if (roles.size() == 0) {
             return true;
         }
 
-        ArrayList<Role> unmanagableRoles = new ArrayList<>();
+        ArrayList<Role> unmanageableRoles = new ArrayList<>();
         for (Role role : roles) {
             if (role != null && (!BotPermissionUtil.canManage(role) || !BotPermissionUtil.can(role.getGuild().getSelfMember(), Permission.MANAGE_ROLES))) {
-                unmanagableRoles.add(role);
+                unmanageableRoles.add(role);
             }
         }
 
-        /* if the bot is able to manage all of the roles */
-        if (unmanagableRoles.size() == 0) {
+        /* if the bot is able to manage all the roles */
+        if (unmanageableRoles.size() == 0) {
             if (member == null) {
-                member = guild.getSelfMember();
+                return true;
             }
 
             ArrayList<Role> forbiddenRoles = new ArrayList<>();
             for (Role role : roles) {
-                if (role != null && (!BotPermissionUtil.canManage(role) || !BotPermissionUtil.can(member, Permission.MANAGE_ROLES))) {
+                if (role != null && (!BotPermissionUtil.canManage(member, role) || !BotPermissionUtil.can(member, Permission.MANAGE_ROLES))) {
                     forbiddenRoles.add(role);
                 }
             }
+
             if (forbiddenRoles.size() == 0) {
                 return true;
+            } else {
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getMentionText().replace("**", "\"")));
+                return false;
             }
-
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getMentionText().replace("**", "\"")));
+        } else {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanageableRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), unmanageableRoles).getMentionText().replace("**", "\"")));
             return false;
         }
-
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", unmanagableRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), unmanagableRoles).getMentionText().replace("**", "\"")));
-        return false;
     }
 
     public void setState(int state) {
