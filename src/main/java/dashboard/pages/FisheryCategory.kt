@@ -1,7 +1,9 @@
 package dashboard.pages
 
 import commands.Category
+import commands.Command
 import commands.runnables.fisherysettingscategory.FisheryCommand
+import commands.runnables.fisherysettingscategory.FisheryRolesCommand
 import core.GlobalThreadPool
 import core.TextManager
 import dashboard.ActionResult
@@ -39,8 +41,18 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             generateStateButtons(guildData),
             DashboardSeparator(),
             generateSwitches(guildData),
-            generateExcludeChannelsField(fisheryData)
+            generateExcludeChannelsField(fisheryData),
+            generateFisheryRolesField(fisheryData)
         )
+    }
+
+    private fun generateFisheryRolesField(fisheryData: FisheryGuildData): DashboardComponent {
+        val container = VerticalContainer()
+        container.add(
+            HorizontalContainer(),
+            DashboardTitle(Command.getCommandLanguage(FisheryRolesCommand::class.java, locale).title)
+        )
+        return container;
     }
 
     private fun generateExcludeChannelsField(fisheryData: FisheryGuildData): DashboardComponent {
@@ -50,7 +62,6 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             DashboardTitle(getString(Category.FISHERY_SETTINGS, "fishery_state0_mchannels"))
         )
         val comboBox = DashboardTextChannelComboBox(
-            "",
             fisheryData.guildId,
             fisheryData.ignoredChannelIds,
             true,

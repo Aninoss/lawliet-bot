@@ -52,7 +52,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                 case TEXT_CHANNELS -> {
                     Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
                     guild.getTextChannels().stream()
-                            .filter(c -> ("#" + c.getName().toLowerCase()).contains(filterText) && BotPermissionUtil.can(c) && BotPermissionUtil.can(member, c))
+                            .filter(c -> ("#" + c.getName().toLowerCase()).contains(filterText) && BotPermissionUtil.can(member, c))
                             .skip(offset)
                             .limit(limit)
                             .forEach(c -> {
@@ -66,7 +66,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                 case VOICE_CHANNELS -> {
                     Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
                     guild.getVoiceChannels().stream()
-                            .filter(c -> c.getName().toLowerCase().contains(filterText) && BotPermissionUtil.can(c) && BotPermissionUtil.can(member, c))
+                            .filter(c -> c.getName().toLowerCase().contains(filterText) && BotPermissionUtil.can(member, c))
                             .skip(offset)
                             .limit(limit)
                             .forEach(c -> {

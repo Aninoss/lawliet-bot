@@ -6,7 +6,11 @@ import dashboard.ActionResult
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
 
-class DashboardTextChannelComboBox(label: String, guildId: Long, val selectedChannels: CustomObservableList<Long>, canBeEmpty: Boolean, max: Int) : DashboardComboBox(label, DataType.TEXT_CHANNELS, canBeEmpty, max) {
+class DashboardTextChannelComboBox(label: String, guildId: Long, val selectedChannels: CustomObservableList<Long>, canBeEmpty: Boolean, max: Int) :
+    DashboardComboBox(label, DataType.TEXT_CHANNELS, canBeEmpty, max) {
+
+    constructor(guildId: Long, selectedChannels: CustomObservableList<Long>, canBeEmpty: Boolean, max: Int) :
+            this("", guildId, selectedChannels, canBeEmpty, max)
 
     init {
         selectedValues = selectedChannels.map {

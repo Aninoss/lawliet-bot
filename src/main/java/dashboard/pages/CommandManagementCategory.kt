@@ -30,7 +30,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
         mainContainer.add(
             DashboardTitle(whitelistText),
             DashboardText(getString(Category.CONFIGURATION, "whitelist_state0_description")),
-            DashboardTextChannelComboBox("", guild.idLong, DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds, true, WhiteListCommand.MAX_CHANNELS)
+            DashboardTextChannelComboBox(guild.idLong, DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds, true, WhiteListCommand.MAX_CHANNELS)
         )
     }
 
