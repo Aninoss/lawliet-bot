@@ -4,6 +4,7 @@ import commands.Category
 import commands.Command
 import commands.runnables.fisherysettingscategory.FisheryCommand
 import commands.runnables.fisherysettingscategory.FisheryRolesCommand
+import constants.Settings
 import core.GlobalThreadPool
 import core.TextManager
 import dashboard.ActionResult
@@ -11,6 +12,8 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.components.DashboardMultipleTextChannelsComboBox
+import dashboard.components.DashboardRoleComboBox
 import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
@@ -42,26 +45,77 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             DashboardSeparator(),
             generateSwitches(guildData),
             generateExcludeChannelsField(fisheryData),
-            generateFisheryRolesField(fisheryData)
-        )
+            generateFisheryRolesField(guildData, fisheryData)
+        ) //TODO: roles overview with prices
     }
 
-    private fun generateFisheryRolesField(fisheryData: FisheryGuildData): DashboardComponent {
+    private fun generateFisheryRolesField(guildData: GuildData, fisheryData: FisheryGuildData): DashboardComponent {
         val container = VerticalContainer()
+        container.add(DashboardTitle(Command.getCommandLanguage(FisheryRolesCommand::class.java, locale).title))
+
+        val rolesComboBox = DashboardRoleComboBox(
+            getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_mroles"),
+            locale,
+            fisheryData.guildId,
+            atomicMember.idLong,
+            fisheryData.roleIds,
+            true,
+            FisheryRolesCommand.MAX_ROLES,
+            true
+        )
+        container.add(rolesComboBox)
+
+        val announcementChannelComboBox = DashboardTextChannelComboBox(
+            getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_mannouncementchannel"),
+            atomicGuild.idLong,
+            guildData.fisheryAnnouncementChannelId.orElse(null),
+            true
+        ) {
+            guildData.setFisheryAnnouncementChannelId(it.data?.toLong())
+        }
+        container.add(announcementChannelComboBox)
+
+        val singleRolesSwitch = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_msinglerole_raw")) {
+            guildData.toggleFisherySingleRoles()
+            ActionResult(false)
+        }
+        singleRolesSwitch.subtitle = getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_msinglerole_desc").replace("*", "")
+        singleRolesSwitch.isChecked = guildData.isFisherySingleRoles
+        container.add(DashboardSeparator(), singleRolesSwitch)
+
         container.add(
-            HorizontalContainer(),
-            DashboardTitle(Command.getCommandLanguage(FisheryRolesCommand::class.java, locale).title)
+            DashboardSeparator(),
+            generateFisheryRolePricesField(guildData)
         )
         return container;
     }
 
+    private fun generateFisheryRolePricesField(guildData: GuildData): DashboardComponent {
+        val container = HorizontalContainer()
+        container.alignment = HorizontalContainer.Alignment.CENTER
+        container.allowWrap = true
+        container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_mroleprices") + ":"))
+
+        val min = DashboardNumberField(getString(Category.FISHERY_SETTINGS, "fisheryroles_first"), 0, Settings.FISHERY_MAX.toInt()) {
+            guildData.setFisheryRolePrices(it.data.toLong(), guildData.fisheryRoleMax)
+            ActionResult(false)
+        }
+        min.value = guildData.fisheryRoleMin
+        container.add(min)
+
+        val max = DashboardNumberField(getString(Category.FISHERY_SETTINGS, "fisheryroles_last"), 0, Settings.FISHERY_MAX.toInt()) {
+            guildData.setFisheryRolePrices(guildData.fisheryRoleMin, it.data.toLong())
+            ActionResult(false)
+        }
+        max.value = guildData.fisheryRoleMax
+        container.add(max)
+        return container
+    }
+
     private fun generateExcludeChannelsField(fisheryData: FisheryGuildData): DashboardComponent {
         val container = VerticalContainer()
-        container.add(
-            HorizontalContainer(),
-            DashboardTitle(getString(Category.FISHERY_SETTINGS, "fishery_state0_mchannels"))
-        )
-        val comboBox = DashboardTextChannelComboBox(
+        container.add(DashboardTitle(getString(Category.FISHERY_SETTINGS, "fishery_state0_mchannels")))
+        val comboBox = DashboardMultipleTextChannelsComboBox(
             fisheryData.guildId,
             fisheryData.ignoredChannelIds,
             true,
@@ -152,8 +206,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         val statusTextValue = getString(Category.FISHERY_SETTINGS, "fishery_state0_status").split("\n")[guildData.fisheryStatus.ordinal]
         statusContainer.add(
             DashboardText("$statusTextKey:"),
-            DashboardText(statusTextValue),
-            HorizontalPusher()
+            DashboardText(statusTextValue)
         )
         container.add(statusContainer)
         return container

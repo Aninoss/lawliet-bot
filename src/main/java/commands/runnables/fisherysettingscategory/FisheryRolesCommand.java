@@ -41,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 )
 public class FisheryRolesCommand extends NavigationAbstract {
 
-    private static final int MAX_ROLES = 50;
+    public static final int MAX_ROLES = 50;
 
     private GuildData guildBean;
     private FisheryGuildData fisheryGuildBean;

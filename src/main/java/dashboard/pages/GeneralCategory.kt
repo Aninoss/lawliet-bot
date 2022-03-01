@@ -14,6 +14,7 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.DashboardSelect
+import dashboard.component.DashboardSeparator
 import dashboard.component.DashboardSwitch
 import dashboard.component.DashboardTextField
 import dashboard.container.HorizontalContainer
@@ -40,7 +41,9 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         mainContainer.add(
             generateTextFields(guild),
+            DashboardSeparator(),
             generateAutoQuoteSwitch(),
+            DashboardSeparator(),
             generateTriggerDeleteSwitch()
         )
     }

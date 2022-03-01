@@ -1,28 +1,24 @@
 package dashboard.components
 
-import core.CustomObservableList
 import core.atomicassets.AtomicTextChannel
 import dashboard.ActionResult
+import dashboard.DashboardEvent
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
 
-class DashboardTextChannelComboBox(label: String, guildId: Long, val selectedChannels: CustomObservableList<Long>, canBeEmpty: Boolean, max: Int) :
-    DashboardComboBox(label, DataType.TEXT_CHANNELS, canBeEmpty, max) {
+class DashboardTextChannelComboBox(label: String, guildId: Long, val selectedChannel: Long?, canBeEmpty: Boolean, action: (DashboardEvent<String>) -> Any) :
+    DashboardComboBox(label, DataType.TEXT_CHANNELS, canBeEmpty, 1) {
 
-    constructor(guildId: Long, selectedChannels: CustomObservableList<Long>, canBeEmpty: Boolean, max: Int) :
-            this("", guildId, selectedChannels, canBeEmpty, max)
+    constructor(guildId: Long, selectedChannel: Long, canBeEmpty: Boolean, action: (DashboardEvent<String>) -> Any) :
+            this("", guildId, selectedChannel, canBeEmpty, action)
 
     init {
-        selectedValues = selectedChannels.map {
+        selectedValues = selectedChannel?.let {
             val atomicChannel = AtomicTextChannel(guildId, it)
-            DiscordEntity(it.toString(), atomicChannel.prefixedName)
-        }
+            listOf(DiscordEntity(it.toString(), atomicChannel.prefixedName))
+        } ?: emptyList<DiscordEntity>()
         setActionListener {
-            if (it.type == "add") {
-                selectedChannels.add(it.data.toLong())
-            } else if (it.type == "remove") {
-                selectedChannels.remove(it.data.toLong())
-            }
+            action.invoke(it)
             ActionResult(false)
         }
     }
