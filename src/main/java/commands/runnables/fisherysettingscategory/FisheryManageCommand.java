@@ -11,16 +11,14 @@ import commands.runnables.FisheryInterface;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
-import modules.FisheryMemberGroup;
-import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
-import mysql.modules.fisheryusers.DBFishery;
+import modules.fishery.FisheryManage;
+import modules.fishery.FisheryMemberGroup;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -43,8 +41,6 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
         aliases = { "fishingmanage", "fishmanage", "fisheryusermanage", "fisherymanager", "fm" }
 )
 public class FisheryManageCommand extends NavigationAbstract implements FisheryInterface {
-
-    private enum ValueProcedure { ABSOLUTE, ADD, SUB }
 
     private FisheryMemberGroup fisheryMemberGroup;
     private boolean resetLog = true;
@@ -105,7 +101,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             } else {
                 String amountString = args.substring(typeString.length()).trim();
                 String valueBefore = valueOfProperty(type);
-                if (updateValues(type, amountString)) {
+                if (FisheryManage.updateValues(fisheryMemberGroup.getFisheryMemberList(), type, amountString)) {
                     String valueNow = valueOfProperty(type);
                     drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("set", fisheryMemberGroup.getAsTag(), emojiOfProperty(type), valueBefore, valueNow)))
                             .exceptionally(ExceptionLogger.get());
@@ -126,7 +122,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
         if (state >= 1) {
             String valueBefore = valueOfProperty(state - 1);
-            if (!updateValues(state - 1, input)) {
+            if (!FisheryManage.updateValues(fisheryMemberGroup.getFisheryMemberList(), state - 1, input)) {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
                 return MessageInputResponse.FAILED;
             }
@@ -140,89 +136,6 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         }
 
         return null;
-    }
-
-    private boolean updateValues(int type, String inputString) {
-        boolean success = false;
-        ValueProcedure valueProcedure = ValueProcedure.ABSOLUTE;
-        inputString = inputString
-                .replace(" ", "")
-                .replaceAll("(?i)lv\\.", "");
-
-        if (inputString.startsWith("+")) {
-            valueProcedure = ValueProcedure.ADD;
-            inputString = inputString.substring(1);
-        } else if (inputString.startsWith("-")) {
-            valueProcedure = ValueProcedure.SUB;
-            inputString = inputString.substring(1);
-        }
-
-        if (inputString.length() == 0 || !Character.isDigit(inputString.charAt(0))) {
-            return false;
-        }
-
-        for (FisheryMemberData fisheryMemberBean : fisheryMemberGroup.getFisheryMemberList()) {
-            long baseValue = getBaseValueByType(fisheryMemberBean, type);
-            long newValue = MentionUtil.getAmountExt(inputString, baseValue);
-            if (newValue == -1) {
-                continue;
-            }
-
-            newValue = calculateNewValue(baseValue, newValue, valueProcedure, type);
-            setNewValues(fisheryMemberBean, newValue, type);
-            success = true;
-        }
-
-        return success;
-    }
-
-    private void setNewValues(FisheryMemberData fisheryMemberBean, long newValue, int type) {
-        switch (type) {
-            /* fish */
-            case 0 -> fisheryMemberBean.setFish(newValue);
-
-            /* coins */
-            case 1 -> fisheryMemberBean.setCoinsRaw(newValue + fisheryMemberBean.getCoinsHidden());
-
-            /* daily streak */
-            case 2 -> fisheryMemberBean.setDailyStreak(newValue);
-
-            /* gear */
-            default -> {
-                fisheryMemberBean.setLevel(FisheryGear.values()[type - 3], (int) newValue);
-                if (type == FisheryGear.ROLE.ordinal() + 3) {
-                    Fishery.synchronizeRoles(fisheryMemberBean.getMember().get());
-                }
-            }
-        }
-    }
-
-    private long calculateNewValue(long baseValue, long newValue, ValueProcedure valueProcedure, int type) {
-        switch (valueProcedure) {
-            case ADD:
-                newValue = baseValue + newValue;
-                break;
-
-            case SUB:
-                newValue = baseValue - newValue;
-                break;
-
-            default:
-        }
-        long maxValue = maxValueOfProperty(type);
-        if (newValue < 0) newValue = 0;
-        if (newValue > maxValue) newValue = maxValue;
-
-        return newValue;
-    }
-
-    private long getBaseValueByType(FisheryMemberData fisheryMemberBean, int type) {
-        return switch (type) {
-            case 0 -> fisheryMemberBean.getFish();
-            case 1 -> fisheryMemberBean.getCoins();
-            case 2 -> fisheryMemberBean.getDailyStreak();
-            default -> fisheryMemberBean.getMemberGear(FisheryGear.values()[type - 3]).getLevel();
-        };
     }
 
     @Override
@@ -325,16 +238,6 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             case 2 -> fisheryMemberGroup.getDailyStreakString();
             default -> getString("gearlevel", fisheryMemberGroup.getGearString(FisheryGear.values()[i - 3]));
         };
-    }
-
-    private long maxValueOfProperty(int i) {
-        if (i <= 2) {
-            return Settings.FISHERY_MAX;
-        } else if (i == FisheryGear.ROLE.ordinal() + 3) {
-            return DBFishery.getInstance().retrieve(fisheryMemberGroup.getGuildId()).getRoles().size();
-        } else {
-            return Settings.FISHERY_GEAR_MAX;
-        }
     }
 
 }

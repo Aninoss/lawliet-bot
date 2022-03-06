@@ -1,10 +1,9 @@
-package modules;
+package modules.fishery;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
-import modules.fishery.FisheryGear;
 import core.TextManager;
 import core.assets.GuildAsset;
 import core.atomicassets.AtomicMember;

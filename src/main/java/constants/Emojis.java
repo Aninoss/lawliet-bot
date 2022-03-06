@@ -20,6 +20,7 @@ public interface Emojis {
 
     String FISH = "🐟";
     String COINS = "<a:coin:512684910620835841>";
+    String COINS_UNICODE = "🪙";
     String GROWTH = "<:growth:556164492678004741>";
     String DAILY_STREAK = "🔥";
 

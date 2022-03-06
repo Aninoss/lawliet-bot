@@ -13,8 +13,8 @@ import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
 import java.util.*
 
-class DashboardRoleComboBox(label: String, locale: Locale, guildId: Long, val memberId: Long, val selectedRoles: CustomObservableList<Long>, canBeEmpty: Boolean,
-                            max: Int, checkManageable: Boolean
+class DashboardMultiRolesComboBox(label: String, locale: Locale, guildId: Long, val memberId: Long, val selectedRoles: CustomObservableList<Long>, canBeEmpty: Boolean,
+                                  max: Int, checkManageable: Boolean
 ) : DashboardComboBox(label, DataType.ROLES, canBeEmpty, max) {
 
     constructor(locale: Locale, guildId: Long, memberId: Long, selectedRoles: CustomObservableList<Long>, canBeEmpty: Boolean, max: Int, checkManageable: Boolean) :

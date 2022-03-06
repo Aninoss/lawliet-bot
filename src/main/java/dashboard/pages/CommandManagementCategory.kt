@@ -8,7 +8,7 @@ import dashboard.DashboardCategory
 import dashboard.DashboardProperties
 import dashboard.component.DashboardText
 import dashboard.component.DashboardTitle
-import dashboard.components.DashboardMultipleTextChannelsComboBox
+import dashboard.components.DashboardMultiTextChannelsComboBox
 import dashboard.container.VerticalContainer
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels
 import net.dv8tion.jda.api.Permission
@@ -30,7 +30,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
         mainContainer.add(
             DashboardTitle(whitelistText),
             DashboardText(getString(Category.CONFIGURATION, "whitelist_state0_description")),
-            DashboardMultipleTextChannelsComboBox(guild.idLong, DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds, true, WhiteListCommand.MAX_CHANNELS)
+            DashboardMultiTextChannelsComboBox(guild.idLong, DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds, true, WhiteListCommand.MAX_CHANNELS)
         )
     }
 
