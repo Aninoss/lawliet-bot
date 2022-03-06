@@ -213,15 +213,17 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         container.add(DashboardTitle(getString(Category.FISHERY_SETTINGS, "fisheryroles_preview")))
 
         val roles = fisheryData.roles
-        val rows = roles.mapIndexed { n, role ->
-            val values = arrayOf((n + 1).toString(), role.name, StringUtil.numToString(Fishery.getFisheryRolePrice(role.guild, roles.size, n)))
-            GridRow(n.toString(), values)
+        if (roles.size > 0) {
+            val rows = roles.mapIndexed { n, role ->
+                val values = arrayOf((n + 1).toString(), role.name, StringUtil.numToString(Fishery.getFisheryRolePrice(role.guild, roles.size, n)))
+                GridRow(n.toString(), values)
+            }
+            val grid = DashboardGrid(
+                getString(Category.FISHERY_SETTINGS, "fisheryroles_grid_title").split("\n").toTypedArray(),
+                rows
+            )
+            container.add(grid)
         }
-        val grid = DashboardGrid(
-            getString(Category.FISHERY_SETTINGS, "fisheryroles_grid_title").split("\n").toTypedArray(),
-            rows
-        )
-        container.add(grid)
 
         val refreshButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fisheryroles_refresh")) {
             ActionResult(true)

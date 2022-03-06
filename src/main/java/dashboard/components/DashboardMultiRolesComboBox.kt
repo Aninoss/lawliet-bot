@@ -23,7 +23,7 @@ class DashboardMultiRolesComboBox(label: String, locale: Locale, guildId: Long, 
     init {
         selectedValues = selectedRoles.map {
             val atomicRole = AtomicRole(guildId, it)
-            DiscordEntity(it.toString(), atomicRole.prefixedName)
+            DiscordEntity(it.toString(), atomicRole.name)
         }
         setActionListener { event ->
             val role: Role? = AtomicRole(guildId, event.data.toLong()).get().orElse(null)
