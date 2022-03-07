@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 @CommandProperties(
         trigger = "fisheryroles",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
+        botGuildPermissions = Permission.MANAGE_ROLES,
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "📜",
         executableWithoutArgs = true,

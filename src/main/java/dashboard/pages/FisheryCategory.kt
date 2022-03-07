@@ -41,7 +41,8 @@ import java.util.*
 
 @DashboardProperties(
     id = "fishery",
-    userPermissions = [Permission.MANAGE_SERVER]
+    userPermissions = [Permission.MANAGE_SERVER],
+    botPermissions = [Permission.MANAGE_ROLES]
 )
 class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
