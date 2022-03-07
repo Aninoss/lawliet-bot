@@ -12,6 +12,7 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
+import mysql.modules.ticket.DBTicket;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -38,7 +39,8 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
                 new Random().nextInt(400) == 0 &&
                 guildBean.getFisheryStatus() == FisheryStatus.ACTIVE &&
                 guildBean.isFisheryTreasureChests() &&
-                BotPermissionUtil.canWriteEmbed(event.getChannel(), Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION)
+                BotPermissionUtil.canWriteEmbed(event.getChannel(), Permission.MESSAGE_HISTORY) &&
+                !DBTicket.getInstance().retrieve(event.getGuild().getIdLong()).getTicketChannels().containsKey(event.getChannel().getIdLong())
         ) {
             boolean noSpamChannel = true;
             CustomObservableList<Long> ignoredChannelIds = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getIgnoredChannelIds();
