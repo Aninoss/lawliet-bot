@@ -29,7 +29,7 @@ enum class Category(val id: String, val emoji: String, val isIndependent: Boolea
         @JvmStatic
         fun findCategoryByCommand(c: Class<out Command>): Category? {
             val categoryName = c.getPackage().name.split(".")[2]
-            return when(categoryName) {
+            return when (categoryName) {
                 "gimmickscategory" -> GIMMICKS
                 "nsfwcategory" -> NSFW
                 "configurationcategory" -> CONFIGURATION
@@ -45,6 +45,13 @@ enum class Category(val id: String, val emoji: String, val isIndependent: Boolea
                 "aitoyscategory" -> AI_TOYS
                 else -> null
             }
+        }
+
+        @JvmStatic
+        fun fromId(id: String): Category? {
+            return values()
+                .filter { it.id == id }
+                .getOrNull(0)
         }
 
     }

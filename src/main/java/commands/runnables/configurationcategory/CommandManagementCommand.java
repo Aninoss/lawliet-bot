@@ -1,29 +1,30 @@
 package commands.runnables.configurationcategory;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import commands.*;
+import commands.Category;
+import commands.Command;
+import commands.CommandContainer;
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
-import constants.Emojis;
 import constants.LogStatus;
+import core.CustomObservableList;
 import core.EmbedFactory;
 import core.TextManager;
+import core.utils.StringUtil;
 import mysql.modules.commandmanagement.CommandManagementData;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,8 +37,12 @@ import org.jetbrains.annotations.NotNull;
 )
 public class CommandManagementCommand extends NavigationAbstract {
 
-    private CommandManagementData commandManagementBean;
-    private Category category;
+    private static final int MAIN = 0,
+            SET_CATEGORIES = 1,
+            ADD_COMMANDS = 2,
+            REMOVE_COMMANDS = 3;
+
+    private CommandManagementData commandManagementData;
 
     public CommandManagementCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -45,185 +50,173 @@ public class CommandManagementCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
+        commandManagementData = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
         return true;
     }
 
-    @Override
-    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
-        return null;
+    @ControllerMessage(state = ADD_COMMANDS)
+    public MessageInputResponse onMessageAddCommands(GuildMessageReceivedEvent event, String input) {
+        List<String> commands = Arrays.stream(input.split(" "))
+                .map(trigger -> CommandContainer.getCommandMap().get(trigger))
+                .filter(Objects::nonNull)
+                .filter(clazz -> {
+                    CommandProperties commandProperties = Command.getCommandProperties(clazz);
+                    return commandProperties.exclusiveGuilds().length == 0 && commandProperties.exclusiveUsers().length == 0;
+                })
+                .map(clazz -> Command.getCommandProperties(clazz).trigger())
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (commands.isEmpty()) {
+            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
+            return MessageInputResponse.FAILED;
+        }
+
+        List<String> switchedOffElements = commandManagementData.getSwitchedOffElements();
+        List<String> newCommands = commands.stream()
+                .filter(trigger -> !switchedOffElements.contains(trigger))
+                .collect(Collectors.toList());
+
+        if (newCommands.isEmpty()) {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "element_exists", commands.size() != 1));
+            return MessageInputResponse.FAILED;
+        }
+
+        commandManagementData.getSwitchedOffElements().addAll(newCommands);
+        setLog(LogStatus.SUCCESS, getString("addcommands_set", newCommands.size() != 1, StringUtil.numToString(newCommands.size())));
+        setState(MAIN);
+        return MessageInputResponse.SUCCESS;
     }
 
-    @Override
-    public boolean controllerSelectionMenu(SelectionMenuEvent event, int i, int state) throws Throwable {
-        category = Category.independentValues()[i];
-        setState(1);
+    @ControllerButton(state = MAIN)
+    public boolean onButtonMain(ButtonClickEvent event, int i) {
+        switch (i) {
+            case -1 -> {
+                deregisterListenersWithComponentMessage();
+                return false;
+            }
+            case 0 -> {
+                setState(SET_CATEGORIES);
+                return true;
+            }
+            case 1 -> {
+                setState(ADD_COMMANDS);
+                return true;
+            }
+            case 2 -> {
+                if (commandManagementData.getSwitchedOffCommands().size() > 0) {
+                    setState(REMOVE_COMMANDS);
+                    return true;
+                } else {
+                    setLog(LogStatus.FAILURE, getString("nocommand"));
+                    return true;
+                }
+            }
+            default -> {
+                return false;
+            }
+        }
+    }
+
+    @ControllerButton(state = SET_CATEGORIES)
+    public boolean onButtonSetCategories(ButtonClickEvent event, int i) {
+        if (i == -1) {
+            setState(MAIN);
+            return true;
+        }
+        return false;
+    }
+
+    @ControllerButton(state = ADD_COMMANDS)
+    public boolean onButtonAddCommands(ButtonClickEvent event, int i) {
+        if (i == -1) {
+            setState(MAIN);
+            return true;
+        }
+        return false;
+    }
+
+    @ControllerButton(state = REMOVE_COMMANDS)
+    public boolean onButtonRemoveCommands(ButtonClickEvent event, int i) {
+        if (i == -1) {
+            setState(MAIN);
+            return true;
+        } else {
+            String trigger = event.getButton().getLabel();
+            commandManagementData.getSwitchedOffElements().remove(trigger);
+            setLog(LogStatus.SUCCESS, getString("commandremoved", trigger));
+            if (commandManagementData.getSwitchedOffCommands().isEmpty()) {
+                setState(MAIN);
+            }
+            return true;
+        }
+    }
+
+    @ControllerSelectionMenu(state = SET_CATEGORIES)
+    public boolean onSelectionMenu(SelectionMenuEvent event, int i) {
+        CustomObservableList<String> switchedOffElements = commandManagementData.getSwitchedOffElements();
+        for (Category category : Category.independentValues()) {
+            switchedOffElements.remove(category.getId());
+        }
+        switchedOffElements.addAll(event.getValues());
+        setLog(LogStatus.SUCCESS, getString("categoryset_set"));
+        setState(MAIN);
         return true;
     }
 
-    @Override
-    public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
-        switch (state) {
-            case 0:
-                if (i == -1) {
-                    deregisterListenersWithComponentMessage();
-                }
-                return false;
-
-            case 1:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        turnOnAllCategoryCommands();
-                        commandManagementBean.getSwitchedOffElements().remove(category.getId());
-                        setLog(LogStatus.SUCCESS, getString("categoryset_all", true, TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId())));
-                        return true;
-
-                    case 1:
-                        setState(2);
-                        return true;
-
-                    case 2:
-                        turnOnAllCategoryCommands();
-                        commandManagementBean.getSwitchedOffElements().add(category.getId());
-                        setLog(LogStatus.SUCCESS, getString("categoryset_all", false, TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId())));
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 2:
-                List<Command> commandList = CommandContainer.getCommandCategoryMap().get(category).stream()
-                        .map(clazz -> CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()))
-                        .collect(Collectors.toList());
-
-                if (i == -1) {
-                    setState(1);
-                    return true;
-                } else if (i >= 0 && i < commandList.size()) {
-                    Command command = commandList.get(i);
-                    if (commandManagementBean.commandIsTurnedOn(command)) {
-                        commandManagementBean.getSwitchedOffElements().add(command.getTrigger());
-                        setLog(LogStatus.SUCCESS, getString("commandset", false, command.getTrigger()));
-                    } else {
-                        if (commandManagementBean.getSwitchedOffElements().contains(command.getCategory().getId())) {
-                            commandManagementBean.getSwitchedOffElements().remove(command.getCategory().getId());
-                            commandList.stream()
-                                    .filter(c -> !c.equals(command))
-                                    .forEach(c -> commandManagementBean.getSwitchedOffElements().add(c.getTrigger()));
-                        } else {
-                            commandManagementBean.getSwitchedOffElements().remove(command.getTrigger());
-                        }
-                        setLog(LogStatus.SUCCESS, getString("commandset", true, command.getTrigger()));
-                    }
-                    return true;
-                }
-                return false;
-
-            default:
-                return false;
-        }
+    @Draw(state = MAIN)
+    public EmbedBuilder onDrawMain(Member member) {
+        setComponents(getString("state0_options").split("\n"));
+        List<String> categoryNameList = commandManagementData.getSwitchedOffCategories().stream()
+                .map(category -> TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()))
+                .collect(Collectors.toList());
+        return EmbedFactory.getEmbedDefault(this, getString("state0_desc"))
+                .addField(getString("state0_mcategories"), generateList(categoryNameList), false)
+                .addField(getString("state0_mcommands"), generateList(commandManagementData.getSwitchedOffCommands()), false);
     }
 
-    @Override
-    public EmbedBuilder draw(Member member, int state) {
-        switch (state) {
-            case 0:
-                setComponents(generateSelectionMenu(null));
-                return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
+    @Draw(state = SET_CATEGORIES)
+    public EmbedBuilder onDrawSetCategory(Member member) {
+        List<String> categoryIdList = commandManagementData.getSwitchedOffCategories().stream()
+                .map(Category::getId)
+                .collect(Collectors.toList());
 
-            case 1:
-                List<Button> buttonsList = optionsToButtons(getString("state1_options").split("\n"));
-                setActionRows(
-                        ActionRow.of(buttonsList),
-                        ActionRow.of(generateSelectionMenu(category))
-                );
-                String categoryName = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
-                return EmbedFactory.getEmbedDefault(this, getString("state1_description", getCategoryStatus(category), categoryName));
-
-            case 2:
-                ArrayList<Class<? extends Command>> commands = CommandContainer.getCommandCategoryMap().get(category);
-                Button[] buttons = new Button[commands.size()];
-                for (int i = 0; i < buttons.length; i++) {
-                    Command command = CommandManager.createCommandByClass(commands.get(i), getLocale(), getPrefix());
-                    int status = commandManagementBean.commandIsTurnedOn(command) ? 2 : 0;
-                    buttons[i] = Button.of(
-                            getButtonStyleFromStatus(status),
-                            String.valueOf(i),
-                            getString("command", command.getTrigger(), TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title")),
-                            Emoji.fromUnicode(getUnicodeEmojiFromStatus(status))
-                    );
-                }
-                setComponents(buttons);
-                return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
-
-            default:
-                return null;
+        SelectionMenu.Builder selectionMenuBuilder = SelectionMenu.create("categories");
+        selectionMenuBuilder = selectionMenuBuilder.setRequiredRange(0, Category.independentValues().length);
+        for (Category category : Category.independentValues()) {
+            selectionMenuBuilder = selectionMenuBuilder.addOption(TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()), category.getId());
         }
+        selectionMenuBuilder = selectionMenuBuilder.setDefaultValues(categoryIdList);
+        setComponents(selectionMenuBuilder.build());
+        return EmbedFactory.getEmbedDefault(this, getString("state1_desc"), getString("state1_title"));
     }
 
-    private SelectionMenu generateSelectionMenu(Category currentCategory) {
-        SelectionMenu.Builder builder = SelectionMenu.create("category")
-                .setPlaceholder(getString("category_placeholder"));
-        Category[] categories = Category.independentValues();
-        for (int i = 0; i < categories.length; i++) {
-            Category category = categories[i];
-            int status = getCategoryStatus(category);
-            builder.addOption(
-                    TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()),
-                    String.valueOf(i),
-                    Emoji.fromUnicode(getUnicodeEmojiFromStatus(status))
-            );
-            if (category == currentCategory) {
-                builder.setDefaultValues(List.of(String.valueOf(i)));
+    @Draw(state = ADD_COMMANDS)
+    public EmbedBuilder onDrawAddCommands(Member member) {
+        return EmbedFactory.getEmbedDefault(this, getString("state2_desc"), getString("state2_title"));
+    }
+
+    @Draw(state = REMOVE_COMMANDS)
+    public EmbedBuilder onDrawRemoveCommands(Member member) {
+        setComponents(commandManagementData.getSwitchedOffCommands().toArray(new String[0]));
+        return EmbedFactory.getEmbedDefault(this, getString("state3_desc"), getString("state3_title"));
+    }
+
+    private String generateList(List<String> elements) {
+        StringBuilder sb = new StringBuilder();
+        for (String element : elements) {
+            if (sb.length() > 0) {
+                sb.append(' ');
             }
+            sb.append('`').append(element).append('`');
         }
-        return builder.build();
-    }
-
-    private void turnOnAllCategoryCommands() {
-        commandManagementBean.getSwitchedOffElements().removeIf(element -> {
-            Class<? extends Command> clazz = CommandContainer.getCommandMap().get(element);
-            if (clazz == null) return false;
-            return CommandManager.createCommandByClass(clazz, getLocale(), getPrefix()).getCategory().equals(category);
-        });
-    }
-
-    private int getCategoryStatus(Category category) {
-        boolean hasOn = false, hasOff = false;
-
-        if (!commandManagementBean.getSwitchedOffElements().contains(category.getId())) {
-            for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
-                Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-                if (!hasOn && commandManagementBean.commandIsTurnedOn(command)) {
-                    hasOn = true;
-                } else if (!hasOff && !commandManagementBean.commandIsTurnedOn(command)) {
-                    hasOff = true;
-                }
-            }
+        if (sb.length() > 0) {
+            return sb.toString();
+        } else {
+            return TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         }
-
-        return hasOn ? (hasOff ? 1 : 2) : 0;
     }
 
-    private String getUnicodeEmojiFromStatus(int status) {
-        return switch (status) {
-            case 0 -> Emojis.X;
-            case 1 -> "❔";
-            default -> "☑️";
-        };
-    }
-
-    private ButtonStyle getButtonStyleFromStatus(int status) {
-        return switch (status) {
-            case 0, 1 -> ButtonStyle.SECONDARY;
-            default -> ButtonStyle.SUCCESS;
-        };
-    }
 
 }
