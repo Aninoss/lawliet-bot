@@ -261,6 +261,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             guildData.setFisheryAnnouncementChannelId(it.data?.toLong())
         }
         container.add(announcementChannelComboBox)
+        container.add(DashboardSeparator(), generateFisheryRolePricesField(guildData))
 
         val singleRolesSwitch = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_msinglerole_raw")) {
             guildData.toggleFisherySingleRoles()
@@ -269,11 +270,6 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         singleRolesSwitch.subtitle = getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_msinglerole_desc").replace("*", "")
         singleRolesSwitch.isChecked = guildData.isFisherySingleRoles
         container.add(DashboardSeparator(), singleRolesSwitch)
-
-        container.add(
-            DashboardSeparator(),
-            generateFisheryRolePricesField(guildData)
-        )
         return container;
     }
 
