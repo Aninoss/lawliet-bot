@@ -58,58 +58,62 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val fisheryData = DBFishery.getInstance().retrieve(guild.idLong)
         val guildData = fisheryData.guildData
+        val premium = PatreonCache.getInstance().hasPremium(atomicMember.idLong, true) ||
+                PatreonCache.getInstance().isUnlocked(atomicGuild.idLong)
+
         mainContainer.add(
             generateStateField(guildData),
             generateStateButtons(guildData),
             DashboardSeparator(),
             generateSwitches(guildData),
             generateExcludeChannelsField(fisheryData),
-            generateVoiceLimitField(guildData),
+            generateVoiceLimitField(guildData, premium),
             generateFisheryRolesField(guildData, fisheryData),
             generateFisheryRolesPreviewField(fisheryData),
-            generateFisheryManageField(fisheryData, guildData)
+            generateFisheryManageField(fisheryData, guildData, premium)
         )
     }
 
-    private fun generateFisheryManageField(fisheryGuildData: FisheryGuildData, guildData: GuildData): DashboardComponent {
+    private fun generateFisheryManageField(fisheryGuildData: FisheryGuildData, guildData: GuildData, premium: Boolean): DashboardComponent {
         val container = VerticalContainer()
         container.add(DashboardTitle(getString(Category.FISHERY_SETTINGS, "fisherymanage_title")))
 
-        if (PatreonCache.getInstance().hasPremium(atomicMember.idLong, true) ||
-            PatreonCache.getInstance().isUnlocked(atomicGuild.idLong)
-        ) {
-            if (guildData.fisheryStatus == FisheryStatus.ACTIVE) {
-                container.add(
-                    generateFisheryManageMembersField(),
-                    DashboardSeparator(),
-                    generateFisheryManageActionField(fisheryGuildData),
-                    DashboardText(getString(Category.FISHERY_SETTINGS, "fisherymanage_value_mask"))
-                )
+        if (guildData.fisheryStatus == FisheryStatus.ACTIVE) {
+            container.add(
+                generateFisheryManageMembersField(premium),
+                DashboardSeparator(),
+                generateFisheryManageActionField(fisheryGuildData, premium),
+                DashboardText(getString(Category.FISHERY_SETTINGS, "fisherymanage_value_mask"))
+            )
 
-                val clearButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fisherymanage_state0_reset")) {
-                    if (manageMembers.size > 0 || manageRoles.size > 0) {
-                        val fisheryMemberList = collectFisheryMemberList(fisheryGuildData)
-                        fisheryMemberList.forEach(FisheryMemberData::remove)
-                        ActionResult(false)
-                            .withSuccessMessage(getString(Category.FISHERY_SETTINGS, "fisherymanage_reset_success", fisheryMemberList.size != 1, StringUtil.numToString(fisheryMemberList.size)))
-                    } else {
-                        ActionResult(false)
-                            .withErrorMessage(getString(Category.FISHERY_SETTINGS, "fisherymanage_nomembers"))
-                    }
+            val clearButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fisherymanage_state0_reset")) {
+                if (manageMembers.size > 0 || manageRoles.size > 0) {
+                    val fisheryMemberList = collectFisheryMemberList(fisheryGuildData)
+                    fisheryMemberList.forEach(FisheryMemberData::remove)
+                    ActionResult(false)
+                        .withSuccessMessage(getString(Category.FISHERY_SETTINGS, "fisherymanage_reset_success", fisheryMemberList.size != 1, StringUtil.numToString(fisheryMemberList.size)))
+                } else {
+                    ActionResult(false)
+                        .withErrorMessage(getString(Category.FISHERY_SETTINGS, "fisherymanage_nomembers"))
                 }
-                clearButton.style = DashboardButton.Style.DANGER
-                clearButton.enableConfirmationMessage(getString(Category.FISHERY_SETTINGS, "fisherymanage_resetwarning"))
-                container.add(DashboardSeparator(), HorizontalContainer(clearButton, HorizontalPusher()))
-            } else {
-                container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fisherymanage_notactive")))
             }
+            clearButton.isEnabled = premium
+            clearButton.style = DashboardButton.Style.DANGER
+            clearButton.enableConfirmationMessage(getString(Category.FISHERY_SETTINGS, "fisherymanage_resetwarning"))
+            container.add(DashboardSeparator(), HorizontalContainer(clearButton, HorizontalPusher()))
         } else {
-            container.add(DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed")))
+            container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fisherymanage_notactive")))
+        }
+
+        if (!premium) {
+            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
+            text.style = DashboardText.Style.ERROR
+            container.add(text)
         }
         return container
     }
 
-    private fun generateFisheryManageActionField(fisheryGuildData: FisheryGuildData): DashboardComponent {
+    private fun generateFisheryManageActionField(fisheryGuildData: FisheryGuildData, premium: Boolean): DashboardComponent {
         val container = HorizontalContainer()
         container.allowWrap = true
         container.alignment = HorizontalContainer.Alignment.BOTTOM
@@ -133,6 +137,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             ActionResult(false)
         }
         propertyComboBox.selectedValues = listOf(values[managePropertyIndex])
+        propertyComboBox.isEnabled = premium
         container.add(propertyComboBox)
 
         val valueTextField = DashboardTextField(
@@ -144,6 +149,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             ActionResult(false)
         }
         valueTextField.value = manageNewValue
+        valueTextField.isEnabled = premium
         container.add(valueTextField)
 
         val confirmButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fisherymanage_confirm")) {
@@ -162,6 +168,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             }
         }
         confirmButton.style = DashboardButton.Style.PRIMARY
+        confirmButton.isEnabled = premium
         container.add(confirmButton)
 
         return container
@@ -183,7 +190,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         return memberSet.map { fisheryGuildData.getMemberData(it) }
     }
 
-    private fun generateFisheryManageMembersField(): DashboardComponent {
+    private fun generateFisheryManageMembersField(premium: Boolean): DashboardComponent {
         val container = VerticalContainer()
 
         val manageMembers = DashboardMultiMembersComboBox(
@@ -193,6 +200,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             true,
             50
         )
+        manageMembers.isEnabled = premium
         container.add(manageMembers)
 
         val manageRoles = DashboardMultiRolesComboBox(
@@ -205,6 +213,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             50,
             false
         )
+        manageRoles.isEnabled = premium
         container.add(manageRoles)
         return container
     }
@@ -295,37 +304,39 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         return container
     }
 
-    private fun generateVoiceLimitField(guildData: GuildData): DashboardComponent {
+    private fun generateVoiceLimitField(guildData: GuildData, premium: Boolean): DashboardComponent {
         val container = VerticalContainer()
         container.add(DashboardTitle(Command.getCommandLanguage(VCTimeCommand::class.java, locale).title))
 
-        if (PatreonCache.getInstance().hasPremium(atomicMember.idLong, true) ||
-            PatreonCache.getInstance().isUnlocked(atomicGuild.idLong)
-        ) {
-            val horizontalContainer = HorizontalContainer()
-            horizontalContainer.allowWrap = true
-            horizontalContainer.alignment = HorizontalContainer.Alignment.BOTTOM
+        val horizontalContainer = HorizontalContainer()
+        horizontalContainer.allowWrap = true
+        horizontalContainer.alignment = HorizontalContainer.Alignment.BOTTOM
 
-            val limitNumberField = DashboardNumberField(getString(Category.FISHERY_SETTINGS, "vctime_hoursperday"), 1, 24) {
-                guildData.setFisheryVcHoursCap(it.data.toInt() % 24)
-                ActionResult(false)
-            }
-            guildData.fisheryVcHoursCapEffectively.ifPresentOrElse({
-                limitNumberField.value = it.toLong()
-            }, {
-                limitNumberField.value = 24
-            })
-            horizontalContainer.add(limitNumberField)
+        val limitNumberField = DashboardNumberField(getString(Category.FISHERY_SETTINGS, "vctime_hoursperday"), 1, 24) {
+            guildData.setFisheryVcHoursCap(it.data.toInt() % 24)
+            ActionResult(false)
+        }
+        guildData.fisheryVcHoursCapEffectively.ifPresentOrElse({
+            limitNumberField.value = it.toLong()
+        }, {
+            limitNumberField.value = 24
+        })
+        limitNumberField.isEnabled = premium
+        horizontalContainer.add(limitNumberField)
 
-            val unlimitedButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "vctime_setunlimited")) {
-                guildData.setFisheryVcHoursCap(0)
-                ActionResult(true)
-            }
-            horizontalContainer.add(unlimitedButton)
+        val unlimitedButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "vctime_setunlimited")) {
+            guildData.setFisheryVcHoursCap(0)
+            ActionResult(true)
+        }
+        unlimitedButton.isEnabled = premium
+        horizontalContainer.add(unlimitedButton)
 
-            container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "vctime_explanation")), horizontalContainer)
-        } else {
-            container.add(DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed")))
+        container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "vctime_explanation")), horizontalContainer)
+
+        if (!premium) {
+            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
+            text.style = DashboardText.Style.ERROR
+            container.add(text)
         }
 
         return container
