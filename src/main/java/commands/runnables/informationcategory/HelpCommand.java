@@ -226,7 +226,7 @@ public class HelpCommand extends NavigationAbstract {
                         default -> categoryDefault(member, channel, eb, category);
                     }
 
-                    setComponents(generateSelectionMenu(category));
+                    setComponents(generateSelectionMenu(member.getGuild().getIdLong(), category));
                     return eb;
                 }
             }
@@ -458,19 +458,21 @@ public class HelpCommand extends NavigationAbstract {
             ), true);
         }
 
-        setComponents(generateSelectionMenu(null));
+        setComponents(generateSelectionMenu(member.getGuild().getIdLong(), null));
         return eb;
     }
 
-    private SelectionMenu generateSelectionMenu(Category currentCategory) {
+    private SelectionMenu generateSelectionMenu(long guildId, Category currentCategory) {
         SelectionMenu.Builder builder = SelectionMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
-            String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
-            String value = "cat:" + category.getId();
-            builder.addOption(label, value, Emoji.fromUnicode(category.getEmoji()));
-            if (category == currentCategory) {
-                builder.setDefaultValues(List.of(value));
+            if (!DBCommandManagement.getInstance().retrieve(guildId).getSwitchedOffCategories().contains(category)) {
+                String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
+                String value = "cat:" + category.getId();
+                builder.addOption(label, value, Emoji.fromUnicode(category.getEmoji()));
+                if (category == currentCategory) {
+                    builder.setDefaultValues(List.of(value));
+                }
             }
         }
         return builder.build();
