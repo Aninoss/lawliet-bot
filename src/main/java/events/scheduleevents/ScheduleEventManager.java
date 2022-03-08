@@ -22,7 +22,7 @@ public class ScheduleEventManager extends Startable {
     private final int DELAY = 1000;
 
     private final Reflections reflections = new Reflections("events/scheduleevents");
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(3, new CountingThreadFactory(() -> "Main", "ScheduleEvent", true));
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(8, new CountingThreadFactory(() -> "Main", "ScheduleEvent", true));
 
     public ScheduleEventManager() {
     }

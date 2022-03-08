@@ -321,17 +321,19 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                     .append("\n");
         } else if (this instanceof PornSearchAbstract) {
             List<String> tags = pornImages.get(0).getTags();
-            sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_tags"))
-                    .append(" ");
-            for (int i = 0; i < tags.size(); i++) {
-                if (i > 0) {
-                    sb.append(", ");
+            if (tags != null) {
+                sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_tags"))
+                        .append(" ");
+                for (int i = 0; i < tags.size(); i++) {
+                    if (i > 0) {
+                        sb.append(", ");
+                    }
+                    sb.append("`")
+                            .append(tags.get(i))
+                            .append("`");
                 }
-                sb.append("`")
-                        .append(tags.get(i))
-                        .append("`");
+                sb.append("\n");
             }
-            sb.append("\n");
         }
 
         sb.append("\n");

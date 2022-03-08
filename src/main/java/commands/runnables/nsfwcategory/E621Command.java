@@ -29,4 +29,9 @@ public class E621Command extends PornSearchAbstract {
         return true;
     }
 
+    @Override
+    public int getMaxTags() {
+        return 40;
+    }
+
 }

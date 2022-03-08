@@ -90,7 +90,11 @@ public class Console {
     }
 
     private static void onCleanGuilds(String[] args) {
-        CleanGuilds.execute();
+        try {
+            CleanGuilds.execute();
+        } catch (InterruptedException e) {
+            //ignore
+        }
     }
 
     private static void onAlertsReset(String[] args) {
