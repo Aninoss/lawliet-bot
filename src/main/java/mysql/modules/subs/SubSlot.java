@@ -10,7 +10,7 @@ import core.components.ActionRows;
 import core.utils.JDAUtil;
 import mysql.modules.bannedusers.DBBannedUsers;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 public class SubSlot extends Observable implements UserAsset {
 

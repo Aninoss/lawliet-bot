@@ -18,8 +18,8 @@ import mysql.modules.upvotes.DBUpvotes;
 import mysql.modules.upvotes.UpvoteSlot;
 import mysql.modules.upvotes.UpvotesData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 @ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.MINUTES)
 public class ReminderUpvote implements ExceptionRunnable {

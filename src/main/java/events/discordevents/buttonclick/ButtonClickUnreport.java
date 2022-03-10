@@ -7,7 +7,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.InteractionListenerHandler;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.Component;
 import websockets.syncserver.SendEvent;
 

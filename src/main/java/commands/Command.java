@@ -28,10 +28,11 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
@@ -138,7 +139,7 @@ public abstract class Command implements OnTriggerListener {
         setComponents(List.of(buttons));
     }
 
-    public void setComponents(SelectionMenu... menus) {
+    public void setComponents(SelectMenu... menus) {
         setComponents(List.of(menus));
     }
 
@@ -234,13 +235,14 @@ public abstract class Command implements OnTriggerListener {
 
             HashSet<String> usedIds = new HashSet<>();
             for (ActionRow actionRow : actionRows) {
-                for (Component component : actionRow.getComponents()) {
-                    if (component.getId() != null) {
-                        if (usedIds.contains(component.getId())) {
-                            future.completeExceptionally(new Exception("Duplicate custom id \"" + component.getId() + "\""));
+                for (ItemComponent component : actionRow.getComponents()) {
+                    String id = JDAUtil.componentGetId(component);
+                    if (id != null) {
+                        if (usedIds.contains(id)) {
+                            future.completeExceptionally(new Exception("Duplicate custom id \"" + id + "\""));
                             return future;
                         }
-                        usedIds.add(component.getId());
+                        usedIds.add(id);
                     }
                 }
             }
