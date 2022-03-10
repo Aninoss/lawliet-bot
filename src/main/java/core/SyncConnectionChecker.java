@@ -17,7 +17,7 @@ public class SyncConnectionChecker {
             } catch (Throwable e) {
                 //ignore
             }
-        }, 10, 10, TimeUnit.SECONDS);
+        }, 1, 1, TimeUnit.MINUTES);
     }
 
     private static boolean isConnected() {
