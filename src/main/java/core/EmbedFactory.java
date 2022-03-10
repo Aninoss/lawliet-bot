@@ -120,18 +120,11 @@ public class EmbedFactory {
         );
     }
 
-    public static EmbedBuilder getCommandDMEmbed(ArrayList<ActionRow> actionRowList) {
-        EmbedBuilder eb;
-        if (Program.publicVersion()) {
-            eb = EmbedFactory.getEmbedError()
-                    .setTitle("❌ Not Supported")
-                    .setDescription("Commands via dm are not supported, you need to add Lawliet to a server!");
-            actionRowList.add(ActionRow.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, "Add Lawliet")));
-        } else {
-            eb = EmbedFactory.getEmbedError()
-                    .setTitle("❌ Not Supported")
-                    .setDescription("Commands via dm are not supported!");
-        }
+    public static EmbedBuilder getWrongChannelTypeEmbed(Locale locale, ArrayList<ActionRow> actionRowList) {
+        EmbedBuilder eb = EmbedFactory.getEmbedError()
+                .setTitle(TextManager.getString(locale, TextManager.GENERAL, "wrongchanneltype_title"))
+                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "wrongchanneltype_desc"));
+        actionRowList.add(ActionRow.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"))));
         return eb;
     }
 
