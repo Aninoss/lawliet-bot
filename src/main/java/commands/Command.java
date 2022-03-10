@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -234,8 +235,8 @@ public abstract class Command implements OnTriggerListener {
 
             HashSet<String> usedIds = new HashSet<>();
             for (ActionRow actionRow : actionRows) {
-                for (ItemComponent component : actionRow.getComponents()) {
-                    String id = JDAUtil.componentGetId(component);
+                for (ActionComponent component : actionRow.getActionComponents()) {
+                    String id = component.getId();
                     if (id != null) {
                         if (usedIds.contains(id)) {
                             future.completeExceptionally(new Exception("Duplicate custom id \"" + id + "\""));

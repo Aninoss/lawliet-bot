@@ -11,9 +11,6 @@ import mysql.modules.userprivatechannels.PrivateChannelData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
@@ -153,15 +150,6 @@ public class JDAUtil {
             messageAction = messageAction.referenceById(messageId);
         }
         return messageAction;
-    }
-
-    public static String componentGetId(ItemComponent component) {
-        if (component instanceof Button) {
-            return ((Button) component).getId();
-        } else if (component instanceof SelectMenu) {
-            return ((SelectMenu) component).getId();
-        }
-        return null;
     }
 
 }

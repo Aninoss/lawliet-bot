@@ -241,7 +241,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             List<ActionRow> tempActionRows = getActionRows();
             if (tempActionRows != null &&
                     tempActionRows.size() > 0 &&
-                    tempActionRows.get(tempActionRows.size() - 1).getComponents().stream().anyMatch(component -> BUTTON_ID_BACK.equals(JDAUtil.componentGetId(component)))
+                    tempActionRows.get(tempActionRows.size() - 1).getActionComponents().stream().anyMatch(component -> BUTTON_ID_BACK.equals(component.getId()))
             ) {
                 actionRows = tempActionRows.subList(0, tempActionRows.size() - 1);
             } else {
