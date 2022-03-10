@@ -15,6 +15,11 @@ public class SendEvent {
     private SendEvent() {
     }
 
+    public static CompletableFuture<Boolean> sendPing() {
+        return sendEmpty("PING")
+                .thenApply(responseJson -> responseJson.has("ping") && responseJson.getString("ping").equals("pong"));
+    }
+
     public static CompletableFuture<JSONObject> sendFullyConnected() {
         CompletableFuture<JSONObject> future = SyncManager.getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
         if (Program.productionMode()) {
