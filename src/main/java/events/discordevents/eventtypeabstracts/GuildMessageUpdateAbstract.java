@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import core.cache.MessageCache;
 import events.discordevents.DiscordEventAbstract;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 
 public abstract class GuildMessageUpdateAbstract extends DiscordEventAbstract {
 
-    public abstract boolean onGuildMessageUpdate(GuildMessageUpdateEvent event) throws Throwable;
+    public abstract boolean onGuildMessageUpdate(MessageUpdateEvent event) throws Throwable;
 
-    public static void onGuildMessageUpdateStatic(GuildMessageUpdateEvent event, ArrayList<DiscordEventAbstract> listenerList) {
+    public static void onGuildMessageUpdateStatic(MessageUpdateEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         MessageCache.put(event.getMessage());
 
         Member member = event.getMember();

@@ -1,33 +1,32 @@
 package commands
 
 import core.utils.JDAUtil
-import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.MessageEmbed
-import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.events.channel.text.GenericTextChannelEvent
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.events.channel.GenericChannelEvent
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.requests.RestAction
 
-class CommandEvent : GenericTextChannelEvent {
+class CommandEvent : GenericChannelEvent {
 
     val member: Member
-    val slashCommandEvent: SlashCommandEvent?
-    val guildMessageReceivedEvent: GuildMessageReceivedEvent?
+    val slashCommandEvent: SlashCommandInteractionEvent?
+    val guildMessageReceivedEvent: MessageReceivedEvent?
     val user: User
         get() = member.user
     val repliedMember: Member?
         get() = guildMessageReceivedEvent?.message?.messageReference?.message?.member
+    val textChannel: TextChannel
+        get() = getChannel() as TextChannel
 
-    constructor(event: SlashCommandEvent) : super(event.jda, event.responseNumber, event.textChannel) {
+    constructor(event: SlashCommandInteractionEvent) : super(event.jda, event.responseNumber, event.textChannel) {
         slashCommandEvent = event
         guildMessageReceivedEvent = null
         member = event.member!!
     }
 
-    constructor(event: GuildMessageReceivedEvent) : super(event.jda, event.responseNumber, event.channel) {
+    constructor(event: MessageReceivedEvent) : super(event.jda, event.responseNumber, event.textChannel) {
         slashCommandEvent = null
         guildMessageReceivedEvent = event
         member = event.member!!

@@ -7,15 +7,15 @@ import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import constants.Language
 import core.TextManager
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 @Slash(command = HelpCommand::class)
 class HelpAdapter : SlashAdapter() {
 
-    public override fun addOptions(commandData: CommandData): CommandData {
+    public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         var optionCategory = OptionData(OptionType.STRING, "category", "Browse a command category", false)
         for (category in Category.values()) {
             optionCategory = optionCategory
@@ -26,7 +26,7 @@ class HelpAdapter : SlashAdapter() {
             .addOption(OptionType.STRING, "command", "Look up a specific command", false)
     }
 
-    override fun process(event: SlashCommandEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
         val commandOption = event.getOption("command")
         val categoryOption = event.getOption("category")
         var args = ""

@@ -25,10 +25,10 @@ import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -79,7 +79,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public MessageInputResponse onMessageInput(@NotNull GuildMessageReceivedEvent event, @NotNull String input) {
+    public MessageInputResponse onMessageInput(@NotNull MessageReceivedEvent event, @NotNull String input) {
         if (StringUtil.stringIsInt(input)) {
             int number = Integer.parseInt(input);
             if (number >= 0 && number <= area.length * area[0].length) {
@@ -103,7 +103,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     }
 
     @Override
-    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         deregisterListenersWithComponents();
         active = false;
         fisheryMemberBean.removeWork();

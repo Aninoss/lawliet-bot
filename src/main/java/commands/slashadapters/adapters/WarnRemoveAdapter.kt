@@ -4,14 +4,14 @@ import commands.runnables.moderationcategory.WarnRemoveCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.CommandData
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 @Slash(command = WarnRemoveCommand::class)
 class WarnRemoveAdapter : SlashAdapter() {
 
-    public override fun addOptions(commandData: CommandData): CommandData {
+    public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
             .addOption(OptionType.USER, "member", "The user to lose a specific number of warns", false)
             .addOption(OptionType.USER, "member2", "The user to lose a specific number of warns", false)
@@ -24,7 +24,7 @@ class WarnRemoveAdapter : SlashAdapter() {
             .addOption(OptionType.BOOLEAN, "all", "Remove all warns", false)
     }
 
-    override fun process(event: SlashCommandEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
         val args: String
         args = if (event.getOption("all")?.asBoolean ?: false) {
             collectArgs(event, "amount")

@@ -14,7 +14,7 @@ import core.utils.ExceptionUtil
 import mysql.modules.commandusages.DBCommandUsages
 import mysql.modules.guild.DBGuild
 import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -31,7 +31,7 @@ interface OnTriggerListener {
             command.interactionResponse = interactionResponse
         }
         val isProcessing = AtomicBoolean(true)
-        command.setAtomicAssets(event.channel, event.member)
+        command.setAtomicAssets(event.textChannel, event.member)
         command.commandEvent = event
         if (Program.publicVersion()) {
             DBCommandUsages.getInstance().retrieve(command.trigger).increase()
@@ -64,10 +64,10 @@ interface OnTriggerListener {
         }
     }
 
-    private fun processTriggerDelete(event: GuildMessageReceivedEvent) {
+    private fun processTriggerDelete(event: MessageReceivedEvent) {
         val guildBean = DBGuild.getInstance().retrieve(event.guild.idLong)
         if (guildBean.isCommandAuthorMessageRemoveEffectively &&
-            PermissionCheckRuntime.botHasPermission(guildBean.locale, TriggerDeleteCommand::class.java, event.channel, Permission.MESSAGE_MANAGE)
+            PermissionCheckRuntime.botHasPermission(guildBean.locale, TriggerDeleteCommand::class.java, event.textChannel, Permission.MESSAGE_MANAGE)
         ) {
             event.message.delete().queue()
         }

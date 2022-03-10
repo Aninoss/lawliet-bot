@@ -10,16 +10,16 @@ import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import constants.Language
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
 
 @Slash(name = "casino", description = "Bet your coins in virtual gambling games")
 class CasinoAdapter : SlashAdapter() {
 
-    public override fun addOptions(commandData: CommandData): CommandData {
+    public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         for (clazz in CommandContainer.getFullCommandList()) {
             val command = CommandManager.createCommandByClass(clazz, Language.EN.locale, "/")
             if (command.category == Category.CASINO) {
@@ -41,7 +41,7 @@ class CasinoAdapter : SlashAdapter() {
         return commandData
     }
 
-    override fun process(event: SlashCommandEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
         val trigger = event.subcommandName
         val clazz = CommandContainer.getCommandMap()[trigger]!!
         return SlashMeta(clazz, collectArgs(event))

@@ -2,14 +2,13 @@ package commands.listeners
 
 import commands.CommandListenerMeta.CheckResponse
 import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import java.util.concurrent.CompletableFuture
-import java.util.function.Function
 
 interface OnButtonListener : OnInteractionListener {
 
     @Throws(Throwable::class)
-    fun onButton(event: ButtonClickEvent): Boolean
+    fun onButton(event: ButtonInteractionEvent): Boolean
 
     fun registerButtonListener(member: Member): CompletableFuture<Long> {
         return registerButtonListener(member, true)
@@ -19,11 +18,11 @@ interface OnButtonListener : OnInteractionListener {
         return registerInteractionListener(member, OnButtonListener::class.java, draw, { onButtonOverridden() })
     }
 
-    fun registerButtonListener(member: Member, draw: Boolean, validityChecker: (ButtonClickEvent) -> CheckResponse): CompletableFuture<Long> {
+    fun registerButtonListener(member: Member, draw: Boolean, validityChecker: (ButtonInteractionEvent) -> CheckResponse): CompletableFuture<Long> {
         return registerInteractionListener(member, OnButtonListener::class.java, draw, { onButtonOverridden() }, validityChecker)
     }
 
-    fun processButton(event: ButtonClickEvent) {
+    fun processButton(event: ButtonInteractionEvent) {
         processInteraction(event) { onButton(it) }
     }
 

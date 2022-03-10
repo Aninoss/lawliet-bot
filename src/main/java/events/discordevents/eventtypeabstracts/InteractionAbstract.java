@@ -6,7 +6,7 @@ import core.AsyncTimer;
 import core.MainLogger;
 import core.utils.ExceptionUtil;
 import events.discordevents.DiscordEventAbstract;
-import net.dv8tion.jda.api.events.interaction.GenericComponentInteractionCreateEvent;
+import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 
 public class InteractionAbstract extends DiscordEventAbstract {
 

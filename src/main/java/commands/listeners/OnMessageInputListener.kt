@@ -11,13 +11,13 @@ import core.utils.BotPermissionUtil
 import core.utils.ExceptionUtil
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.util.concurrent.atomic.AtomicBoolean
 
 interface OnMessageInputListener : Drawable {
 
     @Throws(Throwable::class)
-    fun onMessageInput(event: GuildMessageReceivedEvent, input: String): MessageInputResponse?
+    fun onMessageInput(event: MessageReceivedEvent, input: String): MessageInputResponse?
 
     fun registerMessageInputListener(member: Member, draw: Boolean = true) {
         val command = this as Command
@@ -28,7 +28,7 @@ interface OnMessageInputListener : Drawable {
         }
     }
 
-    fun registerMessageInputListener(member: Member, draw: Boolean, validityChecker: (GuildMessageReceivedEvent) -> CheckResponse) {
+    fun registerMessageInputListener(member: Member, draw: Boolean, validityChecker: (MessageReceivedEvent) -> CheckResponse) {
         val command = this as Command
         val onTimeOut = {
             try {
@@ -60,7 +60,7 @@ interface OnMessageInputListener : Drawable {
         }
     }
 
-    fun processMessageInput(event: GuildMessageReceivedEvent): MessageInputResponse? {
+    fun processMessageInput(event: MessageReceivedEvent): MessageInputResponse? {
         val command = this as Command
         val isProcessing = AtomicBoolean(true)
         command.addLoadingReaction(event.message, isProcessing)
@@ -72,7 +72,7 @@ interface OnMessageInputListener : Drawable {
             if (messageInputResponse != null) {
                 if (messageInputResponse === MessageInputResponse.SUCCESS) {
                     CommandContainer.refreshListeners(command)
-                    if (BotPermissionUtil.can(event.channel, Permission.MESSAGE_MANAGE)) {
+                    if (BotPermissionUtil.can(event.textChannel, Permission.MESSAGE_MANAGE)) {
                         event.message.delete().queue()
                     }
                 }

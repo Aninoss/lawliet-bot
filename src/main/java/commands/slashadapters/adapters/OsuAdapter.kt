@@ -4,15 +4,15 @@ import commands.runnables.externalcategory.OsuCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 @Slash(command = OsuCommand::class)
 class OsuAdapter : SlashAdapter() {
 
-    public override fun addOptions(commandData: CommandData): CommandData {
+    public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         val gameMode = OptionData(OptionType.STRING, "game_mode", "Which game mode to you want to view?")
             .addChoice("osu!", "osu")
             .addChoice("osu!taiko", "taiko")
@@ -23,7 +23,7 @@ class OsuAdapter : SlashAdapter() {
             .addOptions(gameMode)
     }
 
-    override fun process(event: SlashCommandEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
         return SlashMeta(OsuCommand::class.java, collectArgs(event))
     }
 

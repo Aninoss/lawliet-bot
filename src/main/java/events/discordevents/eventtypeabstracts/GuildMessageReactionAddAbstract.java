@@ -6,13 +6,13 @@ import core.AsyncTimer;
 import core.MainLogger;
 import core.utils.ExceptionUtil;
 import events.discordevents.DiscordEventAbstract;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 public abstract class GuildMessageReactionAddAbstract extends DiscordEventAbstract {
 
-    public abstract boolean onGuildMessageReactionAdd(GuildMessageReactionAddEvent event) throws Throwable;
+    public abstract boolean onGuildMessageReactionAdd(MessageReactionAddEvent event) throws Throwable;
 
-    public static void onGuildMessageReactionAddStatic(GuildMessageReactionAddEvent event, ArrayList<DiscordEventAbstract> listenerList) {
+    public static void onGuildMessageReactionAddStatic(MessageReactionAddEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         try(AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
             timeOutTimer.setTimeOutListener(t -> {
                 MainLogger.get().error("Reaction add \"{}\" of guild {} stuck", event.getReactionEmote().getAsReactionCode(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));

@@ -2,13 +2,13 @@ package commands.slashadapters.adapters
 
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.CommandData
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 abstract class BooruSearchAdapterAbstract : SlashAdapter() {
 
-    public override fun addOptions(commandData: CommandData): CommandData {
+    public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
             .addOption(OptionType.STRING, "tag", "A tag for searching specific results", true)
             .addOption(OptionType.STRING, "tag2", "A tag for searching specific results", false)
@@ -18,7 +18,7 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
             .addOption(OptionType.INTEGER, "amount", "Amount of posts from 1 to 20 / 30", false)
     }
 
-    override fun process(event: SlashCommandEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
         val argsBuilder = StringBuilder()
         for (option in event.options) {
             argsBuilder.append(option.asString.replace(" ", "_")).append(" ")

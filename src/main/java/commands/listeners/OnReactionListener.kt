@@ -15,8 +15,8 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
+import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent
 import net.dv8tion.jda.api.exceptions.PermissionException
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -24,11 +24,11 @@ import java.util.concurrent.CompletableFuture
 interface OnReactionListener : Drawable {
 
     @Throws(Throwable::class)
-    fun onReaction(event: GenericGuildMessageReactionEvent): Boolean
+    fun onReaction(event: GenericMessageReactionEvent): Boolean
 
     fun registerReactionListener(member: Member, vararg emojis: String): CompletableFuture<Long> {
         val command = this as Command
-        return registerReactionListener(member) { event: GenericGuildMessageReactionEvent ->
+        return registerReactionListener(member) { event: GenericMessageReactionEvent ->
             val ok = event.userIdLong == member.idLong && event.messageIdLong == (this as Command).drawMessageId.orElse(0L) &&
                     (emojis.size == 0 || Arrays.stream(emojis).anyMatch { emoji: String -> EmojiUtil.reactionEmoteEqualsEmoji(event.reactionEmote, emoji) })
             if (ok) CheckResponse.ACCEPT else CheckResponse.IGNORE
@@ -44,7 +44,7 @@ interface OnReactionListener : Drawable {
         }
     }
 
-    fun registerReactionListener(member: Member, validityChecker: (GenericGuildMessageReactionEvent) -> CheckResponse): CompletableFuture<Long> {
+    fun registerReactionListener(member: Member, validityChecker: (GenericMessageReactionEvent) -> CheckResponse): CompletableFuture<Long> {
         val command = this as Command
         val onTimeOut = {
             try {
@@ -112,12 +112,12 @@ interface OnReactionListener : Drawable {
         return future
     }
 
-    fun processReaction(event: GenericGuildMessageReactionEvent) {
+    fun processReaction(event: GenericMessageReactionEvent) {
         val command = this as Command
         try {
             if (command.commandProperties.requiresFullMemberCache) {
                 MemberCacheController.getInstance().loadMembersFull(event.guild).get()
-            } else if (event is GuildMessageReactionRemoveEvent) {
+            } else if (event is MessageReactionRemoveEvent) {
                 MemberCacheController.getInstance().loadMember(event.getGuild(), event.getUserIdLong()).get()
             }
             if (event.user == null || event.user!!.isBot) {

@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import core.EmbedFactory;
 import events.discordevents.DiscordEventAbstract;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 public abstract class SlashCommandAbstract extends DiscordEventAbstract {
 
     private Instant startTime;
 
-    public abstract boolean onSlashCommand(SlashCommandEvent event) throws Throwable;
+    public abstract boolean onSlashCommand(SlashCommandInteractionEvent event) throws Throwable;
 
     public Instant getStartTime() {
         return startTime;
@@ -22,7 +22,7 @@ public abstract class SlashCommandAbstract extends DiscordEventAbstract {
         this.startTime = startTime;
     }
 
-    public static void onSlashCommandStatic(SlashCommandEvent event, ArrayList<DiscordEventAbstract> listenerList) {
+    public static void onSlashCommandStatic(SlashCommandInteractionEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         if (event.getGuild() == null) {
             if (event.getJDA().getShardInfo().getShardId() == 0) {
                 ArrayList<ActionRow> actionRowList = new ArrayList<>();

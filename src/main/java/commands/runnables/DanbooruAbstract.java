@@ -9,7 +9,7 @@ public abstract class DanbooruAbstract extends PornPredefinedAbstract {
         super(locale, prefix);
     }
 
-    /*@Override
+    @Override
     protected String getDomain() {
         return "danbooru.donmai.us";
     }
@@ -17,18 +17,6 @@ public abstract class DanbooruAbstract extends PornPredefinedAbstract {
     @Override
     protected Set<String> getAdditionalFilters() {
         return Set.of("furry", "what");
-    } TODO: revert back if danbooru.com works again */
-
-    @Override
-    protected Set<String> getAdditionalFilters() {
-        return Set.of("human_on_anthro", "interspecies", "furry", "anthro", "pony", "monster", "animal_humanoid",
-                "no_humans", "feral", "knot", "animal_genitalia", "sonic_(series)", "bowser", "yoshi", "horse",
-                "horsecock", "animal_crossing", "the_simpsons", "mammal");
-    }
-
-    @Override
-    protected String getDomain() {
-        return "rule34.xxx";
     }
 
     @Override

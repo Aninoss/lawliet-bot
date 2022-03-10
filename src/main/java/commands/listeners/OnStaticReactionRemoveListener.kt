@@ -1,11 +1,11 @@
 package commands.listeners
 
 import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent
 
 interface OnStaticReactionRemoveListener {
 
     @Throws(Throwable::class)
-    fun onStaticReactionRemove(message: Message, event: GuildMessageReactionRemoveEvent)
+    fun onStaticReactionRemove(message: Message, event: MessageReactionRemoveEvent)
 
 }
