@@ -21,9 +21,14 @@ public class NekoCommand extends DanbooruAbstract {
         super(locale, prefix);
     }
 
-    @Override
+    /*@Override
     protected String getSearchKey() {
         return "cat_girl rating:e";
+    } TODO: revert back if danbooru.com works again */
+
+    @Override
+    protected String getSearchKey() {
+        return "catgirl";
     }
 
     @Override
