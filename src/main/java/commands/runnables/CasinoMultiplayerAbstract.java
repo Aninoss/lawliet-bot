@@ -181,7 +181,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
             if (fisheryGuildData != null) {
                 fisheryGuildData.getMemberData(event.getMember().getIdLong()).addCoinsHidden(-coinsInput);
             }
-            playerList.removeIf(m -> m.getIdLong() == event.getMember().getIdLong());
+            playerList.removeIf(m -> m == null || m.getIdLong() == event.getMember().getIdLong());
             if (playerList.size() > 0) {
                 setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_leave_log", event.getMember().getEffectiveName()));
                 return true;
