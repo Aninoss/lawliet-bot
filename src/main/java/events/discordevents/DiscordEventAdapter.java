@@ -91,7 +91,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (event.isFromGuild() && event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof TextChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageReceivedAbstract.onGuildMessageReceivedStatic(event, getListenerList(GuildMessageReceivedAbstract.class)));
         } else {
@@ -102,13 +102,15 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onUserTyping(@NotNull UserTypingEvent event) {
-        GlobalThreadPool.getExecutorService()
-                .submit(() -> UserTypingAbstract.onUserTypingStatic(event, getListenerList(UserTypingAbstract.class)));
+        if (event.getChannel() instanceof TextChannel) {
+            GlobalThreadPool.getExecutorService()
+                    .submit(() -> UserTypingAbstract.onUserTypingStatic(event, getListenerList(UserTypingAbstract.class)));
+        }
     }
 
     @Override
     public void onMessageUpdate(@NotNull MessageUpdateEvent event) {
-        if (event.isFromGuild() && event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof TextChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageUpdateAbstract.onGuildMessageUpdateStatic(event, getListenerList(GuildMessageUpdateAbstract.class)));
         }
@@ -116,7 +118,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageDelete(@NotNull MessageDeleteEvent event) {
-        if (event.isFromGuild() && event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof TextChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageDeleteAbstract.onGuildMessageDeleteStatic(event, getListenerList(GuildMessageDeleteAbstract.class)));
         }
@@ -124,7 +126,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
-        if (event.isFromGuild() && event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof TextChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageReactionAddAbstract.onGuildMessageReactionAddStatic(event, getListenerList(GuildMessageReactionAddAbstract.class)));
         }
@@ -132,7 +134,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageReactionRemove(@NotNull MessageReactionRemoveEvent event) {
-        if (event.isFromGuild() && event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof TextChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageReactionRemoveAbstract.onGuildMessageReactionRemoveStatic(event, getListenerList(GuildMessageReactionRemoveAbstract.class)));
         }
@@ -196,12 +198,12 @@ public class DiscordEventAdapter extends ListenerAdapter {
                 .submit(() -> GenericPermissionOverrideAbstract.onGenericPermissionOverrideStatic(event, getListenerList(GenericPermissionOverrideAbstract.class)));
     }
 
-
-
     @Override
     public void onChannelUpdateUserLimit(@NotNull ChannelUpdateUserLimitEvent event) {
-        GlobalThreadPool.getExecutorService()
-                .submit(() -> VoiceChannelUpdateUserLimitAbstract.onVoiceChannelUpdateUserLimitStatic(event, getListenerList(VoiceChannelUpdateUserLimitAbstract.class)));
+        if (event.getChannel() instanceof VoiceChannel) {
+            GlobalThreadPool.getExecutorService()
+                    .submit(() -> VoiceChannelUpdateUserLimitAbstract.onVoiceChannelUpdateUserLimitStatic(event, getListenerList(VoiceChannelUpdateUserLimitAbstract.class)));
+        }
     }
 
     @Override
@@ -266,18 +268,20 @@ public class DiscordEventAdapter extends ListenerAdapter {
         }
     }
 
-
-
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        GlobalThreadPool.getExecutorService()
-                .submit(() -> ButtonClickAbstract.onButtonClickStatic(event, getListenerList(ButtonClickAbstract.class)));
+        if (event.getChannel() instanceof TextChannel) {
+            GlobalThreadPool.getExecutorService()
+                    .submit(() -> ButtonClickAbstract.onButtonClickStatic(event, getListenerList(ButtonClickAbstract.class)));
+        }
     }
 
     @Override
     public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
-        GlobalThreadPool.getExecutorService()
-                .submit(() -> SelectMenuAbstract.onSelectMenuStatic(event, getListenerList(SelectMenuAbstract.class)));
+        if (event.getChannel() instanceof TextChannel) {
+            GlobalThreadPool.getExecutorService()
+                    .submit(() -> SelectMenuAbstract.onSelectMenuStatic(event, getListenerList(SelectMenuAbstract.class)));
+        }
     }
 
     @Override
