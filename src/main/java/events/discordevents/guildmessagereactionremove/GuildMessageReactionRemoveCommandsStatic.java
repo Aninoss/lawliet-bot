@@ -16,14 +16,14 @@ import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 
 @DiscordEvent
 public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReactionRemoveAbstract {
 
     @Override
-    public boolean onGuildMessageReactionRemove(GuildMessageReactionRemoveEvent event) throws Throwable {
-        if (!BotPermissionUtil.canReadHistory(event.getChannel(), Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+    public boolean onGuildMessageReactionRemove(MessageReactionRemoveEvent event) throws Throwable {
+        if (!BotPermissionUtil.canReadHistory(event.getTextChannel(), Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
             return true;
         }
 
@@ -37,7 +37,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
             if (command instanceof OnStaticReactionRemoveListener) {
                 Message message;
                 try {
-                    message = MessageCache.retrieveMessage(event.getChannel(), event.getMessageIdLong()).get();
+                    message = MessageCache.retrieveMessage(event.getTextChannel(), event.getMessageIdLong()).get();
                 } catch (InterruptedException | ExecutionException e) {
                     //Ignore
                     return true;

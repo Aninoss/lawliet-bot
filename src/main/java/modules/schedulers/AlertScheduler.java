@@ -100,7 +100,7 @@ public class AlertScheduler {
         OnAlertListener command = (OnAlertListener) commandOpt.get();
         Optional<TextChannel> channelOpt = slot.getTextChannel();
         if (channelOpt.isPresent()) {
-            if (PermissionCheckRuntime.botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+            if (PermissionCheckRuntime.botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 if (checkNSFW(slot, channelOpt.get(), (Command) command) ||
                         checkPatreon(slot, channelOpt.get(), (Command) command)
                 ) {

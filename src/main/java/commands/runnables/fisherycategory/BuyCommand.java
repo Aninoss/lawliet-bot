@@ -31,8 +31,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @CommandProperties(
         trigger = "buy",
@@ -94,12 +94,12 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     }
 
     @Override
-    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String inputString, int state) throws Throwable {
+    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String inputString, int state) throws Throwable {
         return null;
     }
 
     @Override
-    public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
+    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) throws Throwable {
         if (state == 0) {
             if (i == -1) {
                 deregisterListenersWithComponentMessage();
@@ -156,7 +156,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         if (slot.getGear() == FisheryGear.ROLE) {
             Fishery.synchronizeRoles(member);
             Optional<TextChannel> announcementChannelOpt = guildBean.getFisheryAnnouncementChannel();
-            if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.MESSAGE_WRITE)) {
+            if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.MESSAGE_SEND)) {
                 String announcementText = getString("newrole", member.getUser().getAsMention(), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));
                 announcementChannelOpt.get().sendMessage(announcementText).queue();
             }

@@ -20,9 +20,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
+import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,7 +46,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
         SuggestionsData suggestionsBean = DBSuggestions.getInstance().retrieve(event.getGuild().getIdLong());
         if (suggestionsBean.isActive()) {
             Optional<TextChannel> channelOpt = suggestionsBean.getTextChannel();
-            if (channelOpt.isPresent() && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.MESSAGE_WRITE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION)) {
+            if (channelOpt.isPresent() && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.MESSAGE_SEND, Permission.MESSAGE_HISTORY, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION)) {
                 if (ratelimitManager.checkAndSet(event.getMember().getIdLong(), 1, Duration.ofMinutes(1)).isEmpty()) {
                     TextChannel channel = channelOpt.get();
                     String author = event.getMember().getUser().getAsTag();
@@ -112,16 +112,16 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
     }
 
     @Override
-    public void onStaticReactionAdd(@NotNull Message message, @NotNull GuildMessageReactionAddEvent event) {
+    public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
         onReactionStatic(event, true);
     }
 
     @Override
-    public void onStaticReactionRemove(@NotNull Message message, @NotNull GuildMessageReactionRemoveEvent event) {
+    public void onStaticReactionRemove(@NotNull Message message, @NotNull MessageReactionRemoveEvent event) {
         onReactionStatic(event, false);
     }
 
-    private void onReactionStatic(GenericGuildMessageReactionEvent event, boolean add) {
+    private void onReactionStatic(GenericMessageReactionEvent event, boolean add) {
         DBSuggestions.getInstance()
                 .retrieve(event.getGuild().getIdLong())
                 .getSuggestionMessages()
@@ -134,7 +134,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                             suggestionMessage.updateDownvotes(add ? 1 : -1);
                         }
 
-                        suggestionMessage.loadVoteValuesifAbsent(event.getChannel());
+                        suggestionMessage.loadVoteValuesifAbsent(event.getTextChannel());
                         String footer = generateFooter(
                                 suggestionMessage.getUpvotes(),
                                 suggestionMessage.getDownvotes()
@@ -142,7 +142,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
                         quickUpdater.update(
                                 messageId,
-                                event.getChannel().editMessageEmbedsById(
+                                event.getTextChannel().editMessageEmbedsById(
                                         messageId,
                                         generateEmbed(suggestionMessage.getContent(), StringUtil.escapeMarkdown(suggestionMessage.getAuthor()), footer).build()
                                 )

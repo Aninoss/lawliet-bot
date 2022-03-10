@@ -10,13 +10,13 @@ import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.BumpReminder;
 import mysql.modules.bump.DBBump;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @DiscordEvent(priority = EventPriority.LOW, allowBots = true)
 public class GuildMessageReceivedAnicordBump extends GuildMessageReceivedAbstract {
 
     @Override
-    public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
         if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID && event.getMember().getIdLong() == 302050872383242240L) {
             List<MessageEmbed> embedList = event.getMessage().getEmbeds();
             if (embedList.size() > 0 && embedList.get(0).getImage() != null && embedList.get(0).getDescription() != null) {

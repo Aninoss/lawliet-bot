@@ -23,8 +23,8 @@ import mysql.modules.gamestatistics.GameStatisticsData;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +60,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
 
     public abstract boolean onGameStart(CommandEvent event, String args) throws Throwable;
 
-    public abstract boolean onButtonCasino(ButtonClickEvent event) throws Throwable;
+    public abstract boolean onButtonCasino(ButtonInteractionEvent event) throws Throwable;
 
     public abstract EmbedBuilder drawCasino(String playerName, long coinsInput);
 
@@ -204,7 +204,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     }
 
     @Override
-    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         if (status == Status.ACTIVE) {
             if (hasCancelButton && event.getComponentId().equals(BUTTON_ID_QUIT)) {
                 cancel(event.getMember(), false, true);
@@ -223,12 +223,12 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         return false;
     }
 
-    public MessageInputResponse onMessageInputCasino(GuildMessageReceivedEvent event, String input) throws Throwable {
+    public MessageInputResponse onMessageInputCasino(MessageReceivedEvent event, String input) throws Throwable {
         return null;
     }
 
     @Override
-    public MessageInputResponse onMessageInput(@NotNull GuildMessageReceivedEvent event, @NotNull String input) throws Throwable {
+    public MessageInputResponse onMessageInput(@NotNull MessageReceivedEvent event, @NotNull String input) throws Throwable {
         if (status == Status.ACTIVE) {
             return onMessageInputCasino(event, input);
         }

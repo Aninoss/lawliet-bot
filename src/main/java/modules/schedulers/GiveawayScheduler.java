@@ -116,7 +116,7 @@ public class GiveawayScheduler {
             }
             giveawayData.stop();
 
-            if (PermissionCheckRuntime.botHasPermission(locale, GiveawayCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+            if (PermissionCheckRuntime.botHasPermission(locale, GiveawayCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 if (!reroll) {
                     message.editMessageEmbeds(eb.build())
                             .content(winners.size() > 0 ? mentions.toString() : null)

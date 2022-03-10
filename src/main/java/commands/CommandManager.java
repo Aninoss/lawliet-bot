@@ -12,7 +12,7 @@ import commands.cooldownchecker.CoolDownUserData;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnMessageInputListener;
 import commands.listeners.OnReactionListener;
-import commands.listeners.OnSelectionMenuListener;
+import commands.listeners.OnSelectMenuListener;
 import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
 import commands.runningchecker.RunningCheckerManager;
@@ -102,7 +102,7 @@ public class CommandManager {
         if (random.nextInt(180) == 0 &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER) &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MESSAGE_MANAGE) &&
-                (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandEvent())
+                (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent())
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setThumbnail(ShardManager.getSelf().getAvatarUrl())
@@ -130,7 +130,7 @@ public class CommandManager {
         if (CoolDownManager.getCoolDownData(event.getMember().getIdLong()).canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_desc");
 
-            if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandEvent()) {
+            if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_title"))
                         .setDescription(desc);
@@ -157,7 +157,7 @@ public class CommandManager {
         if (cooldownUserData.canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, String.valueOf(waitingSec.get()));
 
-            if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandEvent()) {
+            if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
                         .setDescription(desc);
@@ -182,7 +182,7 @@ public class CommandManager {
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description");
         String waitTime = TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_releaseday", TimeFormat.DATE_TIME_SHORT.atInstant(TimeUtil.localDateToInstant(releaseDate)).toString());
 
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setColor(Settings.PREMIUM_COLOR)
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"))
@@ -204,7 +204,7 @@ public class CommandManager {
             return true;
         }
 
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
             sendError(event, command.getLocale(), EmbedFactory.getPatreonBlockEmbed(command.getLocale()), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
             sendErrorNoEmbed(event, command.getLocale(), TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_description_noembed"), false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
@@ -215,7 +215,7 @@ public class CommandManager {
 
     private static boolean checkPermissions(CommandEvent event, Command command) {
         Permission[] botChannelPermissions = command.getAdjustedBotChannelPermissions();
-        Permission[] everyoneChannelPermissions = Arrays.stream(botChannelPermissions).anyMatch(p -> p == Permission.MESSAGE_EXT_EMOJI) && event.isSlashCommandEvent()
+        Permission[] everyoneChannelPermissions = Arrays.stream(botChannelPermissions).anyMatch(p -> p == Permission.MESSAGE_EXT_EMOJI) && event.isSlashCommandInteractionEvent()
                 ? new Permission[] { Permission.MESSAGE_EXT_EMOJI }
                 : new Permission[0];
 
@@ -245,7 +245,7 @@ public class CommandManager {
         }
 
         String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_description");
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "turnedoff_title", command.getPrefix()))
                     .setDescription(desc);
@@ -261,7 +261,7 @@ public class CommandManager {
     }
 
     private static boolean botCanUseEmbeds(CommandEvent event, Command command) {
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || !command.getCommandProperties().requiresEmbeds() || event.isSlashCommandEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || !command.getCommandProperties().requiresEmbeds() || event.isSlashCommandInteractionEvent()) {
             return true;
         }
 
@@ -281,7 +281,7 @@ public class CommandManager {
     }
 
     private static void sendErrorNoEmbed(CommandEvent event, Locale locale, String text, boolean autoDelete, Button... buttons) {
-        if (BotPermissionUtil.canWrite(event.getTextChannel()) || event.isSlashCommandEvent()) {
+        if (BotPermissionUtil.canWrite(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
             RestAction<Message> messageAction = event.replyMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text), ActionRows.of(buttons));
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
@@ -292,7 +292,7 @@ public class CommandManager {
     }
 
     private static void sendError(CommandEvent event, Locale locale, EmbedBuilder eb, boolean autoDelete, Button... buttons) {
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
             if (autoDelete) {
                 eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
             }
@@ -313,8 +313,8 @@ public class CommandManager {
                 if (message != null) {
                     messageList.add(message);
                 }
-                if (event.isGuildMessageReceivedEvent() && BotPermissionUtil.can(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
-                    messageList.add(event.getGuildMessageReceivedEvent().getMessage());
+                if (event.isMessageReceivedEvent() && BotPermissionUtil.can(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+                    messageList.add(event.getMessageReceivedEvent().getMessage());
                 }
                 if (messageList.size() >= 2) {
                     event.getTextChannel().deleteMessages(messageList).queue();
@@ -327,7 +327,7 @@ public class CommandManager {
 
     private static boolean isWhiteListed(CommandEvent event, Command command) {
         if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
-                DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).isWhiteListed(event.getChannel().getIdLong())
+                DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong()).isWhiteListed(event.getTextChannel().getIdLong())
         ) {
             return true;
         }
@@ -346,14 +346,14 @@ public class CommandManager {
     }
 
     private static boolean botCanPost(CommandEvent event, Command command) {
-        if (BotPermissionUtil.canWrite(event.getTextChannel()) || event.isSlashCommandEvent()) {
+        if (BotPermissionUtil.canWrite(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
             return true;
         }
 
-        if (event.isGuildMessageReceivedEvent() &&
+        if (event.isMessageReceivedEvent() &&
                 BotPermissionUtil.canReadHistory(event.getTextChannel(), Permission.MESSAGE_ADD_REACTION)
         ) {
-            Message message = event.getGuildMessageReceivedEvent().getMessage();
+            Message message = event.getMessageReceivedEvent().getMessage();
             RestActionQueue restActionQueue = new RestActionQueue();
             restActionQueue.attach(message.addReaction(Emojis.X));
             restActionQueue.attach(message.addReaction("✍️"))
@@ -363,7 +363,7 @@ public class CommandManager {
 
         if (!sendHelpDm(event.getMember(), command)) {
             if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR)) {
-                String text = TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", StringUtil.escapeMarkdown(event.getChannel().getName()));
+                String text = TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_writing_permissions", StringUtil.escapeMarkdown(event.getTextChannel().getName()));
                 JDAUtil.openPrivateChannel(event.getMember())
                         .flatMap(messageChannel -> messageChannel.sendMessage(text))
                         .queue();
@@ -391,7 +391,7 @@ public class CommandManager {
         sendOverwrittenSignals(command, member, OnReactionListener.class);
         sendOverwrittenSignals(command, member, OnMessageInputListener.class);
         sendOverwrittenSignals(command, member, OnButtonListener.class);
-        sendOverwrittenSignals(command, member, OnSelectionMenuListener.class);
+        sendOverwrittenSignals(command, member, OnSelectMenuListener.class);
     }
 
     private static void sendOverwrittenSignals(Command command, Member member, Class<?> clazz) {

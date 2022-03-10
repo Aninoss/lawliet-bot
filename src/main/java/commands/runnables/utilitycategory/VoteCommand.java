@@ -25,8 +25,8 @@ import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -114,51 +114,51 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
     }
 
     @Override
-    public void onStaticReactionAdd(@NotNull Message message, @NotNull GuildMessageReactionAddEvent event) {
-        VoteCache.get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
+    public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
+        VoteCache.get(event.getTextChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
             if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
                     voteInfo.getCreatorId().isPresent() &&
                     voteInfo.getCreatorId().get() == event.getUserIdLong()
             ) {
                 voteInfo.stop();
                 DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMessageIdLong());
-                if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                     quickUpdater.update(
                             event.getMessageIdLong(),
-                            event.getChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, false).build())
+                            event.getTextChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, false).build())
                     );
                 }
-                if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
-                    event.getChannel().clearReactionsById(event.getMessageIdLong()).queue();
+                if (BotPermissionUtil.can(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+                    event.getTextChannel().clearReactionsById(event.getMessageIdLong()).queue();
                 }
                 return;
             }
 
-            if (voteInfo.getVotes(event.getUserIdLong()) > 1 && BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
-                event.getChannel()
+            if (voteInfo.getVotes(event.getUserIdLong()) > 1 && BotPermissionUtil.can(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+                event.getTextChannel()
                         .removeReactionById(event.getMessageIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), event.getUser())
                         .queue();
                 return;
             }
 
-            if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+            if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                 quickUpdater.update(
                         event.getMessageIdLong(),
-                        event.getChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
+                        event.getTextChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
                 );
             }
         });
     }
 
     @Override
-    public void onStaticReactionRemove(@NotNull Message message, @NotNull GuildMessageReactionRemoveEvent event) {
-        VoteCache.get(event.getChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
+    public void onStaticReactionRemove(@NotNull Message message, @NotNull MessageReactionRemoveEvent event) {
+        VoteCache.get(event.getTextChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
                 .ifPresent(voteInfo -> {
                     if (voteInfo.getVotes(event.getUserIdLong()) == 0) {
-                        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                             quickUpdater.update(
                                     event.getMessageIdLong(),
-                                    event.getChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
+                                    event.getTextChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
                             );
                         }
                     }

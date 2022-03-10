@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -63,7 +63,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     }
 
     @Override
-    public void onStaticButton(ButtonClickEvent event) throws Throwable {
+    public void onStaticButton(ButtonInteractionEvent event) throws Throwable {
         SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
         if (event.getMessage().getTimeCreated().toInstant().isAfter(surveyData.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
             String[] parts = event.getComponentId().split("_");
@@ -95,7 +95,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
                 .addField(getString("majority"), StringUtil.shortenStringLine(voteStrings[1], 1024), false);
     }
 
-    private boolean registerVote(ButtonClickEvent event, SurveyData surveyData, int type, byte i) {
+    private boolean registerVote(ButtonInteractionEvent event, SurveyData surveyData, int type, byte i) {
         Member member = event.getMember();
         switch (type) {
             case 1:

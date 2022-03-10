@@ -16,7 +16,7 @@ import modules.BingoBoard;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
@@ -61,7 +61,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
     }
 
     @Override
-    public synchronized boolean onButtonCasino(ButtonClickEvent event, int player) throws Throwable {
+    public synchronized boolean onButtonCasino(ButtonInteractionEvent event, int player) throws Throwable {
         if (StringUtil.stringIsInt(event.getComponentId())) {
             int boardId = Integer.parseInt(event.getComponentId());
             if (boardToPlayer[boardId] != -1) {

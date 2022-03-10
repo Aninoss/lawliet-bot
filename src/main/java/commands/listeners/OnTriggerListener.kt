@@ -26,8 +26,8 @@ interface OnTriggerListener {
     @Throws(Throwable::class)
     fun processTrigger(event: CommandEvent, args: String, freshCommand: Boolean): Boolean {
         val command = this as Command
-        if (freshCommand && event.isSlashCommandEvent()) {
-            val interactionResponse: InteractionResponse = SlashCommandResponse(event.slashCommandEvent!!.hook)
+        if (freshCommand && event.isSlashCommandInteractionEvent()) {
+            val interactionResponse: InteractionResponse = SlashCommandResponse(event.slashCommandInteractionEvent!!.hook)
             command.interactionResponse = interactionResponse
         }
         val isProcessing = AtomicBoolean(true)
@@ -36,9 +36,9 @@ interface OnTriggerListener {
         if (Program.publicVersion()) {
             DBCommandUsages.getInstance().retrieve(command.trigger).increase()
         }
-        if (event.isGuildMessageReceivedEvent()) {
-            command.addLoadingReaction(event.guildMessageReceivedEvent!!.message, isProcessing)
-            processTriggerDelete(event.guildMessageReceivedEvent)
+        if (event.isMessageReceivedEvent()) {
+            command.addLoadingReaction(event.messageReceivedEvent!!.message, isProcessing)
+            processTriggerDelete(event.messageReceivedEvent)
         }
         addKillTimer(isProcessing)
         try {

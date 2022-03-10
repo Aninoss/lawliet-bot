@@ -24,8 +24,8 @@ import mysql.modules.bannedwords.DBBannedWords;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -63,7 +63,7 @@ public class WordFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
                 List<Member> memberIgnoredList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
@@ -106,7 +106,7 @@ public class WordFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerButton(ButtonClickEvent event, int i, int state) {
+    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {

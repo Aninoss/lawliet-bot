@@ -24,11 +24,11 @@ import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
-import net.dv8tion.jda.api.managers.ChannelManager;
+import net.dv8tion.jda.api.managers.channel.concrete.VoiceChannelManager;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -57,7 +57,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
     }
 
     @Override
-    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             List<VoiceChannel> vcList = MentionUtil.getVoiceChannels(event.getMessage(), input).getList();
             if (vcList.size() == 0) {
@@ -89,7 +89,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerButton(ButtonClickEvent event, int i, int state) {
+    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {
@@ -136,7 +136,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                         }
 
                         MemberCacheController.getInstance().loadMembersFull(event.getGuild()).join();
-                        ChannelManager manager = voiceChannel.getManager();
+                        VoiceChannelManager manager = voiceChannel.getManager();
                         try {
                             for (PermissionOverride permissionOverride : voiceChannel.getPermissionOverrides()) {
                                 manager = manager.putPermissionOverride(

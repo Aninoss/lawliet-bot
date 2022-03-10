@@ -27,8 +27,8 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -68,7 +68,7 @@ public class AlertsCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         serverId = event.getGuild().getIdLong();
-        channelId = event.getChannel().getIdLong();
+        channelId = event.getTextChannel().getIdLong();
         alerts = DBTracker.getInstance().retrieve(event.getGuild().getIdLong());
         patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
@@ -79,7 +79,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     @Override
-    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state != STATE_REMOVE) {
             cont = true;
             return controll(input, event.getMember());
@@ -88,7 +88,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerButton(ButtonClickEvent event, int i, int state) {
+    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
         String key = buttonMap.get(i);
         if (key != null) {
             if (key.equalsIgnoreCase("back")) {

@@ -27,9 +27,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -95,7 +95,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerMessage(state = ADD_MESSAGE)
-    public MessageInputResponse onMessageAddMessage(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageAddMessage(MessageReceivedEvent event, String input) {
         List<TextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getGuild(), input).getList();
         if (serverTextChannel.size() > 0) {
             if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
@@ -111,7 +111,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerMessage(state = UPDATE_TITLE)
-    public MessageInputResponse onMessageUpdateTitle(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateTitle(MessageReceivedEvent event, String input) {
         if (input.length() > 0 && input.length() <= 250) {
             title = input;
             setLog(LogStatus.SUCCESS, getString("titleset", input));
@@ -124,7 +124,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerMessage(state = UPDATE_DESC)
-    public MessageInputResponse onMessageUpdateDesc(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateDesc(MessageReceivedEvent event, String input) {
         if (input.length() > 0 && input.length() <= 1000) {
             description = input;
             setLog(LogStatus.SUCCESS, getString("descriptionset", input));
@@ -137,7 +137,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerMessage(state = UPDATE_DURATION)
-    public MessageInputResponse onMessageUpdateDuration(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateDuration(MessageReceivedEvent event, String input) {
         long minutes = MentionUtil.getTimeMinutes(input).getValue();
 
         if (minutes > 0) {
@@ -158,7 +158,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerMessage(state = UPDATE_WINNERS)
-    public MessageInputResponse onMessageUpdateWinners(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateWinners(MessageReceivedEvent event, String input) {
         int amount;
         if (StringUtil.stringIsInt(input) &&
                 (amount = Integer.parseInt(input)) >= WINNERS_MIN &&
@@ -175,7 +175,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerMessage(state = UPDATE_EMOJI)
-    public MessageInputResponse onMessageUpdateEmoji(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateEmoji(MessageReceivedEvent event, String input) {
         List<String> emojiList = MentionUtil.getEmojis(event.getMessage(), input).getList();
         if (emojiList.size() > 0) {
             String emoji = emojiList.get(0);
@@ -187,7 +187,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerMessage(state = UPDATE_IMAGE)
-    public MessageInputResponse onMessageUpdateImage(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateImage(MessageReceivedEvent event, String input) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
             Message.Attachment attachment = attachments.get(0);
@@ -206,7 +206,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerMessage(state = REROLL_NUMBER)
-    public MessageInputResponse onMessageRerollWinners(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageRerollWinners(MessageReceivedEvent event, String input) {
         long amount = MentionUtil.getAmountExt(input);
         if (amount >= WINNERS_MIN && amount <= WINNERS_MAX) {
             rerollWinners = (int) amount;
@@ -227,7 +227,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerButton(state = ADD_OR_EDIT)
-    public boolean onButtonAddOrEdit(ButtonClickEvent event, int i) {
+    public boolean onButtonAddOrEdit(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1:
                 deregisterListenersWithComponentMessage();
@@ -261,7 +261,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerButton(state = ADD_MESSAGE)
-    public boolean onButtonAddMessage(ButtonClickEvent event, int i) {
+    public boolean onButtonAddMessage(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1:
                 setState(ADD_OR_EDIT);
@@ -279,7 +279,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerButton(state = EDIT_MESSAGE)
-    public boolean onButtonEditMessage(ButtonClickEvent event, int i) {
+    public boolean onButtonEditMessage(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(ADD_OR_EDIT);
             return true;
@@ -306,7 +306,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerButton(state = REROLL_MESSAGE)
-    public boolean onButtonRerollMessage(ButtonClickEvent event, int i) {
+    public boolean onButtonRerollMessage(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(ADD_OR_EDIT);
             return true;
@@ -324,7 +324,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerButton(state = CONFIGURE_MESSAGE)
-    public boolean onButtonConfigureMessage(ButtonClickEvent event, int i) throws ExecutionException, InterruptedException {
+    public boolean onButtonConfigureMessage(ButtonInteractionEvent event, int i) throws ExecutionException, InterruptedException {
         switch (i) {
             case -1:
                 if (!editMode) {
@@ -391,7 +391,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         }
     }
 
-    private void send(ButtonClickEvent event, boolean endPrematurely) {
+    private void send(ButtonInteractionEvent event, boolean endPrematurely) {
         Optional<Long> messageIdOpt = sendMessage();
         if (messageIdOpt.isPresent()) {
             setState(SENT);
@@ -419,11 +419,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @Override
-    public boolean onReaction(@NotNull GenericGuildMessageReactionEvent event) throws Throwable {
+    public boolean onReaction(@NotNull GenericMessageReactionEvent event) throws Throwable {
         if (getState() == UPDATE_EMOJI) {
             processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
             processDraw(event.getMember(), true).exceptionally(ExceptionLogger.get());
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+            if (BotPermissionUtil.can(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
                 event.getReaction().removeReaction(event.getUser()).queue();
             }
             return false;
@@ -432,7 +432,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerButton(state = UPDATE_IMAGE)
-    public boolean onButtonUpdateImage(ButtonClickEvent event, int i) {
+    public boolean onButtonUpdateImage(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
             return true;
@@ -451,12 +451,12 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerButton(state = SENT)
-    public boolean onButtonSent(ButtonClickEvent event, int i) {
+    public boolean onButtonSent(ButtonInteractionEvent event, int i) {
         return false;
     }
 
     @ControllerButton(state = REROLL_NUMBER)
-    public boolean onButtonRerollNumber(ButtonClickEvent event, int i) {
+    public boolean onButtonRerollNumber(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(REROLL_MESSAGE);
             return true;
@@ -479,7 +479,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerButton
-    public boolean onButtonDefault(ButtonClickEvent event, int i) {
+    public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
             return true;

@@ -85,7 +85,7 @@ public abstract class MemberAccountAbstract extends Command {
                 }
             }
 
-            sendMessage(event.getMember(), event.getChannel(), eb);
+            sendMessage(event.getMember(), event.getTextChannel(), eb);
         }
 
         return true;

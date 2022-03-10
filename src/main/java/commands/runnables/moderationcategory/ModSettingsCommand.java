@@ -29,8 +29,8 @@ import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -70,7 +70,7 @@ public class ModSettingsCommand extends NavigationAbstract {
     }
 
     @Override
-    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
                 List<TextChannel> channelsList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
@@ -282,7 +282,7 @@ public class ModSettingsCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerButton(ButtonClickEvent event, int i, int state) {
+    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {

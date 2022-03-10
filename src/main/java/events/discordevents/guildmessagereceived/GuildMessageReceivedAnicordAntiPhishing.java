@@ -7,14 +7,14 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
 
 @DiscordEvent(priority = EventPriority.MEDIUM, allowBannedUser = true)
 public class GuildMessageReceivedAnicordAntiPhishing extends GuildMessageReceivedAbstract {
 
     @Override
-    public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
         Guild guild = event.getGuild();
         if ((guild.getIdLong() == AssetIds.ANICORD_SERVER_ID || guild.getIdLong() == AssetIds.SUPPORT_SERVER_ID || guild.getIdLong() == AssetIds.BETA_SERVER_ID ) &&
                 RegexPatterns.PHISHING_DOMAIN.matcher(event.getMessage().getContentRaw()).find() &&

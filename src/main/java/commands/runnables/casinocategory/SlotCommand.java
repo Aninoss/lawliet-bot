@@ -17,7 +17,7 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
@@ -115,7 +115,7 @@ public class SlotCommand extends CasinoAbstract {
     }
 
     @Override
-    public boolean onButtonCasino(ButtonClickEvent event) throws Throwable {
+    public boolean onButtonCasino(ButtonInteractionEvent event) throws Throwable {
         deregisterListenersWithComponents();
 
         Member member = event.getMember();

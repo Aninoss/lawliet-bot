@@ -28,7 +28,6 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -84,8 +83,8 @@ public abstract class Command implements OnTriggerListener {
     }
 
     public void addLoadingReactionInstantly() {
-        if (isProcessing != null && commandEvent.isGuildMessageReceivedEvent()) {
-            addLoadingReactionInstantly(commandEvent.getGuildMessageReceivedEvent().getMessage(), isProcessing);
+        if (isProcessing != null && commandEvent.isMessageReceivedEvent()) {
+            addLoadingReactionInstantly(commandEvent.getMessageReceivedEvent().getMessage(), isProcessing);
         }
     }
 
@@ -143,7 +142,7 @@ public abstract class Command implements OnTriggerListener {
         setComponents(List.of(menus));
     }
 
-    public void setComponents(List<? extends Component> components) {
+    public void setComponents(List<? extends ItemComponent> components) {
         this.actionRows = ActionRows.of(components);
     }
 
@@ -186,7 +185,7 @@ public abstract class Command implements OnTriggerListener {
     private CompletableFuture<Message> drawMessage(EmbedBuilder eb, boolean newMessage) {
         TextChannel channel = getTextChannel().orElse(null);
         if (channel != null) {
-            if (BotPermissionUtil.canWriteEmbed(channel) || interactionResponse != null || commandEvent.isSlashCommandEvent()) {
+            if (BotPermissionUtil.canWriteEmbed(channel) || interactionResponse != null || commandEvent.isSlashCommandInteractionEvent()) {
                 EmbedUtil.addLog(eb, logStatus, log);
                 return drawMessage(channel, null, eb, newMessage);
             } else {
@@ -249,9 +248,9 @@ public abstract class Command implements OnTriggerListener {
 
             RestAction<Message> action;
             if (drawMessage == null || newMessage) {
-                if (commandEvent.isGuildMessageReceivedEvent()) {
+                if (commandEvent.isMessageReceivedEvent()) {
                     MessageAction messageAction;
-                    Message message = commandEvent.getGuildMessageReceivedEvent().getMessage();
+                    Message message = commandEvent.getMessageReceivedEvent().getMessage();
                     if (content != null) {
                         messageAction = JDAUtil.replyMessage(message, content)
                                 .setEmbeds(embeds);
@@ -269,7 +268,7 @@ public abstract class Command implements OnTriggerListener {
                     action = messageAction.setActionRows(actionRows);
                 } else {
                     WebhookMessageAction<Message> messageAction;
-                    InteractionHook interactionHook = commandEvent.getSlashCommandEvent().getHook();
+                    InteractionHook interactionHook = commandEvent.getSlashCommandInteractionEvent().getHook();
                     if (content != null) {
                         messageAction = interactionHook.sendMessage(content)
                                 .addEmbeds(embeds);

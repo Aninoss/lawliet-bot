@@ -46,7 +46,7 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
     private void sendLog(InviteTrackingData inviteTrackingData, Member member, InviteTracking.TempInvite invite) {
         inviteTrackingData.getTextChannel().ifPresent(channel -> {
             Locale locale = inviteTrackingData.getGuildData().getLocale();
-            if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+            if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 String inviterTag = "";
                 String inviterName = "";
                 String code = "";

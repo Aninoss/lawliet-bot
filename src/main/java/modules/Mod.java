@@ -204,7 +204,7 @@ public class Mod {
         eb.setFooter("");
 
         moderationBean.getAnnouncementChannel().ifPresent(channel -> {
-            if (PermissionCheckRuntime.botHasPermission(command.getLocale(), command.getClass(), channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+            if (PermissionCheckRuntime.botHasPermission(command.getLocale(), command.getClass(), channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 channel.sendMessageEmbeds(eb.build()).queue();
             }
         });

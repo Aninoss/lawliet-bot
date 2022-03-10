@@ -24,6 +24,7 @@ import mysql.modules.version.VersionData;
 import mysql.modules.version.VersionSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.NewsChannel;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -121,7 +122,7 @@ public class NewCommand extends Command implements OnAlertListener {
             long messageId = slot.sendMessage(true, getVersionsEmbed(newestSlot).build()).orElse(0L);
 
             if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID && messageId != 0) {
-                slot.getTextChannel().get().crosspostMessageById(messageId).queueAfter(10, TimeUnit.MINUTES);
+                ((NewsChannel) slot.getTextChannel().get()).crosspostMessageById(messageId).queueAfter(10, TimeUnit.MINUTES);
             }
 
             slot.setArgs(BotUtil.getCurrentVersion());

@@ -70,26 +70,26 @@ public class Mute {
 
                 /* ignore channel if no one except for administrators has message read permissions */
                 if (publicOverride != null &&
-                        publicOverride.getDenied().contains(Permission.MESSAGE_READ) &&
-                        channel.getRolePermissionOverrides().stream().noneMatch(o -> o.getAllowed().contains(Permission.MESSAGE_READ))
+                        publicOverride.getDenied().contains(Permission.VIEW_CHANNEL) &&
+                        channel.getRolePermissionOverrides().stream().noneMatch(o -> o.getAllowed().contains(Permission.VIEW_CHANNEL))
                 ) {
                     continue;
                 }
 
                 /* add channel if any overridden role permission allows message write */
-                if (channel.getRolePermissionOverrides().stream().anyMatch(o -> o.getAllowed().contains(Permission.MESSAGE_WRITE))) {
+                if (channel.getRolePermissionOverrides().stream().anyMatch(o -> o.getAllowed().contains(Permission.MESSAGE_SEND))) {
                     leakedChannels.add(channel);
                     continue;
                 }
 
                 /* ignore channel if no one except for administrators has message write permissions */
-                if (publicOverride != null && publicOverride.getDenied().contains(Permission.MESSAGE_WRITE)) {
+                if (publicOverride != null && publicOverride.getDenied().contains(Permission.MESSAGE_SEND)) {
                     continue;
                 }
 
                 /* add channel if mute role doesn't deny message write permissions */
                 PermissionOverride permissionOverride = channel.getPermissionOverride(muteRole);
-                if (permissionOverride == null || !permissionOverride.getDenied().contains(Permission.MESSAGE_WRITE)) {
+                if (permissionOverride == null || !permissionOverride.getDenied().contains(Permission.MESSAGE_SEND)) {
                     leakedChannels.add(channel);
                 }
             }
@@ -108,12 +108,12 @@ public class Mute {
         }
     }
 
-    private static void enforceMuteOnGuildChannel(Locale locale, Role muteRole, GuildChannel guildChannel) {
-        PermissionOverride permissionOverride = guildChannel.getPermissionOverride(muteRole);
-        if ((permissionOverride == null || !permissionOverride.getDenied().contains(Permission.MESSAGE_WRITE)) &&
+    private static void enforceMuteOnGuildChannel(Locale locale, Role muteRole, IPermissionContainer guildChannel) {
+        PermissionOverride permissionOverride = guildChannel.getPermissionContainer().getPermissionOverride(muteRole);
+        if ((permissionOverride == null || !permissionOverride.getDenied().contains(Permission.MESSAGE_SEND)) &&
                 PermissionCheckRuntime.botHasPermission(locale, ModSettingsCommand.class, guildChannel.getGuild(), Permission.ADMINISTRATOR)
         ) {
-            BotPermissionUtil.addPermission(guildChannel, guildChannel.getManager(), muteRole, false, Permission.MESSAGE_WRITE)
+            BotPermissionUtil.addPermission(guildChannel, guildChannel.getManager(), muteRole, false, Permission.MESSAGE_SEND)
                     .reason(Command.getCommandLanguage(ModSettingsCommand.class, locale).getTitle())
                     .queue();
         }

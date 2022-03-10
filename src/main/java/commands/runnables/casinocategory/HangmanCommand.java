@@ -17,8 +17,8 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @CommandProperties(
         trigger = "hangman",
@@ -53,7 +53,7 @@ public class HangmanCommand extends CasinoAbstract {
     }
 
     @Override
-    public boolean onButtonCasino(ButtonClickEvent event) throws Throwable {
+    public boolean onButtonCasino(ButtonInteractionEvent event) throws Throwable {
         return true;
     }
 
@@ -117,7 +117,7 @@ public class HangmanCommand extends CasinoAbstract {
     }
 
     @Override
-    public MessageInputResponse onMessageInputCasino(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageInputCasino(MessageReceivedEvent event, String input) {
         input = input.toUpperCase();
 
         if (input.length() != 1) {

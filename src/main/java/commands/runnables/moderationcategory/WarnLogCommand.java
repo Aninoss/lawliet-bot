@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -81,7 +81,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
     }
 
     @Override
-    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         if (event.getComponentId().equals(BUTTON_ID_PREVIOUS)) {
             page--;
             if (page < 0) page = getPageSize() - 1;

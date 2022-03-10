@@ -26,7 +26,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.managers.ChannelManager;
+import net.dv8tion.jda.api.managers.channel.concrete.TextChannelManager;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
@@ -36,7 +36,7 @@ public class Ticket {
         Guild guild = textChannel.getGuild();
         GuildData guildBean = ticketData.getGuildData();
         if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), TicketCommand.class, guild, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL) &&
-                PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), TicketCommand.class, textChannel.getParent(), Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE, Permission.MANAGE_CHANNEL)
+                PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), TicketCommand.class, textChannel.getParentCategory(), Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MANAGE_CHANNEL)
         ) {
             String ticket = String.format("%04d", ticketData.increaseCounterAndGet());
             return Optional.of(createNewChannel(ticketData, textChannel, member, ticket));
@@ -76,18 +76,18 @@ public class Ticket {
         GuildData guildData = DBGuild.getInstance().retrieve(guild.getIdLong());
         Locale locale = guildData.getLocale();
         if (!ticketChannel.isAssigned() && ticketChannel.getMemberId() != member.getIdLong() &&
-                PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, channel.getParent(), Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE) &&
+                PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, channel.getParentCategory(), Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND) &&
                 PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, channel, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS)
         ) {
             ticketChannel.setAssigned();
 
             if (!DBTicket.getInstance().retrieve(guild.getIdLong()).getAssignToAll()) {
-                ChannelManager channelManager = channel.getManager();
+                TextChannelManager channelManager = channel.getManager();
                 List<Role> staffRoles = ticketData.getStaffRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
                 for (Role staffRole : staffRoles) {
-                    channelManager = BotPermissionUtil.addPermission(channel, channelManager, staffRole, false, Permission.MESSAGE_WRITE);
+                    channelManager = (TextChannelManager) BotPermissionUtil.addPermission(channel, channelManager, staffRole, false, Permission.MESSAGE_SEND);
                 }
-                BotPermissionUtil.addPermission(channel, channelManager, member, true, Permission.MESSAGE_WRITE)
+                BotPermissionUtil.addPermission(channel, channelManager, member, true, Permission.MESSAGE_SEND)
                         .reason(Command.getCommandLanguage(TicketCommand.class, locale).getTitle())
                         .queue();
 
@@ -109,8 +109,8 @@ public class Ticket {
     private static ChannelAction<TextChannel> createNewChannel(TicketData ticketData, TextChannel parentChannel, Member member, String ticket) {
         Guild guild = parentChannel.getGuild();
         ChannelAction<TextChannel> channelAction;
-        if (parentChannel.getParent() != null) {
-            channelAction = parentChannel.getParent().createTextChannel(ticket);
+        if (parentChannel.getParentCategory() != null) {
+            channelAction = parentChannel.getParentCategory().createTextChannel(ticket);
         } else {
             channelAction = parentChannel.getGuild().createTextChannel(ticket);
         }
@@ -120,18 +120,18 @@ public class Ticket {
     }
 
     private static ChannelAction<TextChannel> addPermissions(TextChannel parentChannel, ChannelAction<TextChannel> channelAction, List<Role> staffRoles, Member member) {
-        channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, member.getGuild().getPublicRole(), false, Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE);
+        channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, member.getGuild().getPublicRole(), false, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND);
         for (PermissionOverride permissionOverride : parentChannel.getPermissionOverrides()) {
-            channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, permissionOverride, false, Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE);
+            channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, permissionOverride, false, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND);
         }
         for (Role staffRole : staffRoles) {
             channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, staffRole, true,
-                    Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_WRITE);
+                    Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND);
         }
         channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, member, true,
-                Permission.VIEW_CHANNEL,Permission.MESSAGE_HISTORY, Permission.MESSAGE_WRITE);
+                Permission.VIEW_CHANNEL,Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND);
         channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, parentChannel.getGuild().getSelfMember(), true,
-                Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_WRITE);
+                Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND);
         return channelAction;
     }
 

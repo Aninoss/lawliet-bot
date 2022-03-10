@@ -29,8 +29,8 @@ public abstract class DeepAIAbstract extends Command {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         String url = null;
-        List<Message.Attachment> attachmentList = event.isGuildMessageReceivedEvent()
-                ? event.getGuildMessageReceivedEvent().getMessage().getAttachments()
+        List<Message.Attachment> attachmentList = event.isMessageReceivedEvent()
+                ? event.getMessageReceivedEvent().getMessage().getAttachments()
                 : Collections.emptyList();
 
         if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {

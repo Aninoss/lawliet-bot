@@ -33,9 +33,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -67,7 +67,7 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     @ControllerMessage(state = DEFAULT_STATE)
-    public MessageInputResponse onMessage(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessage(MessageReceivedEvent event, String input) {
         if (input.length() > 0 && buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(input))) {
             searchTerm = input;
             return MessageInputResponse.SUCCESS;
@@ -76,7 +76,7 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     @ControllerButton(state = DEFAULT_STATE)
-    public boolean onButton(ButtonClickEvent event, int i) {
+    public boolean onButton(ButtonInteractionEvent event, int i) {
         String key = buttonMap.get(i);
         if (key != null) {
             searchTerm = key;
@@ -100,8 +100,8 @@ public class HelpCommand extends NavigationAbstract {
         return false;
     }
 
-    @ControllerSelectionMenu(state = DEFAULT_STATE)
-    public boolean onSelectionMenu(SelectionMenuEvent event, int i) throws Throwable {
+    @ControllerSelectMenu(state = DEFAULT_STATE)
+    public boolean onSelectMenu(SelectMenuInteractionEvent event, int i) throws Throwable {
         searchTerm = event.getValues().get(0);
         return true;
     }
@@ -226,7 +226,7 @@ public class HelpCommand extends NavigationAbstract {
                         default -> categoryDefault(member, channel, eb, category);
                     }
 
-                    setComponents(generateSelectionMenu(member.getGuild().getIdLong(), category));
+                    setComponents(generateSelectMenu(member.getGuild().getIdLong(), category));
                     return eb;
                 }
             }
@@ -458,12 +458,12 @@ public class HelpCommand extends NavigationAbstract {
             ), true);
         }
 
-        setComponents(generateSelectionMenu(member.getGuild().getIdLong(), null));
+        setComponents(generateSelectMenu(member.getGuild().getIdLong(), null));
         return eb;
     }
 
-    private SelectionMenu generateSelectionMenu(long guildId, Category currentCategory) {
-        SelectionMenu.Builder builder = SelectionMenu.create("category")
+    private SelectMenu generateSelectMenu(long guildId, Category currentCategory) {
+        SelectMenu.Builder builder = SelectMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
             if (!DBCommandManagement.getInstance().retrieve(guildId).getSwitchedOffCategories().contains(category)) {

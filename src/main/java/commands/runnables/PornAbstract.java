@@ -83,7 +83,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                     PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
             if (!patreon && (amount < 1 || amount > 20)) {
-                if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                             this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, "30")
@@ -97,7 +97,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                 }
                 return false;
             } else if (patreon && (amount < 1 || amount > 30)) {
-                if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                     drawMessageNew(EmbedFactory.getEmbedError(
                             this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")
@@ -117,35 +117,35 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             try {
                 pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilters, args, Math.min(3, (int) amount), usedResults);
             } catch (IllegalTagException e) {
-                if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                     drawMessageNew(illegalTagsEmbed()).exceptionally(ExceptionLogger.get());
                 } else {
                     drawMessageNew(illegalTagsString()).exceptionally(ExceptionLogger.get());
                 }
                 return false;
             } catch (TooManyTagsException e) {
-                if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                     drawMessageNew(tooManyTagsEmbed(e.getMaxTags())).exceptionally(ExceptionLogger.get());
                 } else {
                     drawMessageNew(tooManyTagsString(e.getMaxTags())).exceptionally(ExceptionLogger.get());
                 }
                 return false;
             } catch (NoSuchElementException e) {
-                postApiUnavailable(event.getChannel());
+                postApiUnavailable(event.getTextChannel());
                 return false;
             }
 
             if (pornImages.size() == 0) {
                 if (first) {
                     if (!checkServiceAvailable()) {
-                        postApiUnavailable(event.getChannel());
+                        postApiUnavailable(event.getTextChannel());
                     } else {
                         String effectiveArgs = args;
                         if (this instanceof PornPredefinedAbstract) {
                             effectiveArgs = "";
                         }
 
-                        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                             drawMessageNew(noResultsEmbed(effectiveArgs)).exceptionally(ExceptionLogger.get());
                         } else {
                             drawMessageNew(noResultsString(effectiveArgs)).exceptionally(ExceptionLogger.get());
@@ -160,13 +160,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             amount -= pornImages.size();
             first = false;
 
-            Optional<Message> messageTemplateOpt = generatePostMessagesText(pornImages, event.getChannel(), 3);
+            Optional<Message> messageTemplateOpt = generatePostMessagesText(pornImages, event.getTextChannel(), 3);
             if (messageTemplateOpt.isPresent()) {
                 setComponents(generateButtons(pornImages));
                 drawMessageNew(messageTemplateOpt.get().getContentRaw()).exceptionally(ExceptionLogger.get());
                 TimeUnit.SECONDS.sleep(1);
             }
-        } while (amount > 0 && BotPermissionUtil.canWrite(event.getChannel()));
+        } while (amount > 0 && BotPermissionUtil.canWrite(event.getTextChannel()));
 
         return true;
     }

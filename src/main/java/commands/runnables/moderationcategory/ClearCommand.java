@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -59,7 +59,7 @@ public class ClearCommand extends Command implements OnButtonListener {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
         MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
         args = channelMention.getFilteredArgs();
-        channel = event.getChannel();
+        channel = event.getTextChannel();
         if (channelMention.getList().size() > 0) {
             channel = channelMention.getList().get(0);
         }
@@ -89,7 +89,7 @@ public class ClearCommand extends Command implements OnButtonListener {
 
             long messageId = registerButtonListener(event.getMember()).get();
             TimeUnit.SECONDS.sleep(1);
-            long authorMessageId = event.isGuildMessageReceivedEvent() ? event.getGuildMessageReceivedEvent().getMessage().getIdLong() : 0L;
+            long authorMessageId = event.isMessageReceivedEvent() ? event.getMessageReceivedEvent().getMessage().getIdLong() : 0L;
             ClearResults clearResults = clear(channel, patreon, (int) amount, memberMention.getList(), authorMessageId, messageId);
 
             String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
@@ -102,10 +102,10 @@ public class ClearCommand extends Command implements OnButtonListener {
             }
 
             RestAction<Void> restAction;
-            if (event.isGuildMessageReceivedEvent()) {
-                restAction = event.getChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getGuildMessageReceivedEvent().getMessage().getId()));
+            if (event.isMessageReceivedEvent()) {
+                restAction = event.getTextChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessageReceivedEvent().getMessage().getId()));
             } else {
-                restAction = event.getChannel().deleteMessageById(messageId);
+                restAction = event.getTextChannel().deleteMessageById(messageId);
             }
             restAction.queueAfter(8, TimeUnit.SECONDS);
             return true;
@@ -188,7 +188,7 @@ public class ClearCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         deregisterListenersWithComponents();
         interrupt = true;
         return true;

@@ -29,8 +29,8 @@ public class SayCommand extends Command {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        List<Message.Attachment> attachments = event.isGuildMessageReceivedEvent()
-                ? event.getGuildMessageReceivedEvent().getMessage().getAttachments()
+        List<Message.Attachment> attachments = event.isMessageReceivedEvent()
+                ? event.getMessageReceivedEvent().getMessage().getAttachments()
                 : Collections.emptyList();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(args)

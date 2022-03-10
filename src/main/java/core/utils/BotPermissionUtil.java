@@ -8,7 +8,7 @@ import core.TextManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.managers.ChannelManager;
+import net.dv8tion.jda.api.managers.channel.attribute.IPermissionContainerManager;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
 public class BotPermissionUtil {
@@ -159,12 +159,12 @@ public class BotPermissionUtil {
     }
 
     public static boolean canWrite(TextChannel channel, Permission... permissions) {
-        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE) &&
+        return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_SEND) &&
                 can(channel, permissions);
     }
 
     public static boolean canWrite(Member member, TextChannel channel, Permission... permissions) {
-        return member.hasPermission(channel, Permission.MESSAGE_WRITE) &&
+        return member.hasPermission(channel, Permission.MESSAGE_SEND) &&
                 can(member, channel, permissions);
     }
 
@@ -199,8 +199,13 @@ public class BotPermissionUtil {
             return true;
         }
 
+        Category category = null;
+        if (channel instanceof ICategorizableChannel) {
+            category = ((ICategorizableChannel) channel).getParentCategory();
+        }
+
         return permission.getOffset() != Permission.MANAGE_PERMISSIONS.getOffset() &&
-                (channel.getParent() == null || channel.getGuild().getSelfMember().hasPermission(channel.getParent(), permission)) &&
+                (category == null || channel.getGuild().getSelfMember().hasPermission(category, permission)) &&
                 channel.getGuild().getSelfMember().hasPermission(permission);
     }
 
@@ -249,28 +254,28 @@ public class BotPermissionUtil {
                 .allMatch(Role::isMentionable);
     }
 
-    public static <T extends GuildChannel> ChannelAction<T> copyPermissions(GuildChannel parentChannel, ChannelAction<T> channelAction) {
+    public static <T extends GuildChannel> ChannelAction<T> copyPermissions(ICategorizableChannel parentChannel, ChannelAction<T> channelAction) {
         for (PermissionOverride permissionOverride : parentChannel.getPermissionOverrides()) {
             channelAction = addPermission(parentChannel, channelAction, permissionOverride, true);
         }
         return channelAction;
     }
 
-    public static <T extends GuildChannel> ChannelAction<T> addPermission(GuildChannel parentChannel, ChannelAction<T> channelAction,
+    public static <T extends GuildChannel> ChannelAction<T> addPermission(ICategorizableChannel parentChannel, ChannelAction<T> channelAction,
                                                                           IPermissionHolder permissionHolder, boolean allow, Permission... permissions
     ) {
         return addPermission(parentChannel, channelAction, parentChannel.getPermissionOverride(permissionHolder), allow,
                 permissionHolder instanceof Member, permissionHolder.getIdLong(), permissions);
     }
 
-    public static <T extends GuildChannel> ChannelAction<T> addPermission(GuildChannel parentChannel, ChannelAction<T> channelAction,
+    public static <T extends GuildChannel> ChannelAction<T> addPermission(ICategorizableChannel parentChannel, ChannelAction<T> channelAction,
                                                                           PermissionOverride permissionOverride, boolean allow, Permission... permissions
     ) {
         return addPermission(parentChannel, channelAction, permissionOverride, allow,
                 permissionOverride.isMemberOverride(), permissionOverride.getIdLong(), permissions);
     }
 
-    private static <T extends GuildChannel> ChannelAction<T> addPermission(GuildChannel parentChannel, ChannelAction<T> channelAction,
+    private static <T extends GuildChannel> ChannelAction<T> addPermission(ICategorizableChannel parentChannel, ChannelAction<T> channelAction,
                                                                           PermissionOverride permissionOverride, boolean allow, boolean memberOverride,
                                                                           long id, Permission... permissions
     ) {
@@ -305,21 +310,21 @@ public class BotPermissionUtil {
         }
     }
 
-    public static ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
+    public static IPermissionContainerManager<?, ?> addPermission(IPermissionContainer parentChannel, IPermissionContainerManager<?, ?> channelManager,
                                                                           IPermissionHolder permissionHolder, boolean allow, Permission... permissions
     ) {
         return addPermission(parentChannel, channelManager, parentChannel.getPermissionOverride(permissionHolder), allow,
                 permissionHolder instanceof Member, permissionHolder.getIdLong(), permissions);
     }
 
-    public static ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
+    public static IPermissionContainerManager<?, ?> addPermission(IPermissionContainer parentChannel, IPermissionContainerManager<?, ?> channelManager,
                                                                           PermissionOverride permissionOverride, boolean allow, Permission... permissions
     ) {
         return addPermission(parentChannel, channelManager, permissionOverride, allow,
                 permissionOverride.isMemberOverride(), permissionOverride.getIdLong(), permissions);
     }
 
-    private static ChannelManager addPermission(GuildChannel parentChannel, ChannelManager channelManager,
+    private static IPermissionContainerManager<?, ?> addPermission(IPermissionContainer parentChannel, IPermissionContainerManager<?, ?> channelManager,
                                                                          PermissionOverride permissionOverride, boolean allow, boolean memberOverride,
                                                                          long id, Permission... permissions
     ) {

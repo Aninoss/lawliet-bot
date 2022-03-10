@@ -24,8 +24,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
@@ -119,7 +119,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     }
 
     @Override
-    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state >= 1) {
             String valueBefore = valueOfProperty(state - 1);
             if (!FisheryManage.updateValues(fisheryMemberGroup.getFisheryMemberList(), state - 1, input)) {
@@ -139,7 +139,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     }
 
     @Override
-    public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
+    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) throws Throwable {
         if (state == 0) {
             int posDelete = 3 + FisheryGear.values().length;
             if (i == -1) {

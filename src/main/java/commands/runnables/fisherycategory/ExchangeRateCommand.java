@@ -22,7 +22,7 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
@@ -82,7 +82,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     }
 
     @Override
-    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         if (getInteractionResponse().isValid()) {
             boolean canUseExternalEmoji = BotPermissionUtil.canUseExternalEmojisInInteraction(event.getGuildChannel());
             getInteractionResponse().replyEmbeds(List.of(generateUserEmbed(canUseExternalEmoji).build()), true)

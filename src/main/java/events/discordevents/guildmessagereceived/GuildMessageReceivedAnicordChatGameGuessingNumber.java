@@ -7,7 +7,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.ChatGameGuessingNames;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @DiscordEvent(priority = EventPriority.LOW)
 public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMessageReceivedAbstract {
@@ -15,10 +15,10 @@ public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMess
     private final ChatGameGuessingNames chatGameGuessingNames = new ChatGameGuessingNames();
 
     @Override
-    public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
         final long GAME_CHANNEL_ID = 758285721877479504L;
 
-        if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID && event.getChannel().getIdLong() == GAME_CHANNEL_ID) {
+        if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID && event.getTextChannel().getIdLong() == GAME_CHANNEL_ID) {
             String numStr = event.getMessage().getContentRaw();
             if (numStr.contains(" ")) {
                 numStr = numStr.split(" ")[0];

@@ -11,51 +11,57 @@ import net.dv8tion.jda.api.requests.RestAction
 class CommandEvent : GenericChannelEvent {
 
     val member: Member
-    val slashCommandEvent: SlashCommandInteractionEvent?
-    val guildMessageReceivedEvent: MessageReceivedEvent?
+    val slashCommandInteractionEvent: SlashCommandInteractionEvent?
+    val messageReceivedEvent: MessageReceivedEvent?
     val user: User
         get() = member.user
     val repliedMember: Member?
-        get() = guildMessageReceivedEvent?.message?.messageReference?.message?.member
+        get() = messageReceivedEvent?.message?.messageReference?.message?.member
     val textChannel: TextChannel
-        get() = getChannel() as TextChannel
+        get() {
+            val channel = getChannel()
+            if (channel is TextChannel) {
+                return channel
+            }
+            throw IllegalStateException("Cannot convert channel of type $channelType to TextChannel")
+        }
 
     constructor(event: SlashCommandInteractionEvent) : super(event.jda, event.responseNumber, event.textChannel) {
-        slashCommandEvent = event
-        guildMessageReceivedEvent = null
+        slashCommandInteractionEvent = event
+        messageReceivedEvent = null
         member = event.member!!
     }
 
     constructor(event: MessageReceivedEvent) : super(event.jda, event.responseNumber, event.textChannel) {
-        slashCommandEvent = null
-        guildMessageReceivedEvent = event
+        slashCommandInteractionEvent = null
+        messageReceivedEvent = event
         member = event.member!!
     }
 
-    fun isSlashCommandEvent(): Boolean {
-        return slashCommandEvent != null
+    fun isSlashCommandInteractionEvent(): Boolean {
+        return slashCommandInteractionEvent != null
     }
 
-    fun isGuildMessageReceivedEvent(): Boolean {
-        return guildMessageReceivedEvent != null
+    fun isMessageReceivedEvent(): Boolean {
+        return messageReceivedEvent != null
     }
 
     fun replyMessage(content: String, actionRows: Collection<ActionRow>): RestAction<Message> {
-        return if (isGuildMessageReceivedEvent()) {
-            JDAUtil.replyMessage(guildMessageReceivedEvent!!.message, content)
+        return if (isMessageReceivedEvent()) {
+            JDAUtil.replyMessage(messageReceivedEvent!!.message, content)
                 .setActionRows(actionRows)
         } else {
-            slashCommandEvent!!.hook.sendMessage(content)
+            slashCommandInteractionEvent!!.hook.sendMessage(content)
                 .addActionRows(actionRows)
         }
     }
 
     fun replyMessageEmbeds(embeds: List<MessageEmbed>, actionRows: Collection<ActionRow>): RestAction<Message> {
-        return if (isGuildMessageReceivedEvent()) {
-            JDAUtil.replyMessageEmbeds(guildMessageReceivedEvent!!.message, embeds)
+        return if (isMessageReceivedEvent()) {
+            JDAUtil.replyMessageEmbeds(messageReceivedEvent!!.message, embeds)
                 .setActionRows(actionRows)
         } else {
-            slashCommandEvent!!.hook.sendMessageEmbeds(embeds)
+            slashCommandInteractionEvent!!.hook.sendMessageEmbeds(embeds)
                 .addActionRows(actionRows)
         }
     }

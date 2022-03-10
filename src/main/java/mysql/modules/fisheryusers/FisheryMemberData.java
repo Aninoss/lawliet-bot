@@ -606,9 +606,11 @@ public class FisheryMemberData implements MemberAsset {
         GuildVoiceState guildVoiceState = member.getVoiceState();
         VoiceChannel voiceChannel;
         if (guildVoiceState != null &&
-                guildVoiceState.inVoiceChannel() &&
-                (voiceChannel = guildVoiceState.getChannel()) != null
+                guildVoiceState.inAudioChannel() &&
+                guildVoiceState.getChannel() != null &&
+                guildVoiceState.getChannel() instanceof VoiceChannel
         ) {
+            voiceChannel = (VoiceChannel) guildVoiceState.getChannel();
             boolean active = FisheryVoiceChannelObserver.getValidVCMembers(voiceChannel).contains(member);
             if (active) {
                 int voiceMinutes = RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_VOICE_MINUTES));

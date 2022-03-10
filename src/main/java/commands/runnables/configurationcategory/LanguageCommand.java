@@ -6,7 +6,7 @@ import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnSelectionMenuListener;
+import commands.listeners.OnSelectMenuListener;
 import constants.ExternalLinks;
 import constants.Language;
 import core.EmbedFactory;
@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
         executableWithoutArgs = true,
         aliases = { "sprache", "lang" }
 )
-public class LanguageCommand extends Command implements OnSelectionMenuListener {
+public class LanguageCommand extends Command implements OnSelectMenuListener {
 
     private final Language[] LANGUAGES = new Language[] { Language.EN, Language.DE, Language.ES, Language.RU };
 
@@ -67,7 +67,7 @@ public class LanguageCommand extends Command implements OnSelectionMenuListener 
                 return true;
             }
         } else {
-            SelectionMenu.Builder builder = SelectionMenu.create("language");
+            SelectMenu.Builder builder = SelectMenu.create("language");
             for (Language language : LANGUAGES) {
                 builder.addOption(
                         TextManager.getString(language.getLocale(), Category.CONFIGURATION, "language_" + language.name()),
@@ -77,13 +77,13 @@ public class LanguageCommand extends Command implements OnSelectionMenuListener 
             }
             builder.setDefaultValues(List.of(Language.from(getLocale()).name()));
             setComponents(builder.build());
-            registerSelectionMenuListener(event.getMember());
+            registerSelectMenuListener(event.getMember());
             return true;
         }
     }
 
     @Override
-    public boolean onSelectionMenu(SelectionMenuEvent event) throws Throwable {
+    public boolean onSelectMenu(SelectMenuInteractionEvent event) throws Throwable {
         Language language = Language.valueOf(event.getValues().get(0));
         deregisterListenersWithComponents();
         setLocale(language.getLocale());

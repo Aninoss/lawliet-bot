@@ -23,13 +23,13 @@ import mysql.modules.autoquote.DBAutoQuote;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @DiscordEvent(priority = EventPriority.LOW)
 public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     @Override
-    public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
         GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         String prefix = guildBean.getPrefix();
         String content = event.getMessage().getContentRaw();
@@ -101,16 +101,16 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
         return true;
     }
 
-    private void checkAutoQuote(GuildMessageReceivedEvent event) {
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+    private void checkAutoQuote(MessageReceivedEvent event) {
+        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
             GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
             MentionUtil.getMessageWithLinks(event.getGuild(), event.getMessage().getContentRaw()).thenAccept(mentionMessages -> {
                 List<Message> messages = mentionMessages.getList();
-                if (messages.size() > 0 && DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive() && BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+                if (messages.size() > 0 && DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive() && BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                     try {
                         for (int i = 0; i < Math.min(3, messages.size()); i++) {
                             Message message = messages.get(i);
-                            Message m = MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getChannel(), message, true);
+                            Message m = MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getTextChannel(), message, true);
                             JDAUtil.replyMessageEmbeds(event.getMessage(), m.getEmbeds().get(0))
                                     .setActionRows(m.getActionRows())
                                     .queue();
@@ -123,8 +123,8 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
         }
     }
 
-    private boolean manageMessageInput(GuildMessageReceivedEvent event) {
-        if (BotPermissionUtil.canWriteEmbed(event.getChannel())) {
+    private boolean manageMessageInput(MessageReceivedEvent event) {
+        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
             List<CommandListenerMeta<?>> listeners = CommandContainer.getListeners(OnMessageInputListener.class).stream()
                     .filter(listener -> listener.check(event) == CommandListenerMeta.CheckResponse.ACCEPT)
                     .sorted((l1, l2) -> l2.getCreationTime().compareTo(l1.getCreationTime()))

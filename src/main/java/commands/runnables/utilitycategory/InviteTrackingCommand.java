@@ -20,8 +20,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -53,7 +53,7 @@ public class InviteTrackingCommand extends NavigationAbstract {
     }
 
     @ControllerMessage(state = SET_LOGCHANNEL)
-    public MessageInputResponse onMessageSetLogChannel(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageSetLogChannel(MessageReceivedEvent event, String input) {
         List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
         if (channelList.size() == 0) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
@@ -73,7 +73,7 @@ public class InviteTrackingCommand extends NavigationAbstract {
     }
 
     @ControllerButton(state = DEFAULT_STATE)
-    public boolean onButtonMain(ButtonClickEvent event, int i) {
+    public boolean onButtonMain(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1 -> {
                 deregisterListenersWithComponentMessage();
@@ -106,7 +106,7 @@ public class InviteTrackingCommand extends NavigationAbstract {
     }
 
     @ControllerButton(state = SET_LOGCHANNEL)
-    public boolean onButtonLogChannel(ButtonClickEvent event, int i) {
+    public boolean onButtonLogChannel(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(0);
             return true;

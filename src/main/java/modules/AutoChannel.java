@@ -34,7 +34,7 @@ public class AutoChannel {
         if (autoChannelBean.isActive() && voiceChannel.getIdLong() == autoChannelBean.getParentChannelId().orElse(0L)) {
             GuildData guildBean = autoChannelBean.getGuildData();
             if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, guild, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL) &&
-                    PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParent(), Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL) &&
+                    PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParentCategory(), Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL) &&
                     PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
             ) {
                 int n = 1;
@@ -76,7 +76,7 @@ public class AutoChannel {
     }
 
     private static void processCreatedVoice(AutoChannelData autoChannelBean, VoiceChannel voiceChannel, Member member) {
-        if (member.getVoiceState() != null && member.getVoiceState().inVoiceChannel()) {
+        if (member.getVoiceState() != null && member.getVoiceState().inAudioChannel()) {
             member.getGuild().moveVoiceMember(member, voiceChannel).queue(v -> {
                 autoChannelBean.getChildChannelIds().add(voiceChannel.getIdLong());
                 if (!voiceChannel.getMembers().contains(member)) {
@@ -95,8 +95,8 @@ public class AutoChannel {
 
     private static ChannelAction<VoiceChannel> createNewVoice(AutoChannelData autoChannelBean, VoiceChannel parentVoice, Member member, int n) {
         ChannelAction<VoiceChannel> channelAction;
-        if (parentVoice.getParent() != null) {
-            channelAction = parentVoice.getParent().createVoiceChannel(getNewVoiceName(autoChannelBean, parentVoice, member, n));
+        if (parentVoice.getParentCategory() != null) {
+            channelAction = parentVoice.getParentCategory().createVoiceChannel(getNewVoiceName(autoChannelBean, parentVoice, member, n));
         } else {
             channelAction = parentVoice.getGuild().createVoiceChannel(getNewVoiceName(autoChannelBean, parentVoice, member, n));
         }

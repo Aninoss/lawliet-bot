@@ -11,7 +11,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.PrivateMessageReceivedAbstract;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 @DiscordEvent
@@ -22,7 +22,7 @@ public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbst
             .build();
 
     @Override
-    public boolean onPrivateMessageReceived(PrivateMessageReceivedEvent event) throws Throwable {
+    public boolean onPrivateMessageReceived(MessageReceivedEvent event) throws Throwable {
         User user = event.getAuthor();
         if (Program.getClusterId() == 1 && !usersDmNotified.asMap().containsKey(user.getIdLong()) && event.getAuthor().getIdLong() != AssetIds.OWNER_USER_ID) {
             usersDmNotified.put(user.getIdLong(), true);

@@ -5,29 +5,29 @@ import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent
 import java.util.concurrent.CompletableFuture
 
-interface OnSelectionMenuListener : OnInteractionListener {
+interface OnSelectMenuListener : OnInteractionListener {
 
     @Throws(Throwable::class)
-    fun onSelectionMenu(event: SelectMenuInteractionEvent): Boolean
+    fun onSelectMenu(event: SelectMenuInteractionEvent): Boolean
 
-    fun registerSelectionMenuListener(member: Member): CompletableFuture<Long> {
-        return registerSelectionMenuListener(member, true)
+    fun registerSelectMenuListener(member: Member): CompletableFuture<Long> {
+        return registerSelectMenuListener(member, true)
     }
 
-    fun registerSelectionMenuListener(member: Member, draw: Boolean): CompletableFuture<Long> {
-        return registerInteractionListener(member, OnSelectionMenuListener::class.java, draw) { onSelectionMenuOverridden() }
+    fun registerSelectMenuListener(member: Member, draw: Boolean): CompletableFuture<Long> {
+        return registerInteractionListener(member, OnSelectMenuListener::class.java, draw) { onSelectMenuOverridden() }
     }
 
-    fun registerSelectionMenuListener(member: Member, validityChecker: (SelectMenuInteractionEvent) -> CheckResponse, draw: Boolean): CompletableFuture<Long> {
-        return registerInteractionListener(member, OnSelectionMenuListener::class.java, draw, { onSelectionMenuOverridden() }, validityChecker)
+    fun registerSelectMenuListener(member: Member, validityChecker: (SelectMenuInteractionEvent) -> CheckResponse, draw: Boolean): CompletableFuture<Long> {
+        return registerInteractionListener(member, OnSelectMenuListener::class.java, draw, { onSelectMenuOverridden() }, validityChecker)
     }
 
-    fun processSelectionMenu(event: SelectMenuInteractionEvent) {
-        processInteraction(event) { onSelectionMenu(it) }
+    fun processSelectMenu(event: SelectMenuInteractionEvent) {
+        processInteraction(event) { onSelectMenu(it) }
     }
 
     @Throws(Throwable::class)
-    fun onSelectionMenuOverridden() {
+    fun onSelectMenuOverridden() {
     }
 
 }

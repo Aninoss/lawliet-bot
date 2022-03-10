@@ -16,13 +16,13 @@ import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 @DiscordEvent
 public class SlashCommandCommand extends SlashCommandAbstract {
 
     @Override
-    public boolean onSlashCommand(SlashCommandEvent event) throws Throwable {
+    public boolean onSlashCommand(SlashCommandInteractionEvent event) throws Throwable {
         SlashMeta slashCommandMeta = SlashCommandManager.process(event);
         if (slashCommandMeta == null) {
             GuildData guildData = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
@@ -34,7 +34,7 @@ public class SlashCommandCommand extends SlashCommandAbstract {
             return true;
         }
 
-        if (event.getChannel().getType() != ChannelType.TEXT) {
+        if (event.getTextChannel().getType() != ChannelType.TEXT) {
             return true;
         }
 

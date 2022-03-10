@@ -27,7 +27,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
@@ -116,7 +116,7 @@ public class WarnCommand extends Command implements OnButtonListener {
             );
             registerButtonListener(event.getMember());
         } else {
-            boolean success = execute(event.getChannel(), event.getMember());
+            boolean success = execute(event.getTextChannel(), event.getMember());
             drawMessage(draw(event.getMember())).exceptionally(ExceptionLogger.get());
             return success;
         }
@@ -199,7 +199,7 @@ public class WarnCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         deregisterListenersWithComponents();
         boolean confirm = Boolean.parseBoolean(event.getComponentId());
         if (confirm) {

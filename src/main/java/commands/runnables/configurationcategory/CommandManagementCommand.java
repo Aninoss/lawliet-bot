@@ -22,9 +22,9 @@ import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,7 +56,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     }
 
     @ControllerMessage(state = ADD_COMMANDS)
-    public MessageInputResponse onMessageAddCommands(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageAddCommands(MessageReceivedEvent event, String input) {
         List<String> commands = Arrays.stream(input.split(" "))
                 .map(trigger -> CommandContainer.getCommandMap().get(trigger))
                 .filter(Objects::nonNull)
@@ -90,7 +90,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     }
 
     @ControllerButton(state = MAIN)
-    public boolean onButtonMain(ButtonClickEvent event, int i) {
+    public boolean onButtonMain(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1 -> {
                 deregisterListenersWithComponentMessage();
@@ -120,7 +120,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     }
 
     @ControllerButton(state = SET_CATEGORIES)
-    public boolean onButtonSetCategories(ButtonClickEvent event, int i) {
+    public boolean onButtonSetCategories(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(MAIN);
             return true;
@@ -129,7 +129,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     }
 
     @ControllerButton(state = ADD_COMMANDS)
-    public boolean onButtonAddCommands(ButtonClickEvent event, int i) {
+    public boolean onButtonAddCommands(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(MAIN);
             return true;
@@ -138,7 +138,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     }
 
     @ControllerButton(state = REMOVE_COMMANDS)
-    public boolean onButtonRemoveCommands(ButtonClickEvent event, int i) {
+    public boolean onButtonRemoveCommands(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(MAIN);
             return true;
@@ -153,8 +153,8 @@ public class CommandManagementCommand extends NavigationAbstract {
         }
     }
 
-    @ControllerSelectionMenu(state = SET_CATEGORIES)
-    public boolean onSelectionMenu(SelectionMenuEvent event, int i) {
+    @ControllerSelectMenu(state = SET_CATEGORIES)
+    public boolean onSelectMenu(SelectMenuInteractionEvent event, int i) {
         CustomObservableList<String> switchedOffElements = commandManagementData.getSwitchedOffElements();
         for (Category category : Category.independentValues()) {
             switchedOffElements.remove(category.getId());
@@ -182,7 +182,7 @@ public class CommandManagementCommand extends NavigationAbstract {
                 .map(Category::getId)
                 .collect(Collectors.toList());
 
-        SelectionMenu.Builder selectionMenuBuilder = SelectionMenu.create("categories");
+        SelectMenu.Builder selectionMenuBuilder = SelectMenu.create("categories");
         selectionMenuBuilder = selectionMenuBuilder.setRequiredRange(0, Category.independentValues().length);
         for (Category category : Category.independentValues()) {
             selectionMenuBuilder = selectionMenuBuilder.addOption(TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()), category.getId());

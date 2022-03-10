@@ -18,8 +18,8 @@ import mysql.modules.autochannel.DBAutoChannel;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -47,7 +47,7 @@ public class AutoChannelCommand extends NavigationAbstract {
     }
 
     @Override
-    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) {
+    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         switch (state) {
             case 1:
                 List<VoiceChannel> channelList = MentionUtil.getVoiceChannels(event.getMessage(), input).getList();
@@ -62,7 +62,7 @@ public class AutoChannelCommand extends NavigationAbstract {
                         return MessageInputResponse.FAILED;
                     }
 
-                    Category parent = voiceChannel.getParent();
+                    Category parent = voiceChannel.getParentCategory();
                     if (parent != null) {
                         String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL);
                         if (categoryMissingPerms != null) {
@@ -94,7 +94,7 @@ public class AutoChannelCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerButton(ButtonClickEvent event, int i, int state) {
+    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
         switch (state) {
             case 0:
                 switch (i) {

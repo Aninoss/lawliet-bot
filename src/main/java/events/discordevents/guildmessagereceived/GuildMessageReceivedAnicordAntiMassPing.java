@@ -6,13 +6,13 @@ import constants.AssetIds;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @DiscordEvent(priority = EventPriority.HIGH, allowBannedUser = true)
 public class GuildMessageReceivedAnicordAntiMassPing extends GuildMessageReceivedAbstract {
 
     @Override
-    public boolean onGuildMessageReceived(GuildMessageReceivedEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
         if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID &&
                 event.getMessage().getMentionedUsers().size() >= 20 &&
                 event.getMessage().getMember().hasTimeJoined() &&

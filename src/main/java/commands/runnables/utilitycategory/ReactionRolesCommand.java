@@ -24,11 +24,11 @@ import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GenericGuildMessageReactionEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
@@ -88,7 +88,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerMessage(state = ADD_MESSAGE)
-    public MessageInputResponse onMessageAddMessage(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageAddMessage(MessageReceivedEvent event, String input) {
         List<TextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getGuild(), input).getList();
         if (serverTextChannel.size() > 0) {
             if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
@@ -104,7 +104,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerMessage(state = UPDATE_TITLE)
-    public MessageInputResponse onMessageUpdateTitle(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateTitle(MessageReceivedEvent event, String input) {
         if (input.length() > 0 && input.length() <= 250) {
             title = input;
             setLog(LogStatus.SUCCESS, getString("titleset", input));
@@ -117,7 +117,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerMessage(state = UPDATE_DESC)
-    public MessageInputResponse onMessageUpdateDesc(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateDesc(MessageReceivedEvent event, String input) {
         if (input.length() > 0 && input.length() <= 1024) {
             description = input;
             setLog(LogStatus.SUCCESS, getString("descriptionset", input));
@@ -130,7 +130,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerMessage(state = UPDATE_IMAGE)
-    public MessageInputResponse onMessageUpdateImage(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageUpdateImage(MessageReceivedEvent event, String input) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         if (attachments.size() > 0) {
             Message.Attachment attachment = attachments.get(0);
@@ -158,7 +158,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerMessage(state = ADD_SLOT)
-    public MessageInputResponse onMessageAddSlot(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageAddSlot(MessageReceivedEvent event, String input) {
         if (input.length() > 0) {
             boolean ok = false;
             List<String> emojis = MentionUtil.getEmojis(event.getMessage(), input).getList();
@@ -215,7 +215,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerButton(state = ADD_OR_EDIT)
-    public boolean onButtonAddOrEdit(ButtonClickEvent event, int i) {
+    public boolean onButtonAddOrEdit(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1:
                 deregisterListenersWithComponentMessage();
@@ -242,7 +242,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerButton(state = ADD_MESSAGE)
-    public boolean onButtonAddMessage(ButtonClickEvent event, int i) {
+    public boolean onButtonAddMessage(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1:
                 setState(ADD_OR_EDIT);
@@ -260,7 +260,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerButton(state = EDIT_MESSAGE)
-    public boolean onButtonEditMessage(ButtonClickEvent event, int i) {
+    public boolean onButtonEditMessage(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(ADD_OR_EDIT);
             return true;
@@ -283,7 +283,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerButton(state = CONFIGURE_MESSAGE)
-    public boolean onButtonConfigureMessage(ButtonClickEvent event, int i) {
+    public boolean onButtonConfigureMessage(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1:
                 if (!editMode) {
@@ -367,7 +367,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerButton(state = UPDATE_IMAGE)
-    public boolean onButtonUpdateImage(ButtonClickEvent event, int i) {
+    public boolean onButtonUpdateImage(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
             return true;
@@ -386,7 +386,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerButton(state = ADD_SLOT)
-    public boolean onButtonAddSlot(ButtonClickEvent event, int i) {
+    public boolean onButtonAddSlot(ButtonInteractionEvent event, int i) {
         if (i == 0 && roleTemp != null && emojiTemp != null) {
             emojiConnections.add(new EmojiConnection(emojiTemp, roleTemp.getAsMention()));
             setState(CONFIGURE_MESSAGE);
@@ -403,11 +403,11 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Override
-    public boolean onReaction(@NotNull GenericGuildMessageReactionEvent event) throws Throwable {
+    public boolean onReaction(@NotNull GenericMessageReactionEvent event) throws Throwable {
         if (getState() == ADD_SLOT) {
             processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
             processDraw(event.getMember(), true).exceptionally(ExceptionLogger.get());
-            if (BotPermissionUtil.can(event.getChannel(), Permission.MESSAGE_MANAGE)) {
+            if (BotPermissionUtil.can(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
                 event.getReaction().removeReaction(event.getUser()).queue();
             }
             return false;
@@ -417,7 +417,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerButton(state = REMOVE_SLOT)
-    public boolean onButtonRemoveSlot(ButtonClickEvent event, int i) {
+    public boolean onButtonRemoveSlot(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
             return true;
@@ -432,12 +432,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @ControllerButton(state = SENT)
-    public boolean onButtonSent(ButtonClickEvent event, int i) {
+    public boolean onButtonSent(ButtonInteractionEvent event, int i) {
         return false;
     }
 
     @ControllerButton
-    public boolean onButtonDefault(ButtonClickEvent event, int i) {
+    public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(CONFIGURE_MESSAGE);
             return true;
@@ -646,7 +646,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Override
-    public void onStaticReactionAdd(@NotNull Message message, @NotNull GuildMessageReactionAddEvent event) {
+    public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
         Member member = event.getMember();
         updateValuesFromMessage(ReactionMessagesCache.get(message).get());
         if (!blockCache.asMap().containsKey(member.getIdLong())) {
@@ -677,8 +677,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         return guildReactions.stream()
                 .sorted((md0, md1) -> {
                     int channelComp = Integer.compare(
-                            md0.getTextChannel().map(GuildChannel::getPositionRaw).orElse(0),
-                            md1.getTextChannel().map(GuildChannel::getPositionRaw).orElse(0)
+                            md0.getTextChannel().map(IPositionableChannel::getPositionRaw).orElse(0),
+                            md1.getTextChannel().map(IPositionableChannel::getPositionRaw).orElse(0)
                     );
                     if (channelComp == 0) {
                         return Long.compare(md0.getMessageId(), md1.getMessageId());
@@ -700,7 +700,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         this.atomicTextChannel = new AtomicTextChannel(message.getGuildId(), message.getTextChannelId());
     }
 
-    private void giveRole(GuildMessageReactionAddEvent event) {
+    private void giveRole(MessageReactionAddEvent event) {
         for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
             if (emojiConnection.isEmoji(event.getReactionEmote())) {
                 Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getGuild(), emojiConnection.getConnection());
@@ -720,7 +720,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     }
 
-    private boolean removeMultipleRoles(GuildMessageReactionAddEvent event) {
+    private boolean removeMultipleRoles(MessageReactionAddEvent event) {
         for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
             Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getGuild(), emojiConnection.getConnection());
             if (rOpt.isPresent()) {
@@ -738,7 +738,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     }
 
     @Override
-    public void onStaticReactionRemove(@NotNull Message message, @NotNull GuildMessageReactionRemoveEvent event) {
+    public void onStaticReactionRemove(@NotNull Message message, @NotNull MessageReactionRemoveEvent event) {
         updateValuesFromMessage(ReactionMessagesCache.get(message).get());
         if (removeRole) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {

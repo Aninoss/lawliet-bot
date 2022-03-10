@@ -16,7 +16,7 @@ public class GenericPermissionOverrideEnforceMuteRole extends GenericPermissionO
         PermissionOverride permissionOverride = event.getPermissionOverride();
         DBModeration.getInstance().retrieve(event.getGuild().getIdLong()).getMuteRole().ifPresent(muteRole -> {
             if (event.getPermissionOverride().getIdLong() == muteRole.getIdLong() &&
-                    (!permissionOverride.getDenied().contains(Permission.MESSAGE_WRITE) || event.getChannel().getPermissionOverride(muteRole) == null)
+                    (!permissionOverride.getDenied().contains(Permission.MESSAGE_SEND) || event.getTextChannel().getPermissionOverride(muteRole) == null)
             ) {
                 Mute.enforceMuteRole(event.getGuild());
             }

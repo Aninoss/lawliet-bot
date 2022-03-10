@@ -14,8 +14,8 @@ import mysql.modules.nsfwfilter.DBNSFWFilters;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -44,7 +44,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws Throwable {
+    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) throws Throwable {
         if (state == 1) {
             if (!input.isEmpty()) {
                 String[] mentionedKeywords = input.split(" ");
@@ -87,7 +87,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
+    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) throws Throwable {
         switch (state) {
             case 0:
                 switch (i) {

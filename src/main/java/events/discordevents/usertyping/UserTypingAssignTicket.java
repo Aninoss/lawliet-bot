@@ -14,7 +14,7 @@ public class UserTypingAssignTicket extends UserTypingAbstract {
     @Override
     public boolean onUserTyping(UserTypingEvent event) throws Throwable {
         TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
+        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getTextChannel().getIdLong());
         if (ticketChannel != null) {
             Ticket.assignTicket(event.getMember(), event.getTextChannel(), ticketData, ticketChannel);
         }

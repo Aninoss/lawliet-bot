@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -60,7 +60,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
             return false;
         }
 
-        TextChannel channel = channels.size() == 0 ? event.getChannel() : channels.get(0);
+        TextChannel channel = channels.size() == 0 ? event.getTextChannel() : channels.get(0);
         if (!BotPermissionUtil.canWriteEmbed(channel)) {
             String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
             drawMessageNew(EmbedFactory.getEmbedError(this, error))
@@ -73,9 +73,9 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
                 channel,
                 event.getMember(),
                 new Permission[0],
-                new Permission[] { Permission.MESSAGE_WRITE },
+                new Permission[] { Permission.MESSAGE_SEND },
                 new Permission[0],
-                new Permission[] { Permission.MESSAGE_WRITE },
+                new Permission[] { Permission.MESSAGE_SEND },
                 new Permission[0]
         );
         if (missingPermissionsEmbed != null) {
@@ -114,7 +114,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
 
         setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
         drawMessageNew(eb)
-                .thenAccept(message -> insertReminderBean(event.getChannel(), channel, minutes, messageText, message))
+                .thenAccept(message -> insertReminderBean(event.getTextChannel(), channel, minutes, messageText, message))
                 .exceptionally(ExceptionLogger.get());
 
         return true;
@@ -140,7 +140,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
     }
 
     @Override
-    public void onStaticButton(ButtonClickEvent event) {
+    public void onStaticButton(ButtonInteractionEvent event) {
         EmbedBuilder eb = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
                 getLocale(),
                 event.getTextChannel(),

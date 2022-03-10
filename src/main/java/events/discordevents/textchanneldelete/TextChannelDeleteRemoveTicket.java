@@ -6,17 +6,18 @@ import modules.Ticket;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
 import mysql.modules.ticket.TicketData;
-import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 
 @DiscordEvent
 public class TextChannelDeleteRemoveTicket extends TextChannelDeleteAbstract {
 
     @Override
-    public boolean onTextChannelDelete(TextChannelDeleteEvent event) {
+    public boolean onTextChannelDelete(ChannelDeleteEvent event) {
         TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
         TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
         if (ticketChannel != null) {
-            Ticket.removeTicket(event.getChannel(), ticketData, ticketChannel);
+            Ticket.removeTicket((TextChannel) event.getChannel(), ticketData, ticketChannel);
         }
         return true;
     }

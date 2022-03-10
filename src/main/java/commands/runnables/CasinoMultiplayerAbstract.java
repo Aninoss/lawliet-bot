@@ -26,7 +26,7 @@ import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +60,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
 
     public abstract void onGameStart(List<AtomicMember> players) throws Throwable;
 
-    public abstract boolean onButtonCasino(ButtonClickEvent event, int player) throws Throwable;
+    public abstract boolean onButtonCasino(ButtonInteractionEvent event, int player) throws Throwable;
 
     public abstract EmbedBuilder drawCasino(Member member) throws Throwable;
 
@@ -114,7 +114,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     }
 
     @Override
-    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         switch (status) {
             case WAITING_FOR_PLAYERS -> {
                 return switch (event.getComponentId()) {
@@ -140,7 +140,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         }
     }
 
-    private boolean onButtonJoin(ButtonClickEvent event) {
+    private boolean onButtonJoin(ButtonInteractionEvent event) {
         if (playerList.stream().anyMatch(m -> m.getIdLong() == event.getMember().getIdLong())) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_already_joined"));
             getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
@@ -172,7 +172,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         }
     }
 
-    private boolean onButtonLeave(ButtonClickEvent event) {
+    private boolean onButtonLeave(ButtonInteractionEvent event) {
         if (playerList.stream().noneMatch(m -> m.getIdLong() == event.getMember().getIdLong())) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_notyet_joined"));
             getInteractionResponse().replyEmbeds(List.of(eb.build()), true).queue();
@@ -192,7 +192,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         }
     }
 
-    private synchronized boolean onButtonStart(ButtonClickEvent event) throws Throwable {
+    private synchronized boolean onButtonStart(ButtonInteractionEvent event) throws Throwable {
         if (playerList.size() >= playersMin) {
             if (event.getMember().getIdLong() == playerList.get(0).getIdLong()) {
                 StringBuilder sb = new StringBuilder();

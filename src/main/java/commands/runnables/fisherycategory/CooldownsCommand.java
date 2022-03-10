@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnSelectionMenuListener;
+import commands.listeners.OnSelectMenuListener;
 import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
 import constants.LogStatus;
@@ -26,7 +26,7 @@ import mysql.modules.survey.SurveyData;
 import mysql.modules.upvotes.DBUpvotes;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
         executableWithoutArgs = true,
         aliases = { "cooldown", "cd" }
 )
-public class CooldownsCommand extends Command implements FisheryInterface, OnSelectionMenuListener {
+public class CooldownsCommand extends Command implements FisheryInterface, OnSelectMenuListener {
 
     private FisheryMemberData fisheryMemberData;
 
@@ -52,12 +52,12 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnSel
     public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
         this.fisheryMemberData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
-        registerSelectionMenuListener(event.getMember());
+        registerSelectMenuListener(event.getMember());
         return true;
     }
 
     @Override
-    public boolean onSelectionMenu(SelectionMenuEvent event) throws Throwable {
+    public boolean onSelectMenu(SelectMenuInteractionEvent event) throws Throwable {
         DBSubs.Command[] commands = DBSubs.Command.values();
         List<Integer> activeSubs = event.getValues().stream()
                 .map(Integer::parseInt)
@@ -82,7 +82,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnSel
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         DBSubs.Command[] commands = DBSubs.Command.values();
 
-        SelectionMenu.Builder builder = SelectionMenu.create("reminders");
+        SelectMenu.Builder builder = SelectMenu.create("reminders");
         ArrayList<String> defaultValues = new ArrayList<>();
         for (int i = 0; i < commands.length; i++) {
             DBSubs.Command command = commands[i];

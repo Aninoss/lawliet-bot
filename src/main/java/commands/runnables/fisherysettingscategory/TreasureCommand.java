@@ -32,7 +32,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
 
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) {
-        TextChannel channel = event.getChannel();
+        TextChannel channel = event.getTextChannel();
         MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
         if (channelMention.getList().size() > 0) {
             channel = channelMention.getList().get(0);

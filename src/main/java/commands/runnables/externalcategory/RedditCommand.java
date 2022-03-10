@@ -61,9 +61,9 @@ public class RedditCommand extends Command implements OnAlertListener {
             return false;
         } else {
             String finalArgs = args;
-            return redditDownloader.retrievePost(event.getGuild().getIdLong(), args, event.getChannel().isNSFW()).get()
+            return redditDownloader.retrievePost(event.getGuild().getIdLong(), args, event.getTextChannel().isNSFW()).get()
                     .map(post -> {
-                        if (post.isNsfw() && !event.getChannel().isNSFW()) {
+                        if (post.isNsfw() && !event.getTextChannel().isNSFW()) {
                             setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
                             drawMessageNew(EmbedFactory.getNSFWBlockEmbed(getLocale())).exceptionally(ExceptionLogger.get());
                             return false;

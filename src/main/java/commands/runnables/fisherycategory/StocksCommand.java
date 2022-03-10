@@ -30,9 +30,9 @@ import mysql.modules.fisheryusers.FisheryMemberStocksData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -70,13 +70,13 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     }
 
     @ControllerMessage(state = BUY)
-    public MessageInputResponse onMessageBuy(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageBuy(MessageReceivedEvent event, String input) {
         long maxValue = (long) Math.floor((double) fisheryMemberBean.getCoins() / StockMarket.getValue(currentStock) / (1 + Settings.FISHERY_SHARES_FEES / 100.0));
         return onMessageBuySell(input, Math.min(maxValue, Settings.FISHERY_SHARES_MAX));
     }
 
     @ControllerMessage(state = SELL)
-    public MessageInputResponse onMessageSell(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageSell(MessageReceivedEvent event, String input) {
         long maxValue = fisheryMemberBean.getStocks(currentStock).getShareSize();
         return onMessageBuySell(input, maxValue);
     }
@@ -93,7 +93,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     }
 
     @ControllerButton(state = MAIN)
-    public boolean onButtonMain(ButtonClickEvent event, int i) {
+    public boolean onButtonMain(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1 -> {
                 deregisterListenersWithComponentMessage();
@@ -124,7 +124,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     }
 
     @ControllerButton(state = BUY)
-    public boolean onButtonBuy(ButtonClickEvent event, int i) {
+    public boolean onButtonBuy(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(MAIN);
             return true;
@@ -149,7 +149,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     }
 
     @ControllerButton(state = SELL)
-    public boolean onButtonSell(ButtonClickEvent event, int i) {
+    public boolean onButtonSell(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(MAIN);
             return true;
@@ -168,8 +168,8 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         return false;
     }
 
-    @ControllerSelectionMenu(state = MAIN)
-    public boolean onSelectionMenuMain(SelectionMenuEvent event, int i) {
+    @ControllerSelectMenu(state = MAIN)
+    public boolean onSelectMenuMain(SelectMenuInteractionEvent event, int i) {
         currentStock = Stock.values()[i];
         return true;
     }
@@ -191,7 +191,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                 Button.of(ButtonStyle.PRIMARY, "0", getString("button_buy")),
                 Button.of(ButtonStyle.PRIMARY, "1", getString("button_sell")),
         };
-        SelectionMenu.Builder menuBuilder = SelectionMenu.create("selection")
+        SelectMenu.Builder menuBuilder = SelectMenu.create("selection")
                 .setMinValues(1);
         for (int i = 0; i < Stock.values().length; i++) {
             Stock stock = Stock.values()[i];
@@ -203,7 +203,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                     getString("select_desc", StringUtil.numToString(price), generateChangeArrow(pricePrevious, price))
             );
         }
-        SelectionMenu menu = menuBuilder.setDefaultValues(List.of(String.valueOf(currentStock.ordinal())))
+        SelectMenu menu = menuBuilder.setDefaultValues(List.of(String.valueOf(currentStock.ordinal())))
                 .build();
         ActionRow[] actionRows = new ActionRow[] {
                 ActionRow.of(buttons),

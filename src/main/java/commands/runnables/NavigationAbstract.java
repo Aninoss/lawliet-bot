@@ -20,15 +20,15 @@ import core.utils.*;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener, OnSelectionMenuListener {
+public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener, OnSelectMenuListener {
 
     private static final int MAX_ROWS_PER_PAGE = 4;
     private static final String BUTTON_ID_PREV = "nav:prev";
@@ -48,13 +48,13 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
     protected void registerNavigationListener(Member member) {
         registerButtonListener(member);
-        registerSelectionMenuListener(member, false);
+        registerSelectMenuListener(member, false);
         registerMessageInputListener(member, false);
         processDraw(member, true).exceptionally(ExceptionLogger.get());
     }
 
     @Override
-    public MessageInputResponse onMessageInput(@NotNull GuildMessageReceivedEvent event, @NotNull String input) throws Throwable {
+    public MessageInputResponse onMessageInput(@NotNull MessageReceivedEvent event, @NotNull String input) throws Throwable {
         MessageInputResponse messageInputResponse = controllerMessage(event, input, state);
         if (messageInputResponse != null) {
             processDraw(event.getMember(), true).exceptionally(ExceptionLogger.get());
@@ -64,7 +64,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Override
-    public boolean onButton(@NotNull ButtonClickEvent event) throws Throwable {
+    public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         boolean changed = true;
         boolean loadComponents = true;
         try {
@@ -101,12 +101,12 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Override
-    public boolean onSelectionMenu(SelectionMenuEvent event) throws Throwable {
+    public boolean onSelectMenu(SelectMenuInteractionEvent event) throws Throwable {
         int i = -1;
         if (event.getValues().size() > 0 && StringUtil.stringIsInt(event.getValues().get(0))) {
             i = Integer.parseInt(event.getValues().get(0));
         }
-        boolean changed = controllerSelectionMenu(event, i, state);
+        boolean changed = controllerSelectMenu(event, i, state);
         if (changed) {
             processDraw(event.getMember(), true)
                     .exceptionally(ExceptionLogger.get());
@@ -115,7 +115,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return changed;
     }
 
-    public MessageInputResponse controllerMessage(GuildMessageReceivedEvent event, String input, int state) throws Throwable {
+    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) throws Throwable {
         for (Method method : getClass().getDeclaredMethods()) {
             ControllerMessage c = method.getAnnotation(ControllerMessage.class);
             if (c != null && c.state() == state) {
@@ -141,7 +141,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return null;
     }
 
-    public boolean controllerButton(ButtonClickEvent event, int i, int state) throws Throwable {
+    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) throws Throwable {
         for (Method method : getClass().getDeclaredMethods()) {
             ControllerButton c = method.getAnnotation(ControllerButton.class);
             if (c != null && c.state() == state) {
@@ -167,9 +167,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return false;
     }
 
-    public boolean controllerSelectionMenu(SelectionMenuEvent event, int i, int state) throws Throwable {
+    public boolean controllerSelectMenu(SelectMenuInteractionEvent event, int i, int state) throws Throwable {
         for (Method method : getClass().getDeclaredMethods()) {
-            ControllerSelectionMenu c = method.getAnnotation(ControllerSelectionMenu.class);
+            ControllerSelectMenu c = method.getAnnotation(ControllerSelectMenu.class);
             if (c != null && c.state() == state) {
                 try {
                     return (boolean) method.invoke(this, event, i);
@@ -180,7 +180,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         }
 
         for (Method method : getClass().getDeclaredMethods()) {
-            ControllerSelectionMenu c = method.getAnnotation(ControllerSelectionMenu.class);
+            ControllerSelectMenu c = method.getAnnotation(ControllerSelectMenu.class);
             if (c != null && c.state() == -1) {
                 try {
                     return (boolean) method.invoke(this, event, i);
@@ -241,7 +241,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             List<ActionRow> tempActionRows = getActionRows();
             if (tempActionRows != null &&
                     tempActionRows.size() > 0 &&
-                    tempActionRows.get(tempActionRows.size() - 1).getComponents().stream().anyMatch(component -> BUTTON_ID_BACK.equals(component.getId()))
+                    tempActionRows.get(tempActionRows.size() - 1).getComponents().stream().anyMatch(component -> BUTTON_ID_BACK.equals(JDAUtil.componentGetId(component)))
             ) {
                 actionRows = tempActionRows.subList(0, tempActionRows.size() - 1);
             } else {
@@ -381,7 +381,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    protected @interface ControllerSelectionMenu {
+    protected @interface ControllerSelectMenu {
 
         int state() default -1;
 

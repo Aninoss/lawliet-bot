@@ -12,13 +12,13 @@ import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 @DiscordEvent
 public class ButtonClickCommandsStatic extends ButtonClickAbstract {
 
     @Override
-    public boolean onButtonClick(ButtonClickEvent event) throws Throwable {
+    public boolean onButtonClick(ButtonInteractionEvent event) throws Throwable {
         if (!BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
             return true;
         }

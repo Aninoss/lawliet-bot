@@ -59,7 +59,7 @@ public class ReminderScheduler {
                 reminderData.getGuildData().getLocale(),
                 ReminderCommand.class,
                 channel,
-                Permission.MESSAGE_WRITE
+                Permission.MESSAGE_SEND
         )) {
             String userMessage = StringUtil.shortenString(reminderData.getMessage(), 1800);
             String message = TextManager.getString(reminderData.getGuildData().getLocale(), Category.UTILITY, "reminder_action", userMessage);

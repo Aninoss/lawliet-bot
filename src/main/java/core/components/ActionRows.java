@@ -6,22 +6,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
 
 public class ActionRows {
 
-    public static List<ActionRow> of(Component... components) {
+    public static List<ActionRow> of(ItemComponent... components) {
         return of(List.of(components));
     }
 
-    public static List<ActionRow> of(List<? extends Component> components) {
+    public static List<ActionRow> of(List<? extends ItemComponent> components) {
         if (components == null) {
             return Collections.emptyList();
         }
 
         ArrayList<DataObject> rows = new ArrayList<>();
-        ArrayList<Component> componentRemovable = new ArrayList<>(components);
+        ArrayList<ItemComponent> componentRemovable = new ArrayList<>(components);
         int rowIndex = 0;
 
         while(componentRemovable.size() > 0) {
@@ -36,7 +37,7 @@ public class ActionRows {
             }
 
             DataArray dataArray = row.getArray("components");
-            Component component = componentRemovable.get(0);
+            ItemComponent component = componentRemovable.get(0);
             if (countChildrenTypeInDataArray(dataArray, component.getType()) < component.getMaxPerRow() &&
                     dataArrayOnlyHasType(dataArray, component.getType())
             ) {

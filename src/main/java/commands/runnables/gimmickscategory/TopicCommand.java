@@ -33,7 +33,7 @@ public class TopicCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws IOException, ExecutionException, InterruptedException {
-        drawMessage(getEmbed(event.getChannel())).exceptionally(ExceptionLogger.get());
+        drawMessage(getEmbed(event.getTextChannel())).exceptionally(ExceptionLogger.get());
         return true;
     }
 

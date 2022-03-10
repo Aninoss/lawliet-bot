@@ -36,7 +36,7 @@ public class ServerInfoCommand extends Command {
                 StringUtil.escapeMarkdown(guild.getName()),
                 guild.getId(),
                 Optional.ofNullable(guild.getOwner()).map(owner -> StringUtil.escapeMarkdown(owner.getUser().getAsTag())).orElse("-"),
-                guild.getRegion().getName(),
+                "",
                 TimeFormat.DATE_TIME_SHORT.atInstant(guild.getTimeCreated().toInstant()).toString(),
                 guild.getIconUrl() != null ? guild.getIconUrl() : "-",
                 StringUtil.numToString(guild.getMemberCount()),

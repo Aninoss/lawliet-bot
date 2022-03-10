@@ -4,13 +4,13 @@ import commands.listeners.OnButtonListener;
 import events.discordevents.DiscordEvent;
 import events.discordevents.InteractionListenerHandler;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 @DiscordEvent
-public class ButtonClickCommands extends ButtonClickAbstract implements InteractionListenerHandler<ButtonClickEvent> {
+public class ButtonClickCommands extends ButtonClickAbstract implements InteractionListenerHandler<ButtonInteractionEvent> {
 
     @Override
-    public boolean onButtonClick(ButtonClickEvent event) {
+    public boolean onButtonClick(ButtonInteractionEvent event) {
         handleInteraction(event, OnButtonListener.class,
                 listener -> ((OnButtonListener) listener.getCommand()).processButton(event)
         );

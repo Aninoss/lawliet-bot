@@ -43,7 +43,7 @@ public class QuoteCommand extends Command {
         if (directMessage.size() > 0) {
             for (Message message : directMessage) {
                 if (BotPermissionUtil.canReadHistory(message.getTextChannel())) {
-                    Message m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getChannel(), message, false);
+                    Message m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getTextChannel(), message, false);
                     setActionRows(m.getActionRows());
                     drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
                     return true;
@@ -55,13 +55,13 @@ public class QuoteCommand extends Command {
         if (args.length() > 0) {
             MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
             String newString = channelMention.getFilteredArgs();
-            TextChannel channel = channelMention.getList().isEmpty() ? event.getChannel() : channelMention.getList().get(0);
+            TextChannel channel = channelMention.getList().isEmpty() ? event.getTextChannel() : channelMention.getList().get(0);
 
             // id with channel
             if (StringUtil.stringIsLong(newString)) {
                 try {
                     Message message = MessageCache.retrieveMessage(channel, Long.parseLong(newString)).get();
-                    Message m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getChannel(), message, false);
+                    Message m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getTextChannel(), message, false);
                     setActionRows(m.getActionRows());
                     drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
                     return true;

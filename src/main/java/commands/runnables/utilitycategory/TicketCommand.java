@@ -34,9 +34,9 @@ import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
@@ -86,13 +86,13 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @ControllerMessage(state = ADD_STAFF_ROLE)
-    public MessageInputResponse onMessageAddStaffRole(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageAddStaffRole(MessageReceivedEvent event, String input) {
         List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
         return staffRoleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), MAIN);
     }
 
     @ControllerMessage(state = ANNOUNCEMENT_CHANNEL)
-    public MessageInputResponse onMessageAnnouncementChannel(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageAnnouncementChannel(MessageReceivedEvent event, String input) {
         List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
         if (channelList.size() == 0) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
@@ -100,7 +100,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         } else {
             TextChannel textChannel = channelList.get(0);
 
-            String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), textChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS);
+            String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), textChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS);
             if (channelMissingPerms != null) {
                 setLog(LogStatus.FAILURE, channelMissingPerms);
                 return MessageInputResponse.FAILED;
@@ -114,7 +114,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @ControllerMessage(state = CREATE_TICKET_MESSAGE)
-    public MessageInputResponse onMessageCreateTicketMessage(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageCreateTicketMessage(MessageReceivedEvent event, String input) {
         List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
         if (channelList.size() == 0) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
@@ -126,7 +126,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @ControllerMessage(state = GREETING_TEXT)
-    public MessageInputResponse onMessageGreetingText(GuildMessageReceivedEvent event, String input) {
+    public MessageInputResponse onMessageGreetingText(MessageReceivedEvent event, String input) {
         int max = 1000;
         if (input.length() > 0) {
             if (input.length() <= max) {
@@ -143,7 +143,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @ControllerButton(state = MAIN)
-    public boolean onButtonMain(ButtonClickEvent event, int i) {
+    public boolean onButtonMain(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1:
                 deregisterListenersWithComponentMessage();
@@ -199,7 +199,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @ControllerButton(state = ANNOUNCEMENT_CHANNEL)
-    public boolean onButtonAnnouncementChannel(ButtonClickEvent event, int i) {
+    public boolean onButtonAnnouncementChannel(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1 -> {
                 setState(MAIN);
@@ -216,7 +216,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @ControllerButton(state = ADD_STAFF_ROLE)
-    public boolean onButtonAddStaffRole(ButtonClickEvent event, int i) {
+    public boolean onButtonAddStaffRole(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(0);
             return true;
@@ -225,12 +225,12 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @ControllerButton(state = REMOVE_STAFF_ROLE)
-    public boolean onButtonRemoveStaffRole(ButtonClickEvent event, int i) {
+    public boolean onButtonRemoveStaffRole(ButtonInteractionEvent event, int i) {
         return staffRoleNavigationHelper.removeData(i, MAIN);
     }
 
     @ControllerButton(state = CREATE_TICKET_MESSAGE)
-    public boolean onButtonCreateTicketMessage(ButtonClickEvent event, int i) {
+    public boolean onButtonCreateTicketMessage(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(0);
             return true;
@@ -238,16 +238,16 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             tempPostChannel = tempPostChannel.getGuild().getTextChannelById(tempPostChannel.getIdLong());
             if (tempPostChannel != null) {
                 String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), tempPostChannel,
-                        Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY
+                        Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY
                 );
                 if (channelMissingPerms != null) {
                     setLog(LogStatus.FAILURE, channelMissingPerms);
                     return true;
                 }
 
-                Category parent = tempPostChannel.getParent();
+                Category parent = tempPostChannel.getParentCategory();
                 if (parent != null) {
-                    String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.MESSAGE_WRITE, Permission.MANAGE_CHANNEL);
+                    String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MANAGE_CHANNEL);
                     if (categoryMissingPerms != null) {
                         setLog(LogStatus.FAILURE, categoryMissingPerms);
                         return true;
@@ -271,7 +271,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @ControllerButton(state = GREETING_TEXT)
-    public boolean onButtonGreetingText(ButtonClickEvent event, int i) {
+    public boolean onButtonGreetingText(ButtonInteractionEvent event, int i) {
         if (i == -1) {
             setState(0);
             return true;
@@ -334,14 +334,14 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @Override
-    public void onStaticReactionAdd(@NotNull Message message, @NotNull GuildMessageReactionAddEvent event) throws Throwable {
+    public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) throws Throwable {
         TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
+        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getTextChannel().getIdLong());
 
         if (ticketChannel == null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), getCommandProperties().emoji())) {
-            Category category = event.getChannel().getParent();
+            Category category = event.getTextChannel().getParentCategory();
             if (category != null && category.getTextChannels().size() < 50) {
-                onTicketCreate(ticketData, event.getChannel(), event.getMember());
+                onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
                 JDAUtil.openPrivateChannel(event.getMember())
@@ -351,22 +351,22 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         } else if (ticketChannel != null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), TICKET_CLOSE_EMOJI)) {
             boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
             if (isStaff || ticketData.memberCanClose()) {
-                onTicketRemove(ticketData, event.getChannel());
+                onTicketRemove(ticketData, event.getTextChannel());
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
-                event.getChannel().sendMessageEmbeds(eb.build())
+                event.getTextChannel().sendMessageEmbeds(eb.build())
                         .queue();
             }
         }
     }
 
     @Override
-    public void onStaticButton(ButtonClickEvent event) {
+    public void onStaticButton(ButtonInteractionEvent event) {
         TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
+        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getTextChannel().getIdLong());
 
         if (ticketChannel == null && event.getComponentId().equals(BUTTON_ID_CREATE)) {
-            Category category = event.getTextChannel().getParent();
+            Category category = event.getTextChannel().getParentCategory();
             if (category != null && category.getTextChannels().size() < 50) {
                 onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
             } else {
@@ -402,7 +402,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             });
         } else {
             TextChannel existingTicketChannel = existingTicketChannelOpt.get();
-            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), existingTicketChannel, Permission.MESSAGE_WRITE)) {
+            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), existingTicketChannel, Permission.MESSAGE_SEND)) {
                 existingTicketChannel.sendMessage(member.getAsMention()).queue();
             }
         }
@@ -486,7 +486,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
         /* create message */
         ticketData.getCreateMessage().ifPresent(createMessage -> {
-            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), textChannel, Permission.MESSAGE_WRITE)) {
+            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), textChannel, Permission.MESSAGE_SEND)) {
                 textChannel.sendMessage(createMessage)
                         .allowedMentions(null)
                         .queue();
@@ -496,7 +496,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         /* post announcement to staff channel */
         AtomicBoolean announcementNotPosted = new AtomicBoolean(true);
         ticketData.getAnnouncementTextChannel().ifPresent(announcementChannel -> {
-            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), announcementChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_EMBED_LINKS)) {
+            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), announcementChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 announcementNotPosted.set(false);
                 EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault(this, getString("announcement_open", member.getAsMention(), textChannel.getAsMention()));
                 announcementChannel.sendMessage(ticketData.getPingStaff() ? getRolePing(textChannel.getGuild(), ticketData) : " ")
