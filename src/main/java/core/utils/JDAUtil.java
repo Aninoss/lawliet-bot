@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class JDAUtil {
 
@@ -53,21 +54,21 @@ public class JDAUtil {
     }
 
     @CheckReturnValue
-    public static RestAction<MessageChannel> openPrivateChannel(Member member) {
+    public static RestAction<PrivateChannel> openPrivateChannel(Member member) {
         return openPrivateChannel(member.getJDA(), member.getIdLong());
     }
 
     @CheckReturnValue
-    public static RestAction<MessageChannel> openPrivateChannel(User user) {
+    public static RestAction<PrivateChannel> openPrivateChannel(User user) {
         return openPrivateChannel(user.getJDA(), user.getIdLong());
     }
 
     @CheckReturnValue
-    public static RestAction<MessageChannel> openPrivateChannel(JDA jda, long userId) {
+    public static RestAction<PrivateChannel> openPrivateChannel(JDA jda, long userId) {
         PrivateChannelData privateChannelData = DBUserPrivateChannels.getInstance().retrieve().get(userId);
         if (privateChannelData != null) {
-            MessageChannel messageChannel = generatePrivateChannel(userId, privateChannelData.getPrivateChannelId());
-            return new CompletedRestAction<>(jda, messageChannel, null);
+            PrivateChannel privateChannel = generatePrivateChannel(privateChannelData.getPrivateChannelId());
+            return new CompletedRestAction<>(jda, privateChannel, null);
         } else {
             return jda.openPrivateChannelById(userId)
                     .map(privateChannel -> {
@@ -78,11 +79,17 @@ public class JDAUtil {
         }
     }
 
-    private static MessageChannel generatePrivateChannel(long userId, long privateChannelId) {
-        return new MessageChannel() {
+    private static PrivateChannel generatePrivateChannel(long privateChannelId) {
+        return new PrivateChannel() {
+
+            @Override
+            public long getIdLong() {
+                return privateChannelId;
+            }
+
             @Override
             public long getLatestMessageIdLong() {
-                return 0;
+                throw new UnsupportedOperationException();
             }
 
             @Override
@@ -90,10 +97,22 @@ public class JDAUtil {
                 return false;
             }
 
+            @Nullable
+            @Override
+            public User getUser() {
+                throw new UnsupportedOperationException();
+            }
+
+            @NotNull
+            @Override
+            public RestAction<User> retrieveUser() {
+                throw new UnsupportedOperationException();
+            }
+
             @NotNull
             @Override
             public String getName() {
-                return String.valueOf(userId);
+                throw new UnsupportedOperationException();
             }
 
             @NotNull
@@ -114,10 +133,6 @@ public class JDAUtil {
                 throw new UnsupportedOperationException();
             }
 
-            @Override
-            public long getIdLong() {
-                return privateChannelId;
-            }
         };
     }
 

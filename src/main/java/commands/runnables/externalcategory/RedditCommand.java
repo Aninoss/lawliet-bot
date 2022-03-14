@@ -25,8 +25,8 @@ import modules.reddit.RedditPost;
 import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -129,12 +129,12 @@ public class RedditCommand extends Command implements OnAlertListener {
         if (key.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-            slot.getTextChannel().get().sendMessageEmbeds(eb.build()).complete();
+            slot.getBaseGuildMessageChannel().get().sendMessageEmbeds(eb.build()).complete();
             return AlertResponse.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
             Optional<PostBundle<RedditPost>> postBundleOpt = redditDownloader.retrievePostsBulk(key, slot.getArgs().orElse(null)).get();
-            TextChannel channel = slot.getTextChannel().get();
+            BaseGuildMessageChannel channel = slot.getBaseGuildMessageChannel().get();
             boolean containsOnlyNsfw = true;
 
             if (postBundleOpt.isPresent()) {

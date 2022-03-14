@@ -21,10 +21,7 @@ import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -113,11 +110,11 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         }
     }
 
-    private void fullClear(TextChannel channel, int hours) throws InterruptedException {
+    private void fullClear(BaseGuildMessageChannel channel, int hours) throws InterruptedException {
         fullClear(channel, hours, Collections.emptyList(), 0L);
     }
 
-    private ClearResults fullClear(TextChannel channel, int hours, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
+    private ClearResults fullClear(BaseGuildMessageChannel channel, int hours, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
         int deleted = 0;
         boolean tooOld = false;
 
@@ -160,12 +157,12 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
-        TextChannel textChannel = slot.getTextChannel().get();
-        if (PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), textChannel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
+        BaseGuildMessageChannel channel = slot.getBaseGuildMessageChannel().get();
+        if (PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), channel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
             long hoursMin = Math.max(0, MentionUtil.getAmountExt(slot.getCommandKey()));
             if (hoursMin <= HOURS_MAX) {
                 try {
-                    fullClear(textChannel, (int) hoursMin);
+                    fullClear(channel, (int) hoursMin);
                     if (slot.getEffectiveUserMessage().isPresent()) {
                         slot.sendMessage(true, "");
                     }
@@ -176,7 +173,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                 return AlertResponse.CONTINUE_AND_SAVE;
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_args", "0", StringUtil.numToString(HOURS_MAX)));
-                textChannel.sendMessageEmbeds(eb.build()).queue();
+                channel.sendMessageEmbeds(eb.build()).queue();
             }
         }
 

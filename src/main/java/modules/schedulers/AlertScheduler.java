@@ -21,7 +21,7 @@ import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class AlertScheduler {
@@ -98,7 +98,7 @@ public class AlertScheduler {
         }
 
         OnAlertListener command = (OnAlertListener) commandOpt.get();
-        Optional<TextChannel> channelOpt = slot.getTextChannel();
+        Optional<BaseGuildMessageChannel> channelOpt = slot.getBaseGuildMessageChannel();
         if (channelOpt.isPresent()) {
             if (PermissionCheckRuntime.botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 if (checkNSFW(slot, channelOpt.get(), (Command) command) ||
@@ -138,7 +138,7 @@ public class AlertScheduler {
         }
     }
 
-    private static boolean checkNSFW(TrackerData slot, TextChannel channel, Command command) {
+    private static boolean checkNSFW(TrackerData slot, BaseGuildMessageChannel channel, Command command) {
         if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
@@ -151,7 +151,7 @@ public class AlertScheduler {
         return false;
     }
 
-    private static boolean checkPatreon(TrackerData slot, TextChannel channel, Command command) {
+    private static boolean checkPatreon(TrackerData slot, BaseGuildMessageChannel channel, Command command) {
         if (command.getCommandProperties().patreonRequired() &&
                 !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
         ) {

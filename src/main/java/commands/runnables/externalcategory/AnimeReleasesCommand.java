@@ -98,7 +98,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
         if (first && postBundle.getPosts().size() == 0) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                     .setDescription(getString("no_results", true, StringUtil.shortenString(slot.getCommandKey(), 200)));
-            slot.getTextChannel().get().sendMessageEmbeds(eb.build()).complete();
+            slot.getBaseGuildMessageChannel().get().sendMessageEmbeds(eb.build()).complete();
         }
 
         if (postBundle.getNewestPost() != null) {

@@ -370,7 +370,7 @@ public abstract class Command implements OnTriggerListener {
                 .put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger()));
     }
 
-    public void registerStaticReactionMessage(TextChannel channel, long messageId) {
+    public void registerStaticReactionMessage(BaseGuildMessageChannel channel, long messageId) {
         DBStaticReactionMessages.getInstance()
                 .retrieve(channel.getGuild().getIdLong())
                 .put(messageId, new StaticReactionMessageData(

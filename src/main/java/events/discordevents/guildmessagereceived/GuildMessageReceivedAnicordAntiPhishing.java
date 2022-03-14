@@ -2,6 +2,7 @@ package events.discordevents.guildmessagereceived;
 
 import constants.AssetIds;
 import constants.RegexPatterns;
+import core.Program;
 import core.internet.HttpRequest;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
@@ -16,7 +17,8 @@ public class GuildMessageReceivedAnicordAntiPhishing extends GuildMessageReceive
     @Override
     public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
         Guild guild = event.getGuild();
-        if ((guild.getIdLong() == AssetIds.ANICORD_SERVER_ID || guild.getIdLong() == AssetIds.SUPPORT_SERVER_ID || guild.getIdLong() == AssetIds.BETA_SERVER_ID ) &&
+        if (Program.productionMode() &&
+                (guild.getIdLong() == AssetIds.ANICORD_SERVER_ID || guild.getIdLong() == AssetIds.SUPPORT_SERVER_ID || guild.getIdLong() == AssetIds.BETA_SERVER_ID ) &&
                 RegexPatterns.PHISHING_DOMAIN.matcher(event.getMessage().getContentRaw()).find() &&
                 messageContainsPhishingLink(event.getMessage().getContentRaw())
         ) {

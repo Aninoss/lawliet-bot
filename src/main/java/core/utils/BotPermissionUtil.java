@@ -240,7 +240,7 @@ public class BotPermissionUtil {
                 .count() >= guild.getMemberCount() * 0.75;
     }
 
-    public static boolean memberCanMentionRoles(TextChannel channel, Member member, String messageContent) {
+    public static boolean memberCanMentionRoles(GuildMessageChannel channel, Member member, String messageContent) {
         if (member.hasPermission(channel, Permission.MESSAGE_MENTION_EVERYONE)) {
             return true;
         }

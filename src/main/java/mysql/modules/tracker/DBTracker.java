@@ -71,7 +71,7 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
     private void addTracker(TrackerData slot) {
         MySQLManager.asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getGuildId());
-            preparedStatement.setLong(2, slot.getTextChannelId());
+            preparedStatement.setLong(2, slot.getBaseMessageChannelId());
             preparedStatement.setString(3, slot.getCommandTrigger());
 
             Optional<Long> messageIdOpt = slot.getMessageId();
@@ -112,7 +112,7 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
     private void removeTracker(TrackerData slot) {
         if (!Objects.isNull(slot)) {
             MySQLManager.asyncUpdate("DELETE FROM Tracking WHERE channelId = ? AND command = ? AND commandKey = ?;", preparedStatement -> {
-                preparedStatement.setLong(1, slot.getTextChannelId());
+                preparedStatement.setLong(1, slot.getBaseMessageChannelId());
                 preparedStatement.setString(2, slot.getCommandTrigger());
                 preparedStatement.setString(3, slot.getCommandKey());
             });

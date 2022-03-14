@@ -1,7 +1,6 @@
 package commands.runnables.utilitycategory;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -16,19 +15,23 @@ import constants.ExternalLinks;
 import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
-import core.ShardManager;
 import core.TextManager;
+import core.atomicassets.AtomicBaseGuildMessageChannel;
 import core.cache.PatreonCache;
 import core.utils.BotPermissionUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.schedulers.AlertScheduler;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -45,21 +48,18 @@ public class AlertsCommand extends NavigationAbstract {
     private final int
             STATE_ADD = 1,
             STATE_REMOVE = 2,
-            STATE_KEY = 3,
-            STATE_USERMESSAGE = 4;
+            STATE_COMMAND = 3,
+            STATE_KEY = 4,
+            STATE_USERMESSAGE = 5;
 
     private final int LIMIT_CHANNEL = 5;
     private final int LIMIT_SERVER = 20;
     private final int LIMIT_KEY_LENGTH = 500;
 
-    private final HashMap<Integer, String> buttonMap = new HashMap<>();
-    private long serverId;
-    private long channelId;
-    private boolean patreon;
+    private long channelId = 0L;
     private CustomObservableMap<Integer, TrackerData> alerts;
     private Command commandCache;
     private String commandKeyCache;
-    private boolean cont = true;
 
     public AlertsCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -67,122 +67,37 @@ public class AlertsCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        serverId = event.getGuild().getIdLong();
-        channelId = event.getTextChannel().getIdLong();
         alerts = DBTracker.getInstance().retrieve(event.getGuild().getIdLong());
-        patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
-                PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
-
-        controll(args, event.getMember());
         registerNavigationListener(event.getMember());
         return true;
     }
 
-    @Override
-    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
-        if (state != STATE_REMOVE) {
-            cont = true;
-            return controll(input, event.getMember());
-        }
-        return null;
-    }
-
-    @Override
-    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
-        String key = buttonMap.get(i);
-        if (key != null) {
-            if (key.equalsIgnoreCase("back")) {
-                switch (state) {
-                    case DEFAULT_STATE:
-                        deregisterListenersWithComponentMessage();
-                        return false;
-
-                    case STATE_ADD:
-                    case STATE_REMOVE:
-                        setState(DEFAULT_STATE);
-                        return true;
-
-                    case STATE_KEY:
-                    case STATE_USERMESSAGE:
-                        setState(STATE_ADD);
-                        return true;
-
-                    default:
-                        return false;
-                }
-            }
-
-            controll(key, event.getMember());
-            return true;
-        }
-
-        return false;
-    }
-
-    private MessageInputResponse controll(String searchTerm, Member member) {
-        while (true) {
-            if (searchTerm.replace(" ", "").isEmpty()) {
-                return MessageInputResponse.SUCCESS;
-            }
-
-            String arg = searchTerm.split(" ")[0].toLowerCase();
-            MessageInputResponse currentMessageInputResponse = processArg(arg, searchTerm, member);
-            if (currentMessageInputResponse != MessageInputResponse.SUCCESS || !cont) {
-                return currentMessageInputResponse;
-            }
-
-            searchTerm = searchTerm.substring(arg.length()).trim();
-        }
-    }
-
-    private MessageInputResponse processArg(String arg, String argComplete, Member member) {
-        int state = getState();
-        return switch (state) {
-            case DEFAULT_STATE -> processMain(arg);
-            case STATE_ADD -> processAdd(arg);
-            case STATE_REMOVE -> processRemove(arg);
-            case STATE_KEY -> processKey(argComplete);
-            case STATE_USERMESSAGE -> processUserMessage(argComplete, member);
-            default -> null;
-        };
-    }
-
-    private MessageInputResponse processMain(String arg) {
-        switch (arg) {
-            case "add":
-                if (enoughSpaceForNewTrackers()) {
-                    setState(STATE_ADD);
-                    return MessageInputResponse.SUCCESS;
-                } else {
-                    return MessageInputResponse.FAILED;
-                }
-
-            case "remove":
-                if (getTrackersInChannel().size() > 0) {
-                    setState(STATE_REMOVE);
-                    return MessageInputResponse.SUCCESS;
-                } else {
-                    setLog(LogStatus.FAILURE, getString("notracker"));
-                    return MessageInputResponse.FAILED;
-                }
-
-            default:
-                return null;
-        }
-    }
-
-    private MessageInputResponse processAdd(String arg) {
-        if (!enoughSpaceForNewTrackers()) {
+    @ControllerMessage(state = STATE_ADD)
+    public MessageInputResponse onMessageAdd(MessageReceivedEvent event, String input) {
+        List<BaseGuildMessageChannel> channelList = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), input).getList();
+        if (channelList.size() > 0) {
+            BaseGuildMessageChannel channel = channelList.get(0);
+            channelId = channel.getIdLong();
+            return MessageInputResponse.SUCCESS;
+        } else {
             return null;
         }
+    }
 
-        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(arg, getLocale(), getPrefix());
+    @ControllerMessage(state = STATE_COMMAND)
+    public MessageInputResponse onMessageCommand(MessageReceivedEvent event, String input) {
+        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(input, getLocale(), getPrefix());
         if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnAlertListener) || !commandOpt.get().canRunOnGuild(0L, 0L)) {
             return null;
         }
 
+        BaseGuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
+        if (channel == null) {
+            return MessageInputResponse.FAILED;
+        }
+
         Command command = commandOpt.get();
-        if (command.getCommandProperties().nsfw() && !ShardManager.getLocalGuildById(serverId).get().getTextChannelById(channelId).isNSFW()) {
+        if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description"));
             return MessageInputResponse.FAILED;
         }
@@ -206,97 +121,206 @@ public class AlertsCommand extends NavigationAbstract {
             setState(STATE_KEY);
         } else {
             commandKeyCache = "";
-            cont = false;
             setState(STATE_USERMESSAGE);
         }
         return MessageInputResponse.SUCCESS;
     }
 
-    private MessageInputResponse processRemove(String arg) {
-        List<TrackerData> trackerData = getTrackersInChannel();
-
-        if (!StringUtil.stringIsInt(arg)) {
-            return null;
-        }
-
-        int index = Integer.parseInt(arg) + 10 * getPage();
-        if (index < 0 || index >= trackerData.size()) {
-            return null;
-        }
-
-        TrackerData slotRemove = trackerData.get(index);
-        slotRemove.delete();
-        setLog(LogStatus.SUCCESS, getString("state2_removed", slotRemove.getCommandTrigger()));
-        if (getTrackersInChannel().size() == 0) {
-            setState(DEFAULT_STATE);
-        }
-
-        return MessageInputResponse.FAILED;
-    }
-
-    private MessageInputResponse processKey(String arg) {
-        if (!enoughSpaceForNewTrackers()) {
+    @ControllerMessage(state = STATE_KEY)
+    public MessageInputResponse onMessageKey(MessageReceivedEvent event, String input) {
+        if (getAlertChannelOrFail(event.getMember()) == null) {
             return MessageInputResponse.FAILED;
         }
 
-        if (arg.length() > LIMIT_KEY_LENGTH) {
+        if (input.length() > LIMIT_KEY_LENGTH) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", String.valueOf(LIMIT_KEY_LENGTH)));
             return MessageInputResponse.FAILED;
         }
 
-        if (trackerSlotExists(commandCache.getTrigger(), arg)) {
-            setLog(LogStatus.FAILURE, getString("state3_alreadytracking", arg));
+        if (trackerSlotExists(commandCache.getTrigger(), input)) {
+            setLog(LogStatus.FAILURE, getString("state3_alreadytracking", input));
             return MessageInputResponse.FAILED;
         }
 
-        commandKeyCache = arg;
+        commandKeyCache = input;
         setState(STATE_USERMESSAGE);
-        cont = false;
         return MessageInputResponse.SUCCESS;
     }
 
-    private MessageInputResponse processUserMessage(String args, Member member) {
-        cont = false;
-        if (args.equals("no")) {
-            addTracker(null);
-            return MessageInputResponse.SUCCESS;
-        } else {
-            if (PatreonCache.getInstance().isUnlocked(getGuildId().get()) ||
-                    PatreonCache.getInstance().hasPremium(getMemberId().get(), true)
-            ) {
-                if (!BotPermissionUtil.memberCanMentionRoles(getTextChannel().get(), member, args)) {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention"));
-                    return MessageInputResponse.FAILED;
-                }
+    @ControllerMessage(state = STATE_USERMESSAGE)
+    public MessageInputResponse onMessageUserMessage(MessageReceivedEvent event, String input) {
+        BaseGuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
+        if (channel == null) {
+            return MessageInputResponse.FAILED;
+        }
 
-                addTracker(args);
-                return MessageInputResponse.SUCCESS;
-            } else {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+        if (PatreonCache.getInstance().isUnlocked(getGuildId().get()) ||
+                PatreonCache.getInstance().hasPremium(getMemberId().get(), true)
+        ) {
+            if (!BotPermissionUtil.memberCanMentionRoles(channel, event.getMember(), input)) {
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention"));
                 return MessageInputResponse.FAILED;
             }
+
+            addTracker(event.getGuild().getIdLong(), input);
+            return MessageInputResponse.SUCCESS;
+        } else {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+            return MessageInputResponse.FAILED;
         }
+    }
+
+    @ControllerButton(state = DEFAULT_STATE)
+    public boolean onButtonDefault(ButtonInteractionEvent event, int i) {
+        switch (i) {
+            case -1:
+                deregisterListenersWithComponentMessage();
+                return false;
+
+            case 0:
+                channelId = event.getChannel().getIdLong();
+                if (enoughSpaceForNewTrackers(event.getMember())) {
+                    setState(STATE_ADD);
+                }
+                return true;
+
+            case 1:
+                if (alerts.size() > 0) {
+                    setState(STATE_REMOVE);
+                } else {
+                    setLog(LogStatus.FAILURE, getString("notracker"));
+                }
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    @ControllerButton(state = STATE_ADD)
+    public boolean onButtonAdd(ButtonInteractionEvent event, int i) {
+        if (i == -1) {
+            setState(DEFAULT_STATE);
+            return true;
+        } else if (i == 0) {
+            BaseGuildMessageChannel channel = event.getGuild().getChannelById(BaseGuildMessageChannel.class, channelId);
+            if (channel != null) {
+                if (BotPermissionUtil.canWriteEmbed(channel)) {
+                    setState(STATE_COMMAND);
+                } else {
+                    String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#" + channel.getName());
+                    setLog(LogStatus.FAILURE, error);
+                }
+                return true;
+            } else {
+                setLog(LogStatus.FAILURE, getString("invalidchannel"));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @ControllerButton(state = STATE_REMOVE)
+    public boolean onButtonRemove(ButtonInteractionEvent event, int i) {
+        if (i == -1) {
+            setState(DEFAULT_STATE);
+            return true;
+        } else {
+            TrackerData slotRemove = alerts.get(Integer.parseInt(event.getComponentId()));
+            if (slotRemove != null) {
+                slotRemove.delete();
+                setLog(LogStatus.SUCCESS, getString("state2_removed", slotRemove.getCommandTrigger()));
+                if (alerts.size() == 0) {
+                    setState(DEFAULT_STATE);
+                }
+            }
+
+            return true;
+        }
+    }
+
+    @ControllerButton(state = STATE_COMMAND)
+    public boolean onButtonCommand(ButtonInteractionEvent event, int i) {
+        if (getAlertChannelOrFail(event.getMember()) == null) {
+            return true;
+        }
+
+        if (i == -1) {
+            setState(STATE_ADD);
+            return true;
+        }
+        return false;
+    }
+
+    @ControllerButton(state = STATE_KEY)
+    public boolean onButtonKey(ButtonInteractionEvent event, int i) {
+        if (getAlertChannelOrFail(event.getMember()) == null) {
+            return true;
+        }
+
+        if (i == -1) {
+            setState(STATE_COMMAND);
+            return true;
+        }
+        return false;
+    }
+
+    @ControllerButton(state = STATE_USERMESSAGE)
+    public boolean onButtonUserMessage(ButtonInteractionEvent event, int i) {
+        if (getAlertChannelOrFail(event.getMember()) == null) {
+            return true;
+        }
+
+        if (i == -1) {
+            setState(STATE_COMMAND);
+            return true;
+        } else if (i == 0) {
+            addTracker(event.getGuild().getIdLong(), null);
+            return true;
+        }
+        return false;
     }
 
     @Draw(state = DEFAULT_STATE)
     public EmbedBuilder onDrawMain(Member member) throws Throwable {
         setComponents(getString("state0_options").split("\n"));
-
-        buttonMap.clear();
-        buttonMap.put(-1, "back");
-        buttonMap.put(0, "add");
-        buttonMap.put(1, "remove");
-
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"));
     }
 
     @Draw(state = STATE_ADD)
     public EmbedBuilder onDrawAdd(Member member) throws Throwable {
-        buttonMap.clear();
-        buttonMap.put(-1, "back");
+        setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
+        AtomicBaseGuildMessageChannel atomicChannel = new AtomicBaseGuildMessageChannel(member.getGuild().getIdLong(), channelId);
+        return EmbedFactory.getEmbedDefault(this, getString("state5_description", atomicChannel.getAsMention()), getString("state5_title"));
+    }
 
+    @Draw(state = STATE_REMOVE)
+    public EmbedBuilder onDrawRemove(Member member) throws Throwable {
+        List<Button> buttons = alerts.values().stream()
+                .sorted((a0, a1) -> {
+                    long channelO = a0.getBaseMessageChannelId();
+                    long channel1 = a1.getBaseMessageChannelId();
+                    if (channelO == channel1) {
+                        return a0.getCreationTime().compareTo(a1.getCreationTime());
+                    } else {
+                        return Long.compare(channelO, channel1);
+                    }
+                })
+                .map(alert -> {
+                    String trigger = alert.getCommandTrigger();
+                    String channelName = StringUtil.escapeMarkdown(StringUtil.shortenString(new AtomicBaseGuildMessageChannel(member.getGuild().getIdLong(), alert.getBaseMessageChannelId()).getPrefixedName(), 40));
+                    String label  = getString("slot_remove", false, channelName, trigger);
+                    return Button.of(ButtonStyle.PRIMARY, String.valueOf(alert.hashCode()), label);
+                })
+                .collect(Collectors.toList());
+
+        setComponents(buttons);
+        return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
+    }
+
+    @Draw(state = STATE_COMMAND)
+    public EmbedBuilder onDrawCommand(Member member) throws Throwable {
         List<Command> trackerCommands = getAllTrackerCommands();
-
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
         for (Category category : Category.independentValues()) {
@@ -320,42 +344,14 @@ public class AlertsCommand extends NavigationAbstract {
         return eb;
     }
 
-    @Draw(state = STATE_REMOVE)
-    public EmbedBuilder onDrawRemove(Member member) throws Throwable {
-        buttonMap.clear();
-        buttonMap.put(-1, "back");
-
-        List<TrackerData> trackerData = getTrackersInChannel();
-        String[] options = new String[trackerData.size()];
-
-        for (int i = 0; i < options.length; i++) {
-            String trigger = trackerData.get(i).getCommandTrigger();
-
-            options[i] = getString("slot_remove", trackerData.get(i).getCommandKey().length() > 0,
-                    trigger,
-                    StringUtil.escapeMarkdown(StringUtil.shortenString(trackerData.get(i).getCommandKey(), 200))
-            );
-            buttonMap.put(i, String.valueOf(i));
-        }
-
-        setComponents(options);
-        return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
-    }
-
     @Draw(state = STATE_KEY)
     public EmbedBuilder onDrawKey(Member member) {
-        buttonMap.clear();
-        buttonMap.put(-1, "back");
         return EmbedFactory.getEmbedDefault(this, TextManager.getString(getLocale(), commandCache.getCategory(), commandCache.getTrigger() + "_trackerkey"), getString("state3_title"));
     }
 
     @Draw(state = STATE_USERMESSAGE)
     public EmbedBuilder onDrawUserMessage(Member member) {
-        buttonMap.clear();
-        buttonMap.put(-1, "back");
-        buttonMap.put(0, "no");
         setComponents(getString("state4_options").split("\n"));
-
         return EmbedFactory.getEmbedDefault(
                 this,
                 getString("state4_description", ExternalLinks.PREMIUM_WEBSITE),
@@ -363,9 +359,9 @@ public class AlertsCommand extends NavigationAbstract {
         );
     }
 
-    private void addTracker(String userMessage) {
+    private void addTracker(long guildId, String userMessage) {
         TrackerData slot = new TrackerData(
-                serverId,
+                guildId,
                 channelId,
                 commandCache.getTrigger(),
                 null,
@@ -379,7 +375,7 @@ public class AlertsCommand extends NavigationAbstract {
 
         alerts.put(slot.hashCode(), slot);
         AlertScheduler.loadAlert(slot);
-        setState(STATE_ADD);
+        setState(STATE_COMMAND);
         setLog(LogStatus.SUCCESS, getString("state3_added", commandCache.getTrigger()));
     }
 
@@ -390,13 +386,16 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     private boolean trackerSlotExists(String commandTrigger, String commandKey) {
-        return getTrackersInChannel().stream()
+        return alerts.values().stream()
                 .anyMatch(slot -> slot.getCommandTrigger().equals(commandTrigger) && slot.getCommandKey().equalsIgnoreCase(commandKey));
     }
 
-    private boolean enoughSpaceForNewTrackers() {
-        if (getTrackersInChannel().size() < LIMIT_CHANNEL || patreon) {
-            if (alerts.size() < LIMIT_SERVER || patreon) {
+    private boolean enoughSpaceForNewTrackers(Member member) {
+        boolean premium = PatreonCache.getInstance().hasPremium(member.getIdLong(), true) ||
+                PatreonCache.getInstance().isUnlocked(member.getGuild().getIdLong());
+
+        if (channelId == 0L || alerts.values().stream().filter(a -> a.getBaseMessageChannelId() == channelId).count() < LIMIT_CHANNEL || premium) {
+            if (alerts.size() < LIMIT_SERVER || premium) {
                 return true;
             } else {
                 setLog(LogStatus.FAILURE, getString("toomuch_server", String.valueOf(LIMIT_SERVER)));
@@ -408,10 +407,14 @@ public class AlertsCommand extends NavigationAbstract {
         }
     }
 
-    private List<TrackerData> getTrackersInChannel() {
-        return alerts.values().stream()
-                .filter(slot -> slot != null && slot.getTextChannelId() == channelId)
-                .collect(Collectors.toList());
+    private BaseGuildMessageChannel getAlertChannelOrFail(Member member) {
+        BaseGuildMessageChannel channel = member.getGuild().getChannelById(BaseGuildMessageChannel.class, channelId);
+        if (channel == null || !enoughSpaceForNewTrackers(member)) {
+            setState(STATE_ADD);
+            return null;
+        } else {
+            return channel;
+        }
     }
 
 }
