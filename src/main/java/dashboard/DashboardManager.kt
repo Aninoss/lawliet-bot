@@ -21,6 +21,7 @@ object DashboardManager {
             GeneralCategory::class,
             CommandManagementCategory::class,
             FisheryCategory::class,
+            AlertsCategory::class,
             NSFWCategory::class,
             ModerationCategory::class,
             InviteTrackingCategory::class,
