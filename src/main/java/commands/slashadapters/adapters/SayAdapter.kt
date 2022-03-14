@@ -14,6 +14,7 @@ class SayAdapter : SlashAdapter() {
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
             .addOption(OptionType.STRING, "text", "The text you want Lawliet to say", true)
+            .addOption(OptionType.CHANNEL, "channel", "Where to post it?", false)
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

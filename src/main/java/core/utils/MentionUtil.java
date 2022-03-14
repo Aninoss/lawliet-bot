@@ -136,6 +136,21 @@ public class MentionUtil {
         );
     }
 
+    public static MentionList<BaseGuildMessageChannel> getBaseGuildMessageChannels(Guild guild, String input) {
+        ArrayList<BaseGuildMessageChannel> channels = new ArrayList<>();
+        channels.addAll(guild.getTextChannels());
+        channels.addAll(guild.getNewsChannels());
+        return generateMentionList(
+                channels,
+                new ArrayList<>(),
+                input,
+                c -> ((BaseGuildMessageChannel) c).getAsMention(),
+                c -> " " + ((BaseGuildMessageChannel) c).getId() + " ",
+                c -> " #" + ((BaseGuildMessageChannel) c).getName() + " ",
+                c -> " " + ((BaseGuildMessageChannel) c).getName() + " "
+        );
+    }
+
     public static MentionList<VoiceChannel> getVoiceChannels(Message message, String input) {
         return generateMentionList(
                 message.getGuild().getVoiceChannels(),

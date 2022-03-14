@@ -119,6 +119,10 @@ public abstract class Command implements OnTriggerListener {
         this.fileAttachmentMap.put(name, data);
     }
 
+    public void addAllFileAttachments(Map<String, InputStream> fileAttachmentMap) {
+        this.fileAttachmentMap.putAll(fileAttachmentMap);
+    }
+
     public void setAllowedMentions(Collection<Message.MentionType> allowedMentions) {
         this.allowedMentions = allowedMentions;
     }

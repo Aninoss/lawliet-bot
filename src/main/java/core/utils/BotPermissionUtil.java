@@ -153,22 +153,22 @@ public class BotPermissionUtil {
                         .allMatch(permission -> member.hasPermission(channel, permissions));
     }
 
-    public static boolean canReadHistory(TextChannel channel, Permission... permissions) {
+    public static boolean canReadHistory(GuildChannel channel, Permission... permissions) {
         return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_HISTORY) &&
                 can(channel, permissions);
     }
 
-    public static boolean canWrite(TextChannel channel, Permission... permissions) {
+    public static boolean canWrite(GuildChannel channel, Permission... permissions) {
         return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_SEND) &&
                 can(channel, permissions);
     }
 
-    public static boolean canWrite(Member member, TextChannel channel, Permission... permissions) {
+    public static boolean canWrite(Member member, GuildChannel channel, Permission... permissions) {
         return member.hasPermission(channel, Permission.MESSAGE_SEND) &&
                 can(member, channel, permissions);
     }
 
-    public static boolean canWriteEmbed(TextChannel channel, Permission... permissions) {
+    public static boolean canWriteEmbed(GuildChannel channel, Permission... permissions) {
         return channel.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_EMBED_LINKS) &&
                 canWrite(channel, permissions);
     }
