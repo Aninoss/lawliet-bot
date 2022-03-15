@@ -20,7 +20,6 @@ public abstract class SlashCommandAbstract extends DiscordEventAbstract {
     }
 
     public static void onSlashCommandStatic(SlashCommandInteractionEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        event.deferReply().queue();
         Instant startTime = Instant.now();
         execute(listenerList, event.getUser(), event.getGuild().getIdLong(),
                 listener -> {

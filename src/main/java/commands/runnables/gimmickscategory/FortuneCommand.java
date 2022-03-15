@@ -30,7 +30,8 @@ public class FortuneCommand extends Command {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         if (args.length() > 0) {
-            drawMessageNew(getEmbed(event.getMember(), args)).exceptionally(ExceptionLogger.get());
+            drawMessageNew(getEmbed(event.getMember(), args))
+                    .exceptionally(ExceptionLogger.get());
             return true;
         } else {
             drawMessageNew(EmbedFactory.getEmbedError(

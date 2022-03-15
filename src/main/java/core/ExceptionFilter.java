@@ -28,6 +28,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             "500:",     /* Internal Server Error */
             "503:",     /* Upstream Connect Error */
             "502:",     /* Server Error */
+            "Cascading failure caused by interaction callback failure"
     };
 
     @Override
