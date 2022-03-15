@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "say",
-        botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
         emoji = "\uD83D\uDCAC",
         executableWithoutArgs = true,
         aliases = { "repeat" }
@@ -30,12 +29,12 @@ public class SayCommand extends Command {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         BaseGuildMessageChannel channel;
-        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args);
-        if (response == null) {
-            return false;
-        } else {
+        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args, Permission.MESSAGE_ATTACH_FILES);
+        if (response != null) {
             args = response.getArgs();
             channel = response.getChannel();
+        } else {
+            return false;
         }
 
         List<Message.Attachment> attachments = event.isMessageReceivedEvent()

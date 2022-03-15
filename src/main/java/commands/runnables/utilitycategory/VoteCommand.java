@@ -50,11 +50,11 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
         BaseGuildMessageChannel channel;
         CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY);
-        if (response == null) {
-            return false;
-        } else {
+        if (response != null) {
             args = response.getArgs();
             channel = response.getChannel();
+        } else {
+            return false;
         }
 
         String[] argsParts = args.split("(?<!\\\\)\\|");
