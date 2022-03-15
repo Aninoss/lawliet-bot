@@ -34,6 +34,8 @@ public class StatsCommand extends Command {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
+        event.deferReply();
+
         String dephordName = "???";
         try {
             dephordName = ShardManager.fetchUserById(303085910784737281L).get().getAsTag();

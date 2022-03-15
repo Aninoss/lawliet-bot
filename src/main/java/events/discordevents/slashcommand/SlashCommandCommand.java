@@ -1,6 +1,9 @@
 package events.discordevents.slashcommand;
 
 import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import commands.Command;
 import commands.CommandEvent;
@@ -15,11 +18,12 @@ import events.discordevents.eventtypeabstracts.SlashCommandAbstract;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 @DiscordEvent
 public class SlashCommandCommand extends SlashCommandAbstract {
+
+    private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     public boolean onSlashCommand(SlashCommandInteractionEvent event) throws Throwable {
@@ -29,12 +33,8 @@ public class SlashCommandCommand extends SlashCommandAbstract {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(guildData.getLocale(), TextManager.GENERAL, "wrong_args"))
                     .setDescription(TextManager.getString(guildData.getLocale(), TextManager.GENERAL, "invalid_noargs"));
-            event.getHook().sendMessageEmbeds(eb.build())
+            event.replyEmbeds(eb.build())
                     .queue();
-            return true;
-        }
-
-        if (event.getTextChannel().getType() != ChannelType.TEXT) {
             return true;
         }
 
@@ -49,6 +49,7 @@ public class SlashCommandCommand extends SlashCommandAbstract {
             command.getAttachments().put("error", errorFunction.apply(locale));
         }
 
+        deferAfterOneSecond(event);
         try {
             CommandManager.manage(new CommandEvent(event), command, args, getStartTime());
         } catch (Throwable e) {
@@ -56,6 +57,14 @@ public class SlashCommandCommand extends SlashCommandAbstract {
         }
 
         return true;
+    }
+
+    private void deferAfterOneSecond(SlashCommandInteractionEvent event) {
+        scheduler.schedule(() -> {
+            if (!event.isAcknowledged()) {
+                event.deferReply().queue();
+            }
+        }, 1, TimeUnit.SECONDS);
     }
 
 }

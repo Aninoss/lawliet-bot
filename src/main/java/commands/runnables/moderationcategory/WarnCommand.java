@@ -116,6 +116,7 @@ public class WarnCommand extends Command implements OnButtonListener {
             );
             registerButtonListener(event.getMember());
         } else {
+            event.deferReply();
             boolean success = execute(event.getTextChannel(), event.getMember());
             drawMessage(draw(event.getMember())).exceptionally(ExceptionLogger.get());
             return success;

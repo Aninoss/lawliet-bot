@@ -37,8 +37,7 @@ interface OnTriggerListener {
             DBCommandUsages.getInstance().retrieve(command.trigger).increase()
         }
         if (event.isMessageReceivedEvent()) {
-            command.addLoadingReaction(event.messageReceivedEvent!!.message, isProcessing)
-            processTriggerDelete(event.messageReceivedEvent)
+            processTriggerDelete(event.messageReceivedEvent!!)
         }
         addKillTimer(isProcessing)
         try {

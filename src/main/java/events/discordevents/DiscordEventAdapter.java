@@ -267,7 +267,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (event.getChannel() instanceof TextChannel) {
-            event.deferReply().queue();
             GlobalThreadPool.getExecutorService()
                     .submit(() -> SlashCommandAbstract.onSlashCommandStatic(event, getListenerList(SlashCommandAbstract.class)));
         } else {

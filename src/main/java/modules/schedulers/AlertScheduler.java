@@ -13,7 +13,6 @@ import commands.listeners.OnAlertListener;
 import commands.runnables.utilitycategory.AlertsCommand;
 import core.*;
 import core.cache.ServerPatreonBoostCache;
-import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.ExceptionUtil;
 import core.utils.TimeUtil;
@@ -22,6 +21,7 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class AlertScheduler {
@@ -138,26 +138,24 @@ public class AlertScheduler {
         }
     }
 
-    private static boolean checkNSFW(TrackerData slot, BaseGuildMessageChannel channel, Command command) {
+    private static boolean checkNSFW(TrackerData slot, BaseGuildMessageChannel channel, Command command) throws InterruptedException {
         if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            channel.sendMessageEmbeds(eb.build())
-                    .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(command.getLocale())))
-                    .complete();
+            slot.sendMessage(false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(command.getLocale())));
             slot.delete();
             return true;
         }
         return false;
     }
 
-    private static boolean checkPatreon(TrackerData slot, BaseGuildMessageChannel channel, Command command) {
+    private static boolean checkPatreon(TrackerData slot, BaseGuildMessageChannel channel, Command command) throws InterruptedException {
         if (command.getCommandProperties().patreonRequired() &&
                 !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
         ) {
             EmbedBuilder eb = EmbedFactory.getPatreonBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            channel.sendMessageEmbeds(eb.build()).complete();
+            slot.sendMessage(false, eb.build());
             slot.delete();
             return true;
         }

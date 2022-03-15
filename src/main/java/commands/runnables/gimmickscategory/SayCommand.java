@@ -46,7 +46,7 @@ public class SayCommand extends Command {
 
         Map<String, InputStream> fileAttachmentMap = new HashMap<>();
         if (attachments.size() > 0) {
-            addLoadingReactionInstantly();
+            event.deferReply();
             Message.Attachment attachment = attachments.get(0);
             if (attachment.isImage() && attachment.getSize() <= 8_000_000) {
                 String name = "image_main." + attachment.getFileExtension();

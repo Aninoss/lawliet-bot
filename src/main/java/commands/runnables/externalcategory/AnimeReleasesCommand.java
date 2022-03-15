@@ -39,6 +39,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
+        event.deferReply();
         PostBundle<AnimeReleasePost> posts = AnimeReleasesDownloader.getPosts(getLocale(), null, args);
 
         if (posts.getPosts().size() > 0) {
@@ -98,7 +99,7 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
         if (first && postBundle.getPosts().size() == 0) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                     .setDescription(getString("no_results", true, StringUtil.shortenString(slot.getCommandKey(), 200)));
-            slot.getBaseGuildMessageChannel().get().sendMessageEmbeds(eb.build()).complete();
+            slot.sendMessage(false, eb.build());
         }
 
         if (postBundle.getNewestPost() != null) {

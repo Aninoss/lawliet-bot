@@ -42,7 +42,7 @@ public class ExceptionUtil {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code))
                     .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""));
-            command.getTextChannel().ifPresent(textChannel -> textChannel.sendMessageEmbeds(eb.build()).queue());
+            command.getCommandEvent().replyMessageEmbeds(eb.build()).queue();
         }
 
         if (submitToDeveloper) {

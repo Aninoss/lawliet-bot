@@ -34,7 +34,6 @@ import org.jetbrains.annotations.NotNull;
         userChannelPermissions = { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
         emoji = "\uD83E\uDDF9",
         executableWithoutArgs = true,
-        turnOffLoadingReaction = true,
         maxCalculationTimeSec = 20 * 60,
         aliases = { "fclear", "allclear", "clearall" }
 )
@@ -173,7 +172,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                 return AlertResponse.CONTINUE_AND_SAVE;
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("wrong_args", "0", StringUtil.numToString(HOURS_MAX)));
-                channel.sendMessageEmbeds(eb.build()).queue();
+                slot.sendMessage(false, eb.build());
             }
         }
 

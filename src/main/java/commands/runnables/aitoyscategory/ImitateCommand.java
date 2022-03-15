@@ -56,7 +56,7 @@ public class ImitateCommand extends Command {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("wait", search, EmojiUtil.getLoadingEmojiMention(event.getTextChannel())));
         drawMessage(eb).get();
 
-        eb = getEmbed(event.getGuild(), member, 2, tempMessageCache);
+        eb = getEmbed(event, member, 2, tempMessageCache);
         if (members.isEmpty()) {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "mention_optional"));
         }
@@ -65,7 +65,8 @@ public class ImitateCommand extends Command {
         return true;
     }
 
-    private EmbedBuilder getEmbed(Guild guild, Member member, int n, ArrayList<Message> tempMessageCache) {
+    private EmbedBuilder getEmbed(CommandEvent event, Member member, int n, ArrayList<Message> tempMessageCache) {
+        Guild guild = event.getGuild();
         TextAI textAI = new TextAI(n);
         TextAI.WordMap wordMap;
         if (member != null) {
@@ -76,7 +77,6 @@ public class ImitateCommand extends Command {
 
         if (wordMap.isEmpty()) {
             if (tempMessageCache.isEmpty()) {
-                addLoadingReactionInstantly();
                 fetchMessages(guild, member, tempMessageCache);
             }
 
@@ -86,7 +86,7 @@ public class ImitateCommand extends Command {
 
         Optional<String> response = textAI.generateTextWithWordMap(wordMap, 900);
         if (response.isEmpty() && n > 1) {
-            return getEmbed(guild, member, n - 1, tempMessageCache);
+            return getEmbed(event, member, n - 1, tempMessageCache);
         }
 
         if (response.isPresent()) {

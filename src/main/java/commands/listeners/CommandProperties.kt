@@ -22,7 +22,6 @@ annotation class CommandProperties(
     val turnOffTimeout: Boolean = false,
     val releaseDate: IntArray = [],
     val onlyPublicVersion: Boolean = false,
-    val turnOffLoadingReaction: Boolean = false,
     val usesExtEmotes: Boolean = false,
     val requiresFullMemberCache: Boolean = false
 )

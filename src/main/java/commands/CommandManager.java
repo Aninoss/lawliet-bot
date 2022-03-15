@@ -282,7 +282,8 @@ public class CommandManager {
 
     private static void sendErrorNoEmbed(CommandEvent event, Locale locale, String text, boolean autoDelete, Button... buttons) {
         if (BotPermissionUtil.canWrite(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
-            RestAction<Message> messageAction = event.replyMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text), ActionRows.of(buttons));
+            RestAction<Message> messageAction = event.replyMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
+                    .setActionRows(ActionRows.of(buttons));
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
             } else {
@@ -297,7 +298,8 @@ public class CommandManager {
                 eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
             }
 
-            RestAction<Message> messageAction = event.replyMessageEmbeds(List.of(eb.build()), ActionRows.of(buttons));
+            RestAction<Message> messageAction = event.replyMessageEmbeds(List.of(eb.build()))
+                    .setActionRows(ActionRows.of(buttons));
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
             } else {

@@ -1,6 +1,6 @@
 package core.utils;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.CheckReturnValue;
 import core.MemberCacheController;
@@ -142,7 +142,7 @@ public class JDAUtil {
         return messageAction;
     }
 
-    public static MessageAction replyMessageEmbeds(Message originalMessage, List<MessageEmbed> embeds) {
+    public static MessageAction replyMessageEmbeds(Message originalMessage, Collection<MessageEmbed> embeds) {
         MessageAction messageAction = originalMessage.getTextChannel().sendMessageEmbeds(embeds);
         messageAction = messageActionSetMessageReference(messageAction, originalMessage);
         return messageAction;

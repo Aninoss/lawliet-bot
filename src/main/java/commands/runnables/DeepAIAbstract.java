@@ -44,7 +44,7 @@ public abstract class DeepAIAbstract extends Command {
         }
 
         if (url != null) {
-            String result = processImage(url);
+            String result = processImage(event, url);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("success", result))
                     .setImage(result);
 
@@ -60,7 +60,7 @@ public abstract class DeepAIAbstract extends Command {
     }
 
 
-    private String processImage(String url) throws ExecutionException, InterruptedException {
+    private String processImage(CommandEvent event, String url) throws ExecutionException, InterruptedException {
         for (DeepAIExample deepAiExample : getDeepAiExamples()) {
             if (url.equals(deepAiExample.imageUrl)) {
                 return deepAiExample.resultUrl;
@@ -69,7 +69,7 @@ public abstract class DeepAIAbstract extends Command {
 
         String query = "image=" + url;
 
-        addLoadingReactionInstantly();
+        event.deferReply();
         HttpHeader header = new HttpHeader("Api-Key", System.getenv("DEEPAI_TOKEN"));
         String data = HttpRequest.post(getUrl(), "application/x-www-form-urlencoded", query, header).get().getBody();
         JSONObject jsonObject = new JSONObject(data);

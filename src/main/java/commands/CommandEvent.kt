@@ -1,12 +1,16 @@
 package commands
 
+import core.slashmessageaction.SlashAckSendMessageAction
+import core.slashmessageaction.SlashHookSendMessageAction
 import core.utils.JDAUtil
-import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.Member
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.channel.GenericChannelEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.interactions.components.ActionRow
-import net.dv8tion.jda.api.requests.RestAction
+import net.dv8tion.jda.api.requests.restaction.MessageAction
 
 class CommandEvent : GenericChannelEvent {
 
@@ -46,24 +50,37 @@ class CommandEvent : GenericChannelEvent {
         return messageReceivedEvent != null
     }
 
-    fun replyMessage(content: String, actionRows: Collection<ActionRow>): RestAction<Message> {
-        return if (isMessageReceivedEvent()) {
-            JDAUtil.replyMessage(messageReceivedEvent!!.message, content)
-                .setActionRows(actionRows)
+    fun replyMessage(content: String): MessageAction {
+        if (isMessageReceivedEvent()) {
+            return JDAUtil.replyMessage(messageReceivedEvent!!.message, content)
         } else {
-            slashCommandInteractionEvent!!.hook.sendMessage(content)
-                .addActionRows(actionRows)
+            if (slashCommandInteractionEvent!!.isAcknowledged) {
+                return SlashHookSendMessageAction(slashCommandInteractionEvent.hook.sendMessage(content), slashCommandInteractionEvent.channel)
+            } else {
+                return SlashAckSendMessageAction(slashCommandInteractionEvent.reply(content), slashCommandInteractionEvent.channel)
+            }
         }
     }
 
-    fun replyMessageEmbeds(embeds: List<MessageEmbed>, actionRows: Collection<ActionRow>): RestAction<Message> {
-        return if (isMessageReceivedEvent()) {
-            JDAUtil.replyMessageEmbeds(messageReceivedEvent!!.message, embeds)
-                .setActionRows(actionRows)
+    fun replyMessageEmbeds(embed: MessageEmbed, vararg embeds: MessageEmbed): MessageAction {
+        val fullEmbeds = arrayOf(embed).plus(embeds);
+        return replyMessageEmbeds(fullEmbeds.toList())
+    }
+
+    fun replyMessageEmbeds(embeds: Collection<MessageEmbed>): MessageAction {
+        if (isMessageReceivedEvent()) {
+            return JDAUtil.replyMessageEmbeds(messageReceivedEvent!!.message, embeds)
         } else {
-            slashCommandInteractionEvent!!.hook.sendMessageEmbeds(embeds)
-                .addActionRows(actionRows)
+            if (slashCommandInteractionEvent!!.isAcknowledged) {
+                return SlashHookSendMessageAction(slashCommandInteractionEvent.hook.sendMessageEmbeds(embeds), slashCommandInteractionEvent.channel)
+            } else {
+                return SlashAckSendMessageAction(slashCommandInteractionEvent.replyEmbeds(embeds), slashCommandInteractionEvent.channel)
+            }
         }
+    }
+
+    fun deferReply() {
+        slashCommandInteractionEvent?.deferReply()?.queue()
     }
 
 }

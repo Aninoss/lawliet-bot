@@ -45,7 +45,7 @@ public class RainbowCommand extends MemberAccountAbstract {
             if (opacity > 100) opacity = 100;
         }
 
-        addLoadingReactionInstantly();
+        event.deferReply();
         inputStream = RainbowGraphics.createImageRainbow(member.getUser(), opacity);
         return EmbedFactory.getEmbedDefault(this, getString("template", member.getEffectiveName()))
                 .setImage("attachment://avatar.png");

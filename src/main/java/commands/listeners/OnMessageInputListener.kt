@@ -63,7 +63,6 @@ interface OnMessageInputListener : Drawable {
     fun processMessageInput(event: MessageReceivedEvent): MessageInputResponse? {
         val command = this as Command
         val isProcessing = AtomicBoolean(true)
-        command.addLoadingReaction(event.message, isProcessing)
         try {
             if (command.commandProperties.requiresFullMemberCache) {
                 MemberCacheController.getInstance().loadMembersFull(event.guild).get()

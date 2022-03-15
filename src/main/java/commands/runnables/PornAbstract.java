@@ -113,6 +113,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
         boolean first = true;
         ArrayList<String> usedResults = new ArrayList<>();
+        event.deferReply();
         do {
             List<BooruImage> pornImages;
             try {
@@ -272,13 +273,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             if (e.getCause() instanceof IllegalTagException) {
                 EmbedBuilder eb = illegalTagsEmbed();
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                channel.sendMessageEmbeds(eb.build()).complete();
+                slot.sendMessage(false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             }
             if (e.getCause() instanceof TooManyTagsException) {
                 EmbedBuilder eb = tooManyTagsEmbed(((TooManyTagsException) e.getCause()).getMaxTags());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                channel.sendMessageEmbeds(eb.build()).complete();
+                slot.sendMessage(false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             } else {
                 throw e;
@@ -289,7 +290,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             if (slot.getArgs().isEmpty()) {
                 EmbedBuilder eb = noResultsEmbed(slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                channel.sendMessageEmbeds(eb.build()).complete();
+                slot.sendMessage(false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             } else {
                 return AlertResponse.CONTINUE;

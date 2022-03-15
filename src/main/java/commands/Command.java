@@ -3,10 +3,8 @@ package commands;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import commands.listeners.*;
 import constants.LogStatus;
 import core.MainLogger;
@@ -17,7 +15,6 @@ import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
 import core.components.ActionRows;
 import core.interactionresponse.InteractionResponse;
-import core.schedule.MainScheduler;
 import core.utils.*;
 import kotlin.reflect.KClass;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
@@ -26,7 +23,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.exceptions.PermissionException;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
@@ -35,7 +31,6 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
-import net.dv8tion.jda.api.requests.restaction.WebhookMessageAction;
 import org.json.JSONObject;
 
 public abstract class Command implements OnTriggerListener {
@@ -46,9 +41,7 @@ public abstract class Command implements OnTriggerListener {
     private Locale locale;
     private final CommandProperties commandProperties;
     private final JSONObject attachments = new JSONObject();
-    private boolean loadingReactionSet = false;
     private final ArrayList<Runnable> completedListeners = new ArrayList<>();
-    private AtomicBoolean isProcessing;
     private AtomicGuild atomicGuild;
     private AtomicTextChannel atomicTextChannel;
     private AtomicMember atomicMember;
@@ -72,39 +65,6 @@ public abstract class Command implements OnTriggerListener {
         this.prefix = prefix;
         commandProperties = this.getClass().getAnnotation(CommandProperties.class);
         category = Category.findCategoryByCommand(this.getClass());
-    }
-
-    public void addLoadingReaction(Message message, AtomicBoolean isProcessing) {
-        this.isProcessing = isProcessing;
-        MainScheduler.schedule(
-                2500, ChronoUnit.MILLIS,
-                getTrigger() + "_idle",
-                () -> addLoadingReactionInstantly(message, isProcessing)
-        );
-    }
-
-    public void addLoadingReactionInstantly() {
-        if (isProcessing != null && commandEvent.isMessageReceivedEvent()) {
-            addLoadingReactionInstantly(commandEvent.getMessageReceivedEvent().getMessage(), isProcessing);
-        }
-    }
-
-    public void addLoadingReactionInstantly(Message message, AtomicBoolean isProcessing) {
-        TextChannel channel = message.getTextChannel();
-        if (isProcessing.get() &&
-                !loadingReactionSet && BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION) &&
-                !getCommandProperties().turnOffLoadingReaction()
-        ) {
-            loadingReactionSet = true;
-            MainScheduler.poll(100, getTrigger() + "_loading", () -> {
-                if (isProcessing.get()) {
-                    return true;
-                } else {
-                    loadingReactionSet = false;
-                    return false;
-                }
-            });
-        }
     }
 
     public void setAdditionalEmbeds(MessageEmbed... additionalEmbeds) {
@@ -272,13 +232,12 @@ public abstract class Command implements OnTriggerListener {
                     messageAction = messageAction.allowedMentions(allowedMentions);
                     action = messageAction.setActionRows(actionRows);
                 } else {
-                    WebhookMessageAction<Message> messageAction;
-                    InteractionHook interactionHook = commandEvent.getSlashCommandInteractionEvent().getHook();
+                    MessageAction messageAction;
                     if (content != null) {
-                        messageAction = interactionHook.sendMessage(content)
-                                .addEmbeds(embeds);
+                        messageAction = commandEvent.replyMessage(content)
+                                .setEmbeds(embeds);
                     } else {
-                        messageAction = interactionHook.sendMessageEmbeds(embeds);
+                        messageAction = commandEvent.replyMessageEmbeds(embeds);
                     }
                     if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
                         if (fileAttachmentMap.size() > 0) {
@@ -288,7 +247,7 @@ public abstract class Command implements OnTriggerListener {
                         }
                     }
                     messageAction = messageAction.allowedMentions(allowedMentions);
-                    action = messageAction.addActionRows(actionRows);
+                    action = messageAction.setActionRows(actionRows);
                 }
             } else {
                 if (interactionResponse != null &&

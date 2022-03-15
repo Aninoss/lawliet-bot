@@ -27,6 +27,7 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -129,7 +130,7 @@ public class RedditCommand extends Command implements OnAlertListener {
         if (key.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-            slot.getBaseGuildMessageChannel().get().sendMessageEmbeds(eb.build()).complete();
+            slot.sendMessage(false, eb.build());
             return AlertResponse.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
@@ -154,9 +155,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    channel.sendMessageEmbeds(eb.build())
-                            .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())))
-                            .complete();
+                    slot.sendMessage(false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(getLocale())));
                     return AlertResponse.STOP_AND_DELETE;
                 }
 
@@ -172,7 +171,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                             .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                             .setDescription(TextManager.getNoResultsString(getLocale(), key));
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    channel.sendMessageEmbeds(eb.build()).complete();
+                    slot.sendMessage(false, eb.build());
                     return AlertResponse.STOP_AND_DELETE;
                 } else {
                     return AlertResponse.CONTINUE;

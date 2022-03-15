@@ -61,7 +61,7 @@ public class QuizCommand extends CasinoAbstract {
     public boolean onGameStart(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         String dataString, diffString;
         JSONObject data;
-        addLoadingReactionInstantly();
+        event.deferReply();
         dataString = HttpRequest.get(url).get().getBody();
         data = new JSONObject(dataString).getJSONArray("results").getJSONObject(0);
         diffString = data.getString("difficulty");

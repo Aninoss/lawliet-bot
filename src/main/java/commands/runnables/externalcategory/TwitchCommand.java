@@ -46,7 +46,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
             return false;
         }
 
-        addLoadingReactionInstantly();
+        event.deferReply();
         Optional<TwitchStream> streamOpt = twitchDownloader.retrieveStream(args).get();
         if (streamOpt.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this)
@@ -96,7 +96,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
                         .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
                         .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                channel.sendMessageEmbeds(eb.build()).complete();
+                slot.sendMessage(false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             } else {
                 return AlertResponse.CONTINUE;

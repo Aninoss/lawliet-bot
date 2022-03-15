@@ -39,6 +39,7 @@ public class MapsCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
+        event.deferReply();
         EmbedBuilder eb = getEmbed(false);
         EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());

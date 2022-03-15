@@ -41,7 +41,6 @@ import org.jetbrains.annotations.NotNull;
         emoji = "\uD83D\uDDD1\uFE0F",
         maxCalculationTimeSec = 20 * 60,
         executableWithoutArgs = false,
-        turnOffLoadingReaction = true,
         aliases = { "clean", "purge" }
 )
 public class ClearCommand extends Command implements OnButtonListener {

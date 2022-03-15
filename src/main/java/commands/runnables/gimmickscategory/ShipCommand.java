@@ -70,7 +70,7 @@ public class ShipCommand extends Command {
         int n = RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), 7).get();
         if (event.getGuild().getIdLong() == 580048842020487180L) n = 7;
 
-        addLoadingReactionInstantly();
+        event.deferReply();
         InputStream is = ShipGraphics.createImageShip(list.get(0).getUser(), list.get(1).getUser(), n, percentage);
         if (is == null) {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("noavatar")))
