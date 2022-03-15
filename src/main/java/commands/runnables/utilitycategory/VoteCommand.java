@@ -49,7 +49,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
         }
 
         BaseGuildMessageChannel channel;
-        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args);
+        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY);
         if (response == null) {
             return false;
         } else {

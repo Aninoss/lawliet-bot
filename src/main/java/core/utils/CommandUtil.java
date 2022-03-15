@@ -10,13 +10,14 @@ import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.MentionList;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class CommandUtil {
 
-    public static ChannelResponse differentChannelExtract(Command command, CommandEvent event, String args) {
+    public static ChannelResponse differentChannelExtract(Command command, CommandEvent event, String args, Permission... permissions) {
         String[] words = args.split(" ");
         BaseGuildMessageChannel channel = event.getTextChannel();
         MentionList<BaseGuildMessageChannel> messageChannelsFirst = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), words[0]);
@@ -31,7 +32,7 @@ public class CommandUtil {
             }
         }
 
-        if (!BotPermissionUtil.canWriteEmbed(channel)) {
+        if (!BotPermissionUtil.canWriteEmbed(channel, permissions)) {
             String error = TextManager.getString(command.getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
             command.drawMessageNew(EmbedFactory.getEmbedError(command, error))
                     .exceptionally(ExceptionLogger.get());
