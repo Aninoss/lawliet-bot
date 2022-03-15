@@ -3,7 +3,6 @@ package commands.runnables.utilitycategory;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
@@ -15,19 +14,14 @@ import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.mention.MentionList;
 import core.mention.MentionValue;
-import core.utils.BotPermissionUtil;
-import core.utils.EmbedUtil;
-import core.utils.MentionUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import modules.schedulers.ReminderScheduler;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -50,37 +44,12 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
-        args = channelMention.getFilteredArgs();
-
-        List<TextChannel> channels = channelMention.getList();
-        if (channels.size() > 1) {
-            drawMessageNew(EmbedFactory.getEmbedError(this, getString("twochannels")))
-                    .exceptionally(ExceptionLogger.get());
-            return false;
-        }
-
-        TextChannel channel = channels.size() == 0 ? event.getTextChannel() : channels.get(0);
-        if (!BotPermissionUtil.canWriteEmbed(channel)) {
-            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
-            drawMessageNew(EmbedFactory.getEmbedError(this, error))
-                    .exceptionally(ExceptionLogger.get());
-            return false;
-        }
-
-        EmbedBuilder missingPermissionsEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
-                getLocale(),
-                channel,
-                event.getMember(),
-                new Permission[0],
-                new Permission[] { Permission.MESSAGE_SEND },
-                new Permission[0],
-                new Permission[] { Permission.MESSAGE_SEND },
-                new Permission[0]
-        );
-        if (missingPermissionsEmbed != null) {
-            drawMessageNew(missingPermissionsEmbed)
-                    .exceptionally(ExceptionLogger.get());
+        BaseGuildMessageChannel channel;
+        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args);
+        if (response != null) {
+            args = response.getArgs();
+            channel = response.getChannel();
+        } else {
             return false;
         }
 
@@ -120,7 +89,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         return true;
     }
 
-    private void insertReminderBean(TextChannel sourceChannel, TextChannel targetChannel, long minutes, String messageText, Message message) {
+    private void insertReminderBean(TextChannel sourceChannel, GuildMessageChannel targetChannel, long minutes, String messageText, Message message) {
         CustomObservableMap<Long, ReminderData> remindersMap = DBReminders.getInstance()
                 .retrieve(targetChannel.getGuild().getIdLong());
 

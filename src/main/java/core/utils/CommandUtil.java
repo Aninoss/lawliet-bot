@@ -1,6 +1,9 @@
 package core.utils;
 
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
@@ -32,9 +35,22 @@ public class CommandUtil {
             }
         }
 
-        if (!BotPermissionUtil.canWriteEmbed(channel, permissions)) {
-            String error = TextManager.getString(command.getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
-            command.drawMessageNew(EmbedFactory.getEmbedError(command, error))
+        HashSet<Permission> permissionSet = new HashSet<>(List.of(Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS));
+        permissionSet.addAll(Arrays.asList(permissions));
+        Permission[] finalPermissions = permissionSet.toArray(Permission[]::new);
+
+        EmbedBuilder missingPermissionsEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+                command.getLocale(),
+                channel,
+                event.getMember(),
+                new Permission[0],
+                finalPermissions,
+                new Permission[0],
+                finalPermissions,
+                new Permission[0]
+        );
+        if (missingPermissionsEmbed != null) {
+            command.drawMessageNew(missingPermissionsEmbed)
                     .exceptionally(ExceptionLogger.get());
             return null;
         }

@@ -1,15 +1,15 @@
 package modules.schedulers;
 
 import java.time.Instant;
-import commands.runnables.utilitycategory.ReminderCommand;
 import commands.Category;
+import commands.runnables.utilitycategory.ReminderCommand;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 
 public class ReminderScheduler {
 
@@ -40,10 +40,10 @@ public class ReminderScheduler {
                 .remove(reminderData.getId());
 
         reminderData.getGuild()
-                .map(guild -> guild.getTextChannelById(reminderData.getTargetChannelId()))
+                .map(guild -> guild.getChannelById(BaseGuildMessageChannel.class, reminderData.getTargetChannelId()))
                 .ifPresent(targetChannel -> {
                     if (reminderData.getMessageId() != 0) {
-                        TextChannel sourceChannel = targetChannel.getGuild().getTextChannelById(reminderData.getSourceChannelId());
+                        BaseGuildMessageChannel sourceChannel = targetChannel.getGuild().getChannelById(BaseGuildMessageChannel.class, reminderData.getSourceChannelId());
                         if (sourceChannel != null) {
                             sourceChannel.deleteMessageById(reminderData.getMessageId())
                                     .queue(v -> sendReminder(reminderData, targetChannel));
@@ -54,7 +54,7 @@ public class ReminderScheduler {
                 });
     }
 
-    private static void sendReminder(ReminderData reminderData, TextChannel channel) {
+    private static void sendReminder(ReminderData reminderData, BaseGuildMessageChannel channel) {
         if (PermissionCheckRuntime.botHasPermission(
                 reminderData.getGuildData().getLocale(),
                 ReminderCommand.class,

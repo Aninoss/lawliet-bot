@@ -173,6 +173,11 @@ public class BotPermissionUtil {
                 canWrite(channel, permissions);
     }
 
+    public static boolean canWriteEmbed(Member member, GuildChannel channel, Permission... permissions) {
+        return member.hasPermission(channel, Permission.MESSAGE_EMBED_LINKS) &&
+                canWrite(member, channel, permissions);
+    }
+
     public static boolean canInteract(Guild guild, User targetUser) {
         return canInteract(guild, targetUser.getIdLong());
     }
