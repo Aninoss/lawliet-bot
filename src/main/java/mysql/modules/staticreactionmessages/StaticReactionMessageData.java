@@ -12,7 +12,7 @@ public class StaticReactionMessageData implements MessageAsset {
 
     public StaticReactionMessageData(Message message, String command) {
         this.guildId = message.getGuild().getIdLong();
-        this.channelId = message.getTextChannel().getIdLong();
+        this.channelId = message.getChannel().getIdLong();
         this.messageId = message.getIdLong();
         this.command = command;
     }

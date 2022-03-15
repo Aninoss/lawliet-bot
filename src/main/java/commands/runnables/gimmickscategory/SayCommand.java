@@ -7,16 +7,11 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
-import core.ExceptionLogger;
-import core.TextManager;
-import core.mention.MentionList;
-import core.utils.BotPermissionUtil;
-import core.utils.MentionUtil;
+import core.utils.CommandUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -34,25 +29,13 @@ public class SayCommand extends Command {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        String[] words = args.split(" ");
-        BaseGuildMessageChannel channel = event.getTextChannel();
-        MentionList<BaseGuildMessageChannel> messageChannelsFirst = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), words[0]);
-        if (messageChannelsFirst.getList().size() > 0) {
-            channel = messageChannelsFirst.getList().get(0);
-            args = args.substring(words[0].length()).trim();
-        } else {
-            MentionList<BaseGuildMessageChannel> messageChannelsLast = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), words[words.length - 1]);
-            if (messageChannelsLast.getList().size() > 0) {
-                channel = messageChannelsLast.getList().get(0);
-                args = args.substring(0, args.length() - words[words.length - 1].length()).trim();
-            }
-        }
-
-        if (!BotPermissionUtil.canWriteEmbed(channel)) {
-            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
-            drawMessageNew(EmbedFactory.getEmbedError(this, error))
-                    .exceptionally(ExceptionLogger.get());
+        BaseGuildMessageChannel channel;
+        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args);
+        if (response == null) {
             return false;
+        } else {
+            args = response.getArgs();
+            channel = response.getChannel();
         }
 
         List<Message.Attachment> attachments = event.isMessageReceivedEvent()
@@ -81,19 +64,7 @@ public class SayCommand extends Command {
             }
         }
 
-        if (channel == event.getChannel()) {
-            addAllFileAttachments(fileAttachmentMap);
-            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
-        } else {
-            MessageAction messageAction = channel.sendMessageEmbeds(eb.build());
-            for (String name : fileAttachmentMap.keySet()) {
-                messageAction = messageAction.addFile(fileAttachmentMap.get(name), name);
-            }
-            messageAction.queue();
-
-            EmbedBuilder confirmEmbed = EmbedFactory.getEmbedDefault(this, getString("success", channel.getAsMention()));
-            drawMessageNew(confirmEmbed).exceptionally(ExceptionLogger.get());
-        }
+        CommandUtil.differentChannelSendMessage(this, event, channel, eb, fileAttachmentMap);
         return true;
     }
 

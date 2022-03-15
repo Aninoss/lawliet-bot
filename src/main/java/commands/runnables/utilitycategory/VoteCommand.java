@@ -1,6 +1,7 @@
 package commands.runnables.utilitycategory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -11,19 +12,14 @@ import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
 import constants.Emojis;
 import constants.LogStatus;
-import core.EmbedFactory;
-import core.ExceptionLogger;
-import core.QuickUpdater;
-import core.RestActionQueue;
+import core.*;
 import core.cache.VoteCache;
-import core.utils.BotPermissionUtil;
-import core.utils.EmbedUtil;
-import core.utils.EmojiUtil;
-import core.utils.StringUtil;
+import core.utils.*;
 import modules.VoteInfo;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
@@ -47,18 +43,30 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        args = args.replace("\n", "").replace("\\|", "<sep>");
-        if (args.startsWith("|")) args = args.substring(1).trim();
-        String[] argsParts = args.split("\\|");
+        args = args.replace("\n", "");
+        if (args.startsWith("|")) {
+            args = args.substring(1).trim();
+        }
+
+        BaseGuildMessageChannel channel;
+        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args);
+        if (response == null) {
+            return false;
+        } else {
+            args = response.getArgs();
+            channel = response.getChannel();
+        }
+
+        String[] argsParts = args.split("(?<!\\\\)\\|");
         for (int i = 0; i < argsParts.length; i++) {
-            argsParts[i] = argsParts[i].replace("<sep>", "|");
+            argsParts[i] = argsParts[i].replace("\\|", "|");
         }
 
         if (argsParts.length >= 3 && argsParts.length <= 13) {
             String topic = argsParts[0].trim();
-
-            if (topic.length() == 0) {
-                drawMessageNew(EmbedFactory.getEmbedError(this, getString("no_topic"))).exceptionally(ExceptionLogger.get());
+            if (topic.isEmpty()) {
+                drawMessageNew(EmbedFactory.getEmbedError(this, getString("no_topic")))
+                        .exceptionally(ExceptionLogger.get());
                 return false;
             } else {
                 String[] answers = new String[argsParts.length - 1];
@@ -70,7 +78,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
                 VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMember().getIdLong());
                 EmbedBuilder eb = getEmbed(voteInfo, true);
-                Message message = drawMessageNew(eb).get();
+                Message message = CommandUtil.differentChannelSendMessage(this, event, channel, eb, Collections.emptyMap());
                 registerStaticReactionMessage(message);
                 VoteCache.put(message.getIdLong(), voteInfo);
 
