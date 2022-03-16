@@ -19,10 +19,7 @@ import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageReaction;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 
 public class GiveawayScheduler {
 
@@ -52,7 +49,7 @@ public class GiveawayScheduler {
     private static void onGiveawayDue(GiveawayData giveawayData) {
         if (giveawayData.isActive()) {
             ShardManager.getLocalGuildById(giveawayData.getGuildId())
-                    .map(guild -> guild.getTextChannelById(giveawayData.getTextChannelId()))
+                    .map(guild -> guild.getChannelById(BaseGuildMessageChannel.class, giveawayData.getBaseGuildMessageChannelId()))
                     .ifPresent(channel -> {
                         try {
                             processGiveawayUsers(giveawayData, giveawayData.getWinners(), false);
@@ -88,7 +85,7 @@ public class GiveawayScheduler {
     private static void processGiveaway(GiveawayData giveawayData, Message message, ArrayList<User> users, int numberOfWinners,
                                  boolean reroll
     ) {
-        TextChannel channel = message.getTextChannel();
+        GuildMessageChannel channel = (GuildMessageChannel) message.getChannel();
         MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).thenAccept(members -> {
             users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user) || message.getMentionedMembers().stream().anyMatch(m -> m.getIdLong() == user.getIdLong()));
             Collections.shuffle(users);

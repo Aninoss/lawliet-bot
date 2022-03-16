@@ -67,7 +67,7 @@ public class TrackerData extends DataWithGuild implements BaseGuildMessageChanne
     }
 
     @Override
-    public long getBaseMessageChannelId() {
+    public long getBaseGuildMessageChannelId() {
         return channelId;
     }
 

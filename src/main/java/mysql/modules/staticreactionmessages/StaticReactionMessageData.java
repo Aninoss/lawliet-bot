@@ -39,7 +39,7 @@ public class StaticReactionMessageData implements MessageAsset {
     }
 
     @Override
-    public long getTextChannelId() {
+    public long getBaseGuildMessageChannelId() {
         return channelId;
     }
 

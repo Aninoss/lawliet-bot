@@ -287,7 +287,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                 });
     }
 
-    public boolean checkWriteInChannelWithLog(TextChannel channel) {
+    public boolean checkWriteInChannelWithLog(GuildChannel channel) {
         if (channel == null || BotPermissionUtil.canWriteEmbed(channel)) {
             return true;
         }

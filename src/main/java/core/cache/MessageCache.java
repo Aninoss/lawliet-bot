@@ -6,8 +6,8 @@ import java.util.concurrent.CompletableFuture;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import core.utils.BotPermissionUtil;
+import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
 
 public class MessageCache {
 
@@ -15,7 +15,7 @@ public class MessageCache {
             .expireAfterAccess(Duration.ofHours(6))
             .build();
 
-    public static synchronized CompletableFuture<Message> retrieveMessage(TextChannel channel, long messageId) {
+    public static synchronized CompletableFuture<Message> retrieveMessage(BaseGuildMessageChannel channel, long messageId) {
         if (!BotPermissionUtil.canReadHistory(channel)) {
             return CompletableFuture.failedFuture(new NoSuchElementException("No such message"));
         }

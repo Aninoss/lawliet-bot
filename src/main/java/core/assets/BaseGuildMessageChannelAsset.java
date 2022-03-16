@@ -5,10 +5,10 @@ import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 
 public interface BaseGuildMessageChannelAsset extends GuildAsset {
 
-    long getBaseMessageChannelId();
+    long getBaseGuildMessageChannelId();
 
     default Optional<BaseGuildMessageChannel> getBaseGuildMessageChannel() {
-        return getGuild().map(guild -> guild.getChannelById(BaseGuildMessageChannel.class, getBaseMessageChannelId()));
+        return getGuild().map(guild -> guild.getChannelById(BaseGuildMessageChannel.class, getBaseGuildMessageChannelId()));
     }
 
 }

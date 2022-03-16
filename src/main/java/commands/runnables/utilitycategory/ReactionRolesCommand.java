@@ -268,8 +268,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             List<ReactionMessage> reactionMessages = getReactionMessagesInGuild(event.getGuild());
             if (i < reactionMessages.size()) {
                 ReactionMessage reactionMessage = reactionMessages.get(i);
-                TextChannel messageChannel = reactionMessage.getTextChannel().get();
-                if (checkWriteInChannelWithLog(messageChannel)) {
+                BaseGuildMessageChannel channel = reactionMessage.getBaseGuildMessageChannel().get();
+                if (checkWriteInChannelWithLog(channel)) {
                     editMessageId = reactionMessage.getMessageId();
                     updateValuesFromMessage(reactionMessage);
                     setState(CONFIGURE_MESSAGE);
@@ -539,7 +539,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         String[] options = new String[reactionMessages.size()];
         for (int i = 0; i < reactionMessages.size(); i++) {
             ReactionMessage reactionMessage = reactionMessages.get(i);
-            AtomicTextChannel channel = new AtomicTextChannel(reactionMessage.getGuildId(), reactionMessage.getTextChannelId());
+            AtomicTextChannel channel = new AtomicTextChannel(reactionMessage.getGuildId(), reactionMessage.getBaseGuildMessageChannelId());
             options[i] = getString("state2_template", reactionMessage.getTitle(), channel.getPrefixedName());
         }
 
@@ -677,15 +677,15 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         return guildReactions.stream()
                 .sorted((md0, md1) -> {
                     int channelComp = Integer.compare(
-                            md0.getTextChannel().map(IPositionableChannel::getPositionRaw).orElse(0),
-                            md1.getTextChannel().map(IPositionableChannel::getPositionRaw).orElse(0)
+                            md0.getBaseGuildMessageChannel().map(IPositionableChannel::getPositionRaw).orElse(0),
+                            md1.getBaseGuildMessageChannel().map(IPositionableChannel::getPositionRaw).orElse(0)
                     );
                     if (channelComp == 0) {
                         return Long.compare(md0.getMessageId(), md1.getMessageId());
                     }
                     return channelComp;
                 })
-                .map(m -> m.getTextChannel().flatMap(ch -> ReactionMessagesCache.get(ch, m.getMessageId())).orElse(null))
+                .map(m -> m.getBaseGuildMessageChannel().flatMap(ch -> ReactionMessagesCache.get(ch, m.getMessageId())).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableList());
     }
@@ -697,7 +697,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         this.multipleRoles = message.isMultipleRoles();
         this.removeRole = message.isRemoveRole();
         this.emojiConnections = message.getEmojiConnections();
-        this.atomicTextChannel = new AtomicTextChannel(message.getGuildId(), message.getTextChannelId());
+        this.atomicTextChannel = new AtomicTextChannel(message.getGuildId(), message.getBaseGuildMessageChannelId());
     }
 
     private void giveRole(MessageReactionAddEvent event) {

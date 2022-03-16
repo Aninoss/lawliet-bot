@@ -42,7 +42,7 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
     private void addStaticReaction(StaticReactionMessageData staticReactionMessageData) {
         MySQLManager.asyncUpdate("INSERT IGNORE INTO StaticReactionMessages (serverId, channelId, messageId, command) VALUES (?,?,?,?);", preparedStatement -> {
             preparedStatement.setLong(1, staticReactionMessageData.getGuildId());
-            preparedStatement.setLong(2, staticReactionMessageData.getTextChannelId());
+            preparedStatement.setLong(2, staticReactionMessageData.getBaseGuildMessageChannelId());
             preparedStatement.setLong(3, staticReactionMessageData.getMessageId());
             preparedStatement.setString(4, staticReactionMessageData.getCommand());
         });

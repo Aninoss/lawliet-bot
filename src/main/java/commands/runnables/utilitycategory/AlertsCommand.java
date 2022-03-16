@@ -298,8 +298,8 @@ public class AlertsCommand extends NavigationAbstract {
     public EmbedBuilder onDrawRemove(Member member) throws Throwable {
         List<Button> buttons = alerts.values().stream()
                 .sorted((a0, a1) -> {
-                    long channelO = a0.getBaseMessageChannelId();
-                    long channel1 = a1.getBaseMessageChannelId();
+                    long channelO = a0.getBaseGuildMessageChannelId();
+                    long channel1 = a1.getBaseGuildMessageChannelId();
                     if (channelO == channel1) {
                         return a0.getCreationTime().compareTo(a1.getCreationTime());
                     } else {
@@ -308,7 +308,7 @@ public class AlertsCommand extends NavigationAbstract {
                 })
                 .map(alert -> {
                     String trigger = alert.getCommandTrigger();
-                    String channelName = StringUtil.escapeMarkdown(StringUtil.shortenString(new AtomicBaseGuildMessageChannel(member.getGuild().getIdLong(), alert.getBaseMessageChannelId()).getPrefixedName(), 40));
+                    String channelName = StringUtil.escapeMarkdown(StringUtil.shortenString(new AtomicBaseGuildMessageChannel(member.getGuild().getIdLong(), alert.getBaseGuildMessageChannelId()).getPrefixedName(), 40));
                     String label  = getString("slot_remove", false, channelName, trigger);
                     return Button.of(ButtonStyle.PRIMARY, String.valueOf(alert.hashCode()), label);
                 })
@@ -394,7 +394,7 @@ public class AlertsCommand extends NavigationAbstract {
         boolean premium = PatreonCache.getInstance().hasPremium(member.getIdLong(), true) ||
                 PatreonCache.getInstance().isUnlocked(member.getGuild().getIdLong());
 
-        if (channelId == 0L || alerts.values().stream().filter(a -> a.getBaseMessageChannelId() == channelId).count() < LIMIT_CHANNEL || premium) {
+        if (channelId == 0L || alerts.values().stream().filter(a -> a.getBaseGuildMessageChannelId() == channelId).count() < LIMIT_CHANNEL || premium) {
             if (alerts.size() < LIMIT_SERVER || premium) {
                 return true;
             } else {

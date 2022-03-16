@@ -5,12 +5,12 @@ import java.util.concurrent.CompletableFuture;
 import core.utils.BotPermissionUtil;
 import net.dv8tion.jda.api.entities.Message;
 
-public interface MessageAsset extends TextChannelAsset {
+public interface MessageAsset extends BaseGuildMessageChannelAsset {
 
     long getMessageId();
 
     default CompletableFuture<Message> retrieveMessage() {
-        return getTextChannel().map(channel -> {
+        return getBaseGuildMessageChannel().map(channel -> {
             if (BotPermissionUtil.canReadHistory(channel)) {
                 return channel.retrieveMessageById(getMessageId()).submit();
             } else {
