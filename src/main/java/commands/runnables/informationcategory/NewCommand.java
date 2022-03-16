@@ -120,7 +120,6 @@ public class NewCommand extends Command implements OnAlertListener {
         if (slot.getArgs().isEmpty() || !slot.getArgs().get().equals(BotUtil.getCurrentVersion())) {
             VersionSlot newestSlot = DBVersion.getInstance().retrieve().getCurrentVersion();
             long messageId = slot.sendMessage(true, getVersionsEmbed(newestSlot).build()).orElse(0L);
-
             if (slot.getGuildId() == AssetIds.SUPPORT_SERVER_ID && messageId != 0) {
                 ((NewsChannel) slot.getBaseGuildMessageChannel().get()).crosspostMessageById(messageId).queueAfter(10, TimeUnit.MINUTES);
             }

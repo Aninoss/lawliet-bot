@@ -12,10 +12,7 @@ import core.Program;
 import core.ShardManager;
 import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventDaily;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 
 @ScheduleEventDaily
 public class CommandReleaseNotification implements ExceptionRunnable {
@@ -30,7 +27,7 @@ public class CommandReleaseNotification implements ExceptionRunnable {
                     if (date.isEqual(LocalDate.now())) {
                         String message = "`L." + command.getTrigger() + "` is now publicly available!";
                         ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
-                                .map(guild -> guild.getTextChannelById(557960859792441357L))
+                                .map(guild -> guild.getChannelById(BaseGuildMessageChannel.class, 557960859792441357L))
                                 .ifPresent(channel -> {
                                     channel.sendMessage(message).flatMap(Message::crosspost).queue();
                                     newRelease.set(true);
