@@ -24,10 +24,7 @@ import core.utils.MentionUtil;
 import modules.ClearResults;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -48,7 +45,7 @@ public class ClearCommand extends Command implements OnButtonListener {
     private boolean interrupt = false;
     private List<Member> memberFilter;
     private long amount;
-    TextChannel channel;
+    BaseGuildMessageChannel channel;
 
     public ClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -56,7 +53,7 @@ public class ClearCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
-        MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
+        MentionList<BaseGuildMessageChannel> channelMention = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), args);
         args = channelMention.getFilteredArgs();
         channel = event.getTextChannel();
         if (channelMention.getList().size() > 0) {
@@ -115,7 +112,7 @@ public class ClearCommand extends Command implements OnButtonListener {
         }
     }
 
-    private ClearResults clear(TextChannel channel, boolean patreon, int count, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
+    private ClearResults clear(BaseGuildMessageChannel channel, boolean patreon, int count, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
         int deleted = 0;
         boolean skipped = false;
         MessageHistory messageHistory = channel.getHistory();

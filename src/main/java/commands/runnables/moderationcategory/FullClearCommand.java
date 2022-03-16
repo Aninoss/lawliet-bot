@@ -45,7 +45,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     private boolean interrupt = false;
     private List<Member> memberFilter;
     private long hoursMin;
-    TextChannel channel;
+    BaseGuildMessageChannel channel;
 
     public FullClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -53,7 +53,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
-        MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
+        MentionList<BaseGuildMessageChannel> channelMention = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), args);
         args = channelMention.getFilteredArgs();
         channel = event.getTextChannel();
         if (channelMention.getList().size() > 0) {
