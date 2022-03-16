@@ -80,7 +80,8 @@ public class AlertsCommand extends NavigationAbstract {
             channelId = channel.getIdLong();
             return MessageInputResponse.SUCCESS;
         } else {
-            return null;
+            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
+            return MessageInputResponse.FAILED;
         }
     }
 
