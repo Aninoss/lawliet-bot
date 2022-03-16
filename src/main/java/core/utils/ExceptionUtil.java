@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Locale;
 import commands.Command;
+import commands.CommandEvent;
 import commands.runnables.NavigationAbstract;
 import constants.AssetIds;
 import core.*;
@@ -12,7 +13,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 
 public class ExceptionUtil {
 
-    public static void handleCommandException(Throwable throwable, Command command) {
+    public static void handleCommandException(Throwable throwable, Command command, CommandEvent event) {
         Locale locale = command.getLocale();
         boolean postErrorMessage = true;
         boolean submitToDeveloper = new ExceptionFilter().shouldBeVisible(throwable.toString());
@@ -42,7 +43,7 @@ public class ExceptionUtil {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code))
                     .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""));
-            command.getCommandEvent().replyMessageEmbeds(eb.build()).queue();
+            event.replyMessageEmbeds(eb.build()).queue();
         }
 
         if (submitToDeveloper) {

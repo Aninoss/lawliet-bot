@@ -334,59 +334,63 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @Override
-    public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) throws Throwable {
-        TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getTextChannel().getIdLong());
+    public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
+        if (event.getChannel() instanceof TextChannel) {
+            TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
+            TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getTextChannel().getIdLong());
 
-        if (ticketChannel == null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), getCommandProperties().emoji())) {
-            Category category = event.getTextChannel().getParentCategory();
-            if (category != null && category.getTextChannels().size() < 50) {
-                onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
-            } else {
-                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
-                JDAUtil.openPrivateChannel(event.getMember())
-                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
-                        .queue();
-            }
-        } else if (ticketChannel != null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), TICKET_CLOSE_EMOJI)) {
-            boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
-            if (isStaff || ticketData.memberCanClose()) {
-                onTicketRemove(ticketData, event.getTextChannel());
-            } else {
-                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
-                event.getTextChannel().sendMessageEmbeds(eb.build())
-                        .queue();
+            if (ticketChannel == null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), getCommandProperties().emoji())) {
+                Category category = event.getTextChannel().getParentCategory();
+                if (category != null && category.getTextChannels().size() < 50) {
+                    onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
+                } else {
+                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
+                    JDAUtil.openPrivateChannel(event.getMember())
+                            .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                            .queue();
+                }
+            } else if (ticketChannel != null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), TICKET_CLOSE_EMOJI)) {
+                boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
+                if (isStaff || ticketData.memberCanClose()) {
+                    onTicketRemove(ticketData, event.getTextChannel());
+                } else {
+                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
+                    event.getTextChannel().sendMessageEmbeds(eb.build())
+                            .queue();
+                }
             }
         }
     }
 
     @Override
     public void onStaticButton(ButtonInteractionEvent event) {
-        TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getTextChannel().getIdLong());
+        if (event.getChannel() instanceof TextChannel) {
+            TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
+            TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getTextChannel().getIdLong());
 
-        if (ticketChannel == null && event.getComponentId().equals(BUTTON_ID_CREATE)) {
-            Category category = event.getTextChannel().getParentCategory();
-            if (category != null && category.getTextChannels().size() < 50) {
-                onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
-            } else {
-                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
-                event.replyEmbeds(eb.build())
-                        .setEphemeral(true)
-                        .queue();
+            if (ticketChannel == null && event.getComponentId().equals(BUTTON_ID_CREATE)) {
+                Category category = event.getTextChannel().getParentCategory();
+                if (category != null && category.getTextChannels().size() < 50) {
+                    onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
+                } else {
+                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
+                    event.replyEmbeds(eb.build())
+                            .setEphemeral(true)
+                            .queue();
+                }
+            } else if (ticketChannel != null && event.getComponentId().equals(BUTTON_ID_CLOSE)) {
+                boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
+                if (isStaff || ticketData.memberCanClose()) {
+                    onTicketRemove(ticketData, event.getTextChannel());
+                } else {
+                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
+                    event.replyEmbeds(eb.build())
+                            .setEphemeral(true)
+                            .queue();
+                }
             }
-        } else if (ticketChannel != null && event.getComponentId().equals(BUTTON_ID_CLOSE)) {
-            boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
-            if (isStaff || ticketData.memberCanClose()) {
-                onTicketRemove(ticketData, event.getTextChannel());
-            } else {
-                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
-                event.replyEmbeds(eb.build())
-                        .setEphemeral(true)
-                        .queue();
-            }
+            new ComponentInteractionResponse(event).complete();
         }
-        new ComponentInteractionResponse(event).complete();
     }
 
     private boolean memberIsStaff(Member member, List<Long> staffRoleIds) {

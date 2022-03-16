@@ -7,12 +7,13 @@ import core.EmbedFactory;
 import core.TextManager;
 import core.utils.BotPermissionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 
 public interface InteractionListenerHandler<T extends GenericComponentInteractionCreateEvent> {
 
     default void handleInteraction(T event, Class<?> clazz, Consumer<CommandListenerMeta<?>> listenerMetaConsumer) {
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
+        if (event.getChannel() instanceof TextChannel && BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
             CommandContainer.getListeners(clazz)
                     .forEach(listener -> {
                         switch (listener.check(event)) {

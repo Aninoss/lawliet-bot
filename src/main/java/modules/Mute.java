@@ -105,6 +105,7 @@ public class Mute {
             Locale locale = moderationData.getGuildData().getLocale();
             guild.getCategories().forEach(category -> enforceMuteOnGuildChannel(locale, role, category));
             guild.getTextChannels().forEach(channel -> enforceMuteOnGuildChannel(locale, role, channel));
+            guild.getNewsChannels().forEach(channel -> enforceMuteOnGuildChannel(locale, role, channel));
         }
     }
 

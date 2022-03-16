@@ -14,10 +14,12 @@ public class TextChannelDeleteRemoveTicket extends TextChannelDeleteAbstract {
 
     @Override
     public boolean onTextChannelDelete(ChannelDeleteEvent event) {
-        TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
-        if (ticketChannel != null) {
-            Ticket.removeTicket((TextChannel) event.getChannel(), ticketData, ticketChannel);
+        if (event.getChannel() instanceof TextChannel) {
+            TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
+            TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
+            if (ticketChannel != null) {
+                Ticket.removeTicket((TextChannel) event.getChannel(), ticketData, ticketChannel);
+            }
         }
         return true;
     }

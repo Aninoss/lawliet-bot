@@ -56,7 +56,7 @@ interface OnMessageInputListener : Drawable {
                 }
             }
         } catch (e: Throwable) {
-            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command) }
+            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent) }
         }
     }
 
@@ -82,7 +82,7 @@ interface OnMessageInputListener : Drawable {
             }
             return messageInputResponse
         } catch (e: Throwable) {
-            ExceptionUtil.handleCommandException(e, command)
+            ExceptionUtil.handleCommandException(e, command, commandEvent)
             return MessageInputResponse.ERROR
         } finally {
             isProcessing.set(false)

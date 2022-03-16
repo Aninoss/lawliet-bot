@@ -19,7 +19,7 @@ public class ButtonClickCommandsStatic extends ButtonClickAbstract {
 
     @Override
     public boolean onButtonClick(ButtonInteractionEvent event) throws Throwable {
-        if (!BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
+        if (!BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
             return true;
         }
 

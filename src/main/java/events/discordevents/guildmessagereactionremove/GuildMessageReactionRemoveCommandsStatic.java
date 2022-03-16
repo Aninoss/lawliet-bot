@@ -23,7 +23,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
 
     @Override
     public boolean onGuildMessageReactionRemove(MessageReactionRemoveEvent event) throws Throwable {
-        if (!BotPermissionUtil.canReadHistory(event.getTextChannel(), Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
+        if (!BotPermissionUtil.canReadHistory(event.getGuildChannel(), Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
             return true;
         }
 
@@ -37,7 +37,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
             if (command instanceof OnStaticReactionRemoveListener) {
                 Message message;
                 try {
-                    message = MessageCache.retrieveMessage(event.getTextChannel(), event.getMessageIdLong()).get();
+                    message = MessageCache.retrieveMessage(event.getGuildChannel(), event.getMessageIdLong()).get();
                 } catch (InterruptedException | ExecutionException e) {
                     //Ignore
                     return true;

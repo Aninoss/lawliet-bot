@@ -16,7 +16,7 @@ public class ButtonClickUnreport extends ButtonClickAbstract implements Interact
 
     @Override
     public boolean onButtonClick(ButtonInteractionEvent event) {
-        if (event.getTextChannel().getIdLong() == 896872855248183316L) {
+        if (event.getChannel().getIdLong() == 896872855248183316L) {
             event.deferEdit().queue();
             if (event.getComponentId().equals("allow")) {
                 SendEvent.sendUnreport(event.getMessage().getContentRaw().split("\n")[0]).join();

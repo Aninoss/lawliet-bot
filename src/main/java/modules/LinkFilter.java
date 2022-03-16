@@ -24,7 +24,7 @@ public class LinkFilter {
                         .flatMap(messageChannel -> messageChannel.sendMessage(text))
                         .queue();
                 message.getGuild().getTextChannelById(819350890263085097L)
-                        .sendMessage("LINK BLOCK FOR " + message.getAuthor().getAsTag() + " IN " + message.getTextChannel().getAsMention() + ": " + message.getContentRaw())
+                        .sendMessage("LINK BLOCK FOR " + message.getAuthor().getAsTag() + " IN " + message.getChannel().getAsMention() + ": " + message.getContentRaw())
                         .queue();
             }
             return false;

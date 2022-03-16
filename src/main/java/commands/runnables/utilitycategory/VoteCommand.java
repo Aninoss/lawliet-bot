@@ -123,36 +123,36 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
-        VoteCache.get(event.getTextChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
+        VoteCache.get(event.getGuildChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
             if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
                     voteInfo.getCreatorId().isPresent() &&
                     voteInfo.getCreatorId().get() == event.getUserIdLong()
             ) {
                 voteInfo.stop();
                 DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMessageIdLong());
-                if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
+                if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
                     quickUpdater.update(
                             event.getMessageIdLong(),
-                            event.getTextChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, false).build())
+                            event.getGuildChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, false).build())
                     );
                 }
-                if (BotPermissionUtil.can(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
-                    event.getTextChannel().clearReactionsById(event.getMessageIdLong()).queue();
+                if (BotPermissionUtil.can(event.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
+                    event.getGuildChannel().clearReactionsById(event.getMessageIdLong()).queue();
                 }
                 return;
             }
 
-            if (voteInfo.getVotes(event.getUserIdLong()) > 1 && BotPermissionUtil.can(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
-                event.getTextChannel()
+            if (voteInfo.getVotes(event.getUserIdLong()) > 1 && BotPermissionUtil.can(event.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
+                event.getGuildChannel()
                         .removeReactionById(event.getMessageIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), event.getUser())
                         .queue();
                 return;
             }
 
-            if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
+            if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
                 quickUpdater.update(
                         event.getMessageIdLong(),
-                        event.getTextChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
+                        event.getGuildChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
                 );
             }
         });
@@ -160,13 +160,13 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public void onStaticReactionRemove(@NotNull Message message, @NotNull MessageReactionRemoveEvent event) {
-        VoteCache.get(event.getTextChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
+        VoteCache.get(event.getGuildChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
                 .ifPresent(voteInfo -> {
                     if (voteInfo.getVotes(event.getUserIdLong()) == 0) {
-                        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
+                        if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
                             quickUpdater.update(
                                     event.getMessageIdLong(),
-                                    event.getTextChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
+                                    event.getGuildChannel().editMessageEmbedsById(event.getMessageIdLong(), getEmbed(voteInfo, true).build())
                             );
                         }
                     }

@@ -32,14 +32,14 @@ public class InviteFilter extends AutoModAbstract {
     @Override
     protected boolean withAutoActions(Message message, Locale locale) {
         if (spBlockBean.getAction() == SPBlockData.ActionList.BAN_USER &&
-                PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getTextChannel(), Permission.BAN_MEMBERS)
+                PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.BAN_MEMBERS)
         ) {
             message.getGuild()
                     .ban(message.getMember(), 0, TextManager.getString(spBlockBean.getGuildData().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
                     .queue();
             return false;
         } else if (spBlockBean.getAction() == SPBlockData.ActionList.KICK_USER &&
-                PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getTextChannel(), Permission.KICK_MEMBERS)
+                PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.KICK_MEMBERS)
         ) {
             message.getGuild()
                     .kick(message.getMember(), TextManager.getString(spBlockBean.getGuildData().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
@@ -59,7 +59,7 @@ public class InviteFilter extends AutoModAbstract {
 
         eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log", message.getAuthor().getAsTag()))
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
-                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getTextChannel().getAsMention(), true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), StringUtil.shortenString(content, 1024), false);
 
         for (Long userId : spBlockBean.getLogReceiverUserIds()) {
@@ -78,7 +78,7 @@ public class InviteFilter extends AutoModAbstract {
     protected boolean checkCondition(Message message) {
         if (spBlockBean.isActive() &&
                 !spBlockBean.getIgnoredUserIds().contains(message.getAuthor().getIdLong()) &&
-                !spBlockBean.getIgnoredChannelIds().contains(message.getTextChannel().getIdLong()) &&
+                !spBlockBean.getIgnoredChannelIds().contains(message.getChannel().getIdLong()) &&
                 !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR)
         ) {
             List<String> inviteLinks = message.getInvites();

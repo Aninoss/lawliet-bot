@@ -24,7 +24,7 @@ public class VoteCache {
         voteCache.put(messageId, voteInfo);
     }
 
-    public static Optional<VoteInfo> get(TextChannel channel, long messageId, long userId, String emoji, boolean add) {
+    public static Optional<VoteInfo> get(GuildMessageChannel channel, long messageId, long userId, String emoji, boolean add) {
         VoteInfo voteInfo = voteCache.getIfPresent(messageId);
         if (voteInfo != null) {
             int i = -1;

@@ -75,7 +75,7 @@ interface OnReactionListener : Drawable {
                 return CompletableFuture.completedFuture(command.drawMessageId.get())
             }
         } catch (e: Throwable) {
-            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command) }
+            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent) }
         }
         return CompletableFuture.failedFuture(NoSuchElementException("No message sent"))
     }
@@ -132,7 +132,7 @@ interface OnReactionListener : Drawable {
                 }
             }
         } catch (e: Throwable) {
-            ExceptionUtil.handleCommandException(e, command)
+            ExceptionUtil.handleCommandException(e, command, commandEvent)
         }
     }
 

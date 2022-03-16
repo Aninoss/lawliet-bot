@@ -46,7 +46,7 @@ interface OnTriggerListener {
             }
             return onTrigger(event, args)
         } catch (e: Throwable) {
-            ExceptionUtil.handleCommandException(e, command)
+            ExceptionUtil.handleCommandException(e, command, event)
             return false
         } finally {
             isProcessing.set(false)

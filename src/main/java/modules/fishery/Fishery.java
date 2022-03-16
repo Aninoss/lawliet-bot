@@ -64,7 +64,7 @@ public class Fishery {
         return Math.round(userBean.getMemberGear(FisheryGear.DAILY).getEffect() * 0.25);
     }
 
-    public static void spawnTreasureChest(TextChannel channel) {
+    public static void spawnTreasureChest(BaseGuildMessageChannel channel) {
         GuildData guildBean = DBGuild.getInstance().retrieve(channel.getGuild().getIdLong());
         Locale locale = guildBean.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()

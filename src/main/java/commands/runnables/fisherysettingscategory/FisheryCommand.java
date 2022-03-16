@@ -30,6 +30,7 @@ import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -195,52 +196,54 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
     @Override
     public void onStaticButton(ButtonInteractionEvent event) {
-        DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMessage().getIdLong());
+        if (event.getChannel() instanceof TextChannel) {
+            DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMessage().getIdLong());
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
-                .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getMember().getAsMention()));
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                    .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_title"))
+                    .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getMember().getAsMention()));
 
-        event.editMessageEmbeds(eb.build())
-                .setActionRows()
-                .queue();
-        InteractionHook hook = event.getHook();
+            event.editMessageEmbeds(eb.build())
+                    .setActionRows()
+                    .queue();
+            InteractionHook hook = event.getHook();
 
-        FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
-        MainScheduler.schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
-            Random r = new Random();
-            String[] winLose = new String[] { "win", "lose" };
-            int resultInt = r.nextInt(2);
-            String result = winLose[resultInt];
+            FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
+            MainScheduler.schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> {
+                Random r = new Random();
+                String[] winLose = new String[] { "win", "lose" };
+                int resultInt = r.nextInt(2);
+                String result = winLose[resultInt];
 
-            long won = Math.round(userBean.getMemberGear(FisheryGear.TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
+                long won = Math.round(userBean.getMemberGear(FisheryGear.TREASURE).getEffect() * (0.7 + r.nextDouble() * 0.6));
 
-            String treasureImage;
-            if (resultInt == 0) {
-                treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
-            } else {
-                treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
-            }
-
-            EmbedBuilder eb2 = EmbedFactory.getEmbedDefault()
-                    .setTitle(FisheryCommand.EMOJI_TREASURE + " " + getString("treasure_title"))
-                    .setDescription(getString("treasure_opened_" + result, event.getMember().getAsMention(), StringUtil.numToString(won)))
-                    .setImage(treasureImage)
-                    .setFooter(getString("treasure_footer"));
-
-            TextChannel channel = event.getTextChannel();
-            if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
-                event.getMessage().editMessageEmbeds(eb2.build(), userBean.changeValuesEmbed(event.getMember(), 0, won).build()).queue();
-            } else {
-                hook.editOriginalEmbeds(eb2.build()).queue();
-            }
-
-            MainScheduler.schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
-                if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
-                    hook.deleteOriginal().queue();
+                String treasureImage;
+                if (resultInt == 0) {
+                    treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665935026618398/treasure_opened_win.png";
+                } else {
+                    treasureImage = "https://cdn.discordapp.com/attachments/711665837114654781/711665948549054555/treasure_opened_lose.png";
                 }
+
+                EmbedBuilder eb2 = EmbedFactory.getEmbedDefault()
+                        .setTitle(FisheryCommand.EMOJI_TREASURE + " " + getString("treasure_title"))
+                        .setDescription(getString("treasure_opened_" + result, event.getMember().getAsMention(), StringUtil.numToString(won)))
+                        .setImage(treasureImage)
+                        .setFooter(getString("treasure_footer"));
+
+                BaseGuildMessageChannel channel = (BaseGuildMessageChannel) event.getChannel();
+                if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
+                    event.getMessage().editMessageEmbeds(eb2.build(), userBean.changeValuesEmbed(event.getMember(), 0, won).build()).queue();
+                } else {
+                    hook.editOriginalEmbeds(eb2.build()).queue();
+                }
+
+                MainScheduler.schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
+                    if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
+                        hook.deleteOriginal().queue();
+                    }
+                });
             });
-        });
+        }
     }
 
 }

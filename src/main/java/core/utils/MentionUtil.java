@@ -297,7 +297,7 @@ public class MentionUtil {
             while (m.find()) {
                 String groupString = m.group("guild");
                 if (groupString != null && groupString.equals(guildId)) {
-                    Optional.ofNullable(guild.getTextChannelById(m.group("channel"))).ifPresent(channel -> {
+                    Optional.ofNullable(guild.getChannelById(BaseGuildMessageChannel.class, m.group("channel"))).ifPresent(channel -> {
                         try {
                             if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_HISTORY)) {
                                 list.add(channel.retrieveMessageById(m.group("message")).complete());

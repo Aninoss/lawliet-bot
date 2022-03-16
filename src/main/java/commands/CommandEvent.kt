@@ -26,6 +26,14 @@ class CommandEvent : GenericChannelEvent {
             }
             throw IllegalStateException("Cannot convert channel of type $channelType to TextChannel")
         }
+    val guildMessageChannel: GuildMessageChannel
+        get() {
+            val channel = getChannel()
+            if (channel is GuildMessageChannel) {
+                return channel
+            }
+            throw IllegalStateException("Cannot convert channel of type $channelType to GuildMessageChannel")
+        }
 
     constructor(event: SlashCommandInteractionEvent) : super(event.jda, event.responseNumber, event.textChannel) {
         slashCommandInteractionEvent = event
@@ -33,7 +41,7 @@ class CommandEvent : GenericChannelEvent {
         member = event.member!!
     }
 
-    constructor(event: MessageReceivedEvent) : super(event.jda, event.responseNumber, event.textChannel) {
+    constructor(event: MessageReceivedEvent) : super(event.jda, event.responseNumber, event.channel) {
         slashCommandInteractionEvent = null
         messageReceivedEvent = event
         member = event.member!!

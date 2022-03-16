@@ -31,12 +31,12 @@ public abstract class AutoModAbstract {
      */
     public boolean check() {
         boolean isTicketChannel = DBTicket.getInstance().retrieve(message.getGuild().getIdLong()).getTicketChannels()
-                .containsKey(message.getTextChannel().getIdLong());
+                .containsKey(message.getChannel().getIdLong());
         if (!message.getAuthor().isBot() && !isTicketChannel && checkCondition(message)) {
             try {
                 GuildData guildBean = DBGuild.getInstance().retrieve(message.getGuild().getIdLong());
                 Class<? extends Command> commandClass = getCommandClass();
-                if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), commandClass, message.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+                if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), commandClass, message.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
                     message.delete().queue();
                 }
                 punish(message, guildBean, commandClass);

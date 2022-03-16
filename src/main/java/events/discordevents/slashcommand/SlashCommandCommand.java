@@ -50,10 +50,11 @@ public class SlashCommandCommand extends SlashCommandAbstract {
         }
 
         deferAfterOneSecond(event);
+        CommandEvent commandEvent = new CommandEvent(event);
         try {
             CommandManager.manage(new CommandEvent(event), command, args, getStartTime());
         } catch (Throwable e) {
-            ExceptionUtil.handleCommandException(e, command);
+            ExceptionUtil.handleCommandException(e, command, commandEvent);
         }
 
         return true;

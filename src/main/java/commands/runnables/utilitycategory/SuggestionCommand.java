@@ -113,12 +113,16 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
     @Override
     public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
-        onReactionStatic(event, true);
+        if (event.getChannel() instanceof TextChannel) {
+            onReactionStatic(event, true);
+        }
     }
 
     @Override
     public void onStaticReactionRemove(@NotNull Message message, @NotNull MessageReactionRemoveEvent event) {
-        onReactionStatic(event, false);
+        if (event.getChannel() instanceof TextChannel) {
+            onReactionStatic(event, false);
+        }
     }
 
     private void onReactionStatic(GenericMessageReactionEvent event, boolean add) {

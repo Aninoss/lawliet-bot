@@ -110,30 +110,32 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
 
     @Override
     public void onStaticButton(ButtonInteractionEvent event) {
-        EmbedBuilder eb = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
-                getLocale(),
-                event.getTextChannel(),
-                event.getMember(),
-                new Permission[]{ Permission.MANAGE_SERVER },
-                new Permission[0],
-                new Permission[0],
-                new Permission[0],
-                new Permission[0]
-        );
+        if (event.getChannel() instanceof TextChannel) {
+            EmbedBuilder eb = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+                    getLocale(),
+                    event.getTextChannel(),
+                    event.getMember(),
+                    new Permission[] { Permission.MANAGE_SERVER },
+                    new Permission[0],
+                    new Permission[0],
+                    new Permission[0],
+                    new Permission[0]
+            );
 
-        if (eb == null) {
-            CustomObservableMap<Long, ReminderData> remindersMap = DBReminders.getInstance()
-                    .retrieve(event.getGuild().getIdLong());
+            if (eb == null) {
+                CustomObservableMap<Long, ReminderData> remindersMap = DBReminders.getInstance()
+                        .retrieve(event.getGuild().getIdLong());
 
-            event.getMessage().delete().queue();
-            remindersMap.values().stream()
-                    .filter(reminder -> reminder.getMessageId() == event.getMessageIdLong())
-                    .findFirst()
-                    .ifPresent(reminderData -> remindersMap.remove(reminderData.getId()));
-        } else {
-            event.replyEmbeds(eb.build())
-                    .setEphemeral(true)
-                    .queue();
+                event.getMessage().delete().queue();
+                remindersMap.values().stream()
+                        .filter(reminder -> reminder.getMessageId() == event.getMessageIdLong())
+                        .findFirst()
+                        .ifPresent(reminderData -> remindersMap.remove(reminderData.getId()));
+            } else {
+                event.replyEmbeds(eb.build())
+                        .setEphemeral(true)
+                        .queue();
+            }
         }
     }
 

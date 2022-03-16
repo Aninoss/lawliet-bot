@@ -18,7 +18,7 @@ public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMess
     public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
         final long GAME_CHANNEL_ID = 758285721877479504L;
 
-        if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID && event.getTextChannel().getIdLong() == GAME_CHANNEL_ID) {
+        if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID && event.getChannel().getIdLong() == GAME_CHANNEL_ID) {
             String numStr = event.getMessage().getContentRaw();
             if (numStr.contains(" ")) {
                 numStr = numStr.split(" ")[0];

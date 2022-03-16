@@ -6,9 +6,7 @@ import core.*;
 import events.discordevents.eventtypeabstracts.*;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.GuildChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.channel.ChannelCreateEvent;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
@@ -95,10 +93,10 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof GuildMessageChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageReceivedAbstract.onGuildMessageReceivedStatic(event, getListenerList(GuildMessageReceivedAbstract.class)));
-        } else {
+        } else if (event.getChannel() instanceof PrivateChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> PrivateMessageReceivedAbstract.onPrivateMessageReceivedStatic(event, getListenerList(PrivateMessageReceivedAbstract.class)));
         }
@@ -114,7 +112,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(@NotNull MessageUpdateEvent event) {
-        if (event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof GuildMessageChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageUpdateAbstract.onGuildMessageUpdateStatic(event, getListenerList(GuildMessageUpdateAbstract.class)));
         }
@@ -122,7 +120,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageDelete(@NotNull MessageDeleteEvent event) {
-        if (event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof GuildMessageChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageDeleteAbstract.onGuildMessageDeleteStatic(event, getListenerList(GuildMessageDeleteAbstract.class)));
         }
@@ -130,7 +128,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
-        if (event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof BaseGuildMessageChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageReactionAddAbstract.onGuildMessageReactionAddStatic(event, getListenerList(GuildMessageReactionAddAbstract.class)));
         }
@@ -138,7 +136,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageReactionRemove(@NotNull MessageReactionRemoveEvent event) {
-        if (event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof BaseGuildMessageChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageReactionRemoveAbstract.onGuildMessageReactionRemoveStatic(event, getListenerList(GuildMessageReactionRemoveAbstract.class)));
         }
@@ -176,7 +174,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onChannelCreate(@NotNull ChannelCreateEvent event) {
-        if (event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof BaseGuildMessageChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> TextChannelCreateAbstract.onTextChannelCreateStatic(event, getListenerList(TextChannelCreateAbstract.class)));
         } else if (event.getChannel() instanceof VoiceChannel) {
@@ -187,7 +185,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
-        if (event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof BaseGuildMessageChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> TextChannelDeleteAbstract.onTextChannelDeleteStatic(event, getListenerList(TextChannelDeleteAbstract.class)));
         } else if (event.getChannel() instanceof VoiceChannel) {
@@ -286,7 +284,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        if (event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof BaseGuildMessageChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> ButtonClickAbstract.onButtonClickStatic(event, getListenerList(ButtonClickAbstract.class)));
         }
@@ -294,7 +292,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
-        if (event.getChannel() instanceof TextChannel) {
+        if (event.getChannel() instanceof BaseGuildMessageChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> SelectMenuAbstract.onSelectMenuStatic(event, getListenerList(SelectMenuAbstract.class)));
         }

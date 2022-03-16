@@ -31,6 +31,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -47,6 +48,7 @@ public class CommandManager {
 
     public static void manage(CommandEvent event, Command command, String args, Instant startTime, boolean freshCommand) {
         if (checkCoolDown(event, command) &&
+                checkCorrectChannelType(event, command) &&
                 checkRunningCommands(event, command)
         ) {
             process(event, command, args, startTime, freshCommand);
@@ -91,7 +93,7 @@ public class CommandManager {
                     maybeSendBotInvite(event, command.getLocale());
                 }
             } catch (Throwable e) {
-                ExceptionUtil.handleCommandException(e, command);
+                ExceptionUtil.handleCommandException(e, command, event);
             } finally {
                 CommandContainer.cleanUp();
             }
@@ -130,14 +132,32 @@ public class CommandManager {
         if (CoolDownManager.getCoolDownData(event.getMember().getIdLong()).canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_desc");
 
-            if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+            if (BotPermissionUtil.canWriteEmbed(event.getGuildMessageChannel()) || event.isSlashCommandInteractionEvent()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "alreadyused_title"))
                         .setDescription(desc);
                 sendError(event, command.getLocale(), eb, true);
-            } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
+            } else if (BotPermissionUtil.canWrite(event.getGuildMessageChannel())) {
                 sendErrorNoEmbed(event, command.getLocale(), desc, true);
             }
+        }
+
+        return false;
+    }
+
+    private static boolean checkCorrectChannelType(CommandEvent event, Command command) {
+        if (event.getChannel() instanceof TextChannel) {
+            return true;
+        }
+
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "wrongchanneltype_desc");
+        if (BotPermissionUtil.canWriteEmbed(event.getGuildMessageChannel()) || event.isSlashCommandInteractionEvent()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "wrongchanneltype_title"))
+                    .setDescription(desc);
+            sendError(event, command.getLocale(), eb, true);
+        } else if (BotPermissionUtil.canWrite(event.getGuildMessageChannel())) {
+            sendErrorNoEmbed(event, command.getLocale(), desc, true);
         }
 
         return false;
@@ -157,12 +177,12 @@ public class CommandManager {
         if (cooldownUserData.canPostCoolDownMessage()) {
             String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_description", waitingSec.get() != 1, String.valueOf(waitingSec.get()));
 
-            if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+            if (BotPermissionUtil.canWriteEmbed(event.getGuildMessageChannel()) || event.isSlashCommandInteractionEvent()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
                         .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "cooldown_title"))
                         .setDescription(desc);
                 sendError(event, command.getLocale(), eb, false);
-            } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
+            } else if (BotPermissionUtil.canWrite(event.getGuildMessageChannel())) {
                 sendErrorNoEmbed(event, command.getLocale(), desc, false);
             }
         }
@@ -281,7 +301,7 @@ public class CommandManager {
     }
 
     private static void sendErrorNoEmbed(CommandEvent event, Locale locale, String text, boolean autoDelete, Button... buttons) {
-        if (BotPermissionUtil.canWrite(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWrite(event.getGuildMessageChannel()) || event.isSlashCommandInteractionEvent()) {
             RestAction<Message> messageAction = event.replyMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
                     .setActionRows(ActionRows.of(buttons));
             if (autoDelete) {
@@ -293,7 +313,7 @@ public class CommandManager {
     }
 
     private static void sendError(CommandEvent event, Locale locale, EmbedBuilder eb, boolean autoDelete, Button... buttons) {
-        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+        if (BotPermissionUtil.canWriteEmbed(event.getGuildMessageChannel()) || event.isSlashCommandInteractionEvent()) {
             if (autoDelete) {
                 eb.setFooter(TextManager.getString(locale, TextManager.GENERAL, "deleteTime", String.valueOf(SEC_UNTIL_REMOVAL)));
             }
@@ -310,18 +330,18 @@ public class CommandManager {
 
     private static void autoRemoveMessageAfterCountdown(CommandEvent event, Message message) {
         MainScheduler.schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, "command_manager_error_countdown", () -> {
-            if (BotPermissionUtil.can(event.getTextChannel())) {
+            if (BotPermissionUtil.can(event.getGuildMessageChannel())) {
                 ArrayList<Message> messageList = new ArrayList<>();
                 if (message != null) {
                     messageList.add(message);
                 }
-                if (event.isMessageReceivedEvent() && BotPermissionUtil.can(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+                if (event.isMessageReceivedEvent() && BotPermissionUtil.can(event.getGuildMessageChannel(), Permission.MESSAGE_MANAGE)) {
                     messageList.add(event.getMessageReceivedEvent().getMessage());
                 }
                 if (messageList.size() >= 2) {
-                    event.getTextChannel().deleteMessages(messageList).queue();
+                    event.getGuildMessageChannel().deleteMessages(messageList).queue();
                 } else if (messageList.size() >= 1) {
-                    event.getTextChannel().deleteMessageById(messageList.get(0).getId()).queue();
+                    event.getGuildMessageChannel().deleteMessageById(messageList.get(0).getId()).queue();
                 }
             }
         });

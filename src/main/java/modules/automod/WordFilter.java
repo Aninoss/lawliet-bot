@@ -33,7 +33,7 @@ public class WordFilter extends AutoModAbstract {
     @Override
     protected void designEmbed(Message message, Locale locale, EmbedBuilder eb) {
         eb.setDescription(TextManager.getString(locale, Category.MODERATION, "wordfilter_log", message.getAuthor().getAsTag()))
-                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getTextChannel().getAsMention(), true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), StringUtil.shortenString(message.getContentRaw(), 1024), true);
 
         for (Long userId : bannedWordsBean.getLogReceiverUserIds()) {

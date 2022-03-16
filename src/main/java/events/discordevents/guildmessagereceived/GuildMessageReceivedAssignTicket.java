@@ -7,6 +7,7 @@ import modules.Ticket;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
 import mysql.modules.ticket.TicketData;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @DiscordEvent(priority = EventPriority.LOW)
@@ -14,10 +15,12 @@ public class GuildMessageReceivedAssignTicket extends GuildMessageReceivedAbstra
 
     @Override
     public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
-        TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-        TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getTextChannel().getIdLong());
-        if (ticketChannel != null) {
-            Ticket.assignTicket(event.getMember(), event.getTextChannel(), ticketData, ticketChannel);
+        if (event.getChannel() instanceof TextChannel) {
+            TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
+            TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
+            if (ticketChannel != null) {
+                Ticket.assignTicket(event.getMember(), event.getTextChannel(), ticketData, ticketChannel);
+            }
         }
         return true;
     }

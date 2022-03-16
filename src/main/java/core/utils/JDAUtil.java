@@ -137,28 +137,28 @@ public class JDAUtil {
     }
 
     public static MessageAction replyMessage(Message originalMessage, String content) {
-        MessageAction messageAction = originalMessage.getTextChannel().sendMessage(content);
+        MessageAction messageAction = originalMessage.getChannel().sendMessage(content);
         messageAction = messageActionSetMessageReference(messageAction, originalMessage);
         return messageAction;
     }
 
     public static MessageAction replyMessageEmbeds(Message originalMessage, Collection<MessageEmbed> embeds) {
-        MessageAction messageAction = originalMessage.getTextChannel().sendMessageEmbeds(embeds);
+        MessageAction messageAction = originalMessage.getChannel().sendMessageEmbeds(embeds);
         messageAction = messageActionSetMessageReference(messageAction, originalMessage);
         return messageAction;
     }
 
     public static MessageAction replyMessageEmbeds(Message originalMessage, MessageEmbed embed, MessageEmbed... other) {
-        MessageAction messageAction = originalMessage.getTextChannel().sendMessageEmbeds(embed, other);
+        MessageAction messageAction = originalMessage.getChannel().sendMessageEmbeds(embed, other);
         messageAction = messageActionSetMessageReference(messageAction, originalMessage);
         return messageAction;
     }
 
     public static MessageAction messageActionSetMessageReference(MessageAction messageAction, Message originalMessage) {
-        return messageActionSetMessageReference(messageAction, originalMessage.getTextChannel(), originalMessage.getIdLong());
+        return messageActionSetMessageReference(messageAction, originalMessage.getGuildChannel(), originalMessage.getIdLong());
     }
 
-    public static MessageAction messageActionSetMessageReference(MessageAction messageAction, TextChannel textChannel, long messageId) {
+    public static MessageAction messageActionSetMessageReference(MessageAction messageAction, GuildChannel textChannel, long messageId) {
         if (BotPermissionUtil.can(textChannel, Permission.MESSAGE_HISTORY) &&
                 !DBGuild.getInstance().retrieve(textChannel.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively()
         ) {
