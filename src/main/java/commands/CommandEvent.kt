@@ -85,7 +85,11 @@ class CommandEvent : GenericChannelEvent {
     }
 
     fun deferReply() {
-        slashCommandInteractionEvent?.deferReply()?.queue()
+        slashCommandInteractionEvent?.let {
+            if (!it.isAcknowledged) {
+                it.deferReply().queue()
+            }
+        }
     }
 
 }
