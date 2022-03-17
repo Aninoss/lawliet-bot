@@ -62,6 +62,7 @@ public class RedditCommand extends Command implements OnAlertListener {
             return false;
         } else {
             String finalArgs = args;
+            event.deferReply();
             return redditDownloader.retrievePost(event.getGuild().getIdLong(), args, event.getTextChannel().isNSFW()).get()
                     .map(post -> {
                         if (post.isNsfw() && !event.getTextChannel().isNSFW()) {
