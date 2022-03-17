@@ -649,25 +649,27 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
         if (event.getChannel() instanceof TextChannel) {
             Member member = event.getMember();
-            updateValuesFromMessage(ReactionMessagesCache.get(message).get());
-            if (!blockCache.asMap().containsKey(member.getIdLong())) {
-                GlobalThreadPool.getExecutorService().submit(() -> {
-                    try {
-                        if (!multipleRoles) {
-                            blockCache.put(member.getIdLong(), true);
-                            if (removeMultipleRoles(event)) {
-                                return;
+            ReactionMessagesCache.get(message).ifPresent(reactionMessage -> {
+                updateValuesFromMessage(reactionMessage);
+                if (!blockCache.asMap().containsKey(member.getIdLong())) {
+                    GlobalThreadPool.getExecutorService().submit(() -> {
+                        try {
+                            if (!multipleRoles) {
+                                blockCache.put(member.getIdLong(), true);
+                                if (removeMultipleRoles(event)) {
+                                    return;
+                                }
+                            }
+
+                            giveRole(event);
+                        } finally {
+                            if (!multipleRoles) {
+                                blockCache.invalidate(member.getIdLong());
                             }
                         }
-
-                        giveRole(event);
-                    } finally {
-                        if (!multipleRoles) {
-                            blockCache.invalidate(member.getIdLong());
-                        }
-                    }
-                });
-            }
+                    });
+                }
+            });
         }
     }
 
@@ -742,23 +744,25 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     @Override
     public void onStaticReactionRemove(@NotNull Message message, @NotNull MessageReactionRemoveEvent event) {
         if (event.getChannel() instanceof TextChannel) {
-            updateValuesFromMessage(ReactionMessagesCache.get(message).get());
-            if (removeRole) {
-                for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                    if (emojiConnection.isEmoji(event.getReactionEmote())) {
-                        Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getGuild(), emojiConnection.getConnection());
-                        if (rOpt.isEmpty()) return;
+            ReactionMessagesCache.get(message).ifPresent(reactionMessage -> {
+                updateValuesFromMessage(reactionMessage);
+                if (removeRole) {
+                    for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
+                        if (emojiConnection.isEmoji(event.getReactionEmote())) {
+                            Optional<Role> rOpt = MentionUtil.getRoleByTag(event.getGuild(), emojiConnection.getConnection());
+                            if (rOpt.isEmpty()) return;
 
-                        Role role = rOpt.get();
-                        if (PermissionCheckRuntime.botCanManageRoles(getLocale(), getClass(), role)) {
-                            event.getGuild().removeRoleFromMember(event.getUserId(), role)
-                                    .reason(getCommandLanguage().getTitle())
-                                    .queue();
+                            Role role = rOpt.get();
+                            if (PermissionCheckRuntime.botCanManageRoles(getLocale(), getClass(), role)) {
+                                event.getGuild().removeRoleFromMember(event.getUserId(), role)
+                                        .reason(getCommandLanguage().getTitle())
+                                        .queue();
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
-            }
+            });
         }
     }
 

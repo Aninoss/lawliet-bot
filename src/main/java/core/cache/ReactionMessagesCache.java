@@ -56,7 +56,11 @@ public class ReactionMessagesCache {
         }
     }
 
-    private static Optional<ReactionMessage> generateReactionMessage(Message message) throws Throwable {
+    private static Optional<ReactionMessage> generateReactionMessage(Message message) {
+        if (message.getEmbeds().isEmpty()) {
+            return Optional.empty();
+        }
+
         MessageEmbed embed = message.getEmbeds().get(0);
         String title = embed.getTitle();
 
