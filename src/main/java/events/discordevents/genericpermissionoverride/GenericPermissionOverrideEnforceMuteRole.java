@@ -5,6 +5,7 @@ import events.discordevents.eventtypeabstracts.GenericPermissionOverrideAbstract
 import modules.Mute;
 import mysql.modules.moderation.DBModeration;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.events.guild.override.GenericPermissionOverrideEvent;
 
@@ -16,7 +17,7 @@ public class GenericPermissionOverrideEnforceMuteRole extends GenericPermissionO
         PermissionOverride permissionOverride = event.getPermissionOverride();
         DBModeration.getInstance().retrieve(event.getGuild().getIdLong()).getMuteRole().ifPresent(muteRole -> {
             if (event.getPermissionOverride().getIdLong() == muteRole.getIdLong() &&
-                    (!permissionOverride.getDenied().contains(Permission.MESSAGE_SEND) || event.getTextChannel().getPermissionOverride(muteRole) == null)
+                    (!permissionOverride.getDenied().contains(Permission.MESSAGE_SEND) || ((BaseGuildMessageChannel) event.getChannel()).getPermissionOverride(muteRole) == null)
             ) {
                 Mute.enforceMuteRole(event.getGuild());
             }

@@ -196,8 +196,10 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onGenericPermissionOverride(@NotNull GenericPermissionOverrideEvent event) {
-        GlobalThreadPool.getExecutorService()
-                .submit(() -> GenericPermissionOverrideAbstract.onGenericPermissionOverrideStatic(event, getListenerList(GenericPermissionOverrideAbstract.class)));
+        if (event.getChannel() instanceof BaseGuildMessageChannel) {
+            GlobalThreadPool.getExecutorService()
+                    .submit(() -> GenericPermissionOverrideAbstract.onGenericPermissionOverrideStatic(event, getListenerList(GenericPermissionOverrideAbstract.class)));
+        }
     }
 
     @Override
