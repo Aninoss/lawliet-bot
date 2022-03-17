@@ -55,9 +55,7 @@ public class FisheryVoiceChannelObserver implements ExceptionRunnable {
             try {
                 List<Member> validMembers = getValidVCMembers(voiceChannel);
                 VoiceChannel afkVoice = guild.getAfkChannel();
-                if (validMembers.size() >= (Program.productionMode() ? 2 : 1) &&
-                        (afkVoice == null || voiceChannel.getIdLong() != afkVoice.getIdLong())
-                ) {
+                if (afkVoice == null || voiceChannel.getIdLong() != afkVoice.getIdLong()) {
                     validMembers.forEach(member -> {
                         try {
                             serverBean.getMemberData(member.getIdLong()).registerVoice(VC_CHECK_INTERVAL_MIN);
@@ -88,7 +86,11 @@ public class FisheryVoiceChannelObserver implements ExceptionRunnable {
             }
         }
 
-        return Collections.unmodifiableList(validMembers);
+        if (validMembers.size() >= (Program.productionMode() ? 2 : 1)) {
+            return Collections.unmodifiableList(validMembers);
+        } else {
+            return Collections.emptyList();
+        }
     }
 
 }
