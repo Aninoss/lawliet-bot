@@ -22,6 +22,7 @@ import modules.MessageQuote;
 import mysql.modules.autoquote.DBAutoQuote;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
+import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -125,7 +126,8 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
     }
 
     private boolean manageMessageInput(MessageReceivedEvent event) {
-        if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
+        GuildMessageChannel channel = event.getGuildChannel();
+        if (channel.getPermissionContainer() != null && BotPermissionUtil.canWriteEmbed(channel)) {
             List<CommandListenerMeta<?>> listeners = CommandContainer.getListeners(OnMessageInputListener.class).stream()
                     .filter(listener -> listener.check(event) == CommandListenerMeta.CheckResponse.ACCEPT)
                     .sorted((l1, l2) -> l2.getCreationTime().compareTo(l1.getCreationTime()))
