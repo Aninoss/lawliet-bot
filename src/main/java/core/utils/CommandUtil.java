@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
@@ -58,21 +59,21 @@ public class CommandUtil {
         return new ChannelResponse(args, channel);
     }
 
-    public static Message differentChannelSendMessage(Command command, CommandEvent event, BaseGuildMessageChannel channel, EmbedBuilder eb, Map<String, InputStream> fileAttachmentMap) throws ExecutionException, InterruptedException {
+    public static CompletableFuture<Message> differentChannelSendMessage(Command command, CommandEvent event, BaseGuildMessageChannel channel, EmbedBuilder eb, Map<String, InputStream> fileAttachmentMap) throws ExecutionException, InterruptedException {
         if (event.getChannel() == channel) {
             command.addAllFileAttachments(fileAttachmentMap);
-            return command.drawMessageNew(eb).get();
+            return command.drawMessageNew(eb);
         } else {
             MessageAction messageAction = channel.sendMessageEmbeds(eb.build());
             for (String name : fileAttachmentMap.keySet()) {
                 messageAction = messageAction.addFile(fileAttachmentMap.get(name), name);
             }
-            Message message = messageAction.complete();
+            CompletableFuture<Message> messageFuture = messageAction.submit();
 
             EmbedBuilder confirmEmbed = EmbedFactory.getEmbedDefault(command, TextManager.getString(command.getLocale(), TextManager.GENERAL, "message_sent_channel", channel.getAsMention()));
             command.drawMessageNew(confirmEmbed).exceptionally(ExceptionLogger.get());
 
-            return message;
+            return messageFuture;
         }
     }
 

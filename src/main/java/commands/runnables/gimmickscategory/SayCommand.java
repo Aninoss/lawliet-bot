@@ -7,6 +7,7 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.utils.CommandUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -63,7 +64,8 @@ public class SayCommand extends Command {
             }
         }
 
-        CommandUtil.differentChannelSendMessage(this, event, channel, eb, fileAttachmentMap);
+        CommandUtil.differentChannelSendMessage(this, event, channel, eb, fileAttachmentMap)
+                .exceptionally(ExceptionLogger.get());
         return true;
     }
 

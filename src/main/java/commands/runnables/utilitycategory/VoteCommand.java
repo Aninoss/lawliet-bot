@@ -78,7 +78,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
                 VoteInfo voteInfo = new VoteInfo(topic, answers, userVotes, event.getMember().getIdLong());
                 EmbedBuilder eb = getEmbed(voteInfo, true);
-                Message message = CommandUtil.differentChannelSendMessage(this, event, channel, eb, Collections.emptyMap());
+                Message message = CommandUtil.differentChannelSendMessage(this, event, channel, eb, Collections.emptyMap()).get();
                 registerStaticReactionMessage(message);
                 VoteCache.put(message.getIdLong(), voteInfo);
 
