@@ -13,11 +13,7 @@ class JailAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.USER, "member", "Who to jail", true)
-            .addOption(OptionType.USER, "member2", "Who to jail", false)
-            .addOption(OptionType.USER, "member3", "Who to jail", false)
-            .addOption(OptionType.USER, "member4", "Who to jail", false)
-            .addOption(OptionType.USER, "member5", "Who to jail", false)
+            .addOption(OptionType.STRING, "members", "Mention one or members who shall be jailed", true)
             .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
             .addOption(OptionType.STRING, "duration", "The duration of the jail sentence (e.g. 1h 3m)", false)
     }

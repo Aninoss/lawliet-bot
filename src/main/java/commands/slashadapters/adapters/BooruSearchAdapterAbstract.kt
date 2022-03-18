@@ -10,11 +10,7 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "tag", "A tag for searching specific results", true)
-            .addOption(OptionType.STRING, "tag2", "A tag for searching specific results", false)
-            .addOption(OptionType.STRING, "tag3", "A tag for searching specific results", false)
-            .addOption(OptionType.STRING, "tag4", "A tag for searching specific results", false)
-            .addOption(OptionType.STRING, "tag5", "A tag for searching specific results", false)
+            .addOption(OptionType.STRING, "tags", "One or more search tags for finding specific results", true)
             .addOption(OptionType.INTEGER, "amount", "Amount of posts from 1 to 20 / 30", false)
     }
 

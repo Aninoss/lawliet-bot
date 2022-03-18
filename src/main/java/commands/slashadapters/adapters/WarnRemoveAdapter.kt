@@ -13,12 +13,7 @@ class WarnRemoveAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.USER, "member", "The user to lose a specific number of warns", false)
-            .addOption(OptionType.USER, "member2", "The user to lose a specific number of warns", false)
-            .addOption(OptionType.USER, "member3", "The user to lose a specific number of warns", false)
-            .addOption(OptionType.USER, "member4", "The user to lose a specific number of warns", false)
-            .addOption(OptionType.USER, "member5", "The user to lose a specific number of warns", false)
-            .addOption(OptionType.STRING, "member_id", "The user to lose a specific number of warns", false)
+            .addOption(OptionType.STRING, "members", "Mention one or more members who shall lose a specific amount of warns", true)
             .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
             .addOption(OptionType.INTEGER, "amount", "How many warns shall be removed?", false)
             .addOption(OptionType.BOOLEAN, "all", "Remove all warns", false)

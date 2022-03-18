@@ -20,13 +20,8 @@ class FisheryManageAdapter : SlashAdapter() {
             optionData.addChoice(component, component)
         }
         return commandData
-            .addOption(OptionType.USER, "member", "Select a member", false)
-            .addOption(OptionType.USER, "member2", "Select a member", false)
-            .addOption(OptionType.USER, "member3", "Select a member", false)
-            .addOption(OptionType.USER, "member4", "Select a member", false)
-            .addOption(OptionType.USER, "member5", "Select a member", false)
-            .addOption(OptionType.STRING, "member_id", "Select a member", false)
-            .addOption(OptionType.ROLE, "role", "Select all members of a role", false)
+            .addOption(OptionType.STRING, "members", "Mention one or more members", false)
+            .addOption(OptionType.STRING, "roles", "Select all members of one or more mentioned roles", false)
             .addOptions(optionData)
             .addOption(OptionType.STRING, "operation", "What operation should be performed on the component? (e.g. +1, -4, 6)")
     }

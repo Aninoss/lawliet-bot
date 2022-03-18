@@ -13,11 +13,7 @@ class AssignRolesAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.ROLE, "role", "A role which will be assigned to all server members", true)
-            .addOption(OptionType.ROLE, "role2", "A role which will be assigned to all server members", false)
-            .addOption(OptionType.ROLE, "role3", "A role which will be assigned to all server members", false)
-            .addOption(OptionType.ROLE, "role4", "A role which will be assigned to all server members", false)
-            .addOption(OptionType.ROLE, "role5", "A role which will be assigned to all server members", false)
+            .addOption(OptionType.STRING, "roles", "Mention one or more roles", true)
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

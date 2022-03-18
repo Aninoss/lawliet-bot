@@ -13,11 +13,7 @@ class UnbanAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "member", "Who to unban", true)
-            .addOption(OptionType.STRING, "member2", "Who to unban", false)
-            .addOption(OptionType.STRING, "member3", "Who to unban", false)
-            .addOption(OptionType.STRING, "member4", "Who to unban", false)
-            .addOption(OptionType.STRING, "member5", "Who to unban", false)
+            .addOption(OptionType.STRING, "members", "Mention one or more members who shall be unbanned", true)
             .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
     }
 

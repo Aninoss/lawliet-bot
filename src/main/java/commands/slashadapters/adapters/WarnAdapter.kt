@@ -13,12 +13,7 @@ class WarnAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.USER, "member", "Who to warn", false)
-            .addOption(OptionType.USER, "member2", "Who to warn", false)
-            .addOption(OptionType.USER, "member3", "Who to warn", false)
-            .addOption(OptionType.USER, "member4", "Who to warn", false)
-            .addOption(OptionType.USER, "member5", "Who to warn", false)
-            .addOption(OptionType.STRING, "member_id", "Who to warn", false)
+            .addOption(OptionType.STRING, "members", "Mention one or more members who shall be warned", true)
             .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
     }
 

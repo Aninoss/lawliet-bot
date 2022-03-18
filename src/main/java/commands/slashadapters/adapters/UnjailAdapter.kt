@@ -13,12 +13,7 @@ class UnjailAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.USER, "member", "Who to unjail", false)
-            .addOption(OptionType.USER, "member2", "Who to ujail", false)
-            .addOption(OptionType.USER, "member3", "Who to unjail", false)
-            .addOption(OptionType.USER, "member4", "Who to unjail", false)
-            .addOption(OptionType.USER, "member5", "Who to unjail", false)
-            .addOption(OptionType.STRING, "member_id", "Who to unjail", false)
+            .addOption(OptionType.STRING, "members", "Mention one or more members who shall be unjailed", true)
             .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
     }
 

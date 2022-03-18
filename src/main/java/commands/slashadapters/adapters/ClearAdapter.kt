@@ -15,11 +15,7 @@ class ClearAdapter : SlashAdapter() {
         return commandData
             .addOption(OptionType.INTEGER, "amount", "How many messages shall be removed? (2 - 500)", true)
             .addOption(OptionType.CHANNEL, "channel", "Where do you want to delete the messages?", false)
-            .addOption(OptionType.USER, "member", "Filter by a member", false)
-            .addOption(OptionType.USER, "member2", "Filter by a member", false)
-            .addOption(OptionType.USER, "member3", "Filter by a member", false)
-            .addOption(OptionType.USER, "member4", "Filter by a member", false)
-            .addOption(OptionType.USER, "member5", "Filter by a member", false)
+            .addOption(OptionType.STRING, "members", "Filter by one or more members", false)
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

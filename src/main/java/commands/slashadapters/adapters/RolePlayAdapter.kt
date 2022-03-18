@@ -19,11 +19,7 @@ class RolePlayAdapter : SlashAdapter() {
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
             .addOption(OptionType.STRING, "gesture", "Which type of interaction? (e.g. hug, kiss)", true)
-            .addOption(OptionType.USER, "member", "Who should be involved?", false)
-            .addOption(OptionType.USER, "member2", "Who should be involved?", false)
-            .addOption(OptionType.USER, "member3", "Who should be involved?", false)
-            .addOption(OptionType.USER, "member4", "Who should be involved?", false)
-            .addOption(OptionType.USER, "member5", "Who should be involved?", false)
+            .addOption(OptionType.STRING, "members", "Mention one or more relevant members", false)
             .addOption(OptionType.BOOLEAN, "everyone", "If you want to mention everyone", false)
     }
 

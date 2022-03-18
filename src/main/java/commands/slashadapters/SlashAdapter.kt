@@ -55,10 +55,10 @@ abstract class SlashAdapter {
             val argsBuilder = StringBuilder()
             for (option in event.options) {
                 if (Arrays.stream(exceptions).noneMatch { exception: String -> option.name == exception }) {
-                    if (option.type == OptionType.BOOLEAN && option.asBoolean) {
-                        argsBuilder.append(option.name).append(" ")
-                    } else {
-                        argsBuilder.append(option.asString).append(" ")
+                    when (option.type) {
+                        OptionType.BOOLEAN -> argsBuilder.append(option.name).append(" ")
+                        OptionType.ATTACHMENT -> argsBuilder.append(option.asAttachment.url).append(" ")
+                        else -> argsBuilder.append(option.asString).append(" ")
                     }
                 }
             }

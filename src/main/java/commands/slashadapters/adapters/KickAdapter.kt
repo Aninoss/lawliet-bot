@@ -13,11 +13,7 @@ class KickAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.USER, "member", "Who to kick", true)
-            .addOption(OptionType.USER, "member2", "Who to kick", false)
-            .addOption(OptionType.USER, "member3", "Who to kick", false)
-            .addOption(OptionType.USER, "member4", "Who to kick", false)
-            .addOption(OptionType.USER, "member5", "Who to kick", false)
+            .addOption(OptionType.STRING, "members", "Mention one or members who shall be kicked", true)
             .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
     }
 
