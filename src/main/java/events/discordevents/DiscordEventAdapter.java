@@ -304,8 +304,10 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
-        GlobalThreadPool.getExecutorService()
-                .submit(() -> event.replyChoices(SlashCommandManager.retrieveChoices(event)).queue());
+        if (event.getChannel() instanceof TextChannel) {
+            GlobalThreadPool.getExecutorService()
+                    .submit(() -> event.replyChoices(SlashCommandManager.retrieveChoices(event)).queue());
+        }
     }
 
     @Override

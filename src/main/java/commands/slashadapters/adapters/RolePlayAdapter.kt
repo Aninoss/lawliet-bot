@@ -8,6 +8,7 @@ import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import core.TextManager
+import mysql.modules.commandmanagement.DBCommandManagement
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -37,18 +38,23 @@ class RolePlayAdapter : SlashAdapter() {
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<net.dv8tion.jda.api.interactions.commands.Command.Choice> {
         val userText = event.focusedOption.value
-        val choiceList = ArrayList<net.dv8tion.jda.api.interactions.commands.Command.Choice>()
+        val triggerSet = HashSet<String>()
+        val switchedOffCommands = DBCommandManagement.getInstance().retrieve(event.guild!!.idLong).getSwitchedOffCommands()
+        val channelIsNSFW = event.textChannel.isNSFW
         for (clazz in CommandContainer.getFullCommandList()) {
             val commandProperties = Command.getCommandProperties(clazz)
-            val triggers = mutableListOf(commandProperties.trigger)
+            val commandTrigger = commandProperties.trigger
+            val triggers = mutableListOf(commandTrigger)
             triggers.addAll(commandProperties.aliases)
-            for (trigger in triggers) {
-                if (Command.getCategory(clazz) == Category.INTERACTIONS && trigger.lowercase().contains(userText)) {
-                    choiceList += net.dv8tion.jda.api.interactions.commands.Command.Choice(trigger, trigger)
-                }
-            }
+            triggers.filter {
+                Command.getCategory(clazz) == Category.INTERACTIONS && it.lowercase().contains(userText.lowercase()) &&
+                        !switchedOffCommands.contains(it) && (!commandProperties.nsfw || channelIsNSFW)
+            }.forEach { triggerSet += it }
         }
-        return choiceList
+
+        return triggerSet.toList()
+            .sorted()
+            .map { net.dv8tion.jda.api.interactions.commands.Command.Choice(it, it) }
     }
 
 }
