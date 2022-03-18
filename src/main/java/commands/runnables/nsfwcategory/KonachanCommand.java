@@ -20,7 +20,7 @@ public class KonachanCommand extends PornSearchAbstract {
     }
 
     @Override
-    protected String getDomain() {
+    public String getDomain() {
         return "konachan.com";
     }
 

@@ -20,7 +20,7 @@ public class RealbooruCommand extends PornSearchAbstract {
     }
 
     @Override
-    protected String getDomain() {
+    public String getDomain() {
         return "realbooru.com";
     }
 

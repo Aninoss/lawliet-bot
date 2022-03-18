@@ -15,7 +15,7 @@ public abstract class RealbooruAbstract extends PornPredefinedAbstract {
     }
 
     @Override
-    protected String getDomain() {
+    public String getDomain() {
         return "realbooru.com";
     }
 

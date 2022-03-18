@@ -20,7 +20,7 @@ public class Rule34Command extends PornSearchAbstract {
     }
 
     @Override
-    protected String getDomain() {
+    public String getDomain() {
         return "rule34.xxx";
     }
 

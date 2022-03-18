@@ -17,7 +17,7 @@ public abstract class Rule34HentaiAbstract extends PornPredefinedAbstract {
     }
 
     @Override
-    protected String getDomain() {
+    public String getDomain() {
         return "rule34.xxx";
     }
 

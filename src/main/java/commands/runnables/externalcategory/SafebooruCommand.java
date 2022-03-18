@@ -19,7 +19,7 @@ public class SafebooruCommand extends PornSearchAbstract {
     }
 
     @Override
-    protected String getDomain() {
+    public String getDomain() {
         return "safebooru.org";
     }
 

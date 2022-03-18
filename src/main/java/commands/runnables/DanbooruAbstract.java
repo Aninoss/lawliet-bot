@@ -10,7 +10,7 @@ public abstract class DanbooruAbstract extends PornPredefinedAbstract {
     }
 
     @Override
-    protected String getDomain() {
+    public String getDomain() {
         return "danbooru.donmai.us";
     }
 

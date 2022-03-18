@@ -9,7 +9,7 @@ public abstract class SafebooruAbstract extends PornPredefinedAbstract {
     }
 
     @Override
-    protected String getDomain() {
+    public String getDomain() {
         return "safebooru.org";
     }
 

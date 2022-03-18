@@ -20,7 +20,7 @@ public class E621Command extends PornSearchAbstract {
     }
 
     @Override
-    protected String getDomain() {
+    public String getDomain() {
         return "e621.net";
     }
 

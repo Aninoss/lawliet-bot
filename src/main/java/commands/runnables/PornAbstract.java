@@ -61,7 +61,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     public abstract boolean isExplicit();
 
-    protected abstract String getDomain();
+    public abstract String getDomain();
 
     protected Set<String> getAdditionalFilters() {
         return Collections.emptySet();

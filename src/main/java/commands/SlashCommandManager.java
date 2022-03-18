@@ -57,9 +57,8 @@ public class SlashCommandManager {
         if (slashAdapter != null) {
             List<Command.Choice> choiceList = slashAdapter.retrieveChoices(event);
             return choiceList.subList(0, Math.min(25, choiceList.size()));
-        } else {
-            return Collections.emptyList();
         }
+        return Collections.emptyList();
     }
 
     private static void insert(SlashAdapter adapter) {
