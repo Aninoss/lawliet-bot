@@ -1,6 +1,7 @@
 package events.discordevents;
 
 import java.util.*;
+import commands.SlashCommandManager;
 import constants.Language;
 import core.*;
 import events.discordevents.eventtypeabstracts.*;
@@ -26,6 +27,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.http.HttpRequestEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
@@ -298,6 +300,12 @@ public class DiscordEventAdapter extends ListenerAdapter {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> SelectMenuAbstract.onSelectMenuStatic(event, getListenerList(SelectMenuAbstract.class)));
         }
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> event.replyChoices(SlashCommandManager.retrieveChoices(event)).queue());
     }
 
     @Override

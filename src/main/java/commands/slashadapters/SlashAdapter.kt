@@ -4,6 +4,7 @@ import commands.Command
 import commands.CommandContainer
 import constants.Language
 import core.TextManager
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
@@ -46,6 +47,10 @@ abstract class SlashAdapter {
     fun generateCommandData(): SlashCommandData {
         val commandData = Commands.slash(name(), description())
         return addOptions(commandData)
+    }
+
+    open fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<net.dv8tion.jda.api.interactions.commands.Command.Choice> {
+        return emptyList()
     }
 
     companion object {

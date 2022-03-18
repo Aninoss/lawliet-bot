@@ -5,8 +5,11 @@ import commands.slashadapters.Slash;
 import commands.slashadapters.SlashAdapter;
 import commands.slashadapters.SlashMeta;
 import core.MainLogger;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.reflections.Reflections;
 
 public class SlashCommandManager {
@@ -45,6 +48,17 @@ public class SlashCommandManager {
             return slashAdapter.process(event);
         } else {
             return null;
+        }
+    }
+
+    @NonNull
+    public static List<Command.Choice> retrieveChoices(CommandAutoCompleteInteractionEvent event) {
+        SlashAdapter slashAdapter = slashAdapterMap.get(event.getName());
+        if (slashAdapter != null) {
+            List<Command.Choice> choiceList = slashAdapter.retrieveChoices(event);
+            return choiceList.subList(0, Math.min(25, choiceList.size()));
+        } else {
+            return Collections.emptyList();
         }
     }
 
