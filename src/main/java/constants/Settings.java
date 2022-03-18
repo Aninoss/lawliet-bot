@@ -9,7 +9,7 @@ public interface Settings {
     int FISHERY_GEAR_MAX = 999_999;
     int FISHERY_SHARES_MAX = 99_999_999;
     int FISHERY_SHARES_FEES = 4;
-    String[] NSFW_FILTERS = { "shota", "loli", "bestiality", "beastiality", "zoophilia", "cub", "vore", "gore", "scat", "rape", "necrophilia", "corpse", "children", "child", "kid", "kids", "teenager", "young", "underage", "underaged" };
+    String[] NSFW_FILTERS = { "shota", "loli", "bestiality", "beastiality", "zoophilia", "cub", "vore", "gore", "guro", "scat", "rape", "necrophilia", "corpse", "children", "child", "kid", "kids", "teenager", "young", "underage", "underaged" };
     int COOLDOWN_TIME_SEC = 30;
     int COOLDOWN_MAX_ALLOWED = 5;
     long[] PATREON_ROLE_IDS = { 762322081840234506L, 703303395867492453L, 704721905453629481L, 704721939968688249L, 706143381784494132L, 706143478085582898L };

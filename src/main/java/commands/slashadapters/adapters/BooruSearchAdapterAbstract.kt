@@ -5,12 +5,15 @@ import commands.runnables.PornAbstract
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import constants.Language
+import constants.Settings
 import modules.porn.BooruAutoComplete
+import mysql.modules.nsfwfilter.DBNSFWFilters
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
+import java.util.*
 
 abstract class BooruSearchAdapterAbstract : SlashAdapter() {
 
@@ -33,9 +36,14 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
+        val nsfwFiltersList: List<String> = DBNSFWFilters.getInstance().retrieve(event.guild!!.idLong).keywords
+        val nsfwFilters = HashSet<String>()
+        nsfwFiltersList.forEach { nsfwFilters.add(it.lowercase(Locale.getDefault())) }
+        nsfwFilters.addAll(Arrays.asList(*Settings.NSFW_FILTERS))
+
         val commandClass = commandClass()
         val command = CommandManager.createCommandByClass(commandClass.java, Language.EN.locale, "") as PornAbstract
-        return booruAutoComplete.getTags(command.getDomain(), event.focusedOption.value, HashSet()).get()
+        return booruAutoComplete.getTags(command.getDomain(), event.focusedOption.value, nsfwFilters).get()
             .map {
                 Command.Choice(it.name.replace("\\",""), it.value.replace("\\",""))
             }
