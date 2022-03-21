@@ -109,7 +109,6 @@ public class DiscordConnector {
         ServerMuteScheduler.start();
         JailScheduler.start();
         ShardManager.start();
-        SyncConnectionChecker.start();
         SyncManager.setFullyConnected();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
 
