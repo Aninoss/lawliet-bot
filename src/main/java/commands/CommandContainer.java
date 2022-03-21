@@ -194,7 +194,6 @@ public class CommandContainer {
         commandList.add(CuddleCommand.class);
         commandList.add(HighfiveCommand.class);
         commandList.add(HugCommand.class);
-        commandList.add(KillCommand.class);
         commandList.add(KissCommand.class);
         commandList.add(LickCommand.class);
         commandList.add(LoveCommand.class);
@@ -205,9 +204,8 @@ public class CommandContainer {
         commandList.add(PokeCommand.class);
         commandList.add(PunchCommand.class);
         commandList.add(RewardCommand.class);
-        commandList.add(ShootCommand.class);
         commandList.add(SlapCommand.class);
-        commandList.add(StabCommand.class);
+        commandList.add(SquishCommand.class);
         commandList.add(StealCommand.class);
         commandList.add(ThrowCommand.class);
         commandList.add(TickleCommand.class);
