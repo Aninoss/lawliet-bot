@@ -1,7 +1,5 @@
 package websockets.syncserver.events;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import core.GlobalThreadPool;
@@ -48,25 +46,23 @@ public class OnTopGG implements SyncServerFunction {
 
     protected void processUpvote(long userId, boolean isWeekend) throws ExecutionException, InterruptedException {
         UpvotesData upvotesData = DBUpvotes.getInstance().retrieve();
-        if (upvotesData.getLastUpvote(userId).plus(1, ChronoUnit.HOURS).isBefore(Instant.now())) {
-            AtomicInteger guilds = new AtomicInteger();
-            DBFishery.getInstance().getGuildIdsForFisheryUser(userId).stream()
-                    .filter(guildId -> DBGuild.getInstance().retrieve(guildId).getFisheryStatus() == FisheryStatus.ACTIVE)
-                    .forEach(guildId -> {
-                        int factor = isWeekend ? 2 : 1;
-                        FisheryMemberData userBean = DBFishery.getInstance().retrieve(guildId).getMemberData(userId);
+        AtomicInteger guilds = new AtomicInteger();
+        DBFishery.getInstance().getGuildIdsForFisheryUser(userId).stream()
+                .filter(guildId -> DBGuild.getInstance().retrieve(guildId).getFisheryStatus() == FisheryStatus.ACTIVE)
+                .forEach(guildId -> {
+                    int factor = isWeekend ? 2 : 1;
+                    FisheryMemberData userBean = DBFishery.getInstance().retrieve(guildId).getMemberData(userId);
 
-                        if (DBAutoClaim.getInstance().retrieve().isActive(userId)) {
-                            userBean.changeValues(Fishery.getClaimValue(userBean) * factor, 0);
-                        } else {
-                            userBean.addUpvote(factor);
-                        }
-                        guilds.incrementAndGet();
-                    });
+                    if (DBAutoClaim.getInstance().retrieve().isActive(userId)) {
+                        userBean.changeValues(Fishery.getClaimValue(userBean) * factor, 0);
+                    } else {
+                        userBean.addUpvote(factor);
+                    }
+                    guilds.incrementAndGet();
+                });
 
-            upvotesData.updateLastUpvote(userId);
-            MainLogger.get().info("UPVOTE | {} ({} guild/s)", userId, guilds.get());
-        }
+        upvotesData.updateLastUpvote(userId);
+        MainLogger.get().info("UPVOTE | {} ({} guild/s)", userId, guilds.get());
     }
 
 }
