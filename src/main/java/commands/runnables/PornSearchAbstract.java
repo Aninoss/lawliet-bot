@@ -25,7 +25,9 @@ public abstract class PornSearchAbstract extends PornAbstract {
     }
 
     @Override
-    public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults) throws IllegalTagException, TooManyTagsException {
+    public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount,
+                                           ArrayList<String> usedResults, boolean canBeVideo
+    ) throws IllegalTagException, TooManyTagsException {
         if (search.isEmpty()) {
             search = "animated";
             notice = TextManager.getString(getLocale(), Category.NSFW, "porn_nokey");
@@ -52,7 +54,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
         nsfwFilters.addAll(getAdditionalFilters());
 
         return downloadPorn(guildId, nsfwFilters, amount, getDomain(), search, false, isExplicit(),
-                usedResults);
+                canBeVideo, usedResults);
     }
 
     @Override

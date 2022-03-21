@@ -14,7 +14,7 @@ import core.restclient.RestClient;
 public class BooruImageDownloader {
 
     public CompletableFuture<Optional<BooruImage>> getPicture(long guildId, String domain, String searchTerm,
-                                                              boolean animatedOnly, boolean explicit,
+                                                              boolean animatedOnly, boolean explicit, boolean canBeVideo,
                                                               Set<String> filters, List<String> skippedResults,
                                                               boolean test
     ) throws ExecutionException, JsonProcessingException {
@@ -27,6 +27,7 @@ public class BooruImageDownloader {
                 .setSearchTerm(searchTerm)
                 .setAnimatedOnly(animatedOnly)
                 .setExplicit(explicit)
+                .setCanBeVideo(canBeVideo)
                 .setFilters(List.copyOf(filters))
                 .setSkippedResults(skippedResults)
                 .setTest(test);

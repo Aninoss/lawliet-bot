@@ -24,7 +24,9 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
     }
 
     @Override
-    public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults) throws IllegalTagException {
+    public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount,
+                                           ArrayList<String> usedResults, boolean canBeVideo
+    ) throws IllegalTagException {
         if (!search.isEmpty()) {
             notice = TextManager.getString(getLocale(), Category.NSFW, "porn_keyforbidden");
         }
@@ -33,7 +35,7 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
         nsfwFilters.addAll(getAdditionalFilters());
 
         return downloadPorn(guildId, nsfwFilters, amount, getDomain(), getSearchKey(), isAnimatedOnly(), isExplicit(),
-                usedResults);
+                canBeVideo, usedResults);
     }
 
     public boolean trackerUsesKey() {

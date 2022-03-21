@@ -55,7 +55,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         super(locale, prefix);
     }
 
-    public abstract List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults) throws Exception;
+    public abstract List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults, boolean canBeVideo) throws Exception;
 
     public abstract Optional<String> getNoticeOptional();
 
@@ -112,12 +112,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         }
 
         boolean first = true;
+        boolean canBeVideo = amount == 1;
         ArrayList<String> usedResults = new ArrayList<>();
         event.deferReply();
         do {
             List<BooruImage> pornImages;
             try {
-                pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilters, args, Math.min(3, (int) amount), usedResults);
+                pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilters, args, Math.min(3, (int) amount), usedResults, canBeVideo);
             } catch (IllegalTagException e) {
                 if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                     drawMessageNew(illegalTagsEmbed()).exceptionally(ExceptionLogger.get());
@@ -197,7 +198,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     private boolean checkServiceAvailable() {
         try {
-            return booruImageDownloader.getPicture(0L, getDomain(), "", false, isExplicit(), Collections.emptySet(), Collections.emptyList(), true).get().isPresent();
+            return booruImageDownloader.getPicture(0L, getDomain(), "", false, isExplicit(), false, Collections.emptySet(), Collections.emptyList(), true).get().isPresent();
         } catch (InterruptedException | ExecutionException | NoSuchElementException | JsonProcessingException e) {
             //Ignore
             return false;
@@ -264,7 +265,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         try {
             String cacheKey = getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFiltersList);
             pornImages = alertsCache.get(cacheKey,
-                    () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>())
+                    () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), false)
             );
             if (pornImages.isEmpty()) {
                 alertsCache.invalidate(cacheKey);
@@ -355,7 +356,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
     }
 
     protected List<BooruImage> downloadPorn(long guildId, Set<String> nsfwFilter, int amount, String domain,
-                                            String search, boolean animatedOnly, boolean explicit,
+                                            String search, boolean animatedOnly, boolean explicit, boolean canBeVideo,
                                             ArrayList<String> usedResults) throws IllegalTagException {
         if (NSFWUtil.stringContainsBannedTags(search, nsfwFilter)) {
             throw new IllegalTagException();
@@ -367,7 +368,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         for (int i = 0; i < amount; i++) {
             try {
                 futures.add(
-                        booruImageDownloader.getPicture(guildId, domain, search, animatedOnly, explicit, nsfwFilter, usedResults, false)
+                        booruImageDownloader.getPicture(guildId, domain, search, animatedOnly, explicit, canBeVideo, nsfwFilter, usedResults, false)
                 );
             } catch (ExecutionException | JsonProcessingException e) {
                 MainLogger.get().error("Error while downloading porn", e);
