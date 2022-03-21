@@ -115,11 +115,13 @@ public class DiscordConnector {
         try {
             List<CommandData> commandDataList = SlashCommandManager.initialize();
             if (Program.productionMode()) {
-                if (Program.getClusterId() == 1 && Program.isNewVersion()) {
+                if (Program.isNewVersion()) {
                     MainLogger.get().info("Pushing new slash commands");
                     jda.updateCommands()
                             .addCommands(commandDataList)
                             .queue();
+                } else {
+                    MainLogger.get().info("Skipping slash commands because it's not a new version");
                 }
             } else {
                 ShardManager.getLocalGuildById(AssetIds.BETA_SERVER_ID).get()
