@@ -48,7 +48,7 @@ public class OnTopGG implements SyncServerFunction {
 
     protected void processUpvote(long userId, boolean isWeekend) throws ExecutionException, InterruptedException {
         UpvotesData upvotesData = DBUpvotes.getInstance().retrieve();
-        if (upvotesData.getLastUpvote(userId).plus(11, ChronoUnit.HOURS).isBefore(Instant.now())) {
+        if (upvotesData.getLastUpvote(userId).plus(1, ChronoUnit.HOURS).isBefore(Instant.now())) {
             AtomicInteger guilds = new AtomicInteger();
             DBFishery.getInstance().getGuildIdsForFisheryUser(userId).stream()
                     .filter(guildId -> DBGuild.getInstance().retrieve(guildId).getFisheryStatus() == FisheryStatus.ACTIVE)
