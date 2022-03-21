@@ -85,19 +85,19 @@ public class DiscordConnector {
         ShardManager.addJDA(jda);
         MainLogger.get().info("Shard {} connection established", jda.getShardInfo().getShardId());
 
-        checkConnectionCompleted();
+        checkConnectionCompleted(jda);
         if (Program.productionMode()) {
             MainRepair.start(jda, 20);
         }
     }
 
-    private synchronized static void checkConnectionCompleted() {
+    private synchronized static void checkConnectionCompleted(JDA jda) {
         if (ShardManager.isEverythingConnected() && !ShardManager.isReady()) {
-            onConnectionCompleted();
+            onConnectionCompleted(jda);
         }
     }
 
-    private synchronized static void onConnectionCompleted() {
+    private synchronized static void onConnectionCompleted(JDA jda) {
         new ScheduleEventManager().start();
         if (Program.productionMode() && Program.publicVersion()) {
             BumpReminder.start();
@@ -117,8 +117,8 @@ public class DiscordConnector {
             List<CommandData> commandDataList = SlashCommandManager.initialize();
             if (Program.productionMode()) {
                 if (Program.getClusterId() == 1 && Program.isNewVersion()) {
-                    ShardManager.getAnyJDA().get()
-                            .updateCommands()
+                    MainLogger.get().info("Pushing new slash commands");
+                    jda.updateCommands()
                             .addCommands(commandDataList)
                             .queue();
                 }
