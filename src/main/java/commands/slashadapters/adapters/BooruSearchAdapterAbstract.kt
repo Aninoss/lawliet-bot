@@ -44,7 +44,7 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
         val commandClass = commandClass()
         val command = CommandManager.createCommandByClass(commandClass.java, Language.EN.locale, "") as PornAbstract
         val tag = event.focusedOption.value
-        if (tag.contains(" ") || tag.length > 50) {
+        if (tag.contains(" ") || tag.length > 100) {
             return emptyList()
         } else {
             return booruAutoComplete.getTags(command.getDomain(), tag, nsfwFilters).get()

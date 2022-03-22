@@ -221,10 +221,12 @@ public class CommandContainer {
         commandList.add(AssGrabCommand.class);
         commandList.add(BlowjobCommand.class);
         commandList.add(BoobsGrabCommand.class);
+        commandList.add(CreampieCommand.class);
         commandList.add(CumCommand.class);
         commandList.add(FootjobCommand.class);
         commandList.add(FuckCommand.class);
         commandList.add(FurryFuckCommand.class);
+        commandList.add(LeashCommand.class);
         commandList.add(MasturbateCommand.class);
         commandList.add(SpankCommand.class);
         commandList.add(TittyFuckCommand.class);
