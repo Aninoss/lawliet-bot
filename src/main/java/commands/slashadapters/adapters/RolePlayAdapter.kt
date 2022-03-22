@@ -46,10 +46,13 @@ class RolePlayAdapter : SlashAdapter() {
             val commandTrigger = commandProperties.trigger
             val triggers = mutableListOf(commandTrigger)
             triggers.addAll(commandProperties.aliases)
-            triggers.filter {
+            val matches = triggers.any {
                 Command.getCategory(clazz) == Category.INTERACTIONS && it.lowercase().contains(userText.lowercase()) &&
                         !switchedOffCommands.contains(it) && (!commandProperties.nsfw || channelIsNSFW)
-            }.forEach { triggerSet += it }
+            }
+            if (matches) {
+                triggerSet += commandTrigger
+            }
         }
 
         return triggerSet.toList()

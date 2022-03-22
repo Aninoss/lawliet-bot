@@ -36,21 +36,25 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
-        val nsfwFiltersList: List<String> = DBNSFWFilters.getInstance().retrieve(event.guild!!.idLong).keywords
-        val nsfwFilters = HashSet<String>()
-        nsfwFiltersList.forEach { nsfwFilters.add(it.lowercase(Locale.getDefault())) }
-        nsfwFilters.addAll(Arrays.asList(*Settings.NSFW_FILTERS))
+        if (event.textChannel.isNSFW) {
+            val nsfwFiltersList: List<String> = DBNSFWFilters.getInstance().retrieve(event.guild!!.idLong).keywords
+            val nsfwFilters = HashSet<String>()
+            nsfwFiltersList.forEach { nsfwFilters.add(it.lowercase(Locale.getDefault())) }
+            nsfwFilters.addAll(Arrays.asList(*Settings.NSFW_FILTERS))
 
-        val commandClass = commandClass()
-        val command = CommandManager.createCommandByClass(commandClass.java, Language.EN.locale, "") as PornAbstract
-        val tag = event.focusedOption.value
-        if (tag.contains(" ") || tag.length > 100) {
-            return emptyList()
+            val commandClass = commandClass()
+            val command = CommandManager.createCommandByClass(commandClass.java, Language.EN.locale, "") as PornAbstract
+            val tag = event.focusedOption.value
+            if (tag.contains(" ") || tag.length > 100) {
+                return emptyList()
+            } else {
+                return booruAutoComplete.getTags(command.getDomain(), tag, nsfwFilters).get()
+                    .map {
+                        Command.Choice(it.name.replace("\\", ""), it.value.replace("\\", ""))
+                    }
+            }
         } else {
-            return booruAutoComplete.getTags(command.getDomain(), tag, nsfwFilters).get()
-                .map {
-                    Command.Choice(it.name.replace("\\", ""), it.value.replace("\\", ""))
-                }
+            return emptyList()
         }
     }
 
