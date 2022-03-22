@@ -43,10 +43,15 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
 
         val commandClass = commandClass()
         val command = CommandManager.createCommandByClass(commandClass.java, Language.EN.locale, "") as PornAbstract
-        return booruAutoComplete.getTags(command.getDomain(), event.focusedOption.value, nsfwFilters).get()
-            .map {
-                Command.Choice(it.name.replace("\\",""), it.value.replace("\\",""))
-            }
+        val tag = event.focusedOption.value
+        if (tag.contains(" ") || tag.length > 50) {
+            return emptyList()
+        } else {
+            return booruAutoComplete.getTags(command.getDomain(), tag, nsfwFilters).get()
+                .map {
+                    Command.Choice(it.name.replace("\\", ""), it.value.replace("\\", ""))
+                }
+        }
     }
 
     companion object {
