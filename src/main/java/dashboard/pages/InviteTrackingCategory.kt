@@ -1,7 +1,7 @@
 package dashboard.pages
 
 import commands.Command
-import commands.runnables.utilitycategory.InviteTrackingCommand
+import commands.runnables.invitetrackingcategory.InviteTrackingCommand
 import core.TextManager
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties

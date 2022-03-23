@@ -1,4 +1,4 @@
-package commands.runnables.informationcategory;
+package commands.runnables.invitetrackingcategory;
 
 import java.util.Locale;
 import commands.CommandEvent;

@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
 import commands.Category;
-import commands.runnables.utilitycategory.InviteTrackingCommand;
+import commands.runnables.invitetrackingcategory.InviteTrackingCommand;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.ShardManager;

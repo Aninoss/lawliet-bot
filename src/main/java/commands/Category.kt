@@ -11,6 +11,7 @@ enum class Category(val id: String, val emoji: String, val isIndependent: Boolea
     FISHERY_SETTINGS("fishery_settings_category", "⚙️", true),
     FISHERY("fishery_category", "🎣", true),
     CASINO("casino", "🎰", true),
+    INVITE_TRACKING("invite_tracking_category", "✉️", true),
     INTERACTIONS("interactions", "🫂", true),
     EXTERNAL("external_services", "📤", true),
     NSFW("nsfw", "🔞", true),
@@ -41,6 +42,7 @@ enum class Category(val id: String, val emoji: String, val isIndependent: Boolea
                 "fisherysettingscategory" -> FISHERY_SETTINGS
                 "fisherycategory" -> FISHERY
                 "casinocategory" -> CASINO
+                "invitetrackingcategory" -> INVITE_TRACKING
                 "moderationcategory" -> MODERATION
                 "aitoyscategory" -> AI_TOYS
                 else -> null

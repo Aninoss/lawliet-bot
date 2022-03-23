@@ -20,6 +20,8 @@ import commands.runnables.fisherysettingscategory.*;
 import commands.runnables.gimmickscategory.*;
 import commands.runnables.informationcategory.*;
 import commands.runnables.interactionscategory.*;
+import commands.runnables.invitetrackingcategory.InviteTrackingCommand;
+import commands.runnables.invitetrackingcategory.InvitesCommand;
 import commands.runnables.moderationcategory.*;
 import commands.runnables.nsfwcategory.*;
 import commands.runnables.splatoon2category.MapsCommand;
@@ -88,7 +90,6 @@ public class CommandContainer {
         commandList.add(GiveawayCommand.class);
         commandList.add(SuggestionCommand.class);
         commandList.add(TicketCommand.class);
-        commandList.add(InviteTrackingCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);
@@ -118,7 +119,6 @@ public class CommandContainer {
         commandList.add(ChannelInfoCommand.class);
         commandList.add(UserInfoCommand.class);
         commandList.add(AvatarCommand.class);
-        commandList.add(InvitesCommand.class);
         commandList.add(CommandUsagesCommand.class);
         commandList.add(PingCommand.class);
         commandList.add(NewCommand.class);
@@ -159,6 +159,11 @@ public class CommandContainer {
         commandList.add(AnimeQuizCommand.class);
         commandList.add(TowerCommand.class);
         commandList.add(BingoCommand.class);
+
+        //INVITE TRACKING
+        commandList.add(InviteTrackingCommand.class);
+        commandList.add(InvitesCommand.class);
+
 
         //INTERACTIONS
         commandList.add(AngryCommand.class);

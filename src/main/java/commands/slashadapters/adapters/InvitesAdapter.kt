@@ -1,6 +1,6 @@
 package commands.slashadapters.adapters
 
-import commands.runnables.informationcategory.InvitesCommand
+import commands.runnables.invitetrackingcategory.InvitesCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta

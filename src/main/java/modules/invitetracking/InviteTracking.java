@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import commands.runnables.utilitycategory.InviteTrackingCommand;
+import commands.runnables.invitetrackingcategory.InviteTrackingCommand;
 import core.*;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.invitetracking.DBInviteTracking;
