@@ -22,6 +22,7 @@ import commands.runnables.informationcategory.*;
 import commands.runnables.interactionscategory.*;
 import commands.runnables.invitetrackingcategory.InviteTrackingCommand;
 import commands.runnables.invitetrackingcategory.InvitesCommand;
+import commands.runnables.invitetrackingcategory.InvitesTopCommand;
 import commands.runnables.moderationcategory.*;
 import commands.runnables.nsfwcategory.*;
 import commands.runnables.splatoon2category.MapsCommand;
@@ -163,6 +164,7 @@ public class CommandContainer {
         //INVITE TRACKING
         commandList.add(InviteTrackingCommand.class);
         commandList.add(InvitesCommand.class);
+        commandList.add(InvitesTopCommand.class);
 
 
         //INTERACTIONS

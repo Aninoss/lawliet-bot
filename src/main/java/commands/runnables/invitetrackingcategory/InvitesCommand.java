@@ -7,6 +7,7 @@ import commands.runnables.MemberAccountAbstract;
 import constants.Emojis;
 import core.EmbedFactory;
 import core.ExceptionLogger;
+import core.TextManager;
 import core.atomicassets.AtomicMember;
 import core.utils.StringUtil;
 import modules.invitetracking.InviteMetrics;
@@ -38,8 +39,8 @@ public class InvitesCommand extends MemberAccountAbstract {
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedError(
                     this,
-                    getString("trackingnotenabled_description"),
-                    getString("trackingnotenabled_title")
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "invites_notenabled_description").replace("{PREFIX}", getPrefix()),
+                    TextManager.getString(getLocale(), TextManager.GENERAL, "invites_notenabled_title")
             );
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;

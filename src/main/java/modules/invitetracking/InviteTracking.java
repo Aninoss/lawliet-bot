@@ -44,7 +44,7 @@ public class InviteTracking {
             }
         }
 
-        return new InviteMetrics(invites, onServer, retained, active);
+        return new InviteMetrics(guild.getIdLong(), inviterUserId, invites, onServer, retained, active);
     }
 
     public static void memberActivity(Member member) {

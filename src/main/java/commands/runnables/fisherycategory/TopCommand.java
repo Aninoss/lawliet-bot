@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.entities.Member;
         executableWithoutArgs = true,
         usesExtEmotes = true,
         requiresFullMemberCache = true,
-        aliases = { "rankings", "ranking", "rank", "ranks", "leaderboard", "t" }
+        aliases = { "rankings", "ranking", "rank", "ranks", "t", "fisherytop", "fishtop" }
 )
 public class TopCommand extends ListAbstract implements FisheryInterface {
 
@@ -118,7 +118,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
         for (FisheryProperty fisheryProperty : fisheryProperties) {
             if (fisheryProperty.show) {
                 if (sb.isEmpty()) {
-                    sb.append(Emojis.FULL_SPACE_EMOTE);
+                    sb.append(Emojis.FULL_SPACE_UNICODE).append(Emojis.FULL_SPACE_UNICODE).append(" ");
                 } else {
                     sb.append("⠀⠀");
                 }
@@ -133,7 +133,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
 
     @Override
     protected EmbedBuilder postProcessEmbed(EmbedBuilder eb) {
-        return eb.setDescription(getString("desc", orderBy.ordinal(), Emojis.ZERO_WIDTH_SPACE));
+        return eb.setDescription(getString("desc", orderBy.ordinal()));
     }
 
     private int getRank(Collection<Long> values, long ownValue) {
