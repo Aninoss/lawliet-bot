@@ -285,7 +285,8 @@ public final class StringUtil {
                 .replace("_", "\\_")
                 .replace("`", "\\`")
                 .replace("|", "\\|")
-                .replace("~", "\\~");
+                .replace("~", "\\~")
+                .replace(">", "\\>");
     }
 
     public static String escapeMarkdownInField(String str) {
