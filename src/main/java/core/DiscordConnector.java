@@ -9,11 +9,13 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
 import modules.BumpReminder;
+import modules.SupportTemplates;
 import modules.repair.MainRepair;
 import modules.schedulers.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -127,10 +129,18 @@ public class DiscordConnector {
                 ShardManager.getLocalGuildById(AssetIds.BETA_SERVER_ID).get()
                         .updateCommands()
                         .addCommands(commandDataList)
+                        .addCommands(SupportTemplates.generateSupportContextCommands())
                         .queue();
             }
         } catch (Throwable e) {
             MainLogger.get().error("Exception on slash commands load", e);
+        }
+
+        Guild guild = jda.getGuildById(AssetIds.SUPPORT_SERVER_ID);
+        if (guild != null) {
+            guild.updateCommands()
+                    .addCommands(SupportTemplates.generateSupportContextCommands())
+                    .queue();
         }
     }
 

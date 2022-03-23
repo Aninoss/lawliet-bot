@@ -2,9 +2,11 @@ package events.discordevents;
 
 import java.util.*;
 import commands.SlashCommandManager;
+import constants.AssetIds;
 import constants.Language;
 import core.*;
 import events.discordevents.eventtypeabstracts.*;
+import modules.SupportTemplates;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -28,6 +30,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.events.http.HttpRequestEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
@@ -307,6 +310,13 @@ public class DiscordEventAdapter extends ListenerAdapter {
         if (event.getChannel() instanceof TextChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> event.replyChoices(SlashCommandManager.retrieveChoices(event)).queue());
+        }
+    }
+
+    @Override
+    public void onMessageContextInteraction(@NotNull MessageContextInteractionEvent event) {
+        if (!Program.productionMode() || event.getMember().getRoles().stream().anyMatch(r -> r.getIdLong() == AssetIds.SUPPORT_ROLE_ID)) {
+            SupportTemplates.process(event);
         }
     }
 
