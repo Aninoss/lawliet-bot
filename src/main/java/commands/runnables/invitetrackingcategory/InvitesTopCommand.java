@@ -63,11 +63,17 @@ public class InvitesTopCommand extends ListAbstract {
     @Override
     protected Pair<String, String> getEntry(int i) {
         InviteMetrics inviteMetrics = inviteMetricsSlots.get(i);
-        Optional<Member> memberOpt = inviteMetrics.getMember();
-        String userString = memberOpt
-                .map(Member::getEffectiveName)
-                .orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "nouser", String.valueOf(inviteMetrics.getMemberId())));
-        userString = StringUtil.escapeMarkdown(userString);
+        long memberId = inviteMetrics.getMemberId();
+        String userString;
+        if (memberId != 0) {
+            Optional<Member> memberOpt = inviteMetrics.getMember();
+            userString = memberOpt
+                    .map(Member::getEffectiveName)
+                    .orElse(TextManager.getString(getLocale(), TextManager.GENERAL, "nouser", String.valueOf(memberId)));
+            userString = StringUtil.escapeMarkdown(userString);
+        } else {
+            userString = TextManager.getString(getLocale(), TextManager.GENERAL, "invites_vanity");
+        }
 
         int rank = (int) inviteMetricsSlots.stream()
                 .filter(other -> inviteMetrics.compareTo(other) < 0)

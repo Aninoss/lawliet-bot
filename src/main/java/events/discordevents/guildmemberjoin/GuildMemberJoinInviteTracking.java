@@ -85,7 +85,7 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
                         InviteMetrics inviteMetrics = InviteTracking.generateInviteMetrics(member.getGuild(), invite.getInviter());
                         String statsTitle = invite.getInviter() > 0
                                 ? TextManager.getString(locale, Category.INFORMATION, "invites_template_title", inviterName)
-                                : TextManager.getString(locale, Category.INFORMATION, "invites_template_vanity_title");
+                                : TextManager.getString(locale, TextManager.GENERAL, "invites_vanity");
                         String stats = TextManager.getString(locale, Category.INFORMATION, "invites_template_desc",
                                 StringUtil.numToString(inviteMetrics.getTotalInvites()),
                                 StringUtil.numToString(inviteMetrics.getOnServer()),
