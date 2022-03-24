@@ -24,7 +24,6 @@ import net.dv8tion.jda.api.utils.AllowedMentions;
 import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.internal.utils.IOUtil;
-import websockets.syncserver.SyncManager;
 
 public class DiscordConnector {
 
@@ -111,7 +110,6 @@ public class DiscordConnector {
         ServerMuteScheduler.start();
         JailScheduler.start();
         ShardManager.start();
-        SyncManager.setFullyConnected();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
 
         try {

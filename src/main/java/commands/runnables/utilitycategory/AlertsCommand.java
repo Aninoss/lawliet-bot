@@ -385,7 +385,10 @@ public class AlertsCommand extends NavigationAbstract {
 
     private boolean trackerSlotExists(String commandTrigger, String commandKey) {
         return alerts.values().stream()
-                .anyMatch(slot -> slot.getCommandTrigger().equals(commandTrigger) && slot.getCommandKey().equalsIgnoreCase(commandKey));
+                .anyMatch(slot -> slot.getCommandTrigger().equals(commandTrigger) &&
+                        slot.getBaseGuildMessageChannelId() == channelId &&
+                        slot.getCommandKey().equalsIgnoreCase(commandKey)
+                );
     }
 
     private boolean enoughSpaceForNewTrackers(Member member) {

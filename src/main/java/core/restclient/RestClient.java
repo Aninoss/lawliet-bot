@@ -24,6 +24,13 @@ public class RestClient {
             System.getenv("WEBCACHE_AUTH")
     );
 
+    public static final RestClient SYNC = new RestClient(
+            System.getenv("SYNC_HOST"),
+            Integer.parseInt(System.getenv("SYNC_CLIENT_PORT")),
+            "api/",
+            System.getenv("SYNC_AUTH")
+    );
+
     private RestClient(String domain, int port, String path, String auth) {
         this.url = String.format("http://%s:%d/%s", domain, port, path);
         this.auth = auth;

@@ -1,5 +1,6 @@
 package websockets.syncserver;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -8,6 +9,7 @@ import core.PatreonData;
 import core.Program;
 import core.ShardManager;
 import core.cache.PatreonCache;
+import core.restclient.RestClient;
 import org.json.JSONObject;
 
 public class SendEvent {
@@ -18,15 +20,6 @@ public class SendEvent {
     public static CompletableFuture<Boolean> sendPing() {
         return sendEmpty("PING")
                 .thenApply(responseJson -> responseJson.has("ping") && responseJson.getString("ping").equals("pong"));
-    }
-
-    public static CompletableFuture<JSONObject> sendFullyConnected() {
-        CompletableFuture<JSONObject> future = SyncManager.getClient().send("CLUSTER_FULLY_CONNECTED", new JSONObject());
-        if (Program.productionMode()) {
-            return future;
-        } else {
-            return CompletableFuture.completedFuture(new JSONObject());
-        }
     }
 
     public static CompletableFuture<Optional<Long>> sendRequestGlobalGuildSize(long localServerSize) {
@@ -68,14 +61,6 @@ public class SendEvent {
         );
     }
 
-    public static CompletableFuture<Long> sendRequestSyncedRatelimit() {
-        return process(
-                "SYNCED_RATELIMIT",
-                Map.of(),
-                responseJson -> responseJson.getLong("waiting_time_nanos")
-        );
-    }
-
     public static CompletableFuture<Void> sendUnreport(String url) {
         return process(
                 "UNREPORT",
@@ -84,26 +69,31 @@ public class SendEvent {
         );
     }
 
+    public static CompletableFuture<Void> sendHeartbeat(String ip, boolean alreadyConnected, int shardMin, int shardMax, int totalShards) {
+        return process(
+                "HEARTBEAT",
+                Map.of(
+                        "ip", ip,
+                        "already_connected", alreadyConnected,
+                        "shard_min", shardMin,
+                        "shard_max", shardMax,
+                        "total_shards", totalShards
+                ),
+                responseJson -> null
+        );
+    }
+
     public static CompletableFuture<JSONObject> sendEmpty(String event) {
-        return SyncManager.getClient().send(event, new JSONObject());
+        return process(event, Collections.emptyMap(), r -> r);
     }
 
     private static <T> CompletableFuture<T> process(String event, Map<String, Object> jsonMap, Function<JSONObject, T> function) {
-        CompletableFuture<T> future = new CompletableFuture<>();
-
         JSONObject dataJson = new JSONObject();
         jsonMap.keySet().forEach(k -> dataJson.put(k, jsonMap.get(k)));
-        SyncManager.getClient().send(event, dataJson)
-                .exceptionally(e -> {
-                    future.completeExceptionally(e);
-                    return null;
-                })
-                .thenAccept(jsonResponse -> {
-                    T t = function.apply(jsonResponse);
-                    future.complete(t);
-                });
+        dataJson.put("source_cluster_id", Program.getClusterId());
 
-        return future;
+        return RestClient.SYNC.post(event, "application/json", dataJson.toString())
+                .thenApply(jsonResponse -> function.apply(new JSONObject(jsonResponse.getBody())));
     }
 
 }

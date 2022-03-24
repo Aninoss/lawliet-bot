@@ -27,7 +27,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import websockets.syncserver.SyncManager;
 
 public class Console {
 
@@ -64,7 +63,6 @@ public class Console {
         tasks.put("uptime", Console::onUptime);
         tasks.put("shards", Console::onShards);
         tasks.put("reconnect", Console::onReconnect);
-        tasks.put("sync_reconnect", Console::onSyncReconnect);
         tasks.put("mysql_connect", Console::onMySQLConnect);
         tasks.put("threads", Console::onThreads);
         tasks.put("threads_stack", Console::onThreadsStack);
@@ -394,10 +392,6 @@ public class Console {
         } catch (SQLException e) {
             MainLogger.get().error("Exception", e);
         }
-    }
-
-    private static void onSyncReconnect(String[] args) {
-        SyncManager.reconnect();
     }
 
     private static void onReconnect(String[] args) {
