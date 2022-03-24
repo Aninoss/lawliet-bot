@@ -75,6 +75,7 @@ public class SupportTemplates {
                 .setAuthor("Lawliet Support")
                 .setDescription(text)
                 .setFooter(TextManager.getString(language.getLocale(), TextManager.GENERAL, "deleteTime", "60"));
+
         event.reply(event.getTarget().getAuthor().getAsMention())
                 .addEmbeds(eb.build())
                 .flatMap(InteractionHook::retrieveOriginal)

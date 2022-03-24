@@ -1,7 +1,6 @@
 package core.cache;
 
 import java.time.Duration;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -10,7 +9,6 @@ import core.MainLogger;
 import core.ShardManager;
 import core.utils.BotPermissionUtil;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ServerPatreonBoostCache {
@@ -21,16 +19,11 @@ public class ServerPatreonBoostCache {
                     new CacheLoader<>() {
                         @Override
                         public Boolean load(@NonNull Long serverId) {
-                            Optional<Guild> guildOptional = ShardManager.getLocalGuildById(serverId);
-                            if (guildOptional.isPresent()) {
-                                Guild guild = guildOptional.get();
-
-                                return guild.getMembers().stream()
-                                        .filter(member -> !member.getUser().isBot() && BotPermissionUtil.can(member, Permission.MANAGE_SERVER))
-                                        .anyMatch(member -> PatreonCache.getInstance().hasPremium(member.getIdLong(), true));
-                            }
-
-                            return false;
+                            return ShardManager.getLocalGuildById(serverId).map(
+                                    guild -> guild.getMembers().stream()
+                                            .filter(member -> !member.getUser().isBot() && BotPermissionUtil.can(member, Permission.MANAGE_SERVER))
+                                            .anyMatch(member -> PatreonCache.getInstance().hasPremium(member.getIdLong(), true))
+                            ).orElse(false);
                         }
                     }
             );

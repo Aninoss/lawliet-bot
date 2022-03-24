@@ -17,7 +17,7 @@ import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicBaseGuildMessageChannel;
-import core.cache.PatreonCache;
+import core.cache.ServerPatreonBoostCache;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -104,8 +104,7 @@ public class AlertsCommand extends NavigationAbstract {
         }
 
         if (command.getCommandProperties().patreonRequired() &&
-                !PatreonCache.getInstance().hasPremium(getMemberId().get(), true) &&
-                !PatreonCache.getInstance().isUnlocked(getGuildId().get())
+                !ServerPatreonBoostCache.get(event.getGuild().getIdLong())
         ) {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
             return MessageInputResponse.FAILED;
@@ -155,9 +154,7 @@ public class AlertsCommand extends NavigationAbstract {
             return MessageInputResponse.FAILED;
         }
 
-        if (PatreonCache.getInstance().isUnlocked(getGuildId().get()) ||
-                PatreonCache.getInstance().hasPremium(getMemberId().get(), true)
-        ) {
+        if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
             if (!BotPermissionUtil.memberCanMentionRoles(channel, event.getMember(), input)) {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention"));
                 return MessageInputResponse.FAILED;
@@ -392,9 +389,7 @@ public class AlertsCommand extends NavigationAbstract {
     }
 
     private boolean enoughSpaceForNewTrackers(Member member) {
-        boolean premium = PatreonCache.getInstance().hasPremium(member.getIdLong(), true) ||
-                PatreonCache.getInstance().isUnlocked(member.getGuild().getIdLong());
-
+        boolean premium = ServerPatreonBoostCache.get(member.getGuild().getIdLong());
         if (channelId == 0L || alerts.values().stream().filter(a -> a.getBaseGuildMessageChannelId() == channelId).count() < LIMIT_CHANNEL || premium) {
             if (alerts.size() < LIMIT_SERVER || premium) {
                 return true;
