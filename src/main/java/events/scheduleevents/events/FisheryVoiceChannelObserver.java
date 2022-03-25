@@ -66,7 +66,7 @@ public class FisheryVoiceChannelObserver implements ExceptionRunnable {
                     });
                 }
             } catch (Throwable e) {
-                MainLogger.get().error("Error while fetching VC member list", e);
+                MainLogger.get().error("Error while fetching voice member list", e);
             }
         }
     }
