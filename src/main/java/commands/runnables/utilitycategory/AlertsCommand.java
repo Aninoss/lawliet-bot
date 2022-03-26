@@ -52,9 +52,9 @@ public class AlertsCommand extends NavigationAbstract {
             STATE_KEY = 4,
             STATE_USERMESSAGE = 5;
 
-    private final int LIMIT_CHANNEL = 5;
-    private final int LIMIT_SERVER = 20;
-    private final int LIMIT_KEY_LENGTH = 500;
+    public static final int LIMIT_CHANNEL = 5;
+    public static final int LIMIT_SERVER = 20;
+    public static final int LIMIT_KEY_LENGTH = 500;
 
     private long channelId = 0L;
     private CustomObservableMap<Integer, TrackerData> alerts;

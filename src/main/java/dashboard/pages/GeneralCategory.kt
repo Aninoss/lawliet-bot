@@ -8,7 +8,6 @@ import commands.runnables.utilitycategory.AutoQuoteCommand
 import commands.runnables.utilitycategory.TriggerDeleteCommand
 import constants.Language
 import core.TextManager
-import core.cache.PatreonCache
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
@@ -91,8 +90,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         }
         switch.isChecked = DBGuild.getInstance().retrieve(atomicGuild.idLong).isCommandAuthorMessageRemove
         switch.subtitle = getString(Category.UTILITY, "triggerdelete_info")
-        switch.isEnabled = PatreonCache.getInstance().hasPremium(atomicMember.idLong, true) ||
-                PatreonCache.getInstance().isUnlocked(atomicGuild.idLong)
+        switch.isEnabled = isPremium
         return switch
     }
 

@@ -21,6 +21,10 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
     val atomicMember: AtomicMember
     val properties: DashboardProperties
     val prefix: String
+    val isPremium
+        get() = true
+    /*get() = PatreonCache.getInstance().hasPremium(atomicMember.idLong, true) ||
+            PatreonCache.getInstance().isUnlocked(atomicGuild.idLong) TODO*/
 
     private var components: DashboardContainer? = null
 

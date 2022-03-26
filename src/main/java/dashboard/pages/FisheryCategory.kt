@@ -11,7 +11,6 @@ import core.CustomObservableList
 import core.GlobalThreadPool
 import core.MemberCacheController
 import core.TextManager
-import core.cache.PatreonCache
 import core.utils.StringUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
@@ -58,8 +57,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val fisheryData = DBFishery.getInstance().retrieve(guild.idLong)
         val guildData = fisheryData.guildData
-        val premium = PatreonCache.getInstance().hasPremium(atomicMember.idLong, true) ||
-                PatreonCache.getInstance().isUnlocked(atomicGuild.idLong)
+        val premium = isPremium
 
         mainContainer.add(
             generateStateField(guildData),
