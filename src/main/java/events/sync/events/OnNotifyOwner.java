@@ -1,4 +1,4 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import java.util.concurrent.TimeUnit;
 import core.EmbedFactory;
@@ -6,8 +6,8 @@ import core.ShardManager;
 import core.utils.JDAUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.json.JSONObject;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "NOTIFY")
 public class OnNotifyOwner implements SyncServerFunction {

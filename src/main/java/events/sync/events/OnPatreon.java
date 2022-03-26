@@ -1,11 +1,11 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import core.MainLogger;
 import core.PatreonData;
 import core.cache.PatreonCache;
 import org.json.JSONObject;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "PATREON")
 public class OnPatreon implements SyncServerFunction {

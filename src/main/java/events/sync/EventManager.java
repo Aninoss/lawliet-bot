@@ -1,4 +1,4 @@
-package websockets.syncserver;
+package events.sync;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class EventManager {
     }
 
     private static void registerEvents() {
-        Reflections reflections = new Reflections("websockets/syncserver/events");
+        Reflections reflections = new Reflections("events/sync/events");
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(SyncServerEvent.class);
         annotated.stream()
                 .map(clazz -> {

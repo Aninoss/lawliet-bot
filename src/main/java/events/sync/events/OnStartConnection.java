@@ -1,9 +1,9 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import core.DiscordConnector;
 import org.json.JSONObject;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "START_CONNECTION")
 public class OnStartConnection implements SyncServerFunction {

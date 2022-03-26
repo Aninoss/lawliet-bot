@@ -1,4 +1,4 @@
-package websockets.syncserver;
+package events.sync;
 
 import java.util.ArrayList;
 import java.util.Arrays;

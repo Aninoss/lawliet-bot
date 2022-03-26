@@ -1,4 +1,4 @@
-package websockets.syncserver;
+package events.sync;
 
 public enum FRPanelType {
 

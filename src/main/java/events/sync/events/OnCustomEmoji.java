@@ -1,10 +1,10 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.Emote;
 import org.json.JSONObject;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "CUSTOM_EMOJI")
 public class OnCustomEmoji implements SyncServerFunction {

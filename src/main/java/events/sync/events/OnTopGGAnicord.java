@@ -1,4 +1,4 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import java.text.MessageFormat;
 import constants.AssetIds;
@@ -9,7 +9,7 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
-import websockets.syncserver.SyncServerEvent;
+import events.sync.SyncServerEvent;
 
 @SyncServerEvent(event = "TOPGG_ANICORD")
 public class OnTopGGAnicord extends OnTopGG {

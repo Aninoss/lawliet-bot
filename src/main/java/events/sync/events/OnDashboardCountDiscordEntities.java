@@ -1,4 +1,4 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import core.MemberCacheController;
 import core.ShardManager;
@@ -6,8 +6,8 @@ import core.utils.BotPermissionUtil;
 import dashboard.component.DashboardComboBox;
 import net.dv8tion.jda.api.entities.Member;
 import org.json.JSONObject;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "DASH_COUNT_DISCORD_ENTITIES")
 public class OnDashboardCountDiscordEntities implements SyncServerFunction {

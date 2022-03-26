@@ -8,7 +8,7 @@ import mysql.MySQLManager;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionData;
 import mysql.modules.version.VersionSlot;
-import websockets.syncserver.EventManager;
+import events.sync.EventManager;
 
 public class Main {
 

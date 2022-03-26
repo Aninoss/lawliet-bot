@@ -1,4 +1,4 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -10,9 +10,9 @@ import commands.Category;
 import core.TextManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import websockets.syncserver.SyncLocaleUtil;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncLocaleUtil;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "COMMAND_LIST")
 public class OnCommandList implements SyncServerFunction {

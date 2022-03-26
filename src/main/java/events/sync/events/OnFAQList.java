@@ -1,11 +1,11 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import core.TextManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import websockets.syncserver.SyncLocaleUtil;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncLocaleUtil;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "FAQ_LIST")
 public class OnFAQList implements SyncServerFunction {

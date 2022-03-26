@@ -1,4 +1,4 @@
-package websockets.syncserver;
+package events.sync;
 
 import core.Program;
 import jakarta.ws.rs.container.ContainerRequestContext;

@@ -1,4 +1,4 @@
-package websockets.syncserver;
+package events.sync;
 
 import java.util.function.Function;
 import org.json.JSONObject;

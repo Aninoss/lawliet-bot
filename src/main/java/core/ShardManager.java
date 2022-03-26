@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.User;
-import websockets.syncserver.SendEvent;
+import events.sync.SendEvent;
 
 public class ShardManager {
 

@@ -1,9 +1,9 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import core.ShardManager;
 import org.json.JSONObject;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "BLOCK_SHARDS")
 public class OnBlockShards implements SyncServerFunction {

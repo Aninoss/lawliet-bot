@@ -1,4 +1,4 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,8 +14,8 @@ import mysql.modules.guild.DBGuild;
 import mysql.modules.upvotes.DBUpvotes;
 import mysql.modules.upvotes.UpvotesData;
 import org.json.JSONObject;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "TOPGG")
 public class OnTopGG implements SyncServerFunction {

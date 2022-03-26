@@ -7,7 +7,7 @@ import constants.AssetIds;
 import core.PatreonData;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import websockets.syncserver.SendEvent;
+import events.sync.SendEvent;
 
 public class PatreonCache extends SingleCache<PatreonData> {
 

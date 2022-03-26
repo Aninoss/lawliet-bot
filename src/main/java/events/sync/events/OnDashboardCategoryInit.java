@@ -1,4 +1,4 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import java.util.List;
 import java.util.Locale;
@@ -12,8 +12,8 @@ import dashboard.DashboardManager;
 import net.dv8tion.jda.api.Permission;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "DASH_CAT_INIT")
 public class OnDashboardCategoryInit implements SyncServerFunction {

@@ -1,9 +1,9 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import core.MainLogger;
 import org.json.JSONObject;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "EXIT")
 public class OnExit implements SyncServerFunction {

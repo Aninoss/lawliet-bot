@@ -1,4 +1,4 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import core.MemberCacheController;
 import core.ShardManager;
@@ -7,8 +7,8 @@ import dashboard.component.DashboardComboBox;
 import net.dv8tion.jda.api.entities.Member;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "DASH_LIST_DISCORD_ENTITIES")
 public class OnDashboardListDiscordEntities implements SyncServerFunction {

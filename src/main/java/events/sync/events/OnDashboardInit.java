@@ -1,4 +1,4 @@
-package websockets.syncserver.events;
+package events.sync.events;
 
 import java.util.Locale;
 import constants.Language;
@@ -9,8 +9,8 @@ import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import websockets.syncserver.SyncServerEvent;
-import websockets.syncserver.SyncServerFunction;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "DASH_INIT")
 public class OnDashboardInit implements SyncServerFunction {

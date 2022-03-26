@@ -8,7 +8,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.MainLogger;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import websockets.syncserver.SendEvent;
+import events.sync.SendEvent;
 
 public class ExternalEmojiCache {
 

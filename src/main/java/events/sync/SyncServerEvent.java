@@ -1,4 +1,4 @@
-package websockets.syncserver;
+package events.sync;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

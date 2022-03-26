@@ -9,7 +9,7 @@ import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import websockets.syncserver.SendEvent;
+import events.sync.SendEvent;
 
 @DiscordEvent
 public class ButtonClickUnreport extends ButtonClickAbstract implements InteractionListenerHandler<ButtonInteractionEvent> {
