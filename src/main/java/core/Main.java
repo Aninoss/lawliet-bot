@@ -4,11 +4,11 @@ import java.time.Instant;
 import com.jockie.jda.memory.MemoryOptimizations;
 import core.emoji.EmojiTable;
 import core.utils.BotUtil;
+import events.sync.EventManager;
 import mysql.MySQLManager;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionData;
 import mysql.modules.version.VersionSlot;
-import events.sync.EventManager;
 
 public class Main {
 

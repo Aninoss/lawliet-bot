@@ -1,6 +1,7 @@
-package websockets;
+package core.botlists;
 
 import java.util.concurrent.ExecutionException;
+import core.ExceptionLogger;
 import core.ShardManager;
 import org.discordbots.api.client.DiscordBotListAPI;
 
@@ -16,7 +17,7 @@ public class TopGG {
     }
 
     public static void updateServerCount(long totalServerSize) {
-        dblApi.setStats((int) totalServerSize);
+        dblApi.setStats((int) totalServerSize).exceptionally(ExceptionLogger.get());
     }
 
     public static int getTotalUpvotes() throws ExecutionException, InterruptedException {

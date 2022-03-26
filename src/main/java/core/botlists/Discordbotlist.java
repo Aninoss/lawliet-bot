@@ -1,4 +1,4 @@
-package websockets;
+package core.botlists;
 
 import core.ExceptionLogger;
 import core.ShardManager;

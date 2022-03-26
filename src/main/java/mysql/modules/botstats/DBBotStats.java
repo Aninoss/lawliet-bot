@@ -3,7 +3,7 @@ package mysql.modules.botstats;
 import java.util.concurrent.ExecutionException;
 import core.MainLogger;
 import mysql.MySQLManager;
-import websockets.TopGG;
+import core.botlists.TopGG;
 
 public class DBBotStats {
 
