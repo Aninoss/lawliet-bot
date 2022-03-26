@@ -1,20 +1,15 @@
 package modules;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import constants.Language;
 import core.EmbedFactory;
-import core.TextManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
@@ -73,30 +68,11 @@ public class SupportTemplates {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setAuthor("Lawliet Support")
-                .setDescription(text)
-                .setFooter(TextManager.getString(language.getLocale(), TextManager.GENERAL, "deleteTime", "60"));
+                .setDescription(text);
 
         event.reply(event.getTarget().getAuthor().getAsMention())
                 .addEmbeds(eb.build())
-                .flatMap(InteractionHook::retrieveOriginal)
-                .queue(message -> {
-                    scheduledExecutor.schedule(() -> {
-                        ArrayList<Message> toBeDeleted = new ArrayList<>();
-                        toBeDeleted.add(message);
-                        event.getMessageChannel().getHistoryBefore(message, 25).queue(messageHistory -> {
-                            for (Message historyMessage : messageHistory.getRetrievedHistory()) {
-                                if (historyMessage.getAuthor() == event.getTarget().getAuthor()) {
-                                    toBeDeleted.add(historyMessage);
-                                }
-                            }
-                            if (toBeDeleted.size() == 1) {
-                                event.getTextChannel().deleteMessageById(toBeDeleted.get(0).getId()).queue();
-                            } else {
-                                event.getTextChannel().deleteMessages(toBeDeleted).queue();
-                            }
-                        });
-                    }, 60, TimeUnit.SECONDS);
-                });
+                .queue();
     }
 
     private static Language findLanguage(Category parentCategory) {
