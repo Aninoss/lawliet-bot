@@ -4,6 +4,7 @@ import core.MemberCacheController;
 import core.ShardManager;
 import core.utils.BotPermissionUtil;
 import dashboard.component.DashboardComboBox;
+import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -53,6 +54,20 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                     Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
                     guild.getTextChannels().stream()
                             .filter(c -> ("#" + c.getName().toLowerCase()).contains(filterText) && BotPermissionUtil.can(member, c))
+                            .skip(offset)
+                            .limit(limit)
+                            .forEach(c -> {
+                                JSONObject json = new JSONObject();
+                                json.put("id", c.getId());
+                                json.put("name", "#" + c.getName());
+                                entitiesJson.put(json);
+                            });
+                }
+
+                case BASE_GUILD_MESSAGE_CHANNELS -> {
+                    Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
+                    guild.getChannels().stream()
+                            .filter(c -> c instanceof BaseGuildMessageChannel && ("#" + c.getName().toLowerCase()).contains(filterText) && BotPermissionUtil.can(member, c))
                             .skip(offset)
                             .limit(limit)
                             .forEach(c -> {
