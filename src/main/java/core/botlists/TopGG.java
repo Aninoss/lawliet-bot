@@ -3,7 +3,10 @@ package core.botlists;
 import java.util.concurrent.ExecutionException;
 import core.ExceptionLogger;
 import core.ShardManager;
+import core.internet.HttpHeader;
+import core.internet.HttpRequest;
 import org.discordbots.api.client.DiscordBotListAPI;
+import org.json.JSONObject;
 
 public class TopGG {
 
@@ -16,8 +19,13 @@ public class TopGG {
                 .build();
     }
 
-    public static void updateServerCount(long totalServerSize) {
-        dblApi.setStats((int) totalServerSize).exceptionally(ExceptionLogger.get());
+    public static void updateServerCount(long serverCount) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("server_count", serverCount);
+
+        HttpHeader httpHeader =  new HttpHeader("Authorization", System.getenv("TOPGG_TOKEN"));
+        HttpRequest.post("https://top.gg/api/bots/" + ShardManager.getSelfId() + "/stats", "application/json", jsonObject.toString(), httpHeader)
+                .exceptionally(ExceptionLogger.get());
     }
 
     public static int getTotalUpvotes() throws ExecutionException, InterruptedException {
