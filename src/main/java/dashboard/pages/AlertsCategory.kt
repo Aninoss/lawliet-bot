@@ -23,13 +23,15 @@ import dashboard.data.GridRow
 import modules.schedulers.AlertScheduler
 import mysql.modules.tracker.DBTracker
 import mysql.modules.tracker.TrackerData
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.BaseGuildMessageChannel
 import net.dv8tion.jda.api.entities.Guild
 import java.time.Instant
 import java.util.*
 
 @DashboardProperties(
-    id = "alerts"
+    id = "alerts",
+    userPermissions = [Permission.MANAGE_SERVER]
 )
 class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
@@ -104,7 +106,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
                     .withErrorMessage(getString(Category.UTILITY, "alerts_toomuch_server", AlertsCommand.LIMIT_SERVER.toString()))
             }
 
-            val channel = channelId ?.let { guild.getChannelById(BaseGuildMessageChannel::class.java, it.toString()) }
+            val channel = channelId?.let { guild.getChannelById(BaseGuildMessageChannel::class.java, it.toString()) }
             if (channel == null) { /* invalid channel */
                 return@DashboardButton ActionResult(false)
                     .withErrorMessage(getString(Category.UTILITY, "alerts_invalidchannel"))
