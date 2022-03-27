@@ -91,6 +91,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
             ActionResult(false)
         }
         attachmentField.isEnabled = isPremium
+        attachmentField.editButton = false
         container.add(DashboardSeparator(), attachmentField)
         container.add(DashboardText(getString(Category.UTILITY, "alerts_dashboard_attachment_help")))
 
@@ -205,6 +206,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
             commandKey = it.data
             ActionResult(false)
         }
+        argsTextField.editButton = false
         container.add(argsTextField)
 
         return container

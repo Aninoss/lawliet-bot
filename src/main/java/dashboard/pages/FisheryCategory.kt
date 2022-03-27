@@ -138,15 +138,12 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         propertyComboBox.isEnabled = premium
         container.add(propertyComboBox)
 
-        val valueTextField = DashboardTextField(
-            getString(Category.FISHERY_SETTINGS, "fisherymanage_textfield"),
-            1,
-            30
-        ) {
+        val valueTextField = DashboardTextField(getString(Category.FISHERY_SETTINGS, "fisherymanage_textfield"), 1, 30) {
             manageNewValue = it.data.replace(Regex("[<>]"), "")
             ActionResult(false)
         }
         valueTextField.value = manageNewValue
+        valueTextField.editButton = false
         valueTextField.isEnabled = premium
         container.add(valueTextField)
 
