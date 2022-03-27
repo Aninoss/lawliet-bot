@@ -45,6 +45,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val alertMap = DBTracker.getInstance().retrieve(guild.idLong)
         mainContainer.add(
+            DashboardText(getString(Category.UTILITY, "alerts_dashboard_desc")),
             generateAlertGrid(guild, alertMap),
             generateNewAlertField(guild, alertMap)
         )
