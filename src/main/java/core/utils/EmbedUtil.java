@@ -55,7 +55,7 @@ public class EmbedUtil {
                     case TIME -> "⏲️ ";
                 };
             }
-            eb.addField(Emojis.ZERO_WIDTH_SPACE, "`" + add + log + "`", false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE, "`" + StringUtil.shortenString(add + log, 500) + "`", false);
         }
 
         return eb;
