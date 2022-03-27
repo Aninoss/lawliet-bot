@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
         emoji = "🏆",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
+        releaseDate = { 2022, 4, 3 },
         aliases = { "invitestop", "invitetop", "leaderboard", "leaderboards" }
 )
 public class InvitesTopCommand extends ListAbstract {
