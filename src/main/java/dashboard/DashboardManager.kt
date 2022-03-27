@@ -22,7 +22,7 @@ object DashboardManager {
             CommandManagementCategory::class,
             FisheryCategory::class,
             AlertsCategory::class,
-            NSFWCategory::class,
+            NSFWFilterCategory::class,
             ModerationCategory::class,
             InviteTrackingCategory::class,
             GiveawayCategory::class,

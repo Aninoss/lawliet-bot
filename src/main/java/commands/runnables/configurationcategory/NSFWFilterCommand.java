@@ -27,8 +27,8 @@ import org.jetbrains.annotations.NotNull;
 )
 public class NSFWFilterCommand extends NavigationAbstract {
 
-    private static final int MAX_FILTERS = 50;
-    private final static int MAX_LENGTH = 50;
+    public static final int MAX_FILTERS = 50;
+    public final static int MAX_LENGTH = 50;
 
     private CustomObservableList<String> keywords;
 
@@ -47,7 +47,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) throws Throwable {
         if (state == 1) {
             if (!input.isEmpty()) {
-                String[] mentionedKeywords = input.split(" ");
+                String[] mentionedKeywords = input.toLowerCase().split(" ");
 
                 int existingKeywords = 0;
                 for (String str : mentionedKeywords) {
