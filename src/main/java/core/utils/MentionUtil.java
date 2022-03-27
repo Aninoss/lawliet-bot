@@ -184,10 +184,9 @@ public class MentionUtil {
     ) {
         for (MentionFunction function : functions) {
             boolean found = false;
-
             for (T t : sourceList) {
                 String tag = function.apply(t);
-                if (!StringUtil.stringIsLong(tag.trim()) && matches(input, tag)) {
+                if (!StringUtil.stringIsInt(tag.trim()) && matches(input, tag)) {
                     input = input.replaceAll("(?i)" + Pattern.quote(tag.trim()), "");
                     if (!mentionList.contains(t)) {
                         mentionList.add(t);
