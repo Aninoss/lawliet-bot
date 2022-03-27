@@ -73,7 +73,7 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
                 }
 
                 String created = TimeFormat.RELATIVE.atInstant(member.getTimeCreated().toInstant()).toString();
-                String text = TextManager.getString(locale, Category.UTILITY, "invitetracking_log", n, member.getAsMention(), created, inviterTag, code, uses);
+                String text = TextManager.getString(locale, Category.INVITE_TRACKING, "invitetracking_log", n, member.getAsMention(), created, inviterTag, code, uses);
 
                 MessageAction messageAction;
                 if (inviteTrackingData.isAdvanced()) {
@@ -84,9 +84,9 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
                     if (invite != null) {
                         InviteMetrics inviteMetrics = InviteTracking.generateInviteMetrics(member.getGuild(), invite.getInviter());
                         String statsTitle = invite.getInviter() > 0
-                                ? TextManager.getString(locale, Category.INFORMATION, "invites_template_title", inviterName)
+                                ? TextManager.getString(locale, Category.INVITE_TRACKING, "invites_template_title", inviterName)
                                 : TextManager.getString(locale, TextManager.GENERAL, "invites_vanity");
-                        String stats = TextManager.getString(locale, Category.INFORMATION, "invites_template_desc",
+                        String stats = TextManager.getString(locale, Category.INVITE_TRACKING, "invites_template_desc",
                                 StringUtil.numToString(inviteMetrics.getTotalInvites()),
                                 StringUtil.numToString(inviteMetrics.getOnServer()),
                                 StringUtil.numToString(inviteMetrics.getRetained()),
