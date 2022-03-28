@@ -16,6 +16,8 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
+import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
+import net.dv8tion.jda.api.events.guild.invite.GuildInviteDeleteEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
@@ -317,6 +319,18 @@ public class DiscordEventAdapter extends ListenerAdapter {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageContextInteractionAbstract.onGuildMessageContextInteractionStatic(event, getListenerList(GuildMessageContextInteractionAbstract.class)));
         }
+    }
+
+    @Override
+    public void onGuildInviteCreate(@NotNull GuildInviteCreateEvent event) {
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildInviteCreateAbstract.onGuildInviteCreateStatic(event, getListenerList(GuildInviteCreateAbstract.class)));
+    }
+
+    @Override
+    public void onGuildInviteDelete(@NotNull GuildInviteDeleteEvent event) {
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildInviteDeleteAbstract.onGuildInviteDeleteStatic(event, getListenerList(GuildInviteDeleteAbstract.class)));
     }
 
     @Override

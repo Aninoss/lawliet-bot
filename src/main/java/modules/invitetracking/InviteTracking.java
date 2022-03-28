@@ -66,14 +66,19 @@ public class InviteTracking {
         try {
             Guild guild = member.getGuild();
             Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
-
             if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, guild, Permission.MANAGE_SERVER)) {
                 collectInvites(guild)
                         .thenAccept(guildInvites -> {
                             CustomObservableMap<String, GuildInvite> databaseInvites = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getGuildInvites();
+                            HashSet<String> missingInviteCodes = databaseInvites.values().stream()
+                                    .map(GuildInvite::getCode)
+                                    .collect(Collectors.toCollection(HashSet::new));
                             TempInvite tempInvite = null;
+                            boolean ambiguousInvite = false;
 
+                            /* check invite uses */
                             for (TempInvite invite : guildInvites) {
+                                missingInviteCodes.remove(invite.code);
                                 int inviteUses = invite.uses;
                                 int databaseUses = 0;
                                 GuildInvite guildInvite = databaseInvites.get(invite.code);
@@ -84,6 +89,20 @@ public class InviteTracking {
                                 if (inviteUses > databaseUses) {
                                     if (tempInvite == null) {
                                         tempInvite = invite;
+                                    } else {
+                                        tempInvite = null;
+                                        ambiguousInvite = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            /* check temporary invites which no longer exist due to having limit uses */
+                            if (!ambiguousInvite) {
+                                for (String inviteCode : missingInviteCodes) {
+                                    if (tempInvite == null) {
+                                        GuildInvite guildInvite = databaseInvites.get(inviteCode);
+                                        tempInvite = new TempInvite(guildInvite.getCode(), guildInvite.getUses() + 1, guildInvite.getMemberId());
                                     } else {
                                         tempInvite = null;
                                         break;
