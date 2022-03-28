@@ -17,7 +17,7 @@ public class GuildMessageReceivedAnicordBump extends GuildMessageReceivedAbstrac
 
     @Override
     public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
-        if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID && event.getMember().getIdLong() == 302050872383242240L) {
+        if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID && event.getAuthor().getIdLong() == 302050872383242240L) {
             List<MessageEmbed> embedList = event.getMessage().getEmbeds();
             if (embedList.size() > 0 && embedList.get(0).getImage() != null && embedList.get(0).getDescription() != null) {
                 DBBump.setNextBump(Instant.now().plus(2, ChronoUnit.HOURS));

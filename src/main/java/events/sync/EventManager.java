@@ -38,7 +38,7 @@ public class EventManager {
                     ShardManager.getShardIntervalMax(),
                     ShardManager.getTotalShards()
             );
-        }, 0, 3, TimeUnit.SECONDS);
+        }, 3, 3, TimeUnit.SECONDS);
     }
 
     private static void registerEvents() {
