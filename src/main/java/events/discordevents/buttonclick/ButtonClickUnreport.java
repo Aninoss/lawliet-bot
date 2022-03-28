@@ -38,6 +38,7 @@ public class ButtonClickUnreport extends ButtonClickAbstract implements Interact
                         }).collect(Collectors.toList());
                 event.getMessage().editMessageComponents(ActionRows.of(newComponents)).queue();
             }
+            return false;
         }
 
         return true;

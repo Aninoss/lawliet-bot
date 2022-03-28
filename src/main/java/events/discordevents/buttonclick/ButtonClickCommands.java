@@ -11,11 +11,9 @@ public class ButtonClickCommands extends ButtonClickAbstract implements Interact
 
     @Override
     public boolean onButtonClick(ButtonInteractionEvent event) {
-        handleInteraction(event, OnButtonListener.class,
+        return handleInteraction(event, OnButtonListener.class,
                 listener -> ((OnButtonListener) listener.getCommand()).processButton(event)
         );
-
-        return true;
     }
 
 }

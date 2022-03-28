@@ -11,11 +11,9 @@ public class SelectMenuCommands extends SelectMenuAbstract implements Interactio
 
     @Override
     public boolean onSelectMenu(SelectMenuInteractionEvent event) {
-        handleInteraction(event, OnSelectMenuListener.class,
+        return handleInteraction(event, OnSelectMenuListener.class,
                 listener -> ((OnSelectMenuListener) listener.getCommand()).processSelectMenu(event)
         );
-
-        return true;
     }
 
 }
