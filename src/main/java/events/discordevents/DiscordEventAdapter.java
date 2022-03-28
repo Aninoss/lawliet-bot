@@ -2,11 +2,9 @@ package events.discordevents;
 
 import java.util.*;
 import commands.SlashCommandManager;
-import constants.AssetIds;
 import constants.Language;
 import core.*;
 import events.discordevents.eventtypeabstracts.*;
-import modules.SupportTemplates;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -315,8 +313,9 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageContextInteraction(@NotNull MessageContextInteractionEvent event) {
-        if (!Program.productionMode() || event.getMember().getRoles().stream().anyMatch(r -> r.getIdLong() == AssetIds.SUPPORT_ROLE_ID)) {
-            SupportTemplates.process(event);
+        if (event.isFromGuild()) {
+            GlobalThreadPool.getExecutorService()
+                    .submit(() -> GuildMessageContextInteractionAbstract.onGuildMessageContextInteractionStatic(event, getListenerList(GuildMessageContextInteractionAbstract.class)));
         }
     }
 
