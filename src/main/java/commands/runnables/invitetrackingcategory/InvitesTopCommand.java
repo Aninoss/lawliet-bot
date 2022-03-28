@@ -27,6 +27,8 @@ import org.jetbrains.annotations.NotNull;
 )
 public class InvitesTopCommand extends ListAbstract {
 
+    private enum OrderBy { TOTAL_INVITES, ON_SERVER, RETAINED, ACTIVE }
+
     private ArrayList<InviteMetrics> inviteMetricsSlots;
 
     public InvitesTopCommand(Locale locale, String prefix) {
@@ -36,7 +38,7 @@ public class InvitesTopCommand extends ListAbstract {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
         if (DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).isActive()) {
-            registerList(event.getMember(), args);
+            registerList(event.getMember(), args, getString("orderby").split("\n"));
             return true;
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedError(
@@ -62,7 +64,8 @@ public class InvitesTopCommand extends ListAbstract {
                     }
                 });
 
-        inviteMetricsSlots.sort(Collections.reverseOrder());
+        OrderBy orderByEnum = OrderBy.values()[orderBy];
+        inviteMetricsSlots.sort((i0, i1) -> Integer.compare(getInviteValue(i1, orderByEnum), getInviteValue(i0, orderByEnum)));
         return inviteMetricsSlots.size();
     }
 
@@ -81,8 +84,10 @@ public class InvitesTopCommand extends ListAbstract {
             userString = TextManager.getString(getLocale(), TextManager.GENERAL, "invites_vanity");
         }
 
+        OrderBy orderByEnum = OrderBy.values()[orderBy];
+        int value = getInviteValue(inviteMetrics, orderByEnum);
         int rank = (int) inviteMetricsSlots.stream()
-                .filter(other -> inviteMetrics.compareTo(other) < 0)
+                .filter(other -> getInviteValue(other, orderByEnum) > value)
                 .count() + 1;
         String rankString = switch (rank) {
             case 1 -> "🥇";
@@ -109,8 +114,28 @@ public class InvitesTopCommand extends ListAbstract {
     }
 
     @Override
+    protected int calculateOrderBy(String args) {
+        return switch (args.replace("_", "")) {
+            case "total" -> OrderBy.TOTAL_INVITES.ordinal();
+            case "onserver", "server" -> OrderBy.ON_SERVER.ordinal();
+            case "retained" -> OrderBy.RETAINED.ordinal();
+            case "active" -> OrderBy.ACTIVE.ordinal();
+            default -> -1;
+        };
+    }
+
+    @Override
     protected EmbedBuilder postProcessEmbed(EmbedBuilder eb, int orderBy) {
         return eb.setDescription(getString("desc"));
+    }
+
+    private int getInviteValue(InviteMetrics inviteMetrics, OrderBy orderBy) {
+        return switch (orderBy) {
+            case TOTAL_INVITES -> inviteMetrics.getTotalInvites();
+            case ON_SERVER -> inviteMetrics.getOnServer();
+            case RETAINED -> inviteMetrics.getRetained();
+            case ACTIVE -> inviteMetrics.getActive();
+        };
     }
 
 }

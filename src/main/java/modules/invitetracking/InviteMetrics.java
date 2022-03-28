@@ -1,9 +1,8 @@
 package modules.invitetracking;
 
 import core.assets.MemberAsset;
-import org.jetbrains.annotations.NotNull;
 
-public class InviteMetrics implements MemberAsset, Comparable<InviteMetrics> {
+public class InviteMetrics implements MemberAsset {
 
     private final long guildId;
     private final long memberId;
@@ -45,21 +44,6 @@ public class InviteMetrics implements MemberAsset, Comparable<InviteMetrics> {
 
     public int getActive() {
         return active;
-    }
-
-    @Override
-    public int compareTo(@NotNull InviteMetrics o) {
-        int comp = Integer.compare(totalInvites, o.totalInvites);
-        if (comp == 0) {
-            comp = Integer.compare(onServer, o.onServer);
-            if (comp == 0) {
-                comp = Integer.compare(retained, o.retained);
-                if (comp == 0) {
-                    comp = Integer.compare(active, o.active);
-                }
-            }
-        }
-        return comp;
     }
 
 }

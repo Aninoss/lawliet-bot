@@ -14,6 +14,7 @@ class TopAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         val optionData = OptionData(OptionType.STRING, "order_by", "Which property should determine the ranking?", false)
+            .addChoice("recent_fish_gains", "recent_fish_gains")
             .addChoice("fish", "fish")
             .addChoice("coins", "coins")
             .addChoice("daily_streak", "daily_streak")
