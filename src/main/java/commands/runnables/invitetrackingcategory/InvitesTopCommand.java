@@ -36,19 +36,7 @@ public class InvitesTopCommand extends ListAbstract {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
         if (DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).isActive()) {
-            inviteMetricsSlots = new ArrayList<>();
-            HashSet<Long> memberIds = new HashSet<>();
-            DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).getInviteTrackingSlots().values()
-                    .forEach(slot -> {
-                        long userId = slot.getInviterUserId();
-                        if (!memberIds.contains(userId)) {
-                            memberIds.add(userId);
-                            inviteMetricsSlots.add(InviteTracking.generateInviteMetrics(event.getGuild(), userId));
-                        }
-                    });
-
-            inviteMetricsSlots.sort(Collections.reverseOrder());
-            registerList(event.getMember(), inviteMetricsSlots.size(), args);
+            registerList(event.getMember(), args);
             return true;
         } else {
             EmbedBuilder eb = EmbedFactory.getEmbedError(
@@ -62,7 +50,24 @@ public class InvitesTopCommand extends ListAbstract {
     }
 
     @Override
-    protected Pair<String, String> getEntry(int i) {
+    protected int configure(Member member, int orderBy) throws Throwable {
+        inviteMetricsSlots = new ArrayList<>();
+        HashSet<Long> memberIds = new HashSet<>();
+        DBInviteTracking.getInstance().retrieve(member.getGuild().getIdLong()).getInviteTrackingSlots().values()
+                .forEach(slot -> {
+                    long userId = slot.getInviterUserId();
+                    if (!memberIds.contains(userId)) {
+                        memberIds.add(userId);
+                        inviteMetricsSlots.add(InviteTracking.generateInviteMetrics(member.getGuild(), userId));
+                    }
+                });
+
+        inviteMetricsSlots.sort(Collections.reverseOrder());
+        return inviteMetricsSlots.size();
+    }
+
+    @Override
+    protected Pair<String, String> getEntry(int i, int orderBy) {
         InviteMetrics inviteMetrics = inviteMetricsSlots.get(i);
         long memberId = inviteMetrics.getMemberId();
         String userString;
@@ -104,7 +109,7 @@ public class InvitesTopCommand extends ListAbstract {
     }
 
     @Override
-    protected EmbedBuilder postProcessEmbed(EmbedBuilder eb) {
+    protected EmbedBuilder postProcessEmbed(EmbedBuilder eb, int orderBy) {
         return eb.setDescription(getString("desc"));
     }
 

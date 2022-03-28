@@ -13,6 +13,7 @@ import javafx.util.Pair;
 import mysql.modules.commandusages.CommandUsagesData;
 import mysql.modules.commandusages.DBCommandUsages;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -34,21 +35,23 @@ public class CommandUsagesCommand extends ListAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
-        for (Class<? extends Command> clazz : CommandContainer.getFullCommandList()) {
-            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
-            commandUsages.add(new Pair<>(DBCommandUsages.getInstance().retrieve(command.getTrigger()), command.getCommandProperties().emoji()));
-        }
-
-        commandUsages.sort((a0, a1) -> Long.compare(a1.getKey().getValue(), a0.getKey().getValue()));
-
-        registerList(event.getMember(), commandUsages.size(), args);
+        registerList(event.getMember(), args);
         return true;
     }
 
     @Override
-    protected Pair<String, String> getEntry(int i) throws Throwable {
-        Pair<CommandUsagesData, String> commandUsagesPair = commandUsages.get(i);
+    protected int configure(Member member, int orderBy) throws Throwable {
+        for (Class<? extends Command> clazz : CommandContainer.getFullCommandList()) {
+            Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
+            commandUsages.add(new Pair<>(DBCommandUsages.getInstance().retrieve(command.getTrigger()), command.getCommandProperties().emoji()));
+        }
+        commandUsages.sort((a0, a1) -> Long.compare(a1.getKey().getValue(), a0.getKey().getValue()));
+        return commandUsages.size();
+    }
 
+    @Override
+    protected Pair<String, String> getEntry(int i, int orderBy) throws Throwable {
+        Pair<CommandUsagesData, String> commandUsagesPair = commandUsages.get(i);
         return new Pair<>(
                 getString("slot_title", commandUsagesPair.getKey().getCommand(), commandUsagesPair.getValue()),
                 getString("slot_desc", StringUtil.numToString(commandUsagesPair.getKey().getValue()))
