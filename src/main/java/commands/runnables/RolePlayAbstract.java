@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
+import commands.runnables.interactionscategory.BiteCommand;
 import constants.AssetIds;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -58,12 +60,20 @@ public abstract class RolePlayAbstract extends Command {
     public boolean onTriggerInteractive(CommandEvent event, String args) throws ExecutionException, InterruptedException {
         Mention mention = MentionUtil.getMentionedString(getLocale(), event.getGuild(), args, event.getMember(), event.getRepliedMember());
         boolean mentionPresent = !mention.getMentionText().isEmpty();
+        String authorString = "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**";
 
         if (!mentionPresent && mention.containedBlockedUser()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(
-                    this,
-                    TextManager.getString(getLocale(), TextManager.GENERAL, "alone")
-            ).setImage("https://cdn.discordapp.com/attachments/736277561373491265/736277600053493770/hug.gif");
+            String gif;
+            String text;
+            if (this instanceof BiteCommand) {
+                gif = "https://cdn.discordapp.com/attachments/499629904380297226/958012189875241061/bite.gif";
+                text = getString("themselves", authorString);
+            } else {
+                gif = "https://cdn.discordapp.com/attachments/736277561373491265/736277600053493770/hug.gif";
+                text = TextManager.getString(getLocale(), Category.INTERACTIONS, "alone");
+            }
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, text)
+                    .setImage(gif);
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
@@ -98,10 +108,10 @@ public abstract class RolePlayAbstract extends Command {
         String gifUrl = gifs[RandomPicker.pick(getTrigger(), event.getGuild().getIdLong(), gifs.length).get()];
         EmbedBuilder eb;
         if (mentionPresent) {
-            eb = EmbedFactory.getEmbedDefault(this, getString("template", mention.isMultiple(), mention.getMentionText(), "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**") + quote)
+            eb = EmbedFactory.getEmbedDefault(this, getString("template", mention.isMultiple(), mention.getMentionText(), authorString) + quote)
                     .setImage(gifUrl);
         } else {
-            eb = EmbedFactory.getEmbedDefault(this, getString("template_single", "**" + StringUtil.escapeMarkdown(event.getMember().getEffectiveName()) + "**") + quote)
+            eb = EmbedFactory.getEmbedDefault(this, getString("template_single", authorString) + quote)
                     .setImage(gifUrl);
         }
 
