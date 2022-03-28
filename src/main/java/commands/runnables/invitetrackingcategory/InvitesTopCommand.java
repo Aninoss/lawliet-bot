@@ -105,10 +105,10 @@ public class InvitesTopCommand extends ListAbstract {
                 getString(
                         "template_value",
                         Emojis.FULL_SPACE_UNICODE,
-                        StringUtil.numToString(inviteMetrics.getTotalInvites()),
-                        StringUtil.numToString(inviteMetrics.getOnServer()),
-                        StringUtil.numToString(inviteMetrics.getRetained()),
-                        StringUtil.numToString(inviteMetrics.getActive())
+                        makeThicc(StringUtil.numToString(inviteMetrics.getTotalInvites()), orderByEnum == OrderBy.TOTAL_INVITES),
+                        makeThicc(StringUtil.numToString(inviteMetrics.getOnServer()), orderByEnum == OrderBy.ON_SERVER),
+                        makeThicc(StringUtil.numToString(inviteMetrics.getRetained()), orderByEnum == OrderBy.RETAINED),
+                        makeThicc(StringUtil.numToString(inviteMetrics.getActive()), orderByEnum == OrderBy.ACTIVE)
                 )
         );
     }
@@ -136,6 +136,14 @@ public class InvitesTopCommand extends ListAbstract {
             case RETAINED -> inviteMetrics.getRetained();
             case ACTIVE -> inviteMetrics.getActive();
         };
+    }
+
+    private String makeThicc(String text, boolean thicc) {
+        if (thicc) {
+            return "**" + text + "**";
+        } else {
+            return text;
+        }
     }
 
 }
