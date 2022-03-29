@@ -16,6 +16,7 @@ import core.Program;
 import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.servermute.DBServerMute;
+import net.dv8tion.jda.api.entities.Member;
 
 @ScheduleEventDaily
 public class MuteRefresh implements ExceptionRunnable {
@@ -41,27 +42,26 @@ public class MuteRefresh implements ExceptionRunnable {
                     .forEach(serverMuteData -> {
                         try {
                             Locale locale = DBGuild.getInstance().retrieve(serverMuteData.getGuildId()).getLocale();
-                            MemberCacheController.getInstance().loadMember(serverMuteData.getGuild().get(), serverMuteData.getMemberId()).thenAccept(member -> {
-                                if (member.getTimeOutEnd() != null) {
-                                    Instant timeOutEnd = member.getTimeOutEnd().toInstant();
-                                    Instant expirationMax = Instant.now().plus(Duration.ofDays(27));
-                                    Instant expiration = serverMuteData.getExpirationTime().orElse(Instant.MAX);
-                                    if (expiration.isAfter(expirationMax)) {
-                                        expiration = expirationMax;
-                                    }
-                                    if (expiration.isAfter(timeOutEnd)) {
-                                        try {
-                                            Thread.sleep(2000 + r.nextInt(3000));
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                        counter.incrementAndGet();
-                                        member.timeoutUntil(expiration)
-                                                .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())
-                                                .complete();
-                                    }
+                            Member member = MemberCacheController.getInstance().loadMember(serverMuteData.getGuild().get(), serverMuteData.getMemberId()).get();
+                            if (member != null && member.getTimeOutEnd() != null) {
+                                Instant timeOutEnd = member.getTimeOutEnd().toInstant();
+                                Instant expirationMax = Instant.now().plus(Duration.ofDays(27));
+                                Instant expiration = serverMuteData.getExpirationTime().orElse(Instant.MAX);
+                                if (expiration.isAfter(expirationMax)) {
+                                    expiration = expirationMax;
                                 }
-                            });
+                                if (expiration.isAfter(timeOutEnd)) {
+                                    try {
+                                        Thread.sleep(2000 + r.nextInt(3000));
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    counter.incrementAndGet();
+                                    member.timeoutUntil(expiration)
+                                            .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())
+                                            .complete();
+                                }
+                            }
                         } catch (Throwable e) {
                             MainLogger.get().error("Mute refresher exception for guild: {}; member: {}",
                                     serverMuteData.getGuildId(), serverMuteData.getMemberId(), e
