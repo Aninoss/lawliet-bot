@@ -57,6 +57,13 @@ public class ServerMuteScheduler {
                                 .reason(TextManager.getString(locale, Category.MODERATION, "mute_expired_title"))
                                 .queue();
                     }
+                } else {
+                    Role muteRole = DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().orElse(null);
+                    if (muteRole != null && PermissionCheckRuntime.botCanManageRoles(locale, MuteCommand.class, muteRole)) {
+                        member.getGuild().removeRoleFromMember(member, muteRole)
+                                .reason(TextManager.getString(locale, Category.MODERATION, "mute_expired_title"))
+                                .queue();
+                    }
                 }
 
                 Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildData().getPrefix());
