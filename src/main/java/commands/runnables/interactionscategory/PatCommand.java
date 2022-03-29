@@ -81,7 +81,9 @@ public class PatCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736275536317382717/834835137807646720/pat.gif",
                 "https://cdn.discordapp.com/attachments/736275536317382717/896118127451070514/pat.gif",
                 "https://cdn.discordapp.com/attachments/736275536317382717/938229898726760458/pat.gif",
-                "https://cdn.discordapp.com/attachments/736275536317382717/954006748858040350/pat.gif"
+                "https://cdn.discordapp.com/attachments/736275536317382717/954006748858040350/pat.gif",
+                "https://cdn.discordapp.com/attachments/736275536317382717/958311054910296064/pat.gif",
+                "https://cdn.discordapp.com/attachments/736275536317382717/958311155976241172/pat.gif"
         );
     }
 
