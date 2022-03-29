@@ -13,10 +13,7 @@ import core.utils.ExceptionUtil;
 import core.utils.InternetUtil;
 import core.utils.JDAUtil;
 import core.utils.TimeUtil;
-import events.scheduleevents.events.CleanGuilds;
-import events.scheduleevents.events.FisherySurveyResults;
-import events.scheduleevents.events.FisheryVoiceChannelObserver;
-import events.scheduleevents.events.ReminderDaily;
+import events.scheduleevents.events.*;
 import javafx.util.Pair;
 import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
@@ -45,6 +42,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("mute_refresh", Console::onMuteRefresh);
         tasks.put("clean_guilds", Console::onCleanGuilds);
         tasks.put("alerts_reset", Console::onAlertsReset);
         tasks.put("commands_update", Console::onCommandsUpdate);
@@ -85,6 +83,10 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onMuteRefresh(String[] args) {
+        MuteRefresh.execute();
     }
 
     private static void onCleanGuilds(String[] args) {

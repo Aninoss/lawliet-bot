@@ -9,7 +9,6 @@ import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.channel.ChannelCreateEvent;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.channel.update.ChannelUpdateUserLimitEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -23,7 +22,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdatePendingEvent;
-import net.dv8tion.jda.api.events.guild.override.GenericPermissionOverrideEvent;
+import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateTimeOutEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateBoostCountEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
@@ -178,17 +177,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
     }
 
     @Override
-    public void onChannelCreate(@NotNull ChannelCreateEvent event) {
-        if (event.getChannel() instanceof BaseGuildMessageChannel) {
-            GlobalThreadPool.getExecutorService()
-                    .submit(() -> TextChannelCreateAbstract.onTextChannelCreateStatic(event, getListenerList(TextChannelCreateAbstract.class)));
-        } else if (event.getChannel() instanceof VoiceChannel) {
-            GlobalThreadPool.getExecutorService()
-                    .submit(() -> VoiceChannelCreateAbstract.onVoiceChannelCreateStatic(event, getListenerList(VoiceChannelCreateAbstract.class)));
-        }
-    }
-
-    @Override
     public void onChannelDelete(@NotNull ChannelDeleteEvent event) {
         if (event.getChannel() instanceof BaseGuildMessageChannel) {
             GlobalThreadPool.getExecutorService()
@@ -196,14 +184,6 @@ public class DiscordEventAdapter extends ListenerAdapter {
         } else if (event.getChannel() instanceof VoiceChannel) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> VoiceChannelDeleteAbstract.onVoiceChannelDeleteStatic(event, getListenerList(VoiceChannelDeleteAbstract.class)));
-        }
-    }
-
-    @Override
-    public void onGenericPermissionOverride(@NotNull GenericPermissionOverrideEvent event) {
-        if (event.getChannel() instanceof BaseGuildMessageChannel) {
-            GlobalThreadPool.getExecutorService()
-                    .submit(() -> GenericPermissionOverrideAbstract.onGenericPermissionOverrideStatic(event, getListenerList(GenericPermissionOverrideAbstract.class)));
         }
     }
 
@@ -331,6 +311,12 @@ public class DiscordEventAdapter extends ListenerAdapter {
     public void onGuildInviteDelete(@NotNull GuildInviteDeleteEvent event) {
         GlobalThreadPool.getExecutorService()
                 .submit(() -> GuildInviteDeleteAbstract.onGuildInviteDeleteStatic(event, getListenerList(GuildInviteDeleteAbstract.class)));
+    }
+
+    @Override
+    public void onGuildMemberUpdateTimeOut(@NotNull GuildMemberUpdateTimeOutEvent event) {
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> GuildMemberUpdateTimeOutAbstract.onGuildMemberUpdateTimeOutAbstractStatic(event, getListenerList(GuildMemberUpdateTimeOutAbstract.class)));
     }
 
     @Override

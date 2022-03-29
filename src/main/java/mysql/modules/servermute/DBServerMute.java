@@ -25,7 +25,7 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
 
     @Override
     protected CustomObservableMap<Long, ServerMuteData> load(Long guildId) throws Exception {
-        Map<Long, ServerMuteData> serverMuteMap = new DBDataLoad<ServerMuteData>("ServerMute", "serverId, userId, expires", "serverId = ?",
+        Map<Long, ServerMuteData> serverMuteMap = new DBDataLoad<ServerMuteData>("ServerMute", "serverId, userId, expires, newMethod", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getMap(
                 ServerMuteData::getMemberId,
@@ -34,7 +34,8 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
                     return new ServerMuteData(
                             resultSet.getLong(1),
                             resultSet.getLong(2),
-                            timestamp != null ? timestamp.toInstant() : null
+                            timestamp != null ? timestamp.toInstant() : null,
+                            resultSet.getBoolean(4)
                     );
                 }
         );
@@ -46,7 +47,7 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
     }
 
     public List<ServerMuteData> retrieveAll() {
-        return new DBDataLoadAll<ServerMuteData>("ServerMute", "serverId, userId, expires")
+        return new DBDataLoadAll<ServerMuteData>("ServerMute", "serverId, userId, expires, newMethod")
                 .getList(
                         resultSet -> {
                             long serverId = resultSet.getLong(1);
@@ -54,14 +55,15 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
                             return new ServerMuteData(
                                     serverId,
                                     resultSet.getLong(2),
-                                    timestamp != null ? timestamp.toInstant() : null
+                                    timestamp != null ? timestamp.toInstant() : null,
+                                    resultSet.getBoolean(4)
                             );
                         }
                 );
     }
 
     private void addServerMute(ServerMuteData serverMuteData) {
-        MySQLManager.asyncUpdate("REPLACE INTO ServerMute (serverId, userId, expires) VALUES (?,?,?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO ServerMute (serverId, userId, expires, newMethod) VALUES (?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, serverMuteData.getGuildId());
             preparedStatement.setLong(2, serverMuteData.getMemberId());
 
@@ -71,6 +73,8 @@ public class DBServerMute extends DBMapCache<Long, CustomObservableMap<Long, Ser
             } else {
                 preparedStatement.setNull(3, Types.TIMESTAMP);
             }
+
+            preparedStatement.setBoolean(4, serverMuteData.isNewMethod());
         });
     }
 

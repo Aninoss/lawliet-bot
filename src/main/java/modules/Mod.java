@@ -50,7 +50,6 @@ public class Mod {
 
         if (withAutoActions) {
             ModerationData moderationBean = DBModeration.getInstance().retrieve(guild.getIdLong());
-            Role muteRole = moderationBean.getMuteRole().orElse(null);
             Member member = MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).join();
 
             int autoKickDays = moderationBean.getAutoKickDays();
@@ -86,7 +85,8 @@ public class Mod {
                 });
             } else if (autoKick &&
                     PermissionCheckRuntime.botHasPermission(locale, ModSettingsCommand.class, guild, Permission.KICK_MEMBERS) &&
-                    BotPermissionUtil.canInteract(guild, target) && guild.isMember(target)
+                    BotPermissionUtil.canInteract(guild, target) &&
+                    guild.isMember(target)
             ) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
@@ -115,9 +115,8 @@ public class Mod {
             }
 
             if (autoMute &&
-                    muteRole != null &&
-                    PermissionCheckRuntime.botCanManageRoles(locale, ModSettingsCommand.class, muteRole) &&
-                    (member == null || !BotPermissionUtil.can(member, Permission.ADMINISTRATOR))
+                    PermissionCheckRuntime.botHasPermission(locale, ModSettingsCommand.class, guild, Permission.MODERATE_MEMBERS) &&
+                    BotPermissionUtil.canInteract(guild, target)
             ) {
                 int duration = moderationBean.getAutoMuteDuration();
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()

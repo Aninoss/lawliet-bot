@@ -44,22 +44,31 @@ public class ServerMuteScheduler {
     }
 
     private static void onServerMuteExpire(ServerMuteData serverMuteData) {
+        Locale locale = serverMuteData.getGuildData().getLocale();
         DBServerMute.getInstance().retrieve(serverMuteData.getGuildId())
                 .remove(serverMuteData.getMemberId(), serverMuteData);
 
         MemberCacheController.getInstance().loadMember(serverMuteData.getGuild().get(), serverMuteData.getMemberId()).thenAccept(member -> {
             if (member != null) {
-                Locale locale = serverMuteData.getGuildData().getLocale();
-                Role muteRole = DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().orElse(null);
-                if (muteRole != null && PermissionCheckRuntime.botCanManageRoles(locale, MuteCommand.class, muteRole)) {
-                    member.getGuild().removeRoleFromMember(member, muteRole)
-                            .reason(TextManager.getString(locale, Category.MODERATION, "mute_expired_title"))
-                            .queue();
+                if (serverMuteData.isNewMethod()) {
+                    Role muteRole = DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().orElse(null);
+                    if (muteRole != null && PermissionCheckRuntime.botCanManageRoles(locale, MuteCommand.class, muteRole)) {
+                        member.getGuild().removeRoleFromMember(member, muteRole)
+                                .reason(TextManager.getString(locale, Category.MODERATION, "mute_expired_title"))
+                                .queue();
+                    }
                 }
 
                 Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildData().getPrefix());
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", member.getUser().getAsTag()));
                 Mod.postLogMembers(command, eb, member.getGuild(), member);
+            } else {
+                ShardManager.fetchUserById(serverMuteData.getMemberId())
+                        .thenAccept(user -> {
+                            Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildData().getPrefix());
+                            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", user.getAsTag()));
+                            Mod.postLogUsers(command, eb, serverMuteData.getGuild().get(), user);
+                        });
             }
         });
     }

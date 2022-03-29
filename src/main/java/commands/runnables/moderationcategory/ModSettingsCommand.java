@@ -8,19 +8,15 @@ import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
-import constants.Emojis;
 import constants.LogStatus;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
-import core.cache.ServerPatreonBoostCache;
-import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import modules.Mute;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -154,24 +150,6 @@ public class ModSettingsCommand extends NavigationAbstract {
                     return MessageInputResponse.FAILED;
                 }
 
-            case 6:
-                List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
-                if (roleList.size() == 0) {
-                    setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
-                    return MessageInputResponse.FAILED;
-                } else {
-                    Role role = roleList.get(0);
-                    if (checkRoleWithLog(event.getMember(), role)) {
-                        moderationData.setMuteRoleId(role.getIdLong());
-                        setLog(LogStatus.SUCCESS, getString("muteroleset"));
-                        setState(0);
-                        Mute.enforceMuteRole(event.getGuild());
-                        return MessageInputResponse.SUCCESS;
-                    } else {
-                        return MessageInputResponse.FAILED;
-                    }
-                }
-
             case 7:
                 long minutes = MentionUtil.getTimeMinutes(input).getValue();
                 if (minutes > 0) {
@@ -229,7 +207,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                 }
 
             case 11:
-                roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
+                List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
                 return jailRolesNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMessage().getMember(), 0);
 
             case 13:
@@ -300,48 +278,26 @@ public class ModSettingsCommand extends NavigationAbstract {
                         return true;
 
                     case 2:
-                        setState(6);
-                        return true;
-
-                    case 3:
-                        if (moderationData.getEnforceMuteRoleEffectively() || BotPermissionUtil.can(event.getGuild(), Permission.ADMINISTRATOR)) {
-                            if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                                moderationData.toggleEnforceMuteRole();
-                                setLog(LogStatus.SUCCESS, getString("enforceset", moderationData.getEnforceMuteRoleEffectively()));
-                                Mute.enforceMuteRole(event.getGuild());
-                            } else {
-                                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
-                            }
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("noadmin"));
-                        }
-                        return true;
-
-                    case 4:
                         jailRolesNavigationHelper.startDataAdd(11);
                         return true;
 
-                    case 5:
+                    case 3:
                         jailRolesNavigationHelper.startDataRemove(12);
                         return true;
 
-                    case 6:
-                        if (moderationData.getMuteRole().isPresent()) {
-                            setState(8);
-                        } else {
-                            setLog(LogStatus.FAILURE, getString("nomute"));
-                        }
+                    case 4:
+                        setState(8);
                         return true;
 
-                    case 7:
+                    case 5:
                         setState(13);
                         return true;
 
-                    case 8:
+                    case 6:
                         setState(2);
                         return true;
 
-                    case 9:
+                    case 7:
                         setState(3);
                         return true;
 
@@ -422,22 +378,6 @@ public class ModSettingsCommand extends NavigationAbstract {
                     case 0:
                         autoBanDaysTemp = 0;
                         setState(7);
-                        return true;
-
-                    default:
-                        return false;
-                }
-
-            case 6:
-                switch (i) {
-                    case -1:
-                        setState(0);
-                        return true;
-
-                    case 0:
-                        moderationData.setMuteRoleId(null);
-                        setLog(LogStatus.SUCCESS, getString("muterolereset"));
-                        setState(0);
                         return true;
 
                     default:
@@ -577,17 +517,9 @@ public class ModSettingsCommand extends NavigationAbstract {
                 TextChannel textChannel = getTextChannel().get();
                 setComponents(getString("state0_options").split("\n"));
 
-                String content = getString("state0_description");
-                List<TextChannel> leakedChannels = Mute.getLeakedChannels(member.getGuild());
-                if (leakedChannels.size() > 0) {
-                    content += "\n\n" + getString("state0_noteffective", leakedChannels.size() != 1, StringUtil.numToString(leakedChannels.size()), "https://discordhelp.net/mute-user");
-                }
-
-                return EmbedFactory.getEmbedDefault(this, content)
+                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mchannel"), moderationData.getAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationData.getQuestion()), true)
-                        .addField(getString("state0_mmuterole"), moderationData.getMuteRole().map(IMentionable::getAsMention).orElse(notSet), true)
-                        .addField(getString("state0_menforcemute", Emojis.COMMAND_ICON_PREMIUM), getString("state0_menforcemute_desc", StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationData.getEnforceMuteRoleEffectively())), true)
                         .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(jailRoles, getLocale(), IMentionable::getAsMention), true)
                         .addField(getString("state0_mautomod"), getString("state0_mautomod_desc",
                                 getAutoModString(textChannel, moderationData.getAutoMute(), moderationData.getAutoMuteDays(), moderationData.getAutoMuteDuration()),
@@ -615,10 +547,6 @@ public class ModSettingsCommand extends NavigationAbstract {
             case 5:
                 setComponents(getString("state4_options"));
                 return EmbedFactory.getEmbedDefault(this, getString("state4_description", autoBanTemp != 1, StringUtil.numToString(autoBanTemp)), getString("state5_title"));
-
-            case 6:
-                setComponents(getString("state6_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state6_description"), getString("state6_title"));
 
             case 7:
                 setComponents(getString("state7_options"));
