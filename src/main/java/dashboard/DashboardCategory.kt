@@ -6,6 +6,7 @@ import core.ShardManager
 import core.TextManager
 import core.atomicassets.AtomicGuild
 import core.atomicassets.AtomicMember
+import core.cache.PatreonCache
 import core.utils.BotPermissionUtil
 import dashboard.container.DashboardContainer
 import dashboard.container.VerticalContainer
@@ -22,9 +23,8 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
     val properties: DashboardProperties
     val prefix: String
     val isPremium
-        get() = true
-    /*get() = PatreonCache.getInstance().hasPremium(atomicMember.idLong, true) ||
-            PatreonCache.getInstance().isUnlocked(atomicGuild.idLong) TODO*/
+        get() = PatreonCache.getInstance().hasPremium(atomicMember.idLong, true) ||
+                PatreonCache.getInstance().isUnlocked(atomicGuild.idLong)
 
     private var components: DashboardContainer? = null
 
