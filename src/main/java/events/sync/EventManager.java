@@ -36,7 +36,8 @@ public class EventManager {
                     ShardManager.isEverythingConnected(),
                     ShardManager.getShardIntervalMin(),
                     ShardManager.getShardIntervalMax(),
-                    ShardManager.getTotalShards()
+                    ShardManager.getTotalShards(),
+                    ShardManager.getLocalGuildSize().orElse(0L)
             );
         }, 3, 3, TimeUnit.SECONDS);
     }

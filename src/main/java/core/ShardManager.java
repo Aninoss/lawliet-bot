@@ -169,6 +169,10 @@ public class ShardManager {
         return jdaMap.size() >= getLocalShards();
     }
 
+    public static boolean isEverythingActive() {
+        return jdaMap.size() >= getLocalShards() && jdaMap.values().stream().allMatch(JDAWrapper::isActive);
+    }
+
     public static void start() {
         if (isEverythingConnected()) {
             ready = true;
@@ -219,7 +223,7 @@ public class ShardManager {
     }
 
     public static Optional<Long> getLocalGuildSize() {
-        if (isEverythingConnected()) {
+        if (isEverythingActive()) {
             long guilds = 0;
             for (JDA jda : getConnectedLocalJDAs()) {
                 guilds += jda.getGuilds().size() + jda.getUnavailableGuilds().size();
