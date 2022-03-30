@@ -30,7 +30,10 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {
         val argsBuilder = StringBuilder()
         for (option in event.options) {
-            argsBuilder.append(option.asString.replace(" ", "_")).append(" ")
+            val value = option.asString.replace(Regex("\\([0-9]*\\)"), "")
+                .trim()
+                .replace(" ", "_")
+            argsBuilder.append(value).append(" ")
         }
         return SlashMeta(commandClass().java, argsBuilder.toString())
     }
