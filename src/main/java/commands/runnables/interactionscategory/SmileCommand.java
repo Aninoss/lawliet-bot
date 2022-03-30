@@ -187,7 +187,8 @@ public class SmileCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736256980020101160/839471580995125288/smile.gif",
                 "https://cdn.discordapp.com/attachments/736256980020101160/881901173316157500/smile.gif",
                 "https://cdn.discordapp.com/attachments/736256980020101160/881901286109380699/smile.gif",
-                "https://cdn.discordapp.com/attachments/736256980020101160/955384830420463616/smile.gif"
+                "https://cdn.discordapp.com/attachments/736256980020101160/955384830420463616/smile.gif",
+                "https://cdn.discordapp.com/attachments/736256980020101160/958707448250777671/smile.gif"
         );
     }
 
