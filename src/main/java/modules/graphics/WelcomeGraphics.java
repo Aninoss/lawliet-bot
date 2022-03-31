@@ -157,11 +157,16 @@ public class WelcomeGraphics {
     }
 
     private static BufferedImage getBackgroundImage(Guild guild) throws IOException {
-        BufferedImage background = ImageIO.read(getBackgroundFile(guild));
-        if (background == null) {
-            background = ImageIO.read(getDefaultBackgroundFile());
+        try {
+            BufferedImage background = ImageIO.read(getBackgroundFile(guild));
+            if (background == null) {
+                background = ImageIO.read(getDefaultBackgroundFile());
+            }
+            return background;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            //ignore
+            return ImageIO.read(getDefaultBackgroundFile());
         }
-        return background;
     }
 
     private static LocalFile getBackgroundFile(Guild guild) {
