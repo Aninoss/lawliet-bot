@@ -152,7 +152,7 @@ public class DiscordConnector {
                 .orElse("L.help | www.lawlietbot.xyz");
     }
 
-    public static boolean isStarted() {
+    public static boolean hasStarted() {
         return started;
     }
 

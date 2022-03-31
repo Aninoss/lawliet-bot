@@ -34,8 +34,6 @@ public class EventManager {
             SendEvent.sendHeartbeat(
                     System.getenv("SYNC_OWN_IP"),
                     ShardManager.isEverythingConnected(),
-                    ShardManager.getShardIntervalMin(),
-                    ShardManager.getShardIntervalMax(),
                     ShardManager.getTotalShards(),
                     ShardManager.getLocalGuildSize().orElse(0L)
             );

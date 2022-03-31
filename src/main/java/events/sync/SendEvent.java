@@ -69,16 +69,12 @@ public class SendEvent {
         );
     }
 
-    public static CompletableFuture<Void> sendHeartbeat(String ip, boolean alreadyConnected, int shardMin, int shardMax,
-                                                        int totalShards, long totalServers
-    ) {
+    public static CompletableFuture<Void> sendHeartbeat(String ip, boolean alreadyConnected, int totalShards, long totalServers) {
         return process(
                 "HEARTBEAT",
                 Map.of(
                         "ip", ip,
                         "already_connected", alreadyConnected,
-                        "shard_min", shardMin,
-                        "shard_max", shardMax,
                         "total_shards", totalShards,
                         "total_servers", totalServers
                 ),
