@@ -245,7 +245,7 @@ public class ShardManager {
     }
 
     public static Optional<Guild> getLocalGuildById(long guildId) {
-        if (!JDABlocker.guildIsAvailable(guildId)) {
+        if (!JDABlocker.guildIsAvailable(guildId) || totalShards <= 0) {
             return Optional.empty();
         }
 
