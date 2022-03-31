@@ -51,11 +51,7 @@ public class MuteRefresh implements ExceptionRunnable {
                                     expiration = expirationMax;
                                 }
                                 if (expiration.isAfter(timeOutEnd)) {
-                                    try {
-                                        Thread.sleep(2000 + r.nextInt(3000));
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
+                                    Thread.sleep(2000 + r.nextInt(3000));
                                     counter.incrementAndGet();
                                     member.timeoutUntil(expiration)
                                             .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())

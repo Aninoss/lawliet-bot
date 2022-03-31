@@ -50,14 +50,7 @@ public class ServerMuteScheduler {
 
         MemberCacheController.getInstance().loadMember(serverMuteData.getGuild().get(), serverMuteData.getMemberId()).thenAccept(member -> {
             if (member != null) {
-                if (serverMuteData.isNewMethod()) {
-                    Role muteRole = DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().orElse(null);
-                    if (muteRole != null && PermissionCheckRuntime.botCanManageRoles(locale, MuteCommand.class, muteRole)) {
-                        member.getGuild().removeRoleFromMember(member, muteRole)
-                                .reason(TextManager.getString(locale, Category.MODERATION, "mute_expired_title"))
-                                .queue();
-                    }
-                } else {
+                if (!serverMuteData.isNewMethod()) {
                     Role muteRole = DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().orElse(null);
                     if (muteRole != null && PermissionCheckRuntime.botCanManageRoles(locale, MuteCommand.class, muteRole)) {
                         member.getGuild().removeRoleFromMember(member, muteRole)
