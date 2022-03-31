@@ -21,20 +21,20 @@ public class CommandReleaseNotification implements ExceptionRunnable {
     public void run() throws Throwable {
         if (Program.publicVersion()) {
             AtomicBoolean newRelease = new AtomicBoolean(false);
-            CommandContainer.getCommandCategoryMap().values().forEach(list -> list.forEach(clazz -> {
-                Command command = CommandManager.createCommandByClass(clazz, Language.EN.getLocale(), "L.");
-                command.getReleaseDate().ifPresent(date -> {
-                    if (date.isEqual(LocalDate.now())) {
-                        String message = "`L." + command.getTrigger() + "` is now publicly available!";
-                        ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
-                                .map(guild -> guild.getChannelById(BaseGuildMessageChannel.class, 557960859792441357L))
-                                .ifPresent(channel -> {
+            ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
+                    .map(guild -> guild.getChannelById(BaseGuildMessageChannel.class, 557960859792441357L))
+                    .ifPresent(channel -> {
+                        CommandContainer.getCommandCategoryMap().values().forEach(list -> list.forEach(clazz -> {
+                            Command command = CommandManager.createCommandByClass(clazz, Language.EN.getLocale(), "L.");
+                            command.getReleaseDate().ifPresent(date -> {
+                                if (date.isEqual(LocalDate.now())) {
+                                    String message = "`L." + command.getTrigger() + "` is now publicly available!";
                                     channel.sendMessage(message).flatMap(Message::crosspost).queue();
                                     newRelease.set(true);
-                                });
-                    }
-                });
-            }));
+                                }
+                            });
+                        }));
+                    });
 
             if (newRelease.get()) {
                 Guild guild = ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get();

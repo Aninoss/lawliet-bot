@@ -20,10 +20,10 @@ public class CleanGuilds implements ExceptionRunnable {
     public static void execute() throws InterruptedException {
         if (ShardManager.isEverythingConnected()) {
             List<GuildKickedData> guildKickedDataList;
-            int limit = 100;
+            int limit = 50;
             int offset = 0;
             do {
-                Thread.sleep(100);
+                Thread.sleep(500);
                 guildKickedDataList = DBGuild.getInstance().retrieveKickedData(offset, limit);
                 for (GuildKickedData guildKickedData : guildKickedDataList) {
                     long guildId = guildKickedData.getGuildId();

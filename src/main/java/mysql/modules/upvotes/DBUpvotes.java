@@ -47,10 +47,6 @@ public class DBUpvotes extends DBSingleCache<UpvotesData> {
         });
     }
 
-    public void cleanUp() {
-        MySQLManager.asyncUpdate("DELETE FROM Upvotes WHERE DATE_ADD(lastDate, INTERVAL 12 HOUR) < NOW();");
-    }
-
     @Override
     public Integer getExpirationTimeMinutes() {
         return 1;

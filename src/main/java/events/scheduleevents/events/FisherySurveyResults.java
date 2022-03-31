@@ -4,14 +4,15 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import commands.Category;
+import constants.ExceptionRunnable;
+import core.*;
+import events.scheduleevents.ScheduleEventDaily;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
-import core.*;
-import constants.ExceptionRunnable;
-import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
@@ -63,7 +64,8 @@ public class FisherySurveyResults implements ExceptionRunnable {
             if (surveySecondVote.getGuild().isPresent() &&
                     DBGuild.getInstance().retrieve(surveySecondVote.getGuildId()).getFisheryStatus() == FisheryStatus.ACTIVE
             ) {
-                secondVotesMap.computeIfAbsent(surveySecondVote.getMemberId(), k -> new ArrayList<>()).add(surveySecondVote);
+                secondVotesMap.computeIfAbsent(surveySecondVote.getMemberId(), k -> new ArrayList<>())
+                        .add(surveySecondVote);
             }
         }
 
@@ -93,15 +95,15 @@ public class FisherySurveyResults implements ExceptionRunnable {
         MainLogger.get().info("Survey results finished");
     }
 
-    private static void processSurveyUser(ArrayList<SurveySecondVote> secondVotes, long userId, byte won) {
-        secondVotes.stream()
-                .filter(secondVote -> won == 2 || secondVote.getVote() == won)
-                .forEach(secondVote -> {
-                    FisheryMemberData userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getMemberData(userId);
-                    long price = userBean.getMemberGear(FisheryGear.SURVEY).getEffect();
-                    MainLogger.get().info("Survey: Giving {} coins to {}", price, userId);
-                    userBean.changeValues(0, price);
-                });
+    private static void processSurveyUser(List<SurveySecondVote> secondVotes, long userId, byte won) {
+        for (SurveySecondVote secondVote : secondVotes) {
+            if (won == 2 || secondVote.getVote() == won) {
+                FisheryMemberData userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getMemberData(userId);
+                long price = userBean.getMemberGear(FisheryGear.SURVEY).getEffect();
+                MainLogger.get().info("Survey: Giving {} coins to {}", price, userId);
+                userBean.changeValues(0, price);
+            }
+        }
     }
 
     private static void sendSurveyResult(Locale locale, SurveyQuestion surveyQuestion, SubSlot sub, byte won, int percent) {
