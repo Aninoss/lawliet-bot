@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import constants.ExceptionRunnable;
 import core.MainLogger;
+import core.Program;
 import core.ShardManager;
 import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.guild.DBGuild;
@@ -20,10 +21,10 @@ public class CleanGuilds implements ExceptionRunnable {
     public static void execute() throws InterruptedException {
         if (ShardManager.isEverythingConnected()) {
             List<GuildKickedData> guildKickedDataList;
-            int limit = 50;
+            int limit = 100;
             int offset = 0;
             do {
-                Thread.sleep(500);
+                Thread.sleep(100);
                 guildKickedDataList = DBGuild.getInstance().retrieveKickedData(offset, limit);
                 for (GuildKickedData guildKickedData : guildKickedDataList) {
                     long guildId = guildKickedData.getGuildId();
@@ -31,15 +32,15 @@ public class CleanGuilds implements ExceptionRunnable {
                     if (ShardManager.getLocalGuildById(guildId).isPresent()) {
                         if (kicked != null) {
                             MainLogger.get().info("Guild {} has been set to \"not kicked\"", guildId);
-                            DBGuild.getInstance().retrieve(guildId).setKicked(null);
+                            DBGuild.getInstance().setKicked(guildId, null);
                         }
                     } else {
                         if (kicked == null) {
                             MainLogger.get().info("Guild {} has been set to \"kicked\"", guildId);
-                            DBGuild.getInstance().retrieve(guildId).setKicked(LocalDate.now());
-                        } else if (LocalDate.now().isAfter(kicked.plusDays(6))) {
+                            DBGuild.getInstance().setKicked(guildId, LocalDate.now());
+                        } else if (LocalDate.now().isAfter(kicked.plusDays(6)) && Program.productionMode()) {
                             MainLogger.get().info("Guild data for {} has been removed", guildId);
-                            //DBGuild.getInstance().remove(guildId); //TODO: uncomment
+                            DBGuild.getInstance().remove(guildId);
                         }
                     }
                 }
