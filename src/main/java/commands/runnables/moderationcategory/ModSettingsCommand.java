@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "mod",
-        botGuildPermissions = { Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS },
+        botGuildPermissions = { Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.MODERATE_MEMBERS },
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "️⚙️️",
         executableWithoutArgs = true,
