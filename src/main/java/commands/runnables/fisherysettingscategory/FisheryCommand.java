@@ -98,46 +98,52 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     case 0:
                         guildBean.toggleFisheryTreasureChests();
                         setLog(LogStatus.SUCCESS, getString("treasurechestsset", guildBean.isFisheryTreasureChests()));
+                        stopLock = true;
                         return true;
 
                     case 1:
                         guildBean.toggleFisheryReminders();
                         setLog(LogStatus.SUCCESS, getString("remindersset", guildBean.isFisheryReminders()));
+                        stopLock = true;
                         return true;
 
                     case 2:
                         guildBean.toggleFisheryCoinsGivenLimit();
                         setLog(LogStatus.SUCCESS, getString("coinsgivenset", guildBean.hasFisheryCoinsGivenLimit()));
+                        stopLock = true;
                         return true;
 
                     case 3:
                         channelNavigationHelper.startDataAdd(1);
+                        stopLock = true;
                         return true;
 
                     case 4:
                         channelNavigationHelper.startDataRemove(2);
+                        stopLock = true;
                         return true;
 
                     case 5:
                         if (guildBean.getFisheryStatus() != FisheryStatus.ACTIVE) {
                             guildBean.setFisheryStatus(FisheryStatus.ACTIVE);
-                            stopLock = true;
                         } else {
                             guildBean.setFisheryStatus(FisheryStatus.PAUSED);
                         }
                         setLog(LogStatus.SUCCESS, getString("setstatus"));
+                        stopLock = true;
                         return true;
 
                     case 6:
                         if (guildBean.getFisheryStatus() == FisheryStatus.ACTIVE) {
                             if (stopLock) {
                                 stopLock = false;
-                                setLog(LogStatus.WARNING, getString("stoplock"));
+                                setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
                             } else {
                                 GlobalThreadPool.getExecutorService()
                                         .submit(() -> DBFishery.getInstance().invalidateGuildId(event.getGuild().getIdLong()));
                                 DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setFisheryStatus(FisheryStatus.STOPPED);
                                 setLog(LogStatus.SUCCESS, getString("setstatus"));
+                                stopLock = true;
                             }
                             return true;
                         }

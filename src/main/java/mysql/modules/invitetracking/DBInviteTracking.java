@@ -1,5 +1,6 @@
 package mysql.modules.invitetracking;
 
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Map;
 import java.util.Optional;
@@ -107,6 +108,13 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
             preparedStatement.setLong(1, slot.getGuildId());
             preparedStatement.setLong(2, slot.getMemberId());
         });
+    }
+
+    public void resetInviteTrackerSlots(long guildId) throws SQLException, InterruptedException {
+        MySQLManager.update("DELETE FROM Invites WHERE serverId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, guildId);
+        });
+        getCache().refresh(guildId);
     }
 
     private Map<String, GuildInvite> getGuildInvites(long guildId) {

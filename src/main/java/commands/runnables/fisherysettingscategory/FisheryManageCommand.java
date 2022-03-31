@@ -147,11 +147,12 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 return false;
             } else if (i >= 0 && i < posDelete) {
                 setState(i + 1);
+                resetLog = true;
                 return true;
             } else if (i == posDelete) {
                 if (resetLog) {
                     resetLog = false;
-                    setLog(LogStatus.WARNING, getString("state0_confirm"));
+                    setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
                 } else {
                     fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
                     resetLog = true;
@@ -161,7 +162,6 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 return true;
             }
         } else if (i == -1) {
-            resetLog = true;
             setState(0);
             return true;
         }
