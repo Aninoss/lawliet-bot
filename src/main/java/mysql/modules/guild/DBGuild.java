@@ -89,8 +89,8 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
         );
     }
 
-    public List<GuildKickedData> retrieveKickedData(int offset, int limit) {
-        return new DBDataLoadAll<GuildKickedData>("DServer", "serverId, kicked", " LIMIT " + offset + ", " + limit)
+    public List<GuildKickedData> retrieveKickedData(long guildIdOffset, int limit) {
+        return new DBDataLoadAll<GuildKickedData>("DServer", "serverId, kicked", " AND serverId > " + guildIdOffset + " ORDER BY serverId LIMIT " + limit)
                 .getList(
                         resultSet -> {
                             Date date = resultSet.getDate(2);

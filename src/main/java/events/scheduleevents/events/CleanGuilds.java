@@ -21,11 +21,11 @@ public class CleanGuilds implements ExceptionRunnable {
     public static void execute() throws InterruptedException {
         if (ShardManager.isEverythingConnected()) {
             List<GuildKickedData> guildKickedDataList;
-            int limit = 100;
-            int offset = 0;
+            int limit = 500;
+            long guildIdOffset = 0;
             do {
                 Thread.sleep(100);
-                guildKickedDataList = DBGuild.getInstance().retrieveKickedData(offset, limit);
+                guildKickedDataList = DBGuild.getInstance().retrieveKickedData(guildIdOffset, limit);
                 for (GuildKickedData guildKickedData : guildKickedDataList) {
                     long guildId = guildKickedData.getGuildId();
                     LocalDate kicked = guildKickedData.getKicked();
@@ -44,7 +44,9 @@ public class CleanGuilds implements ExceptionRunnable {
                         }
                     }
                 }
-                offset += limit;
+                if (guildKickedDataList.size() > 0) {
+                    guildIdOffset = guildKickedDataList.get(guildKickedDataList.size() - 1).getGuildId();
+                }
             } while (guildKickedDataList.size() == limit);
             MainLogger.get().info("Guild cleaner completed");
         } else {
