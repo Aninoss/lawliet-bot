@@ -26,7 +26,7 @@ class NSFWAdapter : SlashAdapter() {
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {
-        val type = event.getOption("command")!!.asString
+        val type = event.getOption("command")!!.asString.split(":")[0]
         val clazz = CommandContainer.getCommandMap()[type]
         if (clazz != null) {
             if (PornPredefinedAbstract::class.java.isAssignableFrom(clazz) && commands.Command.getCommandProperties(clazz).nsfw) {
