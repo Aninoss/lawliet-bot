@@ -5,19 +5,9 @@ import core.ExceptionLogger;
 import core.ShardManager;
 import core.internet.HttpHeader;
 import core.internet.HttpRequest;
-import org.discordbots.api.client.DiscordBotListAPI;
 import org.json.JSONObject;
 
 public class TopGG {
-
-    private static final DiscordBotListAPI dblApi;
-
-    static {
-        dblApi = new DiscordBotListAPI.Builder()
-                .token(System.getenv("TOPGG_TOKEN"))
-                .botId(String.valueOf(ShardManager.getSelfId()))
-                .build();
-    }
 
     public static void updateServerCount(long serverCount) {
         JSONObject jsonObject = new JSONObject();
@@ -28,12 +18,16 @@ public class TopGG {
                 .exceptionally(ExceptionLogger.get());
     }
 
-    public static int getTotalUpvotes() throws ExecutionException, InterruptedException {
-        return dblApi.getBot(String.valueOf(ShardManager.getSelfId())).toCompletableFuture().get().getPoints();
+    public static long getTotalUpvotes() throws ExecutionException, InterruptedException {
+        HttpHeader httpHeader =  new HttpHeader("Authorization", System.getenv("TOPGG_TOKEN"));
+        String data = HttpRequest.get("https://top.gg/api/bots/" + ShardManager.getSelfId(), httpHeader).get().getBody();
+        return new JSONObject(data).getLong("points");
     }
 
-    public static int getMonthlyUpvotes() throws ExecutionException, InterruptedException {
-        return dblApi.getBot(String.valueOf(ShardManager.getSelfId())).toCompletableFuture().get().getMonthlyPoints();
+    public static long getMonthlyUpvotes() throws ExecutionException, InterruptedException {
+        HttpHeader httpHeader =  new HttpHeader("Authorization", System.getenv("TOPGG_TOKEN"));
+        String data = HttpRequest.get("https://top.gg/api/bots/" + ShardManager.getSelfId(), httpHeader).get().getBody();
+        return new JSONObject(data).getLong("monthlyPoints");
     }
 
 }

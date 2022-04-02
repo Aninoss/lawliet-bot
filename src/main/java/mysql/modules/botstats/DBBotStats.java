@@ -21,8 +21,8 @@ public class DBBotStats {
     public static void saveStatsUpvotes() {
         MySQLManager.asyncUpdate("INSERT INTO StatsUpvotes VALUES(NOW(), ?, ?);", preparedStatement -> {
             try {
-                preparedStatement.setInt(1, TopGG.getTotalUpvotes());
-                preparedStatement.setInt(2, TopGG.getMonthlyUpvotes());
+                preparedStatement.setLong(1, TopGG.getTotalUpvotes());
+                preparedStatement.setLong(2, TopGG.getMonthlyUpvotes());
             } catch (InterruptedException | ExecutionException e) {
                 MainLogger.get().error("Error while fetching topgg upvotes", e);
             }
