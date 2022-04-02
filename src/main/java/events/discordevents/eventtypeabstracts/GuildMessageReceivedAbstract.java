@@ -21,15 +21,15 @@ public abstract class GuildMessageReceivedAbstract extends DiscordEventAbstract 
 
 
     public static void onGuildMessageReceivedStatic(MessageReceivedEvent event, ArrayList<DiscordEventAbstract> listenerList) {
-        if (event.isWebhookMessage()) {
-            return;
-        }
-
         Instant startTime = Instant.now();
         execute(listenerList, event.getAuthor(), event.getGuild().getIdLong(),
                 listener -> {
-                    ((GuildMessageReceivedAbstract) listener).setStartTime(startTime);
-                    return ((GuildMessageReceivedAbstract) listener).onGuildMessageReceived(event);
+                    if (!event.isWebhookMessage() || listener.isAllowingBots()) {
+                        ((GuildMessageReceivedAbstract) listener).setStartTime(startTime);
+                        return ((GuildMessageReceivedAbstract) listener).onGuildMessageReceived(event);
+                    } else {
+                        return true;
+                    }
                 }
         );
     }
