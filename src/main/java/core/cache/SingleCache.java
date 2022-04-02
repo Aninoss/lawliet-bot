@@ -9,8 +9,9 @@ public abstract class SingleCache<T> {
 
     private Instant nextReset = null;
     private T value = null;
+    private boolean fetchAccess = true;
 
-    public synchronized T get() {
+    public T get() {
         if (value == null || nextReset == null || Instant.now().isAfter(nextReset)) {
             return fetch();
         }
@@ -18,7 +19,7 @@ public abstract class SingleCache<T> {
         return value;
     }
 
-    public synchronized T getAsync() {
+    public T getAsync() {
         if (value == null) {
             return get();
         }
@@ -36,14 +37,22 @@ public abstract class SingleCache<T> {
     }
 
     public T fetch() {
-        resetUpdateTimer();
-        try {
-            T newValue = fetchValue();
-            if (newValue != null) {
-                this.value = newValue;
+        boolean fetch = fetchAccess;
+        synchronized (this) {
+            if (fetch) {
+                fetchAccess = false;
+                resetUpdateTimer();
+                try {
+                    T newValue = fetchValue();
+                    if (newValue != null) {
+                        this.value = newValue;
+                    }
+                } catch (Throwable e) {
+                    MainLogger.get().error("Uncaught exception", e);
+                } finally {
+                    fetchAccess = true;
+                }
             }
-        } catch (Throwable e) {
-            MainLogger.get().error("Uncaught exception", e);
         }
         return this.value;
     }

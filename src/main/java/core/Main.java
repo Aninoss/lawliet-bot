@@ -2,6 +2,7 @@ package core;
 
 import java.time.Instant;
 import com.jockie.jda.memory.MemoryOptimizations;
+import core.cache.PatreonCache;
 import core.emoji.EmojiTable;
 import core.utils.BotUtil;
 import events.sync.EventManager;
@@ -22,6 +23,9 @@ public class Main {
             FontManager.init();
             MySQLManager.connect();
             EmojiTable.load();
+            if (Program.productionMode()) {
+                PatreonCache.getInstance().fetch();
+            }
             if (Program.publicVersion()) {
                 initializeUpdate();
             }

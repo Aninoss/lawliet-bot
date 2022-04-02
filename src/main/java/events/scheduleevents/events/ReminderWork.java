@@ -40,7 +40,7 @@ public class ReminderWork implements ExceptionRunnable {
                     try {
                         return DBGuild.getInstance().retrieve(guild.getIdLong()).getFisheryStatus() == FisheryStatus.ACTIVE;
                     } catch (Throwable e) {
-                        MainLogger.get().error("Could not get server bean", e);
+                        MainLogger.get().error("Could not get server data", e);
                     }
                     return false;
                 })

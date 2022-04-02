@@ -27,21 +27,25 @@ public class CleanGuilds implements ExceptionRunnable {
                 Thread.sleep(100);
                 guildKickedDataList = DBGuild.getInstance().retrieveKickedData(guildIdOffset, limit);
                 for (GuildKickedData guildKickedData : guildKickedDataList) {
-                    long guildId = guildKickedData.getGuildId();
-                    LocalDate kicked = guildKickedData.getKicked();
-                    if (ShardManager.getLocalGuildById(guildId).isPresent()) {
-                        if (kicked != null) {
-                            MainLogger.get().info("Guild {} has been set to \"not kicked\"", guildId);
-                            DBGuild.getInstance().setKicked(guildId, null);
+                    try {
+                        long guildId = guildKickedData.getGuildId();
+                        LocalDate kicked = guildKickedData.getKicked();
+                        if (ShardManager.getLocalGuildById(guildId).isPresent()) {
+                            if (kicked != null) {
+                                MainLogger.get().info("Guild {} has been set to \"not kicked\"", guildId);
+                                DBGuild.getInstance().setKicked(guildId, null);
+                            }
+                        } else {
+                            if (kicked == null) {
+                                MainLogger.get().info("Guild {} has been set to \"kicked\"", guildId);
+                                DBGuild.getInstance().setKicked(guildId, LocalDate.now());
+                            } else if (LocalDate.now().isAfter(kicked.plusDays(6)) && Program.productionMode()) {
+                                MainLogger.get().info("Guild data for {} has been removed", guildId);
+                                DBGuild.getInstance().remove(guildId);
+                            }
                         }
-                    } else {
-                        if (kicked == null) {
-                            MainLogger.get().info("Guild {} has been set to \"kicked\"", guildId);
-                            DBGuild.getInstance().setKicked(guildId, LocalDate.now());
-                        } else if (LocalDate.now().isAfter(kicked.plusDays(6)) && Program.productionMode()) {
-                            MainLogger.get().info("Guild data for {} has been removed", guildId);
-                            DBGuild.getInstance().remove(guildId);
-                        }
+                    } catch (Throwable e) {
+                        MainLogger.get().error("Error in guild cleaner", e);
                     }
                 }
                 if (guildKickedDataList.size() > 0) {

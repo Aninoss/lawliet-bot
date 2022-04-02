@@ -13,7 +13,7 @@ public class GuildInviteCreateInviteTracking extends GuildInviteCreateAbstract {
     @Override
     public boolean onGuildInviteCreate(GuildInviteCreateEvent event) {
         InviteTrackingData inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
-        if (inviteTrackingData.isActive()) {
+        if (inviteTrackingData.isActive() && event.getInvite() != null && event.getInvite().getInviter() != null) {
             GuildInvite guildInvite = new GuildInvite(event.getGuild().getIdLong(), event.getCode(), event.getInvite().getInviter().getIdLong(), 0);
             inviteTrackingData.getGuildInvites().put(guildInvite.getCode(), guildInvite);
         }

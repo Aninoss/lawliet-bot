@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import constants.AssetIds;
 import core.cache.PatreonCache;
-import mysql.modules.moderation.DBModeration;
 import mysql.modules.subs.DBSubs;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -101,7 +100,6 @@ public class MemberCacheController implements MemberCachePolicy {
                 guild.getMemberCount() >= BIG_SERVER_THRESHOLD ||
                 guildIsCached(guild) ||
                 (Program.productionMode() && PatreonCache.getInstance().hasPremium(member.getIdLong(), false)) ||
-                DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().map(muteRole -> member.getRoles().contains(muteRole)).orElse(false) ||
                 DBSubs.getInstance().retrieve(DBSubs.Command.WORK).containsKey(member.getIdLong());
     }
 

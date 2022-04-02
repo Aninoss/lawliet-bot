@@ -39,7 +39,7 @@ public class ExceptionUtil {
         String transmitStackTrace = StringUtil.shortenString(stacktrace, 1000);
         String code = Long.toHexString(Math.abs(transmitStackTrace.hashCode())).toUpperCase();
 
-        if (postErrorMessage) {
+        if (postErrorMessage && BotPermissionUtil.can(event.getGuildMessageChannel())) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code))
                     .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""));
