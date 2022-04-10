@@ -22,6 +22,7 @@ import commands.runnables.informationcategory.*;
 import commands.runnables.interactionscategory.*;
 import commands.runnables.invitetrackingcategory.InviteTrackingCommand;
 import commands.runnables.invitetrackingcategory.InvitesCommand;
+import commands.runnables.invitetrackingcategory.InvitesManageCommand;
 import commands.runnables.invitetrackingcategory.InvitesTopCommand;
 import commands.runnables.moderationcategory.*;
 import commands.runnables.nsfwcategory.*;
@@ -165,6 +166,7 @@ public class CommandContainer {
         commandList.add(InviteTrackingCommand.class);
         commandList.add(InvitesCommand.class);
         commandList.add(InvitesTopCommand.class);
+        commandList.add(InvitesManageCommand.class);
 
 
         //INTERACTIONS

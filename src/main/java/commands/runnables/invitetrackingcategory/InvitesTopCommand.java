@@ -58,7 +58,7 @@ public class InvitesTopCommand extends ListAbstract {
         DBInviteTracking.getInstance().retrieve(member.getGuild().getIdLong()).getInviteTrackingSlots().values()
                 .forEach(slot -> {
                     long userId = slot.getInviterUserId();
-                    if (!memberIds.contains(userId)) {
+                    if (!memberIds.contains(userId) && (userId == 0 || member.getGuild().getMemberById(userId) != null)) {
                         memberIds.add(userId);
                         inviteMetricsSlots.add(InviteTracking.generateInviteMetrics(member.getGuild(), userId));
                     }

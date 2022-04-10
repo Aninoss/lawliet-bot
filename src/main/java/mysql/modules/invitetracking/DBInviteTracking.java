@@ -119,6 +119,14 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
         getCache().refresh(guildId);
     }
 
+    public void resetInviteTrackerSlotsOfInviter(long guildId, long invitedByUserId) throws SQLException, InterruptedException {
+        MySQLManager.update("DELETE FROM Invites WHERE serverId = ? AND invitedByUserId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, guildId);
+            preparedStatement.setLong(2, invitedByUserId);
+        });
+        getCache().refresh(guildId);
+    }
+
     private Map<String, GuildInvite> getGuildInvites(long guildId) {
         return new DBDataLoad<GuildInvite>("ServerInvites", "code, userId, usages", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)

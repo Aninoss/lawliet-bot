@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
         userGuildPermissions = Permission.MANAGE_SERVER,
         botGuildPermissions = Permission.MANAGE_SERVER,
         releaseDate = { 2021, 9, 21 },
-        emoji = "✉️",
+        emoji = "⚙️",
         usesExtEmotes = true,
         executableWithoutArgs = true,
         aliases = { "invitetracker", "invtracking", "invitet", "invt", "invtracker" }
