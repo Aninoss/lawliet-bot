@@ -79,7 +79,7 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
     }
 
     private Map<Long, InviteTrackingSlot> getInviteTrackerSlots(long guildId) {
-        return new DBDataLoad<InviteTrackingSlot>("Invites", "userId, invitedByUserId, date, lastMessage", "serverId = ?",
+        return new DBDataLoad<InviteTrackingSlot>("Invites", "userId, invitedByUserId, date, lastMessage, fakeInvite", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getMap(
                 InviteTrackingSlot::getMemberId,
@@ -88,18 +88,20 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
                         resultSet.getLong(1),
                         resultSet.getLong(2),
                         resultSet.getDate(3).toLocalDate(),
-                        resultSet.getDate(4).toLocalDate()
+                        resultSet.getDate(4).toLocalDate(),
+                        resultSet.getBoolean(5)
                 )
         );
     }
 
     private void addInviteTrackerSlot(InviteTrackingSlot slot) {
-        MySQLManager.asyncUpdate("REPLACE INTO Invites (serverId, userId, invitedByUserId, date, lastMessage) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Invites (serverId, userId, invitedByUserId, date, lastMessage, fakeInvite) VALUES (?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getGuildId());
             preparedStatement.setLong(2, slot.getMemberId());
             preparedStatement.setLong(3, slot.getInviterUserId());
             preparedStatement.setString(4, MySQLManager.localDateToDateString(slot.getInvitedDate()));
             preparedStatement.setString(5, MySQLManager.localDateToDateString(slot.getLastMessage()));
+            preparedStatement.setBoolean(6, slot.isFakeInvite());
         });
     }
 

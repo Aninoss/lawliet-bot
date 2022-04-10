@@ -113,7 +113,7 @@ public class InviteTracking {
                             if (tempInvite != null) {
                                 CustomObservableMap<Long, InviteTrackingSlot> inviteTrackingSlots = DBInviteTracking.getInstance().retrieve(guild.getIdLong()).getInviteTrackingSlots();
                                 if (!inviteTrackingSlots.containsKey(member.getIdLong())) {
-                                    InviteTrackingSlot newSlot = new InviteTrackingSlot(guild.getIdLong(), member.getIdLong(), tempInvite.inviter, LocalDate.now(), LocalDate.now());
+                                    InviteTrackingSlot newSlot = new InviteTrackingSlot(guild.getIdLong(), member.getIdLong(), tempInvite.inviter, LocalDate.now(), LocalDate.now(), false);
                                     inviteTrackingSlots.put(member.getIdLong(), newSlot);
                                 }
                                 future.complete(tempInvite);

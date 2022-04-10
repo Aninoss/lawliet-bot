@@ -10,13 +10,16 @@ public class InviteTrackingSlot extends DataWithGuild implements MemberAsset {
     private final long inviterUserId;
     private final LocalDate invitedDate;
     private LocalDate lastMessage;
+    private boolean fakeInvite;
 
-    public InviteTrackingSlot(long guildId, long memberId, long inviterUserId, LocalDate invitedDate, LocalDate lastMessage) {
+    public InviteTrackingSlot(long guildId, long memberId, long inviterUserId, LocalDate invitedDate,
+                              LocalDate lastMessage, boolean fakeInvite) {
         super(guildId);
         this.memberId = memberId;
         this.inviterUserId = inviterUserId;
         this.invitedDate = invitedDate;
         this.lastMessage = lastMessage;
+        this.fakeInvite = fakeInvite;
     }
 
     @Override
@@ -42,6 +45,10 @@ public class InviteTrackingSlot extends DataWithGuild implements MemberAsset {
 
     public boolean isActive() {
         return !LocalDate.now().isAfter(lastMessage.plusDays(7));
+    }
+
+    public boolean isFakeInvite() {
+        return fakeInvite;
     }
 
     public void messageSent() {
