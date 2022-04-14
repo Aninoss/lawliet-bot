@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
 import constants.AssetIds;
 import core.PatreonData;
+import core.Program;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import events.sync.SendEvent;
@@ -46,10 +47,14 @@ public class PatreonCache extends SingleCache<PatreonData> {
 
     @Override
     protected PatreonData fetchValue() {
-        try {
-            return SendEvent.sendRequestPatreon().get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
+        if (Program.productionMode()) {
+            try {
+                return SendEvent.sendRequestPatreon().get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return new PatreonData(new HashMap<>(), new HashSet<>(), new HashSet<>());
         }
     }
 

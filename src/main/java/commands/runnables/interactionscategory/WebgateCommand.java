@@ -3,12 +3,13 @@ package commands.runnables.interactionscategory;
 import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+import constants.AssetIds;
 
 @CommandProperties(
         trigger = "webgate",
         emoji = "⛩️",
         executableWithoutArgs = true,
-        exclusiveGuilds = { 580048842020487180L }
+        exclusiveGuilds = { AssetIds.WEBGATE_SERVER_ID }
 )
 public class WebgateCommand extends RolePlayAbstract {
 

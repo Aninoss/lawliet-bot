@@ -12,6 +12,8 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
+import constants.AssetIds;
+import constants.Language;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.utils.EmbedUtil;
@@ -58,7 +60,10 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
-        List<AnimeNewsArticle> articles = AnimeNewsDownloader.retrieveArticles(getLocale());
+        Locale locale = slot.getGuildId() == AssetIds.WEBGATE_SERVER_ID
+                ? Language.EN.getLocale()
+                : getLocale();
+        List<AnimeNewsArticle> articles = AnimeNewsDownloader.retrieveArticles(locale);
         if (articles == null || articles.size() == 0) {
             return AlertResponse.CONTINUE;
         }
