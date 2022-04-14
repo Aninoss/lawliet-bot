@@ -20,8 +20,10 @@ import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.MessageQuote;
 import mysql.modules.autoquote.DBAutoQuote;
+import mysql.modules.commandmanagement.DBCommandManagement;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -80,9 +82,14 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                 if (clazz != null) {
                     Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
                     if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
-                        args = command.getTrigger();
-                        command = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
-                        command.getAttachments().put("noargs", true);
+                        Command helpCommand = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
+                        if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
+                                DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong()).commandIsTurnedOn(helpCommand)
+                        ) {
+                            args = command.getTrigger();
+                            command = helpCommand;
+                            command.getAttachments().put("noargs", true);
+                        }
                     }
 
                     CommandEvent commandEvent = new CommandEvent(event);

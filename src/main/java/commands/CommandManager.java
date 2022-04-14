@@ -72,7 +72,8 @@ public class CommandManager {
                 checkTurnedOn(event, command) &&
                 checkPermissions(event, command) &&
                 checkPatreon(event, command) &&
-                checkReleased(event, command)
+                checkReleased(event, command) &&
+                checkArgsProvided(event, command, args)
         ) {
             if (command.getCommandProperties().patreonRequired() &&
                     (Arrays.stream(command.getCommandProperties().userGuildPermissions()).anyMatch(p -> p == Permission.MANAGE_SERVER))
@@ -187,6 +188,23 @@ public class CommandManager {
             }
         }
 
+        return false;
+    }
+
+    private static boolean checkArgsProvided(CommandEvent event, Command command, String args) {
+        if (command.getCommandProperties().executableWithoutArgs() || !args.isEmpty()) {
+            return true;
+        }
+
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_args");
+        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "wrong_args"))
+                    .setDescription(desc);
+            sendError(event, command.getLocale(), eb, true);
+        } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
+            sendErrorNoEmbed(event, command.getLocale(), desc, true);
+        }
         return false;
     }
 
