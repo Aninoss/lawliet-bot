@@ -4,12 +4,15 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
+import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
@@ -24,6 +27,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
@@ -80,6 +84,22 @@ public class InvitesManageCommand extends NavigationAbstract {
         }
     }
 
+    @ControllerMessage(state = STATE_ADD)
+    public MessageInputResponse onMessageAdd(MessageReceivedEvent event, String input) {
+        List<Member> memberList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
+        if (memberList.size() == 0) {
+            setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
+            return MessageInputResponse.FAILED;
+        } else {
+            Member member = memberList.get(0);
+            fakeInviteAtomicMember = new AtomicMember(member);
+            if (getInviteTrackingSlots().containsKey(member.getIdLong())) {
+                setLog(LogStatus.WARNING, getString("override"));
+            }
+            return MessageInputResponse.SUCCESS;
+        }
+    }
+
     @ControllerButton(state = DEFAULT_STATE)
     public boolean onButtonMain(ButtonInteractionEvent event, int i) throws SQLException, InterruptedException {
         switch (i) {
@@ -94,7 +114,11 @@ public class InvitesManageCommand extends NavigationAbstract {
                 return true;
             }
             case 1 -> {
-                setState(STATE_DELETE);
+                if (getInviteTrackingSlots().values().stream().anyMatch(slot -> slot.getInviterUserId() == atomicMember.getIdLong())) {
+                    setState(STATE_DELETE);
+                } else {
+                    setLog(LogStatus.FAILURE, getString("noinvite"));
+                }
                 resetLog = true;
                 return true;
             }
@@ -126,10 +150,8 @@ public class InvitesManageCommand extends NavigationAbstract {
                     InviteTrackingSlot inviteTrackingSlot = new InviteTrackingSlot(event.getGuild().getIdLong(),
                             fakeInviteAtomicMember.getIdLong(), atomicMember.getIdLong(), LocalDate.now(),
                             LocalDate.now(), true
-
                     );
-                    DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).getInviteTrackingSlots()
-                            .put(inviteTrackingSlot.getMemberId(), inviteTrackingSlot);
+                    getInviteTrackingSlots().put(inviteTrackingSlot.getMemberId(), inviteTrackingSlot);
                     setState(DEFAULT_STATE);
                     setLog(LogStatus.SUCCESS, getString("added"));
                     return true;
@@ -141,13 +163,18 @@ public class InvitesManageCommand extends NavigationAbstract {
 
     @ControllerButton(state = STATE_DELETE)
     public boolean onButtonDelete(ButtonInteractionEvent event, int i) {
-        switch (i) {
-            case -1 -> {
+        if (i == -1) {
+            setState(DEFAULT_STATE);
+        } else {
+            long userId = Long.parseLong(event.getComponentId());
+            CustomObservableMap<Long, InviteTrackingSlot> slots = getInviteTrackingSlots();
+            slots.remove(userId);
+            if (slots.isEmpty()) {
                 setState(DEFAULT_STATE);
-                return true;
             }
+            setLog(LogStatus.SUCCESS, getString("deleted"));
         }
-        return false;
+        return true;
     }
 
     @Draw(state = DEFAULT_STATE)
@@ -186,6 +213,23 @@ public class InvitesManageCommand extends NavigationAbstract {
                 getString("state1_desc", fakeInviteAtomicMember != null ? fakeInviteAtomicMember.getAsMention() : notSet),
                 getString("state1_title")
         );
+    }
+
+    @Draw(state = STATE_DELETE)
+    public EmbedBuilder onDrawDelete(Member member) {
+        List<Button> buttons = getInviteTrackingSlots().values().stream()
+                .filter(inviteTrackingSlot -> inviteTrackingSlot.getInviterUserId() == atomicMember.getIdLong())
+                .map(inviteTrackingSlot -> {
+                    AtomicMember atomicMember = new AtomicMember(member.getGuild().getIdLong(), inviteTrackingSlot.getMemberId());
+                    return Button.of(ButtonStyle.PRIMARY, atomicMember.getId(), atomicMember.getPrefixedName());
+                })
+                .collect(Collectors.toList());
+        setComponents(buttons);
+        return EmbedFactory.getEmbedDefault(this, getString("state2_desc", getString("state2_title")));
+    }
+
+    private CustomObservableMap<Long, InviteTrackingSlot> getInviteTrackingSlots() {
+        return DBInviteTracking.getInstance().retrieve(getGuildId().get()).getInviteTrackingSlots();
     }
 
 }
