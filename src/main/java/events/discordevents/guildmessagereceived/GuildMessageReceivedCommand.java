@@ -111,11 +111,13 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
     }
 
     private void checkAutoQuote(MessageReceivedEvent event) {
-        if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
+        if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel()) &&
+                DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive()
+        ) {
             GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
             MentionUtil.getMessageWithLinks(event.getGuild(), event.getMessage().getContentRaw()).thenAccept(mentionMessages -> {
                 List<Message> messages = mentionMessages.getList();
-                if (messages.size() > 0 && DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive() && BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
+                if (messages.size() > 0) {
                     try {
                         for (int i = 0; i < Math.min(3, messages.size()); i++) {
                             Message message = messages.get(i);

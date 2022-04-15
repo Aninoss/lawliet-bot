@@ -167,4 +167,13 @@ public class JDAUtil {
         return messageAction;
     }
 
+    public static boolean messageIsUserGenerated(Message message) {
+        MessageType messageType = message.getType();
+        return messageType == MessageType.DEFAULT ||
+                messageType == MessageType.INLINE_REPLY ||
+                messageType == MessageType.SLASH_COMMAND ||
+                messageType == MessageType.CONTEXT_COMMAND ||
+                messageType == MessageType.THREAD_STARTER_MESSAGE;
+    }
+
 }

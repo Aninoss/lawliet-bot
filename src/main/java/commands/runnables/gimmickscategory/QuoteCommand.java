@@ -12,6 +12,7 @@ import core.TextManager;
 import core.cache.MessageCache;
 import core.mention.MentionList;
 import core.utils.BotPermissionUtil;
+import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.MessageQuote;
@@ -61,10 +62,12 @@ public class QuoteCommand extends Command {
             if (StringUtil.stringIsLong(newString)) {
                 try {
                     Message message = MessageCache.retrieveMessage(channel, Long.parseLong(newString)).get();
-                    Message m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getTextChannel(), message, false);
-                    setActionRows(m.getActionRows());
-                    drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
-                    return true;
+                    if (JDAUtil.messageIsUserGenerated(message)) {
+                        Message m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getTextChannel(), message, false);
+                        setActionRows(m.getActionRows());
+                        drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
+                        return true;
+                    }
                 } catch (ExecutionException | InterruptedException e) {
                     //Ignore
                 }

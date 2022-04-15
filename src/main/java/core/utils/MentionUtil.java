@@ -299,7 +299,10 @@ public class MentionUtil {
                     Optional.ofNullable(guild.getChannelById(BaseGuildMessageChannel.class, m.group("channel"))).ifPresent(channel -> {
                         try {
                             if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_HISTORY)) {
-                                list.add(channel.retrieveMessageById(m.group("message")).complete());
+                                Message message = channel.retrieveMessageById(m.group("message")).complete();
+                                if (JDAUtil.messageIsUserGenerated(message)) {
+                                    list.add(message);
+                                }
                             }
                         } catch (Throwable e) {
                             //Ignore
