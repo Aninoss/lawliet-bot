@@ -10,7 +10,7 @@ import commands.runnables.RolePlayAbstract;
         executableWithoutArgs = true,
         nsfw = true,
         requiresFullMemberCache = true,
-        aliases = { "grabboobs", "tittygrab", "grabtitty", "titsgrab", "grabtits" }
+        aliases = { "boobgrab" ,"grabboobs", "tittygrab", "grabtitty", "titsgrab", "grabtits" }
 )
 public class BoobsGrabCommand extends RolePlayAbstract {
 
