@@ -227,6 +227,7 @@ public class CommandContainer {
         commandList.add(YuriHugCommand.class);
         commandList.add(YuriKissCommand.class);
 
+        commandList.add(AssFuckCommand.class);
         commandList.add(AssGrabCommand.class);
         commandList.add(BlowjobCommand.class);
         commandList.add(BoobsGrabCommand.class);
