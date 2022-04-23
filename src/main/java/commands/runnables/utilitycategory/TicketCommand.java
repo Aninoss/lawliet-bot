@@ -407,7 +407,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         } else {
             TextChannel existingTicketChannel = existingTicketChannelOpt.get();
             if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), existingTicketChannel, Permission.MESSAGE_SEND)) {
-                existingTicketChannel.sendMessage(member.getAsMention()).queue();
+                String text = TextManager.getString(ticketData.getGuildData().getLocale(), commands.Category.UTILITY, "ticket_alreadyopen", member.getAsMention());
+                existingTicketChannel.sendMessage(text).queue();
             }
         }
     }
