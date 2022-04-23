@@ -13,6 +13,7 @@ enum class Category(val id: String, val emoji: String, val isIndependent: Boolea
     CASINO("casino", "🎰", true),
     INVITE_TRACKING("invite_tracking_category", "✉️", true),
     INTERACTIONS("interactions", "🫂", true),
+    NSFW_INTERACTIONS("nsfw_interactions", "❤️", true),
     EXTERNAL("external_services", "📤", true),
     NSFW("nsfw", "🔞", true),
     SPLATOON_2("splatoon_2", "🦑", true),
@@ -38,6 +39,7 @@ enum class Category(val id: String, val emoji: String, val isIndependent: Boolea
                 "informationcategory" -> INFORMATION
                 "splatoon2category" -> SPLATOON_2
                 "interactionscategory" -> INTERACTIONS
+                "nsfwinteractionscategory" -> NSFW_INTERACTIONS
                 "externalcategory" -> EXTERNAL
                 "fisherysettingscategory" -> FISHERY_SETTINGS
                 "fisherycategory" -> FISHERY

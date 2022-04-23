@@ -26,6 +26,8 @@ import commands.runnables.invitetrackingcategory.InvitesManageCommand;
 import commands.runnables.invitetrackingcategory.InvitesTopCommand;
 import commands.runnables.moderationcategory.*;
 import commands.runnables.nsfwcategory.*;
+import commands.runnables.nsfwinteractionscategory.FootjobCommand;
+import commands.runnables.nsfwinteractionscategory.*;
 import commands.runnables.splatoon2category.MapsCommand;
 import commands.runnables.splatoon2category.SalmonCommand;
 import commands.runnables.splatoon2category.SplatnetCommand;
@@ -168,7 +170,6 @@ public class CommandContainer {
         commandList.add(InvitesTopCommand.class);
         commandList.add(InvitesManageCommand.class);
 
-
         //INTERACTIONS
         commandList.add(AngryCommand.class);
         commandList.add(AwkwardCommand.class);
@@ -227,6 +228,7 @@ public class CommandContainer {
         commandList.add(YuriHugCommand.class);
         commandList.add(YuriKissCommand.class);
 
+        //NSFW INTERACTIONS
         commandList.add(AssFuckCommand.class);
         commandList.add(AssGrabCommand.class);
         commandList.add(BlowjobCommand.class);

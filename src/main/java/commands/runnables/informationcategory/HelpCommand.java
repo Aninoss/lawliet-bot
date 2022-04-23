@@ -208,27 +208,40 @@ public class HelpCommand extends NavigationAbstract {
         }
 
         if (arg.length() > 0) {
-            for (Category category : Category.values()) {
-                if ((category.getId().toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()).toLowerCase().contains(arg.toLowerCase()))) {
-                    currentCategory = category;
-
-                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                            .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()));
-                    EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"));
-
-                    buttonMap.clear();
-                    buttonMap.put(-1, "");
-
-                    switch (category) {
-                        case INTERACTIONS -> categoryRolePlay(member, eb);
-                        case NSFW -> categoryNSFW(member, channel, eb);
-                        case PATREON_ONLY -> categoryPatreon(member, channel, eb);
-                        default -> categoryDefault(member, channel, eb, category);
-                    }
-
-                    setComponents(generateSelectMenu(member.getGuild().getIdLong(), category));
-                    return eb;
+            boolean halfMatchFound = false;
+            Category category = null;
+            for (Category value : Category.values()) {
+                if ((value.getId().equalsIgnoreCase(arg) || TextManager.getString(getLocale(), TextManager.COMMANDS, value.getId()).equalsIgnoreCase(arg))) {
+                    category = value;
+                    break;
+                } else if ((value.getId().toLowerCase().contains(arg.toLowerCase()) || TextManager.getString(getLocale(), TextManager.COMMANDS, value.getId()).toLowerCase().contains(arg.toLowerCase())) &&
+                        !halfMatchFound
+                ) {
+                    category = value;
+                    halfMatchFound = true;
                 }
+            }
+
+            if (category != null) {
+                currentCategory = category;
+
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                        .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()));
+                EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"));
+
+                buttonMap.clear();
+                buttonMap.put(-1, "");
+
+                switch (category) {
+                    case INTERACTIONS -> categoryRolePlay(member, eb);
+                    case NSFW_INTERACTIONS -> categoryNSFWRolePlay(member, eb);
+                    case NSFW -> categoryNSFW(member, channel, eb);
+                    case PATREON_ONLY -> categoryPatreon(member, channel, eb);
+                    default -> categoryDefault(member, channel, eb, category);
+                }
+
+                setComponents(generateSelectMenu(member.getGuild().getIdLong(), category));
+                return eb;
             }
         }
 
@@ -237,26 +250,28 @@ public class HelpCommand extends NavigationAbstract {
 
     private void categoryRolePlay(Member member, EmbedBuilder eb) {
         AtomicInteger counter = new AtomicInteger(0);
-        addRolePlayCommandList(member, eb, command -> !command.isInteractive() && !command.getCommandProperties().nsfw(), counter);
+        addRolePlayCommandList(member, eb, Category.INTERACTIONS, command -> !command.isInteractive(), counter);
         eb.addBlankField(false);
 
         eb.addField(getString("roleplay_interactive_title"), getString("roleplay_interactive_desc"), false);
-        addRolePlayCommandList(member, eb, command -> command.isInteractive() && !command.getCommandProperties().nsfw(), counter);
-        eb.addBlankField(false);
-
-        eb.addField(getString("roleplay_nsfwinteractive_title"), getString("interaction_nsfw_desc"), false);
-        addRolePlayCommandList(member, eb, command -> command.isInteractive() && command.getCommandProperties().nsfw(), counter);
+        addRolePlayCommandList(member, eb, Category.INTERACTIONS, RolePlayAbstract::isInteractive, counter);
     }
 
-    private void addRolePlayCommandList(Member member, EmbedBuilder eb, Function<RolePlayAbstract, Boolean> rolePlayAbstractFilter, AtomicInteger counter) {
+    private void categoryNSFWRolePlay(Member member, EmbedBuilder eb) {
+        eb.setDescription(getString("interaction_nsfw_desc"));
+
+        AtomicInteger counter = new AtomicInteger(0);
+        eb.addField(getString("roleplay_interactive_title"), getString("roleplay_interactive_desc"), false);
+        addRolePlayCommandList(member, eb, Category.NSFW_INTERACTIONS, command -> true, counter);
+    }
+
+    private void addRolePlayCommandList(Member member, EmbedBuilder eb, Category category, Function<RolePlayAbstract, Boolean> rolePlayAbstractFilter, AtomicInteger counter) {
         StringBuilder stringBuilder = new StringBuilder();
         int i = 0;
-        for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.INTERACTIONS)) {
+        for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) &&
-                    (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.can(member, Permission.ADMINISTRATOR))
-            ) {
+            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && commandManagementBean.commandIsTurnedOn(command)) {
                 buttonMap.put(counter.getAndIncrement(), command.getTrigger());
                 stringBuilder
                         .append("• `")
@@ -294,7 +309,7 @@ public class HelpCommand extends NavigationAbstract {
                 String commandTrigger = command.getTrigger();
                 if (command.getCommandProperties().patreonRequired() &&
                         !commandTrigger.equals(getTrigger()) &&
-                        (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.can(member, Permission.ADMINISTRATOR))
+                        commandManagementBean.commandIsTurnedOn(command)
                 ) {
                     StringBuilder title = new StringBuilder();
                     title.append(command.getCommandProperties().emoji())
@@ -337,9 +352,7 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            if (!commandTrigger.equals(getTrigger()) &&
-                    (commandManagementBean.commandIsTurnedOn(command) || BotPermissionUtil.can(member, Permission.ADMINISTRATOR))
-            ) {
+            if (!commandTrigger.equals(getTrigger()) && commandManagementBean.commandIsTurnedOn(command)) {
                 StringBuilder title = new StringBuilder();
                 title.append(command.getCommandProperties().emoji())
                         .append(" `")
@@ -380,9 +393,7 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.NSFW)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
-            if (commandManagementBean.commandIsTurnedOn(command) ||
-                    BotPermissionUtil.can(member, Permission.ADMINISTRATOR)
-            ) {
+            if (commandManagementBean.commandIsTurnedOn(command)) {
                 buttonMap.put(i++, command.getTrigger());
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 

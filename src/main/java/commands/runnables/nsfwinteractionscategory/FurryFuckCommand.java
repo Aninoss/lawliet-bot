@@ -1,4 +1,4 @@
-package commands.runnables.interactionscategory;
+package commands.runnables.nsfwinteractionscategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
