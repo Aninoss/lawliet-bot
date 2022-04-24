@@ -22,10 +22,10 @@ public class KickCommand extends WarnCommand {
 
     @Override
     protected void process(Guild guild, User target, String reason) {
-        guild.kick(target.getId(), reason)
+        guild.kick(target, reason)
                 .submit()
                 .exceptionally(e -> {
-                    guild.kick(target.getId()).queue();
+                    guild.kick(target).queue();
                     return null;
                 });
     }

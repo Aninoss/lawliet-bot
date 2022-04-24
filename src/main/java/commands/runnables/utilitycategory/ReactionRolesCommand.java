@@ -754,7 +754,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
                             Role role = rOpt.get();
                             if (PermissionCheckRuntime.botCanManageRoles(getLocale(), getClass(), role)) {
-                                event.getGuild().removeRoleFromMember(event.getUserId(), role)
+                                event.getGuild().removeRoleFromMember(UserSnowflake.fromId(event.getUserId()), role)
                                         .reason(getCommandLanguage().getTitle())
                                         .queue();
                             }

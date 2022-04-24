@@ -23,7 +23,7 @@ public class GuildMessageReceivedAnicordAntiPhishing extends GuildMessageReceive
                 messageContainsPhishingLink(event.getMessage().getContentRaw())
         ) {
             event.getMessage().delete().queue();
-            event.getGuild().kick(event.getAuthor().getId())
+            event.getGuild().kick(event.getAuthor())
                     .reason("Anti Phishing")
                     .queue();
             return false;

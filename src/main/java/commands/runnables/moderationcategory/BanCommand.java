@@ -55,10 +55,10 @@ public class BanCommand extends WarnCommand {
             DBTempBan.getInstance().retrieve(guild.getIdLong()).remove(target.getIdLong());
         }
 
-        guild.ban(target.getId(), 1, reason)
+        guild.ban(target, 1, reason)
                 .submit()
                 .exceptionally(e -> {
-                    guild.ban(target.getId(), 1).queue();
+                    guild.ban(target, 1).queue();
                     return null;
                 });
     }

@@ -35,11 +35,11 @@ public class UnbanCommand extends WarnCommand {
 
     @Override
     protected void process(Guild guild, User target, String reason) {
-        guild.unban(target.getId())
+        guild.unban(target)
                 .reason(reason)
                 .submit()
                 .exceptionally(e -> {
-                    guild.unban(target.getId()).queue();
+                    guild.unban(target).queue();
                     return null;
                 });
     }

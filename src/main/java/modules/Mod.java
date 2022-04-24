@@ -74,7 +74,7 @@ public class Mod {
                                 .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", duration > 0, target.getAsTag(), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
 
                         postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildData().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
-                            guild.ban(target.getId(), 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).queue();
+                            guild.ban(target, 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).queue();
                             if (duration > 0) {
                                 TempBanData tempBanData = new TempBanData(guild.getIdLong(), target.getIdLong(), Instant.now().plus(Duration.ofMinutes(duration)));
                                 DBTempBan.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), tempBanData);
@@ -93,7 +93,7 @@ public class Mod {
                         .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", target.getAsTag()));
 
                 postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildData().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
-                    guild.kick(target.getId(), TextManager.getString(locale, Category.MODERATION, "mod_autokick")).queue();
+                    guild.kick(target, TextManager.getString(locale, Category.MODERATION, "mod_autokick")).queue();
                 });
             }
 

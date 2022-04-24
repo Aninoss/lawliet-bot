@@ -13,6 +13,7 @@ import mysql.modules.tempban.DBTempBan;
 import mysql.modules.tempban.TempBanData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.UserSnowflake;
 
 public class TempBanScheduler {
 
@@ -54,7 +55,7 @@ public class TempBanScheduler {
                             guild,
                             Permission.BAN_MEMBERS
                     )) {
-                        guild.unban(String.valueOf(tempBanData.getMemberId()))
+                        guild.unban(UserSnowflake.fromId(tempBanData.getMemberId()))
                                 .reason(TextManager.getString(locale, Category.MODERATION, "ban_expired_title"))
                                 .queue();
 

@@ -24,10 +24,10 @@ public class NewBanCommand extends NewKickCommand {
 
     @Override
     protected void process(Guild guild, User target, String reason) {
-        guild.ban(target.getId(), 1, reason)
+        guild.ban(target, 1, reason)
                 .submit()
                 .exceptionally(e -> {
-                    guild.kick(target.getId()).queue();
+                    guild.kick(target).queue();
                     return null;
                 });
     }
