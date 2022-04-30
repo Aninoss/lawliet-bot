@@ -1,5 +1,6 @@
 package commands.slashadapters.adapters
 
+import commands.Category
 import commands.CommandContainer
 import commands.runnables.PornPredefinedAbstract
 import commands.runnables.informationcategory.HelpCommand
@@ -40,20 +41,21 @@ class NSFWAdapter : SlashAdapter() {
         if (event.textChannel.isNSFW) {
             val userText = event.focusedOption.value
             val choiceList = ArrayList<Command.Choice>()
-            val switchedOffCommands = DBCommandManagement.getInstance().retrieve(event.guild!!.idLong).getSwitchedOffCommands()
+            val switchedOffData = DBCommandManagement.getInstance().retrieve(event.guild!!.idLong)
             val locale = DBGuild.getInstance().retrieve(event.guild!!.idLong).locale
             for (clazz in CommandContainer.getFullCommandList()) {
                 val commandProperties = commands.Command.getCommandProperties(clazz)
                 val commandTrigger = commandProperties.trigger
                 val triggers = mutableListOf(commandTrigger)
-                triggers.addAll(commandProperties.aliases)
-                val matches = triggers.any {
-                    PornPredefinedAbstract::class.java.isAssignableFrom(clazz) && commandProperties.nsfw &&
-                            it.lowercase().contains(userText.lowercase()) && !switchedOffCommands.contains(it)
-                }
-                if (matches) {
-                    val name = commandTrigger + ": " + commands.Command.getCommandLanguage(clazz, locale).title
-                    choiceList += Command.Choice(name, commandTrigger)
+                if (PornPredefinedAbstract::class.java.isAssignableFrom(clazz) && commandProperties.nsfw &&
+                    switchedOffData.elementIsTurnedOnEffectively(Category.NSFW.id, event.member) &&
+                    switchedOffData.elementIsTurnedOnEffectively(commandTrigger, event.member)
+                ) {
+                    triggers.addAll(commandProperties.aliases)
+                    if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {
+                        val name = commandTrigger + ": " + commands.Command.getCommandLanguage(clazz, locale).title
+                        choiceList += Command.Choice(name, commandTrigger)
+                    }
                 }
             }
 

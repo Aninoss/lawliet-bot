@@ -29,7 +29,7 @@ class RolePlayAdapter : SlashAdapter() {
         val type = event.getOption("gesture")!!.asString
         val clazz = CommandContainer.getCommandMap()[type]
         if (clazz != null) {
-            if (Command.getCategory(clazz) == Category.INTERACTIONS) {
+            if (Command.getCategory(clazz) == Category.INTERACTIONS || Command.getCategory(clazz) == Category.NSFW_INTERACTIONS) {
                 return SlashMeta(clazz, collectArgs(event, "gesture"))
             }
         }
@@ -39,19 +39,22 @@ class RolePlayAdapter : SlashAdapter() {
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<net.dv8tion.jda.api.interactions.commands.Command.Choice> {
         val userText = event.focusedOption.value
         val triggerSet = HashSet<String>()
-        val switchedOffCommands = DBCommandManagement.getInstance().retrieve(event.guild!!.idLong).getSwitchedOffCommands()
+        val switchedOffData = DBCommandManagement.getInstance().retrieve(event.guild!!.idLong)
         val channelIsNSFW = event.textChannel.isNSFW
         for (clazz in CommandContainer.getFullCommandList()) {
             val commandProperties = Command.getCommandProperties(clazz)
             val commandTrigger = commandProperties.trigger
-            val triggers = mutableListOf(commandTrigger)
-            triggers.addAll(commandProperties.aliases)
-            val matches = triggers.any {
-                Command.getCategory(clazz) == Category.INTERACTIONS && it.lowercase().contains(userText.lowercase()) &&
-                        !switchedOffCommands.contains(it) && (!commandProperties.nsfw || channelIsNSFW)
-            }
-            if (matches) {
-                triggerSet += commandTrigger
+            val commandCategory = Command.getCategory(clazz);
+            if ((commandCategory == Category.INTERACTIONS || commandCategory == Category.NSFW_INTERACTIONS) &&
+                (!commandProperties.nsfw || channelIsNSFW) &&
+                switchedOffData.elementIsTurnedOnEffectively(commandCategory.id, event.member) &&
+                switchedOffData.elementIsTurnedOnEffectively(commandTrigger, event.member)
+            ) {
+                val triggers = mutableListOf(commandTrigger)
+                triggers.addAll(commandProperties.aliases)
+                if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {
+                    triggerSet += commandTrigger
+                }
             }
         }
 

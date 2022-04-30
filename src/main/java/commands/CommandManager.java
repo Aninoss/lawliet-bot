@@ -276,8 +276,8 @@ public class CommandManager {
     }
 
     private static boolean checkTurnedOn(CommandEvent event, Command command) {
-        if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
-                DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong()).commandIsTurnedOn(command)
+        if (DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong())
+                .commandIsTurnedOnEffectively(command, event.getMember())
         ) {
             return true;
         }

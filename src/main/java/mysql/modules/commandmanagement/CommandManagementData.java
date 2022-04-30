@@ -7,7 +7,10 @@ import commands.Category;
 import commands.Command;
 import commands.CommandContainer;
 import core.CustomObservableList;
+import core.utils.BotPermissionUtil;
 import mysql.DataWithGuild;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 
 public class CommandManagementData extends DataWithGuild {
 
@@ -38,6 +41,29 @@ public class CommandManagementData extends DataWithGuild {
     public boolean commandIsTurnedOn(Command command) {
         return !switchedOffElements.contains(command.getTrigger()) &&
                 !switchedOffElements.contains(command.getCategory().getId());
+    }
+
+    public boolean commandIsTurnedOnEffectively(Command command, Member member) {
+        return BotPermissionUtil.can(member, Permission.ADMINISTRATOR) ||
+                commandIsTurnedOn(command);
+    }
+
+    public boolean categoryIsTurnedOn(Category category) {
+        return !switchedOffElements.contains(category.getId());
+    }
+
+    public boolean categoryIsTurnedOnEffectively(Category category, Member member) {
+        return BotPermissionUtil.can(member, Permission.ADMINISTRATOR) ||
+                categoryIsTurnedOn(category);
+    }
+
+    public boolean elementIsTurnedOn(String element) {
+        return !switchedOffElements.contains(element);
+    }
+
+    public boolean elementIsTurnedOnEffectively(String element, Member member) {
+        return BotPermissionUtil.can(member, Permission.ADMINISTRATOR) ||
+                elementIsTurnedOn(element);
     }
 
 }

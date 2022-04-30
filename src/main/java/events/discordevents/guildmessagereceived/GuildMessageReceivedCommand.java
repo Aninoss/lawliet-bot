@@ -23,7 +23,6 @@ import mysql.modules.autoquote.DBAutoQuote;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -83,8 +82,8 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
                     if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
                         Command helpCommand = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
-                        if (BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR) ||
-                                DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong()).commandIsTurnedOn(helpCommand)
+                        if (DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong())
+                                .commandIsTurnedOnEffectively(helpCommand, event.getMember())
                         ) {
                             args = command.getTrigger();
                             command = helpCommand;

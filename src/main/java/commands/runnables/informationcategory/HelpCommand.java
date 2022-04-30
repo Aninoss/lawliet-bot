@@ -477,7 +477,7 @@ public class HelpCommand extends NavigationAbstract {
         SelectMenu.Builder builder = SelectMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
-            if (!DBCommandManagement.getInstance().retrieve(guildId).getSwitchedOffCategories().contains(category)) {
+            if (DBCommandManagement.getInstance().retrieve(guildId).categoryIsTurnedOn(category)) {
                 String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
                 String value = "cat:" + category.getId();
                 builder.addOption(label, value, Emoji.fromUnicode(category.getEmoji()));
