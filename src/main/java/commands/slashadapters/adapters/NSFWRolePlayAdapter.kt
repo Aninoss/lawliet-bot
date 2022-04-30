@@ -15,12 +15,12 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import java.util.*
 
-@Slash(name = "rp", description = "Interact with other server members")
-class RolePlayAdapter : SlashAdapter() {
+@Slash(name = "nsfwrp", description = "Interact with other server members (NSFW)")
+class NSFWRolePlayAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "gesture", "Which type of interaction? (e.g. hug, kiss)", true, true)
+            .addOption(OptionType.STRING, "gesture", "Which type of interaction? (e.g. fuck, finger)", true, true)
             .addOption(OptionType.STRING, "members", "Mention one or more relevant members", false)
     }
 
@@ -28,11 +28,11 @@ class RolePlayAdapter : SlashAdapter() {
         val type = event.getOption("gesture")!!.asString
         val clazz = CommandContainer.getCommandMap()[type]
         if (clazz != null) {
-            if (Command.getCategory(clazz) == Category.INTERACTIONS) {
+            if (Command.getCategory(clazz) == Category.NSFW_INTERACTIONS) {
                 return SlashMeta(clazz, collectArgs(event, "gesture"))
             }
         }
-        return SlashMeta(HelpCommand::class.java, Category.INTERACTIONS.id) { locale: Locale -> TextManager.getString(locale, TextManager.COMMANDS, "slash_error_invalidgesture", type) }
+        return SlashMeta(HelpCommand::class.java, Category.NSFW_INTERACTIONS.id) { locale: Locale -> TextManager.getString(locale, TextManager.COMMANDS, "slash_error_invalidgesture", type) }
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<net.dv8tion.jda.api.interactions.commands.Command.Choice> {
@@ -43,7 +43,8 @@ class RolePlayAdapter : SlashAdapter() {
             val commandProperties = Command.getCommandProperties(clazz)
             val commandTrigger = commandProperties.trigger
             val commandCategory = Command.getCategory(clazz);
-            if (commandCategory == Category.INTERACTIONS &&
+            if (commandCategory == Category.NSFW_INTERACTIONS &&
+                event.textChannel.isNSFW &&
                 switchedOffData.elementIsTurnedOnEffectively(commandCategory.id, event.member) &&
                 switchedOffData.elementIsTurnedOnEffectively(commandTrigger, event.member)
             ) {

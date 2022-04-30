@@ -128,7 +128,7 @@ public class DiscordConnector {
                         .updateCommands()
                         .addCommands(commandDataList)
                         .addCommands(SupportTemplates.generateSupportContextCommands())
-                        .queue();
+                        .queue(r -> MainLogger.get().info("Successfully sent {} slash commands", r.size()));
             }
         } catch (Throwable e) {
             MainLogger.get().error("Exception on slash commands load", e);
