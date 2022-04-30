@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import java.util.*
 
-@Slash(name = "nsfwrp", description = "Interact with other server members (NSFW)")
+@Slash(name = "nsfw_rp", description = "Interact with other server members (NSFW)")
 class NSFWRolePlayAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {

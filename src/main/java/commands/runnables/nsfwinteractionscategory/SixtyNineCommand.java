@@ -6,7 +6,7 @@ import commands.runnables.RolePlayAbstract;
 
 @CommandProperties(
         trigger = "69",
-        emoji = "6️⃣9️⃣",
+        emoji = "👅",
         executableWithoutArgs = true,
         nsfw = true,
         requiresFullMemberCache = true,
