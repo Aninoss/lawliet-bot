@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.0.0-alpha.10'
+    implementation 'net.dv8tion:JDA:5.0.0-alpha.11'
     implementation 'club.minnced:discord-webhooks:0.5.8'
     implementation 'com.github.21Joakim:JDA-Memory-Optimizations:0.0.4'
     implementation 'mysql:mysql-connector-java:8.0.23'
