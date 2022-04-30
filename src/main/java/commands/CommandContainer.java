@@ -205,6 +205,7 @@ public class CommandContainer {
         commandList.add(HighfiveCommand.class);
         commandList.add(HugCommand.class);
         commandList.add(KissCommand.class);
+        commandList.add(LapSitCommand.class);
         commandList.add(LickCommand.class);
         commandList.add(LoveCommand.class);
         commandList.add(MarryCommand.class);
