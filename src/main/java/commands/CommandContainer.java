@@ -230,6 +230,7 @@ public class CommandContainer {
         commandList.add(YuriKissCommand.class);
 
         //NSFW INTERACTIONS
+        commandList.add(SixtyNineCommand.class);
         commandList.add(AssFuckCommand.class);
         commandList.add(AssGrabCommand.class);
         commandList.add(BlowjobCommand.class);
