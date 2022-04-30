@@ -238,6 +238,7 @@ public class CommandContainer {
         commandList.add(CreampieCommand.class);
         commandList.add(CumCommand.class);
         commandList.add(DickRideCommand.class);
+        commandList.add(FaceSitCommand.class);
         commandList.add(FingerCommand.class);
         commandList.add(FootjobCommand.class);
         commandList.add(FuckCommand.class);
