@@ -25,6 +25,7 @@ import mysql.modules.jails.DBJails;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
 import mysql.modules.servermute.DBServerMute;
+import mysql.modules.servermute.ServerMuteData;
 import mysql.modules.stickyroles.DBStickyRoles;
 import mysql.modules.stickyroles.StickyRolesActionData;
 import mysql.modules.stickyroles.StickyRolesData;
@@ -130,7 +131,8 @@ public class JoinRoles {
 
     public static void getMuteRole(Locale locale, Member member, HashSet<Role> rolesToAdd) {
         Guild guild = member.getGuild();
-        if (DBServerMute.getInstance().retrieve(guild.getIdLong()).containsKey(member.getIdLong())) {
+        ServerMuteData serverMuteData = DBServerMute.getInstance().retrieve(guild.getIdLong()).get(member.getIdLong());
+        if (serverMuteData != null && !serverMuteData.isNewMethod()) {
             DBModeration.getInstance().retrieve(guild.getIdLong()).getMuteRole().ifPresent(muteRole -> {
                 if (PermissionCheckRuntime.botCanManageRoles(locale, MuteCommand.class, muteRole)) {
                     rolesToAdd.add(muteRole);
