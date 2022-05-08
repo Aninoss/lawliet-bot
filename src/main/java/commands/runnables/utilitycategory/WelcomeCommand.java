@@ -241,18 +241,18 @@ public class WelcomeCommand extends NavigationAbstract {
                     .addBlankField(false)
                     .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageBean.isWelcomeActive()), true)
                     .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageBean.getWelcomeTitle()), true)
-                    .addField(getString("state0_mdescription"), stressVariables(welcomeMessageBean.getWelcomeText()),
+                    .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageBean.getWelcomeText()), 1024),
                             true
                     )
                     .addField(getString("state0_mchannel"), welcomeMessageBean.getWelcomeChannel().map(IMentionable::getAsMention).orElse(notSet), true)
                     .addBlankField(false)
                     .addField(getString("state0_mdm"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageBean.isDmActive()), true)
-                    .addField(getString("state0_mdmText"), stressVariables(welcomeMessageBean.getDmText().isEmpty() ? notSet : welcomeMessageBean.getDmText()),
+                    .addField(getString("state0_mdmText"), StringUtil.shortenString(stressVariables(welcomeMessageBean.getDmText().isEmpty() ? notSet : welcomeMessageBean.getDmText()), 1024),
                             true
                     )
                     .addBlankField(false)
                     .addField(getString("state0_mgoodbye"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
-                    .addField(getString("state0_mgoodbyeText"), stressVariables(welcomeMessageBean.getGoodbyeText()), true)
+                    .addField(getString("state0_mgoodbyeText"), StringUtil.shortenString(stressVariables(welcomeMessageBean.getGoodbyeText()), 1024), true)
                     .addField(getString("state0_mfarewellchannel"), welcomeMessageBean.getGoodbyeChannel().map(IMentionable::getAsMention).orElse(notSet), true);
         } else if (state == 5) {
             return getWelcomeMessageTest(member);
