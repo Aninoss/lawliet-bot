@@ -53,6 +53,7 @@ public class FisheryMemberData implements MemberAsset {
     public final String FIELD_NEXT_WORK = "next_work";
     public final String FIELD_MESSAGES_THIS_HOUR = "messages_this_hour";
     public final String FIELD_MESSAGES_THIS_HOUR_SLOT = "messages_this_hour_slot";
+    public final String FIELD_DIAMONDS = "diamonds";
 
     FisheryMemberData(FisheryGuildData fisheryGuildBean, long memberId) {
         this.fisheryGuildBean = fisheryGuildBean;
@@ -225,6 +226,12 @@ public class FisheryMemberData implements MemberAsset {
         }
 
         return coinsGiveReceivedMax;
+    }
+
+    public void increaseDiamonds() {
+        RedisManager.update(jedis -> {
+            jedis.hincrBy(KEY_ACCOUNT, FIELD_DIAMONDS, 1);
+        });
     }
 
     public FisheryRecentFishGainsData getRecentFishGains() {
