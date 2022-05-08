@@ -244,6 +244,7 @@ public class CommandContainer {
         commandList.add(FootjobCommand.class);
         commandList.add(FuckCommand.class);
         commandList.add(FurryFuckCommand.class);
+        commandList.add(HandjobCommand.class);
         commandList.add(LeashCommand.class);
         commandList.add(MasturbateCommand.class);
         commandList.add(PussyEatCommand.class);
