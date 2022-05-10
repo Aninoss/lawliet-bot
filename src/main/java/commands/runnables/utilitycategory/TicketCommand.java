@@ -6,8 +6,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
@@ -27,6 +29,8 @@ import core.interactionresponse.ComponentInteractionResponse;
 import core.lock.Lock;
 import core.lock.LockOccupiedException;
 import core.utils.*;
+import events.discordevents.modalinteraction.ModalInteractionTicket;
+import kotlin.Pair;
 import modules.Ticket;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
@@ -37,8 +41,12 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
@@ -56,7 +64,7 @@ import org.jetbrains.annotations.NotNull;
 public class TicketCommand extends NavigationAbstract implements OnStaticReactionAddListener, OnStaticButtonListener {
 
     private final static int MAX_ROLES = 10;
-    private final static String TICKET_CLOSE_EMOJI = Emojis.X;
+    public final static String TICKET_CLOSE_EMOJI = Emojis.X;
     private final static int
             MAIN = 0,
             ANNOUNCEMENT_CHANNEL = 1,
@@ -64,8 +72,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             REMOVE_STAFF_ROLE = 3,
             CREATE_TICKET_MESSAGE = 4,
             GREETING_TEXT = 5;
-    private final static String BUTTON_ID_CREATE = "create";
-    private final static String BUTTON_ID_CLOSE = "close";
+    public final static String BUTTON_ID_CREATE = "create";
+    public final static String BUTTON_ID_CLOSE = "close";
 
     private TicketData ticketData;
     private NavigationHelper<AtomicRole> staffRoleNavigationHelper;
@@ -163,33 +171,38 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
             case 3:
                 ticketData.togglePingStaff();
-                setLog(LogStatus.SUCCESS, getString("ping_set", ticketData.getPingStaff()));
+                setLog(LogStatus.SUCCESS, getString("boolean_set", ticketData.getPingStaff(), getString("state0_mping")));
                 return true;
 
             case 4:
                 ticketData.toggleMemberCanClose();
-                setLog(LogStatus.SUCCESS, getString("membercanclose_set", ticketData.memberCanClose()));
+                setLog(LogStatus.SUCCESS, getString("boolean_set", ticketData.memberCanClose(), getString("state0_mmembercanclose")));
                 return true;
 
             case 5:
                 ticketData.toggleAssignToAll();
-                setLog(LogStatus.SUCCESS, getString("assign_set", ticketData.getAssignToAll()));
+                setLog(LogStatus.SUCCESS, getString("boolean_set", ticketData.getAssignToAll(), getString("state0_massign")));
                 return true;
 
             case 6:
                 if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
                     ticketData.toggleProtocol();
-                    setLog(LogStatus.SUCCESS, getString("protocol_set", ticketData.getProtocolEffectively()));
+                    setLog(LogStatus.SUCCESS, getString("boolean_set", ticketData.getProtocolEffectively(), getString("state0_mprotocol")));
                 } else {
                     setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
                 }
                 return true;
 
             case 7:
-                setState(GREETING_TEXT);
+                ticketData.toggleUserMessages();
+                setLog(LogStatus.SUCCESS, getString("boolean_set", ticketData.getUserMessages(), getString("state0_mtextinput")));
                 return true;
 
             case 8:
+                setState(GREETING_TEXT);
+                return true;
+
+            case 9:
                 setState(CREATE_TICKET_MESSAGE);
                 return true;
 
@@ -291,11 +304,28 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                 .addField(getString("state0_mannouncement"), StringUtil.escapeMarkdown(ticketData.getAnnouncementTextChannel().map(GuildChannel::getAsMention).orElse(notSet)), true)
                 .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true)
-                .addField(getString("state0_mping"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getPingStaff()), true)
-                .addField(getString("state0_mmembercanclose"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.memberCanClose()), true)
-                .addField(getString("state0_massign"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getAssignToAll()), true)
-                .addField(getString("state0_mprotocol", Emojis.COMMAND_ICON_PREMIUM), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), ticketData.getProtocolEffectively()), true)
+                .addField(getString("state0_mproperties"), generateBooleanAttributesField(), false)
                 .addField(getString("state0_mcreatemessage"), StringUtil.escapeMarkdown(ticketData.getCreateMessage().orElse(notSet)), false);
+    }
+
+    private String generateBooleanAttributesField() {
+        List<Pair<String, Boolean>> attributesList = List.of(
+                new Pair<>(getString("state0_mping"), ticketData.getPingStaff()),
+                new Pair<>(getString("state0_mmembercanclose"), ticketData.memberCanClose()),
+                new Pair<>(getString("state0_massign"), ticketData.getAssignToAll()),
+                new Pair<>(getString("state0_mprotocol") + " " + Emojis.COMMAND_ICON_PREMIUM, ticketData.getProtocolEffectively()),
+                new Pair<>(getString("state0_mtextinput"), ticketData.getUserMessages())
+        );
+
+        StringBuilder sb = new StringBuilder();
+        for (Pair<String, Boolean> attribute : attributesList) {
+            sb.append("• ")
+                    .append(attribute.getFirst())
+                    .append(": ")
+                    .append(StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), attribute.getSecond()))
+                    .append("\n");
+        }
+        return sb.toString();
     }
 
     @Draw(state = ANNOUNCEMENT_CHANNEL)
@@ -342,7 +372,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             if (ticketChannel == null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), getCommandProperties().emoji())) {
                 Category category = event.getTextChannel().getParentCategory();
                 if (category != null && category.getTextChannels().size() < 50) {
-                    onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
+                    Ticket.createTicket(ticketData, event.getTextChannel(), event.getMember(), null);
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
                     JDAUtil.openPrivateChannel(event.getMember())
@@ -369,14 +399,28 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getTextChannel().getIdLong());
 
             if (ticketChannel == null && event.getComponentId().equals(BUTTON_ID_CREATE)) {
-                Category category = event.getTextChannel().getParentCategory();
-                if (category != null && category.getTextChannels().size() < 50) {
-                    onTicketCreate(ticketData, event.getTextChannel(), event.getMember());
+                if (ticketData.getUserMessages()) {
+                    TextInput message = TextInput.create("message", getString("modal_message"), TextInputStyle.PARAGRAPH)
+                            .setPlaceholder(getString("modal_message_placeholder"))
+                            .setMinLength(30)
+                            .setMaxLength(1000)
+                            .build();
+
+                    Modal modal = Modal.create(ModalInteractionTicket.ID, getString("button_create"))
+                            .addActionRows(ActionRow.of(message))
+                            .build();
+
+                    event.replyModal(modal).queue();
                 } else {
-                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
-                    event.replyEmbeds(eb.build())
-                            .setEphemeral(true)
-                            .queue();
+                    Category category = event.getTextChannel().getParentCategory();
+                    if (category != null && category.getTextChannels().size() < 50) {
+                        Ticket.createTicket(ticketData, event.getTextChannel(), event.getMember(), null);
+                    } else {
+                        EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
+                        event.replyEmbeds(eb.build())
+                                .setEphemeral(true)
+                                .queue();
+                    }
                 }
             } else if (ticketChannel != null && event.getComponentId().equals(BUTTON_ID_CLOSE)) {
                 boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
@@ -396,21 +440,6 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     private boolean memberIsStaff(Member member, List<Long> staffRoleIds) {
         return BotPermissionUtil.can(member, Permission.ADMINISTRATOR) ||
                 staffRoleIds.stream().anyMatch(roleId -> member.getRoles().stream().anyMatch(r -> roleId == r.getIdLong()));
-    }
-
-    private void onTicketCreate(TicketData ticketData, TextChannel channel, Member member) {
-        Optional<TextChannel> existingTicketChannelOpt = findTicketChannelOfUser(ticketData, member);
-        if (existingTicketChannelOpt.isEmpty()) {
-            Ticket.createTicketChannel(channel, member, ticketData).ifPresent(channelAction -> {
-                channelAction.queue(textChannel -> setupNewTicketChannel(ticketData, textChannel, member));
-            });
-        } else {
-            TextChannel existingTicketChannel = existingTicketChannelOpt.get();
-            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), existingTicketChannel, Permission.MESSAGE_SEND)) {
-                String text = TextManager.getString(ticketData.getGuildData().getLocale(), commands.Category.UTILITY, "ticket_alreadyopen", member.getAsMention());
-                existingTicketChannel.sendMessage(text).queue();
-            }
-        }
     }
 
     private void onTicketRemove(TicketData ticketData, TextChannel channel) {
@@ -436,11 +465,15 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                     long lastAuthorId = 0L;
                     Instant lastMessageTime = null;
                     for (Message message : messageList) {
-                        if (message.getContentDisplay().length() > 0 || message.getAttachments().size() > 0) {
-                            String content = WordUtils.wrap(message.getContentDisplay(), 100);
+                        String contentRaw = extractContentFromMessage(message);
+                        if (contentRaw.length() > 0 ||
+                                message.getAttachments().size() > 0
+                        ) {
+                            String content = WordUtils.wrap(contentRaw, 100);
                             String[] row = new String[] { " ", " ", content.length() > 0 ? content : " ", " " };
 
-                            if (message.getAuthor().getIdLong() != lastAuthorId || lastMessageTime == null ||
+                            if (message.getAuthor().getIdLong() != lastAuthorId ||
+                                    lastMessageTime == null ||
                                     message.getTimeCreated().toInstant().isAfter(lastMessageTime.plus(Duration.ofMinutes(15)))
                             ) {
                                 row[0] = formatter.format(message.getTimeCreated());
@@ -481,91 +514,25 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         }
     }
 
-    private void setupNewTicketChannel(TicketData ticketData, TextChannel textChannel, Member member) {
-        /* member greeting */
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("greeting", TICKET_CLOSE_EMOJI));
-        textChannel.sendMessageEmbeds(eb.build())
-                .setActionRows(ActionRows.of(Button.of(ButtonStyle.DANGER, BUTTON_ID_CLOSE, getString("button_close"))))
-                .content(member.getAsMention())
-                .queue(this::registerStaticReactionMessage);
-
-        /* create message */
-        ticketData.getCreateMessage().ifPresent(createMessage -> {
-            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), textChannel, Permission.MESSAGE_SEND)) {
-                textChannel.sendMessage(createMessage)
-                        .allowedMentions(null)
-                        .queue();
-            }
-        });
-
-        /* post announcement to staff channel */
-        AtomicBoolean announcementNotPosted = new AtomicBoolean(true);
-        ticketData.getAnnouncementTextChannel().ifPresent(announcementChannel -> {
-            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), getClass(), announcementChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
-                announcementNotPosted.set(false);
-                EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault(this, getString("announcement_open", member.getAsMention(), textChannel.getAsMention()));
-                announcementChannel.sendMessage(ticketData.getPingStaff() ? getRolePing(textChannel.getGuild(), ticketData) : " ")
-                        .setEmbeds(ebAnnouncement.build())
-                        .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
-                        .queue(m -> {
-                            ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
-                                    textChannel.getGuild().getIdLong(),
-                                    textChannel.getIdLong(),
-                                    member.getIdLong(),
-                                    announcementChannel.getIdLong(),
-                                    m.getIdLong(),
-                                    false
-                            ));
-                        }, e -> {
-                            MainLogger.get().error("Ticket announcement error", e);
-                            ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
-                                    textChannel.getGuild().getIdLong(),
-                                    textChannel.getIdLong(),
-                                    member.getIdLong(),
-                                    0L,
-                                    0L,
-                                    false
-                            ));
-                        });
-            }
-        });
-
-        if (announcementNotPosted.get()) {
-            ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
-                    textChannel.getGuild().getIdLong(),
-                    textChannel.getIdLong(),
-                    member.getIdLong(),
-                    0L,
-                    0L,
-                    false
-            ));
-        }
-    }
-
-    private Optional<TextChannel> findTicketChannelOfUser(TicketData ticketData, Member member) {
-        for (TicketChannel ticketChannel : ticketData.getTicketChannels().values()) {
-            if (ticketChannel.getMemberId() == member.getIdLong()) {
-                Optional<TextChannel> textChannelOpt = ticketChannel.getTextChannel();
-                if (textChannelOpt.isPresent()) {
-                    return textChannelOpt;
-                }
+    private String extractContentFromMessage(Message message) {
+        String content = message.getContentDisplay();
+        if (message.getEmbeds().size() > 0 &&
+                message.getEmbeds().get(0).getDescription() != null &&
+                message.getEmbeds().get(0).getDescription().length() > 0
+        ) {
+            MessageEmbed messageEmbed = message.getEmbeds().get(0);
+            if (messageEmbed.getAuthor() != null &&
+                    messageEmbed.getAuthor().getName() != null
+            ) {
+                content = getString("csv_author",
+                        messageEmbed.getAuthor().getName(),
+                        messageEmbed.getDescription()
+                );
+            } else {
+                content = messageEmbed.getDescription();
             }
         }
-        return Optional.empty();
-    }
-
-    private String getRolePing(Guild guild, TicketData ticketData) {
-        StringBuilder pings = new StringBuilder();
-        ticketData.getStaffRoleIds()
-                .transform(guild::getRoleById, ISnowflake::getIdLong)
-                .forEach(role -> {
-                    pings.append(role.getAsMention()).append(" ");
-                });
-
-        if (pings.isEmpty()) {
-            return " ";
-        }
-        return pings.toString();
+        return content;
     }
 
 }

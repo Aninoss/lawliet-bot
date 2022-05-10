@@ -1,14 +1,18 @@
 package modules;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import commands.Category;
 import commands.Command;
+import commands.listeners.CommandProperties;
 import commands.runnables.utilitycategory.TicketCommand;
 import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.cache.TicketProtocolCache;
@@ -18,6 +22,8 @@ import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
+import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
 import mysql.modules.ticket.TicketData;
@@ -32,7 +38,131 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class Ticket {
 
-    public static Optional<ChannelAction<TextChannel>> createTicketChannel(TextChannel textChannel, Member member, TicketData ticketData) {
+    public static void createTicket(TicketData ticketData, TextChannel channel, Member member, String userMessage) {
+        Optional<TextChannel> existingTicketChannelOpt = findTicketChannelOfUser(ticketData, member);
+        if (existingTicketChannelOpt.isEmpty()) {
+            Ticket.createTicketChannel(channel, member, ticketData).ifPresent(channelAction -> {
+                channelAction.queue(textChannel -> setupNewTicketChannel(ticketData, textChannel, member, userMessage));
+            });
+        } else {
+            TextChannel existingTicketChannel = existingTicketChannelOpt.get();
+            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, existingTicketChannel, Permission.MESSAGE_SEND)) {
+                String text = TextManager.getString(ticketData.getGuildData().getLocale(), commands.Category.UTILITY, "ticket_alreadyopen", member.getAsMention());
+                existingTicketChannel.sendMessage(text).queue();
+            }
+        }
+    }
+
+    private static Optional<TextChannel> findTicketChannelOfUser(TicketData ticketData, Member member) {
+        for (TicketChannel ticketChannel : ticketData.getTicketChannels().values()) {
+            if (ticketChannel.getMemberId() == member.getIdLong()) {
+                Optional<TextChannel> textChannelOpt = ticketChannel.getTextChannel();
+                if (textChannelOpt.isPresent()) {
+                    return textChannelOpt;
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static void setupNewTicketChannel(TicketData ticketData, TextChannel textChannel, Member member, String userMessage) {
+        Locale locale = ticketData.getGuildData().getLocale();
+        CommandProperties commandProperties = Command.getCommandProperties(TicketCommand.class);
+        String title = commandProperties.emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
+
+        if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, textChannel, Permission.MESSAGE_SEND)) {
+            /* member greeting */
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                    .setTitle(title)
+                    .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_greeting", TicketCommand.TICKET_CLOSE_EMOJI));
+            textChannel.sendMessageEmbeds(eb.build())
+                    .setActionRows(ActionRows.of(Button.of(ButtonStyle.DANGER, TicketCommand.BUTTON_ID_CLOSE, TextManager.getString(locale, Category.UTILITY, "ticket_button_close"))))
+                    .content(member.getAsMention())
+                    .queue(message -> DBStaticReactionMessages.getInstance()
+                            .retrieve(message.getGuild().getIdLong())
+                            .put(message.getIdLong(), new StaticReactionMessageData(message, commandProperties.trigger()))
+                    );
+
+            /* user message */
+            if (userMessage != null) {
+                EmbedBuilder userMessageEmbed = EmbedFactory.getEmbedDefault()
+                        .setDescription(userMessage);
+                userMessageEmbed = EmbedUtil.setMemberAuthor(userMessageEmbed, member);
+                textChannel.sendMessageEmbeds(userMessageEmbed.build())
+                        .queue();
+            }
+
+            /* create message */
+            ticketData.getCreateMessage().ifPresent(createMessage -> {
+                if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, textChannel, Permission.MESSAGE_SEND)) {
+                    textChannel.sendMessage(createMessage)
+                            .allowedMentions(null)
+                            .queue();
+                }
+            });
+        }
+
+        /* post announcement to staff channel */
+        AtomicBoolean announcementNotPosted = new AtomicBoolean(true);
+        ticketData.getAnnouncementTextChannel().ifPresent(announcementChannel -> {
+            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, announcementChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
+                announcementNotPosted.set(false);
+                EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault()
+                        .setTitle(title)
+                        .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_open", member.getAsMention(), textChannel.getAsMention()));
+                announcementChannel.sendMessage(ticketData.getPingStaff() ? getRolePing(textChannel.getGuild(), ticketData) : " ")
+                        .setEmbeds(ebAnnouncement.build())
+                        .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
+                        .queue(m -> {
+                            ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
+                                    textChannel.getGuild().getIdLong(),
+                                    textChannel.getIdLong(),
+                                    member.getIdLong(),
+                                    announcementChannel.getIdLong(),
+                                    m.getIdLong(),
+                                    false
+                            ));
+                        }, e -> {
+                            MainLogger.get().error("Ticket announcement error", e);
+                            ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
+                                    textChannel.getGuild().getIdLong(),
+                                    textChannel.getIdLong(),
+                                    member.getIdLong(),
+                                    0L,
+                                    0L,
+                                    false
+                            ));
+                        });
+            }
+        });
+
+        if (announcementNotPosted.get()) {
+            ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
+                    textChannel.getGuild().getIdLong(),
+                    textChannel.getIdLong(),
+                    member.getIdLong(),
+                    0L,
+                    0L,
+                    false
+            ));
+        }
+    }
+
+    private static String getRolePing(Guild guild, TicketData ticketData) {
+        StringBuilder pings = new StringBuilder();
+        ticketData.getStaffRoleIds()
+                .transform(guild::getRoleById, ISnowflake::getIdLong)
+                .forEach(role -> {
+                    pings.append(role.getAsMention()).append(" ");
+                });
+
+        if (pings.isEmpty()) {
+            return " ";
+        }
+        return pings.toString();
+    }
+
+    private static Optional<ChannelAction<TextChannel>> createTicketChannel(TextChannel textChannel, Member member, TicketData ticketData) {
         Guild guild = textChannel.getGuild();
         GuildData guildBean = ticketData.getGuildData();
         if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), TicketCommand.class, guild, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL) &&

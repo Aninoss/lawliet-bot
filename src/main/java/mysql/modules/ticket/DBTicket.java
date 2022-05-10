@@ -22,7 +22,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
     @Override
     protected TicketData load(Long serverId) throws Exception {
         TicketData ticketData = MySQLManager.get(
-                "SELECT channelId, counter, memberCanClose, createMessage, assignToAll, protocol, ping FROM Ticket WHERE serverId = ?;",
+                "SELECT channelId, counter, memberCanClose, createMessage, assignToAll, protocol, ping, userMessages FROM Ticket WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
                     if (resultSet.next()) {
@@ -35,6 +35,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
                                 resultSet.getBoolean(5),
                                 resultSet.getBoolean(6),
                                 resultSet.getBoolean(7),
+                                resultSet.getBoolean(8),
                                 getStaffRoles(serverId),
                                 getTicketChannels(serverId)
                         );
@@ -47,6 +48,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
                                 null,
                                 false,
                                 false,
+                                true,
                                 true,
                                 getStaffRoles(serverId),
                                 getTicketChannels(serverId)
@@ -69,7 +71,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
 
     @Override
     protected void save(TicketData ticketData) {
-        MySQLManager.asyncUpdate("REPLACE INTO Ticket (serverId, channelId, counter, memberCanClose, createMessage, assignToAll, protocol, ping) VALUES (?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Ticket (serverId, channelId, counter, memberCanClose, createMessage, assignToAll, protocol, ping, userMessages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, ticketData.getGuildId());
 
             Optional<Long> channelIdOpt = ticketData.getAnnouncementTextChannelId();
@@ -92,6 +94,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
             preparedStatement.setBoolean(6, ticketData.getAssignToAll());
             preparedStatement.setBoolean(7, ticketData.getProtocol());
             preparedStatement.setBoolean(8, ticketData.getPingStaff());
+            preparedStatement.setBoolean(9, ticketData.getUserMessages());
         });
     }
 

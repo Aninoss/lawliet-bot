@@ -234,70 +234,6 @@ CREATE TABLE `CMOff` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `CMPermissions`
---
-
-DROP TABLE IF EXISTS `CMPermissions`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `CMPermissions` (
-  `serverId` bigint unsigned NOT NULL,
-  `element` varchar(20) NOT NULL,
-  `permissions` smallint unsigned NOT NULL,
-  PRIMARY KEY (`serverId`,`element`),
-  CONSTRAINT `CMPermissionsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `CMRole`
---
-
-DROP TABLE IF EXISTS `CMRole`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `CMRole` (
-  `serverId` bigint unsigned NOT NULL,
-  `element` varchar(20) NOT NULL,
-  `roleId` bigint unsigned NOT NULL,
-  PRIMARY KEY (`serverId`,`element`,`roleId`),
-  KEY `CMRoleServerBase` (`roleId`),
-  CONSTRAINT `CMRoleServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `CMRoleAllRequired`
---
-
-DROP TABLE IF EXISTS `CMRoleAllRequired`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `CMRoleAllRequired` (
-  `serverId` bigint unsigned NOT NULL,
-  `element` varchar(20) NOT NULL,
-  PRIMARY KEY (`serverId`,`element`),
-  CONSTRAINT `CMRoleAllRequiredServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `CMUsers`
---
-
-DROP TABLE IF EXISTS `CMUsers`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `CMUsers` (
-  `serverId` bigint unsigned NOT NULL,
-  `element` varchar(20) NOT NULL,
-  `userId` bigint unsigned NOT NULL,
-  PRIMARY KEY (`serverId`,`element`,`userId`),
-  KEY `CMUsers` (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `CommandUsages`
 --
 
@@ -366,7 +302,7 @@ CREATE TABLE `FeatureRequestBoosts` (
   `boostUserId` bigint unsigned NOT NULL,
   PRIMARY KEY (`id`,`boostDatetime`,`boostUserId`),
   CONSTRAINT `FeatureRequestsBase` FOREIGN KEY (`id`) REFERENCES `FeatureRequests` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=590 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=617 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -385,7 +321,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=596 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=625 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1153,6 +1089,7 @@ CREATE TABLE `Ticket` (
   `assignToAll` tinyint unsigned NOT NULL DEFAULT '1',
   `protocol` tinyint unsigned NOT NULL DEFAULT '0',
   `ping` tinyint unsigned NOT NULL DEFAULT '1',
+  `userMessages` tinyint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`serverId`),
   CONSTRAINT `TicketServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1432,4 +1369,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-04-10  9:23:35
+-- Dump completed on 2022-05-10 16:30:32
