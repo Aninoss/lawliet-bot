@@ -8,8 +8,10 @@ import commands.listeners.OnButtonListener;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import core.ExceptionLogger;
+import core.ModalMediator;
 import core.TextManager;
 import core.utils.EmbedUtil;
+import core.utils.ExceptionUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import mysql.modules.warning.DBServerWarnings;
@@ -21,8 +23,12 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,6 +42,7 @@ import org.jetbrains.annotations.NotNull;
 public class WarnLogCommand extends MemberAccountAbstract implements OnButtonListener {
 
     private static final String BUTTON_ID_PREVIOUS = "prev";
+    private static final String BUTTON_ID_GOTO = "goto";
     private static final String BUTTON_ID_NEXT = "next";
     private static final int ENTRIES_PER_PAGE = 3;
 
@@ -82,16 +89,53 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
-        if (event.getComponentId().equals(BUTTON_ID_PREVIOUS)) {
-            page--;
-            if (page < 0) page = getPageSize() - 1;
-            return true;
-        } else if (event.getComponentId().equals(BUTTON_ID_NEXT)) {
-            page++;
-            if (page > getPageSize() - 1) page = 0;
-            return true;
+        switch (event.getComponentId()) {
+            case BUTTON_ID_PREVIOUS -> {
+                page--;
+                if (page < 0) {
+                    page = getPageSize() - 1;
+                }
+                return true;
+            }
+            case BUTTON_ID_NEXT -> {
+                page++;
+                if (page > getPageSize() - 1) {
+                    page = 0;
+                }
+                return true;
+            }
+            case BUTTON_ID_GOTO -> {
+                String textId = "page";
+                String textLabel = TextManager.getString(getLocale(), TextManager.GENERAL, "list_goto_label", String.valueOf(getPageSize()));
+                TextInput message = TextInput.create(textId, textLabel, TextInputStyle.SHORT)
+                        .setPlaceholder(String.valueOf(page + 1))
+                        .setMinLength(1)
+                        .setMaxLength(4)
+                        .build();
+
+                String title = TextManager.getString(getLocale(), TextManager.GENERAL, "list_goto");
+                Modal modal = ModalMediator.createModal(title, modalEvent -> {
+                            modalEvent.deferEdit().queue();
+                            String pageString = modalEvent.getValue(textId).getAsString();
+                            if (StringUtil.stringIsInt(pageString)) {
+                                page = Math.min(getPageSize() - 1, Math.max(0, Integer.parseInt(pageString) - 1));
+                            }
+                            try {
+                                drawMessage(draw(modalEvent.getMember()))
+                                        .exceptionally(ExceptionLogger.get());
+                            } catch (Throwable e) {
+                                ExceptionUtil.handleCommandException(e, this, getCommandEvent());
+                            }
+                        }).addActionRows(ActionRow.of(message))
+                        .build();
+
+                event.replyModal(modal).queue();
+                return false;
+            }
+            default -> {
+                return false;
+            }
         }
-        return false;
     }
 
     @Override
@@ -131,6 +175,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
         if (warningSlots.size() > ENTRIES_PER_PAGE) {
             setComponents(
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
+                    Button.of(ButtonStyle.PRIMARY, BUTTON_ID_GOTO, TextManager.getString(getLocale(), TextManager.GENERAL, "list_goto")),
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next"))
             );
         }

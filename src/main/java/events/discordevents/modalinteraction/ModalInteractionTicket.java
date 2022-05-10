@@ -36,6 +36,8 @@ public class ModalInteractionTicket extends ModalInteractionAbstract {
                         .setEphemeral(true)
                         .queue();
             }
+
+            return false;
         }
 
         return true;

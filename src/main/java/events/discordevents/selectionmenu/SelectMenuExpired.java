@@ -5,14 +5,13 @@ import core.EmbedFactory;
 import core.TextManager;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
-import events.discordevents.InteractionListenerHandler;
 import events.discordevents.eventtypeabstracts.SelectMenuAbstract;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 
 @DiscordEvent(priority = EventPriority.LOW)
-public class SelectMenuExpired extends SelectMenuAbstract implements InteractionListenerHandler<SelectMenuInteractionEvent> {
+public class SelectMenuExpired extends SelectMenuAbstract {
 
     @Override
     public boolean onSelectMenu(SelectMenuInteractionEvent event) {

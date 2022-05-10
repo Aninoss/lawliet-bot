@@ -4,15 +4,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import core.components.ActionRows;
 import events.discordevents.DiscordEvent;
-import events.discordevents.InteractionListenerHandler;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
+import events.sync.SendEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import events.sync.SendEvent;
 
 @DiscordEvent
-public class ButtonClickUnreport extends ButtonClickAbstract implements InteractionListenerHandler<ButtonInteractionEvent> {
+public class ButtonClickUnreport extends ButtonClickAbstract {
 
     @Override
     public boolean onButtonClick(ButtonInteractionEvent event) {
