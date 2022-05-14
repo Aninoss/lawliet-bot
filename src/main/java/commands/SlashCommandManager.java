@@ -51,6 +51,16 @@ public class SlashCommandManager {
         }
     }
 
+    public static HashMap<String, String> generateSlashAssociationMap() {
+        HashMap<String, String> associationMap = new HashMap<>();
+        for (SlashAdapter slashAdapter : slashAdapterMap.values()) {
+            for (String messageCommandAssociation : slashAdapter.messageCommandAssociations()) {
+                associationMap.put(messageCommandAssociation, slashAdapter.name());
+            }
+        }
+        return associationMap;
+    }
+
     @NonNull
     public static List<Command.Choice> retrieveChoices(CommandAutoCompleteInteractionEvent event) {
         SlashAdapter slashAdapter = slashAdapterMap.get(event.getName());
