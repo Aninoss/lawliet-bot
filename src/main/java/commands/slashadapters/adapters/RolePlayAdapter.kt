@@ -15,7 +15,11 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import java.util.*
 
-@Slash(name = "rp", description = "Interact with other server members")
+@Slash(
+    name = "rp",
+    description = "Interact with other server members",
+    commandCategories = [commands.Category.INTERACTIONS]
+)
 class RolePlayAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {

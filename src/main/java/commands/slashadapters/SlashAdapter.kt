@@ -1,5 +1,6 @@
 package commands.slashadapters
 
+import commands.Category
 import commands.Command
 import commands.CommandContainer
 import constants.Language
@@ -9,7 +10,9 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
+import okhttp3.internal.toImmutableList
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.reflect.KClass
 
 abstract class SlashAdapter {
@@ -42,6 +45,25 @@ abstract class SlashAdapter {
     fun commandClass(): KClass<out Command> {
         val slash = javaClass.getAnnotation(Slash::class.java)
         return slash.command
+    }
+
+    fun commandCategories(): Array<Category> {
+        val slash = javaClass.getAnnotation(Slash::class.java)
+        return slash.commandCategories
+    }
+
+    fun messageCommandAssociations(): List<String> {
+        val list = ArrayList<String>()
+
+        val commandClass = commandClass()
+        if (commandClass != Command::class.java) {
+            val trigger = Command.getCommandProperties(commandClass).trigger
+            list += trigger
+        }
+        list += commandCategories()
+            .map { it.id }
+
+        return list.toImmutableList()
     }
 
     fun generateCommandData(): SlashCommandData {
