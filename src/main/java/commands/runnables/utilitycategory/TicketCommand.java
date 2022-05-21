@@ -371,7 +371,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
             if (ticketChannel == null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), getCommandProperties().emoji())) {
                 Category category = event.getTextChannel().getParentCategory();
-                if (category != null && category.getTextChannels().size() < 50) {
+                if (category == null || category.getTextChannels().size() < 50) {
                     Ticket.createTicket(ticketData, event.getTextChannel(), event.getMember(), null);
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
@@ -413,7 +413,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                     event.replyModal(modal).queue();
                 } else {
                     Category category = event.getTextChannel().getParentCategory();
-                    if (category != null && category.getTextChannels().size() < 50) {
+                    if (category == null || category.getTextChannels().size() < 50) {
                         Ticket.createTicket(ticketData, event.getTextChannel(), event.getMember(), null);
                     } else {
                         EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));

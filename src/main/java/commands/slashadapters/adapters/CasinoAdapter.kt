@@ -16,7 +16,11 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
 
-@Slash(name = "casino", description = "Bet your coins in virtual gambling games")
+@Slash(
+    name = "casino",
+    description = "Bet your coins in virtual gambling games",
+    commandCategories = [ Category.CASINO ]
+)
 class CasinoAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {

@@ -156,7 +156,10 @@ public class JoinRoles {
         Guild guild = member.getGuild();
         StickyRolesData stickyRolesData =  DBStickyRoles.getInstance().retrieve(guild.getIdLong());
         for (StickyRolesActionData actionData : stickyRolesData.getActions()) {
-            if (actionData.getMemberId() == member.getIdLong() && stickyRolesData.getRoleIds().contains(actionData.getRoleId())) {
+            if (actionData != null &&
+                    actionData.getMemberId() == member.getIdLong() &&
+                    stickyRolesData.getRoleIds().contains(actionData.getRoleId())
+            ) {
                 actionData.getRole().ifPresent(role -> {
                     if (PermissionCheckRuntime.botCanManageRoles(locale, StickyRolesCommand.class, role)) {
                         rolesToAdd.add(role);

@@ -9,7 +9,7 @@ import commands.runnables.RolePlayAbstract;
         emoji = "\uD83E\uDD1A",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
-        aliases = { "praise", "yaoipat", "yuripat" }
+        aliases = { "praise", "yaoipat", "yuripat", "pet" }
 )
 public class PatCommand extends RolePlayAbstract {
 

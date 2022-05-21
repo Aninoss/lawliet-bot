@@ -17,7 +17,11 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import java.util.*
 
-@Slash(name = "nsfw", description = "Find nsfw content for predefined tags")
+@Slash(
+    name = "nsfw",
+    description = "Find nsfw content for predefined tags",
+    commandCategories = [ Category.NSFW ]
+)
 class NSFWAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {

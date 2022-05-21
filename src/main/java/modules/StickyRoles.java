@@ -14,7 +14,7 @@ public class StickyRoles {
         if (!member.isPending()) {
             StickyRolesData stickyRolesData = DBStickyRoles.getInstance().retrieve(member.getGuild().getIdLong());
             HashSet<Long> currentActionRoleIds = stickyRolesData.getActions().stream()
-                    .filter(actionData -> actionData.getMemberId() == member.getIdLong())
+                    .filter(actionData -> actionData != null && actionData.getMemberId() == member.getIdLong())
                     .map(StickyRolesActionData::getRoleId)
                     .collect(Collectors.toCollection(HashSet::new));
             HashSet<Long> currentMemberRoleIds = member.getRoles().stream()

@@ -114,7 +114,8 @@ public class MemberCacheController implements MemberCachePolicy {
     }
 
     private boolean guildIsCached(Guild guild) {
-        return guildAccessMap.containsKey(guild.getIdLong()) && Instant.now().isBefore(guildAccessMap.get(guild.getIdLong()));
+        Instant otherInstant = guildAccessMap.get(guild.getIdLong());
+        return otherInstant != null && Instant.now().isBefore(otherInstant);
     }
 
     public int pruneAll() {

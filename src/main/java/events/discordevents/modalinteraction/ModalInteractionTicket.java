@@ -24,7 +24,7 @@ public class ModalInteractionTicket extends ModalInteractionAbstract {
             TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
             Category category = event.getTextChannel().getParentCategory();
 
-            if (category != null && category.getTextChannels().size() < 50) {
+            if (category == null || category.getTextChannels().size() < 50) {
                 Ticket.createTicket(ticketData, event.getTextChannel(), event.getMember(), event.getValue("message").getAsString());
                 event.deferEdit().queue();
             } else {
