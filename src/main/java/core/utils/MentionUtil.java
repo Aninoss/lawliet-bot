@@ -537,7 +537,7 @@ public class MentionUtil {
             m = p.matcher(str);
         }
 
-        return str;
+        return str.replaceAll("<[^>^]*>", "");
     }
 
     public static String getUserAsMention(long id, boolean withExclamationMark) {
