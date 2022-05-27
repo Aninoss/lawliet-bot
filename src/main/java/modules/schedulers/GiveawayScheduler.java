@@ -87,7 +87,7 @@ public class GiveawayScheduler {
     ) {
         GuildMessageChannel channel = (GuildMessageChannel) message.getChannel();
         MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).thenAccept(members -> {
-            users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user) || message.getMentionedMembers().stream().anyMatch(m -> m.getIdLong() == user.getIdLong()));
+            users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user) || message.getMentions().getMembers().stream().anyMatch(m -> m.getIdLong() == user.getIdLong()));
             Collections.shuffle(users);
             List<User> winners = users.subList(0, Math.min(users.size(), numberOfWinners));
             Locale locale = giveawayData.getGuildData().getLocale();

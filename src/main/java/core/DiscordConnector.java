@@ -83,22 +83,50 @@ public class DiscordConnector {
     }
 
     public static void onJDAJoin(JDA jda) {
+        boolean firstConnection = ShardManager.isNothingConnected();
         ShardManager.addJDA(jda);
         MainLogger.get().info("Shard {} connection established", jda.getShardInfo().getShardId());
 
-        checkConnectionCompleted(jda);
+        if (firstConnection) {
+            firstConnectionCompleted(jda);
+        }
+        if (ShardManager.isEverythingConnected() && !ShardManager.isReady()) {
+            allConnectionsCompleted(jda);
+        }
         if (Program.productionMode()) {
             MainRepair.start(jda, 20);
         }
     }
 
-    private synchronized static void checkConnectionCompleted(JDA jda) {
-        if (ShardManager.isEverythingConnected() && !ShardManager.isReady()) {
-            onConnectionCompleted(jda);
+    private static void firstConnectionCompleted(JDA jda) {
+        try {
+            List<CommandData> commandDataList = SlashCommandManager.initialize();
+            if (Program.productionMode()) {
+                if (Program.isNewVersion()) {
+                    MainLogger.get().info("Pushing new slash commands");
+                    jda.updateCommands()
+                            .addCommands(commandDataList)
+                            .queue(SlashAssociations::registerSlashCommands);
+                } else {
+                    MainLogger.get().info("Skipping slash commands because it's not a new version");
+                    jda.retrieveCommands().queue(SlashAssociations::registerSlashCommands);
+                }
+            } else {
+                ShardManager.getLocalGuildById(AssetIds.BETA_SERVER_ID).get()
+                        .updateCommands()
+                        .addCommands(commandDataList)
+                        .addCommands(SupportTemplates.generateSupportContextCommands())
+                        .queue(commands -> {
+                            SlashAssociations.registerSlashCommands(commands);
+                            MainLogger.get().info("Successfully sent {} slash commands", commands.size());
+                        });
+            }
+        } catch (Throwable e) {
+            MainLogger.get().error("Exception on slash commands load", e);
         }
     }
 
-    private synchronized static void onConnectionCompleted(JDA jda) {
+    private synchronized static void allConnectionsCompleted(JDA jda) {
         new ScheduleEventManager().start();
         if (Program.productionMode() && Program.publicVersion()) {
             BumpReminder.start();
@@ -111,28 +139,6 @@ public class DiscordConnector {
         JailScheduler.start();
         ShardManager.start();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
-
-        try {
-            List<CommandData> commandDataList = SlashCommandManager.initialize();
-            if (Program.productionMode()) {
-                if (Program.isNewVersion()) {
-                    MainLogger.get().info("Pushing new slash commands");
-                    jda.updateCommands()
-                            .addCommands(commandDataList)
-                            .queue();
-                } else {
-                    MainLogger.get().info("Skipping slash commands because it's not a new version");
-                }
-            } else {
-                ShardManager.getLocalGuildById(AssetIds.BETA_SERVER_ID).get()
-                        .updateCommands()
-                        .addCommands(commandDataList)
-                        .addCommands(SupportTemplates.generateSupportContextCommands())
-                        .queue(r -> MainLogger.get().info("Successfully sent {} slash commands", r.size()));
-            }
-        } catch (Throwable e) {
-            MainLogger.get().error("Exception on slash commands load", e);
-        }
 
         Guild guild = jda.getGuildById(AssetIds.SUPPORT_SERVER_ID);
         if (guild != null) {

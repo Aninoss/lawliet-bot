@@ -318,7 +318,7 @@ public class MentionUtil {
         ArrayList<String> emojiList = new ArrayList<>();
 
         if (message != null) {
-            for (Emote emote : message.getEmotes()) {
+            for (Emote emote : message.getMentions().getEmotes()) {
                 emojiList.add(emote.getAsMention());
                 input = input.replace(emote.getAsMention(), "");
             }

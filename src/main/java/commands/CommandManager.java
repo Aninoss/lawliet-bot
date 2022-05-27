@@ -70,6 +70,7 @@ public class CommandManager {
                 canRunOnGuild(event, command) &&
                 isNSFWCompliant(event, command) &&
                 checkTurnedOn(event, command) &&
+                checkCommandPermissions(event, command) &&
                 checkPermissions(event, command) &&
                 checkPatreon(event, command) &&
                 checkReleased(event, command) &&
@@ -273,6 +274,10 @@ public class CommandManager {
 
         sendError(event, command.getLocale(), errEmbed, true);
         return false;
+    }
+
+    private static boolean checkCommandPermissions(CommandEvent event, Command command) {
+        return true; //TODO: implement
     }
 
     private static boolean checkTurnedOn(CommandEvent event, Command command) {

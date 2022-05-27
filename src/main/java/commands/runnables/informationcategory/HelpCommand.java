@@ -19,10 +19,7 @@ import commands.runnables.RolePlayAbstract;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
-import core.EmbedFactory;
-import core.ListGen;
-import core.Program;
-import core.TextManager;
+import core.*;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -240,7 +237,7 @@ public class HelpCommand extends NavigationAbstract {
                     default -> categoryDefault(member, channel, eb, category);
                 }
 
-                setComponents(generateSelectMenu(member.getGuild().getIdLong(), category));
+                setComponents(generateSelectMenu(member, category));
                 return eb;
             }
         }
@@ -309,7 +306,8 @@ public class HelpCommand extends NavigationAbstract {
                 String commandTrigger = command.getTrigger();
                 if (command.getCommandProperties().patreonRequired() &&
                         !commandTrigger.equals(getTrigger()) &&
-                        commandManagementBean.commandIsTurnedOn(command)
+                        commandManagementBean.commandIsTurnedOn(command) &&
+                        CommandPermissions.hasAccess(command.getClass(), member, getTextChannel().get(), true)
                 ) {
                     StringBuilder title = new StringBuilder();
                     title.append(command.getCommandProperties().emoji())
@@ -352,7 +350,10 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            if (!commandTrigger.equals(getTrigger()) && commandManagementBean.commandIsTurnedOn(command)) {
+            if (!commandTrigger.equals(getTrigger()) &&
+                    commandManagementBean.commandIsTurnedOn(command) &&
+                    CommandPermissions.hasAccess(command.getClass(), member, getTextChannel().get(), true)
+            ) {
                 StringBuilder title = new StringBuilder();
                 title.append(command.getCommandProperties().emoji())
                         .append(" `")
@@ -393,7 +394,9 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.NSFW)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
-            if (commandManagementBean.commandIsTurnedOn(command)) {
+            if (commandManagementBean.commandIsTurnedOn(command) &&
+                    CommandPermissions.hasAccess(command.getClass(), member, getTextChannel().get(), true)
+            ) {
                 buttonMap.put(i++, command.getTrigger());
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
@@ -469,15 +472,17 @@ public class HelpCommand extends NavigationAbstract {
             ), true);
         }
 
-        setComponents(generateSelectMenu(member.getGuild().getIdLong(), null));
+        setComponents(generateSelectMenu(member, null));
         return eb;
     }
 
-    private SelectMenu generateSelectMenu(long guildId, Category currentCategory) {
+    private SelectMenu generateSelectMenu(Member member, Category currentCategory) {
         SelectMenu.Builder builder = SelectMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
-            if (DBCommandManagement.getInstance().retrieve(guildId).categoryIsTurnedOn(category)) {
+            if (DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).categoryIsTurnedOn(category) &&
+                    CommandPermissions.hasAccess(category, member, getTextChannel().get(), true)
+            ) {
                 String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
                 String value = "cat:" + category.getId();
                 builder.addOption(label, value, Emoji.fromUnicode(category.getEmoji()));

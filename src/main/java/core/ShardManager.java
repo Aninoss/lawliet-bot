@@ -165,6 +165,10 @@ public class ShardManager {
         return ready;
     }
 
+    public static boolean isNothingConnected() {
+        return jdaMap.size() == 0;
+    }
+
     public static boolean isEverythingConnected() {
         return jdaMap.size() >= getLocalShards();
     }

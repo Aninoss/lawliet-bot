@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 @CommandProperties(
         trigger = "nsfwfilter",
         userGuildPermissions = Permission.MANAGE_SERVER,
-        emoji = "⛔",
+        emoji = "🔞",
         executableWithoutArgs = true,
         aliases = { "nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters" }
 )

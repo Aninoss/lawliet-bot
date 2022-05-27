@@ -4,16 +4,18 @@ import commands.Category
 import commands.Command
 import commands.CommandContainer
 import commands.runnables.configurationcategory.CommandManagementCommand
+import commands.runnables.configurationcategory.CommandPermissionsCommand
 import commands.runnables.configurationcategory.WhiteListCommand
+import core.CommandPermissions
 import core.TextManager
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
-import dashboard.component.DashboardComboBox
-import dashboard.component.DashboardText
-import dashboard.component.DashboardTitle
+import dashboard.component.*
 import dashboard.components.DashboardMultiTextChannelsComboBox
+import dashboard.container.HorizontalContainer
+import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import mysql.modules.commandmanagement.CommandManagementData
@@ -36,8 +38,33 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         mainContainer.add(
             generateCommandManagementField(guild),
-            generateChannelWhitelistField(guild)
+            generateChannelWhitelistField(guild),
+            generateCommandPermissionsField(guild)
         )
+    }
+
+    private fun generateCommandPermissionsField(guild: Guild): DashboardComponent {
+        val container = VerticalContainer()
+        val commandPermissionsText = Command.getCommandLanguage(CommandPermissionsCommand::class.java, locale).title
+        container.add(
+            DashboardTitle(commandPermissionsText),
+            DashboardText(getString(Category.CONFIGURATION, "cperms_message0").replace("**", "") + "\n" + getString(Category.CONFIGURATION, "cperms_message1")),
+        )
+
+        val button = DashboardButton(getString(Category.CONFIGURATION, "cperms_button")) {
+            val actionResult = ActionResult(false)
+            if (CommandPermissions.transferCommandPermissions(guild)) {
+                actionResult.withSuccessMessage(getString(Category.CONFIGURATION, "cperms_success"))
+            } else {
+                actionResult.withErrorMessage(getString(Category.CONFIGURATION, "cperms_failed"))
+            }
+        }
+        button.style = DashboardButton.Style.PRIMARY
+        val buttonField = HorizontalContainer()
+        buttonField.add(button, HorizontalPusher())
+        container.add(DashboardSeparator(), buttonField)
+
+        return container
     }
 
     private fun generateChannelWhitelistField(guild: Guild): DashboardComponent {

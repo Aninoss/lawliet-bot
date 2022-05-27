@@ -14,7 +14,7 @@ public class GuildMessageReceivedAnicordAntiMassPing extends GuildMessageReceive
     @Override
     public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
         if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID &&
-                event.getMessage().getMentionedUsers().size() >= 20 &&
+                event.getMessage().getMentions().getUsers().size() >= 20 &&
                 event.getMessage().getMember().hasTimeJoined() &&
                 event.getMessage().getMember().getTimeJoined().toInstant().plus(30, ChronoUnit.MINUTES).isAfter(Instant.now())
         ) {

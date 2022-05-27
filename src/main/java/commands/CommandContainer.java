@@ -72,6 +72,7 @@ public class CommandContainer {
         //CONFIGURATION
         commandList.add(LanguageCommand.class);
         commandList.add(PrefixCommand.class);
+        commandList.add(CommandPermissionsCommand.class);
         commandList.add(WhiteListCommand.class);
         commandList.add(CommandManagementCommand.class);
         commandList.add(NSFWFilterCommand.class);

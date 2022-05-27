@@ -12,8 +12,8 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import okhttp3.internal.toImmutableList
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.reflect.KClass
+import kotlin.reflect.jvm.jvmName
 
 abstract class SlashAdapter {
 
@@ -56,7 +56,7 @@ abstract class SlashAdapter {
         val list = ArrayList<String>()
 
         val commandClass = commandClass()
-        if (commandClass != Command::class.java) {
+        if (!commandClass.jvmName.equals(Command::class.jvmName)) {
             val trigger = Command.getCommandProperties(commandClass).trigger
             list += trigger
         }
