@@ -2,6 +2,7 @@ package commands.runnables.configurationcategory;
 
 import java.util.List;
 import java.util.Locale;
+import commands.Category;
 import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
@@ -30,7 +31,8 @@ import org.jetbrains.annotations.NotNull;
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "✅",
         executableWithoutArgs = true,
-        aliases = { "wl" }
+        aliases = { "wl" },
+        obsolete = true
 )
 public class WhiteListCommand extends NavigationAbstract {
 
@@ -48,6 +50,7 @@ public class WhiteListCommand extends NavigationAbstract {
         WhiteListedChannelsData whiteListedChannelsBean = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
         whiteListedChannels = AtomicTextChannel.transformIdList(event.getGuild(), whiteListedChannelsBean.getChannelIds());
         channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, AtomicTextChannel.class, MAX_CHANNELS);
+        setLog(LogStatus.WARNING, TextManager.getString(getLocale(), Category.CONFIGURATION, "cperms_obsolete", getPrefix()));
         registerNavigationListener(event.getMember());
         return true;
     }

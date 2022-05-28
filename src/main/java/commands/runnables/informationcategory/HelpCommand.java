@@ -319,6 +319,9 @@ public class HelpCommand extends NavigationAbstract {
                     if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) {
                         title.append(" ").append(getString("beta"));
                     }
+                    if (command.getCommandProperties().obsolete()) {
+                        title.append(" ").append(getString("obsolete"));
+                    }
                     title.append(generateCommandIcons(channel, command, true, true, false));
 
                     if (command.isModCommand()) includeLocked = true;
@@ -363,6 +366,9 @@ public class HelpCommand extends NavigationAbstract {
 
                 if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) {
                     title.append(" ").append(getString("beta"));
+                }
+                if (command.getCommandProperties().obsolete()) {
+                    title.append(" ").append(getString("obsolete"));
                 }
                 title.append(generateCommandIcons(channel, command, true, true, true));
 

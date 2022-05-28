@@ -72,9 +72,17 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
         val whitelistText = Command.getCommandLanguage(WhiteListCommand::class.java, locale).title
         container.add(
             DashboardTitle(whitelistText),
-            DashboardText(getString(Category.CONFIGURATION, "whitelist_state0_description")),
+            DashboardText(getString(Category.CONFIGURATION, "whitelist_state0_description"))
+        )
+
+        val obsoleteWarning = DashboardText(getString(Category.CONFIGURATION, "cperms_obsolete_dashboard"))
+        obsoleteWarning.style = DashboardText.Style.ERROR
+        container.add(obsoleteWarning)
+
+        container.add(
             DashboardMultiTextChannelsComboBox(guild.idLong, DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds, true, WhiteListCommand.MAX_CHANNELS)
         )
+
         return container
     }
 
@@ -82,6 +90,10 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
         val commandManagementData = DBCommandManagement.getInstance().retrieve(guild.idLong)
         val container = VerticalContainer()
         container.add(DashboardText(getString(Category.CONFIGURATION, "cman_state0_desc")))
+
+        val obsoleteWarning = DashboardText(getString(Category.CONFIGURATION, "cperms_obsolete_dashboard"))
+        obsoleteWarning.style = DashboardText.Style.ERROR
+        container.add(obsoleteWarning)
 
         val commandCategoryValues = Category.independentValues().map { DiscordEntity(it.id, getString(TextManager.COMMANDS, it.id)) }
         container.add(generateBlacklistComboBox(commandManagementData, getString(Category.CONFIGURATION, "cman_state0_mcategories"), commandCategoryValues))

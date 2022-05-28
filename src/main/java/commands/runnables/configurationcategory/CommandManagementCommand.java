@@ -33,7 +33,8 @@ import org.jetbrains.annotations.NotNull;
         userGuildPermissions = Permission.ADMINISTRATOR,
         emoji = "🚦",
         executableWithoutArgs = true,
-        aliases = { "commandmanagement", "cmanagement", "cm", "commandmanagements", "commandmanager", "commandm", "comman" }
+        aliases = { "commandmanagement", "cmanagement", "cm", "commandmanagements", "commandmanager", "commandm", "comman" },
+        obsolete = true
 )
 public class CommandManagementCommand extends NavigationAbstract {
 
@@ -51,6 +52,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         commandManagementData = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
+        setLog(LogStatus.WARNING, TextManager.getString(getLocale(), Category.CONFIGURATION, "cperms_obsolete", getPrefix()));
         registerNavigationListener(event.getMember());
         return true;
     }
