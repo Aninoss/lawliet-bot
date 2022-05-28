@@ -9,6 +9,7 @@ import commands.listeners.MessageInputResponse;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.informationcategory.HelpCommand;
 import core.AsyncTimer;
+import core.CommandPermissions;
 import core.MainLogger;
 import core.ShardManager;
 import core.utils.BotPermissionUtil;
@@ -82,8 +83,8 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
                     if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
                         Command helpCommand = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
-                        if (DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong())
-                                .commandIsTurnedOnEffectively(helpCommand, event.getMember())
+                        if (DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong()).commandIsTurnedOnEffectively(helpCommand, event.getMember()) &&
+                                CommandPermissions.hasAccess(HelpCommand.class, event.getMember(), event.getTextChannel(), false)
                         ) {
                             args = command.getTrigger();
                             command = helpCommand;

@@ -277,7 +277,20 @@ public class CommandManager {
     }
 
     private static boolean checkCommandPermissions(CommandEvent event, Command command) {
-        return true; //TODO: implement
+        if (CommandPermissions.hasAccess(command.getClass(), event.getMember(), event.getTextChannel(), false)) {
+            return true;
+        }
+
+        String desc = TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_description", command.getPrefix());
+        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "permissionsblock_title", command.getPrefix()))
+                    .setDescription(desc);
+            sendError(event, command.getLocale(), eb, true);
+        } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
+            sendErrorNoEmbed(event, command.getLocale(), desc, true);
+        }
+        return false;
     }
 
     private static boolean checkTurnedOn(CommandEvent event, Command command) {
