@@ -16,6 +16,7 @@ import core.atomicassets.AtomicTextChannel;
 import core.components.ActionRows;
 import core.interactionresponse.InteractionResponse;
 import core.utils.*;
+import kotlin.jvm.JvmClassMappingKt;
 import kotlin.reflect.KClass;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
@@ -601,6 +602,10 @@ public abstract class Command implements OnTriggerListener {
             }
         }
         throw new NoSuchElementException("No such annotation");
+    }
+
+    public static CommandLanguage getCommandLanguage(KClass<? extends Command> clazz, Locale locale) {
+        return getCommandLanguage(JvmClassMappingKt.getJavaClass(clazz), locale);
     }
 
     public static CommandLanguage getCommandLanguage(Class<? extends Command> clazz, Locale locale) {

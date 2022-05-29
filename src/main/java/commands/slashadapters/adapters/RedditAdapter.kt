@@ -14,10 +14,10 @@ class RedditAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         val orderBy = OptionData(OptionType.STRING, "sort_by", "Sort the posts of a subreddit", false)
-            .addChoice("hot", "hot")
-            .addChoice("new", "new")
-            .addChoice("top", "top")
-            .addChoice("rising", "rising")
+            .addChoice("Hot", "hot")
+            .addChoice("New", "new")
+            .addChoice("Top", "top")
+            .addChoice("Rising", "rising")
         return commandData
             .addOption(OptionType.STRING, "subreddit", "View a specific subreddit", true)
             .addOptions(orderBy)

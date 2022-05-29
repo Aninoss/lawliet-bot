@@ -47,9 +47,14 @@ abstract class SlashAdapter {
         return slash.command
     }
 
-    fun commandCategories(): Array<Category> {
+    fun commandAssociations(): Array<KClass<out Command>> {
         val slash = javaClass.getAnnotation(Slash::class.java)
-        return slash.commandCategories
+        return slash.commandAssociations
+    }
+
+    fun commandAssociationCategories(): Array<Category> {
+        val slash = javaClass.getAnnotation(Slash::class.java)
+        return slash.commandAssociationCategories
     }
 
     fun messageCommandAssociations(): List<String> {
@@ -60,7 +65,9 @@ abstract class SlashAdapter {
             val trigger = Command.getCommandProperties(commandClass).trigger
             list += trigger
         }
-        list += commandCategories()
+        list += commandAssociations()
+            .map { Command.getCommandProperties(it).trigger }
+        list += commandAssociationCategories()
             .map { it.id }
 
         return list.toImmutableList()

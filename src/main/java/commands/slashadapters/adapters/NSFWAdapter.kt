@@ -7,6 +7,7 @@ import commands.runnables.informationcategory.HelpCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
+import core.CommandPermissions
 import core.TextManager
 import mysql.modules.commandmanagement.DBCommandManagement
 import mysql.modules.guild.DBGuild
@@ -20,7 +21,7 @@ import java.util.*
 @Slash(
     name = "nsfw",
     description = "Find nsfw content for predefined tags",
-    commandCategories = [ Category.NSFW ]
+    commandAssociationCategories = [Category.NSFW]
 )
 class NSFWAdapter : SlashAdapter() {
 
@@ -31,14 +32,16 @@ class NSFWAdapter : SlashAdapter() {
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {
-        val type = event.getOption("command")!!.asString.split(":")[0]
-        val clazz = CommandContainer.getCommandMap()[type]
-        if (clazz != null) {
-            if (PornPredefinedAbstract::class.java.isAssignableFrom(clazz) && commands.Command.getCommandProperties(clazz).nsfw) {
+        val name = event.getOption("command")!!.asString
+        val locale = DBGuild.getInstance().retrieve(event.guild!!.idLong).locale
+        for (clazz in CommandContainer.getCommandCategoryMap()[Category.NSFW]!!) {
+            if (PornPredefinedAbstract::class.java.isAssignableFrom(clazz) &&
+                (commands.Command.getCommandProperties(clazz).trigger == name || commands.Command.getCommandLanguage(clazz, locale).title == name)
+            ) {
                 return SlashMeta(clazz, collectArgs(event, "command"))
             }
         }
-        return SlashMeta(HelpCommand::class.java, "nsfw") { locale: Locale -> TextManager.getString(locale, TextManager.COMMANDS, "slash_error_invalidcommand", type) }
+        return SlashMeta(HelpCommand::class.java, "nsfw") { locale: Locale -> TextManager.getString(locale, TextManager.COMMANDS, "slash_error_invalidcommand", name) }
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
@@ -53,11 +56,12 @@ class NSFWAdapter : SlashAdapter() {
                 val triggers = mutableListOf(commandTrigger)
                 if (PornPredefinedAbstract::class.java.isAssignableFrom(clazz) && commandProperties.nsfw &&
                     switchedOffData.elementIsTurnedOnEffectively(Category.NSFW.id, event.member) &&
-                    switchedOffData.elementIsTurnedOnEffectively(commandTrigger, event.member)
+                    switchedOffData.elementIsTurnedOnEffectively(commandTrigger, event.member) &&
+                    CommandPermissions.hasAccess(clazz, event.member, event.textChannel, false)
                 ) {
                     triggers.addAll(commandProperties.aliases)
                     if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {
-                        val name = commandTrigger + ": " + commands.Command.getCommandLanguage(clazz, locale).title
+                        val name = commands.Command.getCommandLanguage(clazz, locale).title
                         choiceList += Command.Choice(name, commandTrigger)
                     }
                 }

@@ -9,5 +9,6 @@ annotation class Slash(
     val command: KClass<out Command> = Command::class,
     val name: String = "",
     val description: String = "",
-    val commandCategories: Array<Category> = [],
+    val commandAssociations: Array<KClass<out Command>> = [],
+    val commandAssociationCategories: Array<Category> = [],
 )

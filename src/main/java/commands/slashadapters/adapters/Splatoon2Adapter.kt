@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
 @Slash(
     name = "splatoon2",
     description = "View current data about Splatoon 2",
-    commandCategories = [ Category.SPLATOON_2 ]
+    commandAssociationCategories = [ Category.SPLATOON_2 ]
 )
 class Splatoon2Adapter : SlashAdapter() {
 
