@@ -87,7 +87,7 @@ public class AlertsCommand extends NavigationAbstract {
 
     @ControllerMessage(state = STATE_COMMAND)
     public MessageInputResponse onMessageCommand(MessageReceivedEvent event, String input) {
-        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(input, getLocale(), getPrefix());
+        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(input.toLowerCase(), getLocale(), getPrefix());
         if (commandOpt.isEmpty() || !(commandOpt.get() instanceof OnAlertListener) || !commandOpt.get().canRunOnGuild(0L, 0L)) {
             return null;
         }
