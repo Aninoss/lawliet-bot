@@ -491,9 +491,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                             if (!exist) {
                                 MessageReaction.ReactionEmote reactionEmote = reaction.getReactionEmote();
                                 if (reactionEmote.isEmoji()) {
-                                    restActionQueue.attach(message.removeReaction(reactionEmote.getEmoji()));
+                                    restActionQueue.attach(message.clearReactions(reactionEmote.getEmoji()));
                                 } else {
-                                    restActionQueue.attach(message.removeReaction(reactionEmote.getEmote()));
+                                    restActionQueue.attach(message.clearReactions(reactionEmote.getEmote()));
                                 }
                             }
                         }
