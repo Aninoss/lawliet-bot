@@ -489,7 +489,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                                 }
                             }
                             if (!exist) {
-                                restActionQueue.attach(reaction.clearReactions());
+                                MessageReaction.ReactionEmote reactionEmote = reaction.getReactionEmote();
+                                if (reactionEmote.isEmoji()) {
+                                    restActionQueue.attach(message.removeReaction(reactionEmote.getEmoji()));
+                                } else {
+                                    restActionQueue.attach(message.removeReaction(reactionEmote.getEmote()));
+                                }
                             }
                         }
                     }
