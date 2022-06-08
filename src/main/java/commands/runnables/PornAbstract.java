@@ -45,6 +45,8 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class PornAbstract extends Command implements OnAlertListener {
 
+    public static int MAX_FILES_PER_MESSAGE = 5;
+
     private static final BooruImageDownloader booruImageDownloader = new BooruImageDownloader();
 
     private static final Cache<String, List<BooruImage>> alertsCache = CacheBuilder.newBuilder()
@@ -118,7 +120,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         do {
             List<BooruImage> pornImages;
             try {
-                pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilters, args, Math.min(3, (int) amount), usedResults, canBeVideo);
+                pornImages = getBooruImages(event.getGuild().getIdLong(), nsfwFilters, args, Math.min(MAX_FILES_PER_MESSAGE, (int) amount), usedResults, canBeVideo);
             } catch (IllegalTagException e) {
                 if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                     drawMessageNew(illegalTagsEmbed()).exceptionally(ExceptionLogger.get());
@@ -163,11 +165,11 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             amount -= pornImages.size();
             first = false;
 
-            Optional<Message> messageTemplateOpt = generatePostMessagesText(pornImages, event.getTextChannel(), 3);
+            Optional<Message> messageTemplateOpt = generatePostMessagesText(pornImages, event.getTextChannel(), MAX_FILES_PER_MESSAGE);
             if (messageTemplateOpt.isPresent()) {
                 setComponents(generateButtons(pornImages));
                 drawMessageNew(messageTemplateOpt.get().getContentRaw()).exceptionally(ExceptionLogger.get());
-                TimeUnit.SECONDS.sleep(1);
+                TimeUnit.SECONDS.sleep(2);
             }
         } while (amount > 0 && BotPermissionUtil.canWrite(event.getTextChannel()));
 
@@ -186,7 +188,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             if (reportArgsBuilder.length() > 0) {
                 reportArgsBuilder.append(",");
             }
-            reportArgsBuilder.append(pornImage.getOriginalImageUrl());
+            String newUrl = pornImage.getOriginalImageUrl()
+                    .replace("https://", "")
+                    .replace("/images/", "#")
+                    .replace("/data/", "|")
+                    .replace("/original/", "\\");
+            reportArgsBuilder.append(newUrl);
         }
 
         String encodedArgs = Base64.getEncoder().encodeToString(reportArgsBuilder.toString().getBytes());
@@ -264,7 +271,8 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         List<BooruImage> pornImages;
         try {
             String cacheKey = getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFiltersList);
-            pornImages = alertsCache.get(cacheKey,
+            pornImages = alertsCache.get(
+                    cacheKey,
                     () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), false)
             );
             if (pornImages.isEmpty()) {
@@ -316,7 +324,8 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
     private Optional<Message> generatePostMessagesText(List<BooruImage> pornImages, BaseGuildMessageChannel channel, int max) {
         StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title",
                 getCommandProperties().emoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"),
-                getPrefix(), getTrigger()));
+                getPrefix(), getTrigger()
+        ));
 
         String notice = getNoticeOptional().orElse(null);
         if (notice != null) {
