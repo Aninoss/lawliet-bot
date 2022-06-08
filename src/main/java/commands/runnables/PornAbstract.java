@@ -45,7 +45,7 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class PornAbstract extends Command implements OnAlertListener {
 
-    public static int MAX_FILES_PER_MESSAGE = 5;
+    public static int MAX_FILES_PER_MESSAGE = 3;
 
     private static final BooruImageDownloader booruImageDownloader = new BooruImageDownloader();
 
@@ -169,7 +169,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             if (messageTemplateOpt.isPresent()) {
                 setComponents(generateButtons(pornImages));
                 drawMessageNew(messageTemplateOpt.get().getContentRaw()).exceptionally(ExceptionLogger.get());
-                TimeUnit.SECONDS.sleep(2);
+                TimeUnit.SECONDS.sleep(MAX_FILES_PER_MESSAGE / 2);
             }
         } while (amount > 0 && BotPermissionUtil.canWrite(event.getTextChannel()));
 
