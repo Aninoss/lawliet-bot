@@ -6,7 +6,7 @@ import core.internet.HttpHeader;
 import core.internet.HttpRequest;
 import org.json.JSONObject;
 
-public class Discordbotlist {
+public class DiscordBotList {
 
     public static void updateServerCount(long serverCount) {
         JSONObject jsonObject = new JSONObject();

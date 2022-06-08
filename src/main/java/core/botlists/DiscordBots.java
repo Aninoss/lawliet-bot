@@ -6,14 +6,14 @@ import core.internet.HttpHeader;
 import core.internet.HttpRequest;
 import org.json.JSONObject;
 
-public class Botsfordiscord {
+public class DiscordBots {
 
     public static void updateServerCount(long serverCount) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("server_count", serverCount);
+        jsonObject.put("guildCount", serverCount);
 
-        HttpHeader httpHeader =  new HttpHeader("Authorization", System.getenv("BOTSFORDISCORD_TOKEN"));
-        HttpRequest.post("https://discords.com/bots/api/bot/" + ShardManager.getSelfId(), "application/json", jsonObject.toString(), httpHeader)
+        HttpHeader httpHeader = new HttpHeader("Authorization", System.getenv("DISCORDBOTSGG_TOKEN"));
+        HttpRequest.post(String.format("https://discord.bots.gg/api/v1/bots/%d/stats", ShardManager.getSelfId()), "application/json", jsonObject.toString(), httpHeader)
                 .exceptionally(ExceptionLogger.get());
     }
 

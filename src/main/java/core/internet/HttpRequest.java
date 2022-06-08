@@ -12,15 +12,19 @@ public class HttpRequest {
     private static final String USER_AGENT = String.format("Lawliet Discord Bot v%s by Aninoss#7220 (https://lawlietbot.xyz/)", BotUtil.getCurrentVersion());
 
     public static CompletableFuture<HttpResponse> get(String url, HttpHeader... headers) {
-        return post(url, null, null, headers);
+        return request("GET", url, null, null, headers);
     }
 
     public static CompletableFuture<HttpResponse> post(String url, String mediaType, String body, HttpHeader... headers) {
+        return request("POST", url, mediaType, body, headers);
+    }
+
+    public static CompletableFuture<HttpResponse> request(String method, String url, String mediaType, String body, HttpHeader... headers) {
         Request.Builder requestBuilder = new Request.Builder()
                 .url(url)
                 .header("User-Agent", USER_AGENT);
         if (body != null) {
-            requestBuilder.method("POST", RequestBody.create(MediaType.get(mediaType), body));
+            requestBuilder.method(method, RequestBody.create(MediaType.get(mediaType), body));
         }
         for (HttpHeader header : headers) {
             requestBuilder.addHeader(header.getKey(), header.getValue());

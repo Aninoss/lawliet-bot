@@ -16,10 +16,11 @@ public class SendBotGuildCount implements ExceptionRunnable {
         if (Program.productionMode() && Program.publicVersion() && Program.getClusterId() == 1) {
             ShardManager.getGlobalGuildSize().ifPresent(totalServers -> {
                 TopGG.updateServerCount(totalServers);
-                Botsfordiscord.updateServerCount(totalServers);
+                BotsForDiscord.updateServerCount(totalServers);
                 BotsOnDiscord.updateServerCount(totalServers);
-                Discordbotlist.updateServerCount(totalServers);
-                Discordbotsgg.updateServerCount(totalServers);
+                DiscordBotList.updateServerCount(totalServers);
+                DiscordBots.updateServerCount(totalServers);
+                DiscordList.updateServerCount(totalServers);
             });
         }
     }
