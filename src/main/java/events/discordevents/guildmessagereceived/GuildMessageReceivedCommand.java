@@ -43,7 +43,6 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
         String[] prefixes = {
                 prefix,
-                "lawliet",
                 MentionUtil.getUserAsMention(ShardManager.getSelfId(), true),
                 MentionUtil.getUserAsMention(ShardManager.getSelfId(), false)
         };
