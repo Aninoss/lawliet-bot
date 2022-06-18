@@ -313,6 +313,7 @@ public class CommandContainer {
         commandList.add(WeaknessMonCommand.class);
         commandList.add(HeineCommand.class);
         commandList.add(TartagliaNSFWCommand.class);
+        commandList.add(DiamondsCommand.class);
 
         for (Class<? extends Command> clazz : commandList) {
             Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");

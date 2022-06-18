@@ -234,6 +234,16 @@ public class FisheryMemberData implements MemberAsset {
         });
     }
 
+    public int getDiamonds() {
+        return RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_DIAMONDS));
+    }
+
+    public void removeThreeDiamonds() {
+        RedisManager.update(jedis -> {
+            jedis.hincrBy(KEY_ACCOUNT, FIELD_DIAMONDS, -3);
+        });
+    }
+
     public FisheryRecentFishGainsData getRecentFishGains() {
         return getFisheryGuildData().getRecentFishGainsForMember(memberId);
     }
