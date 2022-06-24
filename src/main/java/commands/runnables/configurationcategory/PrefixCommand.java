@@ -37,7 +37,7 @@ public class PrefixCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        if (args.length() > 0) {
+        if (args.length() > 0 && !args.isBlank()) {
             if (args.length() <= MAX_LENGTH) {
                 Prefix.changePrefix(event.getGuild(), getLocale(), args);
                 drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(args))))
@@ -68,6 +68,9 @@ public class PrefixCommand extends Command implements OnButtonListener {
         Modal modal = ModalMediator.createModal(getString("button"), e -> {
                     deregisterListeners();
                     String newPrefix = e.getValues().get(0).getAsString();
+                    if (newPrefix.isBlank()) {
+                        newPrefix = "L.";
+                    }
                     Prefix.changePrefix(event.getGuild(), getLocale(), newPrefix);
                     drawMessage(EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(newPrefix))))
                             .exceptionally(ExceptionLogger.get());
