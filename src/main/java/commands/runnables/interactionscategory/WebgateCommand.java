@@ -100,7 +100,14 @@ public class WebgateCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/745660306239258767/745661424252223548/20200804_233650.jpg",
                 "https://cdn.discordapp.com/attachments/745660306239258767/745661431307042908/95722845_240025797107687_5944562684228763072_n.jpg",
                 "https://cdn.discordapp.com/attachments/745660306239258767/745661437619339404/106233059_673104176577462_1614223870327634262_n.jpg",
-                "https://cdn.discordapp.com/attachments/745660306239258767/745661443919052810/unnamed.png"
+                "https://cdn.discordapp.com/attachments/745660306239258767/745661443919052810/unnamed.png",
+                "https://cdn.discordapp.com/attachments/745660306239258767/989815789815201812/aschenayran.PNG",
+                "https://cdn.discordapp.com/attachments/745660306239258767/989815833603743774/mommy_tolgers.PNG",
+                "https://cdn.discordapp.com/attachments/745660306239258767/989815865673400340/plan_n.PNG",
+                "https://cdn.discordapp.com/attachments/745660306239258767/989815881171345478/schnitzel_ani_t.PNG",
+                "https://cdn.discordapp.com/attachments/745660306239258767/989815981373284382/yannick_t.PNG",
+                "https://cdn.discordapp.com/attachments/745660306239258767/989816006442623086/yukan.PNG",
+                "https://cdn.discordapp.com/attachments/745660306239258767/989816035483992074/yunsenseele.PNG"
         );
     }
 
