@@ -45,7 +45,7 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class PornAbstract extends Command implements OnAlertListener {
 
-    public static int MAX_FILES_PER_MESSAGE = 3;
+    public static int MAX_FILES_PER_MESSAGE = 5;
 
     private static final BooruImageDownloader booruImageDownloader = new BooruImageDownloader();
 
