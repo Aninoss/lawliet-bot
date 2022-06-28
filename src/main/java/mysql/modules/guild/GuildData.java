@@ -44,6 +44,9 @@ public class GuildData extends DataWithGuild {
         this.commandAuthorMessageRemove = commandAuthorMessageRemove;
         this.fisheryCoinsGivenLimit = fisheryCoinsGivenLimit;
         this.big = big;
+        if (this.prefix.isBlank()) {
+            setPrefix("L.");
+        }
     }
 
     public long getFisheryRoleMin() {
