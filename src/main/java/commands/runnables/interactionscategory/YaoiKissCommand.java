@@ -54,7 +54,8 @@ public class YaoiKissCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280745601007737/834848898065104946/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/834852296596783154/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/845981040148348998/yaoikiss.gif",
-                "https://cdn.discordapp.com/attachments/736280745601007737/912100600999723018/yaoikiss.gif"
+                "https://cdn.discordapp.com/attachments/736280745601007737/912100600999723018/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/991345678464856094/yaoikiss.gif"
         );
     }
 
