@@ -32,7 +32,8 @@ public class RewardCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736276242466078761/893967877269504040/reward.gif",
                 "https://cdn.discordapp.com/attachments/736276242466078761/893967971326763059/reward.gif",
                 "https://cdn.discordapp.com/attachments/736276242466078761/893968043774996490/reward.gif",
-                "https://cdn.discordapp.com/attachments/736276242466078761/893968111945023588/reward.gif"
+                "https://cdn.discordapp.com/attachments/736276242466078761/893968111945023588/reward.gif",
+                "https://cdn.discordapp.com/attachments/736276242466078761/991341412861874246/reward.gif"
         );
     }
 
