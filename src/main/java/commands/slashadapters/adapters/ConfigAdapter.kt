@@ -26,11 +26,11 @@ import java.util.*
     name = "config",
     description = "Configure various Lawliet functions and settings",
     commandAssociations = [
-        LanguageCommand::class, PrefixCommand::class, WhiteListCommand::class, CommandManagementCommand::class, NSFWFilterCommand::class,
-        SuggestionConfigCommand::class, AlertsCommand::class, ReactionRolesCommand::class, WelcomeCommand::class, AutoRolesCommand::class,
-        StickyRolesCommand::class, AutoChannelCommand::class, AutoQuoteCommand::class, MemberCountDisplayCommand::class, TriggerDeleteCommand::class,
-        GiveawayCommand::class, TicketCommand::class, ModSettingsCommand::class, InviteFilterCommand::class, WordFilterCommand::class,
-        FisheryCommand::class, FisheryRolesCommand::class, VCTimeCommand::class, InviteTrackingCommand::class,
+        LanguageCommand::class, PrefixCommand::class, CommandPermissionsCommand::class, WhiteListCommand::class, CommandManagementCommand::class,
+        NSFWFilterCommand::class, SuggestionConfigCommand::class, AlertsCommand::class, ReactionRolesCommand::class, WelcomeCommand::class,
+        AutoRolesCommand::class, StickyRolesCommand::class, AutoChannelCommand::class, AutoQuoteCommand::class, MemberCountDisplayCommand::class,
+        TriggerDeleteCommand::class, GiveawayCommand::class, TicketCommand::class, ModSettingsCommand::class, InviteFilterCommand::class,
+        WordFilterCommand::class, FisheryCommand::class, FisheryRolesCommand::class, VCTimeCommand::class, InviteTrackingCommand::class,
     ]
 )
 class ConfigAdapter : SlashAdapter() {

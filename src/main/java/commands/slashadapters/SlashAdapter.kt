@@ -5,8 +5,10 @@ import commands.Command
 import commands.CommandContainer
 import constants.Language
 import core.TextManager
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
@@ -42,6 +44,18 @@ abstract class SlashAdapter {
         return description
     }
 
+    fun requiredPermissions(): Collection<Permission> {
+        val permissions = ArrayList<Permission>()
+        val slash = javaClass.getAnnotation(Slash::class.java)
+        permissions += slash.permissions
+        if (slash.command != Command::class) {
+            val commandProperties = Command.getCommandProperties(slash.command)
+            permissions += commandProperties.userGuildPermissions
+            permissions += commandProperties.userChannelPermissions
+        }
+        return permissions.distinct()
+    }
+
     fun commandClass(): KClass<out Command> {
         val slash = javaClass.getAnnotation(Slash::class.java)
         return slash.command
@@ -75,6 +89,8 @@ abstract class SlashAdapter {
 
     fun generateCommandData(): SlashCommandData {
         val commandData = Commands.slash(name(), description())
+        commandData.isGuildOnly = true
+        commandData.defaultPermissions = DefaultMemberPermissions.enabledFor(requiredPermissions())
         return addOptions(commandData)
     }
 
