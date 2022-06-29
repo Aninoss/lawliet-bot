@@ -33,7 +33,7 @@ public class DiscordConnector {
     private static final JDABuilder jdaBuilder = JDABuilder.createDefault(System.getenv("BOT_TOKEN"))
             .setSessionController(concurrentSessionController)
             .setMemberCachePolicy(MemberCacheController.getInstance())
-            .setChunkingFilter(new ChunkingFilterController())
+            .setChunkingFilter(ChunkingFilterController.getInstance())
             .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGE_TYPING)
             .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)

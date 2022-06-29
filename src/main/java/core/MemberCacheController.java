@@ -93,7 +93,8 @@ public class MemberCacheController implements MemberCachePolicy {
     public boolean cacheMember(@NotNull Member member) {
         GuildVoiceState voiceState = member.getVoiceState();
         Guild guild = member.getGuild();
-        return (voiceState != null && voiceState.getChannel() != null) ||
+        return ChunkingFilterController.getInstance().filter(guild.getIdLong()) ||
+                (voiceState != null && voiceState.getChannel() != null) ||
                 member.isPending() ||
                 member.isOwner() ||
                 member.getIdLong() == AssetIds.OWNER_USER_ID ||
