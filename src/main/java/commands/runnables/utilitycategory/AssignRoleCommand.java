@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -40,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 )
 public class AssignRoleCommand extends Command implements OnButtonListener {
 
-    private static final String CANCEL_EMOJI = Emojis.X;
+    private static final Emoji CANCEL_EMOJI = Emojis.X;
     private static final RoleAssigner roleAssigner = new RoleAssigner();
 
     private Mention rolesMention;
@@ -126,7 +127,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         return EmbedFactory.getEmbedDefault(
                 this,
-                getString("loading", rolesMention.isMultiple(), rolesMention.getMentionText(), EmojiUtil.getLoadingEmojiMention(getTextChannel().orElse(null)), CANCEL_EMOJI)
+                getString("loading", rolesMention.isMultiple(), rolesMention.getMentionText(), EmojiUtil.getLoadingEmojiMention(getTextChannel().orElse(null)), CANCEL_EMOJI.getFormatted())
         );
     }
 

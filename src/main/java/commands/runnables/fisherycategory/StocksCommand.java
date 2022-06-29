@@ -212,7 +212,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
 
         setActionRows(actionRows);
         return EmbedFactory.getEmbedDefault(this)
-                .setDescription(desc + "\n" + Emojis.ZERO_WIDTH_SPACE)
+                .setDescription(desc + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted())
                 .addField(currentStock.getName(), generateStockDescription(), false)
                 .setImage(getStockGraphUrl() + "?" + TimeUtil.currentHour());
     }
@@ -237,7 +237,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
             setComponents(getString("buy_confirm"));
         }
         return EmbedFactory.getEmbedDefault(this, desc, getString("buy_title", currentStock.getName()))
-                .addField(Emojis.ZERO_WIDTH_SPACE, attr, false);
+                .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), attr, false);
     }
 
     @Draw(state = SELL)
@@ -264,7 +264,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
             setComponents(getString("sell_confirm"));
         }
         return EmbedFactory.getEmbedDefault(this, desc, getString("sell_title", currentStock.getName()))
-                .addField(Emojis.ZERO_WIDTH_SPACE, attr, false);
+                .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), attr, false);
     }
 
     private String generateStockDescription() {

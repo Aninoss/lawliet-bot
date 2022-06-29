@@ -15,6 +15,7 @@ import mysql.modules.fisheryusers.FisheryMemberDataCache;
 import mysql.modules.fisheryusers.FisheryRecentFishGainsData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 @CommandProperties(
         trigger = "top",
@@ -99,7 +100,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
         };
 
         return new Pair<>(
-                Emojis.ZERO_WIDTH_SPACE + "\n" + getString(
+                Emojis.ZERO_WIDTH_SPACE.getFormatted() + "\n" + getString(
                         "template_title",
                         rankString,
                         userString
@@ -119,11 +120,11 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
         for (FisheryProperty fisheryProperty : fisheryProperties) {
             if (fisheryProperty.show) {
                 if (sb.isEmpty()) {
-                    sb.append(Emojis.FULL_SPACE_UNICODE).append(Emojis.FULL_SPACE_UNICODE).append(" ");
+                    sb.append(Emojis.FULL_SPACE_UNICODE.getFormatted()).append(Emojis.FULL_SPACE_UNICODE.getFormatted()).append(" ");
                 } else {
                     sb.append("⠀⠀");
                 }
-                sb.append(fisheryProperty.emoji)
+                sb.append(fisheryProperty.emoji.getFormatted())
                         .append(" **")
                         .append(StringUtil.numToString(fisheryProperty.value))
                         .append("**");
@@ -152,11 +153,11 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
 
     private static class FisheryProperty {
 
-        private final String emoji;
+        private final Emoji emoji;
         private final Long value;
         private final boolean show;
 
-        public FisheryProperty(String emoji, Long value, boolean show) {
+        public FisheryProperty(Emoji emoji, Long value, boolean show) {
             this.emoji = emoji;
             this.value = value;
             this.show = show;

@@ -81,7 +81,7 @@ public class SalmonCommand extends Command implements OnAlertListener {
         for (int i = 0; i < datesShown; i++) {
             String startTimeString = TimeFormat.DATE_TIME_SHORT.atInstant(startTime[i]).toString();
             String endTimeString = TimeFormat.DATE_TIME_SHORT.atInstant(endTime[i]).toString();
-            String title = (alert ? "" : Emojis.SPLATOON_SALMONRUN) + " __**" + startTimeString + " - " + endTimeString + "**__";
+            String title = (alert ? "" : Emojis.SPLATOON_SALMONRUN.getFormatted()) + " __**" + startTimeString + " - " + endTimeString + "**__";
             StringBuilder weapons = new StringBuilder();
             for (int j = 0; j < 4; j++) {
                 if (!salmonData.getJSONObject(i).getJSONArray("weapons").isNull(j) && Integer.parseInt(salmonData.getJSONObject(i).getJSONArray("weapons").getJSONObject(j).getString("id")) >= 0) {

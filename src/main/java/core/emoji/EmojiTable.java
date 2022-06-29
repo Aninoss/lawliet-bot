@@ -1,7 +1,7 @@
 package core.emoji;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Optional;
 import constants.Emojis;
 import core.GlobalThreadPool;
@@ -9,6 +9,7 @@ import core.MainLogger;
 import core.Program;
 import emoji4j.Emoji;
 import emoji4j.EmojiManager;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 
 public class EmojiTable {
 
@@ -17,7 +18,9 @@ public class EmojiTable {
     public static void load() {
         if (Program.productionMode()) {
             GlobalThreadPool.getExecutorService().submit(() -> {
-                emojis.addAll(List.of(Emojis.LETTERS));
+                Arrays.stream(Emojis.LETTERS)
+                        .map(UnicodeEmoji::getFormatted)
+                        .forEach(emojis::add);
                 try {
                     EmojiUnicodePointAndValueMaker emojiUnicodePointAndValueMaker = new EmojiUnicodePointAndValueMaker();
 
@@ -48,7 +51,9 @@ public class EmojiTable {
             emojiUnicodePointAndValueMaker.build("https://web.archive.org/web/20210616052941/https://unicode.org/emoji/charts/full-emoji-list.html")
                     .forEach(emoji -> emojis.add(emoji.toEmoji()));
 
-            emojis.addAll(List.of(Emojis.LETTERS));
+            Arrays.stream(Emojis.LETTERS)
+                    .map(UnicodeEmoji::getFormatted)
+                    .forEach(emojis::add);
             MainLogger.get().info("Emoji lists completed with {} emojis", emojis.size());
         } catch (Throwable e) {
             MainLogger.get().error("Exception on emoji cache load", e);
@@ -63,7 +68,7 @@ public class EmojiTable {
         MainLogger.get().info("Emoji lists completed with {} emojis", emojis.size());
     }
 
-    public static Optional<String> extractFirstEmoji(String input) {
+    public static Optional<UnicodeEmoji> extractFirstUnicodeEmoji(String input) {
         Optional<String> emojiResult = Optional.empty();
         int maxLength = 0;
 
@@ -73,7 +78,7 @@ public class EmojiTable {
                 maxLength = emoji.length();
             }
         }
-        return emojiResult;
+        return emojiResult.map(net.dv8tion.jda.api.entities.emoji.Emoji::fromUnicode);
     }
 
 }

@@ -69,7 +69,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
             String twitchStatus = twitchStream.getTitle();
             eb = EmbedFactory.getEmbedDefault()
                     .setAuthor(getString("streamer", twitchUser.getDisplayName(), twitchStream.getGame()), channelUrl, TWITCH_ICON)
-                    .setTitle(twitchStatus.isEmpty() ? Emojis.ZERO_WIDTH_SPACE : twitchStatus, channelUrl)
+                    .setTitle(twitchStatus.isEmpty() ? Emojis.ZERO_WIDTH_SPACE.getFormatted() : twitchStatus, channelUrl)
                     .setImage(twitchStream.getThumbnailUrl());
             EmbedUtil.setFooter(eb, this, getString("footer", StringUtil.numToString(twitchStream.getViewers())));
         } else {

@@ -75,7 +75,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
             return false;
         }
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", Emojis.X))
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", Emojis.X.getFormatted()))
                 .addField(getString("channel"), channel.getAsMention(), true)
                 .addField(getString("timespan"), TimeFormat.RELATIVE.after(Duration.ofMinutes(minutes)).toString(), true)
                 .addField(getString("content"), StringUtil.shortenString(messageText, 1024), false);

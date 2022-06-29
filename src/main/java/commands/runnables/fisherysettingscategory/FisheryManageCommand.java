@@ -187,7 +187,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                     sb.append("\n");
                 }
             }
-            eb.addField(Emojis.ZERO_WIDTH_SPACE, sb.toString(), false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), sb.toString(), false);
 
             Button[] buttons = new Button[4 + FisheryGear.values().length];
             for (int i = 0; i < 3 + FisheryGear.values().length; i++) {
@@ -216,9 +216,9 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
     private String emojiOfProperty(int i) {
         return switch (i) {
-            case 0 -> Emojis.FISH;
-            case 1 -> Emojis.COINS;
-            case 2 -> Emojis.DAILY_STREAK;
+            case 0 -> Emojis.FISH.getFormatted();
+            case 1 -> Emojis.COINS.getFormatted();
+            case 2 -> Emojis.DAILY_STREAK.getFormatted();
             default -> FisheryGear.values()[i - 3].getEmoji();
         };
     }

@@ -11,7 +11,6 @@ import commands.listeners.OnStaticReactionRemoveListener;
 import constants.AssetIds;
 import constants.Emojis;
 import core.*;
-import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
 import mysql.modules.suggestions.DBSuggestions;
@@ -20,6 +19,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
@@ -108,7 +108,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
         dislikes = Math.max(0, dislikes);
 
         String ratio = (likes + dislikes > 0) ? StringUtil.numToString((int) Math.round((double) likes / (likes + dislikes) * 100)) : "-";
-        return getString("message_footer", StringUtil.numToString(likes), StringUtil.numToString(dislikes), ratio, Emojis.LIKE, Emojis.DISLIKE);
+        return getString("message_footer", StringUtil.numToString(likes), StringUtil.numToString(dislikes), ratio, Emojis.LIKE.getFormatted(), Emojis.DISLIKE.getFormatted());
     }
 
     @Override
@@ -130,7 +130,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                 .retrieve(event.getGuild().getIdLong())
                 .getSuggestionMessages()
                 .computeIfPresent(event.getMessageIdLong(), (messageId, suggestionMessage) -> {
-                    String emoji = EmojiUtil.reactionEmoteAsMention(event.getReactionEmote());
+                    Emoji emoji = event.getEmoji();
                     if (emoji.equals(Emojis.LIKE) || emoji.equals(Emojis.DISLIKE)) {
                         if (emoji.equals(Emojis.LIKE)) {
                             suggestionMessage.updateUpvotes(add ? 1 : -1);

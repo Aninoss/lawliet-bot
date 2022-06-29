@@ -160,7 +160,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
                         Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CONNECT, getString("refresh")),
                         Button.of(ButtonStyle.SECONDARY, BUTTON_ID_CANCEL, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"))
                 );
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", Emojis.LOADING_UNICODE));
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("synchronize", Emojis.LOADING_UNICODE.getFormatted()));
                 return eb;
 
             case ABORTED:

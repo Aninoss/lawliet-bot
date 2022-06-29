@@ -170,7 +170,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         switch (state) {
             case 0:
                 ArrayList<String> options = new ArrayList<>();
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("beginning") + "\n" + Emojis.ZERO_WIDTH_SPACE);
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("beginning") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted());
                 int i = 0;
                 for (FisheryMemberGearData slot : getUpgradableGears()) {
                     String productDescription = "???";
@@ -186,7 +186,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                     options.add(title);
                     eb.addField(
                             getString("product_title", slot.getGear().getEmoji(), title, StringUtil.numToString(slot.getLevel()), StringUtil.numToString(price)),
-                            productDescription + "\n" + Emojis.ZERO_WIDTH_SPACE,
+                            productDescription + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(),
                             false
                     );
                     i++;

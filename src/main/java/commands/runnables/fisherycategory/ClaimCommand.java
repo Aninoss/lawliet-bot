@@ -79,7 +79,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
     }
 
     private void addRemainingTimeNotification(EmbedBuilder eb, Instant nextUpvote) {
-        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("date", nextUpvote.isAfter(Instant.now()), TimeFormat.DATE_TIME_SHORT.atInstant(nextUpvote).toString()), false);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("date", nextUpvote.isAfter(Instant.now()), TimeFormat.DATE_TIME_SHORT.atInstant(nextUpvote).toString()), false);
     }
 
 }

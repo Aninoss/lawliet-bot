@@ -123,7 +123,7 @@ public class QuizCommand extends CasinoAbstract {
             label = "tutorial_start";
         }
 
-        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString(label, playerName, StringUtil.numToString(coinsInput), Emojis.COUNTDOWN_10), false);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString(label, playerName, StringUtil.numToString(coinsInput), Emojis.COUNTDOWN_10.getFormatted()), false);
         return eb;
     }
 

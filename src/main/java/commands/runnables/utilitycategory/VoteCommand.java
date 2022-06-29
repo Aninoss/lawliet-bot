@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +36,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     private static final QuickUpdater quickUpdater = new QuickUpdater();
 
-    private final String EMOJI_CANCEL = Emojis.X;
+    private final UnicodeEmoji EMOJI_CANCEL = Emojis.X;
 
     public VoteCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -103,8 +104,8 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
         StringBuilder resultsText = new StringBuilder();
 
         for (int i = 0; i < voteInfo.getSize(); i++) {
-            answerText.append(Emojis.LETTERS[i]).append(" | ").append(voteInfo.getChoices(i)).append("\n");
-            resultsText.append(Emojis.LETTERS[i]).append(" | ").append(StringUtil.getBar((double) voteInfo.getUserVotes(i) / voteInfo.getTotalVotes(), 12)).append(" 【 ").append(voteInfo.getUserVotes(i)).append(" • ").append((int) (voteInfo.getPercentage(i) * 100)).append("% 】").append("\n");
+            answerText.append(Emojis.LETTERS[i].getFormatted()).append(" | ").append(voteInfo.getChoices(i)).append("\n");
+            resultsText.append(Emojis.LETTERS[i].getFormatted()).append(" | ").append(StringUtil.getBar((double) voteInfo.getUserVotes(i) / voteInfo.getTotalVotes(), 12)).append(" 【 ").append(voteInfo.getUserVotes(i)).append(" • ").append((int) (voteInfo.getPercentage(i) * 100)).append("% 】").append("\n");
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, "", getString("title"))
@@ -123,8 +124,8 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
-        VoteCache.get(event.getGuildChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), true).ifPresent(voteInfo -> {
-            if (EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), EMOJI_CANCEL) &&
+        VoteCache.get(event.getGuildChannel(), event.getMessageIdLong(), event.getUserIdLong(), event.getEmoji(), true).ifPresent(voteInfo -> {
+            if (event.getEmoji().equals(EMOJI_CANCEL) &&
                     voteInfo.getCreatorId().isPresent() &&
                     voteInfo.getCreatorId().get() == event.getUserIdLong()
             ) {
@@ -144,7 +145,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
             if (voteInfo.getVotes(event.getUserIdLong()) > 1 && BotPermissionUtil.can(event.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
                 event.getGuildChannel()
-                        .removeReactionById(event.getMessageIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), event.getUser())
+                        .removeReactionById(event.getMessageIdLong(), event.getEmoji(), event.getUser())
                         .queue();
                 return;
             }
@@ -160,7 +161,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
 
     @Override
     public void onStaticReactionRemove(@NotNull Message message, @NotNull MessageReactionRemoveEvent event) {
-        VoteCache.get(event.getGuildChannel(), event.getMessageIdLong(), event.getUserIdLong(), EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()), false)
+        VoteCache.get(event.getGuildChannel(), event.getMessageIdLong(), event.getUserIdLong(), event.getEmoji(), false)
                 .ifPresent(voteInfo -> {
                     if (voteInfo.getVotes(event.getUserIdLong()) == 0) {
                         if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {

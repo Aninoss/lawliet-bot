@@ -80,7 +80,7 @@ public class SplatnetCommand extends Command implements OnAlertListener {
             if (endTime.isBefore(trackingTime)) trackingTime = endTime;
 
             String gearName = languageData.getJSONObject("gear").getJSONObject(data.getString("kind")).getJSONObject(data.getJSONObject("gear").getString("id")).getString("name");
-            String fieldTitle = (alert ? "" : Emojis.SPLATOON_SQUID) + " __**" + gearName + "**__";
+            String fieldTitle = (alert ? "" : Emojis.SPLATOON_SQUID.getFormatted()) + " __**" + gearName + "**__";
             int price = data.getInt("price");
 
             String mainAbility = languageData.getJSONObject("skills").getJSONObject(data.getJSONObject("skill").getString("id")).getString("name");

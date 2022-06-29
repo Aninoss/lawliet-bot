@@ -142,18 +142,18 @@ public class SlotCommand extends CasinoAbstract {
                 getSpinningWheel(0),
                 getSpinningWheel(1),
                 getSpinningWheel(2),
-                Emojis.SLOT_DR,
-                Emojis.SLOT_LR,
-                Emojis.SLOT_DLR,
-                Emojis.SLOT_DL,
-                Emojis.SLOT_UD,
-                Emojis.SLOT_UR,
-                Emojis.SLOT_LR1,
-                Emojis.SLOT_ULR,
-                Emojis.SLOT_LR2,
-                Emojis.SLOT_LR3,
-                Emojis.SLOT_UL,
-                Emojis.FULL_SPACE_EMOTE
+                Emojis.SLOT_DR.getFormatted(),
+                Emojis.SLOT_LR.getFormatted(),
+                Emojis.SLOT_DLR.getFormatted(),
+                Emojis.SLOT_DL.getFormatted(),
+                Emojis.SLOT_UD.getFormatted(),
+                Emojis.SLOT_UR.getFormatted(),
+                Emojis.SLOT_LR1.getFormatted(),
+                Emojis.SLOT_ULR.getFormatted(),
+                Emojis.SLOT_LR2.getFormatted(),
+                Emojis.SLOT_LR3.getFormatted(),
+                Emojis.SLOT_UL.getFormatted(),
+                Emojis.FULL_SPACE_EMOTE.getFormatted()
         ));
 
         if (coinsInput != 0) {
@@ -170,7 +170,7 @@ public class SlotCommand extends CasinoAbstract {
 
     private String getSpinningWheel(int i) {
         if (progress <= i) {
-            return Emojis.SLOT_SPINNING;
+            return Emojis.SLOT_SPINNING.getFormatted();
         } else {
             return FRUITS_CONTAINER[fruits[i]];
         }

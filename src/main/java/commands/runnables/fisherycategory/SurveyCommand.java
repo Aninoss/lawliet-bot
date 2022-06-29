@@ -35,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
 @CommandProperties(
         trigger = "survey",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-        emoji = Emojis.CHECKMARK,
+        emoji = "✅",
         usesExtEmotes = true,
         executableWithoutArgs = true
 )
@@ -90,7 +90,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             voteStrings[1] = "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getGuildName(surveySecondVote.getGuildId()).orElse(String.valueOf(surveySecondVote.getGuildId()))) + ")\n";
         }
 
-        return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.ZERO_WIDTH_SPACE)
+        return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted())
                 .addField(surveyQuestion.getQuestion(), voteStrings[0], false)
                 .addField(getString("majority"), StringUtil.shortenStringLine(voteStrings[1], 1024), false);
     }
@@ -166,7 +166,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         StringBuilder answerString = new StringBuilder();
         for (int i = 0; i < 2; i++) {
-            answerString.append(Emojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
+            answerString.append(Emojis.LETTERS[i].getFormatted()).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
         }
         eb.addField(getString("results_answers"), answerString.toString(), false);
 
@@ -181,7 +181,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             resultString.append(
                     getString(
                             "results_template",
-                            Emojis.LETTERS[i],
+                            Emojis.LETTERS[i].getFormatted(),
                             StringUtil.getBar(firstVotesRelative[i], 12),
                             StringUtil.numToString(firstVotes[i]),
                             StringUtil.numToString(Math.round(firstVotesRelative[i] * 100))
@@ -216,12 +216,12 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         StringBuilder personalString = new StringBuilder();
         for (int i = 0; i < 2; i++) {
-            personalString.append(Emojis.LETTERS[i]).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
+            personalString.append(Emojis.LETTERS[i].getFormatted()).append(" | ").append(surveyQuestion.getAnswers()[i]).append("\n");
         }
         eb.addField(surveyQuestion.getQuestion(), personalString.toString(), false);
 
         Instant after = TimeUtil.localDateToInstant(surveyData.getNextDate());
-        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("nextdate", TimeFormat.DATE_TIME_LONG.atInstant(after).toString()), false);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("nextdate", TimeFormat.DATE_TIME_LONG.atInstant(after).toString()), false);
 
         return eb;
     }

@@ -61,7 +61,7 @@ public class InvitesCommand extends MemberAccountAbstract {
                 );
         InviteTrackingSlot slot = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).getInviteTrackingSlots().get(member.getIdLong());
         if (slot != null) {
-            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("invitedby", slot.getInviterUserId() == 0, new AtomicMember(event.getGuild().getIdLong(), slot.getInviterUserId()).getAsMention()), false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("invitedby", slot.getInviterUserId() == 0, new AtomicMember(event.getGuild().getIdLong(), slot.getInviterUserId()).getAsMention()), false);
         }
         return eb;
     }

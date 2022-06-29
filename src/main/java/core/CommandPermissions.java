@@ -15,12 +15,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
+import net.dv8tion.jda.api.interactions.commands.privileges.IntegrationPrivilege;
 
 public class CommandPermissions {
 
     public static boolean transferCommandPermissions(Guild guild) {
-        Map<String, List<CommandPrivilege>> externalMap = guild.retrieveCommandPrivileges().complete();
+        Map<String, List<IntegrationPrivilege>> externalMap = guild.retrieveCommandPrivileges().complete().getAsMap();
         HashMap<String, List<SlashPermissionsSlot>> internalMap = new HashMap<>();
 
         for (String commandId : externalMap.keySet()) {
@@ -112,11 +112,12 @@ public class CommandPermissions {
         return allowed;
     }
 
-    private static SlashPermissionsSlot.Type mapPermissionType(CommandPrivilege.Type type) {
+    private static SlashPermissionsSlot.Type mapPermissionType(IntegrationPrivilege.Type type) {
         return switch (type) {
             case ROLE -> SlashPermissionsSlot.Type.ROLE;
             case USER -> SlashPermissionsSlot.Type.USER;
-            default -> SlashPermissionsSlot.Type.CHANNEL;
+            case CHANNEL -> SlashPermissionsSlot.Type.CHANNEL;
+            default -> null;
         };
     }
 

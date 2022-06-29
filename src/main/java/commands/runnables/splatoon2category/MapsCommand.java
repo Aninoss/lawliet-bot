@@ -87,9 +87,9 @@ public class MapsCommand extends Command implements OnAlertListener {
         EmbedUtil.setFooter(eb, this, region.toUpperCase());
 
         HashMap<String, String> emojiMap = new HashMap<>();
-        emojiMap.put("gachi", Emojis.SPLATOON_GACHI);
-        emojiMap.put("regular", Emojis.SPLATOON_REGULAR);
-        emojiMap.put("league", Emojis.SPLATOON_LEAGUE);
+        emojiMap.put("gachi", Emojis.SPLATOON_GACHI.getFormatted());
+        emojiMap.put("regular", Emojis.SPLATOON_REGULAR.getFormatted());
+        emojiMap.put("league", Emojis.SPLATOON_LEAGUE.getFormatted());
 
         if (!isSplatfest) {
             String[] modeIDs = new String[] { "regular", "gachi", "league" };
@@ -121,7 +121,7 @@ public class MapsCommand extends Command implements OnAlertListener {
             festTeams[1] = languageData.getJSONObject("festivals").getJSONObject(String.valueOf(festData.getInt("festival_id"))).getJSONObject("names").getString("bravo_short");
 
             String id = "regular";
-            String fieldTitle = (alert ? "" : Emojis.SPLATOON_SPLATFEST) + getString("splatfest_battle", festTeams[0], festTeams[1]);
+            String fieldTitle = (alert ? "" : Emojis.SPLATOON_SPLATFEST.getFormatted()) + getString("splatfest_battle", festTeams[0], festTeams[1]);
             String[] timeNames = getString("times").split("\n");
             StringBuilder fieldContent = new StringBuilder();
             for (int j = 0; j < timeNames.length; j++) {
@@ -136,7 +136,7 @@ public class MapsCommand extends Command implements OnAlertListener {
 
         trackingTime = endTime;
 
-        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("next", TimeFormat.DATE_TIME_SHORT.atInstant(endTime).toString()), false);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("next", TimeFormat.DATE_TIME_SHORT.atInstant(endTime).toString()), false);
         return eb;
     }
 

@@ -11,6 +11,7 @@ import mysql.modules.userprivatechannels.PrivateChannelData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
@@ -47,8 +48,8 @@ public class JDAUtil {
         for (Role role : guild.getRoles()) {
             content = content.replace(role.getAsMention(), "@" + role.getName());
         }
-        for (Emote emote : guild.getEmotes()) {
-            content = content.replace(emote.getAsMention(), ":" + emote.getName() + ":");
+        for (RichCustomEmoji richCustomEmoji : guild.getEmojis()) {
+            content = content.replace(richCustomEmoji.getFormatted(), ":" + richCustomEmoji.getName() + ":");
         }
         return content;
     }

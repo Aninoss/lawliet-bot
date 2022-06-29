@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -242,6 +243,12 @@ public class SlashAckSendMessageAction implements MessageAction {
     public MessageAction setActionRows(@NotNull ActionRow @NotNull ... rows) {
         replyCallbackAction = replyCallbackAction.addActionRows(rows);
         return this;
+    }
+
+    @NotNull
+    @Override
+    public MessageAction setStickers(@Nullable Collection<? extends StickerSnowflake> stickers) {
+        throw new UnsupportedOperationException();
     }
 
     @NotNull

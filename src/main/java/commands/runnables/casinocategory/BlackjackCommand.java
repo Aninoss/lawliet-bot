@@ -187,7 +187,7 @@ public class BlackjackCommand extends CasinoAbstract {
 
         String key = turnForPlayer ? "tutorial" : "data";
 
-        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString(key, playerName, StringUtil.numToString(coinsInput)), false);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString(key, playerName, StringUtil.numToString(coinsInput)), false);
         return eb;
     }
 
@@ -200,12 +200,12 @@ public class BlackjackCommand extends CasinoAbstract {
         for (int i = 0; i < getCardsForPlayer(player).size(); i++) {
             GameCard gameCard = getCardsForPlayer(player).get(i);
             if (i == getCardsForPlayer(player).size() - 1 && newCardDrawn) {
-                sb.append(Emojis.CARD_FADEIN[gameCard.getId()]);
+                sb.append(Emojis.CARD_FADEIN[gameCard.getId()].getFormatted());
             } else {
-                sb.append(Emojis.CARD[gameCard.getId()]);
+                sb.append(Emojis.CARD[gameCard.getId()].getFormatted());
             }
         }
-        sb.append(Emojis.ZERO_WIDTH_SPACE);
+        sb.append(Emojis.ZERO_WIDTH_SPACE.getFormatted());
         return sb.toString();
     }
 

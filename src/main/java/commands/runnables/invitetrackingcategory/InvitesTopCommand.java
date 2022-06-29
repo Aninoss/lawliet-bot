@@ -98,14 +98,14 @@ public class InvitesTopCommand extends ListAbstract {
         };
 
         return new Pair<>(
-                Emojis.ZERO_WIDTH_SPACE + "\n" + getString(
+                Emojis.ZERO_WIDTH_SPACE.getFormatted() + "\n" + getString(
                         "template_title",
                         rankString,
                         userString
                 ),
                 getString(
                         "template_value",
-                        Emojis.FULL_SPACE_UNICODE,
+                        Emojis.FULL_SPACE_UNICODE.getFormatted(),
                         makeThicc(StringUtil.numToString(inviteMetrics.getTotalInvites()), orderByEnum == OrderBy.TOTAL_INVITES),
                         makeThicc(StringUtil.numToString(inviteMetrics.getOnServer()), orderByEnum == OrderBy.ON_SERVER),
                         makeThicc(StringUtil.numToString(inviteMetrics.getRetained()), orderByEnum == OrderBy.RETAINED),

@@ -9,12 +9,12 @@ import core.MainLogger
 import core.MemberCacheController
 import core.RestActionQueue
 import core.utils.BotPermissionUtil
-import core.utils.EmojiUtil
 import core.utils.ExceptionUtil
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent
 import net.dv8tion.jda.api.exceptions.PermissionException
@@ -26,16 +26,16 @@ interface OnReactionListener : Drawable {
     @Throws(Throwable::class)
     fun onReaction(event: GenericMessageReactionEvent): Boolean
 
-    fun registerReactionListener(member: Member, vararg emojis: String): CompletableFuture<Long> {
+    fun registerReactionListener(member: Member, vararg emojis: Emoji): CompletableFuture<Long> {
         val command = this as Command
         return registerReactionListener(member) { event: GenericMessageReactionEvent ->
             val ok = event.userIdLong == member.idLong && event.messageIdLong == (this as Command).drawMessageId.orElse(0L) &&
-                    (emojis.size == 0 || Arrays.stream(emojis).anyMatch { emoji: String -> EmojiUtil.reactionEmoteEqualsEmoji(event.reactionEmote, emoji) })
+                    (emojis.size == 0 || Arrays.stream(emojis).anyMatch { emoji -> event.emoji.equals(emoji) })
             if (ok) CheckResponse.ACCEPT else CheckResponse.IGNORE
         }.thenApply { messageId: Long ->
             command.textChannel.ifPresent { channel: TextChannel ->
                 val restActionQueue = RestActionQueue()
-                Arrays.stream(emojis).forEach { emoji: String -> restActionQueue.attach(channel.addReactionById(messageId, EmojiUtil.emojiAsReactionTag(emoji))) }
+                Arrays.stream(emojis).forEach { emoji -> restActionQueue.attach(channel.addReactionById(messageId, emoji)) }
                 if (restActionQueue.isSet) {
                     restActionQueue.currentRestAction.queue()
                 }

@@ -15,7 +15,7 @@ public abstract class GuildMessageReactionRemoveAbstract extends DiscordEventAbs
     public static void onGuildMessageReactionRemoveStatic(MessageReactionRemoveEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         try(AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
             timeOutTimer.setTimeOutListener(t -> {
-                MainLogger.get().error("Reaction remove \"{}\" of guild {} stuck", event.getReactionEmote().getAsReactionCode(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
+                MainLogger.get().error("Reaction remove \"{}\" of guild {} stuck", event.getEmoji().getAsReactionCode(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
             });
 
             execute(listenerList, event.getUser(), event.getGuild().getIdLong(),

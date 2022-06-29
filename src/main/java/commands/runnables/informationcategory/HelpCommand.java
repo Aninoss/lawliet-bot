@@ -27,9 +27,10 @@ import mysql.modules.commandmanagement.CommandManagementData;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -182,12 +183,12 @@ public class HelpCommand extends NavigationAbstract {
                                         command.getCommandProperties().emoji() + " " + TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_title")
                         )
                         .setDescription(TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_helptext") + addNotExecutable)
-                        .addField(Emojis.ZERO_WIDTH_SPACE, getString("command_usage") + "\n" + usage, true)
-                        .addField(Emojis.ZERO_WIDTH_SPACE, getString("command_example", exampleNumber > 1) + "\n" + examples, true);
+                        .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("command_usage") + "\n" + usage, true)
+                        .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("command_example", exampleNumber > 1) + "\n" + examples, true);
                 EmbedUtil.setFooter(eb, this, getString("command_args"));
 
                 if (command.getUserPermissions().length > 0) {
-                    eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("command_userpermissions") + "\n" + permissionsList, false);
+                    eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("command_userpermissions") + "\n" + permissionsList, false);
                 }
                 if (noArgs) {
                     EmbedUtil.addLog(eb, LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
@@ -282,7 +283,7 @@ public class HelpCommand extends NavigationAbstract {
                 i++;
                 if (i >= 10) {
                     if (stringBuilder.length() > 0) {
-                        eb.addField(Emojis.ZERO_WIDTH_SPACE, stringBuilder.toString(), true);
+                        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilder.toString(), true);
                     }
                     stringBuilder = new StringBuilder();
                     i = 0;
@@ -290,7 +291,7 @@ public class HelpCommand extends NavigationAbstract {
             }
         }
         if (stringBuilder.length() > 0) {
-            eb.addField(Emojis.ZERO_WIDTH_SPACE, stringBuilder.toString(), true);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilder.toString(), true);
         }
     }
 
@@ -332,14 +333,14 @@ public class HelpCommand extends NavigationAbstract {
                     i++;
                     eb.addField(
                             title.toString(),
-                            TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.ZERO_WIDTH_SPACE,
+                            TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(),
                             true
                     );
                 }
             }
         }
 
-        eb.setDescription(getString("premium", ExternalLinks.PREMIUM_WEBSITE) + "\n" + Emojis.ZERO_WIDTH_SPACE);
+        eb.setDescription(getString("premium", ExternalLinks.PREMIUM_WEBSITE) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted());
         addIconDescriptions(channel, eb, includeLocked, includeAlerts, includeNSFW, false);
     }
 
@@ -381,7 +382,7 @@ public class HelpCommand extends NavigationAbstract {
                 i++;
                 eb.addField(
                         title.toString(),
-                        TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.ZERO_WIDTH_SPACE,
+                        TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(),
                         true
                 );
             }
@@ -453,7 +454,7 @@ public class HelpCommand extends NavigationAbstract {
             sb.append(getString("commandproperties_PATREON", CommandIcon.PATREON.get(channel), ExternalLinks.PREMIUM_WEBSITE)).append("\n");
         }
 
-        eb.addField(Emojis.ZERO_WIDTH_SPACE, sb.toString(), false);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), sb.toString(), false);
     }
 
     private EmbedBuilder checkMainPage(Member member) {
@@ -508,17 +509,17 @@ public class HelpCommand extends NavigationAbstract {
         public static final CommandIcon NSFW = new CommandIcon(Emojis.COMMAND_ICON_NSFW, "³");
         public static final CommandIcon PATREON = new CommandIcon(Emojis.COMMAND_ICON_PREMIUM, "⁴");
 
-        private final String emojiTag;
+        private final CustomEmoji customEmoji;
         private final String unicodeAlternative;
 
-        public CommandIcon(String emojiTag, String unicodeAlternative) {
-            this.emojiTag = emojiTag;
+        public CommandIcon(CustomEmoji customEmoji, String unicodeAlternative) {
+            this.customEmoji = customEmoji;
             this.unicodeAlternative = unicodeAlternative;
         }
 
         public String get(TextChannel channel) {
             if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI) && BotPermissionUtil.canUseExternalEmojisInInteraction(channel)) {
-                return emojiTag;
+                return customEmoji.getFormatted();
             } else {
                 return unicodeAlternative;
             }

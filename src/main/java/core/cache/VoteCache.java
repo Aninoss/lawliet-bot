@@ -9,10 +9,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.Emojis;
-import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.VoteInfo;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 public class VoteCache {
 
@@ -24,7 +24,7 @@ public class VoteCache {
         voteCache.put(messageId, voteInfo);
     }
 
-    public static Optional<VoteInfo> get(GuildMessageChannel channel, long messageId, long userId, String emoji, boolean add) {
+    public static Optional<VoteInfo> get(GuildMessageChannel channel, long messageId, long userId, Emoji emoji, boolean add) {
         VoteInfo voteInfo = voteCache.getIfPresent(messageId);
         if (voteInfo != null) {
             int i = -1;
@@ -74,7 +74,7 @@ public class VoteCache {
             HashSet<Long> voteUsers = new HashSet<>();
 
             for (MessageReaction reaction : message.getReactions()) {
-                if (EmojiUtil.reactionEmoteEqualsEmoji(reaction.getReactionEmote(), Emojis.LETTERS[i])) {
+                if (reaction.getEmoji().equals(Emojis.LETTERS[i])) {
                     List<User> users = reaction.retrieveUsers().complete();
                     users.forEach(user -> {
                         if (!user.isBot()) {

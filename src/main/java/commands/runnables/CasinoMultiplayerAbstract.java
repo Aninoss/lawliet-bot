@@ -24,8 +24,8 @@ import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -256,7 +256,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         if (status == Status.WAITING_FOR_PLAYERS) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                     .addField(TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_players", StringUtil.numToString(playersMin)), generatePlayersList(), false)
-                    .addField(Emojis.ZERO_WIDTH_SPACE, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_template", "", StringUtil.numToString(coinsInput)), false);
+                    .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_template", "", StringUtil.numToString(coinsInput)), false);
 
             Button startButton = Button.of(ButtonStyle.SUCCESS, BUTTON_ID_START, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_start"), Emoji.fromUnicode(EMOJI_HOST));
             if (playerList.size() < playersMin) {
@@ -275,7 +275,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     }
 
     private String generatePlayersList() {
-        String notSet = Emojis.LOADING;
+        String notSet = Emojis.LOADING.getFormatted();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < playersMax; i++) {
             String playerTag = playerList.size() > i ? playerList.get(i).getAsMention() : notSet;

@@ -97,10 +97,10 @@ public class TextManager {
 
     private static String processEmojis(String text, String[] placeholders) {
         List<Pair<String, String>> emojiPairs = List.of(
-                new Pair<>("CURRENCY", Emojis.FISH),
-                new Pair<>("COINS", Emojis.COINS),
-                new Pair<>("GROWTH", Emojis.GROWTH),
-                new Pair<>("DAILY_STREAK", Emojis.DAILY_STREAK)
+                new Pair<>("CURRENCY", Emojis.FISH.getFormatted()),
+                new Pair<>("COINS", Emojis.COINS.getFormatted()),
+                new Pair<>("GROWTH", Emojis.GROWTH.getFormatted()),
+                new Pair<>("DAILY_STREAK", Emojis.DAILY_STREAK.getFormatted())
         );
 
         for (String placeholder : placeholders) {

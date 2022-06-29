@@ -12,6 +12,7 @@ import modules.ReactionMessage;
 import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 public class ReactionMessagesCache {
 
@@ -65,7 +66,7 @@ public class ReactionMessagesCache {
         String title = embed.getTitle();
 
         int hiddenNumber = -1;
-        while (title.endsWith(Emojis.FULL_SPACE_UNICODE)) {
+        while (title.endsWith(Emojis.FULL_SPACE_UNICODE.getFormatted())) {
             title = title.substring(0, title.length() - 1);
             hiddenNumber++;
         }
@@ -86,7 +87,7 @@ public class ReactionMessagesCache {
         ArrayList<EmojiConnection> emojiConnections = new ArrayList<>();
         for (String line : embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
-            emojiConnections.add(new EmojiConnection(parts[0], parts[1]));
+            emojiConnections.add(new EmojiConnection(Emoji.fromFormatted(parts[0]), parts[1]));
         }
 
         ReactionMessage reactionMessage = new ReactionMessage(

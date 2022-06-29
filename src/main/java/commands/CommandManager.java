@@ -32,6 +32,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -226,7 +227,7 @@ public class CommandManager {
                     .setColor(Settings.PREMIUM_COLOR)
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"))
                     .setDescription(desc);
-            eb.addField(Emojis.ZERO_WIDTH_SPACE, waitTime, false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), waitTime, false);
             sendError(event, command.getLocale(), eb, false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
         } else if (BotPermissionUtil.canWrite(event.getTextChannel())) {
             sendErrorNoEmbed(event, command.getLocale(), desc + "\n\n" + waitTime, false, EmbedFactory.getPatreonBlockButtons(command.getLocale()));
@@ -414,7 +415,7 @@ public class CommandManager {
             Message message = event.getMessageReceivedEvent().getMessage();
             RestActionQueue restActionQueue = new RestActionQueue();
             restActionQueue.attach(message.addReaction(Emojis.X));
-            restActionQueue.attach(message.addReaction("✍️"))
+            restActionQueue.attach(message.addReaction(Emoji.fromUnicode("✍️")))
                     .getCurrentRestAction()
                     .queue();
         }

@@ -94,7 +94,7 @@ public class DailyCommand extends Command implements FisheryInterface {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("claimed_desription"));
             eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
 
-            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("next", TimeFormat.DATE_TIME_SHORT.atInstant(nextDaily).toString()), false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("next", TimeFormat.DATE_TIME_SHORT.atInstant(nextDaily).toString()), false);
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }

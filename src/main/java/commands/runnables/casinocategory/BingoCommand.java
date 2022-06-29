@@ -159,7 +159,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
                     .append(" ");
             for (int i = 0; i < ballsDisclosed; i++) {
                 if (i == ballsDisclosed - 1 && disclosurePending) {
-                    sb.append(Emojis.COUNTDOWN_3);
+                    sb.append(Emojis.COUNTDOWN_3.getFormatted());
                 } else {
                     sb.append('`')
                             .append(BingoBoard.EMOJIS[balls.get(i)])

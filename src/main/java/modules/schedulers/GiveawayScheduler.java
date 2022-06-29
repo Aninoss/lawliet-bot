@@ -6,14 +6,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import commands.Category;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.utilitycategory.GiveawayCommand;
-import commands.Category;
 import constants.Emojis;
 import core.*;
 import core.schedule.MainScheduler;
-import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayData;
@@ -71,7 +70,7 @@ public class GiveawayScheduler {
                 .thenAccept(message -> {
                     future.complete(true);
                     for (MessageReaction reaction : message.getReactions()) {
-                        if (EmojiUtil.reactionEmoteEqualsEmoji(reaction.getReactionEmote(), giveawayData.getEmoji())) {
+                        if (reaction.getEmoji().getFormatted().equals(giveawayData.getEmoji())) {
                             reaction.retrieveUsers().queue(users ->
                                     processGiveaway(giveawayData, message, new ArrayList<>(users), numberOfWinners, reroll)
                             );
@@ -104,7 +103,7 @@ public class GiveawayScheduler {
             giveawayData.getImageUrl().ifPresent(eb::setImage);
             if (winners.size() > 0) {
                 eb.addField(
-                        Emojis.ZERO_WIDTH_SPACE,
+                        Emojis.ZERO_WIDTH_SPACE.getFormatted(),
                         new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getAsTag()) + "**"),
                         false
                 );

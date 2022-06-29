@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
@@ -234,6 +235,12 @@ public class SlashHookEditMessageAction implements MessageAction {
     public MessageAction setActionRows(@NotNull ActionRow @NotNull ... rows) {
         webhookMessageUpdateAction = webhookMessageUpdateAction.setActionRows(rows);
         return this;
+    }
+
+    @NotNull
+    @Override
+    public MessageAction setStickers(@Nullable Collection<? extends StickerSnowflake> stickers) {
+        throw new UnsupportedOperationException();
     }
 
     @NotNull

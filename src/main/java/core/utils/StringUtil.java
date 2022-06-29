@@ -11,6 +11,7 @@ import core.TextManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 
@@ -207,7 +208,7 @@ public final class StringUtil {
         return str.substring(0, Math.min(str.length(), limit - postfix.length())) + postfix;
     }
 
-    public static String getEmojiForBoolean(TextChannel channel, boolean bool) {
+    public static Emoji getEmojiForBoolean(TextChannel channel, boolean bool) {
         if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI)) {
             return Emojis.SWITCHES_DOT[bool ? 1 : 0];
         } else {
@@ -216,7 +217,7 @@ public final class StringUtil {
     }
 
     public static String getOnOffForBoolean(TextChannel channel, Locale locale, boolean bool) {
-        return "**" + getEmojiForBoolean(channel, bool) + " " + TextManager.getString(locale, TextManager.GENERAL, "onoff", bool) + "**";
+        return "**" + getEmojiForBoolean(channel, bool).getFormatted() + " " + TextManager.getString(locale, TextManager.GENERAL, "onoff", bool) + "**";
     }
 
     public static String solveVariablesOfCommandText(String string, TextChannel textChannel, Member member, String prefix) {
@@ -298,33 +299,33 @@ public final class StringUtil {
 
         if (health > 0) {
             if (lostHealth) {
-                sb.append(Emojis.HEART_HIT);
+                sb.append(Emojis.HEART_HIT.getFormatted());
             } else {
-                sb.append(Emojis.HEART_NORMAL);
+                sb.append(Emojis.HEART_NORMAL.getFormatted());
             }
         } else {
-            sb.append(Emojis.HEART_HIT_GAMEOVER);
+            sb.append(Emojis.HEART_HIT_GAMEOVER.getFormatted());
         }
 
         for (int i = 0; i < healthMax; i++) {
             if (i < health) {
                 if (lostHealth) {
-                    sb.append(Emojis.HEART_BAR_HIT);
+                    sb.append(Emojis.HEART_BAR_HIT.getFormatted());
                 } else {
-                    sb.append(Emojis.HEART_BAR);
+                    sb.append(Emojis.HEART_BAR.getFormatted());
                 }
             } else if (i == health) {
                 if (lostHealth) {
-                    sb.append(Emojis.HEART_BAR_HIT_LOSE);
+                    sb.append(Emojis.HEART_BAR_HIT_LOSE.getFormatted());
                 } else {
-                    sb.append(Emojis.HEART_BAR_EMPTY);
+                    sb.append(Emojis.HEART_BAR_EMPTY.getFormatted());
                 }
             } else {
-                sb.append(Emojis.HEART_BAR_EMPTY);
+                sb.append(Emojis.HEART_BAR_EMPTY.getFormatted());
             }
         }
 
-        sb.append(Emojis.HEART_BAR_BORDER);
+        sb.append(Emojis.HEART_BAR_BORDER.getFormatted());
         return sb.toString();
     }
 

@@ -13,13 +13,12 @@ import core.cache.ExternalEmojiCache;
 import core.cache.ExternalGuildNameCache;
 import core.cache.SingleCache;
 import core.schedule.MainScheduler;
-import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.User;
 import events.sync.SendEvent;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 
 public class ShardManager {
 
@@ -337,13 +336,13 @@ public class ShardManager {
         return String.valueOf(selfId);
     }
 
-    public static boolean emoteIsKnown(String emoteMention) {
-        return getEmoteById(EmojiUtil.extractIdFromEmoteMention(emoteMention)).isPresent();
+    public static boolean customEmojiIsKnown(CustomEmoji customEmoji) {
+        return getEmoteById(customEmoji.getIdLong()).isPresent();
     }
 
-    public static Optional<Emote> getLocalEmoteById(long emoteId) {
+    public static Optional<CustomEmoji> getLocalCustomEmojiById(long emoteId) {
         for (JDA jda : getConnectedLocalJDAs()) {
-            Optional<Emote> emoteOptional = Optional.ofNullable(jda.getEmoteById(emoteId));
+            Optional<CustomEmoji> emoteOptional = Optional.ofNullable(jda.getEmojiById(emoteId));
             if (emoteOptional.isPresent()) {
                 return emoteOptional;
             }
@@ -353,7 +352,7 @@ public class ShardManager {
     }
 
     public static Optional<String> getEmoteById(long emojiId) {
-        Optional<String> emojiOptional = getLocalEmoteById(emojiId).map(Emote::getAsMention);
+        Optional<String> emojiOptional = getLocalCustomEmojiById(emojiId).map(CustomEmoji::getAsMention);
         return emojiOptional.or(() -> ExternalEmojiCache.getEmoteById(emojiId));
     }
 

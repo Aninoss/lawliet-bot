@@ -38,6 +38,7 @@ import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -64,7 +65,7 @@ import org.jetbrains.annotations.NotNull;
 public class TicketCommand extends NavigationAbstract implements OnStaticReactionAddListener, OnStaticButtonListener {
 
     private final static int MAX_ROLES = 10;
-    public final static String TICKET_CLOSE_EMOJI = Emojis.X;
+    public final static UnicodeEmoji TICKET_CLOSE_EMOJI = Emojis.X;
     private final static int
             MAIN = 0,
             ANNOUNCEMENT_CHANNEL = 1,
@@ -369,7 +370,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
             TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getTextChannel().getIdLong());
 
-            if (ticketChannel == null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), getCommandProperties().emoji())) {
+            if (ticketChannel == null && event.getEmoji().getFormatted().equals(getCommandProperties().emoji())) {
                 Category category = event.getTextChannel().getParentCategory();
                 if (category == null || category.getTextChannels().size() < 50) {
                     Ticket.createTicket(ticketData, event.getTextChannel(), event.getMember(), null);
@@ -379,7 +380,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                             .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
                             .queue();
                 }
-            } else if (ticketChannel != null && EmojiUtil.reactionEmoteEqualsEmoji(event.getReactionEmote(), TICKET_CLOSE_EMOJI)) {
+            } else if (ticketChannel != null && event.getEmoji().equals(TICKET_CLOSE_EMOJI)) {
                 boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
                 if (isStaff || ticketData.memberCanClose()) {
                     onTicketRemove(ticketData, event.getTextChannel());

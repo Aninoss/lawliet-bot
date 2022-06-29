@@ -12,6 +12,7 @@ import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -65,33 +66,28 @@ public class TowerCommand extends CasinoAbstract {
     public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         final int LEVEL_LIMIT = 12;
 
-        final String GRASS_EMOJI = Emojis.TOWER_GRAS;
-        final String EMPTY_EMOJI = Emojis.FULL_SPACE_EMOTE;
-
-        String[] towerEmojis;
+        Emoji[] towerEmojis;
         if (crashed) {
             towerEmojis = Emojis.TOWER_BASE_BROKEN;
         } else {
             towerEmojis = Emojis.TOWER_BASE;
         }
 
-        String[] towerEmojisAnimated = Emojis.TOWER_BASE_FALLING;
-
         /* build tower */
-        StringBuilder towerText = new StringBuilder(towerLevel < LEVEL_LIMIT ? (Emojis.ZERO_WIDTH_SPACE + "\n") : "");
+        StringBuilder towerText = new StringBuilder(towerLevel < LEVEL_LIMIT ? (Emojis.ZERO_WIDTH_SPACE.getFormatted() + "\n") : "");
         for (int i = 0; i < Math.min(LEVEL_LIMIT, towerLevel) && !crashed; i++) {
             if (i == 0 && falling && towerLevel <= LEVEL_LIMIT) {
-                towerText.append(getString("base", EMPTY_EMOJI, towerEmojisAnimated[0], towerEmojisAnimated[1]))
+                towerText.append(getString("base", Emojis.FULL_SPACE_EMOTE.getFormatted(), Emojis.TOWER_BASE_FALLING[0].getFormatted(), Emojis.TOWER_BASE_FALLING[1].getFormatted()))
                         .append("\n");
             } else {
-                towerText.append(getString("base", EMPTY_EMOJI, towerEmojis[0], towerEmojis[1]))
+                towerText.append(getString("base", Emojis.FULL_SPACE_EMOTE.getFormatted(), towerEmojis[0].getFormatted(), towerEmojis[1].getFormatted()))
                         .append("\n");
             }
         }
-        towerText.append(getString("template", EMPTY_EMOJI, towerEmojis[0], towerEmojis[1], GRASS_EMOJI));
+        towerText.append(getString("template", Emojis.FULL_SPACE_EMOTE.getFormatted(), towerEmojis[0].getFormatted(), towerEmojis[1].getFormatted(), Emojis.TOWER_GRAS.getFormatted()));
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, towerText.toString());
-        eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("template_start", showMoreText,
+        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("template_start", showMoreText,
                 playerName,
                 StringUtil.numToString(coinsInput),
                 StringUtil.doubleToString(towerMultiplier, 2, getLocale())

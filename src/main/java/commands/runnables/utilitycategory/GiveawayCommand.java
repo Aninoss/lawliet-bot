@@ -27,6 +27,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
@@ -72,7 +75,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     private String description = "";
     private long durationMinutes = 10080;
     private int amountOfWinners = 1;
-    private String emoji = "🎉";
+    private Emoji emoji = Emoji.fromUnicode("🎉");
     private String imageLink;
     private LocalFile imageCdn;
     private AtomicBaseGuildMessageChannel channel;
@@ -176,9 +179,9 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @ControllerMessage(state = UPDATE_EMOJI)
     public MessageInputResponse onMessageUpdateEmoji(MessageReceivedEvent event, String input) {
-        List<String> emojiList = MentionUtil.getEmojis(event.getMessage(), input).getList();
+        List<Emoji> emojiList = MentionUtil.getEmojis(event.getMessage(), input).getList();
         if (emojiList.size() > 0) {
-            String emoji = emojiList.get(0);
+            Emoji emoji = emojiList.get(0);
             return processEmoji(emoji) ? MessageInputResponse.SUCCESS : MessageInputResponse.FAILED;
         }
 
@@ -296,7 +299,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             imageLink = giveaway.getImageUrl().orElse(null);
             channel = new AtomicBaseGuildMessageChannel(event.getGuild().getIdLong(), giveaway.getBaseGuildMessageChannelId());
             instant = giveaway.getStart();
-            emoji = giveaway.getEmoji();
+            emoji = Emoji.fromFormatted(giveaway.getEmoji());
             setState(CONFIGURE_MESSAGE);
 
             return true;
@@ -400,7 +403,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                     event.getGuild().getIdLong(),
                     channel.getIdLong(),
                     messageIdOpt.get(),
-                    emoji,
+                    emoji.getFormatted(),
                     amountOfWinners,
                     instant,
                     endPrematurely ? 0 : durationMinutes,
@@ -421,7 +424,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Override
     public boolean onReaction(@NotNull GenericMessageReactionEvent event) throws Throwable {
         if (getState() == UPDATE_EMOJI) {
-            processEmoji(EmojiUtil.reactionEmoteAsMention(event.getReactionEmote()));
+            processEmoji(event.getEmoji());
             processDraw(event.getMember(), true).exceptionally(ExceptionLogger.get());
             if (BotPermissionUtil.can(event.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
                 event.getReaction().removeReaction(event.getUser()).queue();
@@ -487,8 +490,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         return false;
     }
 
-    private boolean processEmoji(String emoji) {
-        if (EmojiUtil.emojiIsUnicode(emoji) || ShardManager.emoteIsKnown(emoji)) {
+    private boolean processEmoji(Emoji emoji) {
+        if (emoji instanceof UnicodeEmoji || ShardManager.customEmojiIsKnown((CustomEmoji) emoji)) {
             this.emoji = emoji;
             setLog(LogStatus.SUCCESS, getString("emojiset"));
             setState(CONFIGURE_MESSAGE);
@@ -546,7 +549,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 .addField(getString("state3_mdescription"), StringUtil.escapeMarkdown(description.isEmpty() ? notSet : description), false)
                 .addField(getString("state3_mduration"), TimeUtil.getRemainingTimeString(getLocale(), durationMinutes * 60_000, false), true)
                 .addField(getString("state3_mwinners"), String.valueOf(amountOfWinners), true)
-                .addField(getString("state3_memoji"), emoji, true)
+                .addField(getString("state3_memoji"), emoji.getFormatted(), true)
                 .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), imageLink != null), true);
     }
 
@@ -634,7 +637,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 instant = Instant.now();
                 message = channel.sendMessageEmbeds(getMessageEmbed().build()).complete();
                 if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION)) {
-                    message.addReaction(EmojiUtil.emojiAsReactionTag(emoji)).queue();
+                    message.addReaction(emoji).queue();
                 }
                 return Optional.of(message.getIdLong());
             } else {
@@ -665,7 +668,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         String tutText = getString(
                 "tutorial",
                 amountOfWinners != 1,
-                emoji,
+                emoji.getFormatted(),
                 String.valueOf(amountOfWinners),
                 TimeFormat.RELATIVE.atInstant(startInstant.plus(Duration.ofMinutes(durationMinutes))).toString()
         );
@@ -673,7 +676,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         if (description.isEmpty()) {
             eb.setDescription(tutText);
         } else {
-            eb.addField(Emojis.ZERO_WIDTH_SPACE, tutText, false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), tutText, false);
         }
 
         if (imageLink != null) {

@@ -24,6 +24,9 @@ import core.mention.MentionValue;
 import javafx.util.Pair;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 
 public class MentionUtil {
 
@@ -314,21 +317,21 @@ public class MentionUtil {
         });
     }
 
-    public static MentionList<String> getEmojis(Message message, String input) {
-        ArrayList<String> emojiList = new ArrayList<>();
+    public static MentionList<Emoji> getEmojis(Message message, String input) {
+        ArrayList<Emoji> emojiList = new ArrayList<>();
 
         if (message != null) {
-            for (Emote emote : message.getMentions().getEmotes()) {
-                emojiList.add(emote.getAsMention());
-                input = input.replace(emote.getAsMention(), "");
+            for (CustomEmoji customEmoji : message.getMentions().getCustomEmojis()) {
+                emojiList.add(customEmoji);
+                input = input.replace(customEmoji.getFormatted(), "");
             }
         }
 
-        Optional<String> unicodeEmojiOpt = EmojiTable.extractFirstEmoji(input);
+        Optional<UnicodeEmoji> unicodeEmojiOpt = EmojiTable.extractFirstUnicodeEmoji(input);
         if (unicodeEmojiOpt.isPresent()) {
-            String unicodeEmoji = unicodeEmojiOpt.get();
+            UnicodeEmoji unicodeEmoji = unicodeEmojiOpt.get();
             emojiList.add(unicodeEmoji);
-            input = input.replace(unicodeEmoji, "");
+            input = input.replace(unicodeEmoji.getFormatted(), "");
         }
 
         return new MentionList<>(input, emojiList);

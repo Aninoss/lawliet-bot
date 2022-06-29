@@ -2,9 +2,9 @@ package modules.fishery;
 
 import java.util.HashSet;
 import java.util.Locale;
+import commands.Category;
 import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
-import commands.Category;
 import core.EmbedFactory;
 import core.TextManager;
 import core.components.ActionRows;
@@ -17,7 +17,11 @@ import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 

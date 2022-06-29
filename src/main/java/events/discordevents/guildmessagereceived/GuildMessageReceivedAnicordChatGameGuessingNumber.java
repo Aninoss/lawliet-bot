@@ -7,6 +7,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.ChatGameGuessingNames;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @DiscordEvent(priority = EventPriority.LOW)
@@ -35,9 +36,9 @@ public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMess
                                 .queue();
                     } else {
                         if (res > 0) {
-                            event.getMessage().addReaction("⬆️").queue();
+                            event.getMessage().addReaction(Emoji.fromUnicode("⬆️")).queue();
                         } else {
-                            event.getMessage().addReaction("⬇️").queue();
+                            event.getMessage().addReaction(Emoji.fromUnicode("⬇️")).queue();
                         }
                     }
                 }

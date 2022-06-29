@@ -327,7 +327,7 @@ public class AlertsCommand extends NavigationAbstract {
                     .filter(command -> command.getCategory().equals(category))
                     .forEach(command -> {
                         sb.append(getString("slot_add", command.getTrigger(),
-                                command.getCommandProperties().patreonRequired() ? Emojis.COMMAND_ICON_PREMIUM : ""
+                                command.getCommandProperties().patreonRequired() ? Emojis.COMMAND_ICON_PREMIUM.getFormatted() : ""
                         )).append("\n");
                     });
 
@@ -336,8 +336,8 @@ public class AlertsCommand extends NavigationAbstract {
             }
         }
 
-        String commandInfo = TextManager.getString(getLocale(), Category.INFORMATION, "help_commandproperties_PATREON", Emojis.COMMAND_ICON_PREMIUM, ExternalLinks.PREMIUM_WEBSITE);
-        eb.addField(Emojis.ZERO_WIDTH_SPACE, commandInfo, false);
+        String commandInfo = TextManager.getString(getLocale(), Category.INFORMATION, "help_commandproperties_PATREON", Emojis.COMMAND_ICON_PREMIUM.getFormatted(), ExternalLinks.PREMIUM_WEBSITE);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), commandInfo, false);
 
         return eb;
     }

@@ -1,7 +1,6 @@
 package core;
 
 import java.time.Instant;
-import com.jockie.jda.memory.MemoryOptimizations;
 import core.cache.PatreonCache;
 import core.emoji.EmojiTable;
 import core.utils.BotUtil;
@@ -14,7 +13,6 @@ import mysql.modules.version.VersionSlot;
 public class Main {
 
     public static void main(String[] args) {
-        installMemoryOptimizations();
         try {
             Program.init();
             createTempDir();
@@ -39,14 +37,6 @@ public class Main {
         } catch (Throwable e) {
             MainLogger.get().error("EXIT - Error on startup", e);
             System.exit(4);
-        }
-    }
-
-    private static void installMemoryOptimizations() {
-        try {
-            MemoryOptimizations.installOptimizations();
-        } catch (Throwable e) {
-            MainLogger.get().error("Unable to install byte-buddy", e);
         }
     }
 

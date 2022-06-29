@@ -42,7 +42,7 @@ import org.jetbrains.annotations.NotNull;
 )
 public class WorkCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {
 
-    private final String[] EMOJIS = new String[] { "🐟", "🐠", "🐡", Emojis.FULL_SPACE_UNICODE + Emojis.FULL_SPACE_UNICODE };
+    private final String[] EMOJIS = new String[] { "🐟", "🐠", "🐡", Emojis.FULL_SPACE_UNICODE.getFormatted() + Emojis.FULL_SPACE_UNICODE.getFormatted() };
 
     private FisheryMemberData fisheryMemberBean;
     private String[][] area;
@@ -72,7 +72,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
                 eb.setColor(EmbedFactory.FAILED_EMBED_COLOR);
             }
 
-            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("next", TimeFormat.RELATIVE.atInstant(nextWork.get()).toString()), false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("next", TimeFormat.RELATIVE.atInstant(nextWork.get()).toString()), false);
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
@@ -125,7 +125,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, areaBuilder.toString());
         if (active) {
-            eb.addField(Emojis.ZERO_WIDTH_SPACE, getString("instructions", StringUtil.escapeMarkdown(member.getEffectiveName()), EMOJIS[fishFocus]), false);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("instructions", StringUtil.escapeMarkdown(member.getEffectiveName()), EMOJIS[fishFocus]), false);
             setComponents(Button.of(ButtonStyle.SECONDARY, "cancel", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
         }
 

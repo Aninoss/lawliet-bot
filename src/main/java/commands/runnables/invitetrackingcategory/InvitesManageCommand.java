@@ -199,7 +199,7 @@ public class InvitesManageCommand extends NavigationAbstract {
         setComponents(buttons);
 
         return EmbedFactory.getEmbedDefault(this, getString("state0_desc", atomicMember.getIdLong() == 0L, atomicMember.getAsMention()))
-                .addField(Emojis.ZERO_WIDTH_SPACE, inviteMetricsString, false);
+                .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), inviteMetricsString, false);
     }
 
     @Draw(state = STATE_ADD)

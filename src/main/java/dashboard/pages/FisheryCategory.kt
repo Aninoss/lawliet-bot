@@ -123,9 +123,9 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         }
         val values = properties.mapIndexed { i, name ->
             val emoji = when (i) {
-                0 -> Emojis.FISH
-                1 -> Emojis.COINS_UNICODE
-                2 -> Emojis.DAILY_STREAK
+                0 -> Emojis.FISH.formatted
+                1 -> Emojis.COINS_UNICODE.formatted
+                2 -> Emojis.DAILY_STREAK.formatted
                 else -> FisheryGear.values()[i - 3].emoji
             }
             DiscordEntity(i.toString(), "$emoji $name")
