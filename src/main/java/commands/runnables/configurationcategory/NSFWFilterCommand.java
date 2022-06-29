@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 )
 public class NSFWFilterCommand extends NavigationAbstract {
 
-    public static final int MAX_FILTERS = 50;
+    public static final int MAX_FILTERS = 250;
     public final static int MAX_LENGTH = 50;
 
     private CustomObservableList<String> keywords;
