@@ -26,7 +26,9 @@ public class LeashCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/955835975609749534/955836504767344740/leash.gif",
                 "https://cdn.discordapp.com/attachments/955835975609749534/955836549789007933/leash.gif",
                 "https://cdn.discordapp.com/attachments/955835975609749534/955836603476099122/leash.gif",
-                "https://cdn.discordapp.com/attachments/955835975609749534/955836699726979102/leash.gif"
+                "https://cdn.discordapp.com/attachments/955835975609749534/955836699726979102/leash.gif",
+                "https://cdn.discordapp.com/attachments/955835975609749534/992098894043414559/leash.gif",
+                "https://cdn.discordapp.com/attachments/955835975609749534/992098924506644601/leash.gif"
         );
     }
 
