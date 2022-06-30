@@ -8,8 +8,6 @@ import modules.porn.IllegalTagException;
 
 public abstract class PornPredefinedAbstract extends PornAbstract {
 
-    private String notice = null;
-
     public PornPredefinedAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
@@ -19,16 +17,11 @@ public abstract class PornPredefinedAbstract extends PornAbstract {
     protected abstract boolean isAnimatedOnly();
 
     @Override
-    public Optional<String> getNoticeOptional() {
-        return Optional.ofNullable(notice);
-    }
-
-    @Override
     public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount,
                                            ArrayList<String> usedResults, boolean canBeVideo
     ) throws IllegalTagException {
         if (!search.isEmpty()) {
-            notice = TextManager.getString(getLocale(), Category.NSFW, "porn_keyforbidden");
+            setNotice(TextManager.getString(getLocale(), Category.NSFW, "porn_keyforbidden"));
         }
 
         nsfwFilters = new HashSet<>(nsfwFilters);

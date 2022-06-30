@@ -9,15 +9,8 @@ import modules.porn.TooManyTagsException;
 
 public abstract class PornSearchAbstract extends PornAbstract {
 
-    private String notice = null;
-
     public PornSearchAbstract(Locale locale, String prefix) {
         super(locale, prefix);
-    }
-
-    @Override
-    public Optional<String> getNoticeOptional() {
-        return Optional.ofNullable(notice);
     }
 
     public int getMaxTags() {
@@ -30,7 +23,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
     ) throws IllegalTagException, TooManyTagsException {
         if (search.isEmpty()) {
             search = "animated";
-            notice = TextManager.getString(getLocale(), Category.NSFW, "porn_nokey");
+            setNotice(TextManager.getString(getLocale(), Category.NSFW, "porn_nokey"));
         }
 
         switch (search.toLowerCase()) {

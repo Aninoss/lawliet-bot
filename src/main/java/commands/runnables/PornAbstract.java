@@ -53,13 +53,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             .expireAfterWrite(9, TimeUnit.MINUTES)
             .build();
 
+    private String notice = null;
+
     public PornAbstract(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     public abstract List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults, boolean canBeVideo) throws Exception;
-
-    public abstract Optional<String> getNoticeOptional();
 
     public abstract boolean isExplicit();
 
@@ -78,12 +78,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
         Matcher m = RegexPatterns.BOORU_AMOUNT.matcher(args);
         long amount = 1;
+        boolean patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
+                PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
+
         if (m.find()) {
             String group = m.group();
             args = args.replaceFirst(group, "").replace("  ", " ").trim();
             amount = Long.parseLong(group);
-            boolean patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
-                    PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
             if (!patreon && (amount < 1 || amount > 20)) {
                 if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
@@ -114,7 +115,11 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         }
 
         boolean first = true;
-        boolean canBeVideo = amount == 1;
+        boolean canBeVideo = patreon || amount == 1;
+        if (!canBeVideo) {
+            notice = TextManager.getString(getLocale(), Category.NSFW, "porn_novideo", ExternalLinks.PREMIUM_WEBSITE);
+        }
+
         ArrayList<String> usedResults = new ArrayList<>();
         event.deferReply();
         do {
@@ -270,10 +275,15 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         nsfwFiltersList.forEach(filter -> nsfwFilters.add(filter.toLowerCase()));
         List<BooruImage> pornImages;
         try {
-            String cacheKey = getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFiltersList);
+            boolean premium = PatreonCache.getInstance().isUnlocked(slot.getGuildId());
+            if (!premium && slot.getArgs().isEmpty()) {
+                notice = TextManager.getString(getLocale(), Category.NSFW, "porn_novideo", ExternalLinks.PREMIUM_WEBSITE);
+            }
+
+            String cacheKey = getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFiltersList) + ":" + premium;
             pornImages = alertsCache.get(
                     cacheKey,
-                    () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), false)
+                    () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), premium)
             );
             if (pornImages.isEmpty()) {
                 alertsCache.invalidate(cacheKey);
@@ -327,11 +337,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                 getPrefix(), getTrigger()
         ));
 
-        String notice = getNoticeOptional().orElse(null);
-        if (notice != null) {
-            sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice))
-                    .append("\n");
-        } else if (this instanceof PornSearchAbstract) {
+        if (this instanceof PornSearchAbstract && pornImages.get(0).getTags().size() > 0) {
             List<String> tags = pornImages.get(0).getTags();
             if (tags != null) {
                 sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_tags"))
@@ -355,6 +361,11 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
                         .append(pornImages.get(i).getImageUrl())
                         .append('\n');
             }
+        }
+
+        if (notice != null) {
+            sb.append('\n')
+                    .append(TextManager.getString(getLocale(), Category.NSFW, "porn_notice", notice));
         }
 
         if (BotPermissionUtil.canWrite(channel)) {
@@ -403,6 +414,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         });
 
         return pornImages;
+    }
+
+    protected void setNotice(String notice) {
+        if (this.notice == null) {
+            this.notice = notice;
+        }
     }
 
 }
