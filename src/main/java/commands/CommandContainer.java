@@ -199,6 +199,7 @@ public class CommandContainer {
         commandList.add(YawnCommand.class);
         commandList.add(YesCommand.class);
 
+        commandList.add(ArrestCommand.class);
         commandList.add(BakaCommand.class);
         commandList.add(BiteCommand.class);
         commandList.add(BonkCommand.class);
