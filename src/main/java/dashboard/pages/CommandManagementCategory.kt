@@ -3,7 +3,6 @@ package dashboard.pages
 import commands.Category
 import commands.Command
 import commands.CommandContainer
-import commands.runnables.configurationcategory.CommandManagementCommand
 import commands.runnables.configurationcategory.CommandPermissionsCommand
 import commands.runnables.configurationcategory.WhiteListCommand
 import core.CommandPermissions
@@ -32,7 +31,7 @@ import java.util.*
 class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
     override fun retrievePageTitle(): String {
-        return Command.getCommandLanguage(CommandManagementCommand::class.java, locale).title
+        return getString(TextManager.GENERAL, "dashboard_cman")
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
