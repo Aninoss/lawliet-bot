@@ -45,6 +45,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        clearAttributes()
         val alertMap = DBTracker.getInstance().retrieve(guild.idLong)
         mainContainer.add(
             DashboardText(getString(Category.UTILITY, "alerts_dashboard_desc")),
@@ -213,6 +214,13 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
         container.add(argsTextField)
 
         return container
+    }
+
+    fun clearAttributes() {
+        commandTrigger = null
+        channelId = null
+        commandKey = ""
+        userMessage = ""
     }
 
 }

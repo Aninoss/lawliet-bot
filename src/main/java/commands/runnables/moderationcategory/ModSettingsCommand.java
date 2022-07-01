@@ -3,6 +3,7 @@ package commands.runnables.moderationcategory;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import commands.Category;
 import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
@@ -40,6 +41,8 @@ import org.jetbrains.annotations.NotNull;
 )
 public class ModSettingsCommand extends NavigationAbstract {
 
+    public static int MAX_JAIL_ROLES = 20;
+
     private ModerationData moderationData;
     private int autoKickTemp;
     private int autoBanTemp;
@@ -59,7 +62,7 @@ public class ModSettingsCommand extends NavigationAbstract {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         moderationData = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         jailRoles = AtomicRole.transformIdList(event.getGuild(), moderationData.getJailRoleIds());
-        jailRolesNavigationHelper = new NavigationHelper<>(this, jailRoles, AtomicRole.class, 20);
+        jailRolesNavigationHelper = new NavigationHelper<>(this, jailRoles, AtomicRole.class, MAX_JAIL_ROLES);
         checkRolesWithLog(event.getMember(), jailRoles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
         registerNavigationListener(event.getMember());
         return true;
@@ -521,7 +524,8 @@ public class ModSettingsCommand extends NavigationAbstract {
                         .addField(getString("state0_mchannel"), moderationData.getAnnouncementChannel().map(IMentionable::getAsMention).orElse(notSet), true)
                         .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationData.getQuestion()), true)
                         .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(jailRoles, getLocale(), IMentionable::getAsMention), true)
-                        .addField(getString("state0_mautomod"), getString("state0_mautomod_desc",
+                        .addField(getString("state0_mautomod"), getString(
+                                "state0_mautomod_desc",
                                 getAutoModString(textChannel, moderationData.getAutoMute(), moderationData.getAutoMuteDays(), moderationData.getAutoMuteDuration()),
                                 getAutoModString(textChannel, moderationData.getAutoJail(), moderationData.getAutoJailDays(), moderationData.getAutoJailDuration()),
                                 getAutoModString(textChannel, moderationData.getAutoKick(), moderationData.getAutoKickDays(), 0),
@@ -589,10 +593,20 @@ public class ModSettingsCommand extends NavigationAbstract {
     }
 
     private String getAutoModString(TextChannel textChannel, int value, int days, int duration) {
-        if (value <= 0) return StringUtil.getOnOffForBoolean(textChannel, getLocale(), false);
-        String content = getString("state0_mautomod_templ", value > 1, StringUtil.numToString(value), days > 0 ? getString("days", days > 1, StringUtil.numToString(days)) : getString("total"));
+        if (value <= 0) {
+            return StringUtil.getOnOffForBoolean(textChannel, getLocale(), false);
+        }
+        return getAutoModString(getLocale(), value, days, duration);
+    }
+
+    public static String getAutoModString(Locale locale, int value, int days, int duration) {
+        String content = TextManager.getString(locale, Category.MODERATION,"mod_state0_mautomod_templ", value > 1,
+                StringUtil.numToString(value), days > 0
+                        ? TextManager.getString(locale, Category.MODERATION, "mod_days", days > 1, StringUtil.numToString(days))
+                        : TextManager.getString(locale, Category.MODERATION, "mod_total")
+        );
         if (duration > 0) {
-            content = content + " " + getString("duration", TimeUtil.getRemainingTimeString(getLocale(), duration * 60_000L, true));
+            content = content + " " + TextManager.getString(locale, Category.MODERATION,"mod_duration", TimeUtil.getRemainingTimeString(locale, duration * 60_000L, true));
         }
         return content;
     }

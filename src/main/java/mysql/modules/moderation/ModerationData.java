@@ -49,6 +49,9 @@ public class ModerationData extends DataWithGuild {
         this.autoMuteDuration = autoMuteDuration;
         this.autoJailDuration = autoJailDuration;
         this.jailRoleIds = new CustomObservableList<>(jailRoleIds);
+        if (this.announcementChannelId == 0L) {
+            this.announcementChannelId = null;
+        }
     }
 
     public Optional<Long> getAnnouncementChannelId() {
@@ -135,6 +138,12 @@ public class ModerationData extends DataWithGuild {
         this.question = !this.question;
         setChanged();
         notifyObservers();
+    }
+
+    public void setQuestion(boolean question) {
+        if (question != this.question) {
+            toggleQuestion();
+        }
     }
 
     public void setAutoKick(int autoKick, int autoKickDays) {

@@ -45,8 +45,8 @@ import java.util.*
 )
 class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
-    val manageMembers = CustomObservableList<Long>(emptyList())
-    val manageRoles = CustomObservableList<Long>(emptyList())
+    var manageMembers = CustomObservableList<Long>(emptyList())
+    var manageRoles = CustomObservableList<Long>(emptyList())
     var managePropertyIndex = 0
     var manageNewValue = "+0"
 
@@ -55,6 +55,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
+        clearAttributes()
         val fisheryData = DBFishery.getInstance().retrieve(guild.idLong)
         val guildData = fisheryData.guildData
         val premium = isPremium
@@ -435,6 +436,13 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         )
         container.add(statusContainer)
         return container
+    }
+
+    fun clearAttributes() {
+        manageMembers = CustomObservableList<Long>(emptyList())
+        manageRoles = CustomObservableList<Long>(emptyList())
+        managePropertyIndex = 0
+        manageNewValue = "+0"
     }
 
 }

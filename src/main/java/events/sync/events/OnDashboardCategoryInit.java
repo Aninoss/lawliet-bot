@@ -29,9 +29,14 @@ public class OnDashboardCategoryInit implements SyncServerFunction {
             String categoryId = jsonObject.getString("category");
             long userId = jsonObject.getLong("user_id");
             String localeString = jsonObject.getString("locale");
+            boolean createNew = jsonObject.getBoolean("create_new");
             Locale locale = Language.from(localeString).getLocale();
 
-            DashboardCategory category = DashboardManager.retrieveCategory(categoryId, guildId, userId, locale);
+            DashboardCategory category = DashboardManager.getCategoryCache().getIfPresent(userId);
+            if (createNew || category == null) {
+                category = DashboardManager.retrieveCategory(categoryId, guildId, userId, locale);
+            }
+
             List<Permission> missingBotPermissions = category.missingBotPermissions();
             List<Permission> missingUserPermissions = category.missingUserPermissions();
             resultJson.put("missing_bot_permissions", generateMissingPermissionsJson(locale, missingBotPermissions));
