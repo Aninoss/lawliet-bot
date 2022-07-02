@@ -55,7 +55,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         val languageSelect = DashboardSelect(Command.getCommandLanguage(LanguageCommand::class.java, locale).title, languageEntityList, false) {
             val language = Language.valueOf(it.data)
             DBGuild.getInstance().retrieve(atomicGuild.idLong).locale = language.locale
-            ActionResult(false)
+            ActionResult()
         }
         val guildLocale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
         val language = Language.from(guildLocale)
@@ -64,7 +64,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         val prefixField = DashboardTextField(Command.getCommandLanguage(PrefixCommand::class.java, locale).title, 1, 5) {
             val prefix = it.data
             Prefix.changePrefix(guild, locale, prefix)
-            ActionResult(false)
+            ActionResult()
         }
         prefixField.value = DBGuild.getInstance().retrieve(atomicGuild.idLong).prefix
 
@@ -75,7 +75,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
     private fun generateAutoQuoteSwitch(): DashboardComponent {
         val switch = DashboardSwitch(Command.getCommandLanguage(AutoQuoteCommand::class.java, locale).title) {
             DBAutoQuote.getInstance().retrieve(atomicGuild.idLong).isActive = it.data
-            ActionResult(false)
+            ActionResult()
         }
         switch.isChecked = DBAutoQuote.getInstance().retrieve(atomicGuild.idLong).isActive
         switch.subtitle = getString(Category.UTILITY, "autoquote_info")
@@ -86,7 +86,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         val title = Command.getCommandLanguage(TriggerDeleteCommand::class.java, locale).title
         val switch = DashboardSwitch(getString(TextManager.GENERAL, "dashboard_premium", title)) {
             DBGuild.getInstance().retrieve(atomicGuild.idLong).isCommandAuthorMessageRemove = it.data
-            ActionResult(false)
+            ActionResult()
         }
         switch.isChecked = DBGuild.getInstance().retrieve(atomicGuild.idLong).isCommandAuthorMessageRemove
         switch.subtitle = getString(Category.UTILITY, "triggerdelete_info")

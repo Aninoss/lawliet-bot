@@ -75,7 +75,8 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
         val headers = getString(Category.UTILITY, "alerts_dashboard_gridheaders").split('\n').toTypedArray()
         val grid = DashboardGrid(headers, rows) {
             alertMap.get(it.data.toInt())?.delete()
-            ActionResult(true)
+            ActionResult()
+                .withRedraw()
         }
         grid.rowButton = getString(Category.UTILITY, "alerts_dashboard_gridremove")
         grid.enableConfirmationMessage(getString(Category.UTILITY, "alerts_dashboard_gridconfirm"))
@@ -92,7 +93,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
 
         val attachmentField = DashboardMultiLineTextField(getString(Category.UTILITY, "alerts_dashboard_attachment"), 0, 1000) {
             userMessage = it.data
-            ActionResult(false)
+            ActionResult()
         }
         attachmentField.isEnabled = isPremium
         attachmentField.editButton = false
@@ -103,35 +104,35 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
         val addButton = DashboardButton(getString(Category.UTILITY, "alerts_dashboard_add")) {
             val premium = isPremium
             if (alertMap.values.size >= AlertsCommand.LIMIT_SERVER && !premium) { /* server alert limit */
-                return@DashboardButton ActionResult(false)
+                return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "alerts_toomuch_server", AlertsCommand.LIMIT_SERVER.toString()))
             }
 
             val channel = channelId?.let { guild.getChannelById(BaseGuildMessageChannel::class.java, it.toString()) }
             if (channel == null) { /* invalid channel */
-                return@DashboardButton ActionResult(false)
+                return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "alerts_invalidchannel"))
             }
             if (!BotPermissionUtil.canWriteEmbed(channel)) { /* no permissions in channel */
-                return@DashboardButton ActionResult(false)
+                return@DashboardButton ActionResult()
                     .withErrorMessage(getString(TextManager.GENERAL, "permission_channel", "#${channel.getName()}"))
             }
             if (alertMap.values.filter { it.baseGuildMessageChannelId == channelId }.size >= AlertsCommand.LIMIT_CHANNEL && !premium) { /* channel alert limit */
-                return@DashboardButton ActionResult(false)
+                return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "alerts_toomuch_channel", AlertsCommand.LIMIT_CHANNEL.toString()))
             }
 
             if (commandTrigger == null) { /* invalid command */
-                return@DashboardButton ActionResult(false)
+                return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "alerts_invalidcommand"))
             }
             val command = CommandManager.createCommandByTrigger(commandTrigger, locale, prefix).get()
             if (command.commandProperties.patreonRequired && !premium) { /* command requires premium */
-                return@DashboardButton ActionResult(false)
+                return@DashboardButton ActionResult()
                     .withErrorMessage(getString(TextManager.GENERAL, "patreon_unlock"))
             }
             if (command.commandProperties.nsfw && !channel.isNSFW) { /* command requires nsfw */
-                return@DashboardButton ActionResult(false)
+                return@DashboardButton ActionResult()
                     .withErrorMessage(getString(TextManager.GENERAL, "nsfw_block_description"))
             }
 
@@ -139,12 +140,12 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
             if (!commandUsesKey) {
                 commandKey = ""
             } else if (commandKey.isEmpty()) { /* no argument specified */
-                return@DashboardButton ActionResult(false)
+                return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "alerts_dashboard_specifykey"))
             }
 
             if (!BotPermissionUtil.memberCanMentionRoles(channel, atomicMember.get().get(), userMessage)) { /* custom text invalid mentions */
-                return@DashboardButton ActionResult(false)
+                return@DashboardButton ActionResult()
                     .withErrorMessage(getString(TextManager.GENERAL, "user_nomention"))
             }
 
@@ -154,7 +155,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
                         it.commandKey == commandKey
             }
             if (alreadyExists) { /* alert already exists */
-                return@DashboardButton ActionResult(false)
+                return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "alerts_state1_alreadytracking", commandTrigger!!))
             }
 
@@ -172,7 +173,8 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
             )
             alertMap.put(trackerData.hashCode(), trackerData)
             AlertScheduler.loadAlert(trackerData)
-            ActionResult(true)
+            ActionResult()
+                .withRedraw()
         }
         addButton.style = DashboardButton.Style.PRIMARY
         buttonField.add(addButton, HorizontalPusher())
@@ -187,7 +189,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
         val channelLabel = getString(Category.UTILITY, "alerts_dashboard_channel")
         val channelComboBox = DashboardComboBox(channelLabel, DashboardComboBox.DataType.BASE_GUILD_MESSAGE_CHANNELS, false, 1) {
             channelId = it.data.toLong()
-            ActionResult(false)
+            ActionResult()
         }
         container.add(channelComboBox)
 
@@ -201,14 +203,14 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
             .sortedBy { it.id }
         val commandComboBox = DashboardComboBox(commandLabel, commandValues, false, 1) {
             commandTrigger = it.data
-            ActionResult(false)
+            ActionResult()
         }
         container.add(commandComboBox)
 
         val argsLabel = getString(Category.UTILITY, "alerts_dashboard_arg")
         val argsTextField = DashboardTextField(argsLabel, 0, AlertsCommand.LIMIT_KEY_LENGTH) {
             commandKey = it.data
-            ActionResult(false)
+            ActionResult()
         }
         argsTextField.editButton = false
         container.add(argsTextField)

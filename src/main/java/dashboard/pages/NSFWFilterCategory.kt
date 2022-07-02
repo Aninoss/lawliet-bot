@@ -46,7 +46,8 @@ class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale) : Dashboar
             } else if (it.type == "remove") {
                 nsfwKeywords.remove(it.data)
             }
-            ActionResult(true)
+            ActionResult()
+                .withRedraw()
         }
         comboBox.allowCustomValues = true
         comboBox.selectedValues = nsfwKeywords.map { DiscordEntity(it, it) }

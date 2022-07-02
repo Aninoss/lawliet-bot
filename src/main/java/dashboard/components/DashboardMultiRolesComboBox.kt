@@ -33,23 +33,25 @@ class DashboardMultiRolesComboBox(label: String, locale: Locale, guildId: Long, 
                     if (event.type == "add") {
                         if (!checkManageable || (BotPermissionUtil.canManage(role) && BotPermissionUtil.can(role.guild.selfMember, Permission.MANAGE_ROLES))) {
                             selectedRoles.add(event.data.toLong())
-                            return@setActionListener ActionResult(false)
+                            return@setActionListener ActionResult()
                         } else {
                             val text = TextManager.getString(locale, TextManager.GENERAL, "permission_role", false, "\"${role.name}\"")
-                            return@setActionListener ActionResult(true)
+                            return@setActionListener ActionResult()
+                                .withRedraw()
                                 .withErrorMessage(text)
                         }
                     } else if (event.type == "remove") {
                         selectedRoles.remove(event.data.toLong())
-                        return@setActionListener ActionResult(false)
+                        return@setActionListener ActionResult()
                     }
                 } else {
                     val text = TextManager.getString(locale, TextManager.GENERAL, "permission_role_user", false, "\"${role.name}\"")
-                    return@setActionListener ActionResult(true)
+                    return@setActionListener ActionResult()
+                        .withRedraw()
                         .withErrorMessage(text)
                 }
             }
-            ActionResult(false)
+            ActionResult()
         }
     }
 

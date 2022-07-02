@@ -23,7 +23,7 @@ class DashboardMultiTextChannelsComboBox(label: String, guildId: Long, val selec
             } else if (it.type == "remove") {
                 selectedChannels.remove(it.data.toLong())
             }
-            ActionResult(false)
+            ActionResult()
         }
     }
 

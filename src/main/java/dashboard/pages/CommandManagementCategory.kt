@@ -51,7 +51,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
         )
 
         val button = DashboardButton(getString(Category.CONFIGURATION, "cperms_button")) {
-            val actionResult = ActionResult(false)
+            val actionResult = ActionResult()
             if (CommandPermissions.transferCommandPermissions(guild)) {
                 actionResult.withSuccessMessage(getString(Category.CONFIGURATION, "cperms_success"))
             } else {
@@ -114,7 +114,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
             } else if (it.type == "remove") {
                 commandManagementData.switchedOffElements -= it.data
             }
-            ActionResult(false)
+            ActionResult()
         }
         comboBox.selectedValues = values.filter { commandManagementData.switchedOffElements.contains(it.id) }
         return comboBox

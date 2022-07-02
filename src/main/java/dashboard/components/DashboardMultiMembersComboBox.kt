@@ -23,7 +23,7 @@ class DashboardMultiMembersComboBox(label: String, guildId: Long, val selectedMe
             } else if (it.type == "remove") {
                 selectedMembers.remove(it.data.toLong())
             }
-            ActionResult(false)
+            ActionResult()
         }
     }
 

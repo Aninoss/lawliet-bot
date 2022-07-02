@@ -19,7 +19,7 @@ class DashboardTextChannelComboBox(label: String, guildId: Long, val selectedCha
         } ?: emptyList<DiscordEntity>()
         setActionListener {
             action.invoke(it)
-            ActionResult(false)
+            ActionResult()
         }
     }
 

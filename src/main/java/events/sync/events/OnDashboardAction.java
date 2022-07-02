@@ -29,6 +29,7 @@ public class OnDashboardAction implements SyncServerFunction {
                     if (actionResult != null) {
                         resultJson.put("ok", true);
                         resultJson.put("redraw", actionResult.getRedraw());
+                        resultJson.put("scroll_to_top", actionResult.getScrollToTop());
                         resultJson.put("success_message", actionResult.getSuccessMessage());
                         resultJson.put("error_message", actionResult.getErrorMessage());
                     }

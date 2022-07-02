@@ -23,17 +23,28 @@ import java.util.*
 )
 class ModerationCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
-    var currentAutoModConfig: AutoModSlots? = null
+    var autoModConfigSlot: AutoModSlots? = null
+    var autoModConfigStep = 0
+    var autoModConfigTempValue = 1
+    var autoModConfigTempDays = 1
+    var autoModConfigTempDuration = 1
 
     override fun retrievePageTitle(): String {
         return getString(TextManager.COMMANDS, "moderation")
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        if (currentAutoModConfig == null) {
+        if (autoModConfigSlot == null) {
             mainContainer.add(
                 generateGeneralConfigurationField(),
                 generateAutoModField()
+            )
+        } else {
+            mainContainer.add(
+                generateAutoModConfigTitle(),
+                generateAutoModConfigText(),
+                generateAutoModConfigTextField(),
+                generateAutoModConfigButtons()
             )
         }
     }
@@ -65,7 +76,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale) : Dashboar
     fun generateConfirmationMessageComponent(): DashboardComponent {
         val switch = DashboardSwitch(getString(Category.MODERATION, "mod_state0_mquestion")) {
             DBModeration.getInstance().retrieve(atomicGuild.idLong).question = it.data
-            ActionResult(false)
+            ActionResult()
         }
         switch.isChecked = DBModeration.getInstance().retrieve(atomicGuild.idLong).question
         return switch
@@ -117,45 +128,175 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale) : Dashboar
         }
         container.add(DashboardText("$name: $status"), HorizontalPusher())
 
-        val button = DashboardButton(getString(Category.MODERATION, "mod_config")) {
-            this.currentAutoModConfig = slot
-            ActionResult(true)
+        val buttonContainer = HorizontalContainer()
+
+        val configButton = DashboardButton(getString(Category.MODERATION, "mod_config")) {
+            autoModConfigSlot = slot
+            autoModConfigStep = 0
+            autoModConfigTempValue = 1
+            autoModConfigTempDays = 1
+            autoModConfigTempDuration = 1
+            ActionResult()
+                .withRedrawScrollToTop()
         }
-        button.style = DashboardButton.Style.PRIMARY
-        container.add(button)
+        configButton.style = DashboardButton.Style.PRIMARY
+        buttonContainer.add(configButton)
+
+        if (slot.getValue(modData) > 0) {
+            val turnOffButton = DashboardButton(getString(Category.MODERATION, "mod_state${slot.states[0]}_options")) {
+                slot.setData(modData, 0, 0, 0)
+                ActionResult()
+                    .withRedraw()
+                    .withSuccessMessage(getString(Category.MODERATION, "mod_auto${slot.id}set"))
+            }
+            turnOffButton.style = DashboardButton.Style.DANGER
+            buttonContainer.add(turnOffButton)
+        }
+
+        container.add(buttonContainer)
 
         return container
     }
 
-    enum class AutoModSlots(val id: String) {
+    private fun generateAutoModConfigTitle(): DashboardComponent {
+        return DashboardTitle(getString(Category.MODERATION, "mod_state${autoModConfigSlot!!.states[autoModConfigStep]}_title"))
+    }
 
-        MUTE("mute") {
+    private fun generateAutoModConfigText(): DashboardComponent {
+        var state = autoModConfigSlot!!.states[autoModConfigStep]
+        if (autoModConfigStep == 1) {
+            state = 4
+        }
+        return DashboardText(getString(Category.MODERATION, "mod_state${state}_description", false).split("\n")[0])
+    }
+
+    private fun generateAutoModConfigTextField(): DashboardComponent {
+        when (autoModConfigStep) {
+            0 -> {
+                val textField = DashboardNumberField("", 1, Int.MAX_VALUE.toLong()) {
+                    autoModConfigTempValue = it.data.toInt()
+                    ActionResult()
+                }
+                textField.value = 1
+                textField.editButton = false
+                return textField
+            }
+            1 -> {
+                val textField = DashboardNumberField("", 1, Int.MAX_VALUE.toLong()) {
+                    autoModConfigTempDays = it.data.toInt()
+                    ActionResult()
+                }
+                textField.value = 1
+                textField.editButton = false
+                return textField
+            }
+            2 -> {
+                val textField = DashboardDurationField("") {
+                    autoModConfigTempDuration = it.data.toInt()
+                    ActionResult()
+                }
+                textField.value = 1
+                textField.editButton = false
+                return textField
+            }
+            else -> {
+                throw RuntimeException()
+            }
+        }
+    }
+
+    private fun generateAutoModConfigButtons(): DashboardComponent {
+        val container = HorizontalContainer()
+
+        val continueButtonText = if (autoModConfigStep < autoModConfigSlot!!.states.size - 1) {
+            getString(TextManager.GENERAL, "continue2")
+        } else {
+            getString(Category.MODERATION, "mod_complete")
+        }
+        val continueButton = DashboardButton(continueButtonText) {
+            return@DashboardButton autoModConfigNextStep()
+        }
+        continueButton.style = DashboardButton.Style.PRIMARY
+        container.add(continueButton)
+
+        if (autoModConfigStep == 1) {
+            val countAllButton = DashboardButton(getString(Category.MODERATION, "mod_state4_options")) {
+                autoModConfigTempDays = 0
+                return@DashboardButton autoModConfigNextStep()
+            }
+            countAllButton.style = DashboardButton.Style.PRIMARY
+            container.add(countAllButton)
+        } else if (autoModConfigStep == 2) {
+            val countAllButton = DashboardButton(getString(Category.MODERATION, "mod_state${autoModConfigSlot!!.states[autoModConfigStep]}_options")) {
+                autoModConfigTempDuration = 0
+                return@DashboardButton autoModConfigNextStep()
+            }
+            countAllButton.style = DashboardButton.Style.PRIMARY
+            container.add(countAllButton)
+        }
+
+        val cancelButton = DashboardButton(getString(TextManager.GENERAL, "process_abort")) {
+            autoModConfigSlot = null
+            ActionResult()
+                .withRedrawScrollToTop()
+        }
+        cancelButton.style = DashboardButton.Style.DEFAULT
+        container.add(cancelButton)
+
+        container.add(HorizontalPusher())
+        return container
+    }
+
+    private fun autoModConfigNextStep(): ActionResult {
+        if (autoModConfigStep < autoModConfigSlot!!.states.size - 1) {
+            autoModConfigStep++
+            return ActionResult()
+                .withRedrawScrollToTop()
+        } else {
+            val text = getString(Category.MODERATION, "mod_auto${autoModConfigSlot!!.id}set")
+            val modData = DBModeration.getInstance().retrieve(atomicGuild.idLong)
+            autoModConfigSlot!!.setData(modData, autoModConfigTempValue, autoModConfigTempDays, autoModConfigTempDuration)
+            autoModConfigSlot = null
+            return ActionResult()
+                .withRedrawScrollToTop()
+                .withSuccessMessage(text)
+        }
+    }
+
+    enum class AutoModSlots(val id: String, vararg val states: Int?) {
+
+        MUTE("mute", 8, 9, 10) {
             override fun getValue(modData: ModerationData): Int = modData.autoMute
             override fun getDays(modData: ModerationData): Int = modData.autoMuteDays
             override fun getDuration(modData: ModerationData): Int = modData.autoMuteDuration
+            override fun setData(modData: ModerationData, value: Int, days: Int, duration: Int) = modData.setAutoMute(value, days, duration)
         },
 
-        JAIL("jail") {
+        JAIL("jail", 13, 14, 15) {
             override fun getValue(modData: ModerationData): Int = modData.autoJail
             override fun getDays(modData: ModerationData): Int = modData.autoJailDays
             override fun getDuration(modData: ModerationData): Int = modData.autoJailDuration
+            override fun setData(modData: ModerationData, value: Int, days: Int, duration: Int) = modData.setAutoJail(value, days, duration)
         },
 
-        KICK("kick") {
+        KICK("kick", 2, 4) {
             override fun getValue(modData: ModerationData): Int = modData.autoKick
             override fun getDays(modData: ModerationData): Int = modData.autoKickDays
             override fun getDuration(modData: ModerationData): Int = 0
+            override fun setData(modData: ModerationData, value: Int, days: Int, duration: Int) = modData.setAutoKick(value, days)
         },
 
-        BAN("ban") {
+        BAN("ban", 3, 5, 7) {
             override fun getValue(modData: ModerationData): Int = modData.autoBan
             override fun getDays(modData: ModerationData): Int = modData.autoBanDays
             override fun getDuration(modData: ModerationData): Int = modData.autoBanDuration
+            override fun setData(modData: ModerationData, value: Int, days: Int, duration: Int) = modData.setAutoBan(value, days, duration)
         };
 
         abstract fun getValue(modData: ModerationData): Int
         abstract fun getDays(modData: ModerationData): Int
         abstract fun getDuration(modData: ModerationData): Int
+        abstract fun setData(modData: ModerationData, value: Int, days: Int, duration: Int)
 
     }
 
