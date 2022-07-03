@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.MemberCacheController;
 import core.ShardManager;
+import core.TextManager;
+import core.utils.StringUtil;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -51,6 +53,15 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
     @Override
     public Optional<String> getNameRaw() {
         return get().map(Member::getEffectiveName);
+    }
+
+    public Optional<String> getTaggedNameRaw() {
+        return get().map(member -> member.getUser().getAsTag());
+    }
+
+    public String getTaggedName() {
+        return getTaggedNameRaw()
+                .orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));
     }
 
     @Override

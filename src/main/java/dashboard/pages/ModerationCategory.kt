@@ -72,6 +72,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale) : Dashboar
             true
         ) {
             DBModeration.getInstance().retrieve(atomicGuild.idLong).setAnnouncementChannelId(it.data?.toLong())
+            ActionResult()
         }
         return channelComboBox;
     }

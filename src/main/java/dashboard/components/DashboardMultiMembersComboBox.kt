@@ -15,7 +15,7 @@ class DashboardMultiMembersComboBox(label: String, guildId: Long, val selectedMe
     init {
         selectedValues = selectedMembers.map {
             val atomicMember = AtomicMember(guildId, it)
-            DiscordEntity(it.toString(), atomicMember.name)
+            DiscordEntity(it.toString(), atomicMember.taggedName)
         }
         setActionListener {
             if (it.type == "add") {

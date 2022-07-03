@@ -265,6 +265,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             true
         ) {
             guildData.setFisheryAnnouncementChannelId(it.data?.toLong())
+            ActionResult()
         }
         container.add(announcementChannelComboBox)
         container.add(DashboardSeparator(), generateFisheryRolePricesField(guildData))

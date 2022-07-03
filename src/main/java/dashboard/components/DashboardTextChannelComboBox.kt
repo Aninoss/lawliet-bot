@@ -1,15 +1,14 @@
 package dashboard.components
 
 import core.atomicassets.AtomicTextChannel
-import dashboard.ActionResult
-import dashboard.DashboardEvent
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
+import dashboard.listener.DashboardEventListener
 
-class DashboardTextChannelComboBox(label: String, guildId: Long, val selectedChannel: Long?, canBeEmpty: Boolean, action: (DashboardEvent<String>) -> Any) :
+class DashboardTextChannelComboBox(label: String, guildId: Long, val selectedChannel: Long?, canBeEmpty: Boolean, action: DashboardEventListener<String>) :
     DashboardComboBox(label, DataType.TEXT_CHANNELS, canBeEmpty, 1) {
 
-    constructor(guildId: Long, selectedChannel: Long, canBeEmpty: Boolean, action: (DashboardEvent<String>) -> Any) :
+    constructor(guildId: Long, selectedChannel: Long, canBeEmpty: Boolean, action: DashboardEventListener<String>) :
             this("", guildId, selectedChannel, canBeEmpty, action)
 
     init {
@@ -17,10 +16,7 @@ class DashboardTextChannelComboBox(label: String, guildId: Long, val selectedCha
             val atomicChannel = AtomicTextChannel(guildId, it)
             listOf(DiscordEntity(it.toString(), atomicChannel.prefixedName))
         } ?: emptyList<DiscordEntity>()
-        setActionListener {
-            action.invoke(it)
-            ActionResult()
-        }
+        setActionListener(action)
     }
 
 }

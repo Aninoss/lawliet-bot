@@ -25,6 +25,9 @@ public class InviteTrackingData extends DataWithGuild {
         this.advanced = advanced;
         this.inviteTrackingSlots = new CustomObservableMap<>(inviteTrackerSlots);
         this.guildInvites = new CustomObservableMap<>(guildInvites);
+        if (this.channelId == 0L) {
+            this.channelId = null;
+        }
     }
 
     public CustomObservableMap<Long, InviteTrackingSlot> getInviteTrackingSlots() {
@@ -37,6 +40,12 @@ public class InviteTrackingData extends DataWithGuild {
 
     public boolean isActive() {
         return active;
+    }
+
+    public void setActive(boolean active) {
+        if (this.active != active) {
+            toggleActive();
+        }
     }
 
     public void toggleActive() {
@@ -65,6 +74,12 @@ public class InviteTrackingData extends DataWithGuild {
         return ping;
     }
 
+    public void setPing(boolean ping) {
+        if (this.ping != ping) {
+            togglePing();
+        }
+    }
+
     public void togglePing() {
         this.ping = !this.ping;
         setChanged();
@@ -73,6 +88,12 @@ public class InviteTrackingData extends DataWithGuild {
 
     public boolean isAdvanced() {
         return advanced;
+    }
+
+    public void setAdvanced(boolean advanced) {
+        if (this.advanced != advanced) {
+            toggleAdvanced();
+        }
     }
 
     public void toggleAdvanced() {

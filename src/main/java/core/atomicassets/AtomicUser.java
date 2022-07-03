@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import constants.Language;
 import core.CustomObservableList;
 import core.ShardManager;
+import core.TextManager;
+import core.utils.StringUtil;
 import net.dv8tion.jda.api.entities.User;
 
 public class AtomicUser implements MentionableAtomicAsset<User> {
@@ -45,6 +47,15 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
     @Override
     public Optional<String> getNameRaw() {
         return get().map(User::getName);
+    }
+
+    public Optional<String> getTaggedNameRaw() {
+        return get().map(User::getAsTag);
+    }
+
+    public String getTaggedName() {
+        return getTaggedNameRaw()
+                .orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));
     }
 
     @Override
