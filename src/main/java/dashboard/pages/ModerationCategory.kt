@@ -15,11 +15,14 @@ import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import mysql.modules.moderation.DBModeration
 import mysql.modules.moderation.ModerationData
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
-    id = "moderation"
+    id = "moderation",
+    userPermissions = [Permission.MANAGE_SERVER],
+    botPermissions = [Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.MODERATE_MEMBERS]
 )
 class ModerationCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
