@@ -25,7 +25,7 @@ public class InviteTrackingData extends DataWithGuild {
         this.advanced = advanced;
         this.inviteTrackingSlots = new CustomObservableMap<>(inviteTrackerSlots);
         this.guildInvites = new CustomObservableMap<>(guildInvites);
-        if (this.channelId == 0L) {
+        if (this.channelId != null && this.channelId == 0L) {
             this.channelId = null;
         }
     }

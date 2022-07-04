@@ -49,7 +49,7 @@ public class ModerationData extends DataWithGuild {
         this.autoMuteDuration = autoMuteDuration;
         this.autoJailDuration = autoJailDuration;
         this.jailRoleIds = new CustomObservableList<>(jailRoleIds);
-        if (this.announcementChannelId == 0L) {
+        if (this.announcementChannelId != null && this.announcementChannelId == 0L) {
             this.announcementChannelId = null;
         }
     }

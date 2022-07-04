@@ -18,7 +18,7 @@ public class ArrestCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/992095513073700994/992095593394622475/arrest.gif",
                 "https://cdn.discordapp.com/attachments/992095513073700994/992095641901744198/arrest.gif",
                 "https://cdn.discordapp.com/attachments/992095513073700994/992095681474986025/arrest.gif",
-                "https://cdn.discordapp.com/attachments/992095513073700994/992095783438520361/arrest.giff",
+                "https://cdn.discordapp.com/attachments/992095513073700994/992095783438520361/arrest.gif",
                 "https://cdn.discordapp.com/attachments/992095513073700994/992095919736619128/arrest.gif",
                 "https://cdn.discordapp.com/attachments/992095513073700994/992095956130607295/arrest.gif",
                 "https://cdn.discordapp.com/attachments/992095513073700994/992096116868915321/arrest.gif",
