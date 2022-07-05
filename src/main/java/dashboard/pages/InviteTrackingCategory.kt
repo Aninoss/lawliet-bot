@@ -15,6 +15,7 @@ import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
 import dashboard.data.GridRow
+import modules.invitetracking.InviteTracking
 import mysql.modules.invitetracking.DBInviteTracking
 import mysql.modules.invitetracking.InviteTrackingData
 import mysql.modules.invitetracking.InviteTrackingSlot
@@ -50,6 +51,9 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale) : Dash
         val activeSwitch = DashboardSwitch(getString(Category.INVITE_TRACKING, "invitetracking_state0_mactive")) {
             clearAttributes()
             inviteTrackingData.isActive = it.data
+            if (inviteTrackingData.isActive) {
+                InviteTracking.synchronizeGuildInvites(atomicGuild.get().orElseThrow())
+            }
             ActionResult()
                 .withRedraw()
         }
