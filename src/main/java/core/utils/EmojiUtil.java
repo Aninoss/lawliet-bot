@@ -7,10 +7,19 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 
 public class EmojiUtil {
+
+    public static boolean equals(Emoji emoji, Emoji otherEmoji) {
+        if (emoji instanceof CustomEmoji && otherEmoji instanceof CustomEmoji) {
+            return ((CustomEmoji) emoji).getIdLong() == ((CustomEmoji) otherEmoji).getIdLong();
+        } else {
+            return emoji.getFormatted().equals(otherEmoji.getFormatted());
+        }
+    }
 
     public static UnicodeEmoji[] getMultipleFromUnicode(String[] unicode) {
         return Arrays.stream(unicode)
@@ -20,7 +29,7 @@ public class EmojiUtil {
 
     public static Optional<MessageReaction> getMessageReactionFromMessage(Message message, Emoji emoji) {
         return message.getReactions().stream()
-                .filter(r -> r.getEmoji().equals(emoji))
+                .filter(r -> EmojiUtil.equals(r.getEmoji(), emoji))
                 .findFirst();
     }
 

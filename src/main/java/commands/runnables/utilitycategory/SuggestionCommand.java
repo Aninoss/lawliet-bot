@@ -11,6 +11,7 @@ import commands.listeners.OnStaticReactionRemoveListener;
 import constants.AssetIds;
 import constants.Emojis;
 import core.*;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
 import mysql.modules.suggestions.DBSuggestions;
@@ -131,8 +132,8 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                 .getSuggestionMessages()
                 .computeIfPresent(event.getMessageIdLong(), (messageId, suggestionMessage) -> {
                     Emoji emoji = event.getEmoji();
-                    if (emoji.equals(Emojis.LIKE) || emoji.equals(Emojis.DISLIKE)) {
-                        if (emoji.equals(Emojis.LIKE)) {
+                    if (EmojiUtil.equals(emoji, Emojis.LIKE) || EmojiUtil.equals(emoji, Emojis.DISLIKE)) {
+                        if (EmojiUtil.equals(emoji, Emojis.LIKE)) {
                             suggestionMessage.updateUpvotes(add ? 1 : -1);
                         } else {
                             suggestionMessage.updateDownvotes(add ? 1 : -1);

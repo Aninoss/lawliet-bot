@@ -193,7 +193,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     private boolean processEmoji(Emoji emoji) {
         if (emoji instanceof UnicodeEmoji || ShardManager.customEmojiIsKnown((CustomEmoji) emoji)) {
             for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                if (emojiConnection.getEmoji().equals(emoji)) {
+                if (emojiConnection.isEmoji(emoji)) {
                     setLog(LogStatus.FAILURE, getString("emojialreadyexists"));
                     return false;
                 }
@@ -407,7 +407,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Override
     public boolean onReaction(@NotNull GenericMessageReactionEvent event) throws Throwable {
-        if (getState() == ADD_SLOT) {
+        if (getState() == ADD_SLOT && event instanceof MessageReactionAddEvent) {
             processEmoji(event.getEmoji());
             processDraw(event.getMember(), true).exceptionally(ExceptionLogger.get());
             if (BotPermissionUtil.can(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {

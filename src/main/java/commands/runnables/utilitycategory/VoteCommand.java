@@ -125,7 +125,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
     @Override
     public void onStaticReactionAdd(@NotNull Message message, @NotNull MessageReactionAddEvent event) {
         VoteCache.get(event.getGuildChannel(), event.getMessageIdLong(), event.getUserIdLong(), event.getEmoji(), true).ifPresent(voteInfo -> {
-            if (event.getEmoji().equals(EMOJI_CANCEL) &&
+            if (EmojiUtil.equals(event.getEmoji(), EMOJI_CANCEL) &&
                     voteInfo.getCreatorId().isPresent() &&
                     voteInfo.getCreatorId().get() == event.getUserIdLong()
             ) {

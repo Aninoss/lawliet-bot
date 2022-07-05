@@ -380,7 +380,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                             .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
                             .queue();
                 }
-            } else if (ticketChannel != null && event.getEmoji().equals(TICKET_CLOSE_EMOJI)) {
+            } else if (ticketChannel != null && EmojiUtil.equals(event.getEmoji(), TICKET_CLOSE_EMOJI)) {
                 boolean isStaff = memberIsStaff(event.getMember(), ticketData.getStaffRoleIds());
                 if (isStaff || ticketData.memberCanClose()) {
                     onTicketRemove(ticketData, event.getTextChannel());

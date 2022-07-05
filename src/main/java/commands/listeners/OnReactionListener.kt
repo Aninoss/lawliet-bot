@@ -9,6 +9,7 @@ import core.MainLogger
 import core.MemberCacheController
 import core.RestActionQueue
 import core.utils.BotPermissionUtil
+import core.utils.EmojiUtil
 import core.utils.ExceptionUtil
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
@@ -30,7 +31,7 @@ interface OnReactionListener : Drawable {
         val command = this as Command
         return registerReactionListener(member) { event: GenericMessageReactionEvent ->
             val ok = event.userIdLong == member.idLong && event.messageIdLong == (this as Command).drawMessageId.orElse(0L) &&
-                    (emojis.size == 0 || Arrays.stream(emojis).anyMatch { emoji -> event.emoji.equals(emoji) })
+                    (emojis.size == 0 || Arrays.stream(emojis).anyMatch { emoji -> EmojiUtil.equals(event.emoji, emoji) })
             if (ok) CheckResponse.ACCEPT else CheckResponse.IGNORE
         }.thenApply { messageId: Long ->
             command.textChannel.ifPresent { channel: TextChannel ->

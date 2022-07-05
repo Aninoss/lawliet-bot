@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
@@ -423,7 +424,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @Override
     public boolean onReaction(@NotNull GenericMessageReactionEvent event) throws Throwable {
-        if (getState() == UPDATE_EMOJI) {
+        if (getState() == UPDATE_EMOJI && event instanceof MessageReactionAddEvent) {
             processEmoji(event.getEmoji());
             processDraw(event.getMember(), true).exceptionally(ExceptionLogger.get());
             if (BotPermissionUtil.can(event.getGuildChannel(), Permission.MESSAGE_MANAGE)) {

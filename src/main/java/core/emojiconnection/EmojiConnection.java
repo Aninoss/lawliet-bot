@@ -2,6 +2,7 @@ package core.emojiconnection;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.requests.RestAction;
@@ -23,7 +24,7 @@ public class EmojiConnection {
     }
 
     public boolean isEmoji(Emoji emoji) {
-        return this.emoji.equals(emoji);
+        return EmojiUtil.equals(this.emoji, emoji);
     }
 
     public String getConnection() {
