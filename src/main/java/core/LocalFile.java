@@ -29,7 +29,6 @@ public class LocalFile extends File {
     public enum Directory {
 
         CDN("/data/cdn"),
-        YOUTUBE_DL("/data/youtube-dl"),
         WELCOME_BACKGROUNDS("/data/welcome_backgrounds"),
         RESOURCES("/data/resources"),
         TEMP("temp");

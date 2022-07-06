@@ -162,7 +162,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
             if (hoursMin <= HOURS_MAX) {
                 try {
                     fullClear(channel, (int) hoursMin);
-                    if (slot.getEffectiveUserMessage().isPresent()) {
+                    if (slot.getEffectiveUserMessage().isPresent() && !slot.getEffectiveUserMessage().get().isBlank()) {
                         slot.sendMessage(true, "");
                     }
                 } catch (InterruptedException e) {

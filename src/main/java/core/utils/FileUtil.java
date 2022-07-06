@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Message;
 public class FileUtil {
 
     public static boolean downloadImageAttachment(Message.Attachment messageAttachment, LocalFile localFile) {
+        deleteLocalFile(localFile);
         try {
             messageAttachment.downloadToFile(localFile).get();
             return true;
@@ -21,11 +22,18 @@ public class FileUtil {
     }
 
     public static String writeInputStreamToFile(InputStream inputStream, LocalFile localFile) throws IOException {
+        deleteLocalFile(localFile);
         try (inputStream) {
             byte[] buffer = new byte[inputStream.available()];
             inputStream.read(buffer);
             Files.write(buffer, localFile);
             return localFile.cdnGetUrl();
+        }
+    }
+
+    private static void deleteLocalFile(LocalFile localFile) {
+        if (localFile.exists() && !localFile.delete()) {
+            MainLogger.get().error("Could not remove file {}", localFile.getAbsoluteFile());
         }
     }
 
