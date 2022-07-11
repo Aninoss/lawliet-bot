@@ -22,8 +22,8 @@ public interface Settings {
 
             "bestiality", "beastiality", "zoophilia", // animals
 
-            "vore", "gore", "guro", "dismemberment", "death", "decapitation", "eye_socket", "necrophilia", "rape",
-            "gangrape", "gross", "bruise", "asphyxiation", "strangling", "torture", "corpse", "scat", "suicide" // NSFL
+            "gore", "guro", "dismemberment", "death", "decapitation", "eye_socket", "necrophilia", "rape", "gangrape",
+            "gross", "bruise", "asphyxiation", "strangling", "torture", "corpse", "scat", "suicide" // NSFL
     };
 
 }
