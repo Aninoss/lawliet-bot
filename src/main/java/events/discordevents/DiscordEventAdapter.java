@@ -2,11 +2,8 @@ package events.discordevents;
 
 import java.util.*;
 import commands.SlashCommandManager;
-import constants.Language;
 import core.*;
 import events.discordevents.eventtypeabstracts.*;
-import mysql.modules.guild.DBGuild;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
@@ -42,7 +39,6 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
 import net.dv8tion.jda.api.events.user.UserTypingEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
 
@@ -252,22 +248,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (event.getChannel() instanceof TextChannel) {
-            GlobalThreadPool.getExecutorService()
-                    .submit(() -> SlashCommandAbstract.onSlashCommandStatic(event, getListenerList(SlashCommandAbstract.class)));
-        } else {
-            Locale locale = Language.EN.getLocale();
-            if (event.getGuild() != null) {
-                locale = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
-            }
-
-            ArrayList<ActionRow> actionRowList = new ArrayList<>();
-            EmbedBuilder eb = EmbedFactory.getWrongChannelTypeEmbed(locale, actionRowList);
-            event.replyEmbeds(eb.build())
-                    .addActionRows(actionRowList)
-                    .setEphemeral(true)
-                    .queue();
-        }
+        GlobalThreadPool.getExecutorService()
+                .submit(() -> SlashCommandAbstract.onSlashCommandStatic(event, getListenerList(SlashCommandAbstract.class)));
     }
 
     @Override

@@ -20,6 +20,7 @@ import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -345,8 +346,20 @@ public class Console {
 
     private static void onBan(String[] args) {
         long userId = Long.parseLong(args[1]);
+        String reason = collectArgs(args, 2).replace("\\n", "\n");
+
         DBBannedUsers.getInstance().retrieve().getUserIds().add(userId);
-        MainLogger.get().info("User {} banned", userId);
+
+        if (Program.getClusterId() == 1) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setDescription("You have been permanently banned from interaction with Lawliet")
+                    .addField("Reason", reason, false);
+            JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
+                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                    .queue();
+        }
+
+        MainLogger.get().info("User {} banned for reason \"{}\"", userId, reason);
     }
 
     private static void onThreadsStack(String[] args) {

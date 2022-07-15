@@ -8,7 +8,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import core.MainLogger;
-import core.Security;
+import core.utils.SecurityUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class ExchangeRate {
@@ -18,9 +18,9 @@ public class ExchangeRate {
             .build(new CacheLoader<>() {
                 @Override
                 public Integer load(@NonNull String dateString) throws Exception {
-                    int root = Security.getHashForString(
+                    int root = SecurityUtil.getHashForString(
                             System.getenv("EX_SECRET"),
-                            Security.getHashForString("DateString", dateString)
+                            SecurityUtil.getHashForString("DateString", dateString)
                     ).hashCode();
                     Random r = new Random(root);
 

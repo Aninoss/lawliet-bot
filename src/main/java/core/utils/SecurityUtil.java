@@ -1,4 +1,4 @@
-package core;
+package core.utils;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -8,7 +8,7 @@ import java.util.Random;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
-public class Security {
+public class SecurityUtil {
 
     public static String getHashForString(String salt, String string) throws InvalidKeySpecException, NoSuchAlgorithmException {
         byte[] saltByte = new byte[16];

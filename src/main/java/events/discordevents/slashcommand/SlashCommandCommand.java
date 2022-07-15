@@ -18,6 +18,7 @@ import events.discordevents.eventtypeabstracts.SlashCommandAbstract;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 @DiscordEvent
@@ -26,35 +27,37 @@ public class SlashCommandCommand extends SlashCommandAbstract {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     @Override
-    public boolean onSlashCommand(SlashCommandInteractionEvent event) throws Throwable {
-        SlashMeta slashCommandMeta = SlashCommandManager.process(event);
-        if (slashCommandMeta == null) {
+    public boolean onSlashCommand(SlashCommandInteractionEvent event) {
+        if (event.getChannel() instanceof TextChannel) {
+            SlashMeta slashCommandMeta = SlashCommandManager.process(event);
+            if (slashCommandMeta == null) {
+                GuildData guildData = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+                EmbedBuilder eb = EmbedFactory.getEmbedError()
+                        .setTitle(TextManager.getString(guildData.getLocale(), TextManager.GENERAL, "wrong_args"))
+                        .setDescription(TextManager.getString(guildData.getLocale(), TextManager.GENERAL, "invalid_noargs"));
+                event.replyEmbeds(eb.build())
+                        .queue();
+                return true;
+            }
+
             GuildData guildData = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-            EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(guildData.getLocale(), TextManager.GENERAL, "wrong_args"))
-                    .setDescription(TextManager.getString(guildData.getLocale(), TextManager.GENERAL, "invalid_noargs"));
-            event.replyEmbeds(eb.build())
-                    .queue();
-            return true;
-        }
+            String args = slashCommandMeta.getArgs().trim();
+            String prefix = guildData.getPrefix();
+            Locale locale = guildData.getLocale();
+            Class<? extends Command> clazz = slashCommandMeta.getCommandClass();
+            Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+            Function<Locale, String> errorFunction = slashCommandMeta.getErrorFunction();
+            if (errorFunction != null) {
+                command.getAttachments().put("error", errorFunction.apply(locale));
+            }
 
-        GuildData guildData = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-        String args = slashCommandMeta.getArgs().trim();
-        String prefix = guildData.getPrefix();
-        Locale locale = guildData.getLocale();
-        Class<? extends Command> clazz = slashCommandMeta.getCommandClass();
-        Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
-        Function<Locale, String> errorFunction = slashCommandMeta.getErrorFunction();
-        if (errorFunction != null) {
-            command.getAttachments().put("error", errorFunction.apply(locale));
-        }
-
-        deferAfterOneSecond(event);
-        CommandEvent commandEvent = new CommandEvent(event);
-        try {
-            CommandManager.manage(new CommandEvent(event), command, args, getStartTime());
-        } catch (Throwable e) {
-            ExceptionUtil.handleCommandException(e, command, commandEvent);
+            deferAfterOneSecond(event);
+            CommandEvent commandEvent = new CommandEvent(event);
+            try {
+                CommandManager.manage(new CommandEvent(event), command, args, getStartTime());
+            } catch (Throwable e) {
+                ExceptionUtil.handleCommandException(e, command, commandEvent);
+            }
         }
 
         return true;
