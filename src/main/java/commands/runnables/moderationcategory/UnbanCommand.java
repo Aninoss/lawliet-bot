@@ -26,7 +26,7 @@ public class UnbanCommand extends WarnCommand {
 
     @Override
     protected MentionList<User> getUserList(CommandEvent event, String args) {
-        List<User> userBanList = event.getGuild().retrieveBanList().complete().stream()
+        List<User> userBanList = event.getGuild().retrieveBanList().stream()
                 .map(Guild.Ban::getUser)
                 .collect(Collectors.toList());
 
