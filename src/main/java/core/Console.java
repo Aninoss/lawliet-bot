@@ -9,10 +9,7 @@ import commands.SlashCommandManager;
 import commands.runningchecker.RunningCheckerManager;
 import constants.Language;
 import core.cache.PatreonCache;
-import core.utils.ExceptionUtil;
-import core.utils.InternetUtil;
-import core.utils.JDAUtil;
-import core.utils.TimeUtil;
+import core.utils.*;
 import events.scheduleevents.events.*;
 import javafx.util.Pair;
 import modules.repair.MainRepair;
@@ -352,7 +349,7 @@ public class Console {
 
         if (Program.getClusterId() == 1) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setDescription("You have been permanently banned from interaction with Lawliet")
+                    .setDescription("⚠ You have been permanently banned from interaction with Lawliet!")
                     .addField("Reason", reason, false);
             JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
                     .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
