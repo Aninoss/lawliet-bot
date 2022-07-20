@@ -1,6 +1,7 @@
 package mysql.modules.invitetracking;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Map;
 import java.util.Optional;
@@ -128,25 +129,34 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
     }
 
     private Map<String, GuildInvite> getGuildInvites(long guildId) {
-        return new DBDataLoad<GuildInvite>("ServerInvites", "code, userId, usages", "serverId = ?",
+        return new DBDataLoad<GuildInvite>("ServerInvites", "code, userId, usages, maxAge", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getMap(
                 GuildInvite::getCode,
-                resultSet -> new GuildInvite(
-                        guildId,
-                        resultSet.getString(1),
-                        resultSet.getLong(2),
-                        resultSet.getInt(3)
-                )
+                resultSet -> {
+                    java.sql.Timestamp maxAge = resultSet.getTimestamp(4);
+                    return new GuildInvite(
+                            guildId,
+                            resultSet.getString(1),
+                            resultSet.getLong(2),
+                            resultSet.getInt(3),
+                            maxAge != null ? maxAge.toInstant() : null
+                    );
+                }
         );
     }
 
     private void addGuildInvite(GuildInvite guildInvite) {
-        MySQLManager.asyncUpdate("REPLACE INTO ServerInvites (serverId, code, userId, usages) VALUES (?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO ServerInvites (serverId, code, userId, usages, maxAge) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, guildInvite.getGuildId());
             preparedStatement.setString(2, guildInvite.getCode());
             preparedStatement.setLong(3, guildInvite.getMemberId());
             preparedStatement.setInt(4, guildInvite.getUses());
+            if (guildInvite.getMaxAge() != null) {
+                preparedStatement.setTimestamp(5, Timestamp.from(guildInvite.getMaxAge()));
+            } else {
+                preparedStatement.setNull(5, Types.TIMESTAMP);
+            }
         });
     }
 

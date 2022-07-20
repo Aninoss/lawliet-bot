@@ -1,5 +1,6 @@
 package modules.invitetracking;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -97,15 +98,17 @@ public class InviteTracking {
                                 }
                             }
 
-                            /* check temporary invites which no longer exist due to having limit uses */
+                            /* check temporary invites which no longer exist due to having limit uses and ignore expired ones */
                             if (!ambiguousInvite) {
                                 for (String inviteCode : missingInviteCodes) {
-                                    if (tempInvite == null) {
-                                        GuildInvite guildInvite = databaseInvites.get(inviteCode);
-                                        tempInvite = new TempInvite(guildInvite.getCode(), guildInvite.getUses() + 1, guildInvite.getMemberId());
-                                    } else {
-                                        tempInvite = null;
-                                        break;
+                                    GuildInvite guildInvite = databaseInvites.get(inviteCode);
+                                    if (guildInvite.getMaxAge().isAfter(Instant.now())) {
+                                        if (tempInvite == null) {
+                                            tempInvite = new TempInvite(guildInvite.getCode(), guildInvite.getUses() + 1, guildInvite.getMemberId(), guildInvite.getMaxAge());
+                                        } else {
+                                            tempInvite = null;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -149,13 +152,24 @@ public class InviteTracking {
         return future;
     }
 
+    public static Instant calculateMaxAgeOfInvite(Invite invite) {
+        if (invite.getMaxAge() > 0) {
+            return invite.getTimeCreated().toInstant().plusSeconds(invite.getMaxAge());
+        } else {
+            return null;
+        }
+    }
+
     private static void synchronizeGuildInvites(long guildId, CustomObservableMap<String, GuildInvite> databaseInvites, List<TempInvite> guildInvites) {
         /* add missing invites to database */
         HashSet<String> inviteCodes = new HashSet<>();
         for (TempInvite invite : guildInvites) {
             inviteCodes.add(invite.code);
-            if (!databaseInvites.containsKey(invite.code) || invite.uses != databaseInvites.get(invite.code).getUses()) {
-                databaseInvites.put(invite.code, new GuildInvite(guildId, invite.code, invite.inviter, invite.uses));
+            if (!databaseInvites.containsKey(invite.code) ||
+                    invite.uses != databaseInvites.get(invite.code).getUses() ||
+                    (invite.maxAge != null && databaseInvites.get(invite.code).getMaxAge() == null)
+            ) {
+                databaseInvites.put(invite.code, new GuildInvite(guildId, invite.code, invite.inviter, invite.uses, invite.maxAge));
             }
         }
 
@@ -178,7 +192,8 @@ public class InviteTracking {
                 TempInvite tempInvite = new TempInvite(
                         vanityInvite.getCode(),
                         vanityInvite.getUses(),
-                        0L
+                        0L,
+                        null
                 );
                 inviteList.add(tempInvite);
                 completed[0] = true;
@@ -196,7 +211,8 @@ public class InviteTracking {
                     inviteList.add(new TempInvite(
                             invite.getCode(),
                             invite.getUses(),
-                            invite.getInviter().getIdLong()
+                            invite.getInviter().getIdLong(),
+                            calculateMaxAgeOfInvite(invite)
                     ));
                 }
             }
@@ -215,11 +231,13 @@ public class InviteTracking {
         private final String code;
         private final int uses;
         private final long inviter;
+        private final Instant maxAge;
 
-        public TempInvite(String code, int uses, long inviter) {
+        public TempInvite(String code, int uses, long inviter, Instant maxAge) {
             this.code = code;
             this.uses = uses;
             this.inviter = inviter;
+            this.maxAge = maxAge;
         }
 
         public String getCode() {
@@ -232,6 +250,10 @@ public class InviteTracking {
 
         public long getInviter() {
             return inviter;
+        }
+
+        public Instant getMaxAge() {
+            return maxAge;
         }
 
     }

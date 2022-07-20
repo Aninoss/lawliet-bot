@@ -2,6 +2,7 @@ package events.discordevents.guildinvitecreate;
 
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildInviteCreateAbstract;
+import modules.invitetracking.InviteTracking;
 import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.GuildInvite;
 import mysql.modules.invitetracking.InviteTrackingData;
@@ -14,7 +15,13 @@ public class GuildInviteCreateInviteTracking extends GuildInviteCreateAbstract {
     public boolean onGuildInviteCreate(GuildInviteCreateEvent event) {
         InviteTrackingData inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
         if (inviteTrackingData.isActive() && event.getInvite() != null && event.getInvite().getInviter() != null) {
-            GuildInvite guildInvite = new GuildInvite(event.getGuild().getIdLong(), event.getCode(), event.getInvite().getInviter().getIdLong(), 0);
+            GuildInvite guildInvite = new GuildInvite(
+                    event.getGuild().getIdLong(),
+                    event.getCode(),
+                    event.getInvite().getInviter().getIdLong(),
+                    0,
+                    InviteTracking.calculateMaxAgeOfInvite(event.getInvite())
+            );
             inviteTrackingData.getGuildInvites().put(guildInvite.getCode(), guildInvite);
         }
         return true;
