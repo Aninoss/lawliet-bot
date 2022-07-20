@@ -3,9 +3,8 @@ package core;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FontManager {
@@ -14,15 +13,18 @@ public class FontManager {
 
     public static void init() {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        for (File file : Objects.requireNonNull(new LocalFile(LocalFile.Directory.RESOURCES, "fonts").listFiles())) {
-            try {
-                Font font = Font.createFont(Font.TRUETYPE_FONT, new File(file.getAbsolutePath()));
-                fontList.add(font);
-                ge.registerFont(font);
-            } catch (FontFormatException | IOException e) {
-                MainLogger.get().error("Error for file {}", file.getName(), e);
-            }
-        }
+        File[] files = new LocalFile(LocalFile.Directory.RESOURCES, "fonts").listFiles();
+        Arrays.stream(files != null ? files : new File[0])
+                .sorted(Comparator.comparing(File::getName))
+                .forEach(file -> {
+                    try {
+                        Font font = Font.createFont(Font.TRUETYPE_FONT, new File(file.getAbsolutePath()));
+                        fontList.add(font);
+                        ge.registerFont(font);
+                    } catch (FontFormatException | IOException e) {
+                        MainLogger.get().error("Error for file {}", file.getName(), e);
+                    }
+                });
     }
 
     public static Font getFirstFont(int size) {
