@@ -31,7 +31,7 @@ public class MessageCache {
         }
     }
 
-    public static synchronized void put(Message message) {
+    public static synchronized void update(Message message) {
         if (cache.asMap().containsKey(message.getIdLong())) {
             cache.put(message.getIdLong(), message);
         }
