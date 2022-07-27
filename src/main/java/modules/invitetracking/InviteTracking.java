@@ -102,7 +102,7 @@ public class InviteTracking {
                             if (!ambiguousInvite) {
                                 for (String inviteCode : missingInviteCodes) {
                                     GuildInvite guildInvite = databaseInvites.get(inviteCode);
-                                    if (guildInvite.getMaxAge().isAfter(Instant.now())) {
+                                    if (guildInvite.getMaxAge() == null || guildInvite.getMaxAge().isAfter(Instant.now())) {
                                         if (tempInvite == null) {
                                             tempInvite = new TempInvite(guildInvite.getCode(), guildInvite.getUses() + 1, guildInvite.getMemberId(), guildInvite.getMaxAge());
                                         } else {

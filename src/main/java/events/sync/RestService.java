@@ -20,13 +20,18 @@ public class RestService {
         try (AsyncTimer timer = new AsyncTimer(Duration.ofSeconds(5))) {
             JSONObject requestJson = new JSONObject(json);
             JSONObject responseJson = null;
+            boolean completedSuccessfully = false;
             try {
                 responseJson = EventManager.getEvent(name).apply(requestJson);
+                completedSuccessfully = true;
             } catch (Throwable e) {
                 MainLogger.get().error("Error in event \"{}\"", name, e);
             }
             if (responseJson == null) {
                 responseJson = new JSONObject();
+            }
+            if (!responseJson.has("completed_successfully")) {
+                responseJson.put("completed_successfully", completedSuccessfully);
             }
             return responseJson.toString();
         } catch (Throwable e) {
