@@ -74,7 +74,8 @@ public class QuizCommand extends CasinoAbstract {
 
         question = StringUtil.decryptString(data.getString("question"));
         if (question == null || question.trim().isEmpty()) {
-            drawMessageNew(EmbedFactory.getApiDownEmbed(getLocale(), "opentdb.com")).exceptionally(ExceptionLogger.get());
+            drawMessageNew(EmbedFactory.getApiDownEmbed(getLocale(), "opentdb.com"))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -110,9 +111,11 @@ public class QuizCommand extends CasinoAbstract {
 
     @Override
     public EmbedBuilder drawCasino(String playerName, long coinsInput) {
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .addField(getString("question"), question, false);
-        setAnswersButtons();
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
+        if (question != null && answers != null) {
+            eb.addField(getString("question"), question, false);
+            setAnswersButtons();
+        }
 
         if (coinsInput != 0) {
             EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), Category.CASINO, "casino_footer"));
