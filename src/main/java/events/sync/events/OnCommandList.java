@@ -24,7 +24,7 @@ public class OnCommandList implements SyncServerFunction {
         HashMap<Category, JSONObject> categories = new HashMap<>();
 
         //Add every command category
-        for (Category category : Category.independentValues()) {
+        for (Category category : Category.values()) {
             JSONObject categoryJSON = new JSONObject();
             categoryJSON.put("id", category.getId());
             categoryJSON.put("name", SyncLocaleUtil.getLanguagePack(TextManager.COMMANDS, category.getId()));
@@ -52,6 +52,9 @@ public class OnCommandList implements SyncServerFunction {
             commandJSON.put("patron_only", command.getCommandProperties().patreonRequired());
 
             categories.get(command.getCategory()).getJSONArray("commands").put(commandJSON);
+            if (command.getCommandProperties().patreonRequired()) {
+                categories.get(Category.PATREON_ONLY).getJSONArray("commands").put(commandJSON);
+            }
         }
 
         mainJSON.put("categories", arrayJSON);
