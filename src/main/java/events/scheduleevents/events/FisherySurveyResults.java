@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 import commands.Category;
 import constants.ExceptionRunnable;
 import core.*;
@@ -43,14 +42,12 @@ public class FisherySurveyResults implements ExceptionRunnable {
     public static void processCurrentResults() {
         DBSurvey.getInstance().clear();
         SurveyData lastSurvey = DBSurvey.getInstance().getCurrentSurvey();
-        try {
-            TimeUnit.SECONDS.sleep(30);
-        } catch (InterruptedException ignored) {
-            //Ignore
+        while (lastSurvey.getNextDate().isAfter(LocalDate.now())) {
+            lastSurvey = DBSurvey.getInstance().retrieve(lastSurvey.getSurveyId() - 1);
         }
-        DBSurvey.getInstance().next();
+        DBSurvey.getInstance().updateSurveyId(lastSurvey.getSurveyId() + 1);
 
-        MainLogger.get().info("Calculating survey results...");
+        MainLogger.get().info("Calculating survey results for ID {}...", lastSurvey.getSurveyId());
         processSurvey(lastSurvey);
     }
 

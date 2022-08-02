@@ -1,7 +1,10 @@
 package mysql.modules.survey;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import javafx.util.Pair;
 import mysql.DBDataLoad;
 import mysql.DBObserverMapCache;
@@ -83,14 +86,11 @@ public class DBSurvey extends DBObserverMapCache<Integer, SurveyData> {
         return currentSurveyId;
     }
 
-    public int next() {
-        currentSurveyId++;
-
+    public void updateSurveyId(int newSurveyId) {
+        currentSurveyId = newSurveyId;
         MySQLManager.asyncUpdate("INSERT IGNORE INTO SurveyDates VALUES (?, NOW());", preparedStatement -> {
-            preparedStatement.setInt(1, currentSurveyId);
+            preparedStatement.setInt(1, newSurveyId);
         });
-
-        return currentSurveyId;
     }
 
     @Override

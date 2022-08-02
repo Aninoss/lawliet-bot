@@ -234,10 +234,6 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         BaseGuildMessageChannel channel = slot.getBaseGuildMessageChannel().get();
-        if (!PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), channel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION)) {
-            return AlertResponse.CONTINUE;
-        }
-
         slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).queue());
 
         SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(null);
