@@ -314,7 +314,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 new Pair<>(getString("state0_mping"), ticketData.getPingStaff()),
                 new Pair<>(getString("state0_mmembercanclose"), ticketData.memberCanClose()),
                 new Pair<>(getString("state0_massign"), ticketData.getAssignToAll()),
-                new Pair<>(getString("state0_mprotocol") + " " + Emojis.COMMAND_ICON_PREMIUM, ticketData.getProtocolEffectively()),
+                new Pair<>(getString("state0_mprotocol") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), ticketData.getProtocolEffectively()),
                 new Pair<>(getString("state0_mtextinput"), ticketData.getUserMessages())
         );
 
