@@ -51,6 +51,12 @@ public class SPBlockData extends DataWithGuild {
         notifyObservers();
     }
 
+    public void setActive(boolean active) {
+        if (this.active != active) {
+            toggleActive();
+        }
+    }
+
     public void setAction(ActionList action) {
         if (this.action != action) {
             this.action = action;

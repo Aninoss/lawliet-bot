@@ -40,8 +40,11 @@ import org.jetbrains.annotations.NotNull;
 )
 public class WordFilterCommand extends NavigationAbstract {
 
-    private static final int MAX_WORDS = 40;
-    private static final int MAX_LETTERS = 20;
+    public static int MAX_IGNORED_USERS = 100;
+    public static int MAX_LOG_RECEIVERS = 10;
+
+    public static final int MAX_WORDS = 40;
+    public static final int MAX_LETTERS = 20;
 
     private BannedWordsData bannedWordsBean;
     private NavigationHelper<String> wordsNavigationHelper;
@@ -70,6 +73,9 @@ public class WordFilterCommand extends NavigationAbstract {
                 if (memberIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
+                } else if (memberIgnoredList.size() > MAX_IGNORED_USERS) {
+                    setLog(LogStatus.FAILURE, getString("toomanyignoredusers", StringUtil.numToString(MAX_IGNORED_USERS)));
+                    return MessageInputResponse.FAILED;
                 } else {
                     ignoredUsers.clear();
                     ignoredUsers.addAll(memberIgnoredList.stream().map(AtomicMember::new).collect(Collectors.toList()));
@@ -83,6 +89,9 @@ public class WordFilterCommand extends NavigationAbstract {
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
+                } else if (logRecieverList.size() > MAX_LOG_RECEIVERS) {
+                    setLog(LogStatus.FAILURE, getString("toomanylogreceivers", StringUtil.numToString(MAX_LOG_RECEIVERS)));
+                    return MessageInputResponse.FAILED;
                 } else {
                     logReceivers.clear();
                     logReceivers.addAll(logRecieverList.stream().map(AtomicMember::new).collect(Collectors.toList()));
@@ -93,8 +102,7 @@ public class WordFilterCommand extends NavigationAbstract {
 
             case 3:
                 String[] wordArray = WordFilter.translateString(input).split(" ");
-                List<String> wordList = Arrays
-                        .stream(wordArray)
+                List<String> wordList = Arrays.stream(wordArray)
                         .filter(str -> str.length() > 0)
                         .map(str -> str.substring(0, Math.min(MAX_LETTERS, str.length())))
                         .collect(Collectors.toList());

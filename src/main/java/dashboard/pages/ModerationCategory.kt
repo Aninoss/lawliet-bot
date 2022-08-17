@@ -1,27 +1,37 @@
 package dashboard.pages
 
 import commands.Category
+import commands.runnables.moderationcategory.InviteFilterCommand
 import commands.runnables.moderationcategory.ModSettingsCommand
+import commands.runnables.moderationcategory.WordFilterCommand
 import core.TextManager
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.components.DashboardMultiMembersComboBox
 import dashboard.components.DashboardMultiRolesComboBox
+import dashboard.components.DashboardMultiTextChannelsComboBox
 import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
+import dashboard.data.DiscordEntity
+import modules.automod.WordFilter
+import mysql.modules.bannedwords.BannedWordsData
+import mysql.modules.bannedwords.DBBannedWords
 import mysql.modules.moderation.DBModeration
 import mysql.modules.moderation.ModerationData
+import mysql.modules.spblock.DBSPBlock
+import mysql.modules.spblock.SPBlockData
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
     id = "moderation",
-    userPermissions = [Permission.MANAGE_SERVER],
+    userPermissions = [Permission.MANAGE_SERVER, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS],
     botPermissions = [Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.MODERATE_MEMBERS]
 )
 class ModerationCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
@@ -40,7 +50,9 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale) : Dashboar
         if (autoModConfigSlot == null) {
             mainContainer.add(
                 generateGeneralConfigurationField(),
-                generateAutoModField()
+                generateAutoModField(),
+                generateInviteFilterField(),
+                generateWordFilterField()
             )
         } else {
             mainContainer.add(
@@ -160,6 +172,121 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale) : Dashboar
         container.add(buttonContainer)
 
         return container
+    }
+
+    private fun generateInviteFilterField(): DashboardComponent {
+        val inviteFilter = DBSPBlock.getInstance().retrieve(atomicGuild.idLong)
+        val container = VerticalContainer()
+        container.add(DashboardTitle(getString(Category.MODERATION, "invitefilter_title")))
+
+        val activeSwitch = DashboardSwitch(getString(Category.MODERATION, "invitefilter_state0_menabled")) {
+            inviteFilter.isActive = it.data
+            ActionResult()
+                .withRedraw()
+        }
+        activeSwitch.isChecked = inviteFilter.isActive
+        container.add(activeSwitch, DashboardSeparator(), generateInviteFilterExcludedField(inviteFilter), DashboardSeparator())
+
+        val logReceivers = DashboardMultiMembersComboBox(
+            getString(Category.MODERATION, "invitefilter_state0_mlogreciever"),
+            atomicGuild.idLong,
+            inviteFilter.logReceiverUserIds,
+            true,
+            InviteFilterCommand.MAX_LOG_RECEIVERS
+        )
+        container.add(logReceivers, DashboardSeparator())
+
+        val actions = (0 until 3).map {
+            DiscordEntity(it.toString(), getString(Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[it])
+        }
+        val action = DashboardComboBox(getString(Category.MODERATION, "invitefilter_state0_maction"), actions, false, 1) {
+            inviteFilter.action = SPBlockData.ActionList.values()[it.data.toInt()]
+            ActionResult()
+        }
+        action.selectedValues = actions.filter { it.id.toInt() == inviteFilter.action.ordinal }
+        container.add(action)
+
+        return container
+    }
+
+    private fun generateInviteFilterExcludedField(inviteFilter: SPBlockData): DashboardComponent {
+        val container = HorizontalContainer()
+        container.allowWrap = true
+
+        val ignoredUsers = DashboardMultiMembersComboBox(
+            getString(Category.MODERATION, "invitefilter_state0_mignoredusers"),
+            atomicGuild.idLong,
+            inviteFilter.ignoredUserIds,
+            true,
+            InviteFilterCommand.MAX_IGNORED_USERS
+        )
+        container.add(ignoredUsers)
+
+        val ignoredChannels = DashboardMultiTextChannelsComboBox(
+            getString(Category.MODERATION, "invitefilter_state0_mignoredchannels"),
+            atomicGuild.idLong,
+            inviteFilter.ignoredChannelIds,
+            true,
+            InviteFilterCommand.MAX_IGNORED_CHANNELS
+        )
+        container.add(ignoredChannels)
+
+        return container;
+    }
+
+    private fun generateWordFilterField(): DashboardComponent {
+        val wordFilter = DBBannedWords.getInstance().retrieve(atomicGuild.idLong)
+        val container = VerticalContainer()
+        container.add(DashboardTitle(getString(Category.MODERATION, "wordfilter_title")))
+
+        val activeSwitch = DashboardSwitch(getString(Category.MODERATION, "wordfilter_state0_menabled")) {
+            wordFilter.isActive = it.data
+            ActionResult()
+                .withRedraw()
+        }
+        activeSwitch.isChecked = wordFilter.isActive
+        container.add(activeSwitch, DashboardSeparator())
+
+        val ignoredUsers = DashboardMultiMembersComboBox(
+            getString(Category.MODERATION, "wordfilter_state0_mignoredusers"),
+            atomicGuild.idLong,
+            wordFilter.ignoredUserIds,
+            true,
+            WordFilterCommand.MAX_IGNORED_USERS
+        )
+        container.add(ignoredUsers)
+
+        val logReceivers = DashboardMultiMembersComboBox(
+            getString(Category.MODERATION, "wordfilter_state0_mlogreciever"),
+            atomicGuild.idLong,
+            wordFilter.logReceiverUserIds,
+            true,
+            WordFilterCommand.MAX_LOG_RECEIVERS
+        )
+        container.add(logReceivers, DashboardSeparator(), generateWordsComboBox(wordFilter))
+
+        return container
+    }
+
+    private fun generateWordsComboBox(wordFilter: BannedWordsData): DashboardComponent {
+        val words = wordFilter.words
+        val label = getString(Category.MODERATION, "wordfilter_state0_mwords")
+        val comboBox = DashboardComboBox(label, emptyList(), true, WordFilterCommand.MAX_WORDS) {
+            if (it.type == "add") {
+                WordFilter.translateString(it.data).split(" ")
+                    .filter { it.length > 0 }
+                    .map { it.substring(0, Math.min(WordFilterCommand.MAX_LETTERS, it.length)) }
+                    .filter { !words.contains(it) }
+                    .forEach { words += it }
+            } else if (it.type == "remove") {
+                words.remove(it.data)
+            }
+            ActionResult()
+                .withRedraw()
+        }
+        comboBox.allowCustomValues = true
+        comboBox.selectedValues = words.map { DiscordEntity(it, it) }
+        return comboBox
     }
 
     private fun generateAutoModConfigTitle(): DashboardComponent {

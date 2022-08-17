@@ -42,4 +42,10 @@ public class BannedWordsData extends DataWithGuild {
         notifyObservers();
     }
 
+    public void setActive(boolean active) {
+        if (this.active != active) {
+            toggleActive();
+        }
+    }
+
 }

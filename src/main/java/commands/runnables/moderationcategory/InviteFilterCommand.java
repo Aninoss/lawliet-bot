@@ -39,6 +39,10 @@ import org.jetbrains.annotations.NotNull;
 )
 public class InviteFilterCommand extends NavigationAbstract {
 
+    public static int MAX_IGNORED_USERS = 100;
+    public static int MAX_IGNORED_CHANNELS = 100;
+    public static int MAX_LOG_RECEIVERS = 10;
+
     private SPBlockData spBlockBean;
     private CustomObservableList<AtomicMember> ignoredUsers;
     private CustomObservableList<AtomicMember> logReceivers;
@@ -66,6 +70,9 @@ public class InviteFilterCommand extends NavigationAbstract {
                 if (userIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
+                } else if (userIgnoredList.size() > MAX_IGNORED_USERS) {
+                    setLog(LogStatus.FAILURE, getString("toomanyignoredusers", StringUtil.numToString(MAX_IGNORED_USERS)));
+                    return MessageInputResponse.FAILED;
                 } else {
                     ignoredUsers.clear();
                     ignoredUsers.addAll(userIgnoredList.stream().map(AtomicMember::new).collect(Collectors.toList()));
@@ -79,6 +86,9 @@ public class InviteFilterCommand extends NavigationAbstract {
                 if (channelIgnoredList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
+                } else if (channelIgnoredList.size() > MAX_IGNORED_CHANNELS) {
+                    setLog(LogStatus.FAILURE, getString("toomanyignoredchannels", StringUtil.numToString(MAX_IGNORED_CHANNELS)));
+                    return MessageInputResponse.FAILED;
                 } else {
                     ignoredChannels.clear();
                     ignoredChannels.addAll(channelIgnoredList.stream().map(AtomicTextChannel::new).collect(Collectors.toList()));
@@ -91,6 +101,9 @@ public class InviteFilterCommand extends NavigationAbstract {
                 List<Member> logRecieverList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
                 if (logRecieverList.size() == 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
+                    return MessageInputResponse.FAILED;
+                } else if (logRecieverList.size() > MAX_LOG_RECEIVERS) {
+                    setLog(LogStatus.FAILURE, getString("toomanylogreceivers", StringUtil.numToString(MAX_LOG_RECEIVERS)));
                     return MessageInputResponse.FAILED;
                 } else {
                     logReceivers.clear();
