@@ -303,26 +303,22 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return false;
     }
 
-    public boolean checkRoleWithLog(Guild guild, Role role) {
-        return checkRolesWithLog(guild, List.of(role));
-    }
-
-    public boolean checkRoleWithLog(Member member, Role role) {
-        return checkRolesWithLog(member, List.of(role));
-    }
-
     public boolean checkRolesWithLog(Guild guild, List<Role> roles) {
         return checkRolesWithLog(guild.getSelfMember(), roles);
     }
 
     public boolean checkRolesWithLog(Member member, List<Role> roles) {
+        return checkRolesWithLog(member, roles, true);
+    }
+
+    public boolean checkRolesWithLog(Member member, List<Role> roles, boolean checkRolesHierarchy) {
         if (roles.size() == 0) {
             return true;
         }
 
         ArrayList<Role> unmanageableRoles = new ArrayList<>();
         for (Role role : roles) {
-            if (role != null && (!BotPermissionUtil.canManage(role) || !BotPermissionUtil.can(role.getGuild().getSelfMember(), Permission.MANAGE_ROLES))) {
+            if (role != null && ((checkRolesHierarchy && !BotPermissionUtil.canManage(role)) || !BotPermissionUtil.can(role.getGuild().getSelfMember(), Permission.MANAGE_ROLES))) {
                 unmanageableRoles.add(role);
             }
         }
@@ -335,7 +331,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
             ArrayList<Role> forbiddenRoles = new ArrayList<>();
             for (Role role : roles) {
-                if (role != null && (!BotPermissionUtil.canManage(member, role) || !BotPermissionUtil.can(member, Permission.MANAGE_ROLES))) {
+                if (role != null && ((checkRolesHierarchy && !BotPermissionUtil.canManage(member, role)) || !BotPermissionUtil.can(member, Permission.MANAGE_ROLES))) {
                     forbiddenRoles.add(role);
                 }
             }

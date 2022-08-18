@@ -209,7 +209,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     private boolean processRole(Member member, List<Role> list) {
         Role roleTest = list.get(0);
-        if (!checkRoleWithLog(member, roleTest)) {
+        if (!checkRolesWithLog(member, List.of(roleTest))) {
             return false;
         }
 

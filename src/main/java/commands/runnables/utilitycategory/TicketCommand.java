@@ -89,7 +89,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
         staffRoles = AtomicRole.transformIdList(event.getGuild(), ticketData.getStaffRoleIds());
-        staffRoleNavigationHelper = new NavigationHelper<>(this, staffRoles, AtomicRole.class, MAX_ROLES);
+        staffRoleNavigationHelper = new NavigationHelper<>(this, staffRoles, AtomicRole.class, MAX_ROLES, false);
         registerNavigationListener(event.getMember());
         return true;
     }

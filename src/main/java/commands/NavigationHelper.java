@@ -23,6 +23,12 @@ public class NavigationHelper<T> {
     private final int max;
     private Type type = Type.Unknown;
     private String typeString = "";
+    private boolean checkRolesHierarchy = true;
+
+    public NavigationHelper(NavigationAbstract command, List<T> srcList, Class<T> typeClass, int max, boolean checkRolesHierarchy) {
+        this(command, srcList, typeClass, max);
+        this.checkRolesHierarchy = checkRolesHierarchy;
+    }
 
     public NavigationHelper(NavigationAbstract command, List<T> srcList, Class<T> typeClass, int max) {
         this.command = command;
@@ -46,7 +52,7 @@ public class NavigationHelper<T> {
             command.setLog(LogStatus.FAILURE, TextManager.getNoResultsString(command.getLocale(), inputString));
             return MessageInputResponse.FAILED;
         } else {
-            if (type == Type.Role && !command.checkRolesWithLog(author, AtomicRole.to((List<AtomicRole>) newList))) {
+            if (type == Type.Role && !command.checkRolesWithLog(author, AtomicRole.to((List<AtomicRole>) newList), checkRolesHierarchy)) {
                 return MessageInputResponse.FAILED;
             }
 
