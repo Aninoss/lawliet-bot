@@ -17,5 +17,6 @@ public interface RegexPatterns {
     Pattern PHISHING_DOMAIN = Pattern.compile("(?:[A-z0-9](?:[A-z0-9-]{0,61}[A-z0-9])?\\.)+[A-z0-9][A-z0-9-]{0,61}[A-z0-9]");
     Pattern SUBREDDIT = Pattern.compile("^(r/)?(?<subreddit>[a-zA-Z0-9-_]*)(/(?<orderby>hot|new|top|controversial))?$");
     Pattern TWITCH = Pattern.compile("^[a-zA-Z0-9][\\w]{2,24}$");
+    Pattern HTTP_DOMAIN = Pattern.compile("https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}/?");
 
 }

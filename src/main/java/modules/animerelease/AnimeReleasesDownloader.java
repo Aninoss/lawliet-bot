@@ -8,8 +8,9 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import constants.Language;
-import core.internet.HttpResponse;
+import constants.RegexPatterns;
 import core.internet.HttpCache;
+import core.internet.HttpResponse;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.PostBundle;
@@ -20,7 +21,10 @@ import org.json.XML;
 public class AnimeReleasesDownloader {
 
     public static PostBundle<AnimeReleasePost> getPosts(Locale locale, String newestPostId, String filterString) throws InterruptedException, ExecutionException {
-        final List<String> filter = Arrays.stream(filterString.split(",")).map(String::trim).collect(Collectors.toList());
+        final List<String> filter = Arrays.stream(filterString.split(","))
+                .map(String::trim)
+                .map(f -> f.replaceAll(RegexPatterns.HTTP_DOMAIN.pattern(), ""))
+                .collect(Collectors.toList());
         String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
 
         HttpResponse httpResponse = HttpCache.get(downloadUrl).get();
@@ -63,10 +67,11 @@ public class AnimeReleasesDownloader {
     }
 
     private static boolean postPassesFilter(AnimeReleasePost post, List<String> filter) {
+        String postUrl = post.getUrl().replaceAll(RegexPatterns.HTTP_DOMAIN.pattern(), "");
         return filter.size() == 0 ||
                 filter.get(0).equalsIgnoreCase("all") ||
                 filter.stream().anyMatch(f -> StringUtil.stringContainsVague(post.getAnime(), f)) ||
-                filter.stream().anyMatch(f -> StringUtil.stringContainsVague(post.getUrl(), f));
+                filter.stream().anyMatch(f -> StringUtil.stringContainsVague(postUrl, f));
     }
 
     private static List<AnimeReleasePost> getAnimeReleasePostList(JSONArray data) {
