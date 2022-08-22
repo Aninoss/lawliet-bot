@@ -1,8 +1,7 @@
 package commands.runnables.moderationcategory;
 
-import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
+import java.util.concurrent.ExecutionException;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.mention.MentionList;
@@ -15,7 +14,7 @@ import net.dv8tion.jda.api.entities.User;
         trigger = "unban",
         botGuildPermissions = Permission.BAN_MEMBERS,
         userGuildPermissions = Permission.BAN_MEMBERS,
-        emoji = "\uD83C\uDF3C",
+        emoji = "🌼",
         executableWithoutArgs = false
 )
 public class UnbanCommand extends WarnCommand {
@@ -25,12 +24,8 @@ public class UnbanCommand extends WarnCommand {
     }
 
     @Override
-    protected MentionList<User> getUserList(CommandEvent event, String args) {
-        List<User> userBanList = event.getGuild().retrieveBanList().stream()
-                .map(Guild.Ban::getUser)
-                .collect(Collectors.toList());
-
-        return MentionUtil.getUsers(args, userBanList, event.getRepliedMember());
+    protected MentionList<User> getUserList(CommandEvent event, String args) throws ExecutionException, InterruptedException {
+        return MentionUtil.getUsersFromString(args, false).get();
     }
 
     @Override
