@@ -24,12 +24,12 @@ public final class NSFWUtil {
 
     public static boolean stringContainsBannedTags(String str, Set<String> additionalFilter) {
         for (String filter : Settings.NSFW_FILTERS) {
-            if (str.matches(".*(?i)(?<!-)(\\b" + Pattern.quote(filter) + "|" + Pattern.quote(filter) + "\\b).*")) {
+            if (str.matches("(?i).*\\b(?<!-)([^ ]*_|)" + Pattern.quote(filter) + "([ _].*|$)")) {
                 return true;
             }
         }
         for (String filter : additionalFilter) {
-            if (str.matches(".*(?i)(?<!-)(\\b" + Pattern.quote(filter) + "|" + Pattern.quote(filter) + "\\b).*")) {
+            if (str.matches("(?i).*\\b(?<!-)([^ ]*_|)" + Pattern.quote(filter) + "([ _].*|$)")) {
                 return true;
             }
         }

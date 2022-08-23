@@ -15,15 +15,17 @@ public interface Settings {
     Color PREMIUM_COLOR = new Color(42, 127, 239);
     int FISHERY_DESPAWN_MINUTES = 1;
 
-    String[] NSFW_FILTERS = { "loli", "shota", "lolicon", "shotacon", "cub", "children", "child", "kid", "kids", "teen",
-            "teenager", "young", "younger", "underage", "under_age", "cunny", "flat_chest", // minors
+    String[] NSFW_FILTERS = {
+            "loli", "shota", "lolicon", "shotacon", "cub", "children", "child", "kid", "kids", "teen",
+            "teenager", "young", "younger", "underage", "under_age", "cunny", "flat_chest", "flat_chested", // minors
 
             "tagme", // unsafe
 
             "bestiality", "beastiality", "zoophilia", // animals
 
-            "gore", "guro", "dismemberment", "death", "decapitation", "eye_socket", "necrophilia", "rape", "gangrape",
-            "gross", "bruise", "asphyxiation", "strangling", "torture", "corpse", "scat", "suicide" // NSFL
+            "gore", "guro", "dismemberment", "death", "decapitation", "eye_socket", "necrophilia", "rape", "raped",
+            "gangrape", "gross", "bruise", "bruised", "bruises", "asphyxiation", "strangling", "strangled", "torture",
+            "tortured", "corpse", "scat", "suicide" // NSFL
     };
 
 }
