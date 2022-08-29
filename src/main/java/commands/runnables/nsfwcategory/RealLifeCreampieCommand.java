@@ -14,7 +14,7 @@ import commands.runnables.RealbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "reallifecreampie", "creampie" }
+        aliases = { "reallifecreampie" }
 )
 public class RealLifeCreampieCommand extends RealbooruAbstract {
 
