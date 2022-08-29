@@ -13,7 +13,7 @@ import commands.runnables.RealbooruAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "pussy", "vagina", "rlvagina" }
+        aliases = { "pussy", "reallifepussy", "vagina", "rlvagina", "reallifevagina" }
 )
 public class RealLifePussy extends RealbooruAbstract {
 

@@ -12,8 +12,7 @@ import commands.runnables.DanbooruAbstract;
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
-        requiresEmbeds = false,
-        aliases = { "hgif" }
+        requiresEmbeds = false
 )
 public class HentaiCommand extends DanbooruAbstract {
 

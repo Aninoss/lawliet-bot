@@ -7,24 +7,24 @@ import commands.listeners.CommandProperties;
 import commands.runnables.DanbooruAbstract;
 
 @CommandProperties(
-        trigger = "hblowjob",
+        trigger = "hcreampie",
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "hentaiblowjob" }
+        aliases = { "hentaicreampie" }
 )
-public class HentaiBlowjobCommand extends DanbooruAbstract {
+public class HentaiCreampieCommand extends DanbooruAbstract {
 
-    public HentaiBlowjobCommand(Locale locale, String prefix) {
+    public HentaiCreampieCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
     protected String getSearchKey() {
-        return "animated fellatio -3d";
+        return "cum_in_pussy animated";
     }
 
     @Override

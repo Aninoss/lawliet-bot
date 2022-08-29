@@ -11,7 +11,7 @@ import commands.runnables.E621Abstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "yiff", "furryporn", "fporn" }
+        aliases = { "yiff" }
 )
 public class FurryCommand extends E621Abstract {
 

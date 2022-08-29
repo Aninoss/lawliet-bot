@@ -14,7 +14,7 @@ import commands.runnables.RealbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "boobs", "r1boobs", "tits", "rltits", "boobies", "rlboobies" }
+        aliases = { "boobs", "reallifeboobs", "tits", "rltits", "reallifetits", "boobies", "rlboobies", "reallifeboobies" }
 )
 public class RealLifeBoobsCommand extends RealbooruAbstract {
 

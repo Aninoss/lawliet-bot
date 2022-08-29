@@ -13,7 +13,7 @@ import commands.runnables.RealbooruAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "gay", "gayp", "rlgayp", "gayporn", "rlgayporn" }
+        aliases = { "gay", "reallifegay", "gayporn", "rlgayporn", "reallifegayporn" }
 )
 public class RealLifeGayCommand extends RealbooruAbstract {
 

@@ -14,7 +14,7 @@ import commands.runnables.RealbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "anal", "reallifeanal", "analsex" }
+        aliases = { "reallifeanal", "anal" }
 )
 public class RealLifeAnalCommand extends RealbooruAbstract {
 

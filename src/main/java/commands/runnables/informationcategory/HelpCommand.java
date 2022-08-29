@@ -12,10 +12,7 @@ import commands.*;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnAlertListener;
-import commands.runnables.NavigationAbstract;
-import commands.runnables.PornPredefinedAbstract;
-import commands.runnables.PornSearchAbstract;
-import commands.runnables.RolePlayAbstract;
+import commands.runnables.*;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
@@ -395,7 +392,8 @@ public class HelpCommand extends NavigationAbstract {
         eb.setDescription(getString("nsfw"));
 
         StringBuilder withSearchKey = new StringBuilder();
-        StringBuilder withoutSearchKey = new StringBuilder();
+        StringBuilder withoutSearchKeyHentai = new StringBuilder();
+        StringBuilder withoutSearchKeyRealLife = new StringBuilder();
 
         int i = 0;
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.NSFW)) {
@@ -411,18 +409,24 @@ public class HelpCommand extends NavigationAbstract {
                 if (command instanceof PornSearchAbstract) {
                     withSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
                 } else if (command instanceof PornPredefinedAbstract) {
-                    withoutSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
+                    if (command instanceof RealbooruAbstract) {
+                        withoutSearchKeyRealLife.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
+                    } else {
+                        withoutSearchKeyHentai.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
+                    }
                 }
             }
         }
 
         if (withSearchKey.length() > 0) {
-            withSearchKey.append("\n\n").append(getString("nsfw_searchkey_on_eg"));
-            eb.addField(getString("nsfw_searchkey_on"), withSearchKey.toString(), true);
+            withSearchKey.append("\n").append(getString("nsfw_searchkey_on_eg")).append("\n").append(Emojis.ZERO_WIDTH_SPACE.getFormatted());
+            eb.addField(getString("nsfw_searchkey_on"), withSearchKey.toString(), false);
         }
-
-        if (withoutSearchKey.length() > 0) {
-            eb.addField(getString("nsfw_searchkey_off"), withoutSearchKey.toString(), true);
+        if (withoutSearchKeyHentai.length() > 0) {
+            eb.addField(getString("nsfw_searchkey_off_hentai"), withoutSearchKeyHentai.toString(), true);
+        }
+        if (withoutSearchKeyRealLife.length() > 0) {
+            eb.addField(getString("nsfw_searchkey_off_rl"), withoutSearchKeyRealLife.toString(), true);
         }
 
         addIconDescriptions(channel, eb, false, false, false, true);

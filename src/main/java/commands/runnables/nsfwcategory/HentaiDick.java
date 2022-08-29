@@ -13,7 +13,7 @@ import commands.runnables.DanbooruAbstract;
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
-        aliases = { "hcock", "hpenis" }
+        aliases = { "hentaidick", "hcock", "hentaicock", "hpenis", "hentaipenis" }
 )
 public class HentaiDick extends DanbooruAbstract {
 

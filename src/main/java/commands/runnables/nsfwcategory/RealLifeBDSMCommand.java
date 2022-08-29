@@ -14,7 +14,7 @@ import commands.runnables.RealbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false,
         patreonRequired = true,
-        aliases = { "r1bdsm", "bdsm" }
+        aliases = { "bdsm", "realllifebdsm" }
 )
 public class RealLifeBDSMCommand extends RealbooruAbstract {
 
