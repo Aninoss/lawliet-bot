@@ -407,6 +407,18 @@ public class CommandContainer {
         }
     }
 
+    public static synchronized void deregisterListeners(long messageId) {
+        for (Cache<Long, CommandListenerMeta<?>> cache : listenerMap.values()) {
+            for (CommandListenerMeta<?> commandListenerMeta : cache.asMap().values()) {
+                Command command = commandListenerMeta.getCommand();
+                if (messageId == command.getDrawMessageId().orElse(0L)) {
+                    cache.invalidate(command.getId());
+                    break;
+                }
+            }
+        }
+    }
+
     public static synchronized Collection<CommandListenerMeta<?>> getListeners(Class<?> clazz) {
         if (!listenerMap.containsKey(clazz)) {
             return Collections.emptyList();

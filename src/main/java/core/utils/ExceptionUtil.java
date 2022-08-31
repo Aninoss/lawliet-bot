@@ -32,6 +32,8 @@ public class ExceptionUtil {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "missing_permissions");
         } else if (throwable instanceof InterruptedException) {
             postErrorMessage = false;
+        } else if (errorCause.contains("10008")) {
+            postErrorMessage = false;
         } else if (errorCause.contains("Read timed out")) {
             errorMessage = TextManager.getString(locale, TextManager.GENERAL, "error_sockettimeout");
         }
