@@ -231,13 +231,14 @@ public class Console {
         MemberCacheController.getInstance().loadMembersFull(guild).join();
         int bots = (int) guild.getMembers().stream().filter(m -> m.getUser().isBot()).count();
         MainLogger.get().info(
-                "Name: {}; ID: {}; Shard: {}; Cluster: {}; Members: {}; Bots {}",
+                "Name: {}; ID: {}; Shard: {}; Cluster: {}; Members: {}; Bots {}; Premium {}",
                 guild.getName(),
                 guild.getId(),
                 guild.getJDA().getShardInfo().getShardId(),
                 Program.getClusterId(),
                 guild.getMemberCount() - bots,
-                bots
+                bots,
+                PatreonCache.getInstance().isUnlocked(guild.getIdLong())
         );
     }
 
@@ -280,7 +281,9 @@ public class Console {
     private static void onServer(String[] args) {
         long serverId = Long.parseLong(args[1]);
         ShardManager.getLocalGuildById(serverId).ifPresent(guild ->
-                MainLogger.get().info("{} | Members: {} | Owner: {} | Shard {}", guild.getName(), guild.getMemberCount(), guild.getOwner().getUser().getAsTag(), guild.getJDA().getShardInfo().getShardId())
+                MainLogger.get().info("{} | Members: {} | Owner: {} | Shard {} | Premium: {}", guild.getName(),
+                        guild.getMemberCount(), guild.getOwner().getUser().getAsTag(),
+                        guild.getJDA().getShardInfo().getShardId(), PatreonCache.getInstance().isUnlocked(serverId))
         );
     }
 
