@@ -121,7 +121,8 @@ public class NomCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736273366784278558/834834299684519956/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/834834311290159114/nom.gif",
                 "https://cdn.discordapp.com/attachments/736273366784278558/881895024793640971/nom.gif",
-                "https://cdn.discordapp.com/attachments/736273366784278558/1015215841211580426/nom.gif"
+                "https://cdn.discordapp.com/attachments/736273366784278558/1015215841211580426/nom.gif",
+                "https://cdn.discordapp.com/attachments/736273366784278558/1016328051992297502/nom.gif"
         );
     }
 
