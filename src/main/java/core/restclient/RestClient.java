@@ -1,5 +1,6 @@
 package core.restclient;
 
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import core.internet.HttpHeader;
 import core.internet.HttpRequest;
@@ -36,12 +37,16 @@ public class RestClient {
         this.auth = auth;
     }
 
-    public CompletableFuture<HttpResponse> post(String path, String mediaType, String body) {
-        return HttpRequest.post(url + path, mediaType, body, new HttpHeader("Authorization", auth));
+    public CompletableFuture<HttpResponse> post(String path, String mediaType, String body, HttpHeader... headers) {
+        headers = Arrays.copyOf(headers, headers.length + 1);
+        headers[headers.length - 1] = new HttpHeader("Authorization", auth);
+        return HttpRequest.post(url + path, mediaType, body, headers);
     }
 
-    public CompletableFuture<HttpResponse> get(String path) {
-        return HttpRequest.get(url + path, new HttpHeader("Authorization", auth));
+    public CompletableFuture<HttpResponse> get(String path, HttpHeader... headers) {
+        headers = Arrays.copyOf(headers, headers.length + 1);
+        headers[headers.length - 1] = new HttpHeader("Authorization", auth);
+        return HttpRequest.get(url + path, headers);
     }
 
 }
