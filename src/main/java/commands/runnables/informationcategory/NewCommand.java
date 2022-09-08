@@ -80,7 +80,7 @@ public class NewCommand extends Command implements OnAlertListener {
                             .exceptionally(ExceptionLogger.get());
                     return true;
                 } else {
-                    drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getNoResultsString(getLocale(), args)))
+                    drawMessageNew(EmbedFactory.getNoResultsEmbed(this, args))
                             .exceptionally(ExceptionLogger.get());
                     return false;
                 }

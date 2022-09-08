@@ -67,7 +67,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                     .map(post -> {
                         if (post.isNsfw() && !event.getTextChannel().isNSFW()) {
                             setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
-                            drawMessageNew(EmbedFactory.getNSFWBlockEmbed(getLocale())).exceptionally(ExceptionLogger.get());
+                            drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
                             return false;
                         }
 
@@ -76,9 +76,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
                         return true;
                     }).orElseGet(() -> {
-                        EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                                .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                                .setDescription(TextManager.getNoResultsString(getLocale(), finalArgs));
+                        EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, finalArgs);
                         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
                         return false;
                     });
@@ -168,9 +166,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 return AlertResponse.CONTINUE_AND_SAVE;
             } else {
                 if (slot.getArgs().isEmpty()) {
-                    EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                            .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                            .setDescription(TextManager.getNoResultsString(getLocale(), key));
+                    EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, key);
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                     slot.sendMessage(false, eb.build());
                     return AlertResponse.STOP_AND_DELETE;

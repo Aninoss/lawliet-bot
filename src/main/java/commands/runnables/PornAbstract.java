@@ -226,7 +226,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
     }
 
     private EmbedBuilder apiUnavailableEmbed() {
-        return EmbedFactory.getApiDownEmbed(getLocale(), getDomain());
+        return EmbedFactory.getApiDownEmbed(this, getDomain());
     }
 
     private String apiUnavailableString() {
@@ -234,12 +234,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
     }
 
     private EmbedBuilder noResultsEmbed(String args) {
-        EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"));
-        if (args.length() > 0) {
-            eb.setDescription(TextManager.getNoResultsString(getLocale(), args));
-        }
-        return eb;
+        return EmbedFactory.getNoResultsEmbed(this, args);
     }
 
     private String noResultsString(String args) {

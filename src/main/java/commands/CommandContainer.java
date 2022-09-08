@@ -265,6 +265,7 @@ public class CommandContainer {
         commandList.add(OsuCommand.class);
         commandList.add(AnimeNewsCommand.class);
         commandList.add(AnimeReleasesCommand.class);
+        commandList.add(MangaUpdatesCommand.class);
         commandList.add(DadJokeCommand.class);
         commandList.add(SafebooruCommand.class);
         commandList.add(SoftYaoiCommand.class);

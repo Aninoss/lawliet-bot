@@ -1,5 +1,6 @@
 package modules.animerelease;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +28,7 @@ public class AnimeReleasesDownloader {
                 .collect(Collectors.toList());
         String downloadUrl = "https://feeds.feedburner.com/crunchyroll/rss/anime";
 
-        HttpResponse httpResponse = HttpCache.get(downloadUrl).get();
+        HttpResponse httpResponse = HttpCache.get(downloadUrl, Duration.ofMinutes(15)).get();
         String postString = httpResponse.getBody();
 
         JSONArray postArray = XML.toJSONObject(postString).getJSONObject("rss").getJSONObject("channel").getJSONArray("item");

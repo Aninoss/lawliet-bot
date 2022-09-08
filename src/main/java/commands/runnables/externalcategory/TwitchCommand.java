@@ -49,9 +49,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
         event.deferReply();
         Optional<TwitchStream> streamOpt = twitchDownloader.retrieveStream(args).get();
         if (streamOpt.isEmpty()) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getNoResultsString(getLocale(), args));
+            EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, args);
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
             return false;
         }
@@ -92,9 +90,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
         streamOpt = twitchDownloader.retrieveStream(slot.getCommandKey()).get();
         if (streamOpt.isEmpty()) {
             if (slot.getArgs().isEmpty()) {
-                EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                        .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                        .setDescription(TextManager.getNoResultsString(getLocale(), slot.getCommandKey()));
+                EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 slot.sendMessage(false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;

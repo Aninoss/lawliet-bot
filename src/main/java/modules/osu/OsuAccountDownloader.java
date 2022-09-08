@@ -1,5 +1,6 @@
 package modules.osu;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import core.internet.HttpCache;
@@ -11,7 +12,7 @@ import org.json.JSONObject;
 public class OsuAccountDownloader {
 
     public static CompletableFuture<Optional<OsuAccount>> download(String username, OsuGame gameMode) {
-        return HttpCache.get("https://osu.ppy.sh/users/" + InternetUtil.escapeForURL(username) + "/" + gameMode.getId())
+        return HttpCache.get("https://osu.ppy.sh/users/" + InternetUtil.escapeForURL(username) + "/" + gameMode.getId(), Duration.ofMinutes(5))
                 .thenApply(res -> {
                     String content = res.getBody();
                     if (content == null) {

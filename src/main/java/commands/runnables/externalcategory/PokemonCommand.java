@@ -1,5 +1,6 @@
 package commands.runnables.externalcategory;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -34,10 +35,8 @@ public class PokemonCommand extends Command {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         Pokemon pokemon = fetchPokemon(args);
         if (pokemon == null) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getNoResultsString(getLocale(), args));
-            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+            drawMessageNew(EmbedFactory.getNoResultsEmbed(this, args))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 
@@ -46,7 +45,7 @@ public class PokemonCommand extends Command {
     }
 
     public static Pokemon fetchPokemon(String searchKey) throws ExecutionException, InterruptedException {
-        HttpResponse response = HttpCache.get("https://www.pokewiki.de/" + searchKey.replace(" ", "%20")).get();
+        HttpResponse response = HttpCache.get("https://www.pokewiki.de/" + searchKey.replace(" ", "%20"), Duration.ofDays(1)).get();
         if (response.getCode() != 200 || response.getBody() == null) {
             return null;
         }

@@ -55,10 +55,8 @@ public class WeaknessTypeCommand extends Command {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         List<Integer> types = retrieveTypes(event, args);
         if (types.size() == 0) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this)
-                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                    .setDescription(TextManager.getNoResultsString(getLocale(), args));
-            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+            drawMessageNew(EmbedFactory.getNoResultsEmbed(this, args))
+                    .exceptionally(ExceptionLogger.get());
             return false;
         }
 

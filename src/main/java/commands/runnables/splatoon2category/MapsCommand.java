@@ -1,5 +1,6 @@
 package commands.runnables.splatoon2category;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,9 +62,9 @@ public class MapsCommand extends Command implements OnAlertListener {
                 "https://splatoon2.ink/data/locale/" + language + ".json"
         };
 
-        JSONObject mapData = new JSONObject(HttpCache.get(urls[0]).get().getBody());
-        JSONObject festData = new JSONObject(HttpCache.get(urls[1]).get().getBody()).getJSONObject(region).getJSONArray("festivals").getJSONObject(0);
-        JSONObject languageData = new JSONObject(HttpCache.get(urls[2]).get().getBody());
+        JSONObject mapData = new JSONObject(HttpCache.get(urls[0], Duration.ofMinutes(5)).get().getBody());
+        JSONObject festData = new JSONObject(HttpCache.get(urls[1], Duration.ofMinutes(5)).get().getBody()).getJSONObject(region).getJSONArray("festivals").getJSONObject(0);
+        JSONObject languageData = new JSONObject(HttpCache.get(urls[2], Duration.ofMinutes(5)).get().getBody());
         boolean isSplatfest = false;
         String festMapName;
         String[] festTeams = new String[2];

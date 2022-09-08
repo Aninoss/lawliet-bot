@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import com.google.common.net.UrlEscapers;
@@ -39,7 +40,7 @@ public final class InternetUtil {
     }
 
     public static CompletableFuture<String> retrieveThumbnailPreview(String url) {
-        return HttpCache.get(url)
+        return HttpCache.get(url, Duration.ofDays(1))
                 .thenApply(data -> {
                     String content = data.getBody();
                     return StringUtil.extractGroups(content, "<meta property=\"og:image\" content=\"", "\"")[0];

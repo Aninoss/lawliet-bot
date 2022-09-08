@@ -172,9 +172,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
                     eb = generateAccountEmbed(member, osuAccount);
                     EmbedUtil.addLog(eb, LogStatus.SUCCESS, getString("connected"));
                 } else {
-                    eb = EmbedFactory.getEmbedError(this)
-                            .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "no_results"))
-                            .setDescription(TextManager.getNoResultsString(getLocale(), osuName != null ? osuName : ""));
+                    eb = EmbedFactory.getNoResultsEmbed(this, osuName != null ? osuName : "");
                 }
                 return eb;
         }

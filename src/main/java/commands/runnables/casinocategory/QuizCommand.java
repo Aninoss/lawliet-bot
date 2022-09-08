@@ -74,7 +74,7 @@ public class QuizCommand extends CasinoAbstract {
 
         question = StringUtil.decryptString(data.getString("question"));
         if (question == null || question.trim().isEmpty()) {
-            drawMessageNew(EmbedFactory.getApiDownEmbed(getLocale(), "opentdb.com"))
+            drawMessageNew(EmbedFactory.getApiDownEmbed(this, "opentdb.com"))
                     .exceptionally(ExceptionLogger.get());
             return false;
         }

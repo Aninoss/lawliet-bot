@@ -70,6 +70,17 @@ public class EmbedFactory {
                 .setColor(FAILED_EMBED_COLOR);
     }
 
+    public static EmbedBuilder getNoResultsEmbed(Command command, String args) {
+        EmbedBuilder eb = EmbedFactory.getEmbedError(command)
+                .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "no_results"));
+
+        if (args != null && !args.isEmpty()) {
+            eb.setDescription(TextManager.getNoResultsString(command.getLocale(), args));
+        }
+
+        return eb;
+    }
+
     public static Button getNSFWBlockButton(Locale locale) {
         String link = switch (Language.from(locale)) {
             case DE -> "https://support.discord.com/hc/de/articles/115000084051#h_adc93a2c-8fc3-4775-be02-bbdbfcde5010";
@@ -79,6 +90,12 @@ public class EmbedFactory {
         };
 
         return Button.of(ButtonStyle.LINK, link, TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_button"));
+    }
+
+    public static EmbedBuilder getNSFWBlockEmbed(Command command) {
+        return getEmbedError(command)
+                .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "nsfw_block_title"))
+                .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "nsfw_block_description"));
     }
 
     public static EmbedBuilder getNSFWBlockEmbed(Locale locale) {
@@ -104,6 +121,12 @@ public class EmbedFactory {
                 .setColor(Settings.PREMIUM_COLOR)
                 .setTitle(TextManager.getString(locale, TextManager.GENERAL, "patreon_title"))
                 .setDescription(desc);
+    }
+
+    public static EmbedBuilder getApiDownEmbed(Command command, String service) {
+        return EmbedFactory.getEmbedError(command)
+                .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "quiz_down_title"))
+                .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "api_down", service));
     }
 
     public static EmbedBuilder getApiDownEmbed(Locale locale, String service) {

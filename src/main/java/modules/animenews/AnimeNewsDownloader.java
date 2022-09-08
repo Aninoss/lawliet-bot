@@ -1,5 +1,6 @@
 package modules.animenews;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +44,7 @@ public class AnimeNewsDownloader {
     }
 
     private static JSONArray retrieveJSONArray(String downloadUrl) throws ExecutionException, InterruptedException {
-        HttpResponse httpResponse = HttpCache.get(downloadUrl).get();
+        HttpResponse httpResponse = HttpCache.get(downloadUrl, Duration.ofMinutes(15)).get();
         if (httpResponse.getCode() / 100 != 2) return null;
 
         String content = httpResponse.getBody();

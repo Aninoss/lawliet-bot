@@ -44,7 +44,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
         if (articles != null && articles.size() > 0) {
             eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), getEmbed(articles.get(0)), getPrefix(), getTrigger());
         } else {
-            eb = EmbedFactory.getApiDownEmbed(getLocale(), getPrefix() + getTrigger());
+            eb = EmbedFactory.getApiDownEmbed(this, getPrefix() + getTrigger());
         }
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
