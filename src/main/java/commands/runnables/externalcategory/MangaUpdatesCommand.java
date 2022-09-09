@@ -10,7 +10,9 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.ListGen;
+import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.mandaupdates.MangaUpdatesDownloader;
@@ -19,6 +21,7 @@ import modules.mandaupdates.MangaUpdatesSeries;
 import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -36,13 +39,20 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
+        event.deferReply();
         List<MangaUpdatesSeries> seriesList = MangaUpdatesDownloader.searchSeries(args);
         if (!seriesList.isEmpty()) {
             MangaUpdatesSeries series = seriesList.get(0);
-            List<MangaUpdatesRelease> releases = MangaUpdatesDownloader.getReleasesOfSeries(seriesList.get(0).getSeriesId());
-            EmbedBuilder eb = generateEmbed(series, releases, 5);
-            drawMessageNew(eb);
-            return true;
+            if (series.isNsfw() && !event.getTextChannel().isNSFW()) {
+                setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
+                drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
+                return false;
+            } else {
+                List<MangaUpdatesRelease> releases = MangaUpdatesDownloader.getReleasesOfSeries(seriesList.get(0).getSeriesId());
+                EmbedBuilder eb = generateEmbed(series, releases, 5);
+                drawMessageNew(eb);
+                return true;
+            }
         } else {
             EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, args);
             drawMessageNew(eb);
@@ -74,8 +84,16 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
             String title = jsonObject.getString("title");
             String image = jsonObject.getString("image");
             String url = jsonObject.getString("url");
+            boolean nsfw = jsonObject.getBoolean("nsfw");
             recentRelease = jsonObject.getString("recent_release");
-            series = new MangaUpdatesSeries(seriesId, title, image, url);
+            series = new MangaUpdatesSeries(seriesId, title, image, url, nsfw);
+        }
+
+        if (series.isNsfw() && !slot.getBaseGuildMessageChannel().get().isNSFW()) {
+            EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
+            EmbedUtil.addTrackerRemoveLog(eb, getLocale());
+            slot.sendMessage(false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(getLocale())));
+            return AlertResponse.STOP_AND_DELETE;
         }
 
         List<MangaUpdatesRelease> releases = MangaUpdatesDownloader.getReleasesOfSeries(series.getSeriesId());
@@ -133,6 +151,7 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
         jsonObject.put("title", series.getTitle());
         jsonObject.put("image", series.getImage());
         jsonObject.put("url", series.getUrl());
+        jsonObject.put("nsfw", series.isNsfw());
         jsonObject.put("recent_release", recentRelease);
         return jsonObject;
     }

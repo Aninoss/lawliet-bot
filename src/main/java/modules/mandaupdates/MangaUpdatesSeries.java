@@ -6,12 +6,14 @@ public class MangaUpdatesSeries {
     private final String title;
     private final String image;
     private final String url;
+    private final boolean nsfw;
 
-    public MangaUpdatesSeries(long seriesId, String title, String image, String url) {
+    public MangaUpdatesSeries(long seriesId, String title, String image, String url, boolean nsfw) {
         this.seriesId = seriesId;
         this.title = title;
         this.image = image;
         this.url = url;
+        this.nsfw = nsfw;
     }
 
     public long getSeriesId() {
@@ -28,6 +30,10 @@ public class MangaUpdatesSeries {
 
     public String getUrl() {
         return url;
+    }
+
+    public boolean isNsfw() {
+        return nsfw;
     }
 
     public String getReleasesUrl() {

@@ -2,6 +2,7 @@ package modules.mandaupdates;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -12,6 +13,8 @@ import org.json.JSONObject;
 import org.json.XML;
 
 public class MangaUpdatesDownloader {
+
+    private static final String[] NSFW_GENRES = { "Hentai", "Lolicon", "Shotacon", "Yaoi", "Yuri" };
 
     public static List<MangaUpdatesSeries> searchSeries(String search) throws ExecutionException, InterruptedException {
         JSONObject jsonBody = new JSONObject();
@@ -30,7 +33,8 @@ public class MangaUpdatesDownloader {
             String title = recordJson.getString("title");
             String image = imageUrlJson.isNull("thumb") ? null : imageUrlJson.getString("thumb");
             String url = recordJson.getString("url");
-            series.add(new MangaUpdatesSeries(seriesId, title, image, url));
+            boolean nsfw = seriesIsNsfw(recordJson);
+            series.add(new MangaUpdatesSeries(seriesId, title, image, url, nsfw));
         }
 
         return series;
@@ -66,6 +70,22 @@ public class MangaUpdatesDownloader {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    private static boolean seriesIsNsfw(JSONObject recordJson) {
+        if (recordJson.isNull("genres")) {
+            return false;
+        }
+
+        JSONArray genresJson = recordJson.getJSONArray("genres");
+        for (int i = 0; i < genresJson.length(); i++) {
+            String genre = genresJson.getJSONObject(i).getString("genre");
+            if (Arrays.stream(NSFW_GENRES).anyMatch(genre::equalsIgnoreCase)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
