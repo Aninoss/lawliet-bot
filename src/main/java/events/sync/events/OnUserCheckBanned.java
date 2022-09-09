@@ -13,7 +13,7 @@ public class OnUserCheckBanned implements SyncServerFunction {
         long userId = jsonObject.getLong("user_id");
 
         JSONObject responseJson = new JSONObject();
-        responseJson.put("banned", DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId));
+        responseJson.put("banned", DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(userId));
         return responseJson;
     }
 

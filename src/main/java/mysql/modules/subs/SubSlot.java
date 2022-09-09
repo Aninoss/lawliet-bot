@@ -44,7 +44,7 @@ public class SubSlot extends Observable implements UserAsset {
     }
 
     public void sendEmbed(Locale locale, EmbedBuilder eb, Button... buttons) {
-        if (!DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId)) {
+        if (!DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(userId)) {
             eb.setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
             JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
                     .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()).setActionRows(ActionRows.of(buttons)))

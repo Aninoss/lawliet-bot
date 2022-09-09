@@ -1,19 +1,18 @@
 package mysql.modules.bannedusers;
 
-import java.util.List;
-import java.util.Observable;
-import core.CustomObservableList;
+import java.util.Map;
+import core.CustomObservableMap;
 
-public class BannedUsersData extends Observable {
+public class BannedUsersData {
 
-    private final CustomObservableList<Long> userIds;
+    private final CustomObservableMap<Long, BannedUserSlot> slotsMap;
 
-    public BannedUsersData(List<Long> userIds) {
-        this.userIds = new CustomObservableList<>(userIds);
+    public BannedUsersData(Map<Long, BannedUserSlot> slotsMap) {
+        this.slotsMap = new CustomObservableMap<>(slotsMap);
     }
 
-    public CustomObservableList<Long> getUserIds() {
-        return userIds;
+    public CustomObservableMap<Long, BannedUserSlot> getSlotsMap() {
+        return slotsMap;
     }
 
 }

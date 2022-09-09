@@ -67,7 +67,7 @@ public abstract class DiscordEventAbstract {
     }
 
     private static boolean userIsBanned(long userId) {
-        return DBBannedUsers.getInstance().retrieve().getUserIds().contains(userId);
+        return DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(userId);
     }
 
     private static boolean run(EventExecution function, DiscordEventAbstract listener) {

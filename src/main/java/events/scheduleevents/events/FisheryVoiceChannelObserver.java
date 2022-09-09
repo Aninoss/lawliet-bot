@@ -80,7 +80,7 @@ public class FisheryVoiceChannelObserver implements ExceptionRunnable {
                     !voice.isMuted() &&
                     !voice.isDeafened() &&
                     !voice.isSuppressed() &&
-                    !DBBannedUsers.getInstance().retrieve().getUserIds().contains(member.getIdLong())
+                    !DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(member.getIdLong())
             ) {
                 validMembers.add(member);
             }

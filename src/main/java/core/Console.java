@@ -15,6 +15,7 @@ import javafx.util.Pair;
 import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
+import mysql.modules.bannedusers.BannedUserSlot;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -340,7 +341,7 @@ public class Console {
 
     private static void onUnban(String[] args) {
         long userId = Long.parseLong(args[1]);
-        DBBannedUsers.getInstance().retrieve().getUserIds().remove(userId);
+        DBBannedUsers.getInstance().retrieve().getSlotsMap().remove(userId);
         MainLogger.get().info("User {} unbanned", userId);
     }
 
@@ -348,7 +349,7 @@ public class Console {
         long userId = Long.parseLong(args[1]);
         String reason = collectArgs(args, 2).replace("\\n", "\n");
 
-        DBBannedUsers.getInstance().retrieve().getUserIds().add(userId);
+        DBBannedUsers.getInstance().retrieve().getSlotsMap().put(userId, new BannedUserSlot(userId, reason));
 
         if (Program.getClusterId() == 1) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
