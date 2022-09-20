@@ -17,13 +17,14 @@ public class DBUpvotes extends DBSingleCache<UpvotesData> {
     }
 
     @Override
-    protected UpvotesData loadBean() throws Exception {
-        Map<Long, UpvoteSlot> upvoteMap = new DBDataLoad<UpvoteSlot>("Upvotes", "userId, lastDate", "1")
+    protected UpvotesData loadBean() {
+        Map<Long, UpvoteSlot> upvoteMap = new DBDataLoad<UpvoteSlot>("Upvotes", "userId, lastDate, remindersSent", "1")
                 .getMap(
                         UpvoteSlot::getUserId,
                         resultSet -> new UpvoteSlot(
                                 resultSet.getLong(1),
-                                resultSet.getTimestamp(2).toInstant()
+                                resultSet.getTimestamp(2).toInstant(),
+                                resultSet.getInt(3)
                         )
                 );
 
@@ -35,9 +36,10 @@ public class DBUpvotes extends DBSingleCache<UpvotesData> {
     }
 
     private void addUpvote(UpvoteSlot upvoteSlot) {
-        MySQLManager.asyncUpdate("REPLACE INTO Upvotes (userId, lastDate) VALUES (?,?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Upvotes (userId, lastDate, remindersSent) VALUES (?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, upvoteSlot.getUserId());
             preparedStatement.setString(2, MySQLManager.instantToDateTimeString(upvoteSlot.getLastUpdate()));
+            preparedStatement.setInt(3, upvoteSlot.getRemindersSent());
         });
     }
 

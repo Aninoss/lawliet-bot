@@ -34,11 +34,15 @@ public class ReminderUpvote implements ExceptionRunnable {
                 CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.CLAIM);
                 UpvotesData upvotesData = DBUpvotes.getInstance().retrieve();
                 CustomObservableMap<Long, UpvoteSlot> upvoteMap = upvotesData.getUpvoteMap();
+
                 for (UpvoteSlot upvoteSlot : new ArrayList<>(upvoteMap.values())) {
-                    if (Instant.now().isAfter(upvoteSlot.getLastUpdate().plus(12, ChronoUnit.HOURS)) &&
+                    long deltaHours = ChronoUnit.HOURS.between(upvoteSlot.getLastUpdate(), Instant.now());
+                    int reminderPhase = (int) (deltaHours / 12);
+                    if (reminderPhase > upvoteSlot.getRemindersSent() &&
+                            ((reminderPhase - upvoteSlot.getRemindersSent() >= 2) || reminderPhase == 1) &&
                             upvoteMap.containsKey(upvoteSlot.getUserId())
                     ) {
-                        upvoteMap.remove(upvoteSlot.getUserId());
+                        upvoteMap.put(upvoteSlot.getUserId(), new UpvoteSlot(upvoteSlot.getUserId(), upvoteSlot.getLastUpdate(), reminderPhase));
                         SubSlot sub = subMap.get(upvoteSlot.getUserId());
                         if (sub != null) {
                             Locale locale = sub.getLocale();

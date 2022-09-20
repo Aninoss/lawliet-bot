@@ -26,7 +26,7 @@ public class UpvotesData {
     }
 
     public void updateLastUpvote(long userId) {
-        upvoteMap.put(userId, new UpvoteSlot(userId, Instant.now()));
+        upvoteMap.put(userId, new UpvoteSlot(userId, Instant.now(), 0));
     }
 
 }
