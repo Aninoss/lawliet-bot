@@ -28,6 +28,8 @@ public class ShardManager {
         }
     }
 
+    private static final int GLOBAL_SHARD_ERROR_THRESHOLD = Integer.parseInt(System.getenv("GLOBAL_SHARD_ERROR_THRESHOLD"));
+
     private static final JDABlocker JDABlocker = new JDABlocker();
     private static final HashMap<Integer, JDAWrapper> jdaMap = new HashMap<>();
     private static final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
@@ -70,7 +72,7 @@ public class ShardManager {
 
     public static synchronized void increaseGlobalErrorCounter() {
         MainLogger.get().warn("Shard error counter: {}", ++globalErrors);
-        if (globalErrors >= 6) {
+        if (globalErrors >= GLOBAL_SHARD_ERROR_THRESHOLD) {
             System.err.println("EXIT - Too many shard errors (" + Program.getClusterId() + ")");
             System.exit(6);
         }

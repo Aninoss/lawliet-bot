@@ -38,7 +38,7 @@ public class JDAWrapper {
             active = true;
         } else {
             MainLogger.get().debug("No data from shard {}", jda.getShardInfo().getShardId());
-            if (++errors % 4 == 3) {
+            if (++errors % 3 == 0) {
                 active = false;
                 ShardManager.increaseGlobalErrorCounter();
                 MainLogger.get().warn("Shard {} temporarily offline", jda.getShardInfo().getShardId());
