@@ -51,8 +51,11 @@ import org.jetbrains.annotations.NotNull;
 )
 public class GiveawayCommand extends NavigationAbstract implements OnReactionListener {
 
-    private final static int WINNERS_MIN = 1;
-    private final static int WINNERS_MAX = 20;
+    public final static int ARTICLE_LENGTH_MAX = 250;
+    public final static int DESC_LENGTH_MAX = 1000;
+    public final static int WINNERS_MIN = 1;
+    public final static int WINNERS_MAX = 20;
+
     private final static int
             ADD_OR_EDIT = 0,
             ADD_MESSAGE = 1,
@@ -116,20 +119,20 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @ControllerMessage(state = UPDATE_TITLE)
     public MessageInputResponse onMessageUpdateTitle(MessageReceivedEvent event, String input) {
-        if (input.length() > 0 && input.length() <= 250) {
+        if (input.length() > 0 && input.length() <= ARTICLE_LENGTH_MAX) {
             title = input;
             setLog(LogStatus.SUCCESS, getString("titleset", input));
             setState(CONFIGURE_MESSAGE);
             return MessageInputResponse.SUCCESS;
         } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "250"));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", StringUtil.numToString(ARTICLE_LENGTH_MAX)));
             return MessageInputResponse.FAILED;
         }
     }
 
     @ControllerMessage(state = UPDATE_DESC)
     public MessageInputResponse onMessageUpdateDesc(MessageReceivedEvent event, String input) {
-        if (input.length() > 0 && input.length() <= 1000) {
+        if (input.length() > 0 && input.length() <= DESC_LENGTH_MAX) {
             description = input;
             setLog(LogStatus.SUCCESS, getString("descriptionset", input));
             setState(CONFIGURE_MESSAGE);

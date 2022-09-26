@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 
 public class MentionUtil {
@@ -332,6 +333,53 @@ public class MentionUtil {
             UnicodeEmoji unicodeEmoji = unicodeEmojiOpt.get();
             emojiList.add(unicodeEmoji);
             input = input.replace(unicodeEmoji.getFormatted(), "");
+        }
+
+        return new MentionList<>(input, emojiList);
+    }
+
+    public static MentionList<Emoji> getEmojis(Guild guild, String input) {
+        MentionList<RichCustomEmoji> customEmojiMention = generateMentionList(
+                guild.getEmojis(),
+                new ArrayList<>(),
+                input,
+                e -> ((RichCustomEmoji) e).getFormatted(),
+                e -> ((RichCustomEmoji) e).getAsReactionCode(),
+                e -> " " + ((RichCustomEmoji) e).getId() + " ",
+                e -> " :" + ((RichCustomEmoji) e).getName() + ": ",
+                e -> " " + ((RichCustomEmoji) e).getName() + " "
+        );
+
+        List<Emoji> emojiList = new ArrayList<>(customEmojiMention.getList());
+        input = customEmojiMention.getFilteredArgs();
+
+        Optional<UnicodeEmoji> unicodeEmojiOpt = EmojiTable.extractFirstUnicodeEmoji(input);
+        if (unicodeEmojiOpt.isPresent()) {
+            UnicodeEmoji unicodeEmoji = unicodeEmojiOpt.get();
+            emojiList.add(unicodeEmoji);
+            input = input.replace(unicodeEmoji.getFormatted(), "");
+        }
+
+        for (String part : input.split(" ")) {
+            if (StringUtil.stringIsLong(part)) {
+                long emojiId = Long.parseLong(part);
+                Optional<String> emojiStringOpt = ShardManager.getEmoteById(emojiId);
+                if (emojiStringOpt.isPresent()) {
+                    Emoji emoji = Emoji.fromFormatted(emojiStringOpt.get());
+                    emojiList.add(emoji);
+                    input = input.replace(part, "");
+                }
+            } else {
+                try {
+                    Emoji emoji = Emoji.fromFormatted(part);
+                    if (emoji instanceof CustomEmoji) {
+                        emojiList.add(emoji);
+                        input = input.replace(part, "");
+                    }
+                } catch (IllegalArgumentException e) {
+                    // ignore
+                }
+            }
         }
 
         return new MentionList<>(input, emojiList);
