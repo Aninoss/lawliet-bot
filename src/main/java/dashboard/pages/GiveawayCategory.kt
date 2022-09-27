@@ -16,14 +16,18 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.GridRow
+import modules.Giveaway
+import modules.schedulers.GiveawayScheduler
 import mysql.modules.giveaway.DBGiveaway
 import mysql.modules.giveaway.GiveawayData
+import mysql.modules.guild.DBGuild
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
 import java.time.Duration
+import java.time.Instant
 import java.util.*
 
 @DashboardProperties(
@@ -34,10 +38,11 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
 
     var channelId: Long? = null
     var article: String? = null
-    var desc: String? = null
+    var desc: String = ""
     var duration: Long = Duration.ofDays(7).toMinutes()
     var winners: Long = 1
     var emoji: Emoji = Emoji.fromUnicode("🎉")
+    var image: String? = null
 
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(GiveawayCommand::class.java, locale).title
@@ -135,7 +140,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
                 desc = it.data
                 ActionResult()
             }
-        if (desc != null) {
+        if (!desc.isEmpty()) {
             descTextfield.value = desc
         }
         descTextfield.editButton = false
@@ -183,17 +188,22 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
         }
         emojiField.value = emoji.formatted
         winnersEmojiContainer.add(emojiField)
-        container.add(winnersEmojiContainer, DashboardSeparator())
+        container.add(winnersEmojiContainer)
+
+        val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "giveaway_dashboard_includedimage")) {
+            image = it.data
+            ActionResult()
+        }
+        container.add(imageUpload, DashboardSeparator())
 
         val buttonContainer = HorizontalContainer()
-
         val sendButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_send")) {
             val channel = channelId?.let { guild.getTextChannelById(it.toString()) }
             if (channel == null) { /* invalid channel */
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "giveaway_dashboard_invalidchannel"))
             }
-            if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION)) { /* no permissions in channel */
+            if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) { /* no permissions in channel */
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_reactions", "#${channel.getName()}"))
             }
@@ -203,16 +213,32 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
                     .withErrorMessage(getString(Category.UTILITY, "giveaway_dashboard_noarticle"))
             }
 
-            //TODO
+            val instant = Instant.now()
+            val messageId = sendMessage(guild, channelId!!, instant)
+            val giveawayData = GiveawayData(guild.idLong, channelId!!, messageId, emoji.formatted, winners.toInt(), instant, duration, article, desc, image, true)
+            GiveawayScheduler.loadGiveawayBean(giveawayData)
+            DBGiveaway.getInstance().retrieve(guild.getIdLong())
+                .put(messageId, giveawayData)
 
             ActionResult()
-                .withRedraw()
+                .withRedrawScrollToTop()
         }
         sendButton.style = DashboardButton.Style.PRIMARY
 
         buttonContainer.add(sendButton, HorizontalPusher())
         container.add(buttonContainer)
         return container
+    }
+
+    private fun sendMessage(guild: Guild, channelId: Long, instant: Instant): Long {
+        val channel = guild.getTextChannelById(channelId)
+        val locale = DBGuild.getInstance().retrieve(guild.idLong).locale
+        val eb = Giveaway.getMessageEmbed(locale, article, desc, winners.toInt(), emoji, duration, image, instant)
+        val message = channel!!.sendMessageEmbeds(eb.build()).complete()
+        if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
+            message.addReaction(emoji).queue()
+        }
+        return message.idLong
     }
 
 }

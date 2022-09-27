@@ -1,6 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -13,12 +12,12 @@ import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnReactionListener;
 import commands.runnables.NavigationAbstract;
-import constants.Emojis;
 import constants.LogStatus;
 import core.*;
 import core.atomicassets.AtomicBaseGuildMessageChannel;
 import core.atomicassets.MentionableAtomicAsset;
 import core.utils.*;
+import modules.Giveaway;
 import modules.schedulers.GiveawayScheduler;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayData;
@@ -36,7 +35,6 @@ import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -378,11 +376,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 return true;
 
             case 7:
-                if (editMode) {
-                    send(event, true);
-                } else {
-                    send(event, false);
-                }
+                send(event, editMode);
                 return true;
 
             case 8:
@@ -590,7 +584,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @Draw(state = EXAMPLE)
     public EmbedBuilder onDrawExample(Member member) {
-        return getMessageEmbed();
+        return Giveaway.getMessageEmbed(getLocale(), title, description, amountOfWinners, emoji,
+                durationMinutes, imageLink, Instant.now());
     }
 
     @Draw(state = SENT)
@@ -639,8 +634,10 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             BaseGuildMessageChannel channel = this.channel.get().get();
             if (!editMode) {
                 instant = Instant.now();
-                message = channel.sendMessageEmbeds(getMessageEmbed().build()).complete();
-                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION)) {
+                EmbedBuilder eb = Giveaway.getMessageEmbed(getLocale(), title, description, amountOfWinners, emoji,
+                        durationMinutes, imageLink, instant);
+                message = channel.sendMessageEmbeds(eb.build()).complete();
+                if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
                     message.addReaction(emoji).queue();
                 }
                 return Optional.of(message.getIdLong());
@@ -648,8 +645,10 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 if (instant.plus(durationMinutes, ChronoUnit.MINUTES).isBefore(Instant.now())) {
                     return Optional.empty();
                 }
+                EmbedBuilder eb = Giveaway.getMessageEmbed(getLocale(), title, description, amountOfWinners, emoji,
+                        durationMinutes, imageLink, instant);
                 try {
-                    channel.editMessageEmbedsById(messageId, getMessageEmbed().build()).complete();
+                    channel.editMessageEmbedsById(messageId, eb.build()).complete();
                     return Optional.of(messageId);
                 } catch (Throwable e) {
                     //Ignore
@@ -660,33 +659,6 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         } else {
             return Optional.empty();
         }
-    }
-
-    private EmbedBuilder getMessageEmbed() {
-        Instant startInstant = editMode ? instant : Instant.now();
-
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(getCommandProperties().emoji() + " " + title)
-                .setDescription(description);
-
-        String tutText = getString(
-                "tutorial",
-                amountOfWinners != 1,
-                emoji.getFormatted(),
-                String.valueOf(amountOfWinners),
-                TimeFormat.RELATIVE.atInstant(startInstant.plus(Duration.ofMinutes(durationMinutes))).toString()
-        );
-
-        if (description.isEmpty()) {
-            eb.setDescription(tutText);
-        } else {
-            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), tutText, false);
-        }
-
-        if (imageLink != null) {
-            eb.setImage(imageLink);
-        }
-        return eb;
     }
 
 }
