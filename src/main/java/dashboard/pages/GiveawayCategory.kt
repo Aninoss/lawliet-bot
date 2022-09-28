@@ -188,13 +188,19 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
         }
         emojiField.value = emoji.formatted
         winnersEmojiContainer.add(emojiField)
-        container.add(winnersEmojiContainer)
+        container.add(winnersEmojiContainer, DashboardSeparator())
 
         val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "giveaway_dashboard_includedimage")) {
             image = it.data
             ActionResult()
+                .withRedraw()
         }
-        container.add(imageUpload, DashboardSeparator())
+        container.add(imageUpload)
+
+        if (image != null) {
+            container.add(DashboardImage(image))
+        }
+        container.add(DashboardSeparator())
 
         val buttonContainer = HorizontalContainer()
         val sendButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_send")) {
@@ -224,8 +230,18 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
                 .withRedrawScrollToTop()
         }
         sendButton.style = DashboardButton.Style.PRIMARY
+        buttonContainer.add(sendButton)
 
-        buttonContainer.add(sendButton, HorizontalPusher())
+        if (image != null) {
+            val removeImageButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_removeimage")) {
+                image = null
+                ActionResult()
+                    .withRedraw()
+            }
+            buttonContainer.add(removeImageButton)
+        }
+
+        buttonContainer.add(HorizontalPusher())
         container.add(buttonContainer)
         return container
     }
