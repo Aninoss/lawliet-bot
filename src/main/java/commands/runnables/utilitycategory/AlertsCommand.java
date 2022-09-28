@@ -1,6 +1,7 @@
 package commands.runnables.utilitycategory;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -326,9 +327,15 @@ public class AlertsCommand extends NavigationAbstract {
             trackerCommands.stream()
                     .filter(command -> command.getCategory().equals(category))
                     .forEach(command -> {
-                        sb.append(getString("slot_add", command.getTrigger(),
-                                command.getCommandProperties().patreonRequired() ? Emojis.COMMAND_ICON_PREMIUM.getFormatted() : ""
-                        )).append("\n");
+                        String add = "";
+                        if (command.getCommandProperties().patreonRequired()) {
+                            add = Emojis.COMMAND_ICON_PREMIUM.getFormatted();
+                        } else if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) {
+                            add = getString("beta");
+                        }
+
+                        sb.append(getString("slot_add", command.getTrigger(), add))
+                                .append("\n");
                     });
 
             if (sb.length() > 0) {

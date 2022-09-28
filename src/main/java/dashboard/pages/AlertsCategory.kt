@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.BaseGuildMessageChannel
 import net.dv8tion.jda.api.entities.Guild
 import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 
 @DashboardProperties(
@@ -196,9 +197,14 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
         val commandLabel = getString(Category.UTILITY, "alerts_dashboard_command")
         val commandValues = CommandContainer.getTrackerCommands()
             .map {
-                val trigger = Command.getCommandProperties(it as Class<Command>).trigger
-                val premium = CommandManager.createCommandByClass(it, locale, prefix).commandProperties.patreonRequired
-                DiscordEntity(trigger, getString(Category.UTILITY, "alerts_dashboard_trigger", premium, trigger))
+                val command = CommandManager.createCommandByClass(it as Class<Command>, locale, prefix)
+                val trigger = command.trigger
+
+                val index = if (command.commandProperties.patreonRequired) { 1 }
+                else if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) { 2 }
+                else { 0 }
+
+                DiscordEntity(trigger, getString(Category.UTILITY, "alerts_dashboard_trigger", index, trigger))
             }
             .sortedBy { it.id }
         val commandComboBox = DashboardComboBox(commandLabel, commandValues, false, 1) {

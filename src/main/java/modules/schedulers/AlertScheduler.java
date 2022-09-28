@@ -2,6 +2,7 @@ package modules.schedulers;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -11,6 +12,7 @@ import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnAlertListener;
 import commands.runnables.utilitycategory.AlertsCommand;
+import constants.Settings;
 import core.*;
 import core.cache.ServerPatreonBoostCache;
 import core.utils.EmbedUtil;
@@ -102,7 +104,8 @@ public class AlertScheduler {
         if (channelOpt.isPresent()) {
             if (PermissionCheckRuntime.botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 if (checkNSFW(slot, channelOpt.get(), (Command) command) ||
-                        checkPatreon(slot, channelOpt.get(), (Command) command)
+                        checkPatreon(slot, channelOpt.get(), (Command) command) ||
+                        checkReleased(slot, channelOpt.get(), (Command) command)
                 ) {
                     return;
                 }
@@ -154,6 +157,24 @@ public class AlertScheduler {
                 !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
         ) {
             EmbedBuilder eb = EmbedFactory.getPatreonBlockEmbed(command.getLocale());
+            EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
+            slot.sendMessage(false, eb.build());
+            slot.delete();
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean checkReleased(TrackerData slot, BaseGuildMessageChannel channel, Command command) throws InterruptedException {
+        LocalDate releaseDate = command.getReleaseDate().orElse(LocalDate.now());
+        if (releaseDate.isAfter(LocalDate.now()) &&
+                !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
+        ) {
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                    .setColor(Settings.PREMIUM_COLOR)
+                    .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"))
+                    .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description"));
+
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
             slot.sendMessage(false, eb.build());
             slot.delete();
