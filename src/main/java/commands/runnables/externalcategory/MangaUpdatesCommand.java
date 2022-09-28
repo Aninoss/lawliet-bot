@@ -29,6 +29,7 @@ import org.json.JSONObject;
         trigger = "mangaupdates",
         emoji = "📚",
         executableWithoutArgs = false,
+        releaseDate = { 2022, 10, 8 },
         aliases = { "manga" }
 )
 public class MangaUpdatesCommand extends Command implements OnAlertListener {
