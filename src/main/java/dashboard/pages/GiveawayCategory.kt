@@ -26,15 +26,20 @@ import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
+import net.dv8tion.jda.api.exceptions.ErrorResponseException
 import java.time.Duration
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @DashboardProperties(
     id = "giveaway",
     userPermissions = [Permission.MANAGE_SERVER],
 )
 class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+
+    enum class Mode { OVERVIEW, EDIT, REROLL }
 
     var channelId: Long? = null
     var article: String? = null
@@ -43,63 +48,79 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
     var winners: Long = 1
     var emoji: Emoji = Emoji.fromUnicode("🎉")
     var image: String? = null
+    var messageId: Long? = null
+    var startInstant: Instant? = null
+
+    var mode: Mode = Mode.OVERVIEW
 
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(GiveawayCommand::class.java, locale).title
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        val giveawayData = DBGiveaway.getInstance().retrieve(atomicGuild.idLong)
-        mainContainer.add(
-            generateOngoingGiveawaysTable(guild, giveawayData),
-            generateCompletedGiveawaysTable(guild, giveawayData),
-            generateGiveawayDataField(guild)
-        )
+        val giveawayDataMap = DBGiveaway.getInstance().retrieve(atomicGuild.idLong)
+
+        if (mode == Mode.OVERVIEW) {
+            mainContainer.add(
+                generateOngoingGiveawaysTable(guild, giveawayDataMap),
+                generateCompletedGiveawaysTable(guild, giveawayDataMap),
+            )
+        }
+
+        mainContainer.add(generateGiveawayDataField(guild))
     }
 
-    private fun generateOngoingGiveawaysTable(guild: Guild, giveawayData: CustomObservableMap<Long, GiveawayData>): DashboardComponent {
+    private fun generateOngoingGiveawaysTable(guild: Guild, giveawayDataMap: CustomObservableMap<Long, GiveawayData>): DashboardComponent {
         return generateGiveawaysTable(
             guild,
-            giveawayData,
+            giveawayDataMap,
             getString(Category.UTILITY, "giveaway_dashboard_ongoing_title"),
             getString(Category.UTILITY, "giveaway_dashboard_ongoing_button"),
             { it.isActive }
         ) {
-            //TODO
+            val giveawayDataTemp = DBGiveaway.getInstance().retrieve(atomicGuild.idLong).get(it.data.toLong())
+            if (giveawayDataTemp != null && giveawayDataTemp.isActive) {
+                readValuesFromGiveawayData(giveawayDataTemp)
+                switchMode(Mode.EDIT)
+            }
         }
     }
 
-    private fun generateCompletedGiveawaysTable(guild: Guild, giveawayData: CustomObservableMap<Long, GiveawayData>): DashboardComponent {
+    private fun generateCompletedGiveawaysTable(guild: Guild, giveawayDataMap: CustomObservableMap<Long, GiveawayData>): DashboardComponent {
         return generateGiveawaysTable(
             guild,
-            giveawayData,
+            giveawayDataMap,
             getString(Category.UTILITY, "giveaway_dashboard_completed_title"),
             getString(Category.UTILITY, "giveaway_dashboard_completed_button"),
             { !it.isActive }
         ) {
-            //TODO
+            val giveawayDataTemp = DBGiveaway.getInstance().retrieve(atomicGuild.idLong).get(it.data.toLong())
+            if (giveawayDataTemp != null && !giveawayDataTemp.isActive) {
+                readValuesFromGiveawayData(giveawayDataTemp)
+                switchMode(Mode.REROLL)
+            }
         }
     }
 
-    private fun generateGiveawaysTable(guild: Guild, giveawayData: CustomObservableMap<Long, GiveawayData>, title: String, rowButton: String,
+    private fun generateGiveawaysTable(guild: Guild, giveawayDataMap: CustomObservableMap<Long, GiveawayData>, title: String, rowButton: String,
                                        filter: (GiveawayData) -> Boolean, action: (DashboardEvent<String>) -> Any
     ): DashboardComponent {
         val container = VerticalContainer()
         container.add(DashboardTitle(title))
 
-        val rows = giveawayData.values
+        val rows = giveawayDataMap.values
             .filter(filter)
             .map {
                 val atomicChannel = AtomicBaseGuildMessageChannel(guild.idLong, it.baseGuildMessageChannelId)
                 val values = arrayOf(it.title, atomicChannel.prefixedName)
-                GridRow(it.hashCode().toString(), values)
+                GridRow(it.messageId.toString(), values)
             }
 
         val headers = getString(Category.UTILITY, "giveaway_dashboard_header").split('\n').toTypedArray()
         val grid = DashboardGrid(headers, rows) {
             action(it)
             ActionResult()
-                .withRedraw()
+                .withRedrawScrollToTop()
         }
         grid.rowButton = rowButton
         container.add(grid)
@@ -110,7 +131,11 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
     private fun generateGiveawayDataField(guild: Guild): DashboardComponent {
         val container = VerticalContainer()
 
-        val title = getString(Category.UTILITY, "giveaway_state1_title")
+        val title = when (mode) {
+            Mode.OVERVIEW -> getString(Category.UTILITY, "giveaway_state1_title")
+            Mode.EDIT -> getString(Category.UTILITY, "giveaway_state2_title")
+            Mode.REROLL -> getString(Category.UTILITY, "giveaway_state12_title")
+        }
         container.add(DashboardTitle(title))
 
         val channelArticleContainer = HorizontalContainer()
@@ -118,12 +143,21 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
 
         val channelLabel = getString(Category.UTILITY, "giveaway_dashboard_channel")
         val channelComboBox = DashboardTextChannelComboBox(channelLabel, guild.idLong, channelId, false) {
+            if (mode != Mode.OVERVIEW) {
+                return@DashboardTextChannelComboBox ActionResult()
+            }
+
             channelId = it.data.toLong()
             ActionResult()
         }
+        channelComboBox.isEnabled = mode == Mode.OVERVIEW
         channelArticleContainer.add(channelComboBox)
 
         val articleTextfield = DashboardTextField(getString(Category.UTILITY, "giveaway_state3_mtitle"), 1, GiveawayCommand.ARTICLE_LENGTH_MAX) {
+            if (mode == Mode.REROLL) {
+                return@DashboardTextField ActionResult()
+            }
+
             article = it.data
             ActionResult()
         }
@@ -132,11 +166,16 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
         }
         articleTextfield.editButton = false
         articleTextfield.placeholder = getString(Category.UTILITY, "giveaway_dashboard_article_placeholder")
+        articleTextfield.isEnabled = mode != Mode.REROLL
         channelArticleContainer.add(articleTextfield)
         container.add(channelArticleContainer)
 
         val descTextfield =
             DashboardMultiLineTextField(getString(Category.UTILITY, "giveaway_state3_mdescription"), 0, GiveawayCommand.DESC_LENGTH_MAX) {
+                if (mode == Mode.REROLL) {
+                    return@DashboardMultiLineTextField ActionResult()
+                }
+
                 desc = it.data
                 ActionResult()
             }
@@ -145,14 +184,20 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
         }
         descTextfield.editButton = false
         descTextfield.placeholder = getString(Category.UTILITY, "giveaway_dashboard_desc_placeholder")
+        descTextfield.isEnabled = mode != Mode.REROLL
         container.add(descTextfield, DashboardSeparator())
 
         val durationField = DashboardDurationField(getString(Category.UTILITY, "giveaway_state3_mduration")) {
+            if (mode != Mode.OVERVIEW) {
+                return@DashboardDurationField ActionResult()
+            }
+
             duration = it.data.toLong()
             ActionResult()
         }
         durationField.value = duration
         durationField.editButton = false
+        durationField.isEnabled = mode == Mode.OVERVIEW
         container.add(durationField)
 
         val winnersEmojiContainer = HorizontalContainer()
@@ -168,6 +213,10 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
         winnersEmojiContainer.add(winnersField)
 
         val emojiField = DashboardTextField(getString(Category.UTILITY, "giveaway_state3_memoji"), 0, 100) {
+            if (mode != Mode.OVERVIEW) {
+                return@DashboardTextField ActionResult()
+            }
+
             val emojis = MentionUtil.getEmojis(guild, it.data).list
             if (emojis.isEmpty()) {
                 ActionResult()
@@ -187,58 +236,89 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
             }
         }
         emojiField.value = emoji.formatted
+        emojiField.isEnabled = mode == Mode.OVERVIEW
         winnersEmojiContainer.add(emojiField)
         container.add(winnersEmojiContainer, DashboardSeparator())
 
-        val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "giveaway_dashboard_includedimage")) {
-            image = it.data
-            ActionResult()
-                .withRedraw()
-        }
-        container.add(imageUpload)
+        if (mode != Mode.REROLL) {
+            val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "giveaway_dashboard_includedimage")) {
+                image = it.data
+                ActionResult()
+                    .withRedraw()
+            }
+            container.add(imageUpload)
 
-        if (image != null) {
-            container.add(DashboardImage(image))
+            if (image != null) {
+                container.add(DashboardImage(image))
+                val removeImageButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_removeimage")) {
+                    image = null
+                    ActionResult()
+                        .withRedraw()
+                }
+                container.add(HorizontalContainer(removeImageButton, HorizontalPusher()))
+            }
+            container.add(DashboardSeparator())
         }
-        container.add(DashboardSeparator())
 
         val buttonContainer = HorizontalContainer()
-        val sendButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_send")) {
-            val channel = channelId?.let { guild.getTextChannelById(it.toString()) }
-            if (channel == null) { /* invalid channel */
-                return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(Category.UTILITY, "giveaway_dashboard_invalidchannel"))
-            }
-            if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) { /* no permissions in channel */
-                return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_reactions", "#${channel.getName()}"))
-            }
+        buttonContainer.allowWrap = true
 
-            if (article == null) { /* invalid article */
-                return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(Category.UTILITY, "giveaway_dashboard_noarticle"))
+        val sendButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_send", mode.ordinal)) {
+            if (mode != Mode.REROLL) {
+                confirm(guild, false)
+            } else {
+                val giveawayMap = DBGiveaway.getInstance().retrieve(guild.getIdLong())
+                val giveawayData = giveawayMap.get(messageId)
+                if (giveawayData == null) {
+                    switchMode(Mode.OVERVIEW)
+                    return@DashboardButton ActionResult()
+                        .withRedrawScrollToTop()
+                }
+
+                val messageExists = GiveawayScheduler.processGiveawayUsers(giveawayData, winners.toInt(), true).get()
+                if (messageExists) {
+                    switchMode(Mode.OVERVIEW)
+                    return@DashboardButton ActionResult()
+                        .withRedrawScrollToTop()
+                        .withSuccessMessage(getString(Category.UTILITY, "giveaway_dashboard_success", 2))
+                } else {
+                    giveawayMap.remove(this.messageId)
+                    switchMode(Mode.OVERVIEW)
+                    return@DashboardButton ActionResult()
+                        .withRedrawScrollToTop()
+                        .withErrorMessage(getString(Category.UTILITY, "giveaway_nomessage"))
+                }
             }
-
-            val instant = Instant.now()
-            val messageId = sendMessage(guild, channelId!!, instant)
-            val giveawayData = GiveawayData(guild.idLong, channelId!!, messageId, emoji.formatted, winners.toInt(), instant, duration, article, desc, image, true)
-            GiveawayScheduler.loadGiveawayBean(giveawayData)
-            DBGiveaway.getInstance().retrieve(guild.getIdLong())
-                .put(messageId, giveawayData)
-
-            ActionResult()
-                .withRedrawScrollToTop()
         }
         sendButton.style = DashboardButton.Style.PRIMARY
         buttonContainer.add(sendButton)
 
-        if (image != null) {
-            val removeImageButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_removeimage")) {
-                image = null
-                ActionResult()
-                    .withRedraw()
+        if (mode == Mode.EDIT) {
+            val endPrematurelyButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_endpre")) {
+                confirm(guild, true)
             }
-            buttonContainer.add(removeImageButton)
+            endPrematurelyButton.style = DashboardButton.Style.PRIMARY
+            buttonContainer.add(endPrematurelyButton)
+        }
+
+        if (mode == Mode.REROLL) {
+            val removeButton = DashboardButton(getString(Category.UTILITY, "giveaway_state13_delete")) {
+                DBGiveaway.getInstance().retrieve(guild.getIdLong()).remove(messageId)
+                switchMode(Mode.OVERVIEW)
+                ActionResult()
+                    .withRedrawScrollToTop()
+            }
+            removeButton.style = DashboardButton.Style.DANGER
+            buttonContainer.add(removeButton)
+        }
+
+        if (mode != Mode.OVERVIEW) {
+            val cancelButton = DashboardButton(getString(TextManager.GENERAL, "process_abort")) {
+                switchMode(Mode.OVERVIEW)
+                ActionResult()
+                    .withRedrawScrollToTop()
+            }
+            buttonContainer.add(cancelButton)
         }
 
         buttonContainer.add(HorizontalPusher())
@@ -246,15 +326,133 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
         return container
     }
 
+    private fun confirm(guild: Guild, endPrematurely: Boolean): ActionResult {
+        val errorActionResponse = checkFieldValidity(guild)
+        if (errorActionResponse != null) {
+            return errorActionResponse
+        }
+
+        if (mode == Mode.OVERVIEW) {
+            startInstant = Instant.now()
+        }
+
+        if (startInstant!!.plus(duration, ChronoUnit.MINUTES).isBefore(Instant.now())) {
+            switchMode(Mode.OVERVIEW)
+            return ActionResult()
+                .withRedrawScrollToTop()
+                .withErrorMessage(getString(Category.UTILITY, "giveaway_dashboard_toolate"))
+        }
+
+        if (endPrematurely) {
+            duration = 0
+        }
+
+        val giveawayMap = DBGiveaway.getInstance().retrieve(guild.getIdLong())
+        try {
+            messageId = sendMessage(guild, channelId!!, startInstant!!)
+        } catch (e: ErrorResponseException) {
+            if (mode != Mode.OVERVIEW) {
+                giveawayMap.remove(this.messageId)
+                switchMode(Mode.OVERVIEW)
+                return ActionResult()
+                    .withRedrawScrollToTop()
+                    .withErrorMessage(getString(Category.UTILITY, "giveaway_nomessage"))
+            }
+        }
+
+        val giveawayData = generateGiveawayData(guild)
+        giveawayMap.put(messageId, giveawayData)
+        if (endPrematurely || !giveawayMap.containsKey(giveawayData.getMessageId())) {
+            GiveawayScheduler.loadGiveawayBean(giveawayData)
+            if (endPrematurely) {
+                TimeUnit.SECONDS.sleep(3)
+            }
+        }
+
+        val actionResult = ActionResult()
+            .withRedrawScrollToTop()
+            .withSuccessMessage(getString(Category.UTILITY, "giveaway_dashboard_success", mode != Mode.OVERVIEW))
+        switchMode(Mode.OVERVIEW)
+        return actionResult
+    }
+
+    private fun checkFieldValidity(guild: Guild): ActionResult? {
+        val channel = channelId?.let { guild.getTextChannelById(it.toString()) }
+        if (channel == null) { /* invalid channel */
+            return ActionResult()
+                .withErrorMessage(getString(Category.UTILITY, "giveaway_dashboard_invalidchannel"))
+        }
+        if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) { /* no permissions in channel */
+            return ActionResult()
+                .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_reactions", "#${channel.getName()}"))
+        }
+
+        if (article == null || article!!.isBlank()) { /* invalid article */
+            return ActionResult()
+                .withErrorMessage(getString(Category.UTILITY, "giveaway_noitem"))
+        }
+
+        return null
+    }
+
     private fun sendMessage(guild: Guild, channelId: Long, instant: Instant): Long {
         val channel = guild.getTextChannelById(channelId)
         val locale = DBGuild.getInstance().retrieve(guild.idLong).locale
         val eb = Giveaway.getMessageEmbed(locale, article, desc, winners.toInt(), emoji, duration, image, instant)
-        val message = channel!!.sendMessageEmbeds(eb.build()).complete()
-        if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
-            message.addReaction(emoji).queue()
+
+        if (mode == Mode.OVERVIEW) {
+            val message = channel!!.sendMessageEmbeds(eb.build()).complete()
+            if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
+                message.addReaction(emoji).queue()
+            }
+            return message.idLong
+        } else {
+            channel!!.editMessageEmbedsById(messageId!!, eb.build()).complete()
+            return messageId!!
         }
-        return message.idLong
+    }
+
+    private fun switchMode(newMode: Mode) {
+        mode = newMode
+        if (mode == Mode.OVERVIEW) {
+            channelId = null
+            article = null
+            desc = ""
+            duration = Duration.ofDays(7).toMinutes()
+            winners = 1
+            emoji = Emoji.fromUnicode("🎉")
+            image = null
+            messageId = null
+            startInstant = null
+        }
+    }
+
+    private fun readValuesFromGiveawayData(giveawayData: GiveawayData) {
+        channelId = giveawayData.baseGuildMessageChannelId
+        article = giveawayData.title
+        desc = giveawayData.description
+        duration = giveawayData.durationMinutes
+        winners = giveawayData.winners.toLong()
+        emoji = Emoji.fromFormatted(giveawayData.emoji)
+        image = giveawayData.imageUrl.orElse(null)
+        messageId = giveawayData.messageId
+        startInstant = giveawayData.start
+    }
+
+    private fun generateGiveawayData(guild: Guild): GiveawayData {
+        return GiveawayData(
+            guild.idLong,
+            channelId!!,
+            messageId!!,
+            emoji.formatted,
+            winners.toInt(),
+            startInstant,
+            duration,
+            article,
+            desc,
+            image,
+            true
+        )
     }
 
 }

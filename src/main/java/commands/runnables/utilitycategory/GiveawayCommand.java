@@ -73,7 +73,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     private CustomObservableMap<Long, GiveawayData> giveawayMap = null;
 
     private long messageId;
-    private String title;
+    private String title = "";
     private String description = "";
     private long durationMinutes = 10080;
     private int amountOfWinners = 1;
@@ -93,7 +93,6 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         giveawayMap = DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong());
-        title = getString("title");
         registerNavigationListener(event.getMember());
         registerReactionListener(event.getMember());
         return true;
@@ -376,12 +375,20 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 return true;
 
             case 7:
-                send(event, editMode);
+                if (!title.isEmpty()) {
+                    send(event, editMode);
+                } else {
+                    setLog(LogStatus.FAILURE, getString("noitem"));
+                }
                 return true;
 
             case 8:
                 if (editMode) {
-                    send(event, false);
+                    if (!title.isEmpty()) {
+                        send(event, false);
+                    } else {
+                        setLog(LogStatus.FAILURE, getString("noitem"));
+                    }
                     return true;
                 } else {
                     return false;
@@ -394,6 +401,17 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     private void send(ButtonInteractionEvent event, boolean endPrematurely) {
         Optional<Long> messageIdOpt = sendMessage();
+        if (messageIdOpt.isEmpty() && editMode) {
+            giveawayMap.remove(messageId);
+            setLog(LogStatus.FAILURE, getString("nomessage"));
+            if (!giveawayMap.isEmpty()) {
+                setState(EDIT_MESSAGE);
+            } else {
+                setState(DEFAULT_STATE);
+            }
+            return;
+        }
+
         if (messageIdOpt.isPresent()) {
             setState(SENT);
             deregisterListeners();
@@ -543,7 +561,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         }
 
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_" + (editMode ? "edit" : "new")))
-                .addField(getString("state3_mtitle"), title, false)
+                .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(title.isEmpty() ? notSet : title), false)
                 .addField(getString("state3_mdescription"), StringUtil.escapeMarkdown(description.isEmpty() ? notSet : description), false)
                 .addField(getString("state3_mduration"), TimeUtil.getRemainingTimeString(getLocale(), durationMinutes * 60_000, false), true)
                 .addField(getString("state3_mwinners"), String.valueOf(amountOfWinners), true)
@@ -585,7 +603,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Draw(state = EXAMPLE)
     public EmbedBuilder onDrawExample(Member member) {
         return Giveaway.getMessageEmbed(getLocale(), title, description, amountOfWinners, emoji,
-                durationMinutes, imageLink, Instant.now());
+                durationMinutes, imageLink, Instant.now()
+        );
     }
 
     @Draw(state = SENT)
@@ -598,12 +617,12 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         Button[] buttons;
         if (rerollWinners > 0) {
-            buttons = new Button[]{
+            buttons = new Button[] {
                     Button.of(ButtonStyle.PRIMARY, "0", getString("state13_confirm")),
                     Button.of(ButtonStyle.DANGER, "1", getString("state13_delete"))
             };
         } else {
-            buttons = new Button[]{
+            buttons = new Button[] {
                     Button.of(ButtonStyle.DANGER, "0", getString("state13_delete")),
             };
         }
@@ -635,7 +654,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             if (!editMode) {
                 instant = Instant.now();
                 EmbedBuilder eb = Giveaway.getMessageEmbed(getLocale(), title, description, amountOfWinners, emoji,
-                        durationMinutes, imageLink, instant);
+                        durationMinutes, imageLink, instant
+                );
                 message = channel.sendMessageEmbeds(eb.build()).complete();
                 if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
                     message.addReaction(emoji).queue();
@@ -646,7 +666,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                     return Optional.empty();
                 }
                 EmbedBuilder eb = Giveaway.getMessageEmbed(getLocale(), title, description, amountOfWinners, emoji,
-                        durationMinutes, imageLink, instant);
+                        durationMinutes, imageLink, instant
+                );
                 try {
                     channel.editMessageEmbedsById(messageId, eb.build()).complete();
                     return Optional.of(messageId);
