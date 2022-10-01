@@ -94,7 +94,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (event.getChannel() instanceof GuildMessageChannel && event.getGuildChannel() != null) {
+        if (event.getChannel() instanceof GuildMessageChannel && event.getGuildChannel().getPermissionContainer() != null) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageReceivedAbstract.onGuildMessageReceivedStatic(event, getListenerList(GuildMessageReceivedAbstract.class)));
         } else if (event.getChannel() instanceof PrivateChannel) {
