@@ -9,6 +9,7 @@ import commands.runnables.utilitycategory.AlertsCommand
 import core.CustomObservableMap
 import core.TextManager
 import core.atomicassets.AtomicBaseGuildMessageChannel
+import core.atomicassets.AtomicTextChannel
 import core.utils.BotPermissionUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
@@ -36,17 +37,16 @@ import java.util.*
 )
 class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
-    var commandTrigger: String? = null
+    var command: Command? = null
     var channelId: Long? = null
     var commandKey = ""
-    var userMessage: String = ""
+    var userMessage = ""
 
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(AlertsCommand::class.java, locale).title
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        clearAttributes()
         val alertMap = DBTracker.getInstance().retrieve(guild.idLong)
         mainContainer.add(
             DashboardText(getString(Category.UTILITY, "alerts_dashboard_desc")),
@@ -96,6 +96,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
             userMessage = it.data
             ActionResult()
         }
+        attachmentField.value = userMessage
         attachmentField.isEnabled = isPremium
         attachmentField.editButton = false
         container.add(DashboardSeparator(), attachmentField)
@@ -123,16 +124,15 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
                     .withErrorMessage(getString(Category.UTILITY, "alerts_toomuch_channel", AlertsCommand.LIMIT_CHANNEL.toString()))
             }
 
-            if (commandTrigger == null) { /* invalid command */
+            if (command == null) { /* invalid command */
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "alerts_invalidcommand"))
             }
-            val command = CommandManager.createCommandByTrigger(commandTrigger, locale, prefix).get()
-            if (command.commandProperties.patreonRequired && !premium) { /* command requires premium */
+            if (command!!.commandProperties.patreonRequired && !premium) { /* command requires premium */
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(TextManager.GENERAL, "patreon_unlock"))
             }
-            if (command.commandProperties.nsfw && !channel.isNSFW) { /* command requires nsfw */
+            if (command!!.commandProperties.nsfw && !channel.isNSFW) { /* command requires nsfw */
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(TextManager.GENERAL, "nsfw_block_description"))
             }
@@ -151,19 +151,19 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
             }
 
             val alreadyExists = alertMap.values.any {
-                it.commandTrigger == commandTrigger &&
+                it.commandTrigger == command?.trigger &&
                         it.baseGuildMessageChannelId == channelId &&
                         it.commandKey == commandKey
             }
             if (alreadyExists) { /* alert already exists */
                 return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(Category.UTILITY, "alerts_state1_alreadytracking", commandTrigger!!))
+                    .withErrorMessage(getString(Category.UTILITY, "alerts_state1_alreadytracking", command!!.trigger))
             }
 
             val trackerData = TrackerData(
                 guild.idLong,
                 channelId!!,
-                commandTrigger!!,
+                command!!.trigger,
                 null,
                 commandKey,
                 Instant.now(),
@@ -172,6 +172,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
                 userMessage,
                 Instant.now()
             )
+            clearAttributes()
             alertMap.put(trackerData.hashCode(), trackerData)
             AlertScheduler.loadAlert(trackerData)
             ActionResult()
@@ -192,40 +193,65 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
             channelId = it.data.toLong()
             ActionResult()
         }
+        if (channelId != null) {
+            val atomicChannel = AtomicTextChannel(atomicGuild.idLong, channelId!!)
+            channelComboBox.selectedValues = listOf(DiscordEntity(channelId.toString(), atomicChannel.prefixedName))
+        }
         container.add(channelComboBox)
 
         val commandLabel = getString(Category.UTILITY, "alerts_dashboard_command")
         val commandValues = CommandContainer.getTrackerCommands()
             .map {
                 val command = CommandManager.createCommandByClass(it as Class<Command>, locale, prefix)
-                val trigger = command.trigger
-
-                val index = if (command.commandProperties.patreonRequired) { 1 }
-                else if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) { 2 }
-                else { 0 }
-
-                DiscordEntity(trigger, getString(Category.UTILITY, "alerts_dashboard_trigger", index, trigger))
+                extractCommand(command)
             }
             .sortedBy { it.id }
         val commandComboBox = DashboardComboBox(commandLabel, commandValues, false, 1) {
-            commandTrigger = it.data
+            command =  CommandManager.createCommandByTrigger(it.data, locale, prefix).get()
+            commandKey = ""
             ActionResult()
+                .withRedraw()
+        }
+        if (command != null) {
+            commandComboBox.selectedValues = listOf(extractCommand(command!!))
         }
         container.add(commandComboBox)
 
-        val argsLabel = getString(Category.UTILITY, "alerts_dashboard_arg")
+        val withKey = command != null && (command as OnAlertListener).trackerUsesKey()
+        val argsLabel = if (withKey) {
+            getString(command!!.category, command!!.trigger + "_trackerkey_short")
+        } else {
+            getString(Category.UTILITY, "alerts_dashboard_arg")
+        }
+
         val argsTextField = DashboardTextField(argsLabel, 0, AlertsCommand.LIMIT_KEY_LENGTH) {
             commandKey = it.data
             ActionResult()
         }
+        argsTextField.value = commandKey
         argsTextField.editButton = false
+        argsTextField.isEnabled = withKey
+
         container.add(argsTextField)
 
         return container
     }
 
+    private fun extractCommand(command: Command): DiscordEntity {
+        val trigger = command.trigger
+        val index = if (command.commandProperties.patreonRequired) {
+            1
+        } else if (command.getReleaseDate().orElse(LocalDate.now()).isAfter(LocalDate.now())) {
+            2
+        } else {
+            0
+        }
+
+        return DiscordEntity(trigger, getString(Category.UTILITY, "alerts_dashboard_trigger", index, trigger))
+    }
+
     fun clearAttributes() {
-        commandTrigger = null
+        command = null
         channelId = null
         commandKey = ""
         userMessage = ""
