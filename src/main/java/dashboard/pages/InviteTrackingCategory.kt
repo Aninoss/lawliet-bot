@@ -14,6 +14,7 @@ import dashboard.components.DashboardMemberComboBox
 import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
+import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.invitetracking.InviteTracking
 import mysql.modules.invitetracking.DBInviteTracking
@@ -102,9 +103,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale) : Dash
         container.add(DashboardTitle(getString(Category.INVITE_TRACKING, "invmanage_title")))
 
         if (inviteTrackingData.isActive) {
-            container.add(
-                generateInvitesManageMemberField(inviteTrackingData, premium)
-            )
+            container.add(generateInvitesManageMemberField(inviteTrackingData, premium))
         } else {
             container.add(DashboardText(getString(Category.INVITE_TRACKING, "invmanage_notactive")))
         }
@@ -119,6 +118,8 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale) : Dash
 
     private fun generateInvitesManageMemberField(inviteTrackingData: InviteTrackingData, premium: Boolean): DashboardComponent {
         val container = VerticalContainer()
+        val memberContainer = HorizontalContainer()
+        memberContainer.alignment = HorizontalContainer.Alignment.BOTTOM
 
         val manageMemberComboBox = DashboardMemberComboBox(
             getString(Category.INVITE_TRACKING, "invmanage_member"),
@@ -132,7 +133,20 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale) : Dash
                 .withRedraw()
         }
         manageMemberComboBox.isEnabled = premium
-        container.add(manageMemberComboBox)
+        if (manageMember != null && manageMember == 0L) {
+            manageMemberComboBox.selectedValues = listOf(DiscordEntity("0", getString(TextManager.GENERAL, "invites_vanity")))
+        }
+        memberContainer.add(manageMemberComboBox)
+
+        val vanityInviteButton = DashboardButton(getString(Category.INVITE_TRACKING, "invitetracking_dashboard_selectvanity")) {
+            manageMember = 0L
+            addInviteMember = null
+            ActionResult()
+                .withRedraw()
+        }
+        memberContainer.add(vanityInviteButton)
+
+        container.add(memberContainer)
 
         if (manageMember != null) {
             val gridRows = inviteTrackingData.inviteTrackingSlots.values

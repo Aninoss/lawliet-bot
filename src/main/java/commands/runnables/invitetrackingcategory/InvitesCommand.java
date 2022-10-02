@@ -49,20 +49,33 @@ public class InvitesCommand extends MemberAccountAbstract {
 
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) {
-        InviteMetrics inviteMetrics = InviteTracking.generateInviteMetrics(event.getGuild(), member.getIdLong());
+        long memberId = member.getIdLong();
+        if (memberIsAuthor && args.toLowerCase().contains("vanity")) {
+            memberId = 0;
+            setFound();
+        }
+
+        InviteMetrics inviteMetrics = InviteTracking.generateInviteMetrics(event.getGuild(), memberId);
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .setTitle(null)
-                .setAuthor(getString("template_title", member.getEffectiveName()), null, member.getUser().getEffectiveAvatarUrl())
                 .setDescription(getString("template_desc",
                         StringUtil.numToString(inviteMetrics.getTotalInvites()),
                         StringUtil.numToString(inviteMetrics.getOnServer()),
                         StringUtil.numToString(inviteMetrics.getRetained()),
                         StringUtil.numToString(inviteMetrics.getActive()))
                 );
-        InviteTrackingSlot slot = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).getInviteTrackingSlots().get(member.getIdLong());
-        if (slot != null) {
-            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("invitedby", slot.getInviterUserId() == 0, new AtomicMember(event.getGuild().getIdLong(), slot.getInviterUserId()).getAsMention()), false);
+
+        if (memberId != 0) {
+            eb.setAuthor(getString("template_title", member.getEffectiveName()), null, member.getUser().getEffectiveAvatarUrl());
+            InviteTrackingSlot slot = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).getInviteTrackingSlots().get(member.getIdLong());
+            if (slot != null) {
+                eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("invitedby", slot.getInviterUserId() == 0, new AtomicMember(event.getGuild().getIdLong(), slot.getInviterUserId()).getAsMention()), false);
+            }
+        } else {
+            String vanityInvite = TextManager.getString(getLocale(), TextManager.GENERAL, "invites_vanity");
+            eb.setAuthor(vanityInvite);
         }
+
         return eb;
     }
 

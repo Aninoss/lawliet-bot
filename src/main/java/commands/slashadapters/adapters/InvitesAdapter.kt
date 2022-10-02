@@ -14,6 +14,7 @@ class InvitesAdapter : SlashAdapter() {
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
             .addOption(OptionType.USER, "member", "Request for another server member", false)
+            .addOption(OptionType.BOOLEAN, "vanity", "Choose the Vanity Invite instead", false)
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {
