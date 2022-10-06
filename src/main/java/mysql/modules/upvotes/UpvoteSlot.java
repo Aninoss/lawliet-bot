@@ -6,12 +6,12 @@ import core.assets.UserAsset;
 public class UpvoteSlot implements UserAsset {
 
     private final long userId;
-    private final Instant lastUpdate;
+    private final Instant lastUpvote;
     private final int remindersSent;
 
-    public UpvoteSlot(long userId, Instant lastUpdate, int remindersSent) {
+    public UpvoteSlot(long userId, Instant lastUpvote, int remindersSent) {
         this.userId = userId;
-        this.lastUpdate = lastUpdate;
+        this.lastUpvote = lastUpvote;
         this.remindersSent = remindersSent;
     }
 
@@ -20,8 +20,8 @@ public class UpvoteSlot implements UserAsset {
         return userId;
     }
 
-    public Instant getLastUpdate() {
-        return lastUpdate;
+    public Instant getLastUpvote() {
+        return lastUpvote;
     }
 
     public int getRemindersSent() {

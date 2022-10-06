@@ -122,7 +122,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnSel
     }
 
     private String getRemainingTimeUpvotes() {
-        Instant lastUpvote = DBUpvotes.getInstance().retrieve().getLastUpvote(fisheryMemberData.getMemberId()).plus(12, ChronoUnit.HOURS);
+        Instant lastUpvote = DBUpvotes.getUpvoteSlot(fisheryMemberData.getMemberId()).getLastUpvote().plus(12, ChronoUnit.HOURS);
         return getRemainingTime(lastUpvote);
     }
 

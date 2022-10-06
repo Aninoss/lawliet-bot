@@ -1,9 +1,12 @@
 package events.sync.events;
 
+import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import core.GlobalThreadPool;
 import core.MainLogger;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryStatus;
 import mysql.modules.autoclaim.DBAutoClaim;
@@ -12,10 +15,8 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.upvotes.DBUpvotes;
-import mysql.modules.upvotes.UpvotesData;
+import mysql.modules.upvotes.UpvoteSlot;
 import org.json.JSONObject;
-import events.sync.SyncServerEvent;
-import events.sync.SyncServerFunction;
 
 @SyncServerEvent(event = "TOPGG")
 public class OnTopGG implements SyncServerFunction {
@@ -45,7 +46,6 @@ public class OnTopGG implements SyncServerFunction {
     }
 
     protected void processUpvote(long userId, boolean isWeekend) throws ExecutionException, InterruptedException {
-        UpvotesData upvotesData = DBUpvotes.getInstance().retrieve();
         AtomicInteger guilds = new AtomicInteger();
         DBFishery.getInstance().getGuildIdsForFisheryUser(userId).stream()
                 .filter(guildId -> DBGuild.getInstance().retrieve(guildId).getFisheryStatus() == FisheryStatus.ACTIVE)
@@ -61,7 +61,7 @@ public class OnTopGG implements SyncServerFunction {
                     guilds.incrementAndGet();
                 });
 
-        upvotesData.updateLastUpvote(userId);
+        DBUpvotes.saveUpvoteSlot(new UpvoteSlot(userId, Instant.now(), 0));
         MainLogger.get().info("UPVOTE | {} ({} guild/s)", userId, guilds.get());
     }
 

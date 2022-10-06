@@ -43,7 +43,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
 
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) {
-        Instant nextUpvote = DBUpvotes.getInstance().retrieve().getLastUpvote(event.getMember().getIdLong()).plus(12, ChronoUnit.HOURS);
+        Instant nextUpvote = DBUpvotes.getUpvoteSlot(event.getMember().getIdLong()).getLastUpvote().plus(12, ChronoUnit.HOURS);
         FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         int upvotesUnclaimed = userBean.getUpvoteStack();
         userBean.clearUpvoteStack();
