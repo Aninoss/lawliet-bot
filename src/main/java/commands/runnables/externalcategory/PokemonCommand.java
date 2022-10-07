@@ -63,8 +63,11 @@ public class PokemonCommand extends Command {
         }
 
         ArrayList<Integer> types = new ArrayList<>();
-        if (content.contains("class=\"right round innerround\"") && content.contains("<span class=\"ic_icon\">")) {
-            String groupsBase = StringUtil.extractGroups(content, "class=\"right round innerround\"", "</table>")[0];
+        String groupStart = "<td style=\"background:#ffffff; width:40%\"><a href=\"/Typen\" title=\"Typen\">";
+        String groupEnd = "<td style=\"background:#ffffff; width:40%\"><a href=\"/Pok%C3%A9mon-Liste\" title=\"Pokémon-Liste\">National-Dex</a>";
+
+        if (content.contains(groupStart) && content.contains(groupEnd)) {
+            String groupsBase = StringUtil.extractGroups(content, groupStart, groupEnd)[0];
             if (groupsBase.contains("<span style=\"font-size:x-small;\">")) {
                 int i = groupsBase.indexOf("<span style=\"font-size:x-small;\">");
                 groupsBase = groupsBase.substring(0, i);
@@ -72,12 +75,11 @@ public class PokemonCommand extends Command {
             String[] lines = groupsBase.split("<br />");
             for (String line : lines) {
                 boolean found = false;
-                String[] groups = StringUtil.extractGroups(line, "<span class=\"ic_icon\">", "</span>");
+                String[] groups = StringUtil.extractGroups(line, "><span class=\"typ-icon\" title=\"", "\">");
                 for (String group : groups) {
-                    group = " " + group + " ";
                     String[] typesString = TextManager.getString(Language.DE.getLocale(), Category.EXTERNAL, "weaknesstype_types").split("\n");
                     for (int i = 0; i < typesString.length; i++) {
-                        if (group.contains("\"" + typesString[i] + "\"") && !types.contains(i) && types.size() < 2) {
+                        if (group.equals(typesString[i]) && !types.contains(i) && types.size() < 2) {
                             types.add(i);
                             found = true;
                         }
