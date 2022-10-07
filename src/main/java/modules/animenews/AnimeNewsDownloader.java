@@ -58,7 +58,7 @@ public class AnimeNewsDownloader {
         String contentEncoded = jsonPost.getString("content:encoded");
         String thumbnailUrl;
         try {
-            thumbnailUrl = "https://media.redadn.es/" + StringUtil.extractGroups(contentEncoded, "https://media.redadn.es/", "\"")[0];
+            thumbnailUrl = StringUtil.extractGroups(contentEncoded, "<img src=\"", "\"")[0];
         } catch (Throwable e) {
             MainLogger.get().error("Anime news spanish missing thumbnail", e);
             thumbnailUrl = null;
