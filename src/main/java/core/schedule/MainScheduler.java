@@ -19,8 +19,8 @@ public class MainScheduler {
 
     private static final Duration MAX_TASK_DURATION = Duration.ofSeconds(30);
 
-    private static final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(1, new CountingThreadFactory(() -> "Main", "Scheduler", true));
-    private static final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(1, new CountingThreadFactory(() -> "Main", "Poller", true));
+    private static final ScheduledExecutorService schedulers = Executors.newScheduledThreadPool(2, new CountingThreadFactory(() -> "Main", "Scheduler", true));
+    private static final ScheduledExecutorService pollers = Executors.newScheduledThreadPool(2, new CountingThreadFactory(() -> "Main", "Poller", true));
 
     public static void schedule(long millis, String name, Runnable listener) {
         if (Program.isRunning()) {

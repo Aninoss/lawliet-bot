@@ -637,7 +637,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     private List<GiveawayData> getActiveGiveawaySlots() {
         return giveawayMap.values().stream()
-                .filter(g -> g.isActive() && g.getEnd().isAfter(Instant.now()))
+                .filter(GiveawayData::isActive)
                 .collect(Collectors.toList());
     }
 
