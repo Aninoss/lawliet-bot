@@ -263,7 +263,12 @@ public class Console {
         long userId = Long.parseLong(args[1]);
         ShardManager.fetchUserById(userId)
                 .exceptionally(ExceptionLogger.get())
-                .thenAccept(user -> MainLogger.get().info("{} => {}", user.getId(), user.getAsTag()));
+                .thenAccept(user -> MainLogger.get().info("{} => {} (Premium: {}; Old: {})",
+                        user.getId(),
+                        user.getAsTag(),
+                        PatreonCache.getInstance().hasPremium(user.getIdLong(), false),
+                        PatreonCache.getInstance().hasPremium(user.getIdLong(), true)
+                ));
     }
 
     private static void onFisheryVC(String[] args) {
