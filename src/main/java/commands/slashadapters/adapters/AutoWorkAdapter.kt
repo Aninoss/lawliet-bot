@@ -17,7 +17,10 @@ class AutoWorkAdapter : SlashAdapter() {
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {
-        val args = event.getOption("active")?.asString ?: ""
+        var args = ""
+        if (event.getOption("active") != null) {
+            args = if (event.getOption("active")!!.asBoolean) "on" else "off"
+        }
         return SlashMeta(AutoWorkCommand::class.java, args)
     }
 
