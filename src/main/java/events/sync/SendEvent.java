@@ -82,6 +82,18 @@ public class SendEvent {
         );
     }
 
+    public static CompletableFuture<Void> sendFeatureRequestAction(int id, boolean accept, String reason) {
+        return process(
+                "FR_ACTION",
+                Map.of(
+                        "id", id,
+                        "accept", accept,
+                        "reason", reason
+                ),
+                responseJson -> null
+        );
+    }
+
     public static CompletableFuture<JSONObject> sendEmpty(String event) {
         return process(event, Collections.emptyMap(), r -> r);
     }
