@@ -31,7 +31,8 @@ public class SipCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/761612990784471041/834837478748979270/sip.gif",
                 "https://cdn.discordapp.com/attachments/761612990784471041/834837495506010152/sip.gif",
                 "https://cdn.discordapp.com/attachments/761612990784471041/834837508943642714/sip.gif",
-                "https://cdn.discordapp.com/attachments/761612990784471041/860571962316292096/sip.gif"
+                "https://cdn.discordapp.com/attachments/761612990784471041/860571962316292096/sip.gif",
+                "https://cdn.discordapp.com/attachments/761612990784471041/1031120861303935116/sip.gif"
         );
     }
 
