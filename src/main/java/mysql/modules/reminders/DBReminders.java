@@ -21,7 +21,7 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
 
     @Override
     protected CustomObservableMap<Long, ReminderData> load(Long guildId) throws Exception {
-        Map<Long, ReminderData> remindersMap = new DBDataLoad<ReminderData>("Reminders", "id, serverId, sourceChannelId, channelId, time, message, messageId", "serverId = ?",
+        Map<Long, ReminderData> remindersMap = new DBDataLoad<ReminderData>("Reminders", "id, serverId, sourceChannelId, channelId, time, message, messageId, `interval`", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getMap(
                 ReminderData::getId,
@@ -34,7 +34,8 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
                             resultSet.getLong(4),
                             resultSet.getLong(7),
                             resultSet.getTimestamp(5).toInstant(),
-                            resultSet.getString(6)
+                            resultSet.getString(6),
+                            resultSet.getInt(8)
                     );
                 }
         );
@@ -48,7 +49,7 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
     }
 
     public List<ReminderData> retrieveAll() {
-        return new DBDataLoadAll<ReminderData>("Reminders", "id, serverId, sourceChannelId, channelId, time, message, messageId")
+        return new DBDataLoadAll<ReminderData>("Reminders", "id, serverId, sourceChannelId, channelId, time, message, messageId, `interval`")
                 .getList(
                         resultSet -> {
                             long serverId = resultSet.getLong(2);
@@ -59,14 +60,15 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
                                     resultSet.getLong(4),
                                     resultSet.getLong(7),
                                     resultSet.getTimestamp(5).toInstant(),
-                                    resultSet.getString(6)
+                                    resultSet.getString(6),
+                                    resultSet.getInt(8)
                             );
                         }
                 );
     }
 
     private void addRemindersBean(ReminderData remindersBean) {
-        MySQLManager.asyncUpdate("INSERT IGNORE INTO Reminders (id, serverId, sourceChannelId, channelId, time, message, messageId) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Reminders (id, serverId, sourceChannelId, channelId, time, message, messageId, `interval`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, remindersBean.getId());
             preparedStatement.setLong(2, remindersBean.getGuildId());
             preparedStatement.setLong(3, remindersBean.getSourceChannelId());
@@ -74,6 +76,7 @@ public class DBReminders extends DBMapCache<Long, CustomObservableMap<Long, Remi
             preparedStatement.setString(5, MySQLManager.instantToDateTimeString(remindersBean.getTime()));
             preparedStatement.setString(6, remindersBean.getMessage());
             preparedStatement.setLong(7, remindersBean.getMessageId());
+            preparedStatement.setInt(8, remindersBean.getInterval());
         });
     }
 

@@ -75,7 +75,8 @@ public class PrefixCommand extends Command implements OnButtonListener {
                     drawMessage(EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(newPrefix))))
                             .exceptionally(ExceptionLogger.get());
                     e.deferEdit().queue();
-                }).addActionRow(textInput)
+                })
+                .addActionRow(textInput)
                 .build();
         event.replyModal(modal).queue();
         return false;

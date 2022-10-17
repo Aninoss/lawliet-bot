@@ -48,6 +48,10 @@ public class CommandManager {
     }
 
     public static void manage(CommandEvent event, Command command, String args, Instant startTime, boolean freshCommand) {
+        if (command instanceof PingCommand) {
+            command.getAttachments().put("starting_time", startTime);
+        }
+
         if (checkCoolDown(event, command) &&
                 checkCorrectChannelType(event, command) &&
                 checkRunningCommands(event, command)
@@ -87,10 +91,6 @@ public class CommandManager {
                 cleanPreviousListeners(command, event.getMember());
                 sendOverwrittenSignals(command, event.getMember());
 
-                if (command instanceof PingCommand) {
-                    command.getAttachments().put("starting_time", startTime);
-                }
-
                 boolean success = command.processTrigger(event, args, freshCommand);
                 if (success && Program.publicVersion()) {
                     maybeSendBotInvite(event, command.getLocale());
@@ -121,7 +121,6 @@ public class CommandManager {
     }
 
     private static boolean checkRunningCommands(CommandEvent event, Command command) {
-        if (command instanceof PingCommand) command.getAttachments().put("start_instant", Instant.now());
         if (RunningCheckerManager.canUserRunCommand(
                 command,
                 event.getGuild().getIdLong(),

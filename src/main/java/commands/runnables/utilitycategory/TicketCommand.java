@@ -54,6 +54,7 @@ import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
         trigger = "ticket",
+        botChannelPermissions = { Permission.MESSAGE_EXT_EMOJI },
         botGuildPermissions = { Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MANAGE_ROLES },
         userGuildPermissions = { Permission.MANAGE_CHANNEL },
         releaseDate = { 2021, 5, 24 },

@@ -322,7 +322,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=744 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=747 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -641,6 +641,7 @@ CREATE TABLE `Reminders` (
   `messageId` bigint unsigned NOT NULL DEFAULT '0',
   `time` timestamp NOT NULL,
   `message` varchar(2048) NOT NULL,
+  `interval` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `RemindersServerBase` (`serverId`),
   CONSTRAINT `RemindersServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1390,4 +1391,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-16 10:42:55
+-- Dump completed on 2022-10-17 13:13:25

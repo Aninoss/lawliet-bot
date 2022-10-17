@@ -72,7 +72,9 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
             if (registerVote(event, surveyData, type, vote)) {
                 EmbedBuilder eb = getVoteStatusEmbed(event.getMember(), surveyData);
-                event.replyEmbeds(eb.build()).setEphemeral(true).queue();
+                event.replyEmbeds(eb.build())
+                        .setEphemeral(true)
+                        .queue();
             }
         }
     }

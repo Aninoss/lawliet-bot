@@ -12,8 +12,9 @@ public class ReminderData extends DataWithGuild implements GuildAsset {
     private final long messageId;
     private final Instant time;
     private final String message;
+    private final int interval;
 
-    public ReminderData(long serverId, long id, long sourceChannelId, long targetChannelId, long messageId, Instant time, String message) {
+    public ReminderData(long serverId, long id, long sourceChannelId, long targetChannelId, long messageId, Instant time, String message, int interval) {
         super(serverId);
         this.id = id;
         this.sourceChannelId = sourceChannelId;
@@ -21,6 +22,7 @@ public class ReminderData extends DataWithGuild implements GuildAsset {
         this.messageId = messageId;
         this.time = time;
         this.message = message;
+        this.interval = interval;
     }
 
     public long getId() {
@@ -45,6 +47,10 @@ public class ReminderData extends DataWithGuild implements GuildAsset {
 
     public String getMessage() {
         return message;
+    }
+
+    public int getInterval() {
+        return interval;
     }
 
 }
