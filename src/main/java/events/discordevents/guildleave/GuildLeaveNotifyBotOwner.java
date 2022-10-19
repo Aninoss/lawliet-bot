@@ -12,8 +12,8 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 public class GuildLeaveNotifyBotOwner extends GuildLeaveAbstract {
 
     @Override
-    public boolean onGuildLeave(GuildLeaveEvent event) throws Throwable {
-        if (event.getGuild().getMemberCount() >= 5000) {
+    public boolean onGuildLeave(GuildLeaveEvent event) {
+        if (event.getGuild().getMemberCount() >= 50_000) {
             JDAUtil.openPrivateChannel(event.getJDA(), AssetIds.OWNER_USER_ID)
                     .flatMap(messageChannel -> messageChannel.sendMessage("**---** " + StringUtil.escapeMarkdown(event.getGuild().getName()) + " (" + event.getGuild().getMemberCount() + ")"))
                     .queue();

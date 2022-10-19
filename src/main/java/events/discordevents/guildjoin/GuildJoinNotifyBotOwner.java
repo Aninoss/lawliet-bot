@@ -13,7 +13,7 @@ public class GuildJoinNotifyBotOwner extends GuildJoinAbstract {
 
     @Override
     public boolean onGuildJoin(GuildJoinEvent event) {
-        if (event.getGuild().getMemberCount() >= 5000) {
+        if (event.getGuild().getMemberCount() >= 50_000) {
             JDAUtil.openPrivateChannel(event.getJDA(), AssetIds.OWNER_USER_ID)
                     .flatMap(messageChannel -> messageChannel.sendMessage("**+++** " + StringUtil.escapeMarkdown(event.getGuild().getName()) + " (" + event.getGuild().getMemberCount() + ")"))
                     .queue();
