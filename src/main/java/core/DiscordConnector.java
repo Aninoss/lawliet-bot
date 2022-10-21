@@ -154,7 +154,7 @@ public class DiscordConnector {
 
     private static String getActivityText() {
         return ShardManager.getGlobalGuildSize()
-                .map(globalGuildSize -> "L.help | " + StringUtil.numToString(globalGuildSize) + " | www.lawlietbot.xyz")
+                .map(globalGuildSize -> "L.help | " + StringUtil.numToStringShort(globalGuildSize) + " | www.lawlietbot.xyz")
                 .orElse("L.help | www.lawlietbot.xyz");
     }
 

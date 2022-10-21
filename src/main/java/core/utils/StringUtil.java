@@ -272,6 +272,22 @@ public final class StringUtil {
         return numToString((long) n);
     }
 
+    public static String numToStringShort(long n) {
+        long absN = Math.abs(n);
+        if (absN < 1_000) {
+            return String.valueOf(n);
+        } else if (absN < 1_000_000) {
+            DecimalFormat formatter = new DecimalFormat("#.#K", DecimalFormatSymbols.getInstance(Locale.US));
+            return formatter.format(n / 1_000.0);
+        } else if (absN < 1_000_000_000) {
+            DecimalFormat formatter = new DecimalFormat("#.#M", DecimalFormatSymbols.getInstance(Locale.US));
+            return formatter.format(n / 1_000_000.0);
+        } else {
+            DecimalFormat formatter = new DecimalFormat("#.#B", DecimalFormatSymbols.getInstance(Locale.US));
+            return formatter.format(n / 1_000_000_000.0);
+        }
+    }
+
     public static String numToHex(long n) {
         return String.format("%x", n).toUpperCase();
     }
