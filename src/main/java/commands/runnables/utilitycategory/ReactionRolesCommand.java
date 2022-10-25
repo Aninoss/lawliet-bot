@@ -2,8 +2,10 @@ package commands.runnables.utilitycategory;
 
 import java.io.File;
 import java.time.Duration;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.CommandEvent;
@@ -19,8 +21,7 @@ import core.cache.ReactionMessagesCache;
 import core.emojiconnection.EmojiConnection;
 import core.utils.*;
 import modules.ReactionMessage;
-import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
-import mysql.modules.staticreactionmessages.StaticReactionMessageData;
+import modules.ReactionRoles;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
@@ -48,7 +49,10 @@ import org.jetbrains.annotations.NotNull;
 )
 public class ReactionRolesCommand extends NavigationAbstract implements OnReactionListener, OnStaticReactionAddListener, OnStaticReactionRemoveListener {
 
-    private static final int MAX_LINKS = 20;
+    public final static int TITLE_LENGTH_MAX = 250;
+    public final static int DESC_LENGTH_MAX = 1024;
+    public static final int MAX_LINKS = 20;
+
     private final static int
             ADD_OR_EDIT = 0,
             ADD_MESSAGE = 1,
@@ -108,26 +112,26 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @ControllerMessage(state = UPDATE_TITLE)
     public MessageInputResponse onMessageUpdateTitle(MessageReceivedEvent event, String input) {
-        if (input.length() > 0 && input.length() <= 250) {
+        if (input.length() > 0 && input.length() <= TITLE_LENGTH_MAX) {
             title = input;
             setLog(LogStatus.SUCCESS, getString("titleset", input));
             setState(CONFIGURE_MESSAGE);
             return MessageInputResponse.SUCCESS;
         } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "250"));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", StringUtil.numToString(TITLE_LENGTH_MAX)));
             return MessageInputResponse.FAILED;
         }
     }
 
     @ControllerMessage(state = UPDATE_DESC)
     public MessageInputResponse onMessageUpdateDesc(MessageReceivedEvent event, String input) {
-        if (input.length() > 0 && input.length() <= 1024) {
+        if (input.length() > 0 && input.length() <= DESC_LENGTH_MAX) {
             description = input;
             setLog(LogStatus.SUCCESS, getString("descriptionset", input));
             setState(CONFIGURE_MESSAGE);
             return MessageInputResponse.SUCCESS;
         } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", "1024"));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", StringUtil.numToString(DESC_LENGTH_MAX)));
             return MessageInputResponse.FAILED;
         }
     }
@@ -230,7 +234,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
 
             case 1:
-                if (getReactionMessagesInGuild(event.getGuild()).size() > 0) {
+                if (ReactionRoles.getReactionMessagesInGuild(event.getGuild().getIdLong()).size() > 0) {
                     setState(EDIT_MESSAGE);
                     editMode = true;
                     return true;
@@ -268,7 +272,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             setState(ADD_OR_EDIT);
             return true;
         } else if (i >= 0) {
-            List<ReactionMessage> reactionMessages = getReactionMessagesInGuild(event.getGuild());
+            List<ReactionMessage> reactionMessages = ReactionRoles.getReactionMessagesInGuild(event.getGuild().getIdLong());
             if (i < reactionMessages.size()) {
                 ReactionMessage reactionMessage = reactionMessages.get(i);
                 BaseGuildMessageChannel channel = reactionMessage.getBaseGuildMessageChannel().get();
@@ -538,7 +542,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Draw(state = EDIT_MESSAGE)
     public EmbedBuilder onDrawEditMessage(Member member) {
-        List<ReactionMessage> reactionMessages = getReactionMessagesInGuild(member.getGuild());
+        List<ReactionMessage> reactionMessages = ReactionRoles.getReactionMessagesInGuild(member.getGuild().getIdLong());
         String[] options = new String[reactionMessages.size()];
         for (int i = 0; i < reactionMessages.size(); i++) {
             ReactionMessage reactionMessage = reactionMessages.get(i);
@@ -674,27 +678,6 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 }
             });
         }
-    }
-
-    private List<ReactionMessage> getReactionMessagesInGuild(Guild guild) {
-        List<StaticReactionMessageData> guildReactions = DBStaticReactionMessages.getInstance().retrieve(guild.getIdLong()).values().stream()
-                .filter(m -> m.getCommand().equals(getTrigger()))
-                .collect(Collectors.toList());
-
-        return guildReactions.stream()
-                .sorted((md0, md1) -> {
-                    int channelComp = Integer.compare(
-                            md0.getBaseGuildMessageChannel().map(IPositionableChannel::getPositionRaw).orElse(0),
-                            md1.getBaseGuildMessageChannel().map(IPositionableChannel::getPositionRaw).orElse(0)
-                    );
-                    if (channelComp == 0) {
-                        return Long.compare(md0.getMessageId(), md1.getMessageId());
-                    }
-                    return channelComp;
-                })
-                .map(m -> m.getBaseGuildMessageChannel().flatMap(ch -> ReactionMessagesCache.get(ch, m.getMessageId())).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toUnmodifiableList());
     }
 
     private void updateValuesFromMessage(ReactionMessage message) {
