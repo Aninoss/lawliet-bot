@@ -11,6 +11,10 @@ import net.dv8tion.jda.api.entities.Message;
 public class FileUtil {
 
     public static boolean downloadImageAttachment(Message.Attachment messageAttachment, LocalFile localFile) {
+        if (!InternetUtil.uriIsImage(messageAttachment.getUrl())) {
+            return false;
+        }
+
         deleteLocalFile(localFile);
         try {
             messageAttachment.downloadToFile(localFile).get();

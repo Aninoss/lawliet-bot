@@ -23,8 +23,8 @@ public final class InternetUtil {
         return FileUtil.writeInputStreamToFile(inputStream, cdnFile);
     }
 
-    public static boolean urlContainsImage(String url) {
-        return url.endsWith("jpeg") || url.endsWith("jpg") || url.endsWith("png") || url.endsWith("bmp") || url.endsWith("gif");
+    public static boolean uriIsImage(String url) {
+        return url.endsWith(".jpeg") || url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".bmp") || url.endsWith(".gif");
     }
 
     public static boolean stringHasURL(String url) {
