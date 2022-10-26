@@ -6,6 +6,7 @@ import commands.runnables.utilitycategory.ReactionRolesCommand
 import core.ShardManager
 import core.TextManager
 import core.atomicassets.AtomicBaseGuildMessageChannel
+import core.emojiconnection.EmojiConnection
 import core.utils.MentionUtil
 import core.utils.StringUtil
 import dashboard.ActionResult
@@ -176,9 +177,9 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
                 .withRedraw()
         }
         slotGrid.rowButton = getString(Category.UTILITY, "reactionroles_dashboard_slots_button")
-        container.add(slotGrid, generateSlotAddContainer(guild), DashboardSeparator())
+        container.add(DashboardText(getString(Category.UTILITY, "reactionroles_state3_mshortcuts")), slotGrid, generateSlotAddContainer(guild), DashboardSeparator())
 
-        val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "reactionroles_dashboard_includedimage")) {
+        val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "reactionroles_dashboard_includedimage"), "reactionroles") {
             image = it.data
             ActionResult()
                 .withRedraw()
@@ -200,8 +201,33 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
         buttonContainer.allowWrap = true
 
         val sendButton = DashboardButton(getString(Category.UTILITY, "reactionroles_dashboard_send", editMode)) {
-            //TODO: send / update message
-            return@DashboardButton ActionResult()
+            if (channelId == null) {
+                return@DashboardButton ActionResult()
+                    .withErrorMessage(getString(Category.UTILITY, "reactionroles_dashboard_nochannel"))
+            }
+
+            val textChannel = guild.getTextChannelById(channelId!!)
+            val emojiConnections = slots
+                .map { EmojiConnection(it.emoji, it.roleMention) }
+
+            val errorMessage = ReactionRoles.sendMessage(locale, textChannel, title, desc, emojiConnections, roleRemovement, multipleRoles,
+                image, editMode, messageId ?: 0L)
+            if (errorMessage != null) {
+                return@DashboardButton ActionResult()
+                    .withErrorMessage(errorMessage)
+            }
+
+            if (editMode) {
+                switchMode(false)
+                ActionResult()
+                    .withSuccessMessage(getString(Category.UTILITY, "reactionroles_state9_description"))
+                    .withRedrawScrollToTop()
+            } else {
+                switchMode(false)
+                ActionResult()
+                    .withSuccessMessage(getString(Category.UTILITY, "reactionroles_state9_description"))
+                    .withRedraw()
+            }
         }
         sendButton.style = DashboardButton.Style.PRIMARY
         buttonContainer.add(sendButton)
@@ -263,6 +289,10 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown"))
             }
+            if (slots.size >= ReactionRolesCommand.MAX_SLOTS) {
+                return@DashboardButton ActionResult()
+                    .withErrorMessage(getString(Category.UTILITY, "reactionroles_toomanyshortcuts", ReactionRolesCommand.MAX_SLOTS.toString()))
+            }
             if (slots.any { it.emoji.formatted == newSlotEmoji!!.formatted }) {
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "reactionroles_emojialreadyexists"))
@@ -277,6 +307,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
             ActionResult()
                 .withRedraw()
         }
+        addButton.setCanExpand(false)
         slotAddContainer.add(addButton)
         return slotAddContainer
     }

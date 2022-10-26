@@ -11,7 +11,6 @@ import com.google.common.cache.CacheBuilder;
 import commands.CommandEvent;
 import commands.listeners.*;
 import commands.runnables.NavigationAbstract;
-import constants.Emojis;
 import constants.LogStatus;
 import core.*;
 import core.atomicassets.AtomicRole;
@@ -51,7 +50,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     public final static int TITLE_LENGTH_MAX = 250;
     public final static int DESC_LENGTH_MAX = 1024;
-    public static final int MAX_LINKS = 20;
+    public final static int SLOTS_TEXT_LENGTH_MAX = 1024;
+    public static final int MAX_SLOTS = 20;
 
     private final static int
             ADD_OR_EDIT = 0,
@@ -314,10 +314,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
 
             case 3:
-                if (emojiConnections.size() < MAX_LINKS) {
+                if (emojiConnections.size() < MAX_SLOTS) {
                     setState(ADD_SLOT);
                 } else {
-                    setLog(LogStatus.FAILURE, getString("toomanyshortcuts", String.valueOf(MAX_LINKS)));
+                    setLog(LogStatus.FAILURE, getString("toomanyshortcuts", String.valueOf(MAX_SLOTS)));
                 }
                 roleTemp = null;
                 emojiTemp = null;
@@ -343,7 +343,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
             case 7:
                 if (emojiConnections.size() > 0) {
-                    if (getLinkString().length() <= 1024) {
+                    if (ReactionRoles.generateLinkString(emojiConnections).length() <= SLOTS_TEXT_LENGTH_MAX) {
                         setState(EXAMPLE);
                     } else {
                         setLog(LogStatus.FAILURE, getString("shortcutstoolong"));
@@ -354,18 +354,16 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
 
             case 8:
-                if (emojiConnections.size() > 0) {
-                    if (getLinkString().length() <= 1024) {
-                        if (sendMessage()) {
-                            setState(SENT);
-                            deregisterListeners();
-                        }
-                    } else {
-                        setLog(LogStatus.FAILURE, getString("shortcutstoolong"));
-                    }
-                } else {
-                    setLog(LogStatus.FAILURE, getString("noshortcuts"));
+                TextChannel textChannel = atomicTextChannel.get().orElse(null);
+                String errorMessage = ReactionRoles.sendMessage(getLocale(), textChannel, title, description,
+                        emojiConnections, removeRole, multipleRoles, banner, editMode, editMessageId);
+                if (errorMessage != null) {
+                    setLog(LogStatus.FAILURE, errorMessage);
+                    return true;
                 }
+
+                setState(SENT);
+                deregisterListeners();
                 return true;
 
             default:
@@ -452,79 +450,6 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         return false;
     }
 
-    private boolean sendMessage() {
-        Optional<TextChannel> channelOpt = atomicTextChannel.get();
-        if (channelOpt.isPresent() && checkWriteInChannelWithLog(channelOpt.get())) {
-            TextChannel textChannel = channelOpt.get();
-            if (!editMode) {
-                Message message = textChannel.sendMessageEmbeds(getMessageEmbed(false).build()).complete();
-                registerStaticReactionMessage(message);
-                ReactionMessagesCache.put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
-                if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
-                    RestActionQueue restActionQueue = new RestActionQueue();
-                    for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                        restActionQueue.attach(emojiConnection.addReaction(message));
-                    }
-                    restActionQueue
-                            .getCurrentRestAction()
-                            .queue();
-                }
-            } else {
-                Message message = textChannel.editMessageEmbedsById(editMessageId, getMessageEmbed(false).build()).complete();
-                ReactionMessagesCache.put(message.getIdLong(), generateReactionMessage(message.getIdLong()));
-                if (BotPermissionUtil.canReadHistory(textChannel, Permission.MESSAGE_MANAGE, Permission.MESSAGE_ADD_REACTION)) {
-                    RestActionQueue restActionQueue = new RestActionQueue();
-                    for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                        boolean exist = false;
-                        for (MessageReaction reaction : message.getReactions()) {
-                            if (emojiConnection.isEmoji(reaction.getEmoji())) {
-                                exist = true;
-                                break;
-                            }
-                        }
-                        if (!exist) {
-                            restActionQueue.attach(emojiConnection.addReaction(message));
-                        }
-                    }
-                    if (BotPermissionUtil.can(textChannel, Permission.MESSAGE_MANAGE)) {
-                        for (MessageReaction reaction : message.getReactions()) {
-                            boolean exist = false;
-                            for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-                                if (emojiConnection.isEmoji(reaction.getEmoji())) {
-                                    exist = true;
-                                    break;
-                                }
-                            }
-                            if (!exist) {
-                                restActionQueue.attach(message.clearReactions(reaction.getEmoji()));
-                            }
-                        }
-                    }
-                    if (restActionQueue.isSet()) {
-                        restActionQueue.getCurrentRestAction().queue();
-                    }
-                }
-            }
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private ReactionMessage generateReactionMessage(long messageId) {
-        return new ReactionMessage(
-                getGuildId().get(),
-                atomicTextChannel.getIdLong(),
-                messageId,
-                title != null ? title : getCommandLanguage().getTitle(),
-                description,
-                banner,
-                removeRole,
-                multipleRoles,
-                emojiConnections
-        );
-    }
-
     @Draw(state = ADD_OR_EDIT)
     public EmbedBuilder onDrawAddOrEdit(Member member) {
         setComponents(getString("state0_options").split("\n"));
@@ -569,9 +494,9 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         TextChannel textChannel = getTextChannel().get();
         return EmbedFactory.getEmbedDefault(this, getString("state3_description"), getString("state3_title_" + add))
                 .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(Optional.ofNullable(title).orElse(notSet)), true)
-                .addField(getString("state3_mdescription"), StringUtil.shortenString(StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), 1024), true)
+                .addField(getString("state3_mdescription"), StringUtil.shortenString(StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), SLOTS_TEXT_LENGTH_MAX), true)
                 .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), banner != null), true)
-                .addField(getString("state3_mshortcuts"), StringUtil.shortenString(Optional.ofNullable(getLinkString()).orElse(notSet), 1024), false)
+                .addField(getString("state3_mshortcuts"), StringUtil.shortenString(Optional.ofNullable(ReactionRoles.generateLinkString(emojiConnections)).orElse(notSet), SLOTS_TEXT_LENGTH_MAX), false)
                 .addField(getString("state3_mproperties"), getString("state3_mproperties_desc", StringUtil.getOnOffForBoolean(textChannel, getLocale(), removeRole), StringUtil.getOnOffForBoolean(textChannel, getLocale(), multipleRoles)), false);
     }
 
@@ -618,38 +543,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Draw(state = EXAMPLE)
     public EmbedBuilder onDrawExample(Member member) {
-        return getMessageEmbed(true);
+        return ReactionRoles.getMessageEmbed(getLocale(), title, description, emojiConnections, removeRole, multipleRoles, banner, true);
     }
 
     @Draw(state = SENT)
     public EmbedBuilder onDrawSent(Member member) {
         return EmbedFactory.getEmbedDefault(this, getString("state9_description"), getString("state9_title"));
-    }
-
-    private EmbedBuilder getMessageEmbed(boolean test) {
-        String titleAdd = "";
-        String identity = "";
-        if (!test) identity = Emojis.FULL_SPACE_UNICODE.getFormatted();
-        if (!removeRole && !test) titleAdd = Emojis.FULL_SPACE_UNICODE.getFormatted();
-        if (!multipleRoles && !test) titleAdd += Emojis.FULL_SPACE_UNICODE.getFormatted() + Emojis.FULL_SPACE_UNICODE.getFormatted();
-
-        return EmbedFactory.getEmbedDefault()
-                .setTitle(getCommandProperties().emoji() + " " + (title != null ? title : getString("title")) + identity + titleAdd)
-                .setDescription(description)
-                .setImage(banner)
-                .addField(TextManager.getString(getLocale(), TextManager.GENERAL, "options"), getLinkString(), false);
-    }
-
-    private String getLinkString() {
-        StringBuilder link = new StringBuilder();
-        for (EmojiConnection emojiConnection : new ArrayList<>(emojiConnections)) {
-            link.append(emojiConnection.getEmoji().getFormatted());
-            link.append(" → ");
-            link.append(emojiConnection.getConnection());
-            link.append("\n");
-        }
-        if (link.length() == 0) return null;
-        return link.toString();
     }
 
     @Override

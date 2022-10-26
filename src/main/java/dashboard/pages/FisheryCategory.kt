@@ -165,6 +165,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         }
         confirmButton.style = DashboardButton.Style.PRIMARY
         confirmButton.isEnabled = premium
+        confirmButton.setCanExpand(false)
         container.add(confirmButton)
 
         return container
@@ -328,6 +329,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
                 .withRedraw()
         }
         unlimitedButton.isEnabled = premium
+        unlimitedButton.setCanExpand(false)
         horizontalContainer.add(unlimitedButton)
 
         container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "vctime_explanation")), horizontalContainer)

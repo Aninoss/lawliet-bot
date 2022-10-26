@@ -241,7 +241,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
         container.add(winnersEmojiContainer, DashboardSeparator())
 
         if (mode != Mode.REROLL) {
-            val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "giveaway_dashboard_includedimage")) {
+            val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "giveaway_dashboard_includedimage"), "giveaway") {
                 image = it.data
                 ActionResult()
                     .withRedraw()

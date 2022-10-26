@@ -144,6 +144,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale) : Dash
             ActionResult()
                 .withRedraw()
         }
+        vanityInviteButton.setCanExpand(false)
         memberContainer.add(vanityInviteButton)
 
         container.add(memberContainer)
@@ -209,6 +210,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale) : Dash
             }
             addInviteButton.style = DashboardButton.Style.PRIMARY
             addInviteButton.isEnabled = premium
+            addInviteButton.setCanExpand(false)
             addNewContainer.add(addInviteButton)
             container.add(DashboardSeparator(), addNewContainer)
 
