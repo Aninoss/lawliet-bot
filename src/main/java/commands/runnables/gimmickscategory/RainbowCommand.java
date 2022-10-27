@@ -14,6 +14,7 @@ import modules.graphics.RainbowGraphics;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -56,8 +57,11 @@ public class RainbowCommand extends MemberAccountAbstract {
         addFileAttachment(inputStream, "avatar.png");
         drawMessage(eb)
                 .thenAccept(message -> {
-                    setComponents(Button.of(ButtonStyle.LINK, message.getEmbeds().get(0).getImage().getUrl(), TextManager.getString(getLocale(), TextManager.GENERAL, "download_image")));
-                    drawMessage(eb).exceptionally(ExceptionLogger.get());
+                    MessageEmbed.ImageInfo imageInfo = message.getEmbeds().get(0).getImage();
+                    if (imageInfo != null && imageInfo.getUrl() != null) {
+                        setComponents(Button.of(ButtonStyle.LINK, imageInfo.getUrl(), TextManager.getString(getLocale(), TextManager.GENERAL, "download_image")));
+                        drawMessage(eb).exceptionally(ExceptionLogger.get());
+                    }
                 })
                 .exceptionally(ExceptionLogger.get());
     }

@@ -8,8 +8,12 @@ import java.util.Optional;
 import mysql.DBDataLoad;
 import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingData> {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(DBInviteTracking.class);
 
     private static final DBInviteTracking ourInstance = new DBInviteTracking();
 
@@ -147,17 +151,21 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
     }
 
     private void addGuildInvite(GuildInvite guildInvite) {
-        MySQLManager.asyncUpdate("REPLACE INTO ServerInvites (serverId, code, userId, usages, maxAge) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
-            preparedStatement.setLong(1, guildInvite.getGuildId());
-            preparedStatement.setString(2, guildInvite.getCode());
-            preparedStatement.setLong(3, guildInvite.getMemberId());
-            preparedStatement.setInt(4, guildInvite.getUses());
-            if (guildInvite.getMaxAge() != null) {
-                preparedStatement.setTimestamp(5, Timestamp.from(guildInvite.getMaxAge()));
-            } else {
-                preparedStatement.setNull(5, Types.TIMESTAMP);
-            }
-        });
+        if (guildInvite.getCode().length() <= 50) {
+            MySQLManager.asyncUpdate("REPLACE INTO ServerInvites (serverId, code, userId, usages, maxAge) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
+                preparedStatement.setLong(1, guildInvite.getGuildId());
+                preparedStatement.setString(2, guildInvite.getCode());
+                preparedStatement.setLong(3, guildInvite.getMemberId());
+                preparedStatement.setInt(4, guildInvite.getUses());
+                if (guildInvite.getMaxAge() != null) {
+                    preparedStatement.setTimestamp(5, Timestamp.from(guildInvite.getMaxAge()));
+                } else {
+                    preparedStatement.setNull(5, Types.TIMESTAMP);
+                }
+            });
+        } else {
+            LOGGER.error("Invite code \"{}\" for server id {} is too long!", guildInvite.getCode(), guildInvite.getGuildId());
+        }
     }
 
     private void removeGuildInvite(GuildInvite guildInvite) {

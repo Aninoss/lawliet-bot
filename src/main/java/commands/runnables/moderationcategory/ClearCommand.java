@@ -79,37 +79,37 @@ public class ClearCommand extends Command implements OnButtonListener {
         args = memberMention.getFilteredArgs();
         amount = MentionUtil.getAmountExt(args);
 
-        if (amount >= 2 && amount <= 500) {
-            boolean patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
-                    PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
-
-            long messageId = registerButtonListener(event.getMember()).get();
-            TimeUnit.SECONDS.sleep(1);
-            long authorMessageId = event.isMessageReceivedEvent() ? event.getMessageReceivedEvent().getMessage().getIdLong() : 0L;
-            ClearResults clearResults = clear(channel, patreon, (int) amount, memberMention.getList(), authorMessageId, messageId);
-
-            String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
-            EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
-
-            if (!interrupt) {
-                deregisterListenersWithComponents();
-                drawMessage(eb).exceptionally(ExceptionLogger.get());
-            }
-
-            RestAction<Void> restAction;
-            if (event.isMessageReceivedEvent()) {
-                restAction = event.getTextChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessageReceivedEvent().getMessage().getId()));
-            } else {
-                restAction = event.getTextChannel().deleteMessageById(messageId);
-            }
-            restAction.queueAfter(8, TimeUnit.SECONDS);
-            return true;
-        } else {
+        if (amount < 2 || amount > 500) {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args", "2", "500")))
                     .exceptionally(ExceptionLogger.get());
             return false;
         }
+
+        boolean patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
+                PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
+
+        long messageId = registerButtonListener(event.getMember()).get();
+        TimeUnit.SECONDS.sleep(1);
+        long authorMessageId = event.isMessageReceivedEvent() ? event.getMessageReceivedEvent().getMessage().getIdLong() : 0L;
+        ClearResults clearResults = clear(channel, patreon, (int) amount, memberMention.getList(), authorMessageId, messageId);
+
+        String key = clearResults.getRemaining() > 0 ? "finished_too_old" : "finished_description";
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(key, clearResults.getDeleted() != 1, String.valueOf(clearResults.getDeleted())));
+        EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "deleteTime", "8"));
+
+        if (!interrupt) {
+            deregisterListenersWithComponents();
+            drawMessage(eb).exceptionally(ExceptionLogger.get());
+        }
+
+        RestAction<Void> restAction;
+        if (event.isMessageReceivedEvent()) {
+            restAction = event.getTextChannel().deleteMessagesByIds(List.of(String.valueOf(messageId), event.getMessageReceivedEvent().getMessage().getId()));
+        } else {
+            restAction = event.getTextChannel().deleteMessageById(messageId);
+        }
+        restAction.queueAfter(8, TimeUnit.SECONDS);
+        return true;
     }
 
     private ClearResults clear(BaseGuildMessageChannel channel, boolean patreon, int count, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {

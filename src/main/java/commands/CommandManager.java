@@ -105,9 +105,8 @@ public class CommandManager {
 
     private static void maybeSendBotInvite(CommandEvent event, Locale locale) {
         if (random.nextInt(180) == 0 &&
-                !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER) &&
-                !BotPermissionUtil.can(event.getMember(), Permission.MESSAGE_MANAGE) &&
-                (BotPermissionUtil.canWriteEmbed(event.getTextChannel()) || event.isSlashCommandInteractionEvent())
+                !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER, Permission.MESSAGE_MANAGE) &&
+                BotPermissionUtil.canWriteEmbed(event.getTextChannel())
         ) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setThumbnail(ShardManager.getSelf().getAvatarUrl())

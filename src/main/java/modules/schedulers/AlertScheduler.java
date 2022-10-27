@@ -102,10 +102,11 @@ public class AlertScheduler {
         OnAlertListener command = (OnAlertListener) commandOpt.get();
         Optional<BaseGuildMessageChannel> channelOpt = slot.getBaseGuildMessageChannel();
         if (channelOpt.isPresent()) {
-            if (PermissionCheckRuntime.botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channelOpt.get(), Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
-                if (checkNSFW(slot, channelOpt.get(), (Command) command) ||
-                        checkPatreon(slot, channelOpt.get(), (Command) command) ||
-                        checkReleased(slot, channelOpt.get(), (Command) command)
+            BaseGuildMessageChannel channel = channelOpt.get();
+            if (PermissionCheckRuntime.botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
+                if (checkNSFW(slot, channel, (Command) command) ||
+                        checkPatreon(slot, channel, (Command) command) ||
+                        checkReleased(slot, channel, (Command) command)
                 ) {
                     return;
                 }
