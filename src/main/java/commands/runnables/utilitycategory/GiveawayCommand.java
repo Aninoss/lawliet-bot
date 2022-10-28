@@ -400,15 +400,15 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     private void send(ButtonInteractionEvent event, boolean endPrematurely) {
+        if (editMode && (!giveawayMap.containsKey(messageId) || !giveawayMap.get(messageId).isActive())) {
+            setLog(LogStatus.FAILURE, getString("dashboard_toolate"));
+            setState(EDIT_MESSAGE);
+        }
+
         Optional<Long> messageIdOpt = sendMessage();
         if (messageIdOpt.isEmpty() && editMode) {
-            giveawayMap.remove(messageId);
             setLog(LogStatus.FAILURE, getString("nomessage"));
-            if (!giveawayMap.isEmpty()) {
-                setState(EDIT_MESSAGE);
-            } else {
-                setState(DEFAULT_STATE);
-            }
+            setState(EDIT_MESSAGE);
             return;
         }
 
@@ -536,7 +536,10 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Draw(state = EDIT_MESSAGE)
     public EmbedBuilder onDrawEditMessage(Member member) {
         String[] options = getActiveGiveawaySlots().stream()
-                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), giveawayData.getBaseGuildMessageChannel().get().getName()))
+                .map(giveawayData -> {
+                    AtomicBaseGuildMessageChannel atomicBaseGuildMessageChannel = new AtomicBaseGuildMessageChannel(giveawayData.getGuildId(), giveawayData.getBaseGuildMessageChannelId());
+                    return getString("state2_slot", giveawayData.getTitle(), atomicBaseGuildMessageChannel.getName());
+                })
                 .toArray(String[]::new);
         setComponents(options);
         return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));

@@ -29,7 +29,6 @@ import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji
 import net.dv8tion.jda.api.exceptions.ErrorResponseException
 import java.time.Duration
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -282,10 +281,8 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
                         .withRedrawScrollToTop()
                         .withSuccessMessage(getString(Category.UTILITY, "giveaway_dashboard_success", 2))
                 } else {
-                    giveawayMap.remove(this.messageId)
-                    switchMode(Mode.OVERVIEW)
                     return@DashboardButton ActionResult()
-                        .withRedrawScrollToTop()
+                        .withRedraw()
                         .withErrorMessage(getString(Category.UTILITY, "giveaway_nomessage"))
                 }
             }
@@ -332,37 +329,35 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
             return errorActionResponse
         }
 
-        if (mode == Mode.OVERVIEW) {
-            startInstant = Instant.now()
-        }
-
-        if (startInstant!!.plus(duration, ChronoUnit.MINUTES).isBefore(Instant.now())) {
+        val giveawayMap = DBGiveaway.getInstance().retrieve(guild.getIdLong())
+        if (mode == Mode.EDIT && (!giveawayMap.containsKey(messageId) || !giveawayMap[messageId]!!.isActive)) {
             switchMode(Mode.OVERVIEW)
             return ActionResult()
-                .withRedrawScrollToTop()
                 .withErrorMessage(getString(Category.UTILITY, "giveaway_dashboard_toolate"))
+                .withRedrawScrollToTop()
+        }
+
+        if (mode == Mode.OVERVIEW) {
+            startInstant = Instant.now()
         }
 
         if (endPrematurely) {
             duration = 0
         }
 
-        val giveawayMap = DBGiveaway.getInstance().retrieve(guild.getIdLong())
         try {
             messageId = sendMessage(guild, channelId!!, startInstant!!)
         } catch (e: ErrorResponseException) {
             if (mode != Mode.OVERVIEW) {
-                giveawayMap.remove(this.messageId)
-                switchMode(Mode.OVERVIEW)
                 return ActionResult()
-                    .withRedrawScrollToTop()
+                    .withRedraw()
                     .withErrorMessage(getString(Category.UTILITY, "giveaway_nomessage"))
             }
         }
 
         val giveawayData = generateGiveawayData(guild)
-        giveawayMap.put(messageId, giveawayData)
-        if (endPrematurely || !giveawayMap.containsKey(giveawayData.getMessageId())) {
+        val previousGiveawayData = giveawayMap.put(messageId, giveawayData);
+        if (endPrematurely || previousGiveawayData == null) {
             GiveawayScheduler.loadGiveawayBean(giveawayData)
             if (endPrematurely) {
                 TimeUnit.SECONDS.sleep(3)
