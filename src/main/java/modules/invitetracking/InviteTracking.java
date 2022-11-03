@@ -161,23 +161,25 @@ public class InviteTracking {
     }
 
     private static void synchronizeGuildInvites(long guildId, CustomObservableMap<String, GuildInvite> databaseInvites, List<TempInvite> guildInvites) {
-        /* add missing invites to database */
-        HashSet<String> inviteCodes = new HashSet<>();
-        for (TempInvite invite : guildInvites) {
-            inviteCodes.add(invite.code);
-            if (!databaseInvites.containsKey(invite.code) ||
-                    invite.uses != databaseInvites.get(invite.code).getUses() ||
-                    (invite.maxAge != null && databaseInvites.get(invite.code).getMaxAge() == null)
-            ) {
-                databaseInvites.put(invite.code, new GuildInvite(guildId, invite.code, invite.inviter, invite.uses, invite.maxAge));
+        synchronized (databaseInvites) {
+            /* add missing invites to database */
+            HashSet<String> inviteCodes = new HashSet<>();
+            for (TempInvite invite : guildInvites) {
+                inviteCodes.add(invite.code);
+                if (!databaseInvites.containsKey(invite.code) ||
+                        invite.uses != databaseInvites.get(invite.code).getUses() ||
+                        (invite.maxAge != null && databaseInvites.get(invite.code).getMaxAge() == null)
+                ) {
+                    databaseInvites.put(invite.code, new GuildInvite(guildId, invite.code, invite.inviter, invite.uses, invite.maxAge));
+                }
             }
-        }
 
-        /* remove invalid invites from database */
-        GuildInvite[] invites = databaseInvites.values().toArray(new GuildInvite[0]);
-        for (GuildInvite guildInvite : invites) {
-            if (guildInvite != null && !inviteCodes.contains(guildInvite.getCode())) {
-                databaseInvites.remove(guildInvite.getCode());
+            /* remove invalid invites from database */
+            GuildInvite[] invites = databaseInvites.values().toArray(new GuildInvite[0]);
+            for (GuildInvite guildInvite : invites) {
+                if (guildInvite != null && !inviteCodes.contains(guildInvite.getCode())) {
+                    databaseInvites.remove(guildInvite.getCode());
+                }
             }
         }
     }
