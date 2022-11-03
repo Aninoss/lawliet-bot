@@ -51,6 +51,7 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
             } else {
                 List<MangaUpdatesRelease> releases = MangaUpdatesDownloader.getReleasesOfSeries(seriesList.get(0).getSeriesId());
                 EmbedBuilder eb = generateEmbed(series, releases, 5);
+                EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
                 drawMessageNew(eb);
                 return true;
             }
