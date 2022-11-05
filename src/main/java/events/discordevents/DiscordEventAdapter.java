@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
@@ -289,6 +290,14 @@ public class DiscordEventAdapter extends ListenerAdapter {
         if (event.isFromGuild()) {
             GlobalThreadPool.getExecutorService()
                     .submit(() -> GuildMessageContextInteractionAbstract.onGuildMessageContextInteractionStatic(event, getListenerList(GuildMessageContextInteractionAbstract.class)));
+        }
+    }
+
+    @Override
+    public void onUserContextInteraction(@NotNull UserContextInteractionEvent event) {
+        if (event.isFromGuild()) {
+            GlobalThreadPool.getExecutorService()
+                    .submit(() -> GuildUserContextInteractionAbstract.onGuildUserContextInteractionStatic(event, getListenerList(GuildUserContextInteractionAbstract.class)));
         }
     }
 

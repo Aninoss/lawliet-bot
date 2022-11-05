@@ -29,7 +29,7 @@ public class FisheryGuildData implements GuildAsset {
     private final CustomObservableList<Long> roleIds;
 
     private final Cache<Long, Pair<Integer, Integer>> messageActivityCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(Duration.ofMinutes(1))
+            .expireAfterWrite(Duration.ofMinutes(5))
             .build();
 
     public FisheryGuildData(long guildId, List<Long> ignoredChannelIds, List<Long> roleIds) {

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import constants.AnicordVerificationIds;
 import constants.CodeBlockColor;
 import constants.LogStatus;
 import constants.Settings;
@@ -53,6 +54,7 @@ public class FisheryMemberData implements MemberAsset {
     public final String FIELD_NEXT_WORK = "next_work";
     public final String FIELD_MESSAGES_THIS_HOUR = "messages_this_hour";
     public final String FIELD_MESSAGES_THIS_HOUR_SLOT = "messages_this_hour_slot";
+    public final String FIELD_MESSAGES_ANICORD = "messages_anicord";
     public final String FIELD_DIAMONDS = "diamonds";
 
     FisheryMemberData(FisheryGuildData fisheryGuildBean, long memberId) {
@@ -261,6 +263,10 @@ public class FisheryMemberData implements MemberAsset {
         return RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_UPVOTE_STACK));
     }
 
+    public int getMessagesAnicord() {
+        return RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_MESSAGES_ANICORD));
+    }
+
     public boolean isReminderSent() {
         return RedisManager.getBoolean(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_REMINDER_SENT));
     }
@@ -354,6 +360,10 @@ public class FisheryMemberData implements MemberAsset {
                 pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
                 pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
                 pipeline.zadd(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, recentFishGainsProcessed, String.valueOf(memberId));
+
+                if (message.getGuild().getIdLong() == AnicordVerificationIds.GUILD_ID) {
+                    pipeline.hincrBy(KEY_ACCOUNT, FIELD_MESSAGES_ANICORD, 1);
+                }
 
                 Optional<Member> memberOpt;
                 if (fish >= 100 &&
