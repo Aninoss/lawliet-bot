@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.entities.Member;
 public class EmbedUtil {
 
     public static EmbedBuilder setMemberAuthor(EmbedBuilder eb, Member member) {
-        return setMemberAuthor(eb, member.getEffectiveName(), member.getUser().getEffectiveAvatarUrl());
+        return setMemberAuthor(eb, member.getEffectiveName(), member.getEffectiveAvatarUrl());
     }
 
     public static EmbedBuilder setMemberAuthor(EmbedBuilder eb, String memberName, String memberAvatarUrl) {

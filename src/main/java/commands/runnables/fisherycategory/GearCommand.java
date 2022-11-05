@@ -52,8 +52,8 @@ public class GearCommand extends FisheryMemberAccountInterface {
                 displayName = displayName.substring(patreonEmoji.length());
             }
 
-            eb.setAuthor(TextManager.getString(getLocale(), TextManager.GENERAL, "rankingprogress_title", patreon, displayName, patreonEmoji), null, member.getUser().getEffectiveAvatarUrl())
-                    .setThumbnail(member.getUser().getEffectiveAvatarUrl());
+            eb.setAuthor(TextManager.getString(getLocale(), TextManager.GENERAL, "rankingprogress_title", patreon, displayName, patreonEmoji), null, member.getEffectiveAvatarUrl())
+                    .setThumbnail(member.getEffectiveAvatarUrl());
             if (patreon) eb.setColor(Color.YELLOW);
 
             //Gear

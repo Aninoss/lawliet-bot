@@ -517,7 +517,7 @@ public abstract class Command implements OnTriggerListener {
         atomicMember = new AtomicMember(member);
         memberEffectiveName = member.getEffectiveName();
         memberMention = member.getAsMention();
-        memberEffectiveAvatarUrl = member.getUser().getEffectiveAvatarUrl();
+        memberEffectiveAvatarUrl = member.getEffectiveAvatarUrl();
         memberTag = member.getUser().getAsTag();
     }
 

@@ -30,7 +30,7 @@ public class AvatarCommand extends MemberAccountAbstract {
 
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
-        avatarUrl = member.getUser().getEffectiveAvatarUrl() + "?size=2048";
+        avatarUrl = member.getEffectiveAvatarUrl() + "?size=2048";
         return EmbedFactory.getEmbedDefault(this, getString("template", member.getEffectiveName()))
                 .setImage(avatarUrl);
     }

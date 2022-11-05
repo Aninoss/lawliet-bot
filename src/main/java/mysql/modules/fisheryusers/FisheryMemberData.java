@@ -576,8 +576,8 @@ public class FisheryMemberData implements MemberAsset {
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", patreon, displayName, patreonEmoji), null, member.getUser().getEffectiveAvatarUrl())
-                .setThumbnail(member.getUser().getEffectiveAvatarUrl());
+                .setAuthor(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_title", patreon, displayName, patreonEmoji), null, member.getEffectiveAvatarUrl())
+                .setThumbnail(member.getEffectiveAvatarUrl());
 
         if (patreon) eb.setColor(Color.YELLOW);
         if (fishAdd > 0 || (fishAdd == 0 && coinsAdd > 0)) {

@@ -40,13 +40,13 @@ public class UserInfoCommand extends MemberAccountAbstract {
                 member.getNickname() != null ? member.getNickname() : "-",
                 member.getUser().getDiscriminator(),
                 member.getId(),
-                member.getUser().getEffectiveAvatarUrl() + "?size=1024",
+                member.getEffectiveAvatarUrl() + "?size=1024",
                 member.hasTimeJoined() ? TimeFormat.DATE_TIME_SHORT.atInstant(member.getTimeJoined().toInstant()).toString() : "-",
                 TimeFormat.DATE_TIME_SHORT.atInstant(member.getTimeCreated().toInstant()).toString()
         };
 
         return EmbedFactory.getEmbedDefault(this, getString("template", argsArray)).
-                setThumbnail(member.getUser().getEffectiveAvatarUrl());
+                setThumbnail(member.getEffectiveAvatarUrl());
     }
 
 }

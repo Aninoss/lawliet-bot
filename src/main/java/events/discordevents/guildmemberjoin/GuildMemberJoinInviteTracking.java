@@ -78,7 +78,7 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
                 MessageAction messageAction;
                 if (inviteTrackingData.isAdvanced()) {
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                            .setAuthor(member.getUser().getAsTag(), null, member.getUser().getEffectiveAvatarUrl())
+                            .setAuthor(member.getUser().getAsTag(), null, member.getEffectiveAvatarUrl())
                             .setDescription(text);
 
                     if (invite != null) {
