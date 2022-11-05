@@ -1,5 +1,6 @@
 package core.utils;
 
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -278,12 +279,15 @@ public final class StringUtil {
             return String.valueOf(n);
         } else if (absN < 1_000_000) {
             DecimalFormat formatter = new DecimalFormat("#.#K", DecimalFormatSymbols.getInstance(Locale.US));
+            formatter.setRoundingMode(RoundingMode.FLOOR);
             return formatter.format(n / 1_000.0);
         } else if (absN < 1_000_000_000) {
             DecimalFormat formatter = new DecimalFormat("#.#M", DecimalFormatSymbols.getInstance(Locale.US));
+            formatter.setRoundingMode(RoundingMode.FLOOR);
             return formatter.format(n / 1_000_000.0);
         } else {
             DecimalFormat formatter = new DecimalFormat("#.#B", DecimalFormatSymbols.getInstance(Locale.US));
+            formatter.setRoundingMode(RoundingMode.FLOOR);
             return formatter.format(n / 1_000_000_000.0);
         }
     }
