@@ -25,8 +25,8 @@ import modules.reddit.RedditPost;
 import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.jetbrains.annotations.NotNull;
 
@@ -134,7 +134,7 @@ public class RedditCommand extends Command implements OnAlertListener {
         } else {
             slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
             Optional<PostBundle<RedditPost>> postBundleOpt = redditDownloader.retrievePostsBulk(key, slot.getArgs().orElse(null)).get();
-            BaseGuildMessageChannel channel = slot.getBaseGuildMessageChannel().get();
+            StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
             boolean containsOnlyNsfw = true;
 
             if (postBundleOpt.isPresent()) {

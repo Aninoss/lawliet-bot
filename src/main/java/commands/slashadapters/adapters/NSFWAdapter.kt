@@ -11,6 +11,7 @@ import core.CommandPermissions
 import core.TextManager
 import mysql.modules.commandmanagement.DBCommandManagement
 import mysql.modules.guild.DBGuild
+import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command
@@ -45,7 +46,7 @@ class NSFWAdapter : SlashAdapter() {
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
-        if (event.textChannel.isNSFW) {
+        if ((event.channel as TextChannel).isNSFW) {
             val userText = event.focusedOption.value
             val choiceList = ArrayList<Command.Choice>()
             val switchedOffData = DBCommandManagement.getInstance().retrieve(event.guild!!.idLong)
@@ -57,7 +58,7 @@ class NSFWAdapter : SlashAdapter() {
                 if (PornPredefinedAbstract::class.java.isAssignableFrom(clazz) && commandProperties.nsfw &&
                     switchedOffData.elementIsTurnedOnEffectively(Category.NSFW.id, event.member) &&
                     switchedOffData.elementIsTurnedOnEffectively(commandTrigger, event.member) &&
-                    CommandPermissions.hasAccess(clazz, event.member, event.textChannel, false)
+                    CommandPermissions.hasAccess(clazz, event.member, event.channel as TextChannel, false)
                 ) {
                     triggers.addAll(commandProperties.aliases)
                     if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {

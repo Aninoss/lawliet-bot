@@ -10,21 +10,18 @@ import core.components.ActionRows;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.*;
 
 public class MessageQuote {
 
     public static Message postQuote(String prefix, Locale locale, GuildMessageChannel channel, Message searchedMessage,
                                     boolean showAutoQuoteTurnOff) {
         boolean channelIsNSFW = false;
-        if (channel instanceof BaseGuildMessageChannel) {
-            channelIsNSFW = ((BaseGuildMessageChannel) channel).isNSFW();
+        if (channel instanceof StandardGuildMessageChannel) {
+            channelIsNSFW = ((StandardGuildMessageChannel) channel).isNSFW();
         }
 
-        if (((BaseGuildMessageChannel) searchedMessage.getChannel()).isNSFW() && !channelIsNSFW) {
+        if (((StandardGuildMessageChannel) searchedMessage.getChannel()).isNSFW() && !channelIsNSFW) {
             return new MessageBuilder()
                     .setEmbeds(EmbedFactory.getNSFWBlockEmbed(locale).build())
                     .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(locale)))

@@ -15,8 +15,8 @@ import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 
 public class ReminderScheduler {
 
@@ -47,10 +47,10 @@ public class ReminderScheduler {
                 .remove(reminderData.getId());
 
         reminderData.getGuild()
-                .map(guild -> guild.getChannelById(BaseGuildMessageChannel.class, reminderData.getTargetChannelId()))
+                .map(guild -> guild.getChannelById(StandardGuildMessageChannel.class, reminderData.getTargetChannelId()))
                 .ifPresent(targetChannel -> {
                     if (reminderData.getMessageId() != 0) {
-                        BaseGuildMessageChannel sourceChannel = targetChannel.getGuild().getChannelById(BaseGuildMessageChannel.class, reminderData.getSourceChannelId());
+                        StandardGuildMessageChannel sourceChannel = targetChannel.getGuild().getChannelById(StandardGuildMessageChannel.class, reminderData.getSourceChannelId());
                         if (sourceChannel != null) {
                             sourceChannel.retrieveMessageById(reminderData.getMessageId())
                                     .queue(message -> sendReminder(message, reminderData, targetChannel));
@@ -61,7 +61,7 @@ public class ReminderScheduler {
                 });
     }
 
-    private static void sendReminder(Message message, ReminderData reminderData, BaseGuildMessageChannel channel) {
+    private static void sendReminder(Message message, ReminderData reminderData, StandardGuildMessageChannel channel) {
         if (PermissionCheckRuntime.botHasPermission(
                 reminderData.getGuildData().getLocale(),
                 ReminderCommand.class,
@@ -102,8 +102,8 @@ public class ReminderScheduler {
                 ReminderScheduler.loadReminderData(newReminderData);
 
                 Locale locale = DBGuild.getInstance().retrieve(message.getGuild().getIdLong()).getLocale();
-                EmbedBuilder eb = ReminderCommand.generateEmbed(locale, message.getTextChannel(), newReminderData.getTime(), newReminderData.getMessage(), newReminderData.getInterval());
-                message.getTextChannel().editMessageEmbedsById(message.getId(), eb.build())
+                EmbedBuilder eb = ReminderCommand.generateEmbed(locale, message.getChannel().asTextChannel(), newReminderData.getTime(), newReminderData.getMessage(), newReminderData.getInterval());
+                message.getGuildChannel().editMessageEmbedsById(message.getId(), eb.build())
                         .queue();
             }
         }

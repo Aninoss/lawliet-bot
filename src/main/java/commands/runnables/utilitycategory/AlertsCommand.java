@@ -17,7 +17,7 @@ import constants.LogStatus;
 import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.TextManager;
-import core.atomicassets.AtomicBaseGuildMessageChannel;
+import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
@@ -27,8 +27,8 @@ import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -75,9 +75,9 @@ public class AlertsCommand extends NavigationAbstract {
 
     @ControllerMessage(state = STATE_ADD)
     public MessageInputResponse onMessageAdd(MessageReceivedEvent event, String input) {
-        List<BaseGuildMessageChannel> channelList = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), input).getList();
+        List<StandardGuildMessageChannel> channelList = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), input).getList();
         if (channelList.size() > 0) {
-            BaseGuildMessageChannel channel = channelList.get(0);
+            StandardGuildMessageChannel channel = channelList.get(0);
             channelId = channel.getIdLong();
             return MessageInputResponse.SUCCESS;
         } else {
@@ -93,7 +93,7 @@ public class AlertsCommand extends NavigationAbstract {
             return null;
         }
 
-        BaseGuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
+        StandardGuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
         if (channel == null) {
             return MessageInputResponse.FAILED;
         }
@@ -150,7 +150,7 @@ public class AlertsCommand extends NavigationAbstract {
 
     @ControllerMessage(state = STATE_USERMESSAGE)
     public MessageInputResponse onMessageUserMessage(MessageReceivedEvent event, String input) {
-        BaseGuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
+        StandardGuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
         if (channel == null) {
             return MessageInputResponse.FAILED;
         }
@@ -202,7 +202,7 @@ public class AlertsCommand extends NavigationAbstract {
             setState(DEFAULT_STATE);
             return true;
         } else if (i == 0) {
-            BaseGuildMessageChannel channel = event.getGuild().getChannelById(BaseGuildMessageChannel.class, channelId);
+            StandardGuildMessageChannel channel = event.getGuild().getChannelById(StandardGuildMessageChannel.class, channelId);
             if (channel != null) {
                 if (BotPermissionUtil.canWriteEmbed(channel)) {
                     setState(STATE_COMMAND);
@@ -289,7 +289,7 @@ public class AlertsCommand extends NavigationAbstract {
     @Draw(state = STATE_ADD)
     public EmbedBuilder onDrawAdd(Member member) throws Throwable {
         setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
-        AtomicBaseGuildMessageChannel atomicChannel = new AtomicBaseGuildMessageChannel(member.getGuild().getIdLong(), channelId);
+        AtomicStandardGuildMessageChannel atomicChannel = new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), channelId);
         return EmbedFactory.getEmbedDefault(this, getString("state5_description", atomicChannel.getAsMention()), getString("state5_title"));
     }
 
@@ -297,8 +297,8 @@ public class AlertsCommand extends NavigationAbstract {
     public EmbedBuilder onDrawRemove(Member member) throws Throwable {
         List<Button> buttons = alerts.values().stream()
                 .sorted((a0, a1) -> {
-                    long channelO = a0.getBaseGuildMessageChannelId();
-                    long channel1 = a1.getBaseGuildMessageChannelId();
+                    long channelO = a0.getStandardGuildMessageChannelId();
+                    long channel1 = a1.getStandardGuildMessageChannelId();
                     if (channelO == channel1) {
                         return a0.getCreationTime().compareTo(a1.getCreationTime());
                     } else {
@@ -307,7 +307,7 @@ public class AlertsCommand extends NavigationAbstract {
                 })
                 .map(alert -> {
                     String trigger = alert.getCommandTrigger();
-                    String channelName = StringUtil.escapeMarkdown(StringUtil.shortenString(new AtomicBaseGuildMessageChannel(member.getGuild().getIdLong(), alert.getBaseGuildMessageChannelId()).getPrefixedName(), 40));
+                    String channelName = StringUtil.escapeMarkdown(StringUtil.shortenString(new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), alert.getStandardGuildMessageChannelId()).getPrefixedName(), 40));
                     String label  = getString("slot_remove", false, channelName, trigger);
                     return Button.of(ButtonStyle.PRIMARY, String.valueOf(alert.hashCode()), label);
                 })
@@ -393,14 +393,14 @@ public class AlertsCommand extends NavigationAbstract {
     private boolean trackerSlotExists(String commandTrigger, String commandKey) {
         return alerts.values().stream()
                 .anyMatch(slot -> slot.getCommandTrigger().equals(commandTrigger) &&
-                        slot.getBaseGuildMessageChannelId() == channelId &&
+                        slot.getStandardGuildMessageChannelId() == channelId &&
                         slot.getCommandKey().equalsIgnoreCase(commandKey)
                 );
     }
 
     private boolean enoughSpaceForNewTrackers(Member member) {
         boolean premium = ServerPatreonBoostCache.get(member.getGuild().getIdLong());
-        if (channelId == 0L || alerts.values().stream().filter(a -> a.getBaseGuildMessageChannelId() == channelId).count() < LIMIT_CHANNEL || premium) {
+        if (channelId == 0L || alerts.values().stream().filter(a -> a.getStandardGuildMessageChannelId() == channelId).count() < LIMIT_CHANNEL || premium) {
             if (alerts.size() < LIMIT_SERVER || premium) {
                 return true;
             } else {
@@ -413,8 +413,8 @@ public class AlertsCommand extends NavigationAbstract {
         }
     }
 
-    private BaseGuildMessageChannel getAlertChannelOrFail(Member member) {
-        BaseGuildMessageChannel channel = member.getGuild().getChannelById(BaseGuildMessageChannel.class, channelId);
+    private StandardGuildMessageChannel getAlertChannelOrFail(Member member) {
+        StandardGuildMessageChannel channel = member.getGuild().getChannelById(StandardGuildMessageChannel.class, channelId);
         if (channel == null || !enoughSpaceForNewTrackers(member)) {
             setState(STATE_ADD);
             return null;

@@ -71,7 +71,7 @@ interface OnMessageInputListener : Drawable {
             if (messageInputResponse != null) {
                 if (messageInputResponse === MessageInputResponse.SUCCESS) {
                     CommandContainer.refreshListeners(command)
-                    if (BotPermissionUtil.can(event.textChannel, Permission.MESSAGE_MANAGE)) {
+                    if (BotPermissionUtil.can(event.guildChannel, Permission.MESSAGE_MANAGE)) {
                         event.message.delete().queue()
                     }
                 }

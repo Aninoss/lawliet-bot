@@ -48,7 +48,7 @@ public class GiveawayScheduler {
     private static void onGiveawayDue(GiveawayData giveawayData) {
         if (giveawayData.isActive()) {
             ShardManager.getLocalGuildById(giveawayData.getGuildId())
-                    .map(guild -> guild.getChannelById(BaseGuildMessageChannel.class, giveawayData.getBaseGuildMessageChannelId()))
+                    .map(guild -> guild.getChannelById(StandardGuildMessageChannel.class, giveawayData.getStandardGuildMessageChannelId()))
                     .ifPresent(channel -> {
                         try {
                             processGiveawayUsers(giveawayData, giveawayData.getWinners(), false);

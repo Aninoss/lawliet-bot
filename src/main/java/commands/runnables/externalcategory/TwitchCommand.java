@@ -21,7 +21,7 @@ import modules.twitch.TwitchStream;
 import modules.twitch.TwitchUser;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -84,7 +84,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(5, ChronoUnit.MINUTES));
-        BaseGuildMessageChannel channel = slot.getBaseGuildMessageChannel().get();
+        StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
 
         Optional<TwitchStream> streamOpt;
         streamOpt = twitchDownloader.retrieveStream(slot.getCommandKey()).get();

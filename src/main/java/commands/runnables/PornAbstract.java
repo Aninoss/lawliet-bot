@@ -35,7 +35,7 @@ import mysql.modules.nsfwfilter.DBNSFWFilters;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -263,7 +263,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
-        BaseGuildMessageChannel channel = slot.getBaseGuildMessageChannel().get();
+        StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
 
         ArrayList<String> nsfwFiltersList = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(slot.getGuildId()).getKeywords());
         HashSet<String> nsfwFilters = new HashSet<>();
@@ -326,7 +326,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
         return AlertResponse.CONTINUE_AND_SAVE;
     }
 
-    private Optional<Message> generatePostMessagesText(List<BooruImage> pornImages, BaseGuildMessageChannel channel, int max) {
+    private Optional<Message> generatePostMessagesText(List<BooruImage> pornImages, StandardGuildMessageChannel channel, int max) {
         StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title",
                 getCommandProperties().emoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"),
                 getPrefix(), getTrigger()

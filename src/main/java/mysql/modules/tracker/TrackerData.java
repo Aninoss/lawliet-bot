@@ -20,13 +20,13 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import core.MainLogger;
 import core.ShardManager;
-import core.assets.BaseGuildMessageChannelAsset;
+import core.assets.StandardGuildMessageChannelAsset;
 import core.cache.ServerPatreonBoostCache;
 import core.components.WebhookMessageBuilderAdvanced;
 import core.utils.BotPermissionUtil;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Webhook;
@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
-public class TrackerData extends DataWithGuild implements BaseGuildMessageChannelAsset {
+public class TrackerData extends DataWithGuild implements StandardGuildMessageChannelAsset {
 
     private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2, new CountingThreadFactory(() -> "JDA", "WebHook", false));
     private static final Cache<Long, WebhookClient> webhookClientMap = CacheBuilder.newBuilder()
@@ -67,7 +67,7 @@ public class TrackerData extends DataWithGuild implements BaseGuildMessageChanne
     }
 
     @Override
-    public long getBaseGuildMessageChannelId() {
+    public long getStandardGuildMessageChannelId() {
         return channelId;
     }
 
@@ -166,9 +166,9 @@ public class TrackerData extends DataWithGuild implements BaseGuildMessageChanne
 
     private Optional<Long> processMessage(boolean newMessage, boolean acceptUserMessage, String content,
                                           List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
-        Optional<BaseGuildMessageChannel> channelOpt = getBaseGuildMessageChannel();
+        Optional<StandardGuildMessageChannel> channelOpt = getStandardGuildMessageChannel();
         if (channelOpt.isPresent()) {
-            BaseGuildMessageChannel channel = channelOpt.get();
+            StandardGuildMessageChannel channel = channelOpt.get();
             if (preferWebhook && webhookUrl == null && BotPermissionUtil.can(channel, Permission.MANAGE_WEBHOOKS)) {
                 try {
                     List<Webhook> webhooks = channel.retrieveWebhooks().complete();
@@ -194,13 +194,13 @@ public class TrackerData extends DataWithGuild implements BaseGuildMessageChanne
                         return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds, actionRows);
                     } else {
                         preferWebhook = false;
-                        getBaseGuildMessageChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows));
+                        getStandardGuildMessageChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows));
                     }
                 } catch (InterruptedException e) {
                     throw e;
                 } catch (Throwable e) {
                     MainLogger.get().error("Could not process webhooks", e);
-                    getBaseGuildMessageChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows));
+                    getStandardGuildMessageChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows));
                 }
             }
 
@@ -216,7 +216,7 @@ public class TrackerData extends DataWithGuild implements BaseGuildMessageChanne
 
     private Optional<Long> processMessageViaWebhook(boolean newMessage, boolean acceptUserMessage, String content,
                                                     List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
-        Optional<BaseGuildMessageChannel> channelOpt = getBaseGuildMessageChannel();
+        Optional<StandardGuildMessageChannel> channelOpt = getStandardGuildMessageChannel();
         if (channelOpt.isPresent()) {
             try {
                 WebhookClient webhookClient = webhookClientMap.get(channelId, () -> {
@@ -279,9 +279,9 @@ public class TrackerData extends DataWithGuild implements BaseGuildMessageChanne
 
     private Optional<Long> processMessageViaRest(boolean newMessage, boolean acceptUserMessage, String content,
                                                  List<MessageEmbed> embeds, ActionRow... actionRows) {
-        Optional<BaseGuildMessageChannel> channelOpt = getBaseGuildMessageChannel();
+        Optional<StandardGuildMessageChannel> channelOpt = getStandardGuildMessageChannel();
         if (channelOpt.isPresent()) {
-            BaseGuildMessageChannel channel = channelOpt.get();
+            StandardGuildMessageChannel channel = channelOpt.get();
             try {
                 if (embeds.size() > 0) {
                     if (newMessage) {

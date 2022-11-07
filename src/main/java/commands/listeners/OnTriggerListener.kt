@@ -66,7 +66,7 @@ interface OnTriggerListener {
     private fun processTriggerDelete(event: MessageReceivedEvent) {
         val guildBean = DBGuild.getInstance().retrieve(event.guild.idLong)
         if (guildBean.isCommandAuthorMessageRemoveEffectively &&
-            PermissionCheckRuntime.botHasPermission(guildBean.locale, TriggerDeleteCommand::class.java, event.textChannel, Permission.MESSAGE_MANAGE)
+            PermissionCheckRuntime.botHasPermission(guildBean.locale, TriggerDeleteCommand::class.java, event.guildChannel, Permission.MESSAGE_MANAGE)
         ) {
             event.message.delete().queue()
         }

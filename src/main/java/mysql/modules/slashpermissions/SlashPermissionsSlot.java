@@ -2,7 +2,7 @@ package mysql.modules.slashpermissions;
 
 import core.assets.*;
 
-public class SlashPermissionsSlot implements GuildAsset, RoleAsset, MemberAsset, BaseGuildMessageChannelAsset {
+public class SlashPermissionsSlot implements GuildAsset, RoleAsset, MemberAsset, StandardGuildMessageChannelAsset {
 
     public enum Type { ROLE, USER, CHANNEL }
 
@@ -60,7 +60,7 @@ public class SlashPermissionsSlot implements GuildAsset, RoleAsset, MemberAsset,
     }
 
     @Override
-    public long getBaseGuildMessageChannelId() {
+    public long getStandardGuildMessageChannelId() {
         if (type == Type.CHANNEL) {
             return objectId;
         } else {

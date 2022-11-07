@@ -8,20 +8,20 @@ import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.ShardManager;
 import mysql.modules.guild.DBGuild;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 
-public class AtomicBaseGuildMessageChannel implements MentionableAtomicAsset<BaseGuildMessageChannel> {
+public class AtomicStandardGuildMessageChannel implements MentionableAtomicAsset<StandardGuildMessageChannel> {
 
     private final long guildId;
     private final long channelId;
 
-    public AtomicBaseGuildMessageChannel(long guildId, long channelId) {
+    public AtomicStandardGuildMessageChannel(long guildId, long channelId) {
         this.guildId = guildId;
         this.channelId = channelId;
     }
 
-    public AtomicBaseGuildMessageChannel(BaseGuildMessageChannel channel) {
+    public AtomicStandardGuildMessageChannel(StandardGuildMessageChannel channel) {
         channelId = channel.getIdLong();
         guildId = channel.getGuild().getIdLong();
     }
@@ -32,9 +32,9 @@ public class AtomicBaseGuildMessageChannel implements MentionableAtomicAsset<Bas
     }
 
     @Override
-    public Optional<BaseGuildMessageChannel> get() {
+    public Optional<StandardGuildMessageChannel> get() {
         return ShardManager.getLocalGuildById(guildId)
-                .map(guild -> guild.getChannelById(BaseGuildMessageChannel.class, channelId));
+                .map(guild -> guild.getChannelById(StandardGuildMessageChannel.class, channelId));
     }
 
     @Override
@@ -49,14 +49,14 @@ public class AtomicBaseGuildMessageChannel implements MentionableAtomicAsset<Bas
 
     @Override
     public Optional<String> getNameRaw() {
-        return get().map(BaseGuildMessageChannel::getName);
+        return get().map(StandardGuildMessageChannel::getName);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AtomicBaseGuildMessageChannel that = (AtomicBaseGuildMessageChannel) o;
+        AtomicStandardGuildMessageChannel that = (AtomicStandardGuildMessageChannel) o;
         return channelId == that.channelId;
     }
 
@@ -65,24 +65,24 @@ public class AtomicBaseGuildMessageChannel implements MentionableAtomicAsset<Bas
         return Objects.hash(channelId);
     }
 
-    public static List<AtomicBaseGuildMessageChannel> from(List<BaseGuildMessageChannel> channels) {
+    public static List<AtomicStandardGuildMessageChannel> from(List<StandardGuildMessageChannel> channels) {
         return channels.stream()
-                .map(AtomicBaseGuildMessageChannel::new)
+                .map(AtomicStandardGuildMessageChannel::new)
                 .collect(Collectors.toList());
     }
 
-    public static List<BaseGuildMessageChannel> to(List<AtomicBaseGuildMessageChannel> channels) {
+    public static List<StandardGuildMessageChannel> to(List<AtomicStandardGuildMessageChannel> channels) {
         return channels.stream()
-                .map(AtomicBaseGuildMessageChannel::get)
+                .map(AtomicStandardGuildMessageChannel::get)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    public static CustomObservableList<AtomicBaseGuildMessageChannel> transformIdList(Guild guild, CustomObservableList<Long> list) {
+    public static CustomObservableList<AtomicStandardGuildMessageChannel> transformIdList(Guild guild, CustomObservableList<Long> list) {
         return list.transform(
-                id -> new AtomicBaseGuildMessageChannel(guild.getIdLong(), id),
-                AtomicBaseGuildMessageChannel::getIdLong
+                id -> new AtomicStandardGuildMessageChannel(guild.getIdLong(), id),
+                AtomicStandardGuildMessageChannel::getIdLong
         );
     }
 

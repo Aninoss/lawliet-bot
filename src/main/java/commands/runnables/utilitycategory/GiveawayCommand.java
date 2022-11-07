@@ -14,7 +14,7 @@ import commands.listeners.OnReactionListener;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.*;
-import core.atomicassets.AtomicBaseGuildMessageChannel;
+import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.atomicassets.MentionableAtomicAsset;
 import core.utils.*;
 import modules.Giveaway;
@@ -23,9 +23,9 @@ import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
@@ -80,7 +80,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     private Emoji emoji = Emoji.fromUnicode("🎉");
     private String imageLink;
     private LocalFile imageCdn;
-    private AtomicBaseGuildMessageChannel channel;
+    private AtomicStandardGuildMessageChannel channel;
     private Instant instant;
     private boolean editMode = false;
     private GiveawayData rerollGiveawayData;
@@ -100,10 +100,10 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @ControllerMessage(state = ADD_MESSAGE)
     public MessageInputResponse onMessageAddMessage(MessageReceivedEvent event, String input) {
-        List<BaseGuildMessageChannel> channel = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), input).getList();
+        List<StandardGuildMessageChannel> channel = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), input).getList();
         if (channel.size() > 0) {
             if (checkWriteInChannelWithLog(channel.get(0))) {
-                this.channel = new AtomicBaseGuildMessageChannel(channel.get(0));
+                this.channel = new AtomicStandardGuildMessageChannel(channel.get(0));
                 setLog(LogStatus.SUCCESS, getString("channelset"));
                 return MessageInputResponse.SUCCESS;
             } else {
@@ -298,7 +298,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             durationMinutes = giveaway.getDurationMinutes();
             amountOfWinners = giveaway.getWinners();
             imageLink = giveaway.getImageUrl().orElse(null);
-            channel = new AtomicBaseGuildMessageChannel(event.getGuild().getIdLong(), giveaway.getBaseGuildMessageChannelId());
+            channel = new AtomicStandardGuildMessageChannel(event.getGuild().getIdLong(), giveaway.getStandardGuildMessageChannelId());
             instant = giveaway.getStart();
             emoji = Emoji.fromFormatted(giveaway.getEmoji());
             setState(CONFIGURE_MESSAGE);
@@ -537,8 +537,8 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     public EmbedBuilder onDrawEditMessage(Member member) {
         String[] options = getActiveGiveawaySlots().stream()
                 .map(giveawayData -> {
-                    AtomicBaseGuildMessageChannel atomicBaseGuildMessageChannel = new AtomicBaseGuildMessageChannel(giveawayData.getGuildId(), giveawayData.getBaseGuildMessageChannelId());
-                    return getString("state2_slot", giveawayData.getTitle(), atomicBaseGuildMessageChannel.getName());
+                    AtomicStandardGuildMessageChannel atomicStandardGuildMessageChannel = new AtomicStandardGuildMessageChannel(giveawayData.getGuildId(), giveawayData.getStandardGuildMessageChannelId());
+                    return getString("state2_slot", giveawayData.getTitle(), atomicStandardGuildMessageChannel.getName());
                 })
                 .toArray(String[]::new);
         setComponents(options);
@@ -548,7 +548,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Draw(state = REROLL_MESSAGE)
     public EmbedBuilder onDrawRerollMessage(Member member) {
         String[] options = getCompletedGiveawaySlots().stream()
-                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), new AtomicBaseGuildMessageChannel(member.getGuild().getIdLong(), giveawayData.getBaseGuildMessageChannelId()).getName()))
+                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), giveawayData.getStandardGuildMessageChannelId()).getName()))
                 .toArray(String[]::new);
         setComponents(options);
         return EmbedFactory.getEmbedDefault(this, getString("state12_description"), getString("state12_title"));
@@ -653,7 +653,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     private Optional<Long> sendMessage() {
         Message message;
         if (checkWriteInChannelWithLog(channel.get().orElse(null))) {
-            BaseGuildMessageChannel channel = this.channel.get().get();
+            StandardGuildMessageChannel channel = this.channel.get().get();
             if (!editMode) {
                 instant = Instant.now();
                 EmbedBuilder eb = Giveaway.getMessageEmbed(getLocale(), title, description, amountOfWinners, emoji,

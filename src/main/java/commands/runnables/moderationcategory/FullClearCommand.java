@@ -45,7 +45,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
     private boolean interrupt = false;
     private List<Member> memberFilter;
     private long hoursMin;
-    BaseGuildMessageChannel channel;
+    StandardGuildMessageChannel channel;
 
     public FullClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -53,7 +53,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
-        MentionList<BaseGuildMessageChannel> channelMention = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), args);
+        MentionList<StandardGuildMessageChannel> channelMention = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), args);
         args = channelMention.getFilteredArgs();
         channel = event.getTextChannel();
         if (channelMention.getList().size() > 0) {
@@ -109,11 +109,11 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         }
     }
 
-    private void fullClear(BaseGuildMessageChannel channel, int hours) throws InterruptedException {
+    private void fullClear(StandardGuildMessageChannel channel, int hours) throws InterruptedException {
         fullClear(channel, hours, Collections.emptyList(), 0L);
     }
 
-    private ClearResults fullClear(BaseGuildMessageChannel channel, int hours, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
+    private ClearResults fullClear(StandardGuildMessageChannel channel, int hours, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
         int deleted = 0;
         boolean tooOld = false;
 
@@ -156,7 +156,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
-        BaseGuildMessageChannel channel = slot.getBaseGuildMessageChannel().get();
+        StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
         if (PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), channel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_MANAGE)) {
             long hoursMin = Math.max(0, MentionUtil.getAmountExt(slot.getCommandKey()));
             if (hoursMin <= HOURS_MAX) {

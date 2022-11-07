@@ -13,7 +13,10 @@ import commands.listeners.OnStaticButtonListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
 import constants.LogStatus;
-import core.*;
+import core.EmbedFactory;
+import core.ExceptionLogger;
+import core.ShardManager;
+import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -23,8 +26,8 @@ import mysql.modules.survey.*;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -235,13 +238,13 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
             return AlertResponse.CONTINUE;
         }
 
-        BaseGuildMessageChannel channel = slot.getBaseGuildMessageChannel().get();
+        StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
         slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).queue());
 
         SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(null);
         slot.sendMessage(true, surveyEmbeds.resultEmbed.build()).get();
         long messageId = slot.sendMessage(false, surveyEmbeds.newEmbed.build(), surveyEmbeds.actionRows).get();
-        registerStaticReactionMessage(slot.getBaseGuildMessageChannel().get(), messageId);
+        registerStaticReactionMessage(slot.getStandardGuildMessageChannel().get(), messageId);
 
         slot.setMessageId(messageId);
         slot.setNextRequest(getNextSurveyInstant(Instant.now()));

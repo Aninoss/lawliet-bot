@@ -83,7 +83,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
                         Command helpCommand = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
                         if (DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong()).commandIsTurnedOnEffectively(helpCommand, event.getMember()) &&
-                                CommandPermissions.hasAccess(HelpCommand.class, event.getMember(), event.getTextChannel(), false)
+                                CommandPermissions.hasAccess(HelpCommand.class, event.getMember(), event.getChannel().asTextChannel(), false)
                         ) {
                             args = command.getTrigger();
                             command = helpCommand;

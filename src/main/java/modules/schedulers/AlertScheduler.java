@@ -22,7 +22,7 @@ import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
@@ -100,9 +100,9 @@ public class AlertScheduler {
         }
 
         OnAlertListener command = (OnAlertListener) commandOpt.get();
-        Optional<BaseGuildMessageChannel> channelOpt = slot.getBaseGuildMessageChannel();
+        Optional<StandardGuildMessageChannel> channelOpt = slot.getStandardGuildMessageChannel();
         if (channelOpt.isPresent()) {
-            BaseGuildMessageChannel channel = channelOpt.get();
+            StandardGuildMessageChannel channel = channelOpt.get();
             if (PermissionCheckRuntime.botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 if (checkNSFW(slot, channel, (Command) command) ||
                         checkPatreon(slot, channel, (Command) command) ||
@@ -142,7 +142,7 @@ public class AlertScheduler {
         }
     }
 
-    private static boolean checkNSFW(TrackerData slot, BaseGuildMessageChannel channel, Command command) throws InterruptedException {
+    private static boolean checkNSFW(TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
         if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
@@ -153,7 +153,7 @@ public class AlertScheduler {
         return false;
     }
 
-    private static boolean checkPatreon(TrackerData slot, BaseGuildMessageChannel channel, Command command) throws InterruptedException {
+    private static boolean checkPatreon(TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
         if (command.getCommandProperties().patreonRequired() &&
                 !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
         ) {
@@ -166,7 +166,7 @@ public class AlertScheduler {
         return false;
     }
 
-    private static boolean checkReleased(TrackerData slot, BaseGuildMessageChannel channel, Command command) throws InterruptedException {
+    private static boolean checkReleased(TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
         LocalDate releaseDate = command.getReleaseDate().orElse(LocalDate.now());
         if (releaseDate.isAfter(LocalDate.now()) &&
                 !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())

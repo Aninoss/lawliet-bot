@@ -10,6 +10,7 @@ import constants.Language
 import core.CommandPermissions
 import core.TextManager
 import mysql.modules.commandmanagement.DBCommandManagement
+import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command
@@ -51,10 +52,10 @@ class HelpAdapter : SlashAdapter() {
             val commandProperties = commands.Command.getCommandProperties(clazz)
             val commandTrigger = commandProperties.trigger
             val triggers = mutableListOf(commandTrigger)
-            if ((!commandProperties.nsfw || event.textChannel.isNSFW) &&
+            if ((!commandProperties.nsfw || (event.channel as TextChannel).isNSFW) &&
                 switchedOffData.elementIsTurnedOnEffectively(Category.NSFW.id, event.member) &&
                 switchedOffData.elementIsTurnedOnEffectively(commandTrigger, event.member) &&
-                CommandPermissions.hasAccess(clazz, event.member, event.textChannel, false)
+                CommandPermissions.hasAccess(clazz, event.member, (event.channel as TextChannel), false)
             ) {
                 triggers.addAll(commandProperties.aliases)
                 if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {

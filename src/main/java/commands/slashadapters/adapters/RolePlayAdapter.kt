@@ -11,6 +11,7 @@ import core.CommandPermissions
 import core.TextManager
 import mysql.modules.commandmanagement.DBCommandManagement
 import mysql.modules.guild.DBGuild
+import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -55,7 +56,7 @@ class RolePlayAdapter : SlashAdapter() {
             if (commandCategory == Category.INTERACTIONS &&
                 switchedOffData.elementIsTurnedOnEffectively(commandCategory.id, event.member) &&
                 switchedOffData.elementIsTurnedOnEffectively(commandTrigger, event.member) &&
-                CommandPermissions.hasAccess(clazz, event.member, event.textChannel, false)
+                CommandPermissions.hasAccess(clazz, event.member, event.channel as TextChannel, false)
             ) {
                 val triggers = mutableListOf(commandTrigger)
                 triggers.addAll(commandProperties.aliases)

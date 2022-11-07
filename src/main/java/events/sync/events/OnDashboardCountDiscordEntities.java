@@ -4,11 +4,11 @@ import core.MemberCacheController;
 import core.ShardManager;
 import core.utils.BotPermissionUtil;
 import dashboard.component.DashboardComboBox;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
-import net.dv8tion.jda.api.entities.Member;
-import org.json.JSONObject;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
+import org.json.JSONObject;
 
 @SyncServerEvent(event = "DASH_COUNT_DISCORD_ENTITIES")
 public class OnDashboardCountDiscordEntities implements SyncServerFunction {
@@ -41,7 +41,7 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
             case BASE_GUILD_MESSAGE_CHANNELS -> {
                 Member member = MemberCacheController.getInstance().loadMember(guild, userId).join();
                 yield guild.getChannels().stream()
-                        .filter(c -> c instanceof BaseGuildMessageChannel && ("#" + c.getName().toLowerCase()).contains(filterText) && BotPermissionUtil.can(member, c))
+                        .filter(c -> c instanceof StandardGuildMessageChannel && ("#" + c.getName().toLowerCase()).contains(filterText) && BotPermissionUtil.can(member, c))
                         .count();
             }
 

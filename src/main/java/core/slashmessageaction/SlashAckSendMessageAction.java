@@ -11,8 +11,8 @@ import java.util.function.Consumer;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -26,9 +26,9 @@ import org.jetbrains.annotations.Nullable;
 public class SlashAckSendMessageAction implements MessageAction {
 
     private ReplyCallbackAction replyCallbackAction;
-    private final MessageChannel messageChannel;
+    private final MessageChannelUnion messageChannel;
 
-    public SlashAckSendMessageAction(ReplyCallbackAction replyCallbackAction, MessageChannel messageChannel) {
+    public SlashAckSendMessageAction(ReplyCallbackAction replyCallbackAction, MessageChannelUnion messageChannel) {
         this.replyCallbackAction = replyCallbackAction;
         this.messageChannel = messageChannel;
     }
@@ -81,7 +81,7 @@ public class SlashAckSendMessageAction implements MessageAction {
 
     @NotNull
     @Override
-    public MessageChannel getChannel() {
+    public MessageChannelUnion getChannel() {
         return messageChannel;
     }
 

@@ -40,7 +40,7 @@ public class ReactionMessage implements MessageAsset {
     }
 
     @Override
-    public long getBaseGuildMessageChannelId() {
+    public long getStandardGuildMessageChannelId() {
         return channelId;
     }
 

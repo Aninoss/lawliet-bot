@@ -5,7 +5,7 @@ import commands.Command
 import commands.runnables.utilitycategory.ReactionRolesCommand
 import core.ShardManager
 import core.TextManager
-import core.atomicassets.AtomicBaseGuildMessageChannel
+import core.atomicassets.AtomicStandardGuildMessageChannel
 import core.emojiconnection.EmojiConnection
 import core.utils.MentionUtil
 import core.utils.StringUtil
@@ -75,7 +75,8 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
 
         val rows = reactionMessages
             .map {
-                val atomicChannel = AtomicBaseGuildMessageChannel(guild.idLong, it.baseGuildMessageChannelId)
+                val atomicChannel =
+                    AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
                 val values = arrayOf(it.title, atomicChannel.prefixedName)
                 GridRow(it.messageId.toString(), values)
             }
@@ -329,7 +330,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
     }
 
     private fun readValuesFromReactionMessage(guild: Guild, reactionRoleMessage: ReactionMessage) {
-        this.channelId = reactionRoleMessage.baseGuildMessageChannelId
+        this.channelId = reactionRoleMessage.standardGuildMessageChannelId
         this.title = reactionRoleMessage.title
         this.desc = reactionRoleMessage.description.orElse("")
         this.roleRemovement = reactionRoleMessage.isRemoveRole

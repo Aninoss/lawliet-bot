@@ -6,7 +6,7 @@ import commands.runnables.utilitycategory.GiveawayCommand
 import core.CustomObservableMap
 import core.ShardManager
 import core.TextManager
-import core.atomicassets.AtomicBaseGuildMessageChannel
+import core.atomicassets.AtomicStandardGuildMessageChannel
 import core.utils.BotPermissionUtil
 import core.utils.MentionUtil
 import dashboard.*
@@ -110,7 +110,8 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
         val rows = giveawayDataMap.values
             .filter(filter)
             .map {
-                val atomicChannel = AtomicBaseGuildMessageChannel(guild.idLong, it.baseGuildMessageChannelId)
+                val atomicChannel =
+                    AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
                 val values = arrayOf(it.title, atomicChannel.prefixedName)
                 GridRow(it.messageId.toString(), values)
             }
@@ -423,7 +424,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
     }
 
     private fun readValuesFromGiveawayData(giveawayData: GiveawayData) {
-        channelId = giveawayData.baseGuildMessageChannelId
+        channelId = giveawayData.standardGuildMessageChannelId
         article = giveawayData.title
         desc = giveawayData.description
         duration = giveawayData.durationMinutes

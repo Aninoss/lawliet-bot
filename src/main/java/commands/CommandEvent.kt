@@ -35,7 +35,7 @@ class CommandEvent : GenericChannelEvent {
             throw IllegalStateException("Cannot convert channel of type $channelType to GuildMessageChannel")
         }
 
-    constructor(event: SlashCommandInteractionEvent) : super(event.jda, event.responseNumber, event.textChannel) {
+    constructor(event: SlashCommandInteractionEvent) : super(event.jda, event.responseNumber, event.channel) {
         slashCommandInteractionEvent = event
         messageReceivedEvent = null
         member = event.member!!

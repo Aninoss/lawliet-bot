@@ -12,8 +12,8 @@ import java.util.function.Consumer;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -26,9 +26,9 @@ import org.jetbrains.annotations.Nullable;
 public class SlashHookEditMessageAction implements MessageAction {
 
     private WebhookMessageUpdateAction<Message> webhookMessageUpdateAction;
-    private final MessageChannel messageChannel;
+    private final MessageChannelUnion messageChannel;
 
-    public SlashHookEditMessageAction(WebhookMessageUpdateAction<Message> webhookMessageUpdateAction, MessageChannel messageChannel) {
+    public SlashHookEditMessageAction(WebhookMessageUpdateAction<Message> webhookMessageUpdateAction, MessageChannelUnion messageChannel) {
         this.webhookMessageUpdateAction = webhookMessageUpdateAction;
         this.messageChannel = messageChannel;
     }
@@ -78,7 +78,7 @@ public class SlashHookEditMessageAction implements MessageAction {
 
     @NotNull
     @Override
-    public MessageChannel getChannel() {
+    public MessageChannelUnion getChannel() {
         return messageChannel;
     }
 

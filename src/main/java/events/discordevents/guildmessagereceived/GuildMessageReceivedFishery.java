@@ -54,7 +54,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
                 }
 
                 if (noSpamChannel) {
-                    Fishery.spawnTreasureChest(event.getTextChannel());
+                    Fishery.spawnTreasureChest(event.getChannel().asTextChannel());
                 }
             }
         }

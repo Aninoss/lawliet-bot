@@ -91,7 +91,7 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
             series = new MangaUpdatesSeries(seriesId, title, image, url, nsfw);
         }
 
-        if (series.isNsfw() && !slot.getBaseGuildMessageChannel().get().isNSFW()) {
+        if (series.isNsfw() && !slot.getStandardGuildMessageChannel().get().isNSFW()) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
             slot.sendMessage(false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(getLocale())));

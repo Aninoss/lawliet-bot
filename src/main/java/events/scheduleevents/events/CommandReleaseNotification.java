@@ -22,7 +22,7 @@ public class CommandReleaseNotification implements ExceptionRunnable {
         if (Program.publicVersion()) {
             AtomicBoolean newRelease = new AtomicBoolean(false);
             ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
-                    .map(guild -> guild.getChannelById(BaseGuildMessageChannel.class, 557960859792441357L))
+                    .map(guild -> guild.getChannelById(StandardGuildMessageChannel.class, 557960859792441357L))
                     .ifPresent(channel -> {
                         CommandContainer.getCommandCategoryMap().values().forEach(list -> list.forEach(clazz -> {
                             Command command = CommandManager.createCommandByClass(clazz, Language.EN.getLocale(), "L.");

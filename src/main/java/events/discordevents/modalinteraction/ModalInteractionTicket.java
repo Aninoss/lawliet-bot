@@ -22,10 +22,10 @@ public class ModalInteractionTicket extends ModalInteractionAbstract {
     public boolean onModalInteraction(ModalInteractionEvent event) throws Throwable {
         if (event.getChannel() instanceof TextChannel && event.getModalId().equals(ID)) {
             TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
-            Category category = event.getTextChannel().getParentCategory();
+            Category category = event.getChannel().asTextChannel().getParentCategory();
 
             if (category == null || category.getTextChannels().size() < 50) {
-                Ticket.createTicket(ticketData, event.getTextChannel(), event.getMember(), event.getValue("message").getAsString());
+                Ticket.createTicket(ticketData, event.getChannel().asTextChannel(), event.getMember(), event.getValue("message").getAsString());
                 event.deferEdit().queue();
             } else {
                 Locale locale = ticketData.getGuildData().getLocale();

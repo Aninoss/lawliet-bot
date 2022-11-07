@@ -43,7 +43,7 @@ public class QuoteCommand extends Command {
         // message link
         if (directMessage.size() > 0) {
             for (Message message : directMessage) {
-                if (BotPermissionUtil.canReadHistory(message.getTextChannel())) {
+                if (BotPermissionUtil.canReadHistory(message.getGuildChannel())) {
                     Message m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getTextChannel(), message, false);
                     setActionRows(m.getActionRows());
                     drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));

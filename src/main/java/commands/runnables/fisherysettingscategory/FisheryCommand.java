@@ -30,10 +30,7 @@ import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
-import net.dv8tion.jda.api.entities.IMentionable;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -236,7 +233,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         .setImage(treasureImage)
                         .setFooter(getString("treasure_footer"));
 
-                BaseGuildMessageChannel channel = (BaseGuildMessageChannel) event.getChannel();
+                StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getChannel();
                 if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
                     event.getMessage().editMessageEmbeds(eb2.build(), userBean.changeValuesEmbed(event.getMember(), 0, won).build()).queue();
                 } else {

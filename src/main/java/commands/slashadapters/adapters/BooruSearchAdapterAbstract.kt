@@ -8,6 +8,7 @@ import constants.Language
 import constants.Settings
 import modules.porn.BooruAutoComplete
 import mysql.modules.nsfwfilter.DBNSFWFilters
+import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command
@@ -39,7 +40,7 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
-        if (event.textChannel.isNSFW) {
+        if ((event.channel as TextChannel).isNSFW) {
             val nsfwFiltersList: List<String> = DBNSFWFilters.getInstance().retrieve(event.guild!!.idLong).keywords
             val nsfwFilters = HashSet<String>()
             nsfwFiltersList.forEach { nsfwFilters.add(it.lowercase(Locale.getDefault())) }

@@ -11,8 +11,8 @@ import core.ExceptionLogger;
 import core.utils.CommandUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -29,7 +29,7 @@ public class SayCommand extends Command {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
-        BaseGuildMessageChannel channel;
+        StandardGuildMessageChannel channel;
         CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args, Permission.MESSAGE_ATTACH_FILES);
         if (response != null) {
             args = response.getArgs();

@@ -13,9 +13,9 @@ import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,13 +36,13 @@ public class ChannelInfoCommand extends Command {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         boolean noMention = false;
         Guild guild = event.getGuild();
-        ArrayList<BaseGuildMessageChannel> list = new ArrayList<>(MentionUtil.getBaseGuildMessageChannels(event.getGuild(), args).getList());
+        ArrayList<StandardGuildMessageChannel> list = new ArrayList<>(MentionUtil.getStandardGuildMessageChannels(event.getGuild(), args).getList());
         if (list.size() == 0) {
             list.add(event.getTextChannel());
             noMention = true;
         }
 
-        BaseGuildMessageChannel channel = list.get(0);
+        StandardGuildMessageChannel channel = list.get(0);
         List<Member> members = channel.getMembers();
 
         String[] argsArray = {

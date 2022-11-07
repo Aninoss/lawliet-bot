@@ -45,7 +45,7 @@ public class ClearCommand extends Command implements OnButtonListener {
     private boolean interrupt = false;
     private List<Member> memberFilter;
     private long amount;
-    BaseGuildMessageChannel channel;
+    StandardGuildMessageChannel channel;
 
     public ClearCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -53,7 +53,7 @@ public class ClearCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException, ExecutionException {
-        MentionList<BaseGuildMessageChannel> channelMention = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), args);
+        MentionList<StandardGuildMessageChannel> channelMention = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), args);
         args = channelMention.getFilteredArgs();
         channel = event.getTextChannel();
         if (channelMention.getList().size() > 0) {
@@ -112,7 +112,7 @@ public class ClearCommand extends Command implements OnButtonListener {
         return true;
     }
 
-    private ClearResults clear(BaseGuildMessageChannel channel, boolean patreon, int count, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
+    private ClearResults clear(StandardGuildMessageChannel channel, boolean patreon, int count, List<Member> memberFilter, long... messageIdsIgnore) throws InterruptedException {
         int deleted = 0;
         boolean skipped = false;
         MessageHistory messageHistory = channel.getHistory();

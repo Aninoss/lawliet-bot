@@ -21,10 +21,7 @@ import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -54,7 +51,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        BaseGuildMessageChannel channel;
+        StandardGuildMessageChannel channel;
         CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args);
         if (response != null) {
             args = response.getArgs();
@@ -99,7 +96,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         if (event.getChannel() instanceof TextChannel) {
             EmbedBuilder eb = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
                     getLocale(),
-                    event.getTextChannel(),
+                    (GuildChannel) event.getChannel(),
                     event.getMember(),
                     new Permission[] { Permission.MANAGE_SERVER },
                     new Permission[0],
@@ -153,7 +150,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
 
                                     EmbedBuilder newEmbed = generateEmbed(
                                             getLocale(),
-                                            event.getTextChannel(),
+                                            (StandardGuildMessageChannel) event.getChannel(),
                                             newReminderData.getTime(),
                                             newReminderData.getMessage(),
                                             newReminderData.getInterval()
@@ -195,7 +192,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         registerStaticReactionMessage(message);
     }
 
-    public static EmbedBuilder generateEmbed(Locale locale, BaseGuildMessageChannel channel, Instant time, String messageText, int interval) {
+    public static EmbedBuilder generateEmbed(Locale locale, StandardGuildMessageChannel channel, Instant time, String messageText, int interval) {
         String intervalText = TextManager.getString(locale, Category.UTILITY, "reminder_norep");
         if (interval > 0) {
             intervalText = TimeUtil.getRemainingTimeString(locale, Duration.ofMinutes(interval).toMillis(), false);

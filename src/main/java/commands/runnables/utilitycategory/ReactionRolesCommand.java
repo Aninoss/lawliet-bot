@@ -275,7 +275,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             List<ReactionMessage> reactionMessages = ReactionRoles.getReactionMessagesInGuild(event.getGuild().getIdLong());
             if (i < reactionMessages.size()) {
                 ReactionMessage reactionMessage = reactionMessages.get(i);
-                BaseGuildMessageChannel channel = reactionMessage.getBaseGuildMessageChannel().get();
+                StandardGuildMessageChannel channel = reactionMessage.getStandardGuildMessageChannel().get();
                 if (checkWriteInChannelWithLog(channel)) {
                     editMessageId = reactionMessage.getMessageId();
                     updateValuesFromMessage(reactionMessage);
@@ -412,7 +412,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         if (getState() == ADD_SLOT && event instanceof MessageReactionAddEvent) {
             processEmoji(event.getEmoji());
             processDraw(event.getMember(), true).exceptionally(ExceptionLogger.get());
-            if (BotPermissionUtil.can(event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+            if (BotPermissionUtil.can(event.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
                 event.getReaction().removeReaction(event.getUser()).queue();
             }
             return false;
@@ -471,7 +471,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         String[] options = new String[reactionMessages.size()];
         for (int i = 0; i < reactionMessages.size(); i++) {
             ReactionMessage reactionMessage = reactionMessages.get(i);
-            AtomicTextChannel channel = new AtomicTextChannel(reactionMessage.getGuildId(), reactionMessage.getBaseGuildMessageChannelId());
+            AtomicTextChannel channel = new AtomicTextChannel(reactionMessage.getGuildId(), reactionMessage.getStandardGuildMessageChannelId());
             options[i] = getString("state2_template", reactionMessage.getTitle(), channel.getPrefixedName());
         }
 
@@ -586,7 +586,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         this.multipleRoles = message.isMultipleRoles();
         this.removeRole = message.isRemoveRole();
         this.emojiConnections = message.getEmojiConnections();
-        this.atomicTextChannel = new AtomicTextChannel(message.getGuildId(), message.getBaseGuildMessageChannelId());
+        this.atomicTextChannel = new AtomicTextChannel(message.getGuildId(), message.getStandardGuildMessageChannelId());
     }
 
     private void giveRole(MessageReactionAddEvent event) {

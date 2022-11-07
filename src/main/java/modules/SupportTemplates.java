@@ -52,7 +52,7 @@ public class SupportTemplates {
     }
 
     public static void process(MessageContextInteractionEvent event) {
-        Language language = findLanguage(event.getTextChannel().getParentCategory());
+        Language language = findLanguage(event.getChannel().asTextChannel().getParentCategory());
         String text = switch (findCommandIndex(event.getName())) {
             case 0 -> TEXT_WRONG_CHANNEL[language.ordinal()];
             case 1 -> TEXT_FAQ[language.ordinal()];

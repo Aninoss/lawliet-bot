@@ -35,15 +35,15 @@ public class ReactionRoles {
         return guildReactions.stream()
                 .sorted((md0, md1) -> {
                     int channelComp = Integer.compare(
-                            md0.getBaseGuildMessageChannel().map(IPositionableChannel::getPositionRaw).orElse(0),
-                            md1.getBaseGuildMessageChannel().map(IPositionableChannel::getPositionRaw).orElse(0)
+                            md0.getStandardGuildMessageChannel().map(IPositionableChannel::getPositionRaw).orElse(0),
+                            md1.getStandardGuildMessageChannel().map(IPositionableChannel::getPositionRaw).orElse(0)
                     );
                     if (channelComp == 0) {
                         return Long.compare(md0.getMessageId(), md1.getMessageId());
                     }
                     return channelComp;
                 })
-                .map(m -> m.getBaseGuildMessageChannel().flatMap(ch -> ReactionMessagesCache.get(ch, m.getMessageId())).orElse(null))
+                .map(m -> m.getStandardGuildMessageChannel().flatMap(ch -> ReactionMessagesCache.get(ch, m.getMessageId())).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableList());
     }

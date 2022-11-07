@@ -103,7 +103,7 @@ public class CommandPermissions {
                 if (commandPermission.isDefaultObject()) {
                     allowed = commandPermission.isAllowed();
                 } else {
-                    if (commandPermission.getBaseGuildMessageChannelId() == textChannel.getIdLong()) {
+                    if (commandPermission.getStandardGuildMessageChannelId() == textChannel.getIdLong()) {
                         return commandPermission.isAllowed();
                     }
                 }

@@ -15,21 +15,21 @@ import core.TextManager;
 import core.mention.MentionList;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
 public class CommandUtil {
 
     public static ChannelResponse differentChannelExtract(Command command, CommandEvent event, String args, Permission... permissions) {
         String[] words = args.split(" ");
-        BaseGuildMessageChannel channel = event.getTextChannel();
-        MentionList<BaseGuildMessageChannel> messageChannelsFirst = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), words[0]);
+        StandardGuildMessageChannel channel = event.getTextChannel();
+        MentionList<StandardGuildMessageChannel> messageChannelsFirst = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), words[0]);
         if (messageChannelsFirst.getList().size() > 0) {
             channel = messageChannelsFirst.getList().get(0);
             args = args.substring(words[0].length()).trim();
         } else {
-            MentionList<BaseGuildMessageChannel> messageChannelsLast = MentionUtil.getBaseGuildMessageChannels(event.getGuild(), words[words.length - 1]);
+            MentionList<StandardGuildMessageChannel> messageChannelsLast = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), words[words.length - 1]);
             if (messageChannelsLast.getList().size() > 0) {
                 channel = messageChannelsLast.getList().get(0);
                 args = args.substring(0, args.length() - words[words.length - 1].length()).trim();
@@ -59,7 +59,7 @@ public class CommandUtil {
         return new ChannelResponse(args, channel);
     }
 
-    public static CompletableFuture<Message> differentChannelSendMessage(Command command, CommandEvent event, BaseGuildMessageChannel channel, EmbedBuilder eb, Map<String, InputStream> fileAttachmentMap) throws ExecutionException, InterruptedException {
+    public static CompletableFuture<Message> differentChannelSendMessage(Command command, CommandEvent event, StandardGuildMessageChannel channel, EmbedBuilder eb, Map<String, InputStream> fileAttachmentMap) throws ExecutionException, InterruptedException {
         if (event.getChannel() == channel) {
             command.addAllFileAttachments(fileAttachmentMap);
             return command.drawMessageNew(eb);
@@ -81,9 +81,9 @@ public class CommandUtil {
     public static class ChannelResponse {
 
         private final String args;
-        private final BaseGuildMessageChannel channel;
+        private final StandardGuildMessageChannel channel;
 
-        public ChannelResponse(String args, BaseGuildMessageChannel channel) {
+        public ChannelResponse(String args, StandardGuildMessageChannel channel) {
             this.args = args;
             this.channel = channel;
         }
@@ -92,7 +92,7 @@ public class CommandUtil {
             return args;
         }
 
-        public BaseGuildMessageChannel getChannel() {
+        public StandardGuildMessageChannel getChannel() {
             return channel;
         }
 

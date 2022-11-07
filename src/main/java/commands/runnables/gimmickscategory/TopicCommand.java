@@ -16,7 +16,7 @@ import core.utils.StringUtil;
 import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -37,7 +37,7 @@ public class TopicCommand extends Command implements OnAlertListener {
         return true;
     }
 
-    private EmbedBuilder getEmbed(BaseGuildMessageChannel channel) throws IOException, ExecutionException, InterruptedException {
+    private EmbedBuilder getEmbed(StandardGuildMessageChannel channel) throws IOException, ExecutionException, InterruptedException {
         List<String> topicList = FileManager.readInList(new LocalFile(LocalFile.Directory.RESOURCES, "topics_" + getLocale().getDisplayName() + ".txt"));
         int n = RandomPicker.pick(getTrigger(), channel.getGuild().getIdLong(), topicList.size()).get();
         String topic = topicList.get(n);
@@ -63,7 +63,7 @@ public class TopicCommand extends Command implements OnAlertListener {
             return AlertResponse.STOP_AND_DELETE;
         }
 
-        slot.sendMessage(true, getEmbed(slot.getBaseGuildMessageChannel().get()).build());
+        slot.sendMessage(true, getEmbed(slot.getStandardGuildMessageChannel().get()).build());
         slot.setNextRequest(Instant.now().plus(minutes, ChronoUnit.MINUTES));
         return AlertResponse.CONTINUE_AND_SAVE;
     }

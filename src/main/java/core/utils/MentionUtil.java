@@ -140,18 +140,18 @@ public class MentionUtil {
         );
     }
 
-    public static MentionList<BaseGuildMessageChannel> getBaseGuildMessageChannels(Guild guild, String input) {
-        ArrayList<BaseGuildMessageChannel> channels = new ArrayList<>();
+    public static MentionList<StandardGuildMessageChannel> getStandardGuildMessageChannels(Guild guild, String input) {
+        ArrayList<StandardGuildMessageChannel> channels = new ArrayList<>();
         channels.addAll(guild.getTextChannels());
         channels.addAll(guild.getNewsChannels());
         return generateMentionList(
                 channels,
                 new ArrayList<>(),
                 input,
-                c -> ((BaseGuildMessageChannel) c).getAsMention(),
-                c -> " " + ((BaseGuildMessageChannel) c).getId() + " ",
-                c -> " #" + ((BaseGuildMessageChannel) c).getName() + " ",
-                c -> " " + ((BaseGuildMessageChannel) c).getName() + " "
+                c -> ((StandardGuildMessageChannel) c).getAsMention(),
+                c -> " " + ((StandardGuildMessageChannel) c).getId() + " ",
+                c -> " #" + ((StandardGuildMessageChannel) c).getName() + " ",
+                c -> " " + ((StandardGuildMessageChannel) c).getName() + " "
         );
     }
 
@@ -300,7 +300,7 @@ public class MentionUtil {
             while (m.find()) {
                 String groupString = m.group("guild");
                 if (groupString != null && groupString.equals(guildId)) {
-                    Optional.ofNullable(guild.getChannelById(BaseGuildMessageChannel.class, m.group("channel"))).ifPresent(channel -> {
+                    Optional.ofNullable(guild.getChannelById(StandardGuildMessageChannel.class, m.group("channel"))).ifPresent(channel -> {
                         try {
                             if (BotPermissionUtil.canReadHistory(channel, Permission.MESSAGE_HISTORY)) {
                                 Message message = channel.retrieveMessageById(m.group("message")).complete();

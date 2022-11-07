@@ -369,7 +369,7 @@ public class FisheryMemberData implements MemberAsset {
                 if (fish >= 100 &&
                         !RedisManager.parseBoolean(reminderSentResp.get()) &&
                         getGuildData().isFisheryReminders() &&
-                        BotPermissionUtil.canWriteEmbed(message.getTextChannel()) &&
+                        BotPermissionUtil.canWriteEmbed(message.getGuildChannel()) &&
                         (memberOpt = getMember()).isPresent()
                 ) {
                     pipeline.hset(KEY_ACCOUNT, FIELD_REMINDER_SENT, "true");
@@ -383,7 +383,7 @@ public class FisheryMemberData implements MemberAsset {
                             .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("{PREFIX}", prefix));
                     EmbedUtil.setMemberAuthor(eb, member);
 
-                    message.getTextChannel().sendMessage(member.getAsMention())
+                    message.getGuildChannel().sendMessage(member.getAsMention())
                             .setEmbeds(eb.build())
                             .queue(m -> m.delete().queueAfter(Settings.FISHERY_DESPAWN_MINUTES, TimeUnit.MINUTES));
                 }

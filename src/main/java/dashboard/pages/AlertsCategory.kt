@@ -8,7 +8,7 @@ import commands.listeners.OnAlertListener
 import commands.runnables.utilitycategory.AlertsCommand
 import core.CustomObservableMap
 import core.TextManager
-import core.atomicassets.AtomicBaseGuildMessageChannel
+import core.atomicassets.AtomicStandardGuildMessageChannel
 import core.atomicassets.AtomicTextChannel
 import core.utils.BotPermissionUtil
 import dashboard.ActionResult
@@ -25,8 +25,8 @@ import modules.schedulers.AlertScheduler
 import mysql.modules.tracker.DBTracker
 import mysql.modules.tracker.TrackerData
 import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
@@ -57,10 +57,10 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
 
     fun generateAlertGrid(guild: Guild, alertMap: CustomObservableMap<Int, TrackerData>): DashboardComponent {
         val rows = alertMap.values
-            .filter { it.baseGuildMessageChannel.isPresent }
+            .filter { it.standardGuildMessageChannel.isPresent }
             .sortedWith { a0, a1 ->
-                val channelO: Long = a0.baseGuildMessageChannelId
-                val channel1: Long = a1.baseGuildMessageChannelId
+                val channelO: Long = a0.standardGuildMessageChannelId
+                val channel1: Long = a1.standardGuildMessageChannelId
                 if (channelO == channel1) {
                     a0.creationTime.compareTo(a1.creationTime)
                 } else {
@@ -68,7 +68,8 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
                 }
             }
             .map {
-                val atomicChannel = AtomicBaseGuildMessageChannel(guild.idLong, it.baseGuildMessageChannelId)
+                val atomicChannel =
+                    AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
                 val values = arrayOf(atomicChannel.prefixedName, it.commandTrigger, it.commandKey)
                 GridRow(it.hashCode().toString(), values)
             }
@@ -110,7 +111,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
                     .withErrorMessage(getString(Category.UTILITY, "alerts_toomuch_server", AlertsCommand.LIMIT_SERVER.toString()))
             }
 
-            val channel = channelId?.let { guild.getChannelById(BaseGuildMessageChannel::class.java, it.toString()) }
+            val channel = channelId?.let { guild.getChannelById(StandardGuildMessageChannel::class.java, it.toString()) }
             if (channel == null) { /* invalid channel */
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "alerts_invalidchannel"))
@@ -119,7 +120,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(TextManager.GENERAL, "permission_channel", "#${channel.getName()}"))
             }
-            if (alertMap.values.filter { it.baseGuildMessageChannelId == channelId }.size >= AlertsCommand.LIMIT_CHANNEL && !premium) { /* channel alert limit */
+            if (alertMap.values.filter { it.standardGuildMessageChannelId == channelId }.size >= AlertsCommand.LIMIT_CHANNEL && !premium) { /* channel alert limit */
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "alerts_toomuch_channel", AlertsCommand.LIMIT_CHANNEL.toString()))
             }
@@ -152,7 +153,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
 
             val alreadyExists = alertMap.values.any {
                 it.commandTrigger == command?.trigger &&
-                        it.baseGuildMessageChannelId == channelId &&
+                        it.standardGuildMessageChannelId == channelId &&
                         it.commandKey == commandKey
             }
             if (alreadyExists) { /* alert already exists */

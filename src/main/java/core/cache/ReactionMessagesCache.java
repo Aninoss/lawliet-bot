@@ -9,9 +9,9 @@ import constants.Emojis;
 import core.MainLogger;
 import core.emojiconnection.EmojiConnection;
 import modules.ReactionMessage;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 public class ReactionMessagesCache {
@@ -24,7 +24,7 @@ public class ReactionMessagesCache {
         reactionMessageCache.put(messageId, Optional.ofNullable(reactionMessage));
     }
 
-    public static synchronized Optional<ReactionMessage> get(BaseGuildMessageChannel channel, long messageId) {
+    public static synchronized Optional<ReactionMessage> get(StandardGuildMessageChannel channel, long messageId) {
         if (reactionMessageCache.asMap().containsKey(messageId)) {
             return reactionMessageCache.getIfPresent(messageId);
         } else {
@@ -92,7 +92,7 @@ public class ReactionMessagesCache {
 
         ReactionMessage reactionMessage = new ReactionMessage(
                 message.getGuild().getIdLong(),
-                message.getTextChannel().getIdLong(),
+                message.getChannel().getIdLong(),
                 message.getIdLong(),
                 title,
                 description,

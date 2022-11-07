@@ -12,7 +12,7 @@ public class TextChannelDeleteClearStaticReactionMessages extends TextChannelDel
     public boolean onTextChannelDelete(ChannelDeleteEvent event) {
         DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong())
                 .values()
-                .removeIf(data -> data.getBaseGuildMessageChannelId() == event.getChannel().getIdLong());
+                .removeIf(data -> data.getStandardGuildMessageChannelId() == event.getChannel().getIdLong());
         return true;
     }
 

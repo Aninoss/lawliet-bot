@@ -139,7 +139,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                             suggestionMessage.updateDownvotes(add ? 1 : -1);
                         }
 
-                        suggestionMessage.loadVoteValuesifAbsent(event.getTextChannel());
+                        suggestionMessage.loadVoteValuesifAbsent(event.getChannel().asTextChannel());
                         String footer = generateFooter(
                                 suggestionMessage.getUpvotes(),
                                 suggestionMessage.getDownvotes()
@@ -147,7 +147,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
 
                         quickUpdater.update(
                                 messageId,
-                                event.getTextChannel().editMessageEmbedsById(
+                                event.getChannel().asTextChannel().editMessageEmbedsById(
                                         messageId,
                                         generateEmbed(suggestionMessage.getContent(), StringUtil.escapeMarkdown(suggestionMessage.getAuthor()), footer).build()
                                 )

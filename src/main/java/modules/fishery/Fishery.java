@@ -17,10 +17,10 @@ import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.BaseGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -68,7 +68,7 @@ public class Fishery {
         return Math.round(userBean.getMemberGear(FisheryGear.DAILY).getEffect() * 0.25);
     }
 
-    public static void spawnTreasureChest(BaseGuildMessageChannel channel) {
+    public static void spawnTreasureChest(StandardGuildMessageChannel channel) {
         GuildData guildBean = DBGuild.getInstance().retrieve(channel.getGuild().getIdLong());
         Locale locale = guildBean.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
