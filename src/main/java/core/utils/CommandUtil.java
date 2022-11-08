@@ -17,7 +17,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.utils.FileUpload;
 
 public class CommandUtil {
 
@@ -64,9 +65,9 @@ public class CommandUtil {
             command.addAllFileAttachments(fileAttachmentMap);
             return command.drawMessageNew(eb);
         } else {
-            MessageAction messageAction = channel.sendMessageEmbeds(eb.build());
+            MessageCreateAction messageAction = channel.sendMessageEmbeds(eb.build());
             for (String name : fileAttachmentMap.keySet()) {
-                messageAction = messageAction.addFile(fileAttachmentMap.get(name), name);
+                messageAction = messageAction.addFiles(FileUpload.fromData(fileAttachmentMap.get(name), name));
             }
             CompletableFuture<Message> messageFuture = messageAction.submit();
 

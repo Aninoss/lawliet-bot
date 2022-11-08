@@ -79,7 +79,7 @@ public class Fishery {
         Button button = Button.of(ButtonStyle.SECONDARY, "open", TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_button"))
                 .withEmoji(Emoji.fromUnicode(FisheryCommand.EMOJI_KEY));
         channel.sendMessageEmbeds(eb.build())
-                .setActionRows(ActionRows.of(button))
+                .setComponents(ActionRows.of(button))
                 .queue(m -> {
                     DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong())
                             .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger()));

@@ -207,7 +207,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     .setDescription(TextManager.getString(getLocale(), Category.FISHERY_SETTINGS, "fishery_treasure_opening", event.getMember().getAsMention()));
 
             event.editMessageEmbeds(eb.build())
-                    .setActionRows()
+                    .setComponents()
                     .queue();
             InteractionHook hook = event.getHook();
 

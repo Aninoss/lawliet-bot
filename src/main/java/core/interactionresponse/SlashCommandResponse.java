@@ -19,13 +19,13 @@ public class SlashCommandResponse extends InteractionResponse {
     @Override
     public RestAction<Message> editMessageEmbeds(List<MessageEmbed> embeds, Collection<ActionRow> actionRows) {
         return interactionHook.editOriginalEmbeds(embeds)
-                .setActionRows(actionRows);
+                .setComponents(actionRows);
     }
 
     @Override
     public RestAction<Message> replyEmbeds(List<MessageEmbed> embeds, Collection<ActionRow> actionRows, boolean ephemeral) {
         return interactionHook.sendMessageEmbeds(embeds)
-                .addActionRows(actionRows)
+                .setComponents(actionRows)
                 .setEphemeral(ephemeral);
     }
 

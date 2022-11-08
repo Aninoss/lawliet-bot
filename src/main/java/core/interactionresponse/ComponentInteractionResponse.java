@@ -22,11 +22,11 @@ public class ComponentInteractionResponse extends InteractionResponse {
         if (!event.isAcknowledged()) {
             Message message = event.getMessage();
             return event.editMessageEmbeds(embeds)
-                    .setActionRows(actionRows)
+                    .setComponents(actionRows)
                     .map(h -> message);
         } else {
             return event.getHook().editOriginalEmbeds(embeds)
-                    .setActionRows(actionRows);
+                    .setComponents(actionRows);
         }
     }
 
@@ -34,12 +34,12 @@ public class ComponentInteractionResponse extends InteractionResponse {
     public RestAction<Message> replyEmbeds(List<MessageEmbed> embeds, Collection<ActionRow> actionRows, boolean ephemeral) {
         if (!event.isAcknowledged()) {
             return event.replyEmbeds(embeds)
-                    .addActionRows(actionRows)
+                    .setComponents(actionRows)
                     .setEphemeral(ephemeral)
                     .flatMap(InteractionHook::retrieveOriginal);
         } else {
             return event.getHook().sendMessageEmbeds(embeds)
-                    .addActionRows(actionRows)
+                    .setComponents(actionRows)
                     .setEphemeral(ephemeral);
         }
     }

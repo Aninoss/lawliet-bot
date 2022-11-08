@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -53,10 +53,10 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                     String author = event.getMember().getUser().getAsTag();
                     String content = StringUtil.shortenString(args, 1024);
 
-                    MessageAction messageAction = channel.sendMessageEmbeds(generateEmbed(content, StringUtil.escapeMarkdown(author), generateFooter(0, 0)).build());
+                    MessageCreateAction messageAction = channel.sendMessageEmbeds(generateEmbed(content, StringUtil.escapeMarkdown(author), generateFooter(0, 0)).build());
                     if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID) {
-                        messageAction = messageAction.content("<@&762314049953988650>")
-                                .allowedMentions(null);
+                        messageAction = messageAction.setContent("<@&762314049953988650>")
+                                .setAllowedMentions(null);
                     }
 
                     messageAction.queue(message -> {

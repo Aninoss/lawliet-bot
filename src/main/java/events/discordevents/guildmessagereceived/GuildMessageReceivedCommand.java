@@ -27,6 +27,8 @@ import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 @DiscordEvent(priority = EventPriority.LOW)
 public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
@@ -120,10 +122,11 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     try {
                         for (int i = 0; i < Math.min(3, messages.size()); i++) {
                             Message message = messages.get(i);
-                            Message m = MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getGuildChannel(), message, true);
-                            JDAUtil.replyMessageEmbeds(event.getMessage(), m.getEmbeds().get(0))
-                                    .setActionRows(m.getActionRows())
-                                    .queue();
+                            try (MessageCreateData m = MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getGuildChannel(), message, true)) {
+                                JDAUtil.replyMessageEmbeds(event.getMessage(), m.getEmbeds().get(0))
+                                        .setComponents(m.getComponents().stream().map(c -> (ActionRow) c).collect(Collectors.toList()))
+                                        .queue();
+                            }
                         }
                     } catch (Throwable throwable) {
                         MainLogger.get().error("Exception in Auto Quote", throwable);

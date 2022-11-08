@@ -274,7 +274,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 eb.setFooter(null);
 
                 tempPostChannel.sendMessageEmbeds(eb.build())
-                        .setActionRows(ActionRows.of(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CREATE, getString("button_create"))))
+                        .setComponents(ActionRows.of(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CREATE, getString("button_create"))))
                         .queue(this::registerStaticReactionMessage);
 
                 setLog(LogStatus.SUCCESS, getString("message_sent"));

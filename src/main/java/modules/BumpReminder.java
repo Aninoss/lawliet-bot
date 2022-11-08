@@ -36,7 +36,7 @@ public class BumpReminder {
                     .map(guild -> guild.getTextChannelById(BUMP_CHANNEL_ID))
                     .ifPresent(channel -> {
                         channel.sendMessage("<@&755828541886693398> Der Server ist wieder bereit fürs Bumpen! Führt `/bump` aus!")
-                                .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
+                                .setAllowedMentions(Collections.singleton(Message.MentionType.ROLE))
                                 .queue();
                         countdownRunning = false;
                     });

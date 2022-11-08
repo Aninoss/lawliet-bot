@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.managers.channel.concrete.TextChannelManager;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
 
 public class Ticket {
 
@@ -76,8 +76,8 @@ public class Ticket {
                     .setTitle(title)
                     .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_greeting", TicketCommand.TICKET_CLOSE_EMOJI.getFormatted()));
             textChannel.sendMessageEmbeds(eb.build())
-                    .setActionRows(ActionRows.of(Button.of(ButtonStyle.DANGER, TicketCommand.BUTTON_ID_CLOSE, TextManager.getString(locale, Category.UTILITY, "ticket_button_close"))))
-                    .content(member.getAsMention())
+                    .setComponents(ActionRows.of(Button.of(ButtonStyle.DANGER, TicketCommand.BUTTON_ID_CLOSE, TextManager.getString(locale, Category.UTILITY, "ticket_button_close"))))
+                    .setContent(member.getAsMention())
                     .queue(message -> DBStaticReactionMessages.getInstance()
                             .retrieve(message.getGuild().getIdLong())
                             .put(message.getIdLong(), new StaticReactionMessageData(message, commandProperties.trigger()))
@@ -96,7 +96,7 @@ public class Ticket {
             ticketData.getCreateMessage().ifPresent(createMessage -> {
                 if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, textChannel, Permission.MESSAGE_SEND)) {
                     textChannel.sendMessage(createMessage)
-                            .allowedMentions(null)
+                            .setAllowedMentions(null)
                             .queue();
                 }
             });
@@ -112,7 +112,7 @@ public class Ticket {
                         .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_open", member.getAsMention(), textChannel.getAsMention()));
                 announcementChannel.sendMessage(ticketData.getPingStaff() ? getRolePing(textChannel.getGuild(), ticketData) : " ")
                         .setEmbeds(ebAnnouncement.build())
-                        .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
+                        .setAllowedMentions(Collections.singleton(Message.MentionType.ROLE))
                         .queue(m -> {
                             ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
                                     textChannel.getGuild().getIdLong(),
@@ -191,11 +191,11 @@ public class Ticket {
                 EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.UTILITY, "ticket_csv_warning"));
             }
 
-            MessageAction messageAction = textChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), Emojis.ZERO_WIDTH_SPACE.getFormatted())
+            MessageEditAction messageAction = textChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), Emojis.ZERO_WIDTH_SPACE.getFormatted())
                     .setEmbeds(eb.build());
             if (csvUrl != null) {
                 Button button = Button.of(ButtonStyle.LINK, csvUrl, TextManager.getString(locale, Category.UTILITY, "ticket_csv_download"));
-                messageAction = messageAction.setActionRows(ActionRows.of(button));
+                messageAction = messageAction.setComponents(ActionRows.of(button));
             }
             messageAction.queue();
         }

@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -137,33 +137,33 @@ public class JDAUtil {
         };
     }
 
-    public static MessageAction replyMessage(Message originalMessage, String content) {
-        MessageAction messageAction = originalMessage.getChannel().sendMessage(content);
+    public static MessageCreateAction replyMessage(Message originalMessage, String content) {
+        MessageCreateAction messageAction = originalMessage.getChannel().sendMessage(content);
         messageAction = messageActionSetMessageReference(messageAction, originalMessage);
         return messageAction;
     }
 
-    public static MessageAction replyMessageEmbeds(Message originalMessage, Collection<MessageEmbed> embeds) {
-        MessageAction messageAction = originalMessage.getChannel().sendMessageEmbeds(embeds);
+    public static MessageCreateAction replyMessageEmbeds(Message originalMessage, Collection<MessageEmbed> embeds) {
+        MessageCreateAction messageAction = originalMessage.getChannel().sendMessageEmbeds(embeds);
         messageAction = messageActionSetMessageReference(messageAction, originalMessage);
         return messageAction;
     }
 
-    public static MessageAction replyMessageEmbeds(Message originalMessage, MessageEmbed embed, MessageEmbed... other) {
-        MessageAction messageAction = originalMessage.getChannel().sendMessageEmbeds(embed, other);
+    public static MessageCreateAction replyMessageEmbeds(Message originalMessage, MessageEmbed embed, MessageEmbed... other) {
+        MessageCreateAction messageAction = originalMessage.getChannel().sendMessageEmbeds(embed, other);
         messageAction = messageActionSetMessageReference(messageAction, originalMessage);
         return messageAction;
     }
 
-    public static MessageAction messageActionSetMessageReference(MessageAction messageAction, Message originalMessage) {
+    public static MessageCreateAction messageActionSetMessageReference(MessageCreateAction messageAction, Message originalMessage) {
         return messageActionSetMessageReference(messageAction, originalMessage.getGuildChannel(), originalMessage.getIdLong());
     }
 
-    public static MessageAction messageActionSetMessageReference(MessageAction messageAction, GuildChannel textChannel, long messageId) {
+    public static MessageCreateAction messageActionSetMessageReference(MessageCreateAction messageAction, GuildChannel textChannel, long messageId) {
         if (BotPermissionUtil.can(textChannel, Permission.MESSAGE_HISTORY) &&
                 !DBGuild.getInstance().retrieve(textChannel.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively()
         ) {
-            messageAction = messageAction.referenceById(messageId);
+            messageAction = messageAction.setMessageReference(messageId);
         }
         return messageAction;
     }

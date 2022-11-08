@@ -41,7 +41,7 @@ public class CommandReleaseNotification implements ExceptionRunnable {
                 TextChannel channel = guild.getTextChannelById(557960859792441357L);
                 Role role = guild.getRoleById(703879430799622155L);
                 channel.sendMessage(role.getAsMention())
-                        .allowedMentions(Collections.singleton(Message.MentionType.ROLE))
+                        .setAllowedMentions(Collections.singleton(Message.MentionType.ROLE))
                         .flatMap(Message::delete)
                         .queue();
             }

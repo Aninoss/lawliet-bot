@@ -115,7 +115,7 @@ public class GiveawayScheduler {
             if (PermissionCheckRuntime.botHasPermission(locale, GiveawayCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 if (!reroll) {
                     message.editMessageEmbeds(eb.build())
-                            .content(winners.size() > 0 ? mentions.toString() : null)
+                            .setContent(winners.size() > 0 ? mentions.toString() : null)
                             .queue();
 
                     if (winners.size() > 0) {
@@ -125,7 +125,7 @@ public class GiveawayScheduler {
                     }
                 } else {
                     channel.sendMessageEmbeds(eb.build())
-                            .content(winners.size() > 0 ? mentions.toString() : null)
+                            .setContent(winners.size() > 0 ? mentions.toString() : null)
                             .queue();
                 }
             }

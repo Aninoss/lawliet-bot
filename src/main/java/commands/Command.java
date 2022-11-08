@@ -31,7 +31,9 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.requests.RestAction;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.json.JSONObject;
 
 public abstract class Command implements OnTriggerListener {
@@ -55,7 +57,7 @@ public abstract class Command implements OnTriggerListener {
     private List<ActionRow> actionRows = Collections.emptyList();
     private List<MessageEmbed> additionalEmbeds = Collections.emptyList();
     private final Map<String, InputStream> fileAttachmentMap = new HashMap<>();
-    private Collection<Message.MentionType> allowedMentions = MessageAction.getDefaultMentions();
+    private Collection<Message.MentionType> allowedMentions = MessageRequest.getDefaultMentions();
     private String memberEffectiveName;
     private String memberMention;
     private String memberEffectiveAvatarUrl;
@@ -215,7 +217,7 @@ public abstract class Command implements OnTriggerListener {
             RestAction<Message> action;
             if (drawMessage == null || newMessage) {
                 if (commandEvent.isMessageReceivedEvent()) {
-                    MessageAction messageAction;
+                    MessageCreateAction messageAction;
                     Message message = commandEvent.getMessageReceivedEvent().getMessage();
                     if (content != null) {
                         messageAction = JDAUtil.replyMessage(message, content)
@@ -226,14 +228,14 @@ public abstract class Command implements OnTriggerListener {
                     if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
                         if (fileAttachmentMap.size() > 0) {
                             for (String fileName : fileAttachmentMap.keySet()) {
-                                messageAction = messageAction.addFile(fileAttachmentMap.get(fileName), fileName);
+                                messageAction = messageAction.addFiles(FileUpload.fromData(fileAttachmentMap.get(fileName), fileName));
                             }
                         }
                     }
-                    messageAction = messageAction.allowedMentions(allowedMentions);
-                    action = messageAction.setActionRows(actionRows);
+                    messageAction = messageAction.setAllowedMentions(allowedMentions);
+                    action = messageAction.setComponents(actionRows);
                 } else {
-                    MessageAction messageAction;
+                    MessageCreateAction messageAction;
                     if (content != null) {
                         messageAction = commandEvent.replyMessage(content)
                                 .setEmbeds(embeds);
@@ -243,12 +245,12 @@ public abstract class Command implements OnTriggerListener {
                     if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
                         if (fileAttachmentMap.size() > 0) {
                             for (String fileName : fileAttachmentMap.keySet()) {
-                                messageAction = messageAction.addFile(fileAttachmentMap.get(fileName), fileName);
+                                messageAction = messageAction.addFiles(FileUpload.fromData(fileAttachmentMap.get(fileName), fileName));
                             }
                         }
                     }
-                    messageAction = messageAction.allowedMentions(allowedMentions);
-                    action = messageAction.setActionRows(actionRows);
+                    messageAction = messageAction.setAllowedMentions(allowedMentions);
+                    action = messageAction.setComponents(actionRows);
                 }
             } else {
                 if (interactionResponse != null &&
@@ -260,12 +262,12 @@ public abstract class Command implements OnTriggerListener {
                     if (content != null) {
                         action = channel.editMessageById(drawMessage.getIdLong(), content)
                                 .setEmbeds(embeds)
-                                .setActionRows(actionRows)
-                                .allowedMentions(allowedMentions);
+                                .setComponents(actionRows)
+                                .setAllowedMentions(allowedMentions);
                     } else {
                         action = channel.editMessageEmbedsById(drawMessage.getIdLong(), embeds)
-                                .allowedMentions(allowedMentions)
-                                .setActionRows(actionRows);
+                                .setAllowedMentions(allowedMentions)
+                                .setComponents(actionRows);
                     }
                 }
             }
@@ -321,7 +323,7 @@ public abstract class Command implements OnTriggerListener {
         this.actionRows = Collections.emptyList();
         this.additionalEmbeds = Collections.emptyList();
         this.fileAttachmentMap.clear();
-        this.allowedMentions = MessageAction.getDefaultMentions();
+        this.allowedMentions = MessageRequest.getDefaultMentions();
     }
 
     public void registerStaticReactionMessage(Message message) {

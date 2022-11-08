@@ -28,7 +28,7 @@ public class OnFRNotification implements SyncServerFunction {
         ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get()
                 .getTextChannelById(1031135108033429534L)
                 .sendMessageEmbeds(eb.build())
-                .setActionRows(ActionRows.of(
+                .setComponents(ActionRows.of(
                         Button.of(ButtonStyle.PRIMARY, "true", "Accept"),
                         Button.of(ButtonStyle.SECONDARY, "false", "Deny")
                 ))

@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 @DiscordEvent(allowBots = true, allowBannedUser = true)
@@ -75,7 +75,7 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
                 String created = TimeFormat.RELATIVE.atInstant(member.getTimeCreated().toInstant()).toString();
                 String text = TextManager.getString(locale, Category.INVITE_TRACKING, "invitetracking_log", n, member.getAsMention(), created, inviterTag, code, uses);
 
-                MessageAction messageAction;
+                MessageCreateAction messageAction;
                 if (inviteTrackingData.isAdvanced()) {
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setAuthor(member.getUser().getAsTag(), null, member.getEffectiveAvatarUrl())
@@ -97,14 +97,14 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
 
                     messageAction = channel.sendMessageEmbeds(eb.build());
                     if (inviteTrackingData.getPing()) {
-                        messageAction = messageAction.content(member.getAsMention());
+                        messageAction = messageAction.setContent(member.getAsMention());
                     }
                 } else {
                     messageAction = channel.sendMessage(text);
                     if (inviteTrackingData.getPing()) {
-                        messageAction = messageAction.allowedMentions(Set.of(Message.MentionType.USER));
+                        messageAction = messageAction.setAllowedMentions(Set.of(Message.MentionType.USER));
                     } else {
-                        messageAction = messageAction.allowedMentions(Collections.emptySet());
+                        messageAction = messageAction.setAllowedMentions(Collections.emptySet());
                     }
                 }
                 messageAction.queue();

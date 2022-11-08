@@ -3,6 +3,7 @@ package commands.runnables.gimmickscategory;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -20,6 +21,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -44,10 +47,11 @@ public class QuoteCommand extends Command {
         if (directMessage.size() > 0) {
             for (Message message : directMessage) {
                 if (BotPermissionUtil.canReadHistory(message.getGuildChannel())) {
-                    Message m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getTextChannel(), message, false);
-                    setActionRows(m.getActionRows());
-                    drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
-                    return true;
+                    try (MessageCreateData m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getTextChannel(), message, false)) {
+                        setActionRows(m.getComponents().stream().map(c -> (ActionRow) c).collect(Collectors.toList()));
+                        drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
+                        return true;
+                    }
                 }
             }
         }
@@ -63,10 +67,11 @@ public class QuoteCommand extends Command {
                 try {
                     Message message = MessageCache.retrieveMessage(channel, Long.parseLong(newString)).get();
                     if (JDAUtil.messageIsUserGenerated(message)) {
-                        Message m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getTextChannel(), message, false);
-                        setActionRows(m.getActionRows());
-                        drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
-                        return true;
+                        try (MessageCreateData m = MessageQuote.postQuote(getPrefix(), getLocale(), event.getTextChannel(), message, false)) {
+                            setActionRows(m.getComponents().stream().map(c -> (ActionRow) c).collect(Collectors.toList()));
+                            drawMessageNew(new EmbedBuilder(m.getEmbeds().get(0)));
+                            return true;
+                        }
                     }
                 } catch (ExecutionException | InterruptedException e) {
                     //Ignore

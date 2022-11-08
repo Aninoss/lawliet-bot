@@ -26,12 +26,13 @@ import core.components.WebhookMessageBuilderAdvanced;
 import core.utils.BotPermissionUtil;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
+import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 public class TrackerData extends DataWithGuild implements StandardGuildMessageChannelAsset {
@@ -285,32 +286,32 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
             try {
                 if (embeds.size() > 0) {
                     if (newMessage) {
-                        MessageAction messageAction = channel.sendMessageEmbeds(embeds)
-                                .setActionRows(actionRows);
+                        MessageCreateAction messageAction = channel.sendMessageEmbeds(embeds)
+                                .setComponents(actionRows);
                         if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
-                            messageAction = messageAction.content(getEffectiveUserMessage().get());
+                            messageAction = messageAction.setContent(getEffectiveUserMessage().get());
                         }
                         long newMessageId = messageAction
-                                .allowedMentions(null)
+                                .setAllowedMentions(null)
                                 .complete()
                                 .getIdLong();
                         return Optional.of(newMessageId);
                     } else {
-                        MessageAction messageAction = channel.editMessageEmbedsById(messageId, embeds)
-                                .setActionRows(actionRows);
+                        MessageEditAction messageAction = channel.editMessageEmbedsById(messageId, embeds)
+                                .setComponents(actionRows);
                         if (getEffectiveUserMessage().isPresent()) {
-                            messageAction = messageAction.content(getEffectiveUserMessage().get());
+                            messageAction = messageAction.setContent(getEffectiveUserMessage().get());
                         }
-                        return Optional.of(messageAction.allowedMentions(null).complete().getIdLong());
+                        return Optional.of(messageAction.setAllowedMentions(null).complete().getIdLong());
                     }
                 } else {
                     if (newMessage) {
-                        MessageAction messageAction = channel.sendMessage(content)
-                                .setActionRows(actionRows);
+                        MessageCreateAction messageAction = channel.sendMessage(content)
+                                .setComponents(actionRows);
                         return Optional.of(messageAction.complete().getIdLong());
                     } else {
-                        MessageAction messageAction = channel.editMessageById(messageId, content)
-                                .setActionRows(actionRows);
+                        MessageEditAction messageAction = channel.editMessageById(messageId, content)
+                                .setComponents(actionRows);
                         return Optional.of(messageAction.complete().getIdLong());
                     }
                 }

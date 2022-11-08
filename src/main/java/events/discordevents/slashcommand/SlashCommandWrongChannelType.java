@@ -26,7 +26,7 @@ public class SlashCommandWrongChannelType extends SlashCommandAbstract {
             ArrayList<ActionRow> actionRowList = new ArrayList<>();
             EmbedBuilder eb = EmbedFactory.getWrongChannelTypeEmbed(locale, actionRowList);
             event.replyEmbeds(eb.build())
-                    .addActionRows(actionRowList)
+                    .setComponents(actionRowList)
                     .setEphemeral(true)
                     .queue();
         }

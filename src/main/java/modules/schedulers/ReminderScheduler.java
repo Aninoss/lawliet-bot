@@ -74,11 +74,11 @@ public class ReminderScheduler {
                         .setDescription(TextManager.getString(reminderData.getGuildData().getLocale(), Category.UTILITY, "reminder_action_text"));
                 channel.sendMessage(userMessage)
                         .setEmbeds(eb.build())
-                        .allowedMentions(null)
+                        .setAllowedMentions(null)
                         .queue();
             } else {
                 channel.sendMessage(TextManager.getString(reminderData.getGuildData().getLocale(), Category.UTILITY, "reminder_action", userMessage))
-                        .allowedMentions(null)
+                        .setAllowedMentions(null)
                         .queue();
             }
         }

@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.utils.FileUpload;
 
 @DiscordEvent(allowBots = true, allowBannedUser = true)
 public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
@@ -87,7 +88,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
 
                         if (image != null) {
                             channel.sendMessage(content)
-                                    .addFile(image, "welcome.png")
+                                    .addFiles(FileUpload.fromData(image, "welcome.png"))
                                     .queue();
                         } else {
                             channel.sendMessage(content).queue();

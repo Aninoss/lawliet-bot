@@ -34,7 +34,7 @@ public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbst
             EmbedBuilder eb = EmbedFactory.getWrongChannelTypeEmbed(Language.EN.getLocale(), actionRowList);
             event.getMessage()
                     .replyEmbeds(eb.build())
-                    .setActionRows(actionRowList)
+                    .setComponents(actionRowList)
                     .queue();
         }
 

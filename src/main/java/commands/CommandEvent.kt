@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.channel.GenericChannelEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
-import net.dv8tion.jda.api.requests.restaction.MessageAction
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction
 
 class CommandEvent : GenericChannelEvent {
 
@@ -55,31 +55,31 @@ class CommandEvent : GenericChannelEvent {
         return messageReceivedEvent != null
     }
 
-    fun replyMessage(content: String): MessageAction {
+    fun replyMessage(content: String): MessageCreateAction {
         if (isMessageReceivedEvent()) {
             return JDAUtil.replyMessage(messageReceivedEvent!!.message, content)
         } else {
             if (slashCommandInteractionEvent!!.isAcknowledged) {
-                return SlashHookSendMessageAction(slashCommandInteractionEvent.hook.sendMessage(content), slashCommandInteractionEvent.channel)
+                return SlashHookSendMessageAction(slashCommandInteractionEvent.hook.sendMessage(content))
             } else {
-                return SlashAckSendMessageAction(slashCommandInteractionEvent.reply(content), slashCommandInteractionEvent.channel)
+                return SlashAckSendMessageAction(slashCommandInteractionEvent.reply(content))
             }
         }
     }
 
-    fun replyMessageEmbeds(embed: MessageEmbed, vararg embeds: MessageEmbed): MessageAction {
+    fun replyMessageEmbeds(embed: MessageEmbed, vararg embeds: MessageEmbed): MessageCreateAction {
         val fullEmbeds = arrayOf(embed).plus(embeds);
         return replyMessageEmbeds(fullEmbeds.toList())
     }
 
-    fun replyMessageEmbeds(embeds: Collection<MessageEmbed>): MessageAction {
+    fun replyMessageEmbeds(embeds: Collection<MessageEmbed>): MessageCreateAction {
         if (isMessageReceivedEvent()) {
             return JDAUtil.replyMessageEmbeds(messageReceivedEvent!!.message, embeds)
         } else {
             if (slashCommandInteractionEvent!!.isAcknowledged) {
-                return SlashHookSendMessageAction(slashCommandInteractionEvent.hook.sendMessageEmbeds(embeds), slashCommandInteractionEvent.channel)
+                return SlashHookSendMessageAction(slashCommandInteractionEvent.hook.sendMessageEmbeds(embeds))
             } else {
-                return SlashAckSendMessageAction(slashCommandInteractionEvent.replyEmbeds(embeds), slashCommandInteractionEvent.channel)
+                return SlashAckSendMessageAction(slashCommandInteractionEvent.replyEmbeds(embeds))
             }
         }
     }

@@ -114,7 +114,7 @@ public class CommandManager {
 
             Button button = Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_REMINDER_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"));
             event.getTextChannel().sendMessageEmbeds(eb.build())
-                    .setActionRows(ActionRows.of(button))
+                    .setComponents(ActionRows.of(button))
                     .queue();
         }
     }
@@ -338,7 +338,7 @@ public class CommandManager {
     private static void sendErrorNoEmbed(CommandEvent event, Locale locale, String text, boolean autoDelete, Button... buttons) {
         if (BotPermissionUtil.canWrite(event.getGuildMessageChannel()) || event.isSlashCommandInteractionEvent()) {
             RestAction<Message> messageAction = event.replyMessage(TextManager.getString(locale, TextManager.GENERAL, "command_block", text))
-                    .setActionRows(ActionRows.of(buttons));
+                    .setComponents(ActionRows.of(buttons));
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
             } else {
@@ -354,7 +354,7 @@ public class CommandManager {
             }
 
             RestAction<Message> messageAction = event.replyMessageEmbeds(List.of(eb.build()))
-                    .setActionRows(ActionRows.of(buttons));
+                    .setComponents(ActionRows.of(buttons));
             if (autoDelete) {
                 messageAction.queue(message -> autoRemoveMessageAfterCountdown(event, message));
             } else {

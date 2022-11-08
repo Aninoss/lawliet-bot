@@ -9,22 +9,26 @@ import core.TextManager;
 import core.components.ActionRows;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public class MessageQuote {
 
-    public static Message postQuote(String prefix, Locale locale, GuildMessageChannel channel, Message searchedMessage,
-                                    boolean showAutoQuoteTurnOff) {
+    public static MessageCreateData postQuote(String prefix, Locale locale, GuildMessageChannel channel, Message searchedMessage,
+                                              boolean showAutoQuoteTurnOff) {
         boolean channelIsNSFW = false;
         if (channel instanceof StandardGuildMessageChannel) {
             channelIsNSFW = ((StandardGuildMessageChannel) channel).isNSFW();
         }
 
         if (((StandardGuildMessageChannel) searchedMessage.getChannel()).isNSFW() && !channelIsNSFW) {
-            return new MessageBuilder()
+            return new MessageCreateBuilder()
                     .setEmbeds(EmbedFactory.getNSFWBlockEmbed(locale).build())
-                    .setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(locale)))
+                    .setComponents(ActionRows.of(EmbedFactory.getNSFWBlockButton(locale)))
                     .build();
         }
 
@@ -69,7 +73,7 @@ public class MessageQuote {
                         searchedMessage.getAuthor().getEffectiveAvatarUrl()
                 );
 
-        return new MessageBuilder()
+        return new MessageCreateBuilder()
                 .setEmbeds(eb.build())
                 .build();
     }
