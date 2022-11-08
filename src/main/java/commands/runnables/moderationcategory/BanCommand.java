@@ -3,6 +3,7 @@ package commands.runnables.moderationcategory;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
@@ -17,8 +18,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
@@ -55,10 +56,11 @@ public class BanCommand extends WarnCommand {
             DBTempBan.getInstance().retrieve(guild.getIdLong()).remove(target.getIdLong());
         }
 
-        guild.ban(target, 1, reason)
+        guild.ban(target, 1, TimeUnit.DAYS)
+                .reason(reason)
                 .submit()
                 .exceptionally(e -> {
-                    guild.ban(target, 1).queue();
+                    guild.ban(target, 1, TimeUnit.DAYS).queue();
                     return null;
                 });
     }

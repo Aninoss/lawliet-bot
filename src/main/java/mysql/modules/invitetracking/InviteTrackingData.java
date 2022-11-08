@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import core.CustomObservableMap;
 import mysql.DataWithGuild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class InviteTrackingData extends DataWithGuild {
 

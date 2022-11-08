@@ -7,7 +7,7 @@ import core.utils.BotPermissionUtil;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class WelcomeMessageData extends DataWithGuild {
 

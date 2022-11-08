@@ -5,7 +5,7 @@ import java.util.Optional;
 import core.CustomObservableList;
 import core.MainLogger;
 import mysql.DataWithGuild;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 
 public class AutoChannelData extends DataWithGuild {
 

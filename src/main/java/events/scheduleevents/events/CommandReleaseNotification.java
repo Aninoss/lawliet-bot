@@ -7,12 +7,16 @@ import commands.Command;
 import commands.CommandContainer;
 import commands.CommandManager;
 import constants.AssetIds;
+import constants.ExceptionRunnable;
 import constants.Language;
 import core.Program;
 import core.ShardManager;
-import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventDaily;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 @ScheduleEventDaily
 public class CommandReleaseNotification implements ExceptionRunnable {

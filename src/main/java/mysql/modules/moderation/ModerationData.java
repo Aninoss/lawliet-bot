@@ -6,7 +6,7 @@ import core.CustomObservableList;
 import core.cache.ServerPatreonBoostCache;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class ModerationData extends DataWithGuild {
 

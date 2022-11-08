@@ -21,7 +21,7 @@ import modules.twitch.TwitchStream;
 import modules.twitch.TwitchUser;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(

@@ -2,7 +2,6 @@ package core;
 
 import java.util.EnumSet;
 import java.util.List;
-import javax.security.auth.login.LoginException;
 import commands.SlashCommandManager;
 import constants.AnicordVerificationIds;
 import constants.AssetIds;
@@ -18,6 +17,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -62,7 +62,7 @@ public class DiscordConnector {
                 try {
                     jdaBuilder.useSharding(i, totalShards)
                             .build();
-                } catch (LoginException e) {
+                } catch (InvalidTokenException e) {
                     MainLogger.get().error("EXIT - Invalid token", e);
                     System.exit(2);
                 }
@@ -76,7 +76,7 @@ public class DiscordConnector {
         try {
             jdaBuilder.useSharding(shardId, ShardManager.getTotalShards())
                     .build();
-        } catch (LoginException e) {
+        } catch (InvalidTokenException e) {
             MainLogger.get().error("EXIT - Invalid token", e);
             System.exit(3);
         }

@@ -11,7 +11,7 @@ import core.ShardManager;
 import core.TextManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;

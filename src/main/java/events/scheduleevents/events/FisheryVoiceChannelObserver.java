@@ -6,12 +6,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import modules.fishery.FisheryStatus;
+import constants.ExceptionRunnable;
 import core.MainLogger;
 import core.Program;
 import core.ShardManager;
-import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventFixedRate;
+import modules.fishery.FisheryStatus;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
@@ -19,7 +19,7 @@ import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 
 @ScheduleEventFixedRate(rateValue = FisheryVoiceChannelObserver.VC_CHECK_INTERVAL_MIN, rateUnit = ChronoUnit.MINUTES)
 public class FisheryVoiceChannelObserver implements ExceptionRunnable {

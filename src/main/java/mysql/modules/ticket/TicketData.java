@@ -7,7 +7,7 @@ import core.CustomObservableList;
 import core.CustomObservableMap;
 import core.cache.ServerPatreonBoostCache;
 import mysql.DataWithGuild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class TicketData extends DataWithGuild {
 

@@ -1,6 +1,7 @@
 package commands.runnables.moderationcategory;
 
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import commands.listeners.CommandProperties;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -24,7 +25,8 @@ public class NewBanCommand extends NewKickCommand {
 
     @Override
     protected void process(Guild guild, User target, String reason) {
-        guild.ban(target, 1, reason)
+        guild.ban(target, 1, TimeUnit.DAYS)
+                .reason(reason)
                 .submit()
                 .exceptionally(e -> {
                     guild.kick(target).queue();

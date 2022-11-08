@@ -6,8 +6,8 @@ import java.util.concurrent.CompletableFuture;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import core.utils.BotPermissionUtil;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 
 public class MessageCache {
 

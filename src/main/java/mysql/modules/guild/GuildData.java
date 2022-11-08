@@ -5,7 +5,7 @@ import java.util.Optional;
 import core.cache.ServerPatreonBoostCache;
 import modules.fishery.FisheryStatus;
 import mysql.DataWithGuild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class GuildData extends DataWithGuild {
 

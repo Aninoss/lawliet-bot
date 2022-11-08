@@ -1,8 +1,8 @@
 package events.discordevents.guildmemberjoin;
 
 import java.util.Locale;
-import commands.runnables.utilitycategory.WelcomeCommand;
 import commands.Category;
+import commands.runnables.utilitycategory.WelcomeCommand;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 

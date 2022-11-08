@@ -5,7 +5,7 @@ import java.util.Optional;
 import core.CustomObservableMap;
 import modules.suggestions.SuggestionMessage;
 import mysql.DataWithGuild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class SuggestionsData extends DataWithGuild {
 

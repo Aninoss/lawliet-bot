@@ -12,7 +12,7 @@ import mysql.modules.autochannel.DBAutoChannel;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.channel.update.ChannelUpdateUserLimitEvent;
 
 @DiscordEvent

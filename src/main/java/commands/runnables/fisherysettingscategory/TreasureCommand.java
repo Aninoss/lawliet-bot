@@ -14,7 +14,7 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 @CommandProperties(
         trigger = "treasure",

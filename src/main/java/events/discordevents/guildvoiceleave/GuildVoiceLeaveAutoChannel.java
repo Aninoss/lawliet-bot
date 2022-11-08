@@ -3,7 +3,7 @@ package events.discordevents.guildvoiceleave;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildVoiceLeaveAbstract;
 import modules.AutoChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 
 @DiscordEvent(allowBots = true, allowBannedUser = true)

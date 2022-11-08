@@ -3,6 +3,7 @@ package events.discordevents.guildmessagereceived;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 import constants.AssetIds;
 import core.RatelimitManager;
 import events.discordevents.DiscordEvent;
@@ -25,7 +26,7 @@ public class GuildMessageReceivedAnicordAntiSpam extends GuildMessageReceivedAbs
                 event.getMember().getTimeJoined().toInstant().plus(30, ChronoUnit.MINUTES).isAfter(Instant.now())
         ) {
             if (ratelimitManager.checkAndSet(event.getMember().getIdLong(), 5, Duration.ofSeconds(3)).isPresent()) {
-                event.getGuild().ban(event.getMember(), 1, "Anti Raid (Spam)").queue();
+                event.getGuild().ban(event.getMember(), 1, TimeUnit.DAYS).reason("Anti Raid (Spam)").queue();
                 event.getGuild().getTextChannelById(462420339364724751L).sendMessage("ANTI RAID (SPAM) FOR " + event.getMember().getUser().getAsTag() + " IN " + event.getChannel().getAsMention()).queue();
                 return false;
             }

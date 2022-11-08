@@ -4,7 +4,7 @@ import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import commands.listeners.OnReactionListener;
 import core.utils.BotPermissionUtil;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 
 public class ReactionCommandCheck {

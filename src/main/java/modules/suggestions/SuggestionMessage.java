@@ -4,7 +4,7 @@ import constants.Emojis;
 import core.assets.GuildAsset;
 import core.utils.EmojiUtil;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class SuggestionMessage implements GuildAsset {
 

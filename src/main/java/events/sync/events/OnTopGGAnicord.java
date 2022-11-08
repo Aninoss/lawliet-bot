@@ -2,14 +2,17 @@ package events.sync.events;
 
 import java.text.MessageFormat;
 import constants.AssetIds;
-import core.*;
+import core.EmbedFactory;
+import core.ExceptionLogger;
+import core.MemberCacheController;
+import core.ShardManager;
 import core.utils.StringUtil;
+import events.sync.SyncServerEvent;
 import modules.fishery.Fishery;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
-import events.sync.SyncServerEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 @SyncServerEvent(event = "TOPGG_ANICORD")
 public class OnTopGGAnicord extends OnTopGG {

@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.ShardManager;
 import mysql.modules.guild.DBGuild;
-import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 
 public class AtomicVoiceChannel implements MentionableAtomicAsset<VoiceChannel> {
 

@@ -9,7 +9,7 @@ import core.CustomObservableList;
 import core.ShardManager;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class AtomicTextChannel implements MentionableAtomicAsset<TextChannel> {
 

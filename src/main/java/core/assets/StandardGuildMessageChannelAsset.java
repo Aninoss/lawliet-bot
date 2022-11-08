@@ -1,7 +1,7 @@
 package core.assets;
 
 import java.util.Optional;
-import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 public interface StandardGuildMessageChannelAsset extends GuildAsset {
 

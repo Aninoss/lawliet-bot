@@ -8,6 +8,11 @@ import core.TextManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.attribute.ICategorizableChannel;
+import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.managers.channel.attribute.IPermissionContainerManager;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
@@ -316,7 +321,7 @@ public class BotPermissionUtil {
     }
 
     public static IPermissionContainerManager<?, ?> addPermission(IPermissionContainer parentChannel, IPermissionContainerManager<?, ?> channelManager,
-                                                                          IPermissionHolder permissionHolder, boolean allow, Permission... permissions
+                                                                  IPermissionHolder permissionHolder, boolean allow, Permission... permissions
     ) {
         return addPermission(parentChannel, channelManager, parentChannel.getPermissionOverride(permissionHolder), allow,
                 permissionHolder instanceof Member, permissionHolder.getIdLong(), permissions);

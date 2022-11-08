@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import commands.Category;
 import commands.Command;
 import commands.runnables.moderationcategory.InviteFilterCommand;
@@ -35,7 +36,8 @@ public class InviteFilter extends AutoModAbstract {
                 PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.BAN_MEMBERS)
         ) {
             message.getGuild()
-                    .ban(message.getMember(), 0, TextManager.getString(spBlockBean.getGuildData().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
+                    .ban(message.getMember(), 0, TimeUnit.DAYS)
+                    .reason(TextManager.getString(spBlockBean.getGuildData().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
                     .queue();
             return false;
         } else if (spBlockBean.getAction() == SPBlockData.ActionList.KICK_USER &&

@@ -12,7 +12,7 @@ import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 @ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.HOURS)
 public class AnicordVerifications implements ExceptionRunnable {

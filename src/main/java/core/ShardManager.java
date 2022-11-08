@@ -13,11 +13,11 @@ import core.cache.ExternalEmojiCache;
 import core.cache.ExternalGuildNameCache;
 import core.cache.SingleCache;
 import core.schedule.MainScheduler;
+import events.sync.SendEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.User;
-import events.sync.SendEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 
 public class ShardManager {

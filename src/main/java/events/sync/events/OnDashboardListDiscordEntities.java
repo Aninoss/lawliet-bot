@@ -7,7 +7,7 @@ import dashboard.component.DashboardComboBox;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

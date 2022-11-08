@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
@@ -74,7 +75,9 @@ public class Mod {
                                 .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", duration > 0, target.getAsTag(), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
 
                         postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildData().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
-                            guild.ban(target, 0, TextManager.getString(locale, Category.MODERATION, "mod_autoban")).queue();
+                            guild.ban(target, 0, TimeUnit.DAYS)
+                                    .reason(TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
+                                    .queue();
                             if (duration > 0) {
                                 TempBanData tempBanData = new TempBanData(guild.getIdLong(), target.getIdLong(), Instant.now().plus(Duration.ofMinutes(duration)));
                                 DBTempBan.getInstance().retrieve(guild.getIdLong()).put(target.getIdLong(), tempBanData);

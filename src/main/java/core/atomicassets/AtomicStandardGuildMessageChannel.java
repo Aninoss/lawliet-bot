@@ -9,7 +9,7 @@ import core.CustomObservableList;
 import core.ShardManager;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 public class AtomicStandardGuildMessageChannel implements MentionableAtomicAsset<StandardGuildMessageChannel> {
 

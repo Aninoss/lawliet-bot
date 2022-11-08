@@ -24,7 +24,7 @@ import mysql.modules.version.VersionData;
 import mysql.modules.version.VersionSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.NewsChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(

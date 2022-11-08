@@ -29,7 +29,11 @@ import modules.fishery.Stock;
 import modules.fishery.StockMarket;
 import mysql.RedisManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 
