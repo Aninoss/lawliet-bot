@@ -18,15 +18,15 @@ import javafx.util.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class ListAbstract extends Command implements OnButtonListener, OnSelectMenuListener {
@@ -147,7 +147,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
     }
 
     @Override
-    public boolean onSelectMenu(@NotNull SelectMenuInteractionEvent event) throws Throwable {
+    public boolean onSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
         orderBy = Integer.parseInt(event.getValues().get(0));
         size = configure(event.getMember(), orderBy);
         return true;
@@ -176,7 +176,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
             for (int i = 0; i < orderOptions.length; i++) {
                 selectOptions[i] = SelectOption.of(orderOptions[i], String.valueOf(i));
             }
-            SelectMenu selectMenu = SelectMenu.create("order_by")
+            StringSelectMenu selectMenu = StringSelectMenu.create("order_by")
                     .addOptions(selectOptions)
                     .setDefaultOptions(List.of(selectOptions[orderBy]))
                     .setRequiredRange(1, 1)

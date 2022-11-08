@@ -23,9 +23,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -156,7 +156,7 @@ public class CommandManagementCommand extends NavigationAbstract {
     }
 
     @ControllerSelectMenu(state = SET_CATEGORIES)
-    public boolean onSelectMenu(SelectMenuInteractionEvent event, int i) {
+    public boolean onSelectMenu(StringSelectInteractionEvent event, int i) {
         CustomObservableList<String> switchedOffElements = commandManagementData.getSwitchedOffElements();
         for (Category category : Category.independentValues()) {
             switchedOffElements.remove(category.getId());
@@ -184,7 +184,7 @@ public class CommandManagementCommand extends NavigationAbstract {
                 .map(Category::getId)
                 .collect(Collectors.toList());
 
-        SelectMenu.Builder selectionMenuBuilder = SelectMenu.create("categories");
+        StringSelectMenu.Builder selectionMenuBuilder = StringSelectMenu.create("categories");
         selectionMenuBuilder = selectionMenuBuilder.setRequiredRange(0, Category.independentValues().length);
         for (Category category : Category.independentValues()) {
             selectionMenuBuilder = selectionMenuBuilder.addOption(TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()), category.getId());

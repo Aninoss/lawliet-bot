@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -105,7 +105,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Override
-    public boolean onSelectMenu(SelectMenuInteractionEvent event) throws Throwable {
+    public boolean onSelectMenu(StringSelectInteractionEvent event) throws Throwable {
         int i = -1;
         if (event.getValues().size() > 0 && StringUtil.stringIsInt(event.getValues().get(0))) {
             i = Integer.parseInt(event.getValues().get(0));
@@ -171,7 +171,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return false;
     }
 
-    public boolean controllerSelectMenu(SelectMenuInteractionEvent event, int i, int state) throws Throwable {
+    public boolean controllerSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
         for (Method method : getClass().getDeclaredMethods()) {
             ControllerSelectMenu c = method.getAnnotation(ControllerSelectMenu.class);
             if (c != null && c.state() == state) {

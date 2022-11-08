@@ -26,11 +26,11 @@ import mysql.modules.survey.SurveyData;
 import mysql.modules.upvotes.DBUpvotes;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,7 +57,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnSel
     }
 
     @Override
-    public boolean onSelectMenu(SelectMenuInteractionEvent event) throws Throwable {
+    public boolean onSelectMenu(StringSelectInteractionEvent event) throws Throwable {
         DBSubs.Command[] commands = DBSubs.Command.values();
         List<Integer> activeSubs = event.getValues().stream()
                 .map(Integer::parseInt)
@@ -82,7 +82,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnSel
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         DBSubs.Command[] commands = DBSubs.Command.values();
 
-        SelectMenu.Builder builder = SelectMenu.create("reminders");
+        StringSelectMenu.Builder builder = StringSelectMenu.create("reminders");
         ArrayList<String> defaultValues = new ArrayList<>();
         for (int i = 0; i < commands.length; i++) {
             DBSubs.Command command = commands[i];

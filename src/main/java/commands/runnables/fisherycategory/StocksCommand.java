@@ -31,12 +31,13 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 @CommandProperties(
         trigger = "stocks",
@@ -169,7 +170,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     }
 
     @ControllerSelectMenu(state = MAIN)
-    public boolean onSelectMenuMain(SelectMenuInteractionEvent event, int i) {
+    public boolean onSelectMenuMain(StringSelectInteractionEvent event, int i) {
         currentStock = Stock.values()[i];
         return true;
     }
@@ -191,7 +192,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                 Button.of(ButtonStyle.PRIMARY, "0", getString("button_buy")),
                 Button.of(ButtonStyle.PRIMARY, "1", getString("button_sell")),
         };
-        SelectMenu.Builder menuBuilder = SelectMenu.create("selection")
+        StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("selection")
                 .setMinValues(1);
         for (int i = 0; i < Stock.values().length; i++) {
             Stock stock = Stock.values()[i];

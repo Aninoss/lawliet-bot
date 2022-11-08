@@ -17,10 +17,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -67,7 +67,7 @@ public class LanguageCommand extends Command implements OnSelectMenuListener {
                 return true;
             }
         } else {
-            SelectMenu.Builder builder = SelectMenu.create("language");
+            StringSelectMenu.Builder builder = StringSelectMenu.create("language");
             for (Language language : LANGUAGES) {
                 builder.addOption(
                         TextManager.getString(language.getLocale(), Category.CONFIGURATION, "language_" + language.name()),
@@ -83,7 +83,7 @@ public class LanguageCommand extends Command implements OnSelectMenuListener {
     }
 
     @Override
-    public boolean onSelectMenu(SelectMenuInteractionEvent event) throws Throwable {
+    public boolean onSelectMenu(StringSelectInteractionEvent event) throws Throwable {
         Language language = Language.valueOf(event.getValues().get(0));
         deregisterListenersWithComponents();
         setLocale(language.getLocale());

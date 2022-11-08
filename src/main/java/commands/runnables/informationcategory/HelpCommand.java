@@ -29,9 +29,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -96,7 +97,7 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     @ControllerSelectMenu(state = DEFAULT_STATE)
-    public boolean onSelectMenu(SelectMenuInteractionEvent event, int i) throws Throwable {
+    public boolean onSelectMenu(StringSelectInteractionEvent event, int i) throws Throwable {
         searchTerm = event.getValues().get(0);
         return true;
     }
@@ -488,7 +489,7 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     private SelectMenu generateSelectMenu(Member member, Category currentCategory) {
-        SelectMenu.Builder builder = SelectMenu.create("category")
+        StringSelectMenu.Builder builder = StringSelectMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
             if (DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).categoryIsTurnedOn(category) &&
