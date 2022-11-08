@@ -25,8 +25,6 @@ public class PingCommand extends Command {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException {
-        event.deferReply();
-
         Instant startTime = (Instant) getAttachments().get("starting_time");
         long milisInternal = TimeUtil.getMillisBetweenInstants(startTime, Instant.now());
         long milisGateway = event.getJDA().getGatewayPing();

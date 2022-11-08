@@ -38,6 +38,7 @@ class CommandEvent : GenericChannelEvent {
             }
             throw IllegalStateException("Cannot convert channel of type $channelType to GuildMessageChannel")
         }
+    var ack = false;
 
     constructor(event: SlashCommandInteractionEvent) : super(event.jda, event.responseNumber, event.channel) {
         slashCommandInteractionEvent = event
@@ -89,11 +90,17 @@ class CommandEvent : GenericChannelEvent {
     }
 
     fun deferReply() {
+        if (ack) {
+            return
+        }
+
+        ack = true
         slashCommandInteractionEvent?.let {
             if (!it.isAcknowledged) {
                 it.deferReply().queue()
             }
         }
+        messageReceivedEvent?.channel?.asTextChannel()?.sendTyping()?.queue()
     }
 
 }

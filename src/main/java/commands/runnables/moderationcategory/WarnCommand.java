@@ -76,6 +76,7 @@ public class WarnCommand extends Command implements OnButtonListener {
                 .collect(Collectors.toList());
 
         if (includeNotInGuild) {
+            event.deferReply();
             MentionList<User> userMention = MentionUtil.getUsersFromString(args, false).get();
             if (userMention.getList().size() > 0) {
                 return userMention;
