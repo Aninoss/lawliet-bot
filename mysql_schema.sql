@@ -322,7 +322,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=747 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=761 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -545,7 +545,7 @@ DROP TABLE IF EXISTS `PaddleSubscriptions`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `PaddleSubscriptions` (
-  `subId` int unsigned NOT NULL,
+  `subId` bigint unsigned NOT NULL DEFAULT '0',
   `userId` bigint unsigned NOT NULL DEFAULT '0',
   `unlocksServer` tinyint unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`subId`)
@@ -1391,4 +1391,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-17 13:13:25
+-- Dump completed on 2022-11-08 15:28:41
