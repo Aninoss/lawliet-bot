@@ -17,11 +17,13 @@ import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.OnAlertListener;
+import commands.listeners.OnButtonListener;
 import constants.ExternalLinks;
 import constants.RegexPatterns;
 import constants.Settings;
 import core.*;
 import core.cache.PatreonCache;
+import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
@@ -34,16 +36,19 @@ import modules.schedulers.AlertResponse;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public abstract class PornAbstract extends Command implements OnAlertListener {
+public abstract class PornAbstract extends Command implements OnAlertListener, OnButtonListener {
 
     public static int MAX_FILES_PER_MESSAGE = 5;
 
@@ -65,6 +70,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     public abstract String getDomain();
 
+    private String args = null;
+    private int newAmount = 5;
+
     protected Set<String> getAdditionalFilters() {
         return Collections.emptySet();
     }
@@ -85,6 +93,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             String group = m.group();
             args = args.replaceFirst(group, "").replace("  ", " ").trim();
             amount = Long.parseLong(group);
+            this.newAmount = (int) Math.min(5, amount);
 
             if (!patreon && (amount < 1 || amount > 20)) {
                 if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
@@ -120,6 +129,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
             notice = TextManager.getString(getLocale(), Category.NSFW, "porn_novideo", ExternalLinks.PREMIUM_WEBSITE);
         }
 
+        this.args = args;
         ArrayList<String> usedResults = new ArrayList<>();
         event.deferReply();
         do {
@@ -172,13 +182,36 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
             Optional<MessageCreateData> messageTemplateOpt = generatePostMessagesText(pornImages, event.getTextChannel(), MAX_FILES_PER_MESSAGE);
             if (messageTemplateOpt.isPresent()) {
-                setComponents(generateButtons(pornImages));
-                drawMessageNew(messageTemplateOpt.get().getContent()).exceptionally(ExceptionLogger.get());
+                ArrayList<ActionRow> actionRows = new ArrayList<>(ActionRows.of(generateButtons(pornImages)));
+                if (amount <= 0) {
+                    Button loadMoreButton = generateLoadMoreButton(patreon);
+                    actionRows.add(ActionRow.of(loadMoreButton));
+                }
+
+                setActionRows(actionRows);
+                boolean registerButton = amount <= 0 && patreon;
+                drawMessageNew(messageTemplateOpt.get().getContent())
+                        .thenAccept(message -> {
+                            if (registerButton) {
+                                setDrawMessage(message);
+                                registerButtonListener(event.getMember(), false);
+                            }
+                        })
+                        .exceptionally(ExceptionLogger.get());
                 TimeUnit.SECONDS.sleep(MAX_FILES_PER_MESSAGE / 2);
             }
         } while (amount > 0 && BotPermissionUtil.canWrite(event.getTextChannel()));
 
         return true;
+    }
+
+    private Button generateLoadMoreButton(boolean patreon) {
+        String key = patreon ? "porn_morebutton" : "porn_morebutton_disabled";
+        Button button = Button.of(ButtonStyle.PRIMARY, "more", TextManager.getString(getLocale(), Category.NSFW, key));
+        if (!patreon) {
+            button = button.asDisabled();
+        }
+        return button;
     }
 
     private List<Button> generateButtons(List<BooruImage> pornImages) {
@@ -259,6 +292,19 @@ public abstract class PornAbstract extends Command implements OnAlertListener {
 
     private String tooManyTagsString(int maxTags) {
         return "❌ " + TextManager.getString(getLocale(), Category.NSFW, "porn_too_many_tags_desc", StringUtil.numToString(maxTags));
+    }
+
+    @Override
+    public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
+        deregisterListeners();
+        onTrigger(getCommandEvent(), this.newAmount + " " + this.args);
+        return false;
+    }
+
+    @Nullable
+    @Override
+    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+        throw new UnsupportedOperationException();
     }
 
     @Override
