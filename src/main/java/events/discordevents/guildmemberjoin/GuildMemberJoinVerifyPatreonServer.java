@@ -4,6 +4,7 @@ import constants.AssetIds;
 import core.MainLogger;
 import core.Program;
 import core.cache.PatreonCache;
+import core.schedule.MainScheduler;
 import core.utils.JDAUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
@@ -27,6 +28,13 @@ public class GuildMemberJoinVerifyPatreonServer extends GuildMemberJoinAbstract 
                     .flatMap(messageChannel -> messageChannel.sendMessage(text))
                     .submit()
                     .thenRun(() -> event.getGuild().kick(member).queue());
+
+            MainScheduler.schedule(5_000, "kick_member", () -> {
+                if (event.getGuild().getMembers().contains(member)) {
+                    MainLogger.get().info("Member is still present, trying to kick again");
+                    event.getGuild().kick(member).queue();
+                }
+            });
             return false;
         }
 
