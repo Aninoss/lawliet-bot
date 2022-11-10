@@ -111,9 +111,9 @@ public class HelpCommand extends NavigationAbstract {
         setActionRows();
 
         EmbedBuilder eb;
-        if ((eb = checkCommand(member, arg)) == null) {
+        if ((eb = checkCommand(member, channel, arg)) == null) {
             if ((eb = checkCategory(member, channel, arg)) == null) {
-                eb = checkMainPage(member);
+                eb = checkMainPage(member, channel);
                 if (arg.length() > 0) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));
                 }
@@ -128,7 +128,7 @@ public class HelpCommand extends NavigationAbstract {
         return eb;
     }
 
-    private EmbedBuilder checkCommand(Member member, String arg) {
+    private EmbedBuilder checkCommand(Member member, TextChannel channel, String arg) {
         boolean noArgs = false;
         if (getAttachments().has("noargs")) {
             getAttachments().remove("noargs");
@@ -147,6 +147,10 @@ public class HelpCommand extends NavigationAbstract {
                 }
 
                 buttonMap.clear();
+                if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
+                    buttonMap.put(-1, "");
+                    return EmbedFactory.getNSFWBlockEmbed(this);
+                }
                 buttonMap.put(-1, "cat:" + currentCategory.getId());
 
                 StringBuilder usage = new StringBuilder();
@@ -220,13 +224,16 @@ public class HelpCommand extends NavigationAbstract {
 
             if (category != null) {
                 currentCategory = category;
+                buttonMap.clear();
+                buttonMap.put(-1, "");
+
+                if (category.isNSFW() && !channel.isNSFW()) {
+                    return EmbedFactory.getNSFWBlockEmbed(this);
+                }
 
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()));
-                EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "reaction_navigation"));
-
-                buttonMap.clear();
-                buttonMap.put(-1, "");
+                EmbedUtil.setFooter(eb, this, getString("navigation"));
 
                 switch (category) {
                     case INTERACTIONS -> categoryRolePlay(member, eb);
@@ -236,7 +243,7 @@ public class HelpCommand extends NavigationAbstract {
                     default -> categoryDefault(member, channel, eb, category);
                 }
 
-                setComponents(generateSelectMenu(member, category));
+                setComponents(generateSelectMenu(member, channel, category));
                 return eb;
             }
         }
@@ -306,7 +313,8 @@ public class HelpCommand extends NavigationAbstract {
                 if (command.getCommandProperties().patreonRequired() &&
                         !commandTrigger.equals(getTrigger()) &&
                         commandManagementBean.commandIsTurnedOn(command) &&
-                        CommandPermissions.hasAccess(command.getClass(), member, getTextChannel().get(), true)
+                        CommandPermissions.hasAccess(command.getClass(), member, getTextChannel().get(), true) &&
+                        (!command.getCommandProperties().nsfw() || channel.isNSFW())
                 ) {
                     StringBuilder title = new StringBuilder();
                     title.append(command.getCommandProperties().emoji())
@@ -462,12 +470,12 @@ public class HelpCommand extends NavigationAbstract {
         eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), sb.toString(), false);
     }
 
-    private EmbedBuilder checkMainPage(Member member) {
+    private EmbedBuilder checkMainPage(Member member, TextChannel channel) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"))
                 .setDescription(getString("sp"))
                 .setImage("https://cdn.discordapp.com/attachments/499629904380297226/850825690399899658/help_banner.png");
-        EmbedUtil.setFooter(eb, this);
+        EmbedUtil.setFooter(eb, this, getString("navigation"));
 
         buttonMap.clear();
         buttonMap.put(-1, "quit");
@@ -484,16 +492,17 @@ public class HelpCommand extends NavigationAbstract {
             ), true);
         }
 
-        setComponents(generateSelectMenu(member, null));
+        setComponents(generateSelectMenu(member, channel, null));
         return eb;
     }
 
-    private SelectMenu generateSelectMenu(Member member, Category currentCategory) {
+    private SelectMenu generateSelectMenu(Member member, TextChannel channel, Category currentCategory) {
         StringSelectMenu.Builder builder = StringSelectMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
             if (DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).categoryIsTurnedOn(category) &&
-                    CommandPermissions.hasAccess(category, member, getTextChannel().get(), true)
+                    CommandPermissions.hasAccess(category, member, channel, true) &&
+                    (!category.isNSFW() || channel.isNSFW())
             ) {
                 String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
                 String value = "cat:" + category.getId();

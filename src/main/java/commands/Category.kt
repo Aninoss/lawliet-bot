@@ -1,23 +1,23 @@
 package commands
 
-enum class Category(val id: String, val emoji: String, val isIndependent: Boolean) {
+enum class Category(val id: String, val emoji: String, val isIndependent: Boolean, val isNSFW: Boolean) {
 
-    GIMMICKS("gimmicks", "🪀", true),
-    AI_TOYS("aitoys", "🤖", true),
-    CONFIGURATION("configuration", "⚙️", true),
-    UTILITY("utility", "🔨", true),
-    MODERATION("moderation", "👮", true),
-    INFORMATION("information", "ℹ️", true),
-    FISHERY_SETTINGS("fishery_settings_category", "⚙️", true),
-    FISHERY("fishery_category", "🎣", true),
-    CASINO("casino", "🎰", true),
-    INVITE_TRACKING("invite_tracking_category", "✉️", true),
-    INTERACTIONS("interactions", "🫂", true),
-    NSFW_INTERACTIONS("nsfw_interactions", "❤️", true),
-    EXTERNAL("external_services", "📤", true),
-    NSFW("nsfw", "🔞", true),
-    SPLATOON_2("splatoon_2", "🦑", true),
-    PATREON_ONLY("patreon_only", "⭐", false);
+    GIMMICKS("gimmicks", "🪀", true, false),
+    AI_TOYS("aitoys", "🤖", true, false),
+    CONFIGURATION("configuration", "⚙️", true, false),
+    UTILITY("utility", "🔨", true, false),
+    MODERATION("moderation", "👮", true, false),
+    INFORMATION("information", "ℹ️", true, false),
+    FISHERY_SETTINGS("fishery_settings_category", "⚙️", true, false),
+    FISHERY("fishery_category", "🎣", true, false),
+    CASINO("casino", "🎰", true, false),
+    INVITE_TRACKING("invite_tracking_category", "✉️", true, false),
+    INTERACTIONS("interactions", "🫂", true, false),
+    NSFW_INTERACTIONS("nsfw_interactions", "❤️", true, true),
+    EXTERNAL("external_services", "📤", true, false),
+    NSFW("nsfw", "🔞", true, true),
+    SPLATOON_2("splatoon_2", "🦑", true, false),
+    PATREON_ONLY("patreon_only", "⭐", false, false);
 
     companion object {
 
