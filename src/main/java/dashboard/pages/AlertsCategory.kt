@@ -41,6 +41,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
     var channelId: Long? = null
     var commandKey = ""
     var userMessage = ""
+    var minInterval = 0
 
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(AlertsCommand::class.java, locale).title
@@ -94,7 +95,9 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
         )
 
         val attachmentField = DashboardMultiLineTextField(getString(Category.UTILITY, "alerts_dashboard_attachment"), 0, 1000) {
-            userMessage = it.data
+            if (isPremium) {
+                userMessage = it.data
+            }
             ActionResult()
         }
         attachmentField.value = userMessage
@@ -102,6 +105,19 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
         attachmentField.editButton = false
         container.add(DashboardSeparator(), attachmentField)
         container.add(DashboardText(getString(Category.UTILITY, "alerts_dashboard_attachment_help")))
+
+        val minIntervalField = DashboardDurationField(getString(Category.UTILITY, "alerts_dashboard_mininterval")) {
+            if (isPremium) {
+                minInterval = it.data.toInt()
+            }
+            ActionResult()
+        }
+        minIntervalField.value = minInterval.toLong()
+        minIntervalField.isEnabled = isPremium
+        minIntervalField.editButton = false
+        container.add(DashboardSeparator(), DashboardText(getString(Category.UTILITY, "alerts_dashboard_mininterval")))
+        container.add(minIntervalField)
+        container.add(DashboardText(getString(Category.UTILITY, "alerts_dashboard_mininterval_help")))
 
         val buttonField = HorizontalContainer()
         val addButton = DashboardButton(getString(Category.UTILITY, "alerts_dashboard_add")) {
@@ -171,7 +187,8 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
                 null,
                 null,
                 userMessage,
-                Instant.now()
+                Instant.now(),
+                minInterval
             )
             clearAttributes()
             alertMap.put(trackerData.hashCode(), trackerData)
@@ -256,6 +273,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
         channelId = null
         commandKey = ""
         userMessage = ""
+        minInterval = 0
     }
 
 }

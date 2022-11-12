@@ -24,7 +24,7 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
 
     @Override
     protected CustomObservableMap<Integer, TrackerData> load(Long guildId) {
-        Map<Integer, TrackerData> trackersMap = new DBDataLoad<TrackerData>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime", "serverId = ?",
+        Map<Integer, TrackerData> trackersMap = new DBDataLoad<TrackerData>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime, minInterval", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, guildId)
         ).getMap(
                 TrackerData::hashCode,
@@ -38,7 +38,8 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
                         resultSet.getString(7),
                         resultSet.getString(8),
                         resultSet.getString(9),
-                        resultSet.getTimestamp(10).toInstant()
+                        resultSet.getTimestamp(10).toInstant(),
+                        resultSet.getInt(11)
                 )
         );
 
@@ -51,7 +52,7 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
     }
 
     public List<TrackerData> retrieveAll() {
-        return new DBDataLoadAll<TrackerData>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime")
+        return new DBDataLoadAll<TrackerData>("Tracking", "serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime, minInterval")
                 .getList(
                         resultSet -> new TrackerData(
                                 resultSet.getLong(1),
@@ -63,13 +64,14 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
                                 resultSet.getString(7),
                                 resultSet.getString(8),
                                 resultSet.getString(9),
-                                resultSet.getTimestamp(10).toInstant()
+                                resultSet.getTimestamp(10).toInstant(),
+                                resultSet.getInt(11)
                         )
                 );
     }
 
     private void addTracker(TrackerData slot) {
-        MySQLManager.asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Tracking (serverId, channelId, command, messageId, commandKey, time, arg, webhookUrl, userMessage, creationTime, minInterval) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, slot.getGuildId());
             preparedStatement.setLong(2, slot.getStandardGuildMessageChannelId());
             preparedStatement.setString(3, slot.getCommandTrigger());
@@ -106,6 +108,7 @@ public class DBTracker extends DBMapCache<Long, CustomObservableMap<Integer, Tra
             }
 
             preparedStatement.setString(10, MySQLManager.instantToDateTimeString(slot.getCreationTime()));
+            preparedStatement.setInt(11, slot.getMinInterval());
         });
     }
 

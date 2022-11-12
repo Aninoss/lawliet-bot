@@ -322,7 +322,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=761 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=762 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1168,6 +1168,7 @@ CREATE TABLE `Tracking` (
   `webhookUrl` varchar(200) DEFAULT NULL,
   `userMessage` varchar(1024) DEFAULT NULL,
   `creationTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `minInterval` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`serverId`,`channelId`,`command`,`commandKey`) USING BTREE,
   CONSTRAINT `trackerServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -1391,4 +1392,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-11-08 15:28:41
+-- Dump completed on 2022-11-12  9:54:39

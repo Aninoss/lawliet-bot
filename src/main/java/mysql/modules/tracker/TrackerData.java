@@ -51,10 +51,14 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
     private String webhookUrl;
     private final String userMessage;
     private final Instant creationTime;
+    private final int minInterval;
     private boolean active = true;
     private boolean preferWebhook = true;
 
-    public TrackerData(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey, Instant nextRequest, String args, String webhookUrl, String userMessage, Instant creationTime) {
+    public TrackerData(long serverId, long channelId, String commandTrigger, Long messageId, String commandKey,
+                       Instant nextRequest, String args, String webhookUrl, String userMessage, Instant creationTime,
+                       int minInterval
+    ) {
         super(serverId);
         this.channelId = channelId;
         this.messageId = messageId;
@@ -65,6 +69,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
         this.webhookUrl = webhookUrl;
         this.userMessage = userMessage;
         this.creationTime = creationTime;
+        this.minInterval = minInterval;
     }
 
     @Override
@@ -98,6 +103,10 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
 
     public Instant getCreationTime() {
         return creationTime;
+    }
+
+    public int getMinInterval() {
+        return minInterval;
     }
 
     public Optional<String> getEffectiveUserMessage() {

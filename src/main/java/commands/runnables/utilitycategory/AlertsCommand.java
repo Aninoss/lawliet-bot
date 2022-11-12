@@ -51,7 +51,8 @@ public class AlertsCommand extends NavigationAbstract {
             STATE_REMOVE = 2,
             STATE_COMMAND = 3,
             STATE_KEY = 4,
-            STATE_USERMESSAGE = 5;
+            STATE_USERMESSAGE = 5,
+            STATE_MININTERVAL = 6;
 
     public static final int LIMIT_CHANNEL = 5;
     public static final int LIMIT_SERVER = 20;
@@ -61,6 +62,7 @@ public class AlertsCommand extends NavigationAbstract {
     private CustomObservableMap<Integer, TrackerData> alerts;
     private Command commandCache;
     private String commandKeyCache;
+    private String userMessage;
 
     public AlertsCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -161,7 +163,30 @@ public class AlertsCommand extends NavigationAbstract {
                 return MessageInputResponse.FAILED;
             }
 
-            addTracker(event.getGuild().getIdLong(), input);
+            userMessage = input;
+            setState(STATE_MININTERVAL);
+            return MessageInputResponse.SUCCESS;
+        } else {
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+            return MessageInputResponse.FAILED;
+        }
+    }
+
+    @ControllerMessage(state = STATE_MININTERVAL)
+    public MessageInputResponse onMessageMinInterval(MessageReceivedEvent event, String input) {
+        StandardGuildMessageChannel channel = getAlertChannelOrFail(event.getMember());
+        if (channel == null) {
+            return MessageInputResponse.FAILED;
+        }
+
+        if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+            int minutes = MentionUtil.getTimeMinutes(input).getValue().intValue();
+            if (minutes <= 0) {
+                setLog(LogStatus.FAILURE, getString("invalidduration"));
+                return MessageInputResponse.FAILED;
+            }
+
+            addTracker(event.getGuild().getIdLong(), minutes);
             return MessageInputResponse.SUCCESS;
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
@@ -274,7 +299,24 @@ public class AlertsCommand extends NavigationAbstract {
             setState(STATE_COMMAND);
             return true;
         } else if (i == 0) {
-            addTracker(event.getGuild().getIdLong(), null);
+            userMessage = null;
+            setState(STATE_MININTERVAL);
+            return true;
+        }
+        return false;
+    }
+
+    @ControllerButton(state = STATE_MININTERVAL)
+    public boolean onButtonMinInterval(ButtonInteractionEvent event, int i) {
+        if (getAlertChannelOrFail(event.getMember()) == null) {
+            return true;
+        }
+
+        if (i == -1) {
+            setState(STATE_USERMESSAGE);
+            return true;
+        } else if (i == 0) {
+            addTracker(event.getGuild().getIdLong(), 0);
             return true;
         }
         return false;
@@ -308,7 +350,7 @@ public class AlertsCommand extends NavigationAbstract {
                 .map(alert -> {
                     String trigger = alert.getCommandTrigger();
                     String channelName = StringUtil.escapeMarkdown(StringUtil.shortenString(new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), alert.getStandardGuildMessageChannelId()).getPrefixedName(), 40));
-                    String label  = getString("slot_remove", false, channelName, trigger);
+                    String label = getString("slot_remove", false, channelName, trigger);
                     return Button.of(ButtonStyle.PRIMARY, String.valueOf(alert.hashCode()), label);
                 })
                 .collect(Collectors.toList());
@@ -364,7 +406,17 @@ public class AlertsCommand extends NavigationAbstract {
         );
     }
 
-    private void addTracker(long guildId, String userMessage) {
+    @Draw(state = STATE_MININTERVAL)
+    public EmbedBuilder onDrawMinInterval(Member member) {
+        setComponents(getString("state6_options").split("\n"));
+        return EmbedFactory.getEmbedDefault(
+                this,
+                getString("state6_description", ExternalLinks.PREMIUM_WEBSITE),
+                getString("state6_title")
+        );
+    }
+
+    private void addTracker(long guildId, int minInterval) {
         TrackerData slot = new TrackerData(
                 guildId,
                 channelId,
@@ -375,7 +427,8 @@ public class AlertsCommand extends NavigationAbstract {
                 null,
                 null,
                 userMessage,
-                Instant.now()
+                Instant.now(),
+                minInterval
         );
 
         alerts.put(slot.hashCode(), slot);

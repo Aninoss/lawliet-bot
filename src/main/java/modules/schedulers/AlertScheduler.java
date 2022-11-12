@@ -129,6 +129,10 @@ public class AlertScheduler {
                         break;
 
                     case CONTINUE_AND_SAVE:
+                        Instant minIntervalInstant = Instant.now().plus(slot.getMinInterval(), ChronoUnit.MINUTES);
+                        if (minIntervalInstant.isAfter(slot.getNextRequest())) {
+                            slot.setNextRequest(minIntervalInstant);
+                        }
                         slot.save();
                         break;
                 }
