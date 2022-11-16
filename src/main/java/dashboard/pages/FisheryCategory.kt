@@ -3,6 +3,7 @@ package dashboard.pages
 import commands.Category
 import commands.Command
 import commands.runnables.fisherysettingscategory.FisheryCommand
+import commands.runnables.fisherysettingscategory.FisheryManageCommand
 import commands.runnables.fisherysettingscategory.FisheryRolesCommand
 import commands.runnables.fisherysettingscategory.VCTimeCommand
 import constants.Emojis
@@ -41,7 +42,8 @@ import java.util.*
 @DashboardProperties(
     id = "fishery",
     userPermissions = [Permission.MANAGE_SERVER],
-    botPermissions = [Permission.MANAGE_ROLES]
+    botPermissions = [Permission.MANAGE_ROLES],
+    commandAccessRequirements = [FisheryCommand::class, VCTimeCommand::class, FisheryRolesCommand::class, FisheryManageCommand::class]
 )
 class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
@@ -60,17 +62,34 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         val guildData = fisheryData.guildData
         val premium = isPremium
 
-        mainContainer.add(
-            generateStateField(guildData),
-            generateStateButtons(guildData),
-            DashboardSeparator(),
-            generateSwitches(guildData),
-            generateExcludeChannelsField(fisheryData),
-            generateVoiceLimitField(guildData, premium),
-            generateFisheryRolesField(guildData, fisheryData),
-            generateFisheryRolesPreviewField(fisheryData),
-            generateFisheryManageField(fisheryData, guildData, premium)
-        )
+        if (anyCommandsAreAccessible(FisheryCommand::class)) {
+            mainContainer.add(
+                generateStateField(guildData),
+                generateStateButtons(guildData),
+                DashboardSeparator(),
+                generateSwitches(guildData),
+                generateExcludeChannelsField(fisheryData)
+            )
+        }
+
+        if (anyCommandsAreAccessible(VCTimeCommand::class)) {
+            mainContainer.add(
+                generateVoiceLimitField(guildData, premium)
+            )
+        }
+
+        if (anyCommandsAreAccessible(FisheryRolesCommand::class)) {
+            mainContainer.add(
+                generateFisheryRolesField(guildData, fisheryData),
+                generateFisheryRolesPreviewField(fisheryData)
+            )
+        }
+
+        if (anyCommandsAreAccessible(FisheryManageCommand::class)) {
+            mainContainer.add(
+                generateFisheryManageField(fisheryData, guildData, premium)
+            )
+        }
     }
 
     private fun generateFisheryManageField(fisheryGuildData: FisheryGuildData, guildData: GuildData, premium: Boolean): DashboardComponent {
@@ -86,6 +105,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             )
 
             val clearButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fisherymanage_state0_reset")) {
+                if (!anyCommandsAreAccessible(FisheryManageCommand::class)) {
+                    return@DashboardButton ActionResult()
+                        .withRedraw()
+                }
+
                 if (manageMembers.size > 0 || manageRoles.size > 0) {
                     val fisheryMemberList = collectFisheryMemberList(fisheryGuildData)
                     fisheryMemberList.forEach(FisheryMemberData::remove)
@@ -149,6 +173,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         container.add(valueTextField)
 
         val confirmButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fisherymanage_confirm")) {
+            if (!anyCommandsAreAccessible(FisheryManageCommand::class)) {
+                return@DashboardButton ActionResult()
+                    .withRedraw()
+            }
+
             if (manageMembers.size > 0 || manageRoles.size > 0) {
                 val fisheryMemberList = collectFisheryMemberList(fisheryGuildData)
                 if (FisheryManage.updateValues(fisheryMemberList, managePropertyIndex, manageNewValue)) {
@@ -255,7 +284,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             fisheryData.roleIds,
             true,
             FisheryRolesCommand.MAX_ROLES,
-            true
+            true,
+            FisheryRolesCommand::class
         )
         container.add(rolesComboBox)
 
@@ -265,6 +295,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             guildData.fisheryAnnouncementChannelId.orElse(null),
             true
         ) {
+            if (!anyCommandsAreAccessible(FisheryRolesCommand::class)) {
+                return@DashboardTextChannelComboBox ActionResult()
+                    .withRedraw()
+            }
+
             guildData.setFisheryAnnouncementChannelId(it.data?.toLong())
             ActionResult()
         }
@@ -272,6 +307,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         container.add(DashboardSeparator(), generateFisheryRolePricesField(guildData))
 
         val singleRolesSwitch = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_msinglerole_raw")) {
+            if (!anyCommandsAreAccessible(FisheryRolesCommand::class)) {
+                return@DashboardSwitch ActionResult()
+                    .withRedraw()
+            }
+
             guildData.toggleFisherySingleRoles()
             ActionResult()
         }
@@ -288,6 +328,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_mroleprices") + ":"))
 
         val min = DashboardNumberField(getString(Category.FISHERY_SETTINGS, "fisheryroles_first"), 0, Settings.FISHERY_MAX) {
+            if (!anyCommandsAreAccessible(FisheryRolesCommand::class)) {
+                return@DashboardNumberField ActionResult()
+                    .withRedraw()
+            }
+
             guildData.setFisheryRolePrices(it.data.toLong(), guildData.fisheryRoleMax)
             ActionResult()
         }
@@ -295,6 +340,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         container.add(min)
 
         val max = DashboardNumberField(getString(Category.FISHERY_SETTINGS, "fisheryroles_last"), 0, Settings.FISHERY_MAX) {
+            if (!anyCommandsAreAccessible(FisheryRolesCommand::class)) {
+                return@DashboardNumberField ActionResult()
+                    .withRedraw()
+            }
+
             guildData.setFisheryRolePrices(guildData.fisheryRoleMin, it.data.toLong())
             ActionResult()
         }
@@ -312,6 +362,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         horizontalContainer.alignment = HorizontalContainer.Alignment.BOTTOM
 
         val limitNumberField = DashboardNumberField(getString(Category.FISHERY_SETTINGS, "vctime_hoursperday"), 1, 24) {
+            if (!anyCommandsAreAccessible(VCTimeCommand::class)) {
+                return@DashboardNumberField ActionResult()
+                    .withRedraw()
+            }
+
             guildData.setFisheryVcHoursCap(it.data.toInt() % 24)
             ActionResult()
         }
@@ -324,6 +379,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         horizontalContainer.add(limitNumberField)
 
         val unlimitedButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "vctime_setunlimited")) {
+            if (!anyCommandsAreAccessible(VCTimeCommand::class)) {
+                return@DashboardButton ActionResult()
+                    .withRedraw()
+            }
+
             guildData.setFisheryVcHoursCap(0)
             ActionResult()
                 .withRedraw()
@@ -347,10 +407,13 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         val container = VerticalContainer()
         container.add(DashboardTitle(getString(Category.FISHERY_SETTINGS, "fishery_state0_mchannels")))
         val comboBox = DashboardMultiTextChannelsComboBox(
+            "",
             fisheryData.guildId,
             fisheryData.ignoredChannelIds,
             true,
-            FisheryCommand.MAX_CHANNELS
+            FisheryCommand.MAX_CHANNELS,
+            atomicMember.idLong,
+            FisheryCommand::class
         )
         container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fishery_excludedchannels")), comboBox)
         return container
@@ -360,6 +423,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         val container = VerticalContainer()
 
         val switchTreasure = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mtreasurechests_title", "").trim()) {
+            if (!anyCommandsAreAccessible(FisheryCommand::class)) {
+                return@DashboardSwitch ActionResult()
+                    .withRedraw()
+            }
+
             guildData.toggleFisheryTreasureChests()
             ActionResult()
         }
@@ -368,6 +436,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         container.add(switchTreasure)
 
         val switchReminders = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mreminders_title", "").trim()) {
+            if (!anyCommandsAreAccessible(FisheryCommand::class)) {
+                return@DashboardSwitch ActionResult()
+                    .withRedraw()
+            }
+
             guildData.toggleFisheryReminders()
             ActionResult()
         }
@@ -376,6 +449,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         container.add(switchReminders)
 
         val switchCoinLimit = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mcoinsgivenlimit_title", "").trim()) {
+            if (!anyCommandsAreAccessible(FisheryCommand::class)) {
+                return@DashboardSwitch ActionResult()
+                    .withRedraw()
+            }
+
             guildData.toggleFisheryCoinsGivenLimit()
             ActionResult()
         }
@@ -392,6 +470,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         when (guildData.fisheryStatus!!) {
             FisheryStatus.ACTIVE -> {
                 val pauseButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fishery_state0_button_pause")) {
+                    if (!anyCommandsAreAccessible(FisheryCommand::class)) {
+                        return@DashboardButton ActionResult()
+                            .withRedraw()
+                    }
+
                     guildData.fisheryStatus = FisheryStatus.PAUSED
                     ActionResult()
                         .withRedraw()
@@ -400,6 +483,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
                 buttonsContainer.add(pauseButton)
 
                 val stopButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fishery_state0_button_stop")) {
+                    if (!anyCommandsAreAccessible(FisheryCommand::class)) {
+                        return@DashboardButton ActionResult()
+                            .withRedraw()
+                    }
+
                     GlobalThreadPool.getExecutorService().submit { DBFishery.getInstance().invalidateGuildId(guildData.guildId) }
                     guildData.fisheryStatus = FisheryStatus.STOPPED
                     ActionResult()
@@ -411,6 +499,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             }
             FisheryStatus.PAUSED -> {
                 val resumeButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fishery_state0_button_resume")) {
+                    if (!anyCommandsAreAccessible(FisheryCommand::class)) {
+                        return@DashboardButton ActionResult()
+                            .withRedraw()
+                    }
+
                     guildData.fisheryStatus = FisheryStatus.ACTIVE
                     ActionResult()
                         .withRedraw()
@@ -420,6 +513,11 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             }
             FisheryStatus.STOPPED -> {
                 val startButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fishery_state0_button_start")) {
+                    if (!anyCommandsAreAccessible(FisheryCommand::class)) {
+                        return@DashboardButton ActionResult()
+                            .withRedraw()
+                    }
+
                     guildData.fisheryStatus = FisheryStatus.ACTIVE
                     ActionResult()
                         .withRedraw()

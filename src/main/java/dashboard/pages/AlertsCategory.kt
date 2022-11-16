@@ -33,7 +33,8 @@ import java.util.*
 
 @DashboardProperties(
     id = "alerts",
-    userPermissions = [Permission.MANAGE_SERVER]
+    userPermissions = [Permission.MANAGE_SERVER],
+    commandAccessRequirements = [AlertsCommand::class]
 )
 class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 

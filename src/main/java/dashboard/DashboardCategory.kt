@@ -1,6 +1,8 @@
 package dashboard
 
 import commands.Category
+import commands.Command
+import commands.CommandManager
 import core.MemberCacheController
 import core.ShardManager
 import core.TextManager
@@ -8,6 +10,7 @@ import core.atomicassets.AtomicGuild
 import core.atomicassets.AtomicMember
 import core.cache.PatreonCache
 import core.utils.BotPermissionUtil
+import dashboard.component.DashboardText
 import dashboard.container.DashboardContainer
 import dashboard.container.VerticalContainer
 import mysql.modules.guild.DBGuild
@@ -15,6 +18,7 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import org.json.JSONObject
 import java.util.*
+import kotlin.reflect.KClass
 
 abstract class DashboardCategory(private val guildId: Long, private val userId: Long, val locale: Locale) {
 
@@ -43,7 +47,13 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
         val mainContainer = VerticalContainer()
         components = mainContainer
         atomicGuild.get().ifPresent { guild ->
-            generateComponents(guild, mainContainer)
+            if (anyCommandRequirementsAreAccessible()) {
+                generateComponents(guild, mainContainer)
+            } else {
+                val dashboardText = DashboardText(getString(TextManager.GENERAL, "dashboard_noaccess"))
+                dashboardText.style = DashboardText.Style.ERROR
+                mainContainer.add(dashboardText)
+            }
         }
         return components!!
     }
@@ -70,6 +80,30 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
                     .filter { !BotPermissionUtil.can(member, it) }
             } ?: emptyList()
         } ?: emptyList()
+    }
+
+    fun anyCommandRequirementsAreAccessible(): Boolean {
+        if (properties.commandAccessRequirements.isEmpty()) {
+            return true
+        }
+
+        val member = atomicMember.get().get()
+        return properties.commandAccessRequirements
+            .any {
+                CommandManager.commandIsTurnedOnEffectively(it.java, member, null)
+            }
+    }
+
+    fun anyCommandsAreAccessible(vararg classes: KClass<out Command>): Boolean {
+        if (classes.isEmpty()) {
+            return true
+        }
+
+        val member = atomicMember.get().get()
+        return classes
+            .any {
+                CommandManager.commandIsTurnedOnEffectively(it.java, member, null)
+            }
     }
 
     fun getString(category: String, key: String, vararg args: String): String {

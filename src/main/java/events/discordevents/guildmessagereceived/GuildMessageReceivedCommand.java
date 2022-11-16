@@ -9,7 +9,6 @@ import commands.listeners.MessageInputResponse;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.informationcategory.HelpCommand;
 import core.AsyncTimer;
-import core.CommandPermissions;
 import core.MainLogger;
 import core.ShardManager;
 import core.utils.BotPermissionUtil;
@@ -21,7 +20,6 @@ import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.MessageQuote;
 import mysql.modules.autoquote.DBAutoQuote;
-import mysql.modules.commandmanagement.DBCommandManagement;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.entities.Message;
@@ -84,9 +82,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
                     if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
                         Command helpCommand = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
-                        if (DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong()).commandIsTurnedOnEffectively(helpCommand, event.getMember()) &&
-                                CommandPermissions.hasAccess(HelpCommand.class, event.getMember(), event.getChannel().asTextChannel(), false)
-                        ) {
+                        if (CommandManager.commandIsTurnedOnEffectively(helpCommand, event.getMember(), event.getChannel().asTextChannel())) {
                             args = command.getTrigger();
                             command = helpCommand;
                             command.getAttachments().put("noargs", true);

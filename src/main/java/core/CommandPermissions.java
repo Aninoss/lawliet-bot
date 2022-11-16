@@ -70,7 +70,7 @@ public class CommandPermissions {
 
     private static boolean checkCommandAccess(List<SlashPermissionsSlot> commandPermissions, Member member, TextChannel textChannel) {
         return checkPermissionsRolesAndUsers(commandPermissions, member) &&
-                checkPermissionsChannels(commandPermissions, member, textChannel);
+                (textChannel == null || checkPermissionsChannels(commandPermissions, textChannel));
     }
 
     private static boolean checkPermissionsRolesAndUsers(List<SlashPermissionsSlot> commandPermissions, Member member) {
@@ -96,7 +96,7 @@ public class CommandPermissions {
         return Objects.requireNonNullElse(allowed, true);
     }
 
-    private static boolean checkPermissionsChannels(List<SlashPermissionsSlot> commandPermissions, Member member, TextChannel textChannel) {
+    private static boolean checkPermissionsChannels(List<SlashPermissionsSlot> commandPermissions, TextChannel textChannel) {
         boolean allowed = true;
         for (SlashPermissionsSlot commandPermission : commandPermissions) {
             if (commandPermission.getType() == SlashPermissionsSlot.Type.CHANNEL) {

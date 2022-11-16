@@ -24,7 +24,7 @@ public class OnDashboardAction implements SyncServerFunction {
             if (category != null) {
                 List<Permission> missingBotPermissions = category.missingBotPermissions();
                 List<Permission> missingUserPermissions = category.missingUserPermissions();
-                if (missingBotPermissions.isEmpty() && missingUserPermissions.isEmpty()) {
+                if (missingBotPermissions.isEmpty() && missingUserPermissions.isEmpty() && category.anyCommandRequirementsAreAccessible()) {
                     ActionResult actionResult = category.receiveAction(jsonObject.getJSONObject("action"));
                     if (actionResult != null) {
                         resultJson.put("ok", true);

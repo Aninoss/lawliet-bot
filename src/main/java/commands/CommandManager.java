@@ -503,4 +503,36 @@ public class CommandManager {
         throw new RuntimeException("Invalid class");
     }
 
+    public static boolean commandIsTurnedOnIgnoreAdmin(Command command, Member member, TextChannel channel) {
+        return CommandPermissions.hasAccess(command.getClass(), member, channel, true) &&
+                DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).commandIsTurnedOn(command);
+    }
+
+    public static boolean commandIsTurnedOnEffectively(Command command, Member member, TextChannel channel) {
+        return CommandPermissions.hasAccess(command.getClass(), member, channel, false) &&
+                DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).commandIsTurnedOnEffectively(command, member);
+    }
+
+    public static boolean commandIsTurnedOnIgnoreAdmin(Class<? extends Command> clazz, Member member, TextChannel channel) {
+        return CommandPermissions.hasAccess(clazz, member, channel, true) &&
+                DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).elementIsTurnedOn(Command.getCommandProperties(clazz).trigger()) &&
+                DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).elementIsTurnedOn(Command.getCategory(clazz).getId());
+    }
+
+    public static boolean commandIsTurnedOnEffectively(Class<? extends Command> clazz, Member member, TextChannel channel) {
+        return CommandPermissions.hasAccess(clazz, member, channel, false) &&
+                DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).elementIsTurnedOnEffectively(Command.getCommandProperties(clazz).trigger(), member) &&
+                DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).elementIsTurnedOnEffectively(Command.getCategory(clazz).getId(), member);
+    }
+
+    public static boolean categoryIsTurnedOnIgnoreAdmin(Category category, Member member, TextChannel channel) {
+        return CommandPermissions.hasAccess(category, member, channel, true) &&
+                DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).categoryIsTurnedOn(category);
+    }
+
+    public static boolean categoryIsTurnedOnEffectively(Category category, Member member, TextChannel channel) {
+        return CommandPermissions.hasAccess(category, member, channel, false) &&
+                DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).categoryIsTurnedOnEffectively(category, member);
+    }
+
 }

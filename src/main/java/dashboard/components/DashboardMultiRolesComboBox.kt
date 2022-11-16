@@ -1,5 +1,7 @@
 package dashboard.components
 
+import commands.Command
+import commands.CommandManager
 import core.CustomObservableList
 import core.MemberCacheController
 import core.TextManager
@@ -12,13 +14,11 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
 import java.util.*
+import kotlin.reflect.KClass
 
 class DashboardMultiRolesComboBox(label: String, locale: Locale, guildId: Long, val memberId: Long, val selectedRoles: CustomObservableList<Long>, canBeEmpty: Boolean,
-                                  max: Int, checkManageable: Boolean
+                                  max: Int, checkManageable: Boolean, commandAccessRequirement: KClass<out Command>? = null
 ) : DashboardComboBox(label, DataType.ROLES, canBeEmpty, max) {
-
-    constructor(locale: Locale, guildId: Long, memberId: Long, selectedRoles: CustomObservableList<Long>, canBeEmpty: Boolean, max: Int, checkManageable: Boolean) :
-            this("", locale, guildId, memberId, selectedRoles, canBeEmpty, max, checkManageable)
 
     init {
         selectedValues = selectedRoles.map {
@@ -30,6 +30,11 @@ class DashboardMultiRolesComboBox(label: String, locale: Locale, guildId: Long, 
             val member: Member? = role?.let { MemberCacheController.getInstance().loadMember(it.guild, memberId).get() }
             if (member != null) {
                 if (BotPermissionUtil.canManage(member, role) && BotPermissionUtil.can(member, Permission.MANAGE_ROLES)) {
+                    if (commandAccessRequirement != null && !CommandManager.commandIsTurnedOnEffectively(commandAccessRequirement.java, member, null)) {
+                        return@setActionListener ActionResult()
+                            .withRedraw()
+                    }
+
                     if (event.type == "add") {
                         if (!checkManageable || (BotPermissionUtil.canManage(role) && BotPermissionUtil.can(role.guild.selfMember, Permission.MANAGE_ROLES))) {
                             selectedRoles.add(event.data.toLong())

@@ -33,6 +33,7 @@ import java.util.*
     id = "reactionroles",
     botPermissions = [Permission.MANAGE_ROLES, Permission.MESSAGE_HISTORY],
     userPermissions = [Permission.MANAGE_ROLES],
+    commandAccessRequirements = [ReactionRolesCommand::class]
 )
 class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 

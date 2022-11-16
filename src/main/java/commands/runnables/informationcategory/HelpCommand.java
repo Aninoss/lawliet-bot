@@ -274,7 +274,7 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && commandManagementBean.commandIsTurnedOn(command)) {
+            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && CommandManager.commandIsTurnedOnIgnoreAdmin(command, member, getTextChannel().get())) {
                 buttonMap.put(counter.getAndIncrement(), command.getTrigger());
                 stringBuilder
                         .append("• `")
@@ -312,8 +312,7 @@ public class HelpCommand extends NavigationAbstract {
                 String commandTrigger = command.getTrigger();
                 if (command.getCommandProperties().patreonRequired() &&
                         !commandTrigger.equals(getTrigger()) &&
-                        commandManagementBean.commandIsTurnedOn(command) &&
-                        CommandPermissions.hasAccess(command.getClass(), member, getTextChannel().get(), true) &&
+                        CommandManager.commandIsTurnedOnIgnoreAdmin(command, member, getTextChannel().get()) &&
                         (!command.getCommandProperties().nsfw() || channel.isNSFW())
                 ) {
                     StringBuilder title = new StringBuilder();
@@ -361,8 +360,7 @@ public class HelpCommand extends NavigationAbstract {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (!commandTrigger.equals(getTrigger()) &&
-                    commandManagementBean.commandIsTurnedOn(command) &&
-                    CommandPermissions.hasAccess(command.getClass(), member, getTextChannel().get(), true)
+                    CommandManager.commandIsTurnedOnIgnoreAdmin(command, member, getTextChannel().get())
             ) {
                 StringBuilder title = new StringBuilder();
                 title.append(command.getCommandProperties().emoji())
@@ -408,9 +406,7 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.NSFW)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
-            if (commandManagementBean.commandIsTurnedOn(command) &&
-                    CommandPermissions.hasAccess(command.getClass(), member, getTextChannel().get(), true)
-            ) {
+            if (CommandManager.commandIsTurnedOnIgnoreAdmin(command, member, getTextChannel().get())) {
                 buttonMap.put(i++, command.getTrigger());
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
@@ -500,8 +496,7 @@ public class HelpCommand extends NavigationAbstract {
         StringSelectMenu.Builder builder = StringSelectMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
-            if (DBCommandManagement.getInstance().retrieve(member.getGuild().getIdLong()).categoryIsTurnedOn(category) &&
-                    CommandPermissions.hasAccess(category, member, channel, true) &&
+            if (CommandManager.categoryIsTurnedOnIgnoreAdmin(category, member, channel) &&
                     (!category.isNSFW() || channel.isNSFW())
             ) {
                 String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());

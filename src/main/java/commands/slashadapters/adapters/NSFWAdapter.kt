@@ -2,12 +2,12 @@ package commands.slashadapters.adapters
 
 import commands.Category
 import commands.CommandContainer
+import commands.CommandManager
 import commands.runnables.PornPredefinedAbstract
 import commands.runnables.informationcategory.HelpCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
-import core.CommandPermissions
 import core.TextManager
 import mysql.modules.commandmanagement.DBCommandManagement
 import mysql.modules.guild.DBGuild
@@ -55,9 +55,7 @@ class NSFWAdapter : SlashAdapter() {
                 val commandTrigger = commandProperties.trigger
                 val triggers = mutableListOf(commandTrigger)
                 if (PornPredefinedAbstract::class.java.isAssignableFrom(clazz) && commandProperties.nsfw &&
-                    switchedOffData.elementIsTurnedOnEffectively(Category.NSFW.id, event.member) &&
-                    switchedOffData.elementIsTurnedOnEffectively(commandTrigger, event.member) &&
-                    CommandPermissions.hasAccess(clazz, event.member, event.channel!!.asTextChannel(), false)
+                    CommandManager.commandIsTurnedOnEffectively(clazz, event.member, event.channel!!.asTextChannel())
                 ) {
                     triggers.addAll(commandProperties.aliases)
                     if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {

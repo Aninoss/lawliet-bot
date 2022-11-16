@@ -3,6 +3,7 @@ package dashboard.pages
 import commands.Category
 import commands.Command
 import commands.CommandContainer
+import commands.runnables.configurationcategory.CommandManagementCommand
 import commands.runnables.configurationcategory.CommandPermissionsCommand
 import commands.runnables.configurationcategory.WhiteListCommand
 import core.CommandPermissions
@@ -26,7 +27,8 @@ import java.util.*
 
 @DashboardProperties(
     id = "commandmanagement",
-    userPermissions = [Permission.ADMINISTRATOR]
+    userPermissions = [Permission.ADMINISTRATOR],
+    commandAccessRequirements = [CommandManagementCommand::class, WhiteListCommand::class, CommandPermissionsCommand::class]
 )
 class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
@@ -35,11 +37,17 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.add(
-            generateCommandManagementField(guild),
-            generateChannelWhitelistField(guild),
-            generateCommandPermissionsField(guild)
-        )
+        if (anyCommandsAreAccessible(CommandManagementCommand::class)) {
+            mainContainer.add(generateCommandManagementField(guild))
+        }
+
+        if (anyCommandsAreAccessible(WhiteListCommand::class)) {
+            mainContainer.add(generateChannelWhitelistField(guild))
+        }
+
+        if (anyCommandsAreAccessible(CommandPermissionsCommand::class)) {
+            mainContainer.add(generateCommandPermissionsField(guild))
+        }
     }
 
     private fun generateCommandPermissionsField(guild: Guild): DashboardComponent {
@@ -51,6 +59,11 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
         )
 
         val button = DashboardButton(getString(Category.CONFIGURATION, "cperms_button")) {
+            if (!anyCommandsAreAccessible(CommandPermissionsCommand::class)) {
+                return@DashboardButton ActionResult()
+                    .withRedraw()
+            }
+
             val actionResult = ActionResult()
             if (CommandPermissions.transferCommandPermissions(guild)) {
                 actionResult.withSuccessMessage(getString(Category.CONFIGURATION, "cperms_success"))
@@ -79,7 +92,10 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
         container.add(obsoleteWarning)
 
         container.add(
-            DashboardMultiTextChannelsComboBox(guild.idLong, DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds, true, WhiteListCommand.MAX_CHANNELS)
+            DashboardMultiTextChannelsComboBox(
+                "", guild.idLong, DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds,
+                true, WhiteListCommand.MAX_CHANNELS, atomicMember.idLong, WhiteListCommand::class
+            )
         )
 
         return container
@@ -107,8 +123,14 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
         return container
     }
 
-    private fun generateBlacklistComboBox(commandManagementData: CommandManagementData, label: String, values: List<DiscordEntity>): DashboardComponent {
+    private fun generateBlacklistComboBox(commandManagementData: CommandManagementData, label: String, values: List<DiscordEntity>
+    ): DashboardComponent {
         val comboBox = DashboardComboBox(label, values, true, Int.MAX_VALUE) {
+            if (!anyCommandsAreAccessible(CommandManagementCommand::class)) {
+                return@DashboardComboBox ActionResult()
+                    .withRedraw()
+            }
+
             if (it.type == "add") {
                 commandManagementData.switchedOffElements += it.data
             } else if (it.type == "remove") {

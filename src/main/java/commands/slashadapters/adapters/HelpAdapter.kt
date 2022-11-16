@@ -2,14 +2,13 @@ package commands.slashadapters.adapters
 
 import commands.Category
 import commands.CommandContainer
+import commands.CommandManager
 import commands.runnables.informationcategory.HelpCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import constants.Language
-import core.CommandPermissions
 import core.TextManager
-import mysql.modules.commandmanagement.DBCommandManagement
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command
@@ -46,15 +45,12 @@ class HelpAdapter : SlashAdapter() {
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
         val userText = event.focusedOption.value
         val choiceList = ArrayList<Command.Choice>()
-        val switchedOffData = DBCommandManagement.getInstance().retrieve(event.guild!!.idLong)
         for (clazz in CommandContainer.getFullCommandList()) {
             val commandProperties = commands.Command.getCommandProperties(clazz)
             val commandTrigger = commandProperties.trigger
             val triggers = mutableListOf(commandTrigger)
             if ((!commandProperties.nsfw || event.channel!!.asTextChannel().isNSFW) &&
-                switchedOffData.elementIsTurnedOnEffectively(Category.NSFW.id, event.member) &&
-                switchedOffData.elementIsTurnedOnEffectively(commandTrigger, event.member) &&
-                CommandPermissions.hasAccess(clazz, event.member, event.channel!!.asTextChannel(), false)
+                CommandManager.commandIsTurnedOnEffectively(clazz, event.member, event.channel!!.asTextChannel())
             ) {
                 triggers.addAll(commandProperties.aliases)
                 if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {

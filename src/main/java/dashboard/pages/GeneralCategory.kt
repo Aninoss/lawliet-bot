@@ -29,7 +29,8 @@ import java.util.*
 @DashboardProperties(
     id = "general",
     userPermissions = [Permission.MANAGE_SERVER, Permission.MESSAGE_MANAGE],
-    botPermissions = [Permission.MESSAGE_MANAGE]
+    botPermissions = [Permission.MESSAGE_MANAGE],
+    commandAccessRequirements = [LanguageCommand::class, PrefixCommand::class, AutoQuoteCommand::class, TriggerDeleteCommand::class]
 )
 class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
@@ -38,42 +39,74 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        mainContainer.add(
-            generateTextFields(guild),
-            DashboardSeparator(),
-            generateAutoQuoteSwitch(),
-            DashboardSeparator(),
-            generateTriggerDeleteSwitch()
-        )
+        if (anyCommandsAreAccessible(LanguageCommand::class, PrefixCommand::class)) {
+            mainContainer.add(
+                generateTextFields(guild),
+                DashboardSeparator()
+            )
+        }
+
+        if (anyCommandsAreAccessible(AutoQuoteCommand::class)) {
+            mainContainer.add(
+                generateAutoQuoteSwitch(),
+                DashboardSeparator()
+            )
+        }
+
+        if (anyCommandsAreAccessible(TriggerDeleteCommand::class)) {
+            mainContainer.add(
+                generateTriggerDeleteSwitch()
+            )
+        }
     }
 
     private fun generateTextFields(guild: Guild): DashboardComponent {
         val container = HorizontalContainer()
         container.allowWrap = true
 
-        val languageEntityList = Language.values().map { DiscordEntity(it.name, getString(Category.CONFIGURATION, "language_" + it.name)) }
-        val languageSelect = DashboardSelect(Command.getCommandLanguage(LanguageCommand::class.java, locale).title, languageEntityList, false) {
-            val language = Language.valueOf(it.data)
-            DBGuild.getInstance().retrieve(atomicGuild.idLong).locale = language.locale
-            ActionResult()
-        }
-        val guildLocale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
-        val language = Language.from(guildLocale)
-        languageSelect.selectedValue = DiscordEntity(language.name, getString(Category.CONFIGURATION, "language_" + language.name))
+        if (anyCommandsAreAccessible(LanguageCommand::class)) {
+            val languageEntityList = Language.values().map { DiscordEntity(it.name, getString(Category.CONFIGURATION, "language_" + it.name)) }
+            val languageSelect = DashboardSelect(Command.getCommandLanguage(LanguageCommand::class.java, locale).title, languageEntityList, false) {
+                if (!anyCommandsAreAccessible(LanguageCommand::class)) {
+                    return@DashboardSelect ActionResult()
+                        .withRedraw()
+                }
 
-        val prefixField = DashboardTextField(Command.getCommandLanguage(PrefixCommand::class.java, locale).title, 1, 5) {
-            val prefix = it.data
-            Prefix.changePrefix(guild, locale, prefix)
-            ActionResult()
+                val language = Language.valueOf(it.data)
+                DBGuild.getInstance().retrieve(atomicGuild.idLong).locale = language.locale
+                ActionResult()
+            }
+            val guildLocale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
+            val language = Language.from(guildLocale)
+            languageSelect.selectedValue = DiscordEntity(language.name, getString(Category.CONFIGURATION, "language_" + language.name))
+            container.add(languageSelect)
         }
-        prefixField.value = DBGuild.getInstance().retrieve(atomicGuild.idLong).prefix
 
-        container.add(languageSelect, prefixField)
+        if (anyCommandsAreAccessible(PrefixCommand::class)) {
+            val prefixField = DashboardTextField(Command.getCommandLanguage(PrefixCommand::class.java, locale).title, 1, 5) {
+                if (!anyCommandsAreAccessible(PrefixCommand::class)) {
+                    return@DashboardTextField ActionResult()
+                        .withRedraw()
+                }
+
+                val prefix = it.data
+                Prefix.changePrefix(guild, locale, prefix)
+                ActionResult()
+            }
+            prefixField.value = DBGuild.getInstance().retrieve(atomicGuild.idLong).prefix
+            container.add(prefixField)
+        }
+
         return container
     }
 
     private fun generateAutoQuoteSwitch(): DashboardComponent {
         val switch = DashboardSwitch(Command.getCommandLanguage(AutoQuoteCommand::class.java, locale).title) {
+            if (!anyCommandsAreAccessible(AutoQuoteCommand::class)) {
+                return@DashboardSwitch ActionResult()
+                    .withRedraw()
+            }
+
             DBAutoQuote.getInstance().retrieve(atomicGuild.idLong).isActive = it.data
             ActionResult()
         }
@@ -85,6 +118,11 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
     private fun generateTriggerDeleteSwitch(): DashboardComponent {
         val title = Command.getCommandLanguage(TriggerDeleteCommand::class.java, locale).title
         val switch = DashboardSwitch(getString(TextManager.GENERAL, "dashboard_premium", title)) {
+            if (!anyCommandsAreAccessible(TriggerDeleteCommand::class)) {
+                return@DashboardSwitch ActionResult()
+                    .withRedraw()
+            }
+
             DBGuild.getInstance().retrieve(atomicGuild.idLong).isCommandAuthorMessageRemove = it.data
             ActionResult()
         }

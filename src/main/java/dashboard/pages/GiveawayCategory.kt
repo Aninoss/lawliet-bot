@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit
 @DashboardProperties(
     id = "giveaway",
     userPermissions = [Permission.MANAGE_SERVER],
+    commandAccessRequirements = [GiveawayCommand::class]
 )
 class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 

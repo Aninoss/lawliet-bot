@@ -34,10 +34,12 @@ public class OnDashboardInit implements SyncServerFunction {
     private void addTitles(long guildId, long userId, Locale locale, JSONObject resultJson) {
         JSONArray titlesJson = new JSONArray();
         for (DashboardCategory retrieveCategory : DashboardManager.retrieveCategories(guildId, userId, locale)) {
-            JSONObject data = new JSONObject();
-            data.put("id", retrieveCategory.getProperties().id());
-            data.put("title", retrieveCategory.retrievePageTitle());
-            titlesJson.put(data);
+            if (retrieveCategory.anyCommandRequirementsAreAccessible()) {
+                JSONObject data = new JSONObject();
+                data.put("id", retrieveCategory.getProperties().id());
+                data.put("title", retrieveCategory.retrievePageTitle());
+                titlesJson.put(data);
+            }
         }
         resultJson.put("titles", titlesJson);
     }

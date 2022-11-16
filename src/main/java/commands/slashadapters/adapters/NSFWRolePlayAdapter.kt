@@ -3,11 +3,11 @@ package commands.slashadapters.adapters
 import commands.Category
 import commands.Command
 import commands.CommandContainer
+import commands.CommandManager
 import commands.runnables.informationcategory.HelpCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
-import core.CommandPermissions
 import core.TextManager
 import mysql.modules.commandmanagement.DBCommandManagement
 import mysql.modules.guild.DBGuild
@@ -53,9 +53,7 @@ class NSFWRolePlayAdapter : SlashAdapter() {
             val commandCategory = Command.getCategory(clazz);
             if (commandCategory == Category.NSFW_INTERACTIONS &&
                 event.channel!!.asTextChannel().isNSFW &&
-                switchedOffData.elementIsTurnedOnEffectively(commandCategory.id, event.member) &&
-                switchedOffData.elementIsTurnedOnEffectively(commandTrigger, event.member) &&
-                CommandPermissions.hasAccess(clazz, event.member, event.channel!!.asTextChannel(), false)
+                CommandManager.commandIsTurnedOnEffectively(clazz, event.member, event.channel!!.asTextChannel())
             ) {
                 val triggers = mutableListOf(commandTrigger)
                 triggers.addAll(commandProperties.aliases)
