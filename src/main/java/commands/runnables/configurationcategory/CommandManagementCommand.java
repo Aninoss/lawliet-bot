@@ -174,8 +174,8 @@ public class CommandManagementCommand extends NavigationAbstract {
                 .map(category -> TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId()))
                 .collect(Collectors.toList());
         return EmbedFactory.getEmbedDefault(this, getString("state0_desc"))
-                .addField(getString("state0_mcategories"), generateList(categoryNameList), false)
-                .addField(getString("state0_mcommands"), generateList(commandManagementData.getSwitchedOffCommands()), false);
+                .addField(getString("state0_mcategories"), StringUtil.shortenString(generateList(categoryNameList), 1024), false)
+                .addField(getString("state0_mcommands"), StringUtil.shortenString(generateList(commandManagementData.getSwitchedOffCommands()), 1024), false);
     }
 
     @Draw(state = SET_CATEGORIES)
