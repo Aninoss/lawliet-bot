@@ -95,6 +95,7 @@ public class MemberCacheController implements MemberCachePolicy {
         Guild guild = member.getGuild();
         return ChunkingFilterController.getInstance().filter(guild.getIdLong()) ||
                 (voiceState != null && voiceState.getChannel() != null) ||
+                member.getIdLong() == ShardManager.getSelfId() ||
                 member.isPending() ||
                 member.isOwner() ||
                 member.getIdLong() == AssetIds.OWNER_USER_ID ||
