@@ -45,7 +45,15 @@ public class GuildUserContextInteractionVerification extends GuildUserContextInt
         Modal modal = ModalMediator.createModal("Verifizieren", e -> {
                     verificationRole.getGuild().addRoleToMember(event.getTargetMember(), verificationRole).queue();
                     verificationChannel.sendMessage(String.format("%s wurde von %s verifiziert!", event.getTargetMember().getAsMention(), event.getMember().getAsMention())).queue();
-                    e.deferEdit().queue();
+
+                    MessageEmbed messageEmbed = EmbedFactory.getEmbedDefault()
+                            .setTitle("Verifiziert")
+                            .setDescription(String.format("%s wurde verifiziert!", event.getTargetMember().getAsMention()))
+                            .build();
+
+                    e.replyEmbeds(messageEmbed)
+                            .setEphemeral(true)
+                            .queue();
                 })
                 .addActionRow(textInput)
                 .build();

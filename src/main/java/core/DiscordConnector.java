@@ -3,7 +3,6 @@ package core;
 import java.util.EnumSet;
 import java.util.List;
 import commands.SlashCommandManager;
-import constants.AnicordVerificationIds;
 import constants.AssetIds;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
@@ -15,11 +14,9 @@ import modules.schedulers.*;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -139,20 +136,6 @@ public class DiscordConnector {
         JailScheduler.start();
         ShardManager.start();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
-
-        Guild supportServer = jda.getGuildById(AssetIds.SUPPORT_SERVER_ID);
-        if (supportServer != null) {
-            supportServer.updateCommands()
-                    .addCommands(SupportTemplates.generateSupportContextCommands())
-                    .queue();
-        }
-
-        Guild anicord = jda.getGuildById(AnicordVerificationIds.GUILD_ID);
-        if (anicord != null) {
-            anicord.updateCommands()
-                    .addCommands(Commands.user("Verifizieren"))
-                    .queue();
-        }
     }
 
     public static void updateActivity(JDA jda) {
