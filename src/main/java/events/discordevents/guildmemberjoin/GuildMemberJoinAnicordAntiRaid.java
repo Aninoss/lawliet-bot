@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import constants.AssetIds;
+import core.MainLogger;
 import core.schedule.MainScheduler;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
@@ -43,6 +44,9 @@ public class GuildMemberJoinAnicordAntiRaid extends GuildMemberJoinAbstract {
                             .queue();
 
                     MainScheduler.schedule(10, ChronoUnit.MINUTES, "anicord_anti_raid", () -> {
+                        event.getGuild().getMembers().stream()
+                                .filter(m -> m.hasTimeJoined() && m.getTimeJoined().plusMinutes(1).toInstant().isAfter(now))
+                                .forEach(m -> MainLogger.get().warn("Raid user: " + m.getUser().getAsTag()));
                         event.getGuild().getManager()
                                 .setInvitesDisabled(false)
                                 .reason("Raid Protection")
