@@ -2,29 +2,30 @@ package commands.runnables.nsfwcategory;
 
 import java.util.Locale;
 import commands.listeners.CommandProperties;
-import commands.runnables.GelbooruAbstract;
+import commands.runnables.PornSearchAbstract;
 
 @CommandProperties(
-        trigger = "trap",
+        trigger = "gelb",
         executableWithoutArgs = true,
         emoji = "\uD83D\uDD1E",
         nsfw = true,
         maxCalculationTimeSec = 5 * 60,
-        requiresEmbeds = false
+        requiresEmbeds = false,
+        aliases = { "gbooru", "gelbooru" }
 )
-public class TrapCommand extends GelbooruAbstract {
+public class GelbooruCommand extends PornSearchAbstract {
 
-    public TrapCommand(Locale locale, String prefix) {
+    public GelbooruCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    protected String getSearchKey() {
-        return "animated trap";
+    public String getDomain() {
+        return "gelbooru.com";
     }
 
     @Override
-    protected boolean isAnimatedOnly() {
+    public boolean isExplicit() {
         return true;
     }
 

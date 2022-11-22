@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.DanbooruAbstract;
+import commands.runnables.GelbooruAbstract;
 
 @CommandProperties(
         trigger = "hblowjob",
@@ -16,7 +16,7 @@ import commands.runnables.DanbooruAbstract;
         patreonRequired = true,
         aliases = { "hentaiblowjob" }
 )
-public class HentaiBlowjobCommand extends DanbooruAbstract {
+public class HentaiBlowjobCommand extends GelbooruAbstract {
 
     public HentaiBlowjobCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -24,14 +24,14 @@ public class HentaiBlowjobCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "animated fellatio -3d";
+        return "animated blowjob";
     }
 
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("yaoi", "yuri", "shemale", "lesbian", "gay", "futa", "futanari", "trap", "otoko_no_ko", "3d",
-                "blender_(medium)", "pixel_art"));
+        filters.addAll(Set.of("yaoi", "yuri", "futa", "futanari", "trap", "otoko_no_ko", "3d", "blender_(medium)",
+                "pixel_art", "tentacles"));
         return filters;
     }
 

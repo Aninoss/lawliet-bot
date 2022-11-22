@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.DanbooruAbstract;
+import commands.runnables.GelbooruAbstract;
 
 @CommandProperties(
         trigger = "hdick",
@@ -15,7 +15,7 @@ import commands.runnables.DanbooruAbstract;
         requiresEmbeds = false,
         aliases = { "hentaidick", "hcock", "hentaicock", "hpenis", "hentaipenis" }
 )
-public class HentaiDick extends DanbooruAbstract {
+public class HentaiDick extends GelbooruAbstract {
 
     public HentaiDick(Locale locale, String prefix) {
         super(locale, prefix);
@@ -23,14 +23,14 @@ public class HentaiDick extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "penis male_focus -multiple_boys -sex -anal -shota";
+        return "penis male_focus";
     }
 
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("multiple_boys", "sex", "anal", "2boys", "blank_censor", "trap", "shemale", "futa", "futanari",
-                "fellatio", "crossdressing", "otoko_no_ko", "vaginal", "pussy"));
+        filters.addAll(Set.of("multiple_boys", "sex", "anal", "2boys", "censored", "trap", "futa", "futanari", "fellatio",
+                "crossdressing", "otoko_no_ko", "vaginal", "pussy"));
         return filters;
     }
 

@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.Rule34HentaiAbstract;
+import commands.runnables.GelbooruAbstract;
 
 @CommandProperties(
         trigger = "hbdsm",
@@ -16,7 +16,7 @@ import commands.runnables.Rule34HentaiAbstract;
         patreonRequired = true,
         aliases = { "hentaibdsm" }
 )
-public class HentaiBDSMCommand extends Rule34HentaiAbstract {
+public class HentaiBDSMCommand extends GelbooruAbstract {
 
     public HentaiBDSMCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -30,7 +30,7 @@ public class HentaiBDSMCommand extends Rule34HentaiAbstract {
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("yaoi", "yuri", "shemale", "lesbian", "gay", "futa", "futanari", "trap", "otoko_no_ko"));
+        filters.addAll(Set.of("yaoi", "yuri", "futa", "futanari", "trap", "otoko_no_ko"));
         return filters;
     }
 

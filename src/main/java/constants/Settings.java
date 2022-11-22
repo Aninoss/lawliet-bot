@@ -17,7 +17,8 @@ public interface Settings {
 
     String[] NSFW_FILTERS = {
             "loli", "shota", "lolicon", "shotacon", "cub", "children", "child", "kid", "kids", "teen",
-            "teenager", "young", "younger", "underage", "under_age", "cunny", "flat_chest", "flat_chested", // minors
+            "teenager", "young", "younger", "underage", "under_age", "cunny", "flat_chest", "flat_chested",
+            "age_difference", "small_breasts", // minors
 
             "tagme", // unsafe
 

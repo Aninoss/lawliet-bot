@@ -275,6 +275,7 @@ public class CommandContainer {
         commandList.add(Rule34Command.class);
         commandList.add(RealbooruCommand.class);
         commandList.add(E621Command.class);
+        commandList.add(GelbooruCommand.class);
         commandList.add(DanbooruCommand.class);
         //commandList.add(KonachanCommand.class);
         commandList.add(RealLifePornCommand.class);

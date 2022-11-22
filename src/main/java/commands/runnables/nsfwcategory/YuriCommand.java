@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.Rule34HentaiAbstract;
+import commands.runnables.GelbooruAbstract;
 
 @CommandProperties(
         trigger = "yuri",
@@ -14,7 +14,7 @@ import commands.runnables.Rule34HentaiAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false
 )
-public class YuriCommand extends Rule34HentaiAbstract {
+public class YuriCommand extends GelbooruAbstract {
 
     public YuriCommand(Locale locale, String prefix) {
         super(locale, prefix);

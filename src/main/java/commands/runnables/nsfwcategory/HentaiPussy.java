@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.DanbooruAbstract;
+import commands.runnables.GelbooruAbstract;
 
 @CommandProperties(
         trigger = "hpussy",
@@ -15,7 +15,7 @@ import commands.runnables.DanbooruAbstract;
         requiresEmbeds = false,
         aliases = { "hentaipussy", "hvagina", "hentaivagina" }
 )
-public class HentaiPussy extends DanbooruAbstract {
+public class HentaiPussy extends GelbooruAbstract {
 
     public HentaiPussy(Locale locale, String prefix) {
         super(locale, prefix);
@@ -23,17 +23,16 @@ public class HentaiPussy extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "pussy solo -sex -breasts -anal -ass";
+        return "pussy solo";
     }
 
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("1boy", "vaginal", "dildo", "2boys", "sex", "oral", "penetration", "anal", "fellatio",
-                "deep_penetration", "machine", "electrostimulation", "anilingus", "double_anal", "double_penetration",
-                "toy", "face_fuck", "censored", "ass", "breasts", "pregnant", "nipples", "cigarette", "cartoon",
-                "riding", "strap-on", "large_insertion", "vaginal_insertion", "gaping", "pee", "peeing", "piss",
-                "pissing", "futa", "futanari", "penis"));
+        filters.addAll(Set.of("1boy", "vaginal", "dildo", "2boys", "sex", "oral", "anal", "fellatio", "deep_penetration",
+                "machinery", "electrostimulation", "anilingus", "double_anal", "double_penetration",
+                "toy", "facefuck", "censored", "ass", "breasts", "pregnant", "nipples", "cigarette", "riding",
+                "strap-on", "large_insertion", "vaginal_insertion", "futa", "futanari", "penis"));
         return filters;
     }
 

@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.DanbooruAbstract;
+import commands.runnables.GelbooruAbstract;
 
 @CommandProperties(
         trigger = "bara",
@@ -14,7 +14,7 @@ import commands.runnables.DanbooruAbstract;
         maxCalculationTimeSec = 5 * 60,
         requiresEmbeds = false
 )
-public class BaraCommand extends DanbooruAbstract {
+public class BaraCommand extends GelbooruAbstract {
 
     public BaraCommand(Locale locale, String prefix) {
         super(locale, prefix);

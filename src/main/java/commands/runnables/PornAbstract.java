@@ -243,7 +243,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     private boolean checkServiceAvailable() {
         try {
-            return booruImageDownloader.getPicture(0L, getDomain(), "", false, isExplicit(), false, Collections.emptySet(), Collections.emptyList(), true).get().isPresent();
+            return booruImageDownloader.getPicture(0L, getDomain(), "", false, isExplicit(), false, Collections.emptySet(), Collections.emptyList(), true)
+                    .get()
+                    .isPresent();
         } catch (InterruptedException | ExecutionException | NoSuchElementException | JsonProcessingException e) {
             //Ignore
             return false;

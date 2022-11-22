@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import commands.listeners.CommandProperties;
-import commands.runnables.DanbooruAbstract;
+import commands.runnables.GelbooruAbstract;
 
 @CommandProperties(
         trigger = "neko",
@@ -15,7 +15,7 @@ import commands.runnables.DanbooruAbstract;
         requiresEmbeds = false,
         aliases = { "nekogirl", "nekogirls", "catgirl", "catgirls" }
 )
-public class NekoCommand extends DanbooruAbstract {
+public class NekoCommand extends GelbooruAbstract {
 
     public NekoCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -23,13 +23,13 @@ public class NekoCommand extends DanbooruAbstract {
 
     @Override
     protected String getSearchKey() {
-        return "cat_girl rating:e";
+        return "cat_ears 1girl";
     }
 
     @Override
     protected Set<String> getAdditionalFilters() {
         HashSet<String> filters = new HashSet<>(super.getAdditionalFilters());
-        filters.addAll(Set.of("yaoi", "yuri", "shemale", "lesbian", "gay", "futa", "futanari", "trap", "otoko_no_ko"));
+        filters.addAll(Set.of("yaoi", "yuri", "futa", "futanari", "trap", "otoko_no_ko"));
         return filters;
     }
 
