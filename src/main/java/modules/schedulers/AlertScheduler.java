@@ -130,7 +130,10 @@ public class AlertScheduler {
 
                     case CONTINUE_AND_SAVE:
                         Instant minIntervalInstant = Instant.now().plus(slot.getMinInterval(), ChronoUnit.MINUTES);
-                        if (minIntervalInstant.isAfter(slot.getNextRequest())) {
+                        if (slot.getMinInterval() > 0 &&
+                                minIntervalInstant.isAfter(slot.getNextRequest()) &&
+                                ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
+                        ) {
                             slot.setNextRequest(minIntervalInstant);
                         }
                         slot.save();
