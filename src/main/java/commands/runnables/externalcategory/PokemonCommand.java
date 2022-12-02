@@ -1,5 +1,7 @@
 package commands.runnables.externalcategory;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +47,7 @@ public class PokemonCommand extends Command {
     }
 
     public static Pokemon fetchPokemon(String searchKey) throws ExecutionException, InterruptedException {
-        HttpResponse response = HttpCache.get("https://www.pokewiki.de/" + searchKey.replace(" ", "%20"), Duration.ofDays(1)).get();
+        HttpResponse response = HttpCache.get("https://www.pokewiki.de/" + URLEncoder.encode(searchKey.replace(" ", "_"), StandardCharsets.UTF_8), Duration.ofDays(1)).get();
         if (response.getCode() != 200 || response.getBody() == null) {
             return null;
         }
