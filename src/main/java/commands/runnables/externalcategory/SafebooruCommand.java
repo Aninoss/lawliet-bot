@@ -24,7 +24,7 @@ public class SafebooruCommand extends PornSearchAbstract {
     }
 
     @Override
-    public boolean isExplicit() {
+    public boolean mustBeExplicit() {
         return false;
     }
 

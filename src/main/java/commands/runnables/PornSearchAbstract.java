@@ -46,7 +46,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
         nsfwFilters = new HashSet<>(nsfwFilters);
         nsfwFilters.addAll(getAdditionalFilters());
 
-        return downloadPorn(guildId, nsfwFilters, amount, getDomain(), search, false, isExplicit(),
+        return downloadPorn(guildId, nsfwFilters, amount, getDomain(), search, false, mustBeExplicit(),
                 canBeVideo, usedResults);
     }
 

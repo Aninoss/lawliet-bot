@@ -39,6 +39,11 @@ public class HentaiAssCommand extends DanbooruAbstract {
     }
 
     @Override
+    public boolean mustBeExplicit() {
+        return false;
+    }
+
+    @Override
     protected boolean isAnimatedOnly() {
         return false;
     }

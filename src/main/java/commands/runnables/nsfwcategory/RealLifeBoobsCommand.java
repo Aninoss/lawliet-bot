@@ -39,6 +39,11 @@ public class RealLifeBoobsCommand extends RealbooruAbstract {
     }
 
     @Override
+    public boolean mustBeExplicit() {
+        return false;
+    }
+
+    @Override
     protected boolean isAnimatedOnly() {
         return false;
     }

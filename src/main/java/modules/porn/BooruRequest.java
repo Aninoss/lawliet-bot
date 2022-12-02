@@ -11,7 +11,7 @@ public class BooruRequest {
     private String imageTemplate;
     private boolean animatedOnly;
     private boolean canBeVideo;
-    private boolean explicit;
+    private boolean mustBeExplicit;
     private boolean test;
     private List<String> filters;
     private List<String> skippedResults;
@@ -51,8 +51,8 @@ public class BooruRequest {
         return this;
     }
 
-    public BooruRequest setExplicit(boolean explicit) {
-        this.explicit = explicit;
+    public BooruRequest setMustBeExplicit(boolean mustBeExplicit) {
+        this.mustBeExplicit = mustBeExplicit;
         return this;
     }
 
@@ -99,8 +99,8 @@ public class BooruRequest {
         return canBeVideo;
     }
 
-    public boolean getExplicit() {
-        return explicit;
+    public boolean getMustBeExplicit() {
+        return mustBeExplicit;
     }
 
     public boolean getTest() {

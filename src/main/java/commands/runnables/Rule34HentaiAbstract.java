@@ -24,7 +24,7 @@ public abstract class Rule34HentaiAbstract extends PornPredefinedAbstract {
     }
 
     @Override
-    public boolean isExplicit() {
+    public boolean mustBeExplicit() {
         return true;
     }
 

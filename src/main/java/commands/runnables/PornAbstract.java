@@ -66,7 +66,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     public abstract List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount, ArrayList<String> usedResults, boolean canBeVideo) throws Exception;
 
-    public abstract boolean isExplicit();
+    public abstract boolean mustBeExplicit();
 
     public abstract String getDomain();
 
@@ -243,7 +243,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     private boolean checkServiceAvailable() {
         try {
-            return booruImageDownloader.getPicture(0L, getDomain(), "", false, isExplicit(), false, Collections.emptySet(), Collections.emptyList(), true).get().isPresent();
+            return booruImageDownloader.getPicture(0L, getDomain(), "", false, mustBeExplicit(), false, Collections.emptySet(), Collections.emptyList(), true).get().isPresent();
         } catch (InterruptedException | ExecutionException | NoSuchElementException | JsonProcessingException e) {
             //Ignore
             return false;
@@ -419,7 +419,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
     }
 
     protected List<BooruImage> downloadPorn(long guildId, Set<String> nsfwFilter, int amount, String domain,
-                                            String search, boolean animatedOnly, boolean explicit, boolean canBeVideo,
+                                            String search, boolean animatedOnly, boolean mustBeExplicit, boolean canBeVideo,
                                             ArrayList<String> usedResults) throws IllegalTagException {
         if (NSFWUtil.stringContainsBannedTags(search, nsfwFilter)) {
             throw new IllegalTagException();
@@ -431,7 +431,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         for (int i = 0; i < amount; i++) {
             try {
                 futures.add(
-                        booruImageDownloader.getPicture(guildId, domain, search, animatedOnly, explicit, canBeVideo, nsfwFilter, usedResults, false)
+                        booruImageDownloader.getPicture(guildId, domain, search, animatedOnly, mustBeExplicit, canBeVideo, nsfwFilter, usedResults, false)
                 );
             } catch (ExecutionException | JsonProcessingException e) {
                 MainLogger.get().error("Error while downloading porn", e);

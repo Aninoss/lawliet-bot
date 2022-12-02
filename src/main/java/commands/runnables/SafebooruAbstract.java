@@ -14,7 +14,7 @@ public abstract class SafebooruAbstract extends PornPredefinedAbstract {
     }
 
     @Override
-    public boolean isExplicit() {
+    public boolean mustBeExplicit() {
         return false;
     }
 

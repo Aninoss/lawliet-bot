@@ -20,7 +20,7 @@ public abstract class DanbooruAbstract extends PornPredefinedAbstract {
     }
 
     @Override
-    public boolean isExplicit() {
+    public boolean mustBeExplicit() {
         return true;
     }
 

@@ -25,8 +25,8 @@ public class Rule34Command extends PornSearchAbstract {
     }
 
     @Override
-    public boolean isExplicit() {
-        return true;
+    public boolean mustBeExplicit() {
+        return false;
     }
 
 }

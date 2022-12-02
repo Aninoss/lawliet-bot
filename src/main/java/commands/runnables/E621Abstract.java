@@ -14,7 +14,7 @@ public abstract class E621Abstract extends PornPredefinedAbstract {
     }
 
     @Override
-    public boolean isExplicit() {
+    public boolean mustBeExplicit() {
         return true;
     }
 
