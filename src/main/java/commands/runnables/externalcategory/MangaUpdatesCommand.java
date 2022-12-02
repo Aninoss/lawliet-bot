@@ -84,7 +84,7 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
             JSONObject jsonObject = new JSONObject(slot.getArgs().get());
             long seriesId = jsonObject.getLong("series_id");
             String title = jsonObject.getString("title");
-            String image = jsonObject.getString("image");
+            String image = jsonObject.has("image") ? jsonObject.getString("image") : null;
             String url = jsonObject.getString("url");
             boolean nsfw = jsonObject.getBoolean("nsfw");
             recentRelease = jsonObject.getString("recent_release");
