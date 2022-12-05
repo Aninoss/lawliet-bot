@@ -41,6 +41,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("dev_votes", Console::onDevVotes);
         tasks.put("mute_refresh", Console::onMuteRefresh);
         tasks.put("clean_guilds", Console::onCleanGuilds);
         tasks.put("alerts_reset", Console::onAlertsReset);
@@ -82,6 +83,11 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onDevVotes(String[] args) throws InterruptedException {
+        MainLogger.get().info("Processing development votes reminders");
+        DevelopmentVotesReminder.execute();
     }
 
     private static void onMuteRefresh(String[] args) {

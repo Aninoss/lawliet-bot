@@ -284,7 +284,8 @@ DROP TABLE IF EXISTS `DevVotesReminders`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `DevVotesReminders` (
   `userId` bigint unsigned NOT NULL,
-  `active` tinyint unsigned NOT NULL DEFAULT '1',
+  `active` tinyint unsigned DEFAULT NULL,
+  `locale` varchar(5) COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1422,4 +1423,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-11-30 15:45:18
+-- Dump completed on 2022-12-02 16:28:25
