@@ -41,6 +41,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("dev_votes_results", Console::onDevVotesResults);
         tasks.put("dev_votes", Console::onDevVotes);
         tasks.put("mute_refresh", Console::onMuteRefresh);
         tasks.put("clean_guilds", Console::onCleanGuilds);
@@ -85,9 +86,14 @@ public class Console {
         tasks.put("send_channel", Console::onSendChannel);
     }
 
+    private static void onDevVotesResults(String[] args) throws InterruptedException {
+        MainLogger.get().info("Processing development votes results reminders");
+        DevelopmentVotesReminder.executeResultsNotification();
+    }
+
     private static void onDevVotes(String[] args) throws InterruptedException {
         MainLogger.get().info("Processing development votes reminders");
-        DevelopmentVotesReminder.execute();
+        DevelopmentVotesReminder.executeVoteNotification();
     }
 
     private static void onMuteRefresh(String[] args) {
@@ -269,7 +275,8 @@ public class Console {
         long userId = Long.parseLong(args[1]);
         ShardManager.fetchUserById(userId)
                 .exceptionally(ExceptionLogger.get())
-                .thenAccept(user -> MainLogger.get().info("{} => {} (Premium: {}; Old: {})",
+                .thenAccept(user -> MainLogger.get().info(
+                        "{} => {} (Premium: {}; Old: {})",
                         user.getId(),
                         user.getAsTag(),
                         PatreonCache.getInstance().hasPremium(user.getIdLong(), false),
@@ -295,7 +302,8 @@ public class Console {
         ShardManager.getLocalGuildById(serverId).ifPresent(guild ->
                 MainLogger.get().info("{} | Members: {} | Owner: {} | Shard {} | Premium: {}", guild.getName(),
                         guild.getMemberCount(), guild.getOwner().getUser().getAsTag(),
-                        guild.getJDA().getShardInfo().getShardId(), PatreonCache.getInstance().isUnlocked(serverId))
+                        guild.getJDA().getShardInfo().getShardId(), PatreonCache.getInstance().isUnlocked(serverId)
+                )
         );
     }
 
