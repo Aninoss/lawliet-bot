@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -43,8 +44,6 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -177,11 +176,22 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                 }
             }
 
-            amount -= pornImages.size();
             first = false;
+            String messageContent = null;
 
-            Optional<MessageCreateData> messageTemplateOpt = generatePostMessagesText(pornImages, event.getTextChannel(), MAX_FILES_PER_MESSAGE);
-            if (messageTemplateOpt.isPresent()) {
+            while (pornImages.size() > 0) {
+                messageContent = generatePostMessagesText(pornImages, event.getTextChannel(), MAX_FILES_PER_MESSAGE);
+                if (messageContent == null || messageContent.length() < 2000) {
+                    break;
+                } else {
+                    pornImages = pornImages.stream()
+                            .limit(pornImages.size() - 1)
+                            .collect(Collectors.toList());
+                }
+            }
+            amount -= pornImages.size();
+
+            if (messageContent != null) {
                 ArrayList<ActionRow> actionRows = new ArrayList<>(ActionRows.of(generateButtons(pornImages)));
                 if (amount <= 0) {
                     Button loadMoreButton = generateLoadMoreButton(patreon);
@@ -190,7 +200,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
                 setActionRows(actionRows);
                 boolean registerButton = amount <= 0 && patreon;
-                drawMessageNew(messageTemplateOpt.get().getContent())
+                drawMessageNew(messageContent)
                         .thenAccept(message -> {
                             if (registerButton) {
                                 setDrawMessage(message);
@@ -358,21 +368,21 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         }
 
         List<Button> messageButtons = generateButtons(pornImages);
-        generatePostMessagesText(pornImages, channel, 1)
-                .ifPresent(message -> {
-                    try {
-                        slot.sendMessage(true, message.getContent(), ActionRow.of(messageButtons));
-                    } catch (InterruptedException e) {
-                        //Ignore
-                    }
-                });
+        String messageContent;
+        if ((messageContent = generatePostMessagesText(pornImages, channel, 1)) != null) {
+            try {
+                slot.sendMessage(true, messageContent, ActionRow.of(messageButtons));
+            } catch (InterruptedException e) {
+                //Ignore
+            }
+        }
 
         slot.setArgs("found");
         slot.setNextRequest(Instant.now().plus(10, ChronoUnit.MINUTES));
         return AlertResponse.CONTINUE_AND_SAVE;
     }
 
-    private Optional<MessageCreateData> generatePostMessagesText(List<BooruImage> pornImages, StandardGuildMessageChannel channel, int max) {
+    private String generatePostMessagesText(List<BooruImage> pornImages, StandardGuildMessageChannel channel, int max) {
         StringBuilder sb = new StringBuilder(TextManager.getString(getLocale(), Category.NSFW, "porn_title",
                 getCommandProperties().emoji(), TextManager.getString(getLocale(), getCategory(), getTrigger() + "_title"),
                 getPrefix(), getTrigger()
@@ -410,12 +420,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         }
 
         if (BotPermissionUtil.canWrite(channel)) {
-            MessageCreateData message = new MessageCreateBuilder()
-                    .addContent(sb.toString())
-                    .build();
-            return Optional.of(message);
+            return sb.toString();
         }
-        return Optional.empty();
+        return null;
     }
 
     protected List<BooruImage> downloadPorn(long guildId, Set<String> nsfwFilter, int amount, String domain,
