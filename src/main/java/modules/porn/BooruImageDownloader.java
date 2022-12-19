@@ -29,6 +29,7 @@ public class BooruImageDownloader {
                 .setMustBeExplicit(mustBeExplicit)
                 .setCanBeVideo(canBeVideo)
                 .setFilters(List.copyOf(filters))
+                .setStrictFilters(List.of(Settings.NSFW_STRICT_FILTERS))
                 .setSkippedResults(skippedResults)
                 .setTest(test);
 

@@ -14,6 +14,7 @@ public class BooruRequest {
     private boolean mustBeExplicit;
     private boolean test;
     private List<String> filters;
+    private List<String> strictFilters;
     private List<String> skippedResults;
 
     public BooruRequest setGuildId(long guildId) {
@@ -58,6 +59,11 @@ public class BooruRequest {
 
     public BooruRequest setFilters(List<String> filters) {
         this.filters = filters;
+        return this;
+    }
+
+    public BooruRequest setStrictFilters(List<String> strictFilters) {
+        this.strictFilters = strictFilters;
         return this;
     }
 
@@ -109,6 +115,10 @@ public class BooruRequest {
 
     public List<String> getFilters() {
         return filters;
+    }
+
+    public List<String> getStrictFilters() {
+        return strictFilters;
     }
 
     public List<String> getSkippedResults() {

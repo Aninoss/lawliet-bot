@@ -23,11 +23,13 @@ public interface Settings {
 
             "bestiality", "beastiality", "zoophilia", // animals
 
-            "gore", "guro", "dismemberment", "death", "decapitation", "eye_socket", "necrophilia", "rape", "raped",
+            "gore", "guro", "dismemberment", "death_by", "decapitation", "eye_socket", "necrophilia", "rape", "raped",
             "gangrape", "gross", "bruise", "bruised", "bruises", "asphyxiation", "strangling", "strangled", "torture",
-            "tortured", "corpse", "scat", "suicide", // NSFL
+            "tortured", "corpse", "scat", "suicide", // violence
 
             "celebrity", "celeb" // non-consensual publications
     };
+
+    String[] NSFW_STRICT_FILTERS = { "death" };
 
 }
