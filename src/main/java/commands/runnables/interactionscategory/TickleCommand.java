@@ -23,7 +23,8 @@ public class TickleCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736274285764542565/736274329494618213/tickle.gif",
                 "https://cdn.discordapp.com/attachments/736274285764542565/736274332023652482/tickle.gif",
                 "https://cdn.discordapp.com/attachments/736274285764542565/736274342559612958/tickle.gif",
-                "https://cdn.discordapp.com/attachments/736274285764542565/736274347186061422/tickle.gif"
+                "https://cdn.discordapp.com/attachments/736274285764542565/736274347186061422/tickle.gif",
+                "https://cdn.discordapp.com/attachments/736274285764542565/1054423496878473226/tickle.gif"
         );
     }
 
