@@ -310,7 +310,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 .addField(getString("state0_mannouncement"), StringUtil.escapeMarkdown(ticketData.getAnnouncementTextChannel().map(GuildChannel::getAsMention).orElse(notSet)), true)
                 .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true)
                 .addField(getString("state0_mproperties"), generateBooleanAttributesField(), false)
-                .addField(getString("state0_mcreatemessage"), StringUtil.escapeMarkdown(ticketData.getCreateMessage().orElse(notSet)), false);
+                .addField(getString("state0_mcreatemessage"), StringUtil.shortenString(StringUtil.escapeMarkdown(ticketData.getCreateMessage().orElse(notSet)), 1024), false);
     }
 
     private String generateBooleanAttributesField() {
