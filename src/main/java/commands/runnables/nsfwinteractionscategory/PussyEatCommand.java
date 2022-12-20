@@ -25,7 +25,13 @@ public class PussyEatCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/964484282984857610/964484953062670336/pussyeat.gif",
                 "https://cdn.discordapp.com/attachments/964484282984857610/964484985551740948/pussyeat.gif",
                 "https://cdn.discordapp.com/attachments/964484282984857610/964485018485399622/pussyeat.gif",
-                "https://cdn.discordapp.com/attachments/964484282984857610/964485051599446016/pussyeat.gif"
+                "https://cdn.discordapp.com/attachments/964484282984857610/964485051599446016/pussyeat.gif",
+                "https://cdn.discordapp.com/attachments/964484282984857610/1054775394622001182/pussyeat.gif",
+                "https://cdn.discordapp.com/attachments/964484282984857610/1054775458006306986/pussyeat.gif",
+                "https://cdn.discordapp.com/attachments/964484282984857610/1054775530748133486/pussyeat.gif",
+                "https://cdn.discordapp.com/attachments/964484282984857610/1054775595931795486/pussyeat.gif",
+                "https://cdn.discordapp.com/attachments/964484282984857610/1054775652936601620/pussyeat.gif",
+                "https://cdn.discordapp.com/attachments/964484282984857610/1054775911792246845/pussyeat.gif"
         );
     }
 
