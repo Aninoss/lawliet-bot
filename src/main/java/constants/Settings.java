@@ -25,7 +25,7 @@ public interface Settings {
 
             "gore", "guro", "dismemberment", "death_by", "decapitation", "eye_socket", "necrophilia", "rape", "raped",
             "gangrape", "gross", "bruise", "bruised", "bruises", "asphyxiation", "strangling", "strangled", "torture",
-            "tortured", "corpse", "scat", "suicide", // violence
+            "tortured", "corpse", "scat", "suicide", "deceased", // violence
 
             "celebrity", "celeb" // non-consensual publications
     };
