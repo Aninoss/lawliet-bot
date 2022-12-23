@@ -49,7 +49,7 @@ public class ReminderWork implements ExceptionRunnable {
                         FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guild.getIdLong());
                         process(fisheryGuildData, guild, subMap, actions, reminderGuildMap);
                     } catch (Throwable e) {
-                        MainLogger.get().error("Could not manage auto work", e);
+                        MainLogger.get().error("Could not process auto work", e);
                     }
                 });
         MainLogger.get().info("Auto Work - {} Actions", actions.get());

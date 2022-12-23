@@ -24,10 +24,12 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import events.scheduleevents.events.FisheryVoiceChannelObserver;
+import modules.fishery.ExchangeRate;
 import modules.fishery.FisheryGear;
 import modules.fishery.Stock;
 import modules.fishery.StockMarket;
 import mysql.RedisManager;
+import mysql.modules.autosell.DBAutoSell;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -491,10 +493,10 @@ public class FisheryMemberData implements MemberAsset {
             Response<String> coinsResp = pipeline.hget(KEY_ACCOUNT, FIELD_COINS);
             pipeline.sync();
 
+            long fish = Math.max(Math.min(RedisManager.parseLong(fishResp.get()) + fishAdd, Settings.FISHERY_MAX), 0);
             pipeline = jedis.pipelined();
 
             if (fishAdd != 0) {
-                long fish = Math.max(Math.min(RedisManager.parseLong(fishResp.get()) + fishAdd, Settings.FISHERY_MAX), 0);
                 pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
                 if (fishAdd > 0) {
                     long recentFishGainsRaw = Math.min(RedisManager.parseLong(recentFishGainsRawResp.get()) + fishAdd, Settings.FISHERY_MAX);
@@ -698,6 +700,21 @@ public class FisheryMemberData implements MemberAsset {
             pipeline.hdel(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, keysRemove);
             pipeline.sync();
         });
+    }
+
+    public boolean processAutoSell() {
+        Integer autoSellThreshold = DBAutoSell.getInstance().retrieve().getThreshold(memberId);
+        int exchangeRate = ExchangeRate.get(0);
+
+        if (autoSellThreshold != null && exchangeRate >= autoSellThreshold) {
+            long fish = getFish();
+            if (fish > 0) {
+                changeValues(-fish, fish * exchangeRate);
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }
