@@ -2,10 +2,12 @@ package events.scheduleevents.events;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.Map;
 import constants.ExceptionRunnable;
 import constants.ExternalLinks;
-import constants.Language;
 import core.*;
 import core.cache.PatreonCache;
 import core.utils.JDAUtil;
@@ -79,7 +81,7 @@ public class DevelopmentVotesReminder implements ExceptionRunnable {
                 DevVotesSlot slot = devVotesSlotMap.getOrDefault(userId, new DevVotesSlot(userId));
                 if (slot.isActive()) {
                     MainLogger.get().info("Sending development votes results notification to {}", userId);
-                    Locale locale = Language.EN.getLocale(); //TODO: modify
+                    Locale locale = slot.getLocale();
                     LocalDate nextDate = LocalDate.of(
                             Calendar.getInstance().get(Calendar.YEAR),
                             Calendar.getInstance().get(Calendar.MONTH) + 1,
