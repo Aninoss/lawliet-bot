@@ -9,6 +9,7 @@ import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.utils.CommandUtil;
+import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -42,7 +43,7 @@ public class SayCommand extends Command {
                 ? event.getMessageReceivedEvent().getMessage().getAttachments()
                 : Collections.emptyList();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setDescription(args)
+                .setDescription(StringUtil.shortenString(args, 4096))
                 .setFooter(getString("author", event.getMember().getUser().getAsTag()));
 
         Map<String, InputStream> fileAttachmentMap = new HashMap<>();
