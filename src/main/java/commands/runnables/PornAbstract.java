@@ -393,14 +393,16 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             if (tags != null) {
                 sb.append(TextManager.getString(getLocale(), Category.NSFW, "porn_tags"))
                         .append(" ");
+                StringBuilder tagsStringBuilder = new StringBuilder();
                 for (int i = 0; i < tags.size(); i++) {
                     if (i > 0) {
-                        sb.append(", ");
+                        tagsStringBuilder.append(", ");
                     }
-                    sb.append("`")
+                    tagsStringBuilder.append("`")
                             .append(tags.get(i))
                             .append("`");
                 }
+                sb.append(StringUtil.shortenString(tagsStringBuilder.toString(), 100));
                 sb.append("\n");
             }
         }
