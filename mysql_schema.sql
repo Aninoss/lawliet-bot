@@ -249,6 +249,39 @@ CREATE TABLE `CMOff` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `CasinoStats`
+--
+
+DROP TABLE IF EXISTS `CasinoStats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `CasinoStats` (
+  `id` varchar(30) COLLATE utf8mb4_general_ci NOT NULL,
+  `serverId` bigint unsigned NOT NULL,
+  `userId` bigint unsigned NOT NULL,
+  `game` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `won` tinyint unsigned NOT NULL,
+  `value` bigint unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `CasinoStatsServerBase` (`serverId`),
+  CONSTRAINT `CasinoStatsServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `CasinoTracking`
+--
+
+DROP TABLE IF EXISTS `CasinoTracking`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `CasinoTracking` (
+  `userId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `CommandUsages`
 --
 
@@ -367,7 +400,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=793 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=806 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1437,4 +1470,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-12-21 10:50:30
+-- Dump completed on 2023-01-11 15:56:28

@@ -157,6 +157,7 @@ public class CommandContainer {
         commandList.add(StocksCommand.class);
 
         //CASINO
+        commandList.add(CasinoStatsCommand.class);
         commandList.add(CoinFlipCommand.class);
         commandList.add(HangmanCommand.class);
         commandList.add(SlotCommand.class);

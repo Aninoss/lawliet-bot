@@ -124,7 +124,7 @@ public class TowerCommand extends CasinoAbstract {
         if (towerMultiplier > 1) {
             win(member, towerMultiplier - 1);
         } else {
-            endGame(member);
+            tie(member);
         }
         setLog(LogStatus.WIN, getString("win", StringUtil.doubleToString(towerMultiplier, 2, getLocale())));
     }

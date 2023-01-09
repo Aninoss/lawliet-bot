@@ -5,6 +5,7 @@ import commands.CommandContainer
 import commands.CommandManager
 import commands.runnables.CasinoAbstract
 import commands.runnables.CasinoMultiplayerAbstract
+import commands.runnables.casinocategory.CasinoStatsCommand
 import commands.runnables.casinocategory.CoinFlipCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
@@ -27,7 +28,7 @@ class CasinoAdapter : SlashAdapter() {
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         for (clazz in CommandContainer.getFullCommandList()) {
             val command = CommandManager.createCommandByClass(clazz, Language.EN.locale, "/")
-            if (command.category == Category.CASINO) {
+            if (command.category == Category.CASINO && command !is CasinoStatsCommand) {
                 val subcommandData = SubcommandData(command.commandProperties.trigger, command.commandLanguage.descShort)
                 if (command is CasinoMultiplayerAbstract ||
                     command is CasinoAbstract && command.allowBet()

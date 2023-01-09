@@ -16,6 +16,8 @@ import core.TextManager;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.FisheryStatus;
+import mysql.modules.casinostats.DBCasinoStats;
+import mysql.modules.casinotracking.DBCasinoTracking;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.gamestatistics.DBGameStatistics;
@@ -146,6 +148,14 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         }
     }
 
+    protected void tie(Member member) {
+        endGame(member);
+        if (DBCasinoTracking.getInstance().retrieve().isActive(member.getIdLong()) && coinsInput > 0) {
+            DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(member.getGuild().getIdLong(), member.getIdLong()))
+                    .add(getTrigger(), false, 0);
+        }
+    }
+
     protected void lose(Member member) {
         lose(member, true);
     }
@@ -157,10 +167,16 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         if (coinsInput > 0 && useCalculatedMultiplicator) {
             DBGameStatistics.getInstance().retrieve(compareKey).addValue(false, 1);
         }
+
         EmbedBuilder eb = DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get())
                 .changeValuesEmbed(member, 0, -coinsInput);
         if (coinsInput > 0) {
             setAdditionalEmbeds(eb.build());
+        }
+
+        if (DBCasinoTracking.getInstance().retrieve().isActive(member.getIdLong()) && coinsInput > 0) {
+            DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(member.getGuild().getIdLong(), member.getIdLong()))
+                    .add(getTrigger(), false, coinsInput);
         }
     }
 
@@ -196,10 +212,16 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             if (won > 0 && lost > 0) multiplicator = lost / won;
         }
 
+        long valueWon = (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR);
         EmbedBuilder eb = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
-                .changeValuesEmbed(member, 0, (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR));
+                .changeValuesEmbed(member, 0, valueWon);
         if (coinsInput > 0) {
             setAdditionalEmbeds(eb.build());
+        }
+
+        if (DBCasinoTracking.getInstance().retrieve().isActive(member.getIdLong()) && coinsInput > 0) {
+            DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(member.getGuild().getIdLong(), member.getIdLong()))
+                    .add(getTrigger(), true, valueWon);
         }
     }
 
@@ -255,6 +277,11 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 FisheryMemberData memberData = DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get());
                 memberData.addCoinsHidden(-coinsInput);
                 memberData.changeValues(0, -coinsInput);
+
+                if (DBCasinoTracking.getInstance().retrieve().isActive(getMemberId().get()) && coinsInput > 0) {
+                    DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(getGuildId().get(), getMemberId().get()))
+                            .add(getTrigger(), false, coinsInput);
+                }
             });
         }
     }

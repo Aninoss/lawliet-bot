@@ -30,6 +30,7 @@ import modules.fishery.Stock;
 import modules.fishery.StockMarket;
 import mysql.RedisManager;
 import mysql.modules.autosell.DBAutoSell;
+import mysql.modules.casinostats.DBCasinoStats;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -684,6 +685,7 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public void remove() {
+        DBCasinoStats.getInstance().removeMember(getGuildId(), getMemberId());
         RedisManager.update(jedis -> {
             List<Map.Entry<String, String>> recentFishGainsRaw = RedisManager.hscan(jedis, getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW);
 

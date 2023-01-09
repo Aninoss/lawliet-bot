@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import core.MainLogger;
 import mysql.DBDataLoad;
-import mysql.MySQLManager;
 import mysql.DBMapCache;
+import mysql.MySQLManager;
 import mysql.RedisManager;
 import redis.clients.jedis.Pipeline;
 

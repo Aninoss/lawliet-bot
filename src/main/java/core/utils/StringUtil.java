@@ -1,5 +1,6 @@
 package core.utils;
 
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -262,6 +263,11 @@ public final class StringUtil {
             if (Character.isDigit(c)) return true;
         }
         return false;
+    }
+
+    public static String numToString(BigInteger n) {
+        DecimalFormat formatter = new DecimalFormat("#,###", DecimalFormatSymbols.getInstance(Locale.US));
+        return formatter.format(n).replace(",", " ");
     }
 
     public static String numToString(long n) {

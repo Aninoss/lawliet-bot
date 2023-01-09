@@ -133,7 +133,7 @@ public class BlackjackCommand extends CasinoAbstract {
                         };
 
                         if (points[0] == points[1]) {
-                            endGame(member);
+                            tie(member);
                             drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
                         } else if (points[0] < points[1]) {
                             win(member);

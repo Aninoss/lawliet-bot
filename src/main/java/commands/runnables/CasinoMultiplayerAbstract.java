@@ -19,6 +19,8 @@ import core.mention.Mention;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.FisheryStatus;
+import mysql.modules.casinostats.DBCasinoStats;
+import mysql.modules.casinotracking.DBCasinoTracking;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -232,8 +234,16 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
                 if (winners.contains(player)) {
                     fisheryMemberData.addCoinsRaw(price - coinsInput);
                     atomicMember.get().ifPresent(winnersMembers::add);
+                    if (DBCasinoTracking.getInstance().retrieve().isActive(atomicMember.getIdLong()) && coinsInput > 0) {
+                        DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(fisheryGuildData.getGuildId(), atomicMember.getIdLong()))
+                                .add(getTrigger(), true, price);
+                    }
                 } else {
                     fisheryMemberData.addCoinsRaw(-coinsInput);
+                    if (DBCasinoTracking.getInstance().retrieve().isActive(atomicMember.getIdLong()) && coinsInput > 0) {
+                        DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(fisheryGuildData.getGuildId(), atomicMember.getIdLong()))
+                                .add(getTrigger(), false, coinsInput);
+                    }
                 }
             } else if (winners.contains(player)) {
                 atomicMember.get().ifPresent(winnersMembers::add);
