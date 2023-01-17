@@ -52,6 +52,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     private boolean retryRequestAdded = false;
     private EmbedBuilder lastEmbedBuilder;
     private boolean hasCancelButton;
+    private boolean trackingActive;
 
     public CasinoAbstract(Locale locale, String prefix, boolean allowBet, boolean useCalculatedMultiplicator) {
         super(locale, prefix);
@@ -78,6 +79,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
 
             if (!allowBet) {
                 coinsInput = 0;
+                trackingActive = false;
                 registerButtonListener(event.getMember());
                 registerMessageInputListener(event.getMember(), false);
                 return true;
@@ -86,6 +88,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             FisheryStatus status = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getFisheryStatus();
             if (status != FisheryStatus.ACTIVE) {
                 coinsInput = 0;
+                trackingActive = false;
                 registerButtonListener(event.getMember());
                 registerMessageInputListener(event.getMember(), false);
                 return true;
@@ -96,6 +99,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             long value = Math.min(MentionUtil.getAmountExt(args, coins), coins);
             if (value == -1) {
                 coinsInput = (long) Math.ceil(coins * 0.1);
+                trackingActive = coinsInput > 0 && DBCasinoTracking.getInstance().retrieve().isActive(event.getUser().getIdLong());
                 memberBean.addCoinsHidden(coinsInput);
                 registerButtonListener(event.getMember());
                 registerMessageInputListener(event.getMember(), false);
@@ -104,6 +108,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
 
             if (value >= 0) {
                 coinsInput = value;
+                trackingActive = coinsInput > 0 && DBCasinoTracking.getInstance().retrieve().isActive(event.getUser().getIdLong());
                 memberBean.addCoinsHidden(coinsInput);
                 registerButtonListener(event.getMember());
                 registerMessageInputListener(event.getMember(), false);
@@ -150,7 +155,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
 
     protected void tie(Member member) {
         endGame(member);
-        if (DBCasinoTracking.getInstance().retrieve().isActive(member.getIdLong()) && coinsInput > 0) {
+        if (trackingActive) {
             DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(member.getGuild().getIdLong(), member.getIdLong()))
                     .add(getTrigger(), false, 0);
         }
@@ -174,7 +179,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             setAdditionalEmbeds(eb.build());
         }
 
-        if (DBCasinoTracking.getInstance().retrieve().isActive(member.getIdLong()) && coinsInput > 0) {
+        if (trackingActive) {
             DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(member.getGuild().getIdLong(), member.getIdLong()))
                     .add(getTrigger(), false, coinsInput);
         }
@@ -219,7 +224,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             setAdditionalEmbeds(eb.build());
         }
 
-        if (DBCasinoTracking.getInstance().retrieve().isActive(member.getIdLong()) && coinsInput > 0) {
+        if (trackingActive) {
             DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(member.getGuild().getIdLong(), member.getIdLong()))
                     .add(getTrigger(), true, valueWon);
         }
@@ -278,7 +283,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 memberData.addCoinsHidden(-coinsInput);
                 memberData.changeValues(0, -coinsInput);
 
-                if (DBCasinoTracking.getInstance().retrieve().isActive(getMemberId().get()) && coinsInput > 0) {
+                if (trackingActive) {
                     DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(getGuildId().get(), getMemberId().get()))
                             .add(getTrigger(), false, coinsInput);
                 }

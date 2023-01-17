@@ -1,5 +1,6 @@
 package mysql.modules.casinostats;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import mysql.DBDataLoad;
@@ -56,7 +57,7 @@ public class DBCasinoStats extends DBMapCache<DBCasinoStats.Key, CasinoStatsData
             preparedStatement.setLong(1, guildId);
             preparedStatement.setLong(2, userId);
         });
-        getCache().invalidate(new Key(guildId, userId));
+        getCache().put(new Key(guildId, userId), new CasinoStatsData(Collections.emptyList()));
     }
 
 

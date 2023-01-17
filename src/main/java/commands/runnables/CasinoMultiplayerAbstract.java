@@ -1,9 +1,6 @@
 package commands.runnables;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
@@ -49,6 +46,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
     private final long playersMin;
     private final long playersMax;
     private final ArrayList<AtomicMember> playerList = new ArrayList<>();
+    private final HashMap<Long, Boolean> trackingActiveMap = new HashMap<>();
 
     public CasinoMultiplayerAbstract(Locale locale, String prefix, long playersMin, long playersMax) {
         super(locale, prefix);
@@ -206,6 +204,11 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
                         .thenAccept(m -> m.delete().queue())
                         .exceptionally(ExceptionLogger.get());
                 onGameStart(getPlayerList());
+                playerList.forEach(atomicMember -> {
+                    trackingActiveMap.put(atomicMember.getIdLong(),
+                            coinsInput > 0 && DBCasinoTracking.getInstance().retrieve().isActive(atomicMember.getIdLong())
+                    );
+                });
                 status = Status.PLAYING;
                 return true;
             } else {
@@ -234,13 +237,13 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
                 if (winners.contains(player)) {
                     fisheryMemberData.addCoinsRaw(price - coinsInput);
                     atomicMember.get().ifPresent(winnersMembers::add);
-                    if (DBCasinoTracking.getInstance().retrieve().isActive(atomicMember.getIdLong()) && coinsInput > 0) {
+                    if (trackingActiveMap.get(atomicMember.getIdLong())) {
                         DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(fisheryGuildData.getGuildId(), atomicMember.getIdLong()))
-                                .add(getTrigger(), true, price);
+                                .add(getTrigger(), true, price - coinsInput);
                     }
                 } else {
                     fisheryMemberData.addCoinsRaw(-coinsInput);
-                    if (DBCasinoTracking.getInstance().retrieve().isActive(atomicMember.getIdLong()) && coinsInput > 0) {
+                    if (trackingActiveMap.get(atomicMember.getIdLong())) {
                         DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(fisheryGuildData.getGuildId(), atomicMember.getIdLong()))
                                 .add(getTrigger(), false, coinsInput);
                     }
