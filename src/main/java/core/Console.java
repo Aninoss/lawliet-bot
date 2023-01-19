@@ -1,5 +1,6 @@
 package core;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
@@ -7,9 +8,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import commands.CommandContainer;
 import commands.SlashCommandManager;
 import commands.runningchecker.RunningCheckerManager;
+import constants.AssetIds;
 import constants.Language;
 import core.cache.PatreonCache;
-import core.utils.*;
+import core.utils.ExceptionUtil;
+import core.utils.InternetUtil;
+import core.utils.JDAUtil;
+import core.utils.TimeUtil;
 import events.scheduleevents.events.*;
 import javafx.util.Pair;
 import modules.repair.MainRepair;
@@ -23,6 +28,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.utils.FileUpload;
+import org.json.JSONObject;
 
 public class Console {
 
@@ -41,6 +48,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("gdpr", Console::onGdpr);
         tasks.put("dev_votes_results", Console::onDevVotesResults);
         tasks.put("dev_votes", Console::onDevVotes);
         tasks.put("mute_refresh", Console::onMuteRefresh);
@@ -84,6 +92,19 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onGdpr(String[] args) throws SQLException, InterruptedException {
+        if (Program.getClusterId() == 1) {
+            long userId = Long.parseLong(args[1]);
+            String userTag = args[2];
+
+            JSONObject mySqlJson = GDPR.collectMySQLData(userId, userTag);
+            MainLogger.get().info("GDPR MySQL for {}:\n{}", userId, mySqlJson.toString());
+            JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), AssetIds.OWNER_USER_ID)
+                    .flatMap(messageChannel -> messageChannel.sendFiles(FileUpload.fromData(mySqlJson.toString().getBytes(StandardCharsets.UTF_8), "MySQL.json")))
+                    .queue();
+        }
     }
 
     private static void onDevVotesResults(String[] args) throws InterruptedException {
