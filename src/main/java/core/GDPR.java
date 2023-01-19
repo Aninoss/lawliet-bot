@@ -33,9 +33,9 @@ public class GDPR {
     }
 
     private static JSONArray collectMySQLDataFromTable(String table, long userId, String userTag) throws SQLException, InterruptedException {
-        JSONArray rowsJsonArray = new JSONArray();
         ArrayList<String> columns = new ArrayList<>();
         HashSet<String> usefulColumns = new HashSet<>();
+        HashSet<String> rowsSet = new HashSet<>();
 
         MySQLManager.get("SHOW COLUMNS FROM `" + table + "`;", resultSet -> {
             while (resultSet.next()) {
@@ -54,7 +54,7 @@ public class GDPR {
                     ps.setLong(1, userId);
                 }, resultSet -> {
                     while (resultSet.next()) {
-                        rowsJsonArray.put(extractMySQLRow(resultSet, columns));
+                        rowsSet.add(extractMySQLRow(resultSet, columns).toString());
                     }
                     return null;
                 });
@@ -66,12 +66,14 @@ public class GDPR {
                 ps.setString(1, userTag);
             }, resultSet -> {
                 while (resultSet.next()) {
-                    rowsJsonArray.put(extractMySQLRow(resultSet, columns));
+                    rowsSet.add(extractMySQLRow(resultSet, columns).toString());
                 }
                 return null;
             });
         }
 
+        JSONArray rowsJsonArray = new JSONArray();
+        rowsSet.forEach(row -> rowsJsonArray.put(new JSONObject(row)));
         return rowsJsonArray;
     }
 
