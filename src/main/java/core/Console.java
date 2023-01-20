@@ -104,6 +104,12 @@ public class Console {
             JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), AssetIds.OWNER_USER_ID)
                     .flatMap(messageChannel -> messageChannel.sendFiles(FileUpload.fromData(mySqlJson.toString().getBytes(StandardCharsets.UTF_8), "MySQL.json")))
                     .queue();
+
+            JSONObject redisJson = GDPR.collectRedisData(userId);
+            MainLogger.get().info("GDPR Redis for {}:\n{}", userId, redisJson.toString());
+            JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), AssetIds.OWNER_USER_ID)
+                    .flatMap(messageChannel -> messageChannel.sendFiles(FileUpload.fromData(redisJson.toString().getBytes(StandardCharsets.UTF_8), "Redis.json")))
+                    .queue();
         }
     }
 
