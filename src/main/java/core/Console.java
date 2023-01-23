@@ -17,6 +17,7 @@ import core.utils.JDAUtil;
 import core.utils.TimeUtil;
 import events.scheduleevents.events.*;
 import javafx.util.Pair;
+import modules.SupportTemplates;
 import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
@@ -48,6 +49,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("update_lawliet_support_commands", Console::onUpdateLawlietSupportCommands);
         tasks.put("gdpr", Console::onGdpr);
         tasks.put("dev_votes_results", Console::onDevVotesResults);
         tasks.put("dev_votes", Console::onDevVotes);
@@ -92,6 +94,13 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onUpdateLawlietSupportCommands(String[] args) {
+        ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get()
+                .updateCommands()
+                .addCommands(SupportTemplates.generateSupportContextCommands())
+                .queue(commands -> MainLogger.get().info("Successfully sent {} support commands", commands.size()));
     }
 
     private static void onGdpr(String[] args) throws SQLException, InterruptedException {

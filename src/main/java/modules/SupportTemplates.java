@@ -16,9 +16,10 @@ public class SupportTemplates {
     private static final String[] COMMANDS = {
             "Support wrong channel",
             "#faq",
-            "#news",
+            "#announcements",
             "English",
-            "#gif-requests-info"
+            "#gif-requests-info",
+            "#technical-issues"
     };
 
     private static final String[] TEXT_WRONG_CHANNEL = {
@@ -35,14 +36,21 @@ public class SupportTemplates {
             "На ваш вопрос можно ответить, посмотрев на <#703949030673088533>"
     };
 
-    private static final String[] TEXT_NEWS = {
+    private static final String[] TEXT_ANNOUNCEMENTS = {
             "Your question can be answered by looking at <#557960859792441357>",
             "Deine Frage kann durch einen Blick in <#557960859792441357> beantwortet werden",
             "Su pregunta puede ser respondida mirando <#557960859792441357>",
             "На ваш вопрос можно ответить, посмотрев на <#557960859792441357>"
     };
 
-    private static final String TEXT_ENGLISH = "This is an English server, please check <#557961281034780704> for other languages";
+    private static final String[] TEXT_TECHNICAL_ISSUES = {
+            "Your question can be answered by looking at <#1067095641475522722>",
+            "Deine Frage kann durch einen Blick in <#1067095641475522722> beantwortet werden",
+            "Su pregunta puede ser respondida mirando <#1067095641475522722>",
+            "На ваш вопрос можно ответить, посмотрев на <#1067095641475522722>"
+    };
+
+    private static final String TEXT_ENGLISH = "This is primarily an English server, please check <#557961281034780704> for other languages";
     private static final String TEXT_GIF_REQUEST_INFO = "Your gif request is invalid, please take a look at <#708252207690154045> before requesting a new gif for role play commands";
 
     public static List<CommandData> generateSupportContextCommands() {
@@ -56,9 +64,10 @@ public class SupportTemplates {
         String text = switch (findCommandIndex(event.getName())) {
             case 0 -> TEXT_WRONG_CHANNEL[language.ordinal()];
             case 1 -> TEXT_FAQ[language.ordinal()];
-            case 2 -> TEXT_NEWS[language.ordinal()];
+            case 2 -> TEXT_ANNOUNCEMENTS[language.ordinal()];
             case 3 -> TEXT_ENGLISH;
             case 4 -> TEXT_GIF_REQUEST_INFO;
+            case 5 -> TEXT_TECHNICAL_ISSUES[language.ordinal()];
             default -> "Unknown error";
         };
 
