@@ -13,4 +13,5 @@ annotation class Slash(
     val permissions: Array<Permission> = [],
     val commandAssociations: Array<KClass<out Command>> = [],
     val commandAssociationCategories: Array<Category> = [],
+    val nsfw: Boolean = false,
 )

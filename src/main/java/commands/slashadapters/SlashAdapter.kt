@@ -87,10 +87,19 @@ abstract class SlashAdapter {
         return list.toImmutableList()
     }
 
+    fun nsfw(): Boolean {
+        val slash = javaClass.getAnnotation(Slash::class.java)
+        if (slash.command != Command::class) {
+            return Command.getCommandProperties(slash.command).nsfw
+        }
+        return slash.nsfw
+    }
+
     fun generateCommandData(): SlashCommandData {
         val commandData = Commands.slash(name(), description())
         commandData.isGuildOnly = true
         commandData.defaultPermissions = DefaultMemberPermissions.enabledFor(requiredPermissions())
+        commandData.isNSFW = nsfw()
         return addOptions(commandData)
     }
 

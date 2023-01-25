@@ -20,7 +20,8 @@ import java.util.*
 @Slash(
     name = "nsfw_rp",
     description = "Interact with other server members (NSFW)",
-    commandAssociationCategories = [Category.NSFW_INTERACTIONS]
+    commandAssociationCategories = [Category.NSFW_INTERACTIONS],
+    nsfw = true
 )
 class NSFWRolePlayAdapter : SlashAdapter() {
 

@@ -21,7 +21,8 @@ import java.util.*
 @Slash(
     name = "nsfw",
     description = "Find nsfw content for predefined tags",
-    commandAssociationCategories = [Category.NSFW]
+    commandAssociationCategories = [Category.NSFW],
+    nsfw = true
 )
 class NSFWAdapter : SlashAdapter() {
 
