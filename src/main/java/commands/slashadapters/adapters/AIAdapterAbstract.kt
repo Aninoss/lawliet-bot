@@ -8,8 +8,10 @@ abstract class AIAdapterAbstract : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "image_url", "A link to the image", false)
-            .addOption(OptionType.ATTACHMENT, "image_file", "An image file on your system", false)
+            .addOptions(
+                generateOptionData(OptionType.STRING, "image_url", "ai_imageurl", false),
+                generateOptionData(OptionType.ATTACHMENT, "image_file", "ai_file", false)
+            )
     }
 
 }

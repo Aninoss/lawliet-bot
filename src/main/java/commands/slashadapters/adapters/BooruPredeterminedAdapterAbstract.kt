@@ -10,7 +10,9 @@ abstract class BooruPredeterminedAdapterAbstract : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.INTEGER, "amount", "Amount of posts from 1 to 20 / 30", false)
+            .addOptions(
+                generateOptionData(OptionType.INTEGER, "amount", "porn_amount", false)
+            )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

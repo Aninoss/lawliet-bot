@@ -9,7 +9,6 @@ import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import core.TextManager
-import mysql.modules.commandmanagement.DBCommandManagement
 import mysql.modules.guild.DBGuild
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -19,15 +18,17 @@ import java.util.*
 
 @Slash(
     name = "rp",
-    description = "Interact with other server members",
+    descriptionCategory = [Category.INTERACTIONS],
+    descriptionKey = "roleplay_desc",
     commandAssociationCategories = [Category.INTERACTIONS]
 )
 class RolePlayAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.STRING, "gesture", "Which type of interaction? (e.g. hug, kiss)", true, true)
-            .addOption(OptionType.STRING, "members", "Mention one or more relevant members", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.STRING, "gesture", "roleplay_gesture", true, true),
+            generateOptionData(OptionType.STRING, "members", "roleplay_members", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {
@@ -43,14 +44,11 @@ class RolePlayAdapter : SlashAdapter() {
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<net.dv8tion.jda.api.interactions.commands.Command.Choice> {
-        val locale = DBGuild.getInstance().retrieve(event.guild!!.idLong).locale
         val userText = event.focusedOption.value
         val triggerSet = HashSet<Pair<String, String>>()
-        val switchedOffData = DBCommandManagement.getInstance().retrieve(event.guild!!.idLong)
         for (clazz in CommandContainer.getFullCommandList()) {
             val commandProperties = Command.getCommandProperties(clazz)
             val commandTrigger = commandProperties.trigger
-            val commandTitle = Command.getCommandLanguage(clazz, locale).title
             val commandCategory = Command.getCategory(clazz);
             if (commandCategory == Category.INTERACTIONS &&
                 CommandManager.commandIsTurnedOnEffectively(clazz, event.member, event.channel!!.asTextChannel())
@@ -58,14 +56,14 @@ class RolePlayAdapter : SlashAdapter() {
                 val triggers = mutableListOf(commandTrigger)
                 triggers.addAll(commandProperties.aliases)
                 if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {
-                    triggerSet += Pair(commandTitle, commandTrigger)
+                    triggerSet += Pair("${commandTrigger}_title", commandTrigger)
                 }
             }
         }
 
         return triggerSet.toList()
             .sortedBy { it.first }
-            .map { net.dv8tion.jda.api.interactions.commands.Command.Choice(it.first, it.second) }
+            .map { generateChoice(it.first, it.second) }
     }
 
 }

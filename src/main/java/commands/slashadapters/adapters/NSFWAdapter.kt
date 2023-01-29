@@ -9,7 +9,6 @@ import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import core.TextManager
-import mysql.modules.commandmanagement.DBCommandManagement
 import mysql.modules.guild.DBGuild
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -20,16 +19,18 @@ import java.util.*
 
 @Slash(
     name = "nsfw",
-    description = "Find nsfw content for predefined tags",
+    descriptionCategory = [Category.NSFW],
+    descriptionKey = "porn_desc",
     commandAssociationCategories = [Category.NSFW],
     nsfw = true
 )
 class NSFWAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.STRING, "command", "Which nsfw command do you want to run?", true, true)
-            .addOption(OptionType.INTEGER, "amount", "Amount of posts from 1 to 20 / 30", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.STRING, "command", "porn_command", true, true),
+            generateOptionData(OptionType.INTEGER, "amount", "porn_amount", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {
@@ -49,8 +50,6 @@ class NSFWAdapter : SlashAdapter() {
         if (event.channel!!.asTextChannel().isNSFW) {
             val userText = event.focusedOption.value
             val choiceList = ArrayList<Command.Choice>()
-            val switchedOffData = DBCommandManagement.getInstance().retrieve(event.guild!!.idLong)
-            val locale = DBGuild.getInstance().retrieve(event.guild!!.idLong).locale
             for (clazz in CommandContainer.getFullCommandList()) {
                 val commandProperties = commands.Command.getCommandProperties(clazz)
                 val commandTrigger = commandProperties.trigger
@@ -60,8 +59,7 @@ class NSFWAdapter : SlashAdapter() {
                 ) {
                     triggers.addAll(commandProperties.aliases)
                     if (triggers.any { it.lowercase().contains(userText.lowercase()) }) {
-                        val name = commands.Command.getCommandLanguage(clazz, locale).title
-                        choiceList += Command.Choice(name, commandTrigger)
+                        choiceList += generateChoice("${commandTrigger}_title", commandTrigger)
                     }
                 }
             }

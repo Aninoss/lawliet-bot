@@ -13,7 +13,9 @@ class AutoSellAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "threshold", "Exchange rate threshold or \"off\"", false)
+            .addOptions(
+                generateOptionData(OptionType.STRING, "threshold", "autosell_arg", false)
+            )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

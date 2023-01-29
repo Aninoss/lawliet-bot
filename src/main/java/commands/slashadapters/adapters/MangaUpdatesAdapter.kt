@@ -17,7 +17,7 @@ class MangaUpdatesAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "manga_name", "The name of the manga", true, true)
+            .addOptions(generateOptionData(OptionType.STRING, "manga_name", "mangaupdates_manganame", true, true))
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

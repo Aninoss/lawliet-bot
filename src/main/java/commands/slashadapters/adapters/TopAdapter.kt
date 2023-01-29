@@ -8,8 +8,8 @@ import commands.slashadapters.SlashMeta
 import constants.Language
 import core.TextManager
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.interactions.commands.Command
 import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 @Slash(command = TopCommand::class)
@@ -17,15 +17,25 @@ class TopAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         val properties = arrayOf("recent_fish_gains", "fish", "coins", "daily_streak")
-        val optionData = OptionData(OptionType.STRING, "sort_by", "Which property should determine the ranking?", false)
+        val optionData = generateOptionData(OptionType.STRING, "sort_by", "top_sortby", false)
         properties.forEachIndexed() { i, property ->
-            val name = TextManager.getString(Language.EN.locale, Category.FISHERY, "top_values").split("\n")[i]
-            optionData.addChoice(name, property)
+            var choice: Command.Choice? = null
+            Language.values().forEach { language ->
+                val name = TextManager.getString(language.locale, Category.FISHERY, "top_values").split("\n")[i]
+                if (language == Language.EN) {
+                    choice = Command.Choice(name, property)
+                } else {
+                    choice!!.setNameLocalization(language.discordLocale, name)
+                }
+            }
+            optionData.addChoices(choice)
         }
 
         return commandData
-            .addOptions(optionData)
-            .addOption(OptionType.INTEGER, "page", "Which page to view", false)
+            .addOptions(
+                optionData,
+                generateOptionData(OptionType.INTEGER, "page", "top_page", false)
+            )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

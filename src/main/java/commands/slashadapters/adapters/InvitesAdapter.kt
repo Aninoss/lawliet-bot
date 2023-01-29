@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class InvitesAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.USER, "member", "Request for another server member", false)
-            .addOption(OptionType.BOOLEAN, "vanity", "Choose the Vanity Invite instead", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.USER, "member", "invites_member", false),
+            generateOptionData(OptionType.BOOLEAN, "vanity", "invites_vanity", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

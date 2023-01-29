@@ -8,6 +8,7 @@ import commands.slashadapters.SlashMeta
 import constants.Language
 import core.TextManager
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.interactions.commands.Command
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
@@ -19,13 +20,22 @@ class InvitesTopAdapter : SlashAdapter() {
         val properties = arrayOf("total", "on_server", "retained", "active")
         val optionData = OptionData(OptionType.STRING, "sort_by", "Which property should determine the ranking?", false)
         properties.forEachIndexed() { i, property ->
-            val name = TextManager.getString(Language.EN.locale, Category.INVITE_TRACKING, "invtop_orderby").split("\n")[i]
-            optionData.addChoice(name, property)
+            var choice: Command.Choice? = null
+            Language.values().forEach { language ->
+                val name = TextManager.getString(language.locale, Category.INVITE_TRACKING, "invtop_orderby").split("\n")[i]
+                if (language == Language.EN) {
+                    choice = Command.Choice(name, property)
+                } else {
+                    choice!!.setNameLocalization(language.discordLocale, name)
+                }
+            }
+            optionData.addChoices(choice)
         }
 
-        return commandData
-            .addOptions(optionData)
-            .addOption(OptionType.INTEGER, "page", "Which page to view", false)
+        return commandData.addOptions(
+            optionData,
+            generateOptionData(OptionType.INTEGER, "page", "invtop_page", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

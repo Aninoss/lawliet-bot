@@ -13,7 +13,7 @@ class FAQAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.INTEGER, "page", "Which page to view", false)
+            .addOptions(generateOptionData(OptionType.INTEGER, "page", "info_page", false))
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

@@ -13,7 +13,7 @@ class FortuneAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "question", "Your yes or no question", true)
+            .addOptions(generateOptionData(OptionType.STRING, "question", "fortune_slash_question", true))
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

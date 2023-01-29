@@ -13,7 +13,9 @@ class AssignRolesAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "roles", "Mention one or more roles", true)
+            .addOptions(
+                generateOptionData(OptionType.STRING, "roles", "utility_roles", true)
+            )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

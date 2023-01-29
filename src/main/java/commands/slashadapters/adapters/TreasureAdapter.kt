@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class TreasureAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.CHANNEL, "channel", "Where shall the treasure chests be posted?", false)
-            .addOption(OptionType.INTEGER, "amount", "How many treasure chests?", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.CHANNEL, "channel", "treasure_channel", false),
+            generateOptionData(OptionType.INTEGER, "amount", "treasure_amount", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

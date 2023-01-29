@@ -13,8 +13,10 @@ class AnimeReleasesAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "anime_name", "The name of the currently airing anime", false)
-            .addOption(OptionType.STRING, "crunchyroll_url", "The url of the currently airing anime from Crunchyroll.com", false)
+            .addOptions(
+                generateOptionData(OptionType.STRING, "anime_name", "crunchyroll_animename", false),
+                generateOptionData(OptionType.STRING, "crunchyroll_url", "crunchyroll_animeurl", false)
+            )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

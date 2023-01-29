@@ -12,10 +12,11 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class ClearAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.INTEGER, "amount", "How many messages shall be removed? (2 - 500)", true)
-            .addOption(OptionType.CHANNEL, "channel", "Where do you want to delete the messages?", false)
-            .addOption(OptionType.STRING, "members", "Filter by one or more members", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.INTEGER, "amount", "clear_amount", true),
+            generateOptionData(OptionType.CHANNEL, "channel", "clear_channel", false),
+            generateOptionData(OptionType.STRING, "members", "clear_members", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

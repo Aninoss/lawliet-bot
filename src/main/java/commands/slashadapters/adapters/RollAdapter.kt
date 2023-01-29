@@ -13,7 +13,7 @@ class RollAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.INTEGER, "upper_limit", "The highest possible number in this random number generator (>= 2)", false)
+            .addOptions(generateOptionData(OptionType.INTEGER, "upper_limit", "roll_upperlimit", false))
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

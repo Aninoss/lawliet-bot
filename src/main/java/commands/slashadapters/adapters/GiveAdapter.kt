@@ -12,10 +12,11 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class GiveAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.USER, "member", "The member which will receive your coins", true)
-            .addOption(OptionType.STRING, "amount_of_coins", "How many coins do you want to give?", false)
-            .addOption(OptionType.BOOLEAN, "all", "Give all of your coins", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.USER, "member", "give_member", true),
+            generateOptionData(OptionType.STRING, "amount_of_coins", "give_howmany", false),
+            generateOptionData(OptionType.BOOLEAN, "all", "give_all", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

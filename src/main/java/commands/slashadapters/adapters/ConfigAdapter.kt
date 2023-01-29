@@ -1,5 +1,6 @@
 package commands.slashadapters.adapters
 
+import commands.Category
 import commands.CommandContainer
 import commands.runnables.configurationcategory.*
 import commands.runnables.fisherysettingscategory.FisheryCommand
@@ -14,17 +15,16 @@ import commands.runnables.utilitycategory.*
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
-import constants.Language
 import core.TextManager
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 import java.util.*
 
 @Slash(
     name = "config",
-    description = "Configure various Lawliet functions and settings",
+    descriptionCategory = [Category.CONFIGURATION],
+    descriptionKey = "config_desc",
     commandAssociations = [
         LanguageCommand::class, PrefixCommand::class, CommandPermissionsCommand::class, WhiteListCommand::class, CommandManagementCommand::class,
         NSFWFilterCommand::class, SuggestionConfigCommand::class, AlertsCommand::class, ReactionRolesCommand::class, WelcomeCommand::class,
@@ -36,12 +36,11 @@ import java.util.*
 class ConfigAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        val optionData = OptionData(OptionType.STRING, "command", "What do you want to configure?", true, false)
+        val optionData = generateOptionData(OptionType.STRING, "command", "config_command", true, false)
         commandAssociations()
             .forEach {
                 val trigger = commands.Command.getCommandProperties(it).trigger
-                val name = commands.Command.getCommandLanguage(it, Language.EN.locale).title
-                optionData.addChoice(name, trigger)
+                optionData.addChoices(generateChoice("${trigger}_title", trigger))
             }
 
         return commandData.addOptions(optionData)

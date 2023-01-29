@@ -13,7 +13,7 @@ class RevokeRolesAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "role", "Mention one or more roles", true)
+            .addOptions(generateOptionData(OptionType.STRING, "role", "revokeroles_roles", true))
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

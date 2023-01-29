@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class NewKickAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.STRING, "time", "The time span of the server joins (e.g. 1h 3m)", true)
-            .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.STRING, "time", "moderation_joinspan", true),
+            generateOptionData(OptionType.STRING, "reason", "moderation_reason", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

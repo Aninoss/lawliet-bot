@@ -13,9 +13,11 @@ class BanAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "members", "Mention one or more members who shall be banned", true)
-            .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
-            .addOption(OptionType.STRING, "duration", "The duration of the ban (e.g. 1h 3m)", false)
+            .addOptions(
+                generateOptionData(OptionType.STRING, "members", "moderation_members", true),
+                generateOptionData(OptionType.STRING, "reason", "moderation_reason", false),
+                generateOptionData(OptionType.STRING, "duration", "moderation_duration", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

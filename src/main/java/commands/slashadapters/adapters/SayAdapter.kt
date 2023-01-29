@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class SayAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.STRING, "text", "The text you want Lawliet to say", true)
-            .addOption(OptionType.CHANNEL, "channel", "Where to post it?", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.STRING, "text", "say_text", true),
+            generateOptionData(OptionType.CHANNEL, "channel", "say_channel", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

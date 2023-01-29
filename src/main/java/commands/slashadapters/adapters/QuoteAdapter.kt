@@ -12,10 +12,11 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class QuoteAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.CHANNEL, "channel", "The text channel of the message", false)
-            .addOption(OptionType.STRING, "message_id", "The id of the message", false)
-            .addOption(OptionType.STRING, "message_link", "The link of the message", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.CHANNEL, "channel", "quote_channel", false),
+            generateOptionData(OptionType.STRING, "message_id", "quote_messageid", false),
+            generateOptionData(OptionType.STRING, "message_link", "quote_messagelink", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

@@ -17,12 +17,14 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "tag", "A search tags for finding specific results", true, true)
-            .addOption(OptionType.STRING, "tag2", "A search tags for finding specific results", false, true)
-            .addOption(OptionType.STRING, "tag3", "A search tags for finding specific results", false, true)
-            .addOption(OptionType.STRING, "tag4", "A search tags for finding specific results", false, true)
-            .addOption(OptionType.STRING, "tag5", "A search tags for finding specific results", false, true)
-            .addOption(OptionType.INTEGER, "amount", "Amount of posts from 1 to 20 / 30", false)
+            .addOptions(
+                generateOptionData(OptionType.STRING, "tag", "porn_tag", true, true),
+                generateOptionData(OptionType.STRING, "tag2", "porn_tag", false, true),
+                generateOptionData(OptionType.STRING, "tag3", "porn_tag", false, true),
+                generateOptionData(OptionType.STRING, "tag4", "porn_tag", false, true),
+                generateOptionData(OptionType.STRING, "tag5", "porn_tag", false, true),
+                generateOptionData(OptionType.INTEGER, "amount", "porn_amount", false, true)
+            )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

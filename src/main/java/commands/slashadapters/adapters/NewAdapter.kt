@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class NewAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.INTEGER, "number", "The number of recent versions to view")
-            .addOption(OptionType.STRING, "version", "Which bot version to view")
+        return commandData.addOptions(
+            generateOptionData(OptionType.INTEGER, "number", "new_number"),
+            generateOptionData(OptionType.STRING, "version", "new_version")
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

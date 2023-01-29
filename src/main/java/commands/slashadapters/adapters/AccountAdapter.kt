@@ -13,7 +13,9 @@ class AccountAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.USER, "member", "Request for another server member", false)
+            .addOptions(
+                generateOptionData(OptionType.USER, "member", "fisherycat_member", false)
+            )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

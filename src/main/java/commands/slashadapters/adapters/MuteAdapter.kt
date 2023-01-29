@@ -12,10 +12,11 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class MuteAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.STRING, "members", "Mention one or members who shall be muted", true)
-            .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
-            .addOption(OptionType.STRING, "duration", "The duration of the mute (e.g. 1h 3m)", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.STRING, "members", "moderation_members", true),
+            generateOptionData(OptionType.STRING, "reason", "moderation_reason", false),
+            generateOptionData(OptionType.STRING, "duration", "moderation_duration", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

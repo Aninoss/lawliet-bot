@@ -13,7 +13,7 @@ class SuggestionAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "text", "The content of your server suggestion", true)
+            .addOptions(generateOptionData(OptionType.STRING, "text", "suggestion_text", true))
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

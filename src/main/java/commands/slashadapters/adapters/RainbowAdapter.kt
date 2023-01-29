@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class RainbowAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.USER, "member", "Request for another server member", false)
-            .addOption(OptionType.INTEGER, "opacity", "Opacity of the rainbow (0 - 100)")
+        return commandData.addOptions(
+            generateOptionData(OptionType.USER, "member", "rainbow_member", false),
+            generateOptionData(OptionType.INTEGER, "opacity", "rainbow_opacity")
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

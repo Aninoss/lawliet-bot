@@ -12,10 +12,11 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class WarnLogAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.USER, "member", "Request for another server member", false)
-            .addOption(OptionType.STRING, "member_id", "Request for another server member", false)
-            .addOption(OptionType.INTEGER, "page", "Which page to view", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.USER, "member", "warnlog_member", false),
+            generateOptionData(OptionType.STRING, "member_id", "warnlog_member", false),
+            generateOptionData(OptionType.INTEGER, "page", "warnlog_page", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

@@ -7,27 +7,26 @@ import commands.runnables.informationcategory.HelpCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
-import constants.Language
 import core.TextManager
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command
 import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 @Slash(command = HelpCommand::class)
 class HelpAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        var optionCategory = OptionData(OptionType.STRING, "category", "Browse a command category", false)
+        var optionCategory = generateOptionData(OptionType.STRING, "category", "help_category", false)
         for (category in Category.values()) {
             optionCategory = optionCategory
-                .addChoice(TextManager.getString(Language.EN.locale, TextManager.COMMANDS, category.id), category.id)
+                .addChoices(generateChoice(TextManager.COMMANDS, category.id, category.id))
         }
-        return commandData
-            .addOptions(optionCategory)
-            .addOption(OptionType.STRING, "command", "Look up a specific command", false, true)
+        return commandData.addOptions(
+            optionCategory,
+            generateOptionData(OptionType.STRING, "command", "help_command", false, true)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

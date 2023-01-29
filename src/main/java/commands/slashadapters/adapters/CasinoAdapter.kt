@@ -11,17 +11,15 @@ import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import constants.Language
-import core.TextManager
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
-import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
 
 @Slash(
     name = "casino",
-    description = "Bet your coins in virtual gambling games",
-    commandAssociationCategories = [ Category.CASINO ]
+    descriptionCategory = [Category.CASINO],
+    descriptionKey = "casino_desc",
+    commandAssociationCategories = [Category.CASINO]
 )
 class CasinoAdapter : SlashAdapter() {
 
@@ -29,17 +27,17 @@ class CasinoAdapter : SlashAdapter() {
         for (clazz in CommandContainer.getFullCommandList()) {
             val command = CommandManager.createCommandByClass(clazz, Language.EN.locale, "/")
             if (command.category == Category.CASINO && command !is CasinoStatsCommand) {
-                val subcommandData = SubcommandData(command.commandProperties.trigger, command.commandLanguage.descShort)
+                val subcommandData = generateSubcommandData(command.commandProperties.trigger, command.trigger + "_description")
                 if (command is CasinoMultiplayerAbstract ||
                     command is CasinoAbstract && command.allowBet()
                 ) {
-                    subcommandData.addOption(OptionType.STRING, "bet", "The number of coins you want to bet on", false)
+                    subcommandData.addOptions(generateOptionData(OptionType.STRING, "bet", "casino_bet", false))
                 }
                 if (command is CoinFlipCommand) {
                     val properties = arrayOf("heads", "tails")
-                    val optionData = OptionData(OptionType.STRING, "selection", "Select head or tails for your coin toss", false)
+                    val optionData = generateOptionData(OptionType.STRING, "selection", "coinflip_select", false)
                     properties.forEach { property ->
-                        optionData.addChoice(TextManager.getString(Language.EN.locale, Category.CASINO, "coinflip_$property"), property)
+                        optionData.addChoices(generateChoice("coinflip_$property", property))
                     }
                     subcommandData.addOptions(optionData)
                 }

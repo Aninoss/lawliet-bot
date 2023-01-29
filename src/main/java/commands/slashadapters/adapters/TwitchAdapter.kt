@@ -13,7 +13,7 @@ class TwitchAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.STRING, "twitch_channel_name", "The name of the twitch channel", true)
+            .addOptions(generateOptionData(OptionType.STRING, "twitch_channel_name", "twitch_channelname", true))
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

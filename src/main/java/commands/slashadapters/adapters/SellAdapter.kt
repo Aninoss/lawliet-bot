@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class SellAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.STRING, "amount_of_fish", "How many fish do you want to sell?", false)
-            .addOption(OptionType.BOOLEAN, "all", "Sell all of your fish", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.STRING, "amount_of_fish", "sell_amount", false),
+            generateOptionData(OptionType.BOOLEAN, "all", "sell_all", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

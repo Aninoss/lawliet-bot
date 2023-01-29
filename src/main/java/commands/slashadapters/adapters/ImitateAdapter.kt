@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class ImitateAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.USER, "member", "Request for another server member", false)
-            .addOption(OptionType.BOOLEAN, "everyone", "Request for the whole server", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.USER, "member", "imitate_member", false),
+            generateOptionData(OptionType.BOOLEAN, "everyone", "imitate_everyone", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

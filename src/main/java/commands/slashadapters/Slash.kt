@@ -9,7 +9,8 @@ import kotlin.reflect.KClass
 annotation class Slash(
     val command: KClass<out Command> = Command::class,
     val name: String = "",
-    val description: String = "",
+    val descriptionCategory: Array<Category> = [],
+    val descriptionKey: String = "",
     val permissions: Array<Permission> = [],
     val commandAssociations: Array<KClass<out Command>> = [],
     val commandAssociationCategories: Array<Category> = [],

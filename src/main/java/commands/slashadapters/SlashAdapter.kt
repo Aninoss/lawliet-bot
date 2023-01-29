@@ -8,10 +8,14 @@ import core.TextManager
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.interactions.DiscordLocale
+import net.dv8tion.jda.api.interactions.commands.Command.Choice
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
+import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
 import okhttp3.internal.toImmutableList
 import java.util.*
 import kotlin.reflect.KClass
@@ -34,14 +38,46 @@ abstract class SlashAdapter {
 
     fun description(): String {
         val slash = javaClass.getAnnotation(Slash::class.java)
-        var description = slash.description
-        if (description.isEmpty()) {
+        if (slash.descriptionKey.isEmpty()) {
             val trigger = name()
             val clazz = CommandContainer.getCommandMap()[trigger]!!
             val category = Command.getCategory(clazz)
-            description = TextManager.getString(Language.EN.locale, category, trigger + "_description")
+            return TextManager.getString(Language.EN.locale, category, trigger + "_description")
+        } else {
+            return TextManager.getString(Language.EN.locale, slash.descriptionCategory[0], slash.descriptionKey)
         }
-        return description
+    }
+
+    fun descriptionCategory(): Category {
+        val slash = javaClass.getAnnotation(Slash::class.java)
+        if (slash.descriptionCategory.isEmpty()) {
+            val clazz = CommandContainer.getCommandMap()[name()]!!
+            return Command.getCategory(clazz)
+        } else {
+            return slash.descriptionCategory[0]
+        }
+    }
+
+    fun descriptionLocalizations(): Map<DiscordLocale, String> {
+        val localizationMap = HashMap<DiscordLocale, String>()
+        val slash = javaClass.getAnnotation(Slash::class.java)
+        if (slash.descriptionKey.isEmpty()) {
+            val trigger = name()
+            val clazz = CommandContainer.getCommandMap()[trigger]!!
+            val category = Command.getCategory(clazz)
+            Language.values().filter { it != Language.EN }
+                .forEach {
+                    val description = TextManager.getString(it.locale, category, trigger + "_description")
+                    localizationMap.put(it.discordLocale, description)
+                }
+        } else {
+            Language.values().filter { it != Language.EN }
+                .forEach {
+                    val description = TextManager.getString(it.locale, slash.descriptionCategory[0], slash.descriptionKey)
+                    localizationMap.put(it.discordLocale, description)
+                }
+        }
+        return localizationMap
     }
 
     fun requiredPermissions(): Collection<Permission> {
@@ -97,10 +133,62 @@ abstract class SlashAdapter {
 
     fun generateCommandData(): SlashCommandData {
         val commandData = Commands.slash(name(), description())
+        commandData.setDescriptionLocalizations(descriptionLocalizations())
         commandData.isGuildOnly = true
         commandData.defaultPermissions = DefaultMemberPermissions.enabledFor(requiredPermissions())
         commandData.isNSFW = nsfw()
         return addOptions(commandData)
+    }
+
+    fun generateOptionData(type: OptionType, name: String, descriptionKey: String, required: Boolean = false, autoComplete: Boolean = false): OptionData {
+        val descriptionCategory = descriptionCategory()
+        return generateOptionData(type, name, descriptionCategory.id, descriptionKey, required, autoComplete)
+    }
+
+    fun generateOptionData(type: OptionType, name: String, descriptionCategory: String, descriptionKey: String, required: Boolean = false, autoComplete: Boolean = false): OptionData {
+        val descriptionEnglish = TextManager.getString(Language.EN.locale, descriptionCategory, descriptionKey)
+        val optionData = OptionData(type, name, descriptionEnglish, required, autoComplete)
+        Language.values().filter { it != Language.EN }
+            .forEach {
+                val description = TextManager.getString(it.locale, descriptionCategory, descriptionKey)
+                optionData.setDescriptionLocalization(it.discordLocale, description)
+            }
+
+        return optionData
+    }
+
+    fun generateChoice(nameKey: String, value: String): Choice {
+        val nameCategory = descriptionCategory()
+        return generateChoice(nameCategory.id, nameKey, value)
+    }
+
+    fun generateChoice(nameCategory: String, nameKey: String, value: String): Choice {
+        val nameEnglish = TextManager.getString(Language.EN.locale, nameCategory, nameKey)
+        val choice = Choice(nameEnglish, value)
+        Language.values().filter { it != Language.EN }
+            .forEach {
+                val name = TextManager.getString(it.locale, nameCategory, nameKey)
+                choice.setNameLocalization(it.discordLocale, name)
+            }
+
+        return choice
+    }
+
+    fun generateSubcommandData(name: String, descriptionKey: String): SubcommandData {
+        val descriptionCategory = descriptionCategory()
+        return generateSubcommandData(name, descriptionCategory.id, descriptionKey)
+    }
+
+    fun generateSubcommandData(name: String, descriptionCategory: String, descriptionKey: String): SubcommandData {
+        val descriptionEnglish = TextManager.getString(Language.EN.locale, descriptionCategory, descriptionKey)
+        val subcommandData = SubcommandData(name, descriptionEnglish)
+        Language.values().filter { it != Language.EN }
+            .forEach {
+                val description = TextManager.getString(it.locale, descriptionCategory, descriptionKey)
+                subcommandData.setDescriptionLocalization(it.discordLocale, description)
+            }
+
+        return subcommandData
     }
 
     open fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<net.dv8tion.jda.api.interactions.commands.Command.Choice> {

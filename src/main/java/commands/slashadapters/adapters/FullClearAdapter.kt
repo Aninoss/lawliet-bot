@@ -12,10 +12,11 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class FullClearAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.INTEGER, "time_in_hours", "Only remove messages which are older than x hours", false)
-            .addOption(OptionType.CHANNEL, "channel", "Where do you want to delete the messages?", false)
-            .addOption(OptionType.STRING, "members", "Filter by one or more members", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.INTEGER, "time_in_hours", "fullclear_tih", false),
+            generateOptionData(OptionType.CHANNEL, "channel", "fullclear_channel", false),
+            generateOptionData(OptionType.STRING, "members", "fullclear_members", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

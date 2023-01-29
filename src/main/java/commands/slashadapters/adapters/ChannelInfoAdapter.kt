@@ -13,7 +13,7 @@ class ChannelInfoAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.CHANNEL, "channel", "Request for another channel", false)
+            .addOptions(generateOptionData(OptionType.CHANNEL, "channel", "info_channel", false))
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

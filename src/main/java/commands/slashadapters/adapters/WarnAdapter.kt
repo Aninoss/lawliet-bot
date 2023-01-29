@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class WarnAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.STRING, "members", "Mention one or more members who shall be warned", true)
-            .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.STRING, "members", "moderation_members", true),
+            generateOptionData(OptionType.STRING, "reason", "moderation_reason", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

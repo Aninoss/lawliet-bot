@@ -12,11 +12,12 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class WarnRemoveAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.STRING, "members", "Mention one or more members who shall lose a specific amount of warns", true)
-            .addOption(OptionType.STRING, "reason", "The reason of this mod action", false)
-            .addOption(OptionType.INTEGER, "amount", "How many warns shall be removed?", false)
-            .addOption(OptionType.BOOLEAN, "all", "Remove all warns", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.STRING, "members", "warnremove_member", true),
+            generateOptionData(OptionType.STRING, "reason", "moderation_reason", false),
+            generateOptionData(OptionType.INTEGER, "amount", "warnremove_amount", false),
+            generateOptionData(OptionType.BOOLEAN, "all", "warnremove_removeall", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

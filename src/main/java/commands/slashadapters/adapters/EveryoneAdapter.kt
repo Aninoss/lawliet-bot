@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class EveryoneAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.USER, "members", "Mention one or more relevant members", false)
-            .addOption(OptionType.BOOLEAN, "everyone", "If you want to mention everyone", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.USER, "members", "everyone_members", false),
+            generateOptionData(OptionType.BOOLEAN, "everyone", "everyone_everyone", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

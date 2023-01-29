@@ -13,7 +13,9 @@ class AutoWorkAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOption(OptionType.BOOLEAN, "active", "Turn this function on or off", false)
+            .addOptions(
+                generateOptionData(OptionType.BOOLEAN, "active", "fisheryset_active", false)
+            )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

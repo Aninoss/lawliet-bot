@@ -12,9 +12,10 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class ShipAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
-        return commandData
-            .addOption(OptionType.USER, "member", "Request for another server member", true)
-            .addOption(OptionType.USER, "member2", "Request for another server member", false)
+        return commandData.addOptions(
+            generateOptionData(OptionType.USER, "member", "ship_member", true),
+            generateOptionData(OptionType.USER, "member2", "ship_member", false)
+        )
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {
