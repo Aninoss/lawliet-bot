@@ -31,7 +31,7 @@ public class ReminderUpvote implements ExceptionRunnable {
                 long deltaHours = ChronoUnit.HOURS.between(upvoteSlot.getLastUpvote(), Instant.now());
                 int reminderPhase = (int) (deltaHours / 12);
                 if (reminderPhase > upvoteSlot.getRemindersSent() &&
-                        ((reminderPhase - upvoteSlot.getRemindersSent() >= 2) || reminderPhase == 1)
+                        ((reminderPhase - upvoteSlot.getRemindersSent() >= 1) || reminderPhase == 1)
                 ) {
                     DBUpvotes.saveUpvoteSlot(new UpvoteSlot(upvoteSlot.getUserId(), upvoteSlot.getLastUpvote(), reminderPhase));
                     SubSlot sub = subMap.get(upvoteSlot.getUserId());
