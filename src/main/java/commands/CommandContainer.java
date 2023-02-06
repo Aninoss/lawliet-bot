@@ -8,10 +8,7 @@ import com.google.common.cache.RemovalCause;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
-import commands.runnables.aitoyscategory.ColorCommand;
-import commands.runnables.aitoyscategory.DeepDreamCommand;
-import commands.runnables.aitoyscategory.ImitateCommand;
-import commands.runnables.aitoyscategory.Waifu2xCommand;
+import commands.runnables.aitoyscategory.*;
 import commands.runnables.casinocategory.*;
 import commands.runnables.configurationcategory.*;
 import commands.runnables.externalcategory.*;
@@ -26,7 +23,6 @@ import commands.runnables.invitetrackingcategory.InvitesManageCommand;
 import commands.runnables.invitetrackingcategory.InvitesTopCommand;
 import commands.runnables.moderationcategory.*;
 import commands.runnables.nsfwcategory.*;
-import commands.runnables.nsfwinteractionscategory.FootjobCommand;
 import commands.runnables.nsfwinteractionscategory.*;
 import commands.runnables.splatoon2category.MapsCommand;
 import commands.runnables.splatoon2category.SalmonCommand;
@@ -68,6 +64,7 @@ public class CommandContainer {
         commandList.add(Waifu2xCommand.class);
         commandList.add(ColorCommand.class);
         commandList.add(DeepDreamCommand.class);
+        commandList.add(Txt2ImgCommand.class);
 
         //CONFIGURATION
         commandList.add(LanguageCommand.class);
