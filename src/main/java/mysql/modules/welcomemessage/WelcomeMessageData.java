@@ -143,16 +143,34 @@ public class WelcomeMessageData extends DataWithGuild {
         }
     }
 
+    public void setWelcomeActive(boolean welcomeActive) {
+        if (this.welcomeActive != welcomeActive) {
+            toggleWelcomeActive();
+        }
+    }
+
     public void toggleWelcomeActive() {
         this.welcomeActive = !this.welcomeActive;
         setChanged();
         notifyObservers();
     }
 
+    public void setGoodbyeActive(boolean goodbyeActive) {
+        if (this.goodbyeActive != goodbyeActive) {
+            toggleGoodbyeActive();
+        }
+    }
+
     public void toggleGoodbyeActive() {
         this.goodbyeActive = !this.goodbyeActive;
         setChanged();
         notifyObservers();
+    }
+
+    public void setDmActive(boolean dmActive) {
+        if (this.dmActive != dmActive) {
+            toggleDmActive();
+        }
     }
 
     public void toggleDmActive() {

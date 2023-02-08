@@ -108,7 +108,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                     return MessageInputResponse.FAILED;
                 } else {
                     TextChannel channel = channelList.get(0);
-                    if (checkWriteInChannelWithLog(channel)) {
+                    if (checkWriteEmbedInChannelWithLog(channel)) {
                         guildBean.setFisheryAnnouncementChannelId(channel.getIdLong());
                         setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
                         setState(0);

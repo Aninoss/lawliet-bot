@@ -78,7 +78,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                     return MessageInputResponse.FAILED;
                 } else {
                     TextChannel channel = channelsList.get(0);
-                    if (checkWriteInChannelWithLog(channel)) {
+                    if (checkWriteEmbedInChannelWithLog(channel)) {
                         moderationData.setAnnouncementChannelId(channel.getIdLong());
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);

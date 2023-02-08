@@ -6,7 +6,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import com.google.common.net.UrlEscapers;
 import core.LocalFile;
 import core.MainLogger;
@@ -18,7 +17,7 @@ public final class InternetUtil {
     private InternetUtil() {
     }
 
-    public static String getUrlFromInputStream(InputStream inputStream, String fileExt) throws ExecutionException, InterruptedException, IOException {
+    public static String getUrlFromInputStream(InputStream inputStream, String fileExt) throws IOException {
         LocalFile cdnFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%s.%s", RandomUtil.generateRandomString(30), fileExt));
         return FileUtil.writeInputStreamToFile(inputStream, cdnFile);
     }

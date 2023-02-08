@@ -40,6 +40,11 @@ import org.jetbrains.annotations.NotNull;
 )
 public class WelcomeCommand extends NavigationAbstract {
 
+    public static int MAX_WELCOME_TITLE_LENGTH = 20;
+    public static int MAX_WELCOME_DESCRIPTION_LENGTH = 1000;
+    public static int MAX_DM_DESCRIPTION_LENGTH = 1000;
+    public static int MAX_FAREWELL_DESCRIPTION_LENGTH = 1000;
+
     private WelcomeMessageData welcomeMessageBean;
 
     public WelcomeCommand(Locale locale, String prefix) {
@@ -49,8 +54,8 @@ public class WelcomeCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(event.getGuild().getIdLong());
-        welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteInChannelWithLog);
-        welcomeMessageBean.getGoodbyeChannel().ifPresent(this::checkWriteInChannelWithLog);
+        welcomeMessageBean.getWelcomeChannel().ifPresent(this::checkWriteEmbedInChannelAndAttachFilesWithLog);
+        welcomeMessageBean.getGoodbyeChannel().ifPresent(this::checkWriteEmbedInChannelAndAttachFilesWithLog);
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -60,13 +65,13 @@ public class WelcomeCommand extends NavigationAbstract {
         switch (state) {
             case 1:
                 if (input.length() > 0) {
-                    if (input.length() <= 20) {
+                    if (input.length() <= MAX_WELCOME_TITLE_LENGTH) {
                         welcomeMessageBean.setWelcomeTitle(input);
                         setLog(LogStatus.SUCCESS, getString("titleset"));
                         setState(0);
                         return MessageInputResponse.SUCCESS;
                     } else {
-                        setLog(LogStatus.FAILURE, getString("titletoolarge", "20"));
+                        setLog(LogStatus.FAILURE, getString("titletoolarge", String.valueOf(MAX_WELCOME_TITLE_LENGTH)));
                         return MessageInputResponse.FAILED;
                     }
                 }
@@ -74,13 +79,13 @@ public class WelcomeCommand extends NavigationAbstract {
 
             case 2:
                 if (input.length() > 0) {
-                    if (input.length() <= 1000) {
+                    if (input.length() <= MAX_WELCOME_DESCRIPTION_LENGTH) {
                         welcomeMessageBean.setWelcomeText(input);
                         setLog(LogStatus.SUCCESS, getString("descriptionset"));
                         setState(0);
                         return MessageInputResponse.SUCCESS;
                     } else {
-                        setLog(LogStatus.FAILURE, getString("descriptiontoolarge", "1000"));
+                        setLog(LogStatus.FAILURE, getString("descriptiontoolarge", StringUtil.numToString(MAX_WELCOME_DESCRIPTION_LENGTH)));
                         return MessageInputResponse.FAILED;
                     }
                 }
@@ -92,7 +97,7 @@ public class WelcomeCommand extends NavigationAbstract {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else {
-                    if (checkWriteInChannelWithLog(channelList.get(0))) {
+                    if (checkWriteEmbedInChannelAndAttachFilesWithLog(channelList.get(0))) {
                         welcomeMessageBean.setWelcomeChannelId(channelList.get(0).getIdLong());
                         setLog(LogStatus.SUCCESS, getString("channelset"));
                         setState(0);
@@ -118,13 +123,13 @@ public class WelcomeCommand extends NavigationAbstract {
 
             case 6:
                 if (input.length() > 0) {
-                    if (input.length() <= 1000) {
+                    if (input.length() <= MAX_FAREWELL_DESCRIPTION_LENGTH) {
                         welcomeMessageBean.setGoodbyeText(input);
                         setLog(LogStatus.SUCCESS, getString("goodbyetextset"));
                         setState(0);
                         return MessageInputResponse.SUCCESS;
                     } else {
-                        setLog(LogStatus.FAILURE, getString("goodbyetoolarge", "1000"));
+                        setLog(LogStatus.FAILURE, getString("goodbyetoolarge", StringUtil.numToString(MAX_FAREWELL_DESCRIPTION_LENGTH)));
                         return MessageInputResponse.FAILED;
                     }
                 }
@@ -136,7 +141,7 @@ public class WelcomeCommand extends NavigationAbstract {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else {
-                    if (checkWriteInChannelWithLog(channelList.get(0))) {
+                    if (checkWriteEmbedInChannelAndAttachFilesWithLog(channelList.get(0))) {
                         welcomeMessageBean.setGoodbyeChannelId(channelList.get(0).getIdLong());
                         setLog(LogStatus.SUCCESS, getString("farechannelset"));
                         setState(0);
@@ -148,13 +153,13 @@ public class WelcomeCommand extends NavigationAbstract {
 
             case 8:
                 if (input.length() > 0) {
-                    if (input.length() <= 1000) {
+                    if (input.length() <= MAX_DM_DESCRIPTION_LENGTH) {
                         welcomeMessageBean.setDmText(input);
                         setLog(LogStatus.SUCCESS, getString("dmtextset"));
                         setState(0);
                         return MessageInputResponse.SUCCESS;
                     } else {
-                        setLog(LogStatus.FAILURE, getString("dmtoolarge", "1000"));
+                        setLog(LogStatus.FAILURE, getString("dmtoolarge", StringUtil.numToString(MAX_DM_DESCRIPTION_LENGTH)));
                         return MessageInputResponse.FAILED;
                     }
                 }

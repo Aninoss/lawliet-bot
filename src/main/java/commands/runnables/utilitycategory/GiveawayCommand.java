@@ -102,7 +102,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     public MessageInputResponse onMessageAddMessage(MessageReceivedEvent event, String input) {
         List<StandardGuildMessageChannel> channel = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), input).getList();
         if (channel.size() > 0) {
-            if (checkWriteInChannelWithLog(channel.get(0))) {
+            if (checkWriteEmbedInChannelWithLog(channel.get(0))) {
                 this.channel = new AtomicStandardGuildMessageChannel(channel.get(0));
                 setLog(LogStatus.SUCCESS, getString("channelset"));
                 return MessageInputResponse.SUCCESS;
@@ -652,7 +652,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     private Optional<Long> sendMessage() {
         Message message;
-        if (checkWriteInChannelWithLog(channel.get().orElse(null))) {
+        if (checkWriteEmbedInChannelWithLog(channel.get().orElse(null))) {
             StandardGuildMessageChannel channel = this.channel.get().get();
             if (!editMode) {
                 instant = Instant.now();

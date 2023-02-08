@@ -103,7 +103,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public MessageInputResponse onMessageAddMessage(MessageReceivedEvent event, String input) {
         List<TextChannel> serverTextChannel = MentionUtil.getTextChannels(event.getGuild(), input).getList();
         if (serverTextChannel.size() > 0) {
-            if (checkWriteInChannelWithLog(serverTextChannel.get(0))) {
+            if (checkWriteEmbedInChannelWithLog(serverTextChannel.get(0))) {
                 atomicTextChannel = new AtomicTextChannel(serverTextChannel.get(0));
                 setLog(LogStatus.SUCCESS, getString("channelset"));
                 return MessageInputResponse.SUCCESS;
@@ -281,7 +281,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             if (i < reactionMessages.size()) {
                 ReactionMessage reactionMessage = reactionMessages.get(i);
                 StandardGuildMessageChannel channel = reactionMessage.getStandardGuildMessageChannel().get();
-                if (checkWriteInChannelWithLog(channel)) {
+                if (checkWriteEmbedInChannelWithLog(channel)) {
                     editMessageId = reactionMessage.getMessageId();
                     updateValuesFromMessage(reactionMessage);
                     setState(CONFIGURE_MESSAGE);
