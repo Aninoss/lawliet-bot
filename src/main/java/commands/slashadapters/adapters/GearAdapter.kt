@@ -13,7 +13,7 @@ class GearAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
-            .addOptions(generateOptionData(OptionType.USER, "member", "info_member", false))
+            .addOptions(generateOptionData(OptionType.USER, "member", "fisherycat_member", false))
     }
 
     override fun process(event: SlashCommandInteractionEvent): SlashMeta {

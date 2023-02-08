@@ -39,8 +39,9 @@ class ConfigAdapter : SlashAdapter() {
         val optionData = generateOptionData(OptionType.STRING, "command", "config_command", true, false)
         commandAssociations()
             .forEach {
+                val category = commands.Command.getCategory(it)
                 val trigger = commands.Command.getCommandProperties(it).trigger
-                optionData.addChoices(generateChoice("${trigger}_title", trigger))
+                optionData.addChoices(generateChoice(category.id, "${trigger}_title", trigger))
             }
 
         return commandData.addOptions(optionData)

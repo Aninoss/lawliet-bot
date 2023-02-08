@@ -587,12 +587,16 @@ public abstract class Command implements OnTriggerListener {
                 .map(AtomicMember::getIdLong);
     }
 
-    public CommandProperties getCommandProperties() {
-        return commandProperties;
-    }
-
     public static Category getCategory(Class<? extends Command> clazz) {
         return Category.findCategoryByCommand(clazz);
+    }
+
+    public static Category getCategory(KClass<? extends Command> clazz) {
+        return Category.findCategoryByCommand(JvmClassMappingKt.getJavaClass(clazz));
+    }
+
+    public CommandProperties getCommandProperties() {
+        return commandProperties;
     }
 
     public static CommandProperties getCommandProperties(Class<? extends Command> clazz) {

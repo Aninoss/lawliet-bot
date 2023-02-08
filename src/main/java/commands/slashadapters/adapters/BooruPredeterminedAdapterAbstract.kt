@@ -1,5 +1,6 @@
 package commands.slashadapters.adapters
 
+import commands.Category
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -11,7 +12,7 @@ abstract class BooruPredeterminedAdapterAbstract : SlashAdapter() {
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
             .addOptions(
-                generateOptionData(OptionType.INTEGER, "amount", "porn_amount", false)
+                generateOptionData(OptionType.INTEGER, "amount", Category.NSFW.id, "porn_amount", false)
             )
     }
 

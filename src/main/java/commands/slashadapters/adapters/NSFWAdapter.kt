@@ -28,8 +28,8 @@ class NSFWAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData.addOptions(
-            generateOptionData(OptionType.STRING, "command", "porn_command", true, true),
-            generateOptionData(OptionType.INTEGER, "amount", "porn_amount", false)
+            generateOptionData(OptionType.STRING, "command", Category.NSFW.id, "porn_command", true, true),
+            generateOptionData(OptionType.INTEGER, "amount", Category.NSFW.id, "porn_amount", false)
         )
     }
 

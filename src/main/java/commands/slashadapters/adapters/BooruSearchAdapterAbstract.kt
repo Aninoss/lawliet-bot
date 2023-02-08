@@ -1,5 +1,6 @@
 package commands.slashadapters.adapters
 
+import commands.Category
 import commands.CommandManager
 import commands.runnables.PornAbstract
 import commands.slashadapters.SlashAdapter
@@ -18,12 +19,12 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         return commandData
             .addOptions(
-                generateOptionData(OptionType.STRING, "tag", "porn_tag", true, true),
-                generateOptionData(OptionType.STRING, "tag2", "porn_tag", false, true),
-                generateOptionData(OptionType.STRING, "tag3", "porn_tag", false, true),
-                generateOptionData(OptionType.STRING, "tag4", "porn_tag", false, true),
-                generateOptionData(OptionType.STRING, "tag5", "porn_tag", false, true),
-                generateOptionData(OptionType.INTEGER, "amount", "porn_amount", false, true)
+                generateOptionData(OptionType.STRING, "tag", Category.NSFW.id, "porn_tag", true, true),
+                generateOptionData(OptionType.STRING, "tag2", Category.NSFW.id, "porn_tag", false, true),
+                generateOptionData(OptionType.STRING, "tag3", Category.NSFW.id, "porn_tag", false, true),
+                generateOptionData(OptionType.STRING, "tag4", Category.NSFW.id, "porn_tag", false, true),
+                generateOptionData(OptionType.STRING, "tag5", Category.NSFW.id, "porn_tag", false, true),
+                generateOptionData(OptionType.INTEGER, "amount", Category.NSFW.id, "porn_amount", false, true)
             )
     }
 
