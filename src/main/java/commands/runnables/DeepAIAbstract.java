@@ -10,9 +10,8 @@ import commands.CommandEvent;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.internet.HttpHeader;
-import core.internet.HttpRequest;
 import core.utils.MentionUtil;
+import modules.DeepAI;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -60,20 +59,16 @@ public abstract class DeepAIAbstract extends Command {
     }
 
 
-    private String processImage(CommandEvent event, String url) throws ExecutionException, InterruptedException {
+    private String processImage(CommandEvent event, String imageUrl) throws ExecutionException, InterruptedException {
         for (DeepAIExample deepAiExample : getDeepAiExamples()) {
-            if (url.equals(deepAiExample.imageUrl)) {
+            if (imageUrl.equals(deepAiExample.imageUrl)) {
                 return deepAiExample.resultUrl;
             }
         }
 
-        String query = "image=" + url;
-
         event.deferReply();
-        HttpHeader header = new HttpHeader("Api-Key", System.getenv("DEEPAI_TOKEN"));
-        String data = HttpRequest.post(getUrl(), "application/x-www-form-urlencoded", query, header).get().getBody();
-        JSONObject jsonObject = new JSONObject(data);
-        return jsonObject.getString("output_url");
+        return new JSONObject(DeepAI.request(getUrl(), imageUrl).get().getBody())
+                .getString("output_url");
     }
 
     protected abstract String getUrl();

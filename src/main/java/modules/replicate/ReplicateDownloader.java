@@ -1,9 +1,12 @@
 package modules.replicate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import core.internet.HttpHeader;
 import core.internet.HttpRequest;
+import core.internet.HttpResponse;
+import modules.DeepAI;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,7 +17,7 @@ public class ReplicateDownloader {
         requestJson.put("version", model.getVersion());
 
         JSONObject inputJson = new JSONObject();
-        inputJson.put("prompt", prompt);
+        inputJson.put("prompt", model.getPrefix() + prompt);
         inputJson.put("num_outputs", model.getNumOutputs());
         inputJson.put("negative_prompt", "rating:explicit");
         requestJson.put("input", inputJson);
@@ -27,7 +30,7 @@ public class ReplicateDownloader {
         ).thenApply(response -> new JSONObject(response.getBody()).getString("id"));
     }
 
-    public static CompletableFuture<PredictionResult> retrievePrediction(String id) {
+    public static CompletableFuture<PredictionResult> retrievePrediction(String id, boolean checkNsfw) {
         return HttpRequest.get(
                 "https://api.replicate.com/v1/predictions/" + id,
                 new HttpHeader("Authorization", "Token " + System.getenv("REPLICATE_TOKEN"))
@@ -36,10 +39,15 @@ public class ReplicateDownloader {
             PredictionResult.Status status = PredictionResult.Status.valueOf(responseJson.getString("status").toUpperCase());
 
             ArrayList<String> outputs = new ArrayList<>();
+            ArrayList<CompletableFuture<HttpResponse>> deepAiRequests = new ArrayList<>();
             if (status == PredictionResult.Status.SUCCEEDED) {
                 JSONArray outputJson = responseJson.getJSONArray("output");
                 for (int i = 0; i < outputJson.length(); i++) {
-                    outputs.add(outputJson.getString(i));
+                    String imageUrl = outputJson.getString(i);
+                    if (checkNsfw) {
+                        deepAiRequests.add(DeepAI.request("https://api.deepai.org/api/nsfw-detector", imageUrl));
+                    }
+                    outputs.add(imageUrl);
                 }
             }
 
@@ -50,6 +58,19 @@ public class ReplicateDownloader {
                     int p = logs.lastIndexOf("%");
                     String percentString = logs.substring(p - 3, p).trim();
                     progress = Double.parseDouble(percentString) / 100;
+                }
+            }
+
+            for (CompletableFuture<HttpResponse> deepAiRequest : deepAiRequests) {
+                JSONObject deepAiJson = new JSONObject(deepAiRequest.join().getBody());
+                double nsfwScore = deepAiJson.getJSONObject("output").getDouble("nsfw_score");
+                if (nsfwScore > 0.5) {
+                    return new PredictionResult(
+                            1.0,
+                            PredictionResult.Status.FAILED,
+                            Collections.emptyList(),
+                            "NSFW"
+                    );
                 }
             }
 

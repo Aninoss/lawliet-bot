@@ -91,7 +91,7 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
             eb = EmbedFactory.getEmbedDefault(this, infoString);
         } else {
             if (predictionResult == null || predictionResult.getStatus() != PredictionResult.Status.SUCCEEDED) {
-                predictionResult = ReplicateDownloader.retrievePrediction(predictionId).get();
+                predictionResult = ReplicateDownloader.retrievePrediction(predictionId, model.getCheckNsfw()).get();
             }
 
             switch (predictionResult.getStatus()) {
