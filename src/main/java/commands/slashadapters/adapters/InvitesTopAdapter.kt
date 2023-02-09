@@ -10,7 +10,6 @@ import core.TextManager
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command
 import net.dv8tion.jda.api.interactions.commands.OptionType
-import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 @Slash(command = InvitesTopCommand::class)
@@ -18,7 +17,7 @@ class InvitesTopAdapter : SlashAdapter() {
 
     public override fun addOptions(commandData: SlashCommandData): SlashCommandData {
         val properties = arrayOf("total", "on_server", "retained", "active")
-        val optionData = OptionData(OptionType.STRING, "sort_by", "Which property should determine the ranking?", false)
+        val optionData = generateOptionData(OptionType.STRING, "sort_by", "invtop_orderbyproperty", false)
         properties.forEachIndexed() { i, property ->
             var choice: Command.Choice? = null
             Language.values().forEach { language ->
