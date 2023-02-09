@@ -85,8 +85,6 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             welcomeData.welcomeChannelId,
             false
         ) {
-            renderBannerPreview = false
-
             val channelId = it.data.toLong()
             val channel = guild.getChannelById(StandardGuildMessageChannel::class.java, channelId)!!
             if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) { /* no permissions in channel */
@@ -114,13 +112,15 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             val localFile = LocalFile(LocalFile.Directory.CDN, String.format("temp/%s", segments[segments.size - 1]))
             val destinationFile = LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guild.idLong))
             destinationFile.delete()
-            localFile.renameTo(destinationFile)
+            localFile.copyTo(destinationFile, true)
+            renderBannerPreview = true
             ActionResult()
                 .withRedraw()
         }
         container.add(imageUpload)
 
         if (renderBannerPreview) {
+            renderBannerPreview = false
             val bannerUrl = InternetUtil.getUrlFromInputStream(WelcomeGraphics.createImageWelcome(atomicMember.get().get(), welcomeData.getWelcomeTitle()).get(), "png")
             val bannerImage = DashboardImage(bannerUrl)
             container.add(bannerImage)
@@ -188,8 +188,6 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             welcomeData.goodbyeChannelId,
             false
         ) {
-            renderBannerPreview = false
-
             val channelId = it.data.toLong()
             val channel = guild.getChannelById(StandardGuildMessageChannel::class.java, channelId)!!
             if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) { /* no permissions in channel */
