@@ -229,11 +229,6 @@ public class BotPermissionUtil {
                 !role.isPublicRole();
     }
 
-    public static boolean canUseExternalEmojisInInteraction(GuildChannel channel) {
-        Guild guild = channel.getGuild();
-        return guild.getPublicRole().hasPermission(channel, Permission.MESSAGE_EXT_EMOJI);
-    }
-
     public static List<Role> getMemberRoles(Guild guild) {
         MemberCacheController.getInstance().loadMembersFull(guild).join();
         int min = (int) (guild.getMemberCount() * 0.75);

@@ -252,11 +252,6 @@ public class CommandManager {
     }
 
     private static boolean checkPermissions(CommandEvent event, Command command) {
-        Permission[] botChannelPermissions = command.getAdjustedBotChannelPermissions();
-        Permission[] everyoneChannelPermissions = Arrays.stream(botChannelPermissions).anyMatch(p -> p == Permission.MESSAGE_EXT_EMOJI) && event.isSlashCommandInteractionEvent()
-                ? new Permission[] { Permission.MESSAGE_EXT_EMOJI }
-                : new Permission[0];
-
         EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
                 command.getLocale(),
                 event.getTextChannel(),
@@ -264,8 +259,8 @@ public class CommandManager {
                 command.getAdjustedUserGuildPermissions(),
                 command.getAdjustedUserChannelPermissions(),
                 command.getAdjustedBotGuildPermissions(),
-                botChannelPermissions,
-                everyoneChannelPermissions
+                command.getAdjustedBotChannelPermissions(),
+                new Permission[0]
         );
         if (errEmbed == null) {
             return true;

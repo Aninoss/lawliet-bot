@@ -527,7 +527,7 @@ public class HelpCommand extends NavigationAbstract {
         }
 
         public String get(TextChannel channel) {
-            if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI) && BotPermissionUtil.canUseExternalEmojisInInteraction(channel)) {
+            if (BotPermissionUtil.can(channel, Permission.MESSAGE_EXT_EMOJI)) {
                 return customEmoji.getFormatted();
             } else {
                 return unicodeAlternative;

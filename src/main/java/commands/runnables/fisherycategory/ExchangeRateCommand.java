@@ -11,7 +11,6 @@ import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.cache.PatreonCache;
-import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -66,11 +65,11 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
         return EmbedFactory.getEmbedDefault(this, sb.toString());
     }
 
-    private EmbedBuilder generateUserEmbed(boolean canUseExternalEmoji) {
+    private EmbedBuilder generateUserEmbed() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 4; i++) {
             sb.append(
-                    getString("forecast_slot", canUseExternalEmoji,
+                    getString("forecast_slot", true,
                             getString("forecast_day", i),
                             StringUtil.numToString(ExchangeRate.get(i - 1)),
                             Fishery.getChangeEmoji(i - 1)
@@ -84,8 +83,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         if (getInteractionResponse().isValid()) {
-            boolean canUseExternalEmoji = BotPermissionUtil.canUseExternalEmojisInInteraction(event.getGuildChannel());
-            getInteractionResponse().replyEmbeds(List.of(generateUserEmbed(canUseExternalEmoji).build()), true)
+            getInteractionResponse().replyEmbeds(List.of(generateUserEmbed().build()), true)
                     .queue();
         }
         return false;
