@@ -9,7 +9,8 @@ import commands.runnables.RolePlayAbstract;
         emoji = "🥧",
         executableWithoutArgs = true,
         nsfw = true,
-        requiresFullMemberCache = true
+        requiresFullMemberCache = true,
+        aliases = { "impregnate" }
 )
 public class CreampieCommand extends RolePlayAbstract {
 
@@ -26,7 +27,14 @@ public class CreampieCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/955839621902774272/955840998074896384/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/955841342288842812/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/955842304869027890/creampie.gif",
-                "https://cdn.discordapp.com/attachments/955839621902774272/955842659140898816/creampie.gif"
+                "https://cdn.discordapp.com/attachments/955839621902774272/955842659140898816/creampie.gif",
+                "https://cdn.discordapp.com/attachments/955839621902774272/1073601527287119964/creampie.gif",
+                "https://cdn.discordapp.com/attachments/955839621902774272/1073602819321507840/creampie.gif",
+                "https://cdn.discordapp.com/attachments/955839621902774272/1073602940889206824/creampie.gif",
+                "https://cdn.discordapp.com/attachments/955839621902774272/1073603217922994237/creampie.gif",
+                "https://cdn.discordapp.com/attachments/955839621902774272/1073603841506955345/creampie.gif",
+                "https://cdn.discordapp.com/attachments/955839621902774272/1073604277651648532/creampie.gif",
+                "https://cdn.discordapp.com/attachments/955839621902774272/1073604357951606784/creampie.gif"
         );
     }
 
