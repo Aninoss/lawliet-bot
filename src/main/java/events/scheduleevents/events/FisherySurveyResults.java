@@ -95,10 +95,12 @@ public class FisherySurveyResults implements ExceptionRunnable {
     private static void processSurveyUser(List<SurveySecondVote> secondVotes, long userId, byte won) {
         for (SurveySecondVote secondVote : secondVotes) {
             if (won == 2 || secondVote.getVote() == won) {
-                FisheryMemberData userBean = DBFishery.getInstance().retrieve(secondVote.getGuildId()).getMemberData(userId);
-                long price = userBean.getMemberGear(FisheryGear.SURVEY).getEffect();
-                MainLogger.get().info("Survey: Giving {} coins to {}", price, userId);
-                userBean.changeValues(0, price);
+                FisheryMemberData memberData = DBFishery.getInstance().retrieve(secondVote.getGuildId())
+                        .getMemberData(userId);
+                long prize = memberData.getMemberGear(FisheryGear.SURVEY).getEffect();
+                MainLogger.get().info("Survey: Giving {} coins to {} on guild {} ({} coins)", prize, userId, secondVote.getGuildId(), memberData.getCoins());
+                memberData.changeValues(0, prize);
+                MainLogger.get().info("Survey: Coins of {} on guild {}: {}", userId, secondVote.getGuildId(), memberData.getCoins());
             }
         }
     }
