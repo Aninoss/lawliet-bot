@@ -40,7 +40,7 @@ public class CommandContainer {
     private static final ArrayList<Class<? extends OnStaticReactionRemoveListener>> staticReactionRemoveCommands = new ArrayList<>();
     private static final ArrayList<Class<? extends OnAlertListener>> trackerCommands = new ArrayList<>();
 
-    private static final HashMap<Class<?>, Cache<Long, CommandListenerMeta<?>>> listenerMap = new HashMap<>();
+    private static final HashMap<ListenerKey, Cache<Long, CommandListenerMeta<?>>> listenerMap = new HashMap<>();
 
     private static int commandStuckCounter = 0;
 
@@ -388,16 +388,21 @@ public class CommandContainer {
 
     public static synchronized <T> void registerListener(Class<?> clazz, CommandListenerMeta<T> commandListenerMeta) {
         Cache<Long, CommandListenerMeta<?>> cache = listenerMap.computeIfAbsent(
-                clazz,
-                e -> CacheBuilder.newBuilder()
-                        .expireAfterWrite(Duration.ofMinutes(Settings.TIME_OUT_MINUTES))
-                        .removalListener(event -> {
-                            if (event.getCause() == RemovalCause.EXPIRED) {
-                                ((CommandListenerMeta<?>) event.getValue()).timeOut();
-                            }
-                        })
-                        .build()
+                new ListenerKey(clazz, commandListenerMeta.getCommand().getCommandProperties().enableCacheWipe()),
+                e -> {
+                    CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
+                    if (commandListenerMeta.getCommand().getCommandProperties().enableCacheWipe()) {
+                        cacheBuilder = cacheBuilder.expireAfterWrite(Duration.ofMinutes(Settings.TIME_OUT_MINUTES))
+                                .removalListener(event -> {
+                                    if (event.getCause() == RemovalCause.EXPIRED) {
+                                        ((CommandListenerMeta<?>) event.getValue()).timeOut();
+                                    }
+                                });
+                    }
+                    return cacheBuilder.build();
+                }
         );
+
         cache.put(commandListenerMeta.getCommand().getId(), commandListenerMeta);
     }
 
@@ -420,17 +425,33 @@ public class CommandContainer {
     }
 
     public static synchronized Collection<CommandListenerMeta<?>> getListeners(Class<?> clazz) {
-        if (!listenerMap.containsKey(clazz)) {
-            return Collections.emptyList();
+        ArrayList<CommandListenerMeta<?>> commandListenerList = new ArrayList<>();
+        if (listenerMap.containsKey(new ListenerKey(clazz, true))) {
+            commandListenerList.addAll(listenerMap.get(new ListenerKey(clazz, true)).asMap().values());
         }
-        return listenerMap.get(clazz).asMap().values();
+        if (listenerMap.containsKey(new ListenerKey(clazz, false))) {
+            commandListenerList.addAll(listenerMap.get(new ListenerKey(clazz, false)).asMap().values());
+        }
+
+        return commandListenerList;
     }
 
     public static synchronized Optional<CommandListenerMeta<?>> getListener(Class<?> clazz, Command command) {
-        if (!listenerMap.containsKey(clazz)) {
-            return Optional.empty();
+        if (listenerMap.containsKey(new ListenerKey(clazz, true))) {
+            Cache<Long, CommandListenerMeta<?>> cache = listenerMap.get(new ListenerKey(clazz, true));
+            if (cache.asMap().containsKey(command.getId())) {
+                return Optional.ofNullable(cache.getIfPresent(command.getId()));
+            }
         }
-        return Optional.ofNullable(listenerMap.get(clazz).getIfPresent(command.getId()));
+
+        if (listenerMap.containsKey(new ListenerKey(clazz, false))) {
+            Cache<Long, CommandListenerMeta<?>> cache = listenerMap.get(new ListenerKey(clazz, false));
+            if (cache.asMap().containsKey(command.getId())) {
+                return Optional.ofNullable(cache.getIfPresent(command.getId()));
+            }
+        }
+
+        return Optional.empty();
     }
 
     public static synchronized void cleanUp() {
@@ -446,7 +467,7 @@ public class CommandContainer {
         }
     }
 
-    public static synchronized Collection<Class<?>> getListenerClasses() {
+    public static synchronized Collection<ListenerKey> getListenerKeys() {
         return listenerMap.keySet();
     }
 
@@ -468,6 +489,40 @@ public class CommandContainer {
 
     public static int getCommandStuckCounter() {
         return commandStuckCounter;
+    }
+
+
+    public static class ListenerKey {
+
+        private final Class<?> clazz;
+        private final boolean withCacheWipe;
+
+        public ListenerKey(Class<?> clazz, boolean withCacheWipe) {
+            this.clazz = clazz;
+            this.withCacheWipe = withCacheWipe;
+        }
+
+        public Class<?> getClazz() {
+            return clazz;
+        }
+
+        public boolean isWithCacheWipe() {
+            return withCacheWipe;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ListenerKey that = (ListenerKey) o;
+            return withCacheWipe == that.withCacheWipe && Objects.equals(clazz, that.clazz);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(clazz, withCacheWipe);
+        }
+
     }
 
 }

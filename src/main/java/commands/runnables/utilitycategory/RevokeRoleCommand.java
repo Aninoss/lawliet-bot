@@ -11,7 +11,7 @@ import net.dv8tion.jda.api.Permission;
         emoji = "\uD83D\uDCE4",
         executableWithoutArgs = false,
         patreonRequired = true,
-        turnOffTimeout = true,
+        enableCacheWipe = false,
         requiresFullMemberCache = true,
         aliases = { "takerole", "revoke", "revokerole" }
 )

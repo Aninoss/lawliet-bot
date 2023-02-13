@@ -35,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
         emoji = "\uD83D\uDCE5",
         executableWithoutArgs = false,
         patreonRequired = true,
-        turnOffTimeout = true,
+        enableCacheWipe = false,
         requiresFullMemberCache = true,
         aliases = { "giverole", "assign", "assignrole" }
 )

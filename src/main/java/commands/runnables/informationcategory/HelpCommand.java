@@ -16,12 +16,13 @@ import commands.runnables.*;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
-import core.*;
+import core.EmbedFactory;
+import core.ListGen;
+import core.Program;
+import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import mysql.modules.commandmanagement.CommandManagementData;
-import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -47,7 +48,6 @@ public class HelpCommand extends NavigationAbstract {
 
     private final HashMap<Integer, String> buttonMap = new HashMap<>();
     private String searchTerm;
-    private CommandManagementData commandManagementBean;
     private Category currentCategory = null;
 
     public HelpCommand(Locale locale, String prefix) {
@@ -57,7 +57,6 @@ public class HelpCommand extends NavigationAbstract {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         searchTerm = args;
-        commandManagementBean = DBCommandManagement.getInstance().retrieve(event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
         return true;
     }

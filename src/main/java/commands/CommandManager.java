@@ -449,24 +449,31 @@ public class CommandManager {
     private static void sendOverwrittenSignals(Command command, Member member, Class<?> clazz) {
         if (clazz.isInstance(command)) {
             CommandContainer.getListeners(clazz).stream()
-                    .filter(meta -> meta.getAuthorId() == member.getIdLong())
+                    .filter(meta -> meta.getAuthorId() == member.getIdLong() && meta.getCommand().getCommandProperties().enableCacheWipe())
                     .forEach(CommandListenerMeta::override);
         }
     }
 
     private static void cleanPreviousListeners(Command command, Member member) {
-        for (Class<?> clazz : CommandContainer.getListenerClasses()) {
-            if (clazz.isInstance(command)) {
-                ArrayList<CommandListenerMeta<?>> metaList = CommandContainer.getListeners(clazz).stream()
-                        .filter(meta -> meta.getAuthorId() == member.getIdLong())
-                        .sorted(Comparator.comparing(CommandListenerMeta::getCreationTime))
-                        .collect(Collectors.toCollection(ArrayList::new));
+        for (CommandContainer.ListenerKey listenerKey : CommandContainer.getListenerKeys()) {
+            if (!listenerKey.isWithCacheWipe()) {
+                continue;
+            }
 
-                while (metaList.size() >= 2) {
-                    CommandListenerMeta<?> meta = metaList.remove(0);
-                    CommandContainer.deregisterListeners(meta.getCommand());
-                    meta.timeOut();
-                }
+            Class<?> clazz = listenerKey.getClazz();
+            if (!clazz.isInstance(command)) {
+                continue;
+            }
+
+            ArrayList<CommandListenerMeta<?>> metaList = CommandContainer.getListeners(clazz).stream()
+                    .filter(meta -> meta.getAuthorId() == member.getIdLong())
+                    .sorted(Comparator.comparing(CommandListenerMeta::getCreationTime))
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            while (metaList.size() >= 2) {
+                CommandListenerMeta<?> meta = metaList.remove(0);
+                CommandContainer.deregisterListeners(meta.getCommand());
+                meta.timeOut();
             }
         }
     }

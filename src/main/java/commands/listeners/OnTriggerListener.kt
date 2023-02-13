@@ -57,7 +57,7 @@ interface OnTriggerListener {
         val command = this as Command
         val commandThread = Thread.currentThread()
         MainScheduler.schedule(command.commandProperties.maxCalculationTimeSec.toLong(), ChronoUnit.SECONDS, "command_timeout") {
-            if (!command.commandProperties.turnOffTimeout) {
+            if (command.commandProperties.enableCacheWipe) {
                 CommandContainer.addCommandTerminationStatus(command, commandThread, isProcessing.get())
             }
         }

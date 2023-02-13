@@ -19,7 +19,7 @@ annotation class CommandProperties(
     val patreonRequired: Boolean = false,
     val exclusiveGuilds: LongArray = [],
     val exclusiveUsers: LongArray = [],
-    val turnOffTimeout: Boolean = false,
+    val enableCacheWipe: Boolean = true,
     val releaseDate: IntArray = [],
     val onlyPublicVersion: Boolean = false,
     val usesExtEmotes: Boolean = false,

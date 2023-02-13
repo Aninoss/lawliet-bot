@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
         emoji = "\uD83D\uDD01",
         executableWithoutArgs = true,
         patreonRequired = true,
-        turnOffTimeout = true,
+        enableCacheWipe = false,
         requiresFullMemberCache = true,
         aliases = { "impersonate" }
 )
