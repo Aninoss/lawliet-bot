@@ -19,7 +19,9 @@ public class ReplicateDownloader {
         JSONObject inputJson = new JSONObject();
         inputJson.put("prompt", model.getPrefix() + prompt);
         inputJson.put("num_outputs", model.getNumOutputs());
-        inputJson.put("negative_prompt", "rating:explicit");
+        inputJson.put("negative_prompt", model.getNegativePrompt());
+        inputJson.put("num_inference_steps", model.getNumInferenceSteps());
+        inputJson.put("guidance_scale", model.getGuidanceScale());
         requestJson.put("input", inputJson);
 
         return HttpRequest.post(

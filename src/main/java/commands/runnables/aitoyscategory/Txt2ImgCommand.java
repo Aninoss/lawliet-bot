@@ -115,9 +115,11 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
                             .setImage(predictionResult.getOutputs().get(currentImage));
                 }
                 case FAILED -> {
-                    String error = predictionResult.getError();
-                    if (error.contains("NSFW")) {
+                    String error;
+                    if (predictionResult.getError().contains("NSFW")) {
                         error = getString("nsfw");
+                    } else {
+                        error = getString("error");
                     }
                     eb = EmbedFactory.getEmbedError(this, error);
                 }
