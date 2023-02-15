@@ -154,7 +154,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
 
             if (fisheryGuildData == null) {
                 playerList.add(new AtomicMember(event.getMember()));
-                setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join_log", event.getMember().getEffectiveName()));
+                setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join_log", StringUtil.escapeMarkdownInField(event.getMember().getEffectiveName())));
                 return true;
             }
 
@@ -162,7 +162,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
             if (fisheryMemberData.getCoins() >= coinsInput) {
                 fisheryMemberData.addCoinsHidden(coinsInput);
                 playerList.add(new AtomicMember(event.getMember()));
-                setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join_log", event.getMember().getEffectiveName()));
+                setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join_log", StringUtil.escapeMarkdownInField(event.getMember().getEffectiveName())));
                 return true;
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_join_notenough"));
@@ -183,7 +183,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
             }
             playerList.removeIf(m -> m == null || m.getIdLong() == event.getMember().getIdLong());
             if (playerList.size() > 0) {
-                setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_leave_log", event.getMember().getEffectiveName()));
+                setLog(null, TextManager.getString(getLocale(), Category.CASINO, "casino_multiplayer_leave_log", StringUtil.escapeMarkdownInField(event.getMember().getEffectiveName())));
                 return true;
             } else {
                 deregisterListenersWithComponentMessage();

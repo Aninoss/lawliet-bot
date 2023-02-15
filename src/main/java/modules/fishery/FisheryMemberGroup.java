@@ -28,7 +28,7 @@ public class FisheryMemberGroup implements GuildAsset {
     public String getAsTag() {
         AtomicMember atomicMember = members.get(0);
         if (members.size() == 1 && atomicMember.get().isPresent()) {
-            return atomicMember.get().get().getUser().getAsTag();
+            return StringUtil.escapeMarkdown(atomicMember.get().get().getUser().getAsTag());
         } else {
             Locale locale = DBGuild.getInstance().retrieve(guildId).getLocale();
             return StringUtil.numToString(members.size()) + " " + TextManager.getString(locale, TextManager.GENERAL, "members", members.size() != 1);

@@ -41,20 +41,20 @@ public class JDAUtil {
 
     public static String resolveMentions(Guild guild, String content) {
         for (Member member : MemberCacheController.getInstance().loadMembersFull(guild).join()) {
-            content = content.replace(MentionUtil.getUserAsMention(member.getIdLong(), true), "@" + member.getEffectiveName())
-                    .replace(MentionUtil.getUserAsMention(member.getIdLong(), false), "@" + member.getEffectiveName());
+            content = content.replace(MentionUtil.getUserAsMention(member.getIdLong(), true), "@" + StringUtil.escapeMarkdownInField(member.getEffectiveName()))
+                    .replace(MentionUtil.getUserAsMention(member.getIdLong(), false), "@" + StringUtil.escapeMarkdownInField(member.getEffectiveName()));
         }
         for (TextChannel channel : guild.getTextChannels()) {
-            content = content.replace(channel.getAsMention(), "#" + channel.getName());
+            content = content.replace(channel.getAsMention(), "#" + StringUtil.escapeMarkdownInField(channel.getName()));
         }
         for (VoiceChannel channel : guild.getVoiceChannels()) {
-            content = content.replace(channel.getAsMention(), "#" + channel.getName());
+            content = content.replace(channel.getAsMention(), "#" + StringUtil.escapeMarkdownInField(channel.getName()));
         }
         for (Role role : guild.getRoles()) {
-            content = content.replace(role.getAsMention(), "@" + role.getName());
+            content = content.replace(role.getAsMention(), "@" + StringUtil.escapeMarkdownInField(role.getName()));
         }
         for (RichCustomEmoji richCustomEmoji : guild.getEmojis()) {
-            content = content.replace(richCustomEmoji.getFormatted(), ":" + richCustomEmoji.getName() + ":");
+            content = content.replace(richCustomEmoji.getFormatted(), ":" + StringUtil.escapeMarkdownInField(richCustomEmoji.getName()) + ":");
         }
         return content;
     }

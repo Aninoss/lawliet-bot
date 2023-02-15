@@ -61,7 +61,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
 
         boolean userExists = false;
         CustomObservableMap<Long, OsuAccountData> osuMap = DBOsuAccounts.getInstance().retrieve();
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("noacc", member.getEffectiveName()));
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("noacc", StringUtil.escapeMarkdown(member.getEffectiveName())));
         setGameMode(args);
 
         if (osuMap.containsKey(member.getIdLong())) {

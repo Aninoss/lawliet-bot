@@ -4,6 +4,7 @@ import constants.AssetIds;
 import core.utils.BotPermissionUtil;
 import core.utils.InternetUtil;
 import core.utils.JDAUtil;
+import core.utils.StringUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -24,7 +25,7 @@ public class LinkFilter {
                         .flatMap(messageChannel -> messageChannel.sendMessage(text))
                         .queue();
                 message.getGuild().getTextChannelById(819350890263085097L)
-                        .sendMessage("LINK BLOCK FOR " + message.getAuthor().getAsTag() + " IN " + message.getChannel().getAsMention() + ": " + message.getContentRaw())
+                        .sendMessage("LINK BLOCK FOR " + StringUtil.escapeMarkdown(message.getAuthor().getAsTag()) + " IN " + message.getChannel().getAsMention() + ": " + message.getContentRaw())
                         .queue();
             }
             return false;

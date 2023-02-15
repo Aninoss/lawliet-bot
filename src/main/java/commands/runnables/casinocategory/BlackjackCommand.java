@@ -163,7 +163,7 @@ public class BlackjackCommand extends CasinoAbstract {
     public EmbedBuilder drawCasino(String playerName, long coinsInput) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .addField(
-                        getString("cards", false, getCardsValueString(PlayerType.PLAYER), playerName),
+                        getString("cards", false, getCardsValueString(PlayerType.PLAYER), StringUtil.escapeMarkdown(playerName)),
                         getCardsString(PlayerType.PLAYER, cardRecentDrawn == PlayerType.PLAYER),
                         true
                 )

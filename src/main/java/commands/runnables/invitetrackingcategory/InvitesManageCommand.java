@@ -129,7 +129,7 @@ public class InvitesManageCommand extends NavigationAbstract {
                 } else {
                     DBInviteTracking.getInstance().resetInviteTrackerSlotsOfInviter(event.getGuild().getIdLong(), atomicMember.getIdLong());
                     resetLog = true;
-                    setLog(LogStatus.SUCCESS, getString("reset", atomicMember.getIdLong() == 0, atomicMember.getName()));
+                    setLog(LogStatus.SUCCESS, getString("reset", atomicMember.getIdLong() == 0, StringUtil.escapeMarkdownInField(atomicMember.getName())));
                     setState(0);
                 }
                 return true;

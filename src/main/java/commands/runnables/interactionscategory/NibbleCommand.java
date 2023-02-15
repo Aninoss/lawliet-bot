@@ -13,6 +13,7 @@ import core.RandomPicker;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
+import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
@@ -73,7 +74,7 @@ public class NibbleCommand extends Command {
         String[] gifs = chooseEarGif ? getGifsEar() : getGifs();
         String gifUrl = gifs[RandomPicker.pick(getTrigger() + chooseEarGif, event.getGuild().getIdLong(), gifs.length).get()];
 
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", user0.getEffectiveName(), user1.getEffectiveName(), text))
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", StringUtil.escapeMarkdown(user0.getEffectiveName()), StringUtil.escapeMarkdown(user1.getEffectiveName()), text))
                 .setImage(gifUrl);
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
 

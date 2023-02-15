@@ -8,6 +8,7 @@ import commands.runnables.moderationcategory.JailCommand;
 import commands.Category;
 import core.*;
 import core.schedule.MainScheduler;
+import core.utils.StringUtil;
 import modules.Jail;
 import modules.Mod;
 import mysql.modules.jails.DBJails;
@@ -54,7 +55,7 @@ public class JailScheduler {
                 Jail.unjail(jailData, guild, member, TextManager.getString(locale, Category.MODERATION, "jail_expired_title"));
 
                 Command command = CommandManager.createCommandByClass(JailCommand.class, locale, jailData.getGuildData().getPrefix());
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "jail_expired", member.getUser().getAsTag()));
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "jail_expired", StringUtil.escapeMarkdown(member.getUser().getAsTag())));
                 Mod.postLogMembers(command, eb, member.getGuild(), member);
             }
         });

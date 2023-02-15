@@ -137,7 +137,7 @@ public class SlotCommand extends CasinoAbstract {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
                 key,
-                playerName,
+                StringUtil.escapeMarkdown(playerName),
                 StringUtil.numToString(coinsInput),
                 getSpinningWheel(0),
                 getSpinningWheel(1),

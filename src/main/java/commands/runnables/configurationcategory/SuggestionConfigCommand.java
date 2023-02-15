@@ -62,7 +62,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
                     setState(0);
                     return MessageInputResponse.SUCCESS;
                 } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission", channel.getName()));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission", StringUtil.escapeMarkdownInField(channel.getName())));
                     return MessageInputResponse.FAILED;
                 }
             }

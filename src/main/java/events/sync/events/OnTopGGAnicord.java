@@ -27,7 +27,7 @@ public class OnTopGGAnicord extends OnTopGG {
                 FisheryMemberData userBean = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberData(userId);
                 long add = Fishery.getClaimValue(userBean);
 
-                String desc = MessageFormat.format("✅ | {0} hat auf [top.gg]({3}) für **{1}** geupvotet und dafür **🐟 {2}** (25% der Daily-Fische) erhalten!", member.getAsMention(), guild.getName(), StringUtil.numToString(add), String.format("https://top.gg/servers/%d/vote", AssetIds.ANICORD_SERVER_ID));
+                String desc = MessageFormat.format("✅ | **{0}** hat auf [top.gg]({3}) für **{1}** geupvotet und dafür **🐟 {2}** (25% der Daily-Fische) erhalten!", StringUtil.escapeMarkdown(member.getEffectiveName()), StringUtil.escapeMarkdown(guild.getName()), StringUtil.numToString(add), String.format("https://top.gg/servers/%d/vote", AssetIds.ANICORD_SERVER_ID));
                 bumpChannel.sendMessageEmbeds(
                         EmbedFactory.getEmbedDefault().setDescription(desc).build(),
                         userBean.changeValuesEmbed(member, add, 0).build()

@@ -295,7 +295,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         if (channel == null || BotPermissionUtil.canWriteEmbed(channel)) {
             return true;
         }
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#" + channel.getName()));
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#" + StringUtil.escapeMarkdownInField(channel.getName())));
         return false;
     }
 
@@ -303,7 +303,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         if (channel == null || BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ATTACH_FILES)) {
             return true;
         }
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_files", "#" + channel.getName()));
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_files", "#" + StringUtil.escapeMarkdownInField(channel.getName())));
         return false;
     }
 
@@ -311,7 +311,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         if (BotPermissionUtil.can(channel, Permission.MANAGE_CHANNEL)) {
             return true;
         }
-        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", (channel.getType() == ChannelType.TEXT ? "#" : "") + channel.getName()));
+        setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_permission", (channel.getType() == ChannelType.TEXT ? "#" : "") + StringUtil.escapeMarkdownInField(channel.getName())));
         return false;
     }
 

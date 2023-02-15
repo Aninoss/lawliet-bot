@@ -13,6 +13,7 @@ import core.RandomPicker;
 import core.TextManager;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
+import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
@@ -69,7 +70,7 @@ public class RosesCommand extends Command {
         }
 
         int index = pickRosesIndex(args);
-        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", index, user0.getEffectiveName(), user1.getEffectiveName()))
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("template", index, StringUtil.escapeMarkdown(user0.getEffectiveName()), StringUtil.escapeMarkdown(user1.getEffectiveName())))
                 .setImage(getGifForIndex(index, user0.getIdLong() == SEELE_USER_ID));
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
 

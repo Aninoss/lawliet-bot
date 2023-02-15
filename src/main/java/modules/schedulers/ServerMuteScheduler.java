@@ -8,6 +8,7 @@ import commands.runnables.moderationcategory.MuteCommand;
 import commands.Category;
 import core.*;
 import core.schedule.MainScheduler;
+import core.utils.StringUtil;
 import modules.Mod;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.servermute.DBServerMute;
@@ -60,13 +61,13 @@ public class ServerMuteScheduler {
                 }
 
                 Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildData().getPrefix());
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", member.getUser().getAsTag()));
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", StringUtil.escapeMarkdown(member.getUser().getAsTag())));
                 Mod.postLogMembers(command, eb, member.getGuild(), member);
             } else {
                 ShardManager.fetchUserById(serverMuteData.getMemberId())
                         .thenAccept(user -> {
                             Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildData().getPrefix());
-                            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", user.getAsTag()));
+                            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", StringUtil.escapeMarkdown(user.getAsTag())));
                             Mod.postLogUsers(command, eb, serverMuteData.getGuild().get(), user);
                         });
             }

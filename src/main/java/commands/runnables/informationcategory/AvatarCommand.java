@@ -7,6 +7,7 @@ import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -31,7 +32,7 @@ public class AvatarCommand extends MemberAccountAbstract {
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         avatarUrl = member.getEffectiveAvatarUrl() + "?size=2048";
-        return EmbedFactory.getEmbedDefault(this, getString("template", member.getEffectiveName()))
+        return EmbedFactory.getEmbedDefault(this, getString("template", StringUtil.escapeMarkdown(member.getEffectiveName())))
                 .setImage(avatarUrl);
     }
 

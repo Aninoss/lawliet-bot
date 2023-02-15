@@ -72,7 +72,7 @@ public class HangmanCommand extends CasinoAbstract {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
                 key,
-                playerName,
+                StringUtil.escapeMarkdown(playerName),
                 StringUtil.numToString(coinsInput),
                 getProgress(),
                 StringUtil.generateHeartBar(health, MAX_HEALTH, wrongAnswer),

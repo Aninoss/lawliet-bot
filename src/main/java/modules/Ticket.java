@@ -188,7 +188,7 @@ public class Ticket {
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
-                    .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", ticketTextChannel.getName(), StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName())));
+                    .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", StringUtil.escapeMarkdownInField(ticketTextChannel.getName()), StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName())));
             if (csvUrl != null) {
                 EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.UTILITY, "ticket_csv_warning"));
             }
@@ -228,7 +228,7 @@ public class Ticket {
                     String title = Command.getCommandProperties(TicketCommand.class).emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(title)
-                            .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_assigned", channel.getAsMention(), StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName()), member.getUser().getAsTag()));
+                            .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_assigned", channel.getAsMention(), StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName()), StringUtil.escapeMarkdown(member.getUser().getAsTag())));
                     announcementChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), " ")
                             .setEmbeds(eb.build())
                             .queue();

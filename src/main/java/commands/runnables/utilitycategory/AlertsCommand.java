@@ -232,7 +232,7 @@ public class AlertsCommand extends NavigationAbstract {
                 if (BotPermissionUtil.canWriteEmbed(channel)) {
                     setState(STATE_COMMAND);
                 } else {
-                    String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#" + channel.getName());
+                    String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", "#" + StringUtil.escapeMarkdownInField(channel.getName()));
                     setLog(LogStatus.FAILURE, error);
                 }
                 return true;
@@ -349,7 +349,7 @@ public class AlertsCommand extends NavigationAbstract {
                 })
                 .map(alert -> {
                     String trigger = alert.getCommandTrigger();
-                    String channelName = StringUtil.escapeMarkdown(StringUtil.shortenString(new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), alert.getStandardGuildMessageChannelId()).getPrefixedName(), 40));
+                    String channelName = StringUtil.shortenString(StringUtil.escapeMarkdown(new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), alert.getStandardGuildMessageChannelId()).getPrefixedName()), 40);
                     String label = getString("slot_remove", false, channelName, trigger);
                     return Button.of(ButtonStyle.PRIMARY, String.valueOf(alert.hashCode()), label);
                 })

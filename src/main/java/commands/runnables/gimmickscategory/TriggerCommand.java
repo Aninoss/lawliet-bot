@@ -7,6 +7,7 @@ import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import core.ExceptionLogger;
+import core.utils.StringUtil;
 import modules.graphics.TriggerGraphics;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -33,7 +34,7 @@ public class TriggerCommand extends MemberAccountAbstract {
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         event.deferReply();
         inputStream = TriggerGraphics.createImageTriggered(member.getUser());
-        return EmbedFactory.getEmbedDefault(this, getString("template", member.getEffectiveName()))
+        return EmbedFactory.getEmbedDefault(this, getString("template", StringUtil.escapeMarkdown(member.getEffectiveName())))
                 .setImage("attachment://trigger.gif");
     }
 

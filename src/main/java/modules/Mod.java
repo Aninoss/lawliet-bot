@@ -16,6 +16,7 @@ import core.*;
 import core.utils.BotPermissionUtil;
 import core.utils.FutureUtil;
 import core.utils.JDAUtil;
+import core.utils.StringUtil;
 import javafx.util.Pair;
 import modules.schedulers.TempBanScheduler;
 import mysql.modules.moderation.DBModeration;
@@ -72,7 +73,7 @@ public class Mod {
                         int duration = moderationBean.getAutoBanDuration();
                         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                                 .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autoban"))
-                                .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", duration > 0, target.getAsTag(), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
+                                .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autoban_template", duration > 0, StringUtil.escapeMarkdown(target.getAsTag()), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
 
                         postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildData().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                             guild.ban(target, 0, TimeUnit.DAYS)
@@ -93,7 +94,7 @@ public class Mod {
             ) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autokick"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", target.getAsTag()));
+                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autokick_template", StringUtil.escapeMarkdown(target.getAsTag())));
 
                 postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildData().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                     guild.kick(target, TextManager.getString(locale, Category.MODERATION, "mod_autokick")).queue();
@@ -109,7 +110,7 @@ public class Mod {
                     int duration = moderationBean.getAutoJailDuration();
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_autojail"))
-                            .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autojail_template", duration > 0, target.getAsTag(), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
+                            .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autojail_template", duration > 0, StringUtil.escapeMarkdown(target.getAsTag()), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
 
                     postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildData().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                         Jail.jail(guild, member, duration, TextManager.getString(locale, Category.MODERATION, "mod_autojail"));
@@ -124,7 +125,7 @@ public class Mod {
                 int duration = moderationBean.getAutoMuteDuration();
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(EMOJI_AUTOMOD + " " + TextManager.getString(locale, Category.MODERATION, "mod_automute"))
-                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_automute_template", duration > 0, target.getAsTag(), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
+                        .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_automute_template", duration > 0, StringUtil.escapeMarkdown(target.getAsTag()), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
 
                 postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, moderationBean.getGuildData().getPrefix()), eb, guild, moderationBean, target).thenRun(() -> {
                     Mute.mute(guild, target, duration, TextManager.getString(locale, Category.MODERATION, "mod_automute"));

@@ -10,6 +10,7 @@ import core.ExceptionLogger;
 import core.RandomPicker;
 import core.mention.Mention;
 import core.utils.MentionUtil;
+import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
@@ -53,12 +54,12 @@ public class CelebrateCommand extends Command {
     private void mentionUsed(CommandEvent event, String args, Member author, String mention) throws ExecutionException, InterruptedException {
         String text;
         if (args.equalsIgnoreCase("with") || args.equals("mit")) {
-            text = getString("template_mention_with", author.getEffectiveName(), mention);
+            text = getString("template_mention_with", StringUtil.escapeMarkdown(author.getEffectiveName()), mention);
         } else {
             if (args.isEmpty()) {
-                text = getString("template_mention_notext", author.getEffectiveName(), mention);
+                text = getString("template_mention_notext", StringUtil.escapeMarkdown(author.getEffectiveName()), mention);
             } else {
-                text = getString("template_mention_text", author.getEffectiveName(), args, mention);
+                text = getString("template_mention_text", StringUtil.escapeMarkdown(author.getEffectiveName()), args, mention);
             }
         }
         send(event, text);
@@ -67,9 +68,9 @@ public class CelebrateCommand extends Command {
     private void mentionBlank(CommandEvent event, String args, Member author) throws ExecutionException, InterruptedException {
         String text;
         if (args.isEmpty()) {
-            text = getString("template_nomention_notext", author.getEffectiveName());
+            text = getString("template_nomention_notext", StringUtil.escapeMarkdown(author.getEffectiveName()));
         } else {
-            text = getString("template_nomention_text", author.getEffectiveName(), args);
+            text = getString("template_nomention_text", StringUtil.escapeMarkdown(author.getEffectiveName()), args);
         }
         send(event, text);
     }

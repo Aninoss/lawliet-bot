@@ -38,26 +38,26 @@ public class StatsCommand extends Command {
 
         String dephordName = "???";
         try {
-            dephordName = ShardManager.fetchUserById(303085910784737281L).get().getAsTag();
+            dephordName = StringUtil.escapeMarkdown(ShardManager.fetchUserById(303085910784737281L).get().getAsTag());
         } catch (InterruptedException | ExecutionException e) {
             //Ignore
         }
 
         String neverCookFirstName = "???";
         try {
-            neverCookFirstName = ShardManager.fetchUserById(298153126223937538L).get().getAsTag();
+            neverCookFirstName = StringUtil.escapeMarkdown(ShardManager.fetchUserById(298153126223937538L).get().getAsTag());
         } catch (InterruptedException | ExecutionException e) {
             //Ignore
         }
 
         String laleName = "???";
         try {
-            laleName = ShardManager.fetchUserById(774017093309431808L).get().getAsTag();
+            laleName = StringUtil.escapeMarkdown(ShardManager.fetchUserById(774017093309431808L).get().getAsTag());
         } catch (InterruptedException | ExecutionException e) {
             //Ignore
         }
 
-        String owner = ShardManager.fetchOwner().get().getAsTag();
+        String owner = StringUtil.escapeMarkdown(ShardManager.fetchOwner().get().getAsTag());
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,
                 getString(

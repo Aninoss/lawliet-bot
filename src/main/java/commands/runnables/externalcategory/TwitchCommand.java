@@ -73,7 +73,7 @@ public class TwitchCommand extends Command implements OnAlertListener {
         } else {
             eb = EmbedFactory.getEmbedDefault()
                     .setAuthor(twitchUser.getDisplayName(), channelUrl, TWITCH_ICON)
-                    .setDescription(getString("offline", twitchUser.getDisplayName()));
+                    .setDescription(getString("offline", StringUtil.escapeMarkdown(twitchUser.getDisplayName())));
             EmbedUtil.setFooter(eb, this);
         }
 

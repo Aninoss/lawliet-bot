@@ -15,6 +15,7 @@ import core.TextManager;
 import core.cache.ReactionMessagesCache;
 import core.emojiconnection.EmojiConnection;
 import core.utils.BotPermissionUtil;
+import core.utils.StringUtil;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -90,7 +91,7 @@ public class ReactionRoles {
             return TextManager.getString(locale, Category.UTILITY, "reactionroles_shortcutstoolong");
         }
         if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION)) {
-            return TextManager.getString(locale, TextManager.GENERAL, "permission_channel_reactions", "#" + channel.getName());
+            return TextManager.getString(locale, TextManager.GENERAL, "permission_channel_reactions", "#" + StringUtil.escapeMarkdownInField(channel.getName()));
         }
 
         if (!editMode) {

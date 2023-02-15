@@ -67,7 +67,7 @@ public class CoinFlipCommand extends CasinoAbstract {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         eb.addField(getString("yourbet"), getChoiceString(getTextChannel().get(), 0) + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true);
         eb.addField(getString("yourthrow"), getChoiceString(getTextChannel().get(), 1) + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true);
-        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("template", playerName, StringUtil.numToString(coinsInput)), false);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("template", StringUtil.escapeMarkdown(playerName), StringUtil.numToString(coinsInput)), false);
 
         if (selection[0] == -1) {
             eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("expl"), false);

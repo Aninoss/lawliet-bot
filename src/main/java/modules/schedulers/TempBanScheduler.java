@@ -8,6 +8,7 @@ import commands.runnables.moderationcategory.BanCommand;
 import commands.Category;
 import core.*;
 import core.schedule.MainScheduler;
+import core.utils.StringUtil;
 import modules.Mod;
 import mysql.modules.tempban.DBTempBan;
 import mysql.modules.tempban.TempBanData;
@@ -61,7 +62,7 @@ public class TempBanScheduler {
 
                         ShardManager.fetchUserById(tempBanData.getMemberId()).thenAccept(user -> {
                             Command command = CommandManager.createCommandByClass(BanCommand.class, locale, tempBanData.getGuildData().getPrefix());
-                            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "ban_expired", user.getAsTag()));
+                            EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "ban_expired", StringUtil.escapeMarkdown(user.getAsTag())));
                             Mod.postLogUsers(command, eb, guild, user);
                         });
                     }

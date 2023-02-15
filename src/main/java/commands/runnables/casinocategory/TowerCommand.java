@@ -88,7 +88,7 @@ public class TowerCommand extends CasinoAbstract {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, towerText.toString());
         eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("template_start", showMoreText,
-                playerName,
+                StringUtil.escapeMarkdown(playerName),
                 StringUtil.numToString(coinsInput),
                 StringUtil.doubleToString(towerMultiplier, 2, getLocale())
         ), false);
