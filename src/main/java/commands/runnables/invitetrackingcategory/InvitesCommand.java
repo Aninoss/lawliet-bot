@@ -69,7 +69,7 @@ public class InvitesCommand extends MemberAccountAbstract {
             eb.setAuthor(getString("template_title", member.getEffectiveName()), null, member.getEffectiveAvatarUrl());
             InviteTrackingSlot slot = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).getInviteTrackingSlots().get(member.getIdLong());
             if (slot != null) {
-                eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("invitedby", slot.getInviterUserId() == 0, new AtomicMember(event.getGuild().getIdLong(), slot.getInviterUserId()).getAsMention()), false);
+                eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("invitedby", slot.getInviterUserId() == 0, StringUtil.escapeMarkdown(new AtomicMember(event.getGuild().getIdLong(), slot.getInviterUserId()).getTaggedName())), false);
             }
         } else {
             String vanityInvite = TextManager.getString(getLocale(), TextManager.GENERAL, "invites_vanity");

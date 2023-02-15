@@ -148,9 +148,9 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
                 AtomicMember atomicMember = playerList.get(i);
                 int boardId = playerToBoard[i];
                 String playerBoardValue = boardId != -1
-                        ? "**" + getString("board", StringUtil.numToString(boardId + 1)) + "**"
+                        ? getString("board", StringUtil.numToString(boardId + 1))
                         : TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-                sb.append(getString("memberboardselect", atomicMember.getAsMention(), playerBoardValue))
+                sb.append(getString("memberboardselect", StringUtil.escapeMarkdown(atomicMember.getName()), playerBoardValue))
                         .append("\n");
             }
             sb.append("\n");

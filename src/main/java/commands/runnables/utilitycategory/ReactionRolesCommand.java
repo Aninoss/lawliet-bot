@@ -467,7 +467,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         if (atomicTextChannel != null) {
             setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
         }
-        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(atomicTextChannel).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state1_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(atomicTextChannel).map(MentionableAtomicAsset::getPrefixedNameInField).orElse(notSet)), getString("state1_title"));
     }
 
     @Draw(state = EDIT_MESSAGE)
@@ -525,7 +525,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public EmbedBuilder onDrawAddSlot(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         if (roleTemp != null && emojiTemp != null) setComponents(getString("state6_options"));
-        return EmbedFactory.getEmbedDefault(this, getString("state6_description", Optional.ofNullable(emojiTemp).map(Emoji::getFormatted).orElse(notSet), Optional.ofNullable(roleTemp).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state6_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state6_description", Optional.ofNullable(emojiTemp).map(Emoji::getFormatted).orElse(notSet), Optional.ofNullable(roleTemp).map(MentionableAtomicAsset::getPrefixedNameInField).orElse(notSet)), getString("state6_title"));
     }
 
     @Draw(state = REMOVE_SLOT)

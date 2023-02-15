@@ -105,7 +105,7 @@ public class StickyRolesCommand extends NavigationAbstract {
             case 0:
                 setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(roles, getLocale(), MentionableAtomicAsset::getAsMention), true);
+                        .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(roles, getLocale(), MentionableAtomicAsset::getPrefixedNameInField), true);
 
             case 1:
                 return roleNavigationHelper.drawDataAdd();

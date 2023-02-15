@@ -14,6 +14,7 @@ import core.ListGen;
 import core.MemberCacheController;
 import core.TextManager;
 import core.atomicassets.AtomicVoiceChannel;
+import core.atomicassets.MentionableAtomicAsset;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -27,7 +28,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
@@ -216,25 +216,29 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
     @Override
     public EmbedBuilder draw(Member member, int state) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-
         switch (state) {
-            case 0:
+            case 0 -> {
                 setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<MemberCountDisplaySlot>()
                                 .getList(memberCountBean.getMemberCountBeanSlots().values(), getLocale(), bean -> {
                                     if (bean.getVoiceChannel().isPresent()) {
-                                        return getString("state0_displays", StringUtil.escapeMarkdown(bean.getVoiceChannel().get().getAsMention()), StringUtil.escapeMarkdown(bean.getMask()));
+                                        return getString("state0_displays", new AtomicVoiceChannel(bean.getVoiceChannel().get()).getPrefixedNameInField(), StringUtil.escapeMarkdown(bean.getMask()));
                                     } else {
                                         return getString("state0_displays", TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(bean.getVoiceChannelId())), StringUtil.escapeMarkdown(bean.getMask()));
                                     }
                                 })), false);
-
-            case 1:
-                if (currentName != null && currentVC != null) setComponents(getString("state1_options"));
-                return EmbedFactory.getEmbedDefault(this, getString("state1_description", StringUtil.escapeMarkdown(Optional.ofNullable(currentVC).flatMap(AtomicVoiceChannel::get).map(GuildChannel::getAsMention).orElse(notSet)), highlightVariables(StringUtil.escapeMarkdown(Optional.ofNullable(currentName).orElse(notSet)))), getString("state1_title"));
-
-            case 2:
+            }
+            case 1 -> {
+                if (currentName != null && currentVC != null) {
+                    setComponents(getString("state1_options"));
+                }
+                String currentVoiceChannel = Optional.ofNullable(currentVC).map(MentionableAtomicAsset::getPrefixedNameInField).orElse("**" + notSet + "**");
+                String currentNameMask = "**" + highlightVariables(Optional.ofNullable(currentName).map(StringUtil::escapeMarkdown).orElse(notSet)) + "**";
+                return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"))
+                        .addField(getString("state1_status_title"), getString("state1_status_desc", currentVoiceChannel, currentNameMask), false);
+            }
+            case 2 -> {
                 ArrayList<MemberCountDisplaySlot> channelNames = new ArrayList<>(memberCountBean.getMemberCountBeanSlots().values());
                 String[] roleStrings = new String[channelNames.size()];
                 for (int i = 0; i < roleStrings.length; i++) {
@@ -242,9 +246,10 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                 }
                 setComponents(roleStrings);
                 return EmbedFactory.getEmbedDefault(this, getString("state2_description"), getString("state2_title"));
-
-            default:
+            }
+            default -> {
                 return null;
+            }
         }
     }
 

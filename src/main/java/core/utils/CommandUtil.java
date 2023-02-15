@@ -12,6 +12,7 @@ import commands.CommandEvent;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.mention.MentionList;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -71,7 +72,7 @@ public class CommandUtil {
             }
             CompletableFuture<Message> messageFuture = messageAction.submit();
 
-            EmbedBuilder confirmEmbed = EmbedFactory.getEmbedDefault(command, TextManager.getString(command.getLocale(), TextManager.GENERAL, "message_sent_channel", channel.getAsMention()));
+            EmbedBuilder confirmEmbed = EmbedFactory.getEmbedDefault(command, TextManager.getString(command.getLocale(), TextManager.GENERAL, "message_sent_channel", new AtomicStandardGuildMessageChannel(channel).getPrefixedNameInField()));
             command.drawMessageNew(confirmEmbed).exceptionally(ExceptionLogger.get());
 
             return messageFuture;

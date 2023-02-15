@@ -65,7 +65,7 @@ public class WarnRemoveCommand extends WarnCommand {
     @Override
     protected EmbedBuilder getActionEmbed(Member executor, TextChannel channel) {
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
-        return EmbedFactory.getEmbedDefault(this, getString("action", n > 1, executor.getAsMention(), getAmountString().toLowerCase(), mention.getMentionText()));
+        return EmbedFactory.getEmbedDefault(this, getString("action", n > 1, StringUtil.escapeMarkdown(executor.getUser().getAsTag()), getAmountString().toLowerCase(), mention.getMentionText()));
     }
 
     @Override

@@ -198,7 +198,7 @@ public class InvitesManageCommand extends NavigationAbstract {
         }
         setComponents(buttons);
 
-        return EmbedFactory.getEmbedDefault(this, getString("state0_desc", atomicMember.getIdLong() == 0L, atomicMember.getAsMention()))
+        return EmbedFactory.getEmbedDefault(this, getString("state0_desc", atomicMember.getIdLong() == 0L, StringUtil.escapeMarkdown(atomicMember.getTaggedName())))
                 .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), inviteMetricsString, false);
     }
 
@@ -210,7 +210,7 @@ public class InvitesManageCommand extends NavigationAbstract {
         }
         return EmbedFactory.getEmbedDefault(
                 this,
-                getString("state1_desc", fakeInviteAtomicMember != null ? fakeInviteAtomicMember.getAsMention() : notSet),
+                getString("state1_desc", fakeInviteAtomicMember != null ? fakeInviteAtomicMember.getPrefixedNameInField() : notSet),
                 getString("state1_title")
         );
     }

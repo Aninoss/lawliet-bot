@@ -18,7 +18,6 @@ import mysql.modules.warning.DBServerWarnings;
 import mysql.modules.warning.ServerWarningSlot;
 import mysql.modules.warning.ServerWarningsData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -157,7 +156,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
             ServerWarningSlot serverWarningsSlot = warningSlots.get(i);
             Optional<Member> requestor = serverWarningsSlot.getRequesterMember();
             Optional<String> reason = serverWarningsSlot.getReason();
-            String userString = requestor.map(IMentionable::getAsMention).orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user"));
+            String userString = requestor.map(m -> StringUtil.escapeMarkdown(m.getUser().getAsTag())).orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "unknown_user"));
             String timeDiffString = TimeFormat.DATE_TIME_SHORT.atInstant(serverWarningsSlot.getTime()).toString();
             sb.append(getString("latest_slot", reason.isPresent(), userString, timeDiffString, reason.orElse(getString("noreason"))));
         }

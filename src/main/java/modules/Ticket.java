@@ -15,11 +15,12 @@ import core.EmbedFactory;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
 import core.TextManager;
+import core.atomicassets.AtomicUser;
 import core.cache.TicketProtocolCache;
 import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
-import core.utils.MentionUtil;
+import core.utils.StringUtil;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
@@ -110,7 +111,7 @@ public class Ticket {
                 announcementNotPosted.set(false);
                 EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault()
                         .setTitle(title)
-                        .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_open", member.getAsMention(), textChannel.getAsMention()));
+                        .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_open", StringUtil.escapeMarkdown(member.getUser().getAsTag()), textChannel.getAsMention()));
                 announcementChannel.sendMessage(ticketData.getPingStaff() ? getRolePing(textChannel.getGuild(), ticketData) : " ")
                         .setEmbeds(ebAnnouncement.build())
                         .setAllowedMentions(Collections.singleton(Message.MentionType.ROLE))
@@ -184,10 +185,10 @@ public class Ticket {
             String csvUrl = TicketProtocolCache.getUrl(ticketChannel.getTextChannelId());
             Locale locale = ticketChannel.getGuildData().getLocale();
             String title = Command.getCommandProperties(clazz).emoji() + " " + Command.getCommandLanguage(clazz, locale).getTitle();
-            String memberMention = MentionUtil.getUserAsMention(ticketChannel.getMemberId(), true);
+
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
-                    .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", ticketTextChannel.getName(), memberMention));
+                    .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", ticketTextChannel.getName(), StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName())));
             if (csvUrl != null) {
                 EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.UTILITY, "ticket_csv_warning"));
             }
@@ -225,10 +226,9 @@ public class Ticket {
                 TextChannel announcementChannel = guild.getTextChannelById(ticketChannel.getAnnouncementChannelId());
                 if (announcementChannel != null) {
                     String title = Command.getCommandProperties(TicketCommand.class).emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
-                    String memberMention = MentionUtil.getUserAsMention(ticketChannel.getMemberId(), true);
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(title)
-                            .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_assigned", channel.getAsMention(), memberMention, member.getAsMention()));
+                            .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_assigned", channel.getAsMention(), StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName()), member.getUser().getAsTag()));
                     announcementChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), " ")
                             .setEmbeds(eb.build())
                             .queue();

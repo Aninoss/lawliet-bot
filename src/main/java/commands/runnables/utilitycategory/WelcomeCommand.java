@@ -12,6 +12,7 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.LocalFile;
 import core.TextManager;
+import core.atomicassets.AtomicTextChannel;
 import core.utils.FileUtil;
 import core.utils.InternetUtil;
 import core.utils.MentionUtil;
@@ -22,7 +23,6 @@ import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -249,7 +249,7 @@ public class WelcomeCommand extends NavigationAbstract {
                     .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageBean.getWelcomeText()), 1024),
                             true
                     )
-                    .addField(getString("state0_mchannel"), welcomeMessageBean.getWelcomeChannel().map(IMentionable::getAsMention).orElse(notSet), true)
+                    .addField(getString("state0_mchannel"), welcomeMessageBean.getWelcomeChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField()).orElse(notSet), true)
                     .addBlankField(false)
                     .addField(getString("state0_mdm"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageBean.isDmActive()), true)
                     .addField(getString("state0_mdmText"), StringUtil.shortenString(stressVariables(welcomeMessageBean.getDmText().isEmpty() ? notSet : welcomeMessageBean.getDmText()), 1024),
@@ -258,7 +258,7 @@ public class WelcomeCommand extends NavigationAbstract {
                     .addBlankField(false)
                     .addField(getString("state0_mgoodbye"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageBean.isGoodbyeActive()), true)
                     .addField(getString("state0_mgoodbyeText"), StringUtil.shortenString(stressVariables(welcomeMessageBean.getGoodbyeText()), 1024), true)
-                    .addField(getString("state0_mfarewellchannel"), welcomeMessageBean.getGoodbyeChannel().map(IMentionable::getAsMention).orElse(notSet), true);
+                    .addField(getString("state0_mfarewellchannel"), welcomeMessageBean.getGoodbyeChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField()).orElse(notSet), true);
         } else if (state == 5) {
             return getWelcomeMessageTest(member);
         }

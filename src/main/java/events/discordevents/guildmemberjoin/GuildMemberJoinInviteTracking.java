@@ -47,6 +47,7 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
         inviteTrackingData.getTextChannel().ifPresent(channel -> {
             Locale locale = inviteTrackingData.getGuildData().getLocale();
             if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
+                String invitedTag = StringUtil.escapeMarkdown(member.getUser().getAsTag());
                 String inviterTag = "";
                 String inviterName = "";
                 String code = "";
@@ -73,7 +74,7 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
                 }
 
                 String created = TimeFormat.RELATIVE.atInstant(member.getTimeCreated().toInstant()).toString();
-                String text = TextManager.getString(locale, Category.INVITE_TRACKING, "invitetracking_log", n, member.getAsMention(), created, inviterTag, code, uses);
+                String text = TextManager.getString(locale, Category.INVITE_TRACKING, "invitetracking_log", n, invitedTag, created, inviterTag, code, uses);
 
                 MessageCreateAction messageAction;
                 if (inviteTrackingData.isAdvanced()) {

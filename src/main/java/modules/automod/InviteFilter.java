@@ -59,7 +59,7 @@ public class InviteFilter extends AutoModAbstract {
             content = content.replace(invite, "█".repeat(6));
         }
 
-        eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log", message.getAuthor().getAsTag()))
+        eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log", StringUtil.escapeMarkdown(message.getAuthor().getAsTag())))
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), StringUtil.shortenString(content, 1024), false);

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import constants.Language;
 import core.CustomObservableList;
@@ -90,6 +91,18 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
                 AtomicUser::new,
                 AtomicUser::getIdLong
         );
+    }
+
+    public static AtomicUser fromOutsideCache(long userId) {
+        AtomicUser atomicUser;
+        try {
+            User user = ShardManager.fetchUserById(userId).get();
+            atomicUser = new AtomicUser(user);
+        } catch (InterruptedException | ExecutionException e) {
+            // ignore
+            atomicUser = new AtomicUser(userId);
+        }
+        return atomicUser;
     }
 
 }

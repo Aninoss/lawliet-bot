@@ -193,8 +193,8 @@ public class WordFilterCommand extends NavigationAbstract {
                 setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), bannedWordsBean.isActive()), true)
-                        .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), MentionableAtomicAsset::getAsMention), true)
-                        .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(logReceivers, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                        .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), MentionableAtomicAsset::getPrefixedNameInField), true)
+                        .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(logReceivers, getLocale(), MentionableAtomicAsset::getPrefixedNameInField), true)
                         .addField(getString("state0_mwords"), getWordsString(), true);
 
             case 1:
@@ -223,7 +223,7 @@ public class WordFilterCommand extends NavigationAbstract {
             StringBuilder sb = new StringBuilder();
 
             for (String word : words) {
-                sb.append(" ").append(word);
+                sb.append(" ").append("`").append(word).append("`");
             }
 
             return sb.toString();

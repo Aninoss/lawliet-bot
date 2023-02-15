@@ -21,6 +21,7 @@ import constants.Emojis;
 import constants.LogStatus;
 import core.*;
 import core.atomicassets.AtomicRole;
+import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
 import core.cache.ServerPatreonBoostCache;
 import core.cache.TicketProtocolCache;
@@ -40,7 +41,6 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -307,8 +307,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                .addField(getString("state0_mannouncement"), StringUtil.escapeMarkdown(ticketData.getAnnouncementTextChannel().map(GuildChannel::getAsMention).orElse(notSet)), true)
-                .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getAsMention), true)
+                .addField(getString("state0_mannouncement"), ticketData.getAnnouncementTextChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField()).orElse(notSet), true)
+                .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getPrefixedNameInField), true)
                 .addField(getString("state0_mproperties"), generateBooleanAttributesField(), false)
                 .addField(getString("state0_mcreatemessage"), StringUtil.shortenString(StringUtil.escapeMarkdown(ticketData.getCreateMessage().orElse(notSet)), 1024), false);
     }
@@ -357,7 +357,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         }
         return EmbedFactory.getEmbedDefault(
                 this,
-                getString("state4_description", tempPostChannel != null ? tempPostChannel.getAsMention() : notSet),
+                getString("state4_description", tempPostChannel != null ? new AtomicTextChannel(tempPostChannel).getPrefixedNameInField() : notSet),
                 getString("state4_title")
         );
     }

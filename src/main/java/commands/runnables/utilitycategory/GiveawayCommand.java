@@ -530,7 +530,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         if (channel != null) {
             setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
         }
-        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(channel).map(MentionableAtomicAsset::getAsMention).orElse(notSet)), getString("state1_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(channel).map(MentionableAtomicAsset::getPrefixedNameInField).orElse(notSet)), getString("state1_title"));
     }
 
     @Draw(state = EDIT_MESSAGE)

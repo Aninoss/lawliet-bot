@@ -111,19 +111,21 @@ public class WhiteListCommand extends NavigationAbstract {
     public EmbedBuilder draw(Member member, int state) {
         String everyChannel = getString("all");
         switch (state) {
-            case 0:
+            case 0 -> {
                 setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(
                                 getString("state0_mchannel"),
-                                new ListGen<AtomicTextChannel>().getList(whiteListedChannels, everyChannel, MentionableAtomicAsset::getAsMention),
+                                new ListGen<AtomicTextChannel>().getList(whiteListedChannels, everyChannel, MentionableAtomicAsset::getPrefixedNameInField),
                                 true
                         );
-
-            case 1:
+            }
+            case 1 -> {
                 return channelNavigationHelper.drawDataAdd();
-            case 2:
+            }
+            case 2 -> {
                 return channelNavigationHelper.drawDataRemove();
+            }
         }
         return null;
     }

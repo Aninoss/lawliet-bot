@@ -8,6 +8,7 @@ import commands.runnables.FisheryInterface;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import core.atomicassets.AtomicTextChannel;
 import core.mention.MentionList;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
@@ -40,7 +41,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
         }
 
         if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY)) {
-            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", channel.getAsMention());
+            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", new AtomicTextChannel(channel).getPrefixedNameInField());
             drawMessageNew(EmbedFactory.getEmbedError(this, error)).exceptionally(ExceptionLogger.get());
             return false;
         }
@@ -68,7 +69,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
         for (int i = 0; i < amount; i++) {
             Fishery.spawnTreasureChest(channel);
         }
-        drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("success", amount != 1, StringUtil.numToString(amount), channel.getAsMention())));
+        drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("success", amount != 1, StringUtil.numToString(amount), new AtomicTextChannel(channel).getPrefixedNameInField())));
         return true;
     }
 

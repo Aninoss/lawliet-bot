@@ -81,8 +81,8 @@ public class GiveCommand extends Command implements FisheryInterface {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
                         "successful",
                         StringUtil.numToString(value),
-                        user1.getAsMention(),
-                        user0.getAsMention(),
+                        StringUtil.escapeMarkdown(user1.getEffectiveName()),
+                        StringUtil.escapeMarkdown(user0.getEffectiveName()),
                         StringUtil.numToString(coins0Pre),
                         StringUtil.numToString(coins0Pre - value),
                         StringUtil.numToString(coins1Pre),

@@ -139,8 +139,9 @@ public class NSFWFilterCommand extends NavigationAbstract {
         switch (state) {
             case 0:
                 setComponents(getString("state0_options").split("\n"));
+                String filterList = new ListGen<String>().getList(keywords, getLocale(), str -> "`" + StringUtil.escapeMarkdownInField(str) + "`");
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mkeywords"), StringUtil.shortenString(StringUtil.escapeMarkdown(new ListGen<String>().getList(keywords, getLocale(), str -> str)), 1024), true);
+                        .addField(getString("state0_mkeywords"), StringUtil.shortenString(filterList, 1024), true);
 
             case 1:
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));

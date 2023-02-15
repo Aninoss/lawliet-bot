@@ -17,6 +17,10 @@ public interface MentionableAtomicAsset<T extends IMentionable> extends IMention
 
     Optional<String> getPrefixedNameRaw();
 
+    default String getPrefixedNameInField() {
+        return "`" + StringUtil.escapeMarkdownInField(getPrefixedName()) + "`";
+    }
+
     default String getPrefixedName() {
         return getPrefixedNameRaw()
                 .orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));

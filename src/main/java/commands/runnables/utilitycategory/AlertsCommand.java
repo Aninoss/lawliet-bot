@@ -332,7 +332,7 @@ public class AlertsCommand extends NavigationAbstract {
     public EmbedBuilder onDrawAdd(Member member) throws Throwable {
         setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
         AtomicStandardGuildMessageChannel atomicChannel = new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), channelId);
-        return EmbedFactory.getEmbedDefault(this, getString("state5_description", atomicChannel.getAsMention()), getString("state5_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state5_description", atomicChannel.getPrefixedNameInField()), getString("state5_title"));
     }
 
     @Draw(state = STATE_REMOVE)

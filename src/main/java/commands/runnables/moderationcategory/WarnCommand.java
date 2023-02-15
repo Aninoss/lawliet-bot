@@ -186,7 +186,7 @@ public class WarnCommand extends Command implements OnButtonListener {
 
     protected EmbedBuilder getActionEmbed(Member executor, TextChannel channel) {
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), userList);
-        return EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), executor.getAsMention(), StringUtil.escapeMarkdown(channel.getGuild().getName())));
+        return EmbedFactory.getEmbedDefault(this, getString("action", mention.isMultiple(), mention.getMentionText(), StringUtil.escapeMarkdown(executor.getUser().getAsTag()), StringUtil.escapeMarkdown(channel.getGuild().getName())));
     }
 
     protected EmbedBuilder getConfirmationEmbed() {

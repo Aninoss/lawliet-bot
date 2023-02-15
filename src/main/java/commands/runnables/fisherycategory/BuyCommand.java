@@ -157,7 +157,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
             Fishery.synchronizeRoles(member);
             Optional<TextChannel> announcementChannelOpt = guildBean.getFisheryAnnouncementChannel();
             if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.MESSAGE_SEND)) {
-                String announcementText = getString("newrole", member.getUser().getAsMention(), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));
+                String announcementText = getString("newrole", StringUtil.escapeMarkdown(member.getEffectiveName()), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));
                 announcementChannelOpt.get().sendMessage(announcementText).queue();
             }
         }
@@ -179,7 +179,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                         productDescription = getString("product_des_" + slot.getGear().ordinal(), StringUtil.numToString(slot.getDeltaEffect()));
                     } else if (roles.get(slot.getLevel()) != null) {
                         price = calculateRolePrice(member.getGuild(), slot);
-                        productDescription = getString("product_des_" + slot.getGear().ordinal(), roles.get(slot.getLevel()).getAsMention());
+                        productDescription = getString("product_des_" + slot.getGear().ordinal(), StringUtil.escapeMarkdown(roles.get(slot.getLevel()).getName()));
                     }
 
                     String title = getString("product_" + slot.getGear().ordinal() + "_0");
@@ -202,7 +202,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                         StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.DAILY).getEffect()),
                         StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.VOICE).getEffect()),
                         StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.TREASURE).getEffect()),
-                        roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? roles.get(roleLvl - 1).getAsMention() : "**-**",
+                        roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? StringUtil.escapeMarkdown(roles.get(roleLvl - 1).getName()) : "-",
                         StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.SURVEY).getEffect()),
                         StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect()),
                         fisheryMemberBean.getGuildData().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberBean.getCoinsGiveReceivedMax()) : "∞"
