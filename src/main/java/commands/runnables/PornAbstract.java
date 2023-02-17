@@ -1,5 +1,7 @@
 package commands.runnables;
 
+import java.io.IOError;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -152,23 +154,22 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             } catch (NoSuchElementException e) {
                 postApiUnavailable(event.getTextChannel());
                 return false;
+            } catch (IOException e) {
+                postApiUnavailable(event.getTextChannel());
+                return false;
             }
 
             if (pornImages.size() == 0) {
                 if (first) {
-                    if (!checkServiceAvailable()) {
-                        postApiUnavailable(event.getTextChannel());
-                    } else {
-                        String effectiveArgs = args;
-                        if (this instanceof PornPredefinedAbstract) {
-                            effectiveArgs = "";
-                        }
+                    String effectiveArgs = args;
+                    if (this instanceof PornPredefinedAbstract) {
+                        effectiveArgs = "";
+                    }
 
-                        if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
-                            drawMessageNew(noResultsEmbed(effectiveArgs)).exceptionally(ExceptionLogger.get());
-                        } else {
-                            drawMessageNew(noResultsString(effectiveArgs)).exceptionally(ExceptionLogger.get());
-                        }
+                    if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
+                        drawMessageNew(noResultsEmbed(effectiveArgs)).exceptionally(ExceptionLogger.get());
+                    } else {
+                        drawMessageNew(noResultsString(effectiveArgs)).exceptionally(ExceptionLogger.get());
                     }
                     return false;
                 } else {
@@ -249,15 +250,6 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         Button reportButton = Button.of(ButtonStyle.LINK, url, TextManager.getString(getLocale(), Category.NSFW, "porn_report"));
         buttons.add(reportButton);
         return buttons;
-    }
-
-    private boolean checkServiceAvailable() {
-        try {
-            return booruImageDownloader.getPicture(0L, getDomain(), "", false, mustBeExplicit(), false, Collections.emptySet(), Collections.emptyList(), true).get().isPresent();
-        } catch (InterruptedException | ExecutionException | NoSuchElementException | JsonProcessingException e) {
-            //Ignore
-            return false;
-        }
     }
 
     private void postApiUnavailable(TextChannel textChannel) {
@@ -429,7 +421,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     protected List<BooruImage> downloadPorn(long guildId, Set<String> nsfwFilter, int amount, String domain,
                                             String search, boolean animatedOnly, boolean mustBeExplicit, boolean canBeVideo,
-                                            ArrayList<String> usedResults) throws IllegalTagException {
+                                            ArrayList<String> usedResults) throws IOException {
         if (NSFWUtil.stringContainsBannedTags(search, nsfwFilter)) {
             throw new IllegalTagException();
         }
@@ -447,23 +439,25 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             }
         }
 
-        futures.forEach(future -> {
+        boolean error = true;
+        for (CompletableFuture<Optional<BooruImage>> future : futures) {
             try {
                 Optional<BooruImage> pornImageOpt = future.get(10, TimeUnit.SECONDS);
+                error = false;
                 synchronized (this) {
                     pornImageOpt.ifPresent(pornImage -> {
                         pornImages.add(pornImage);
                         usedResults.add(pornImage.getImageUrl());
                     });
                 }
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                if (!e.toString().contains("java.util.NoSuchElementException") &&
-                        !e.toString().contains("must start with '[' at 0")
-                ) {
-                    MainLogger.get().error("Error while downloading porn", e);
-                }
+            } catch (Throwable e) {
+                // ignore
             }
-        });
+        }
+
+        if (error) {
+            throw new IOException("Booru retrieval error");
+        }
 
         return pornImages;
     }

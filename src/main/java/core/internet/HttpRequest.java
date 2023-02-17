@@ -42,7 +42,9 @@ public class HttpRequest {
                             .setBody(body.string());
                     future.complete(httpResponse);
 
-                    if (code / 100 != 2) {
+                    if (code / 100 != 2 &&
+                            !url.startsWith("http://" + System.getenv("WEBCACHE_HOST") + ":" + System.getenv("WEBCACHE_PORT"))
+                    ) {
                         MainLogger.get().warn("Error code {} for URL {}", code, url);
                     }
                 } catch (Throwable e) {

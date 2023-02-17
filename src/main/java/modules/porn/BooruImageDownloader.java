@@ -1,7 +1,9 @@
 package modules.porn;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -38,20 +40,24 @@ public class BooruImageDownloader {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return RestClient.WEBCACHE.post("booru", "application/json", mapper.writeValueAsString(booruRequest))
                 .thenApply(response -> {
-                    String content = response.getBody();
-                    if (content.startsWith("{")) {
-                        if (test) {
-                            return Optional.of(new BooruImage());
-                        }
+                    if (response.getCode() / 100 == 5) {
+                        throw new CompletionException(new IOException("Booru retrieval error"));
+                    }
 
-                        try {
-                            BooruImage booruImage = mapper.readValue(content, BooruImage.class);
-                            return Optional.of(booruImage);
-                        } catch (JsonProcessingException e) {
-                            MainLogger.get().error("Booru image parsing error", e);
-                            return Optional.empty();
-                        }
-                    } else {
+                    String content = response.getBody();
+                    if (!content.startsWith("{")) {
+                        return Optional.empty();
+                    }
+
+                    if (test) {
+                        return Optional.of(new BooruImage());
+                    }
+
+                    try {
+                        BooruImage booruImage = mapper.readValue(content, BooruImage.class);
+                        return Optional.of(booruImage);
+                    } catch (JsonProcessingException e) {
+                        MainLogger.get().error("Booru image parsing error", e);
                         return Optional.empty();
                     }
                 });

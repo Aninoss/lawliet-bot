@@ -1,10 +1,10 @@
 package commands.runnables;
 
+import java.io.IOException;
 import java.util.*;
 import commands.Category;
 import core.TextManager;
 import modules.porn.BooruImage;
-import modules.porn.IllegalTagException;
 import modules.porn.TooManyTagsException;
 
 public abstract class PornSearchAbstract extends PornAbstract {
@@ -20,7 +20,7 @@ public abstract class PornSearchAbstract extends PornAbstract {
     @Override
     public List<BooruImage> getBooruImages(long guildId, Set<String> nsfwFilters, String search, int amount,
                                            ArrayList<String> usedResults, boolean canBeVideo
-    ) throws IllegalTagException, TooManyTagsException {
+    ) throws IOException {
         if (search.isEmpty()) {
             search = "animated";
             setNotice(TextManager.getString(getLocale(), Category.NSFW, "porn_nokey"));
