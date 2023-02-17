@@ -1,17 +1,23 @@
 package dashboard.pages
 
+import commands.Category
 import commands.Command
 import commands.runnables.utilitycategory.StickyRolesCommand
-import core.TextManager
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
 import dashboard.component.DashboardText
+import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.VerticalContainer
+import mysql.modules.stickyroles.DBStickyRoles
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
-    id = "stickyroles"
+    id = "stickyroles",
+    userPermissions = [Permission.MANAGE_ROLES],
+    botPermissions = [Permission.MANAGE_ROLES],
+    commandAccessRequirements = [StickyRolesCommand::class]
 )
 class StickyRolesCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
@@ -20,8 +26,19 @@ class StickyRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashboa
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        val text = getString(TextManager.GENERAL, "dashboard_wip", Command.getCommandProperties(StickyRolesCommand::class.java).trigger)
-        mainContainer.add(DashboardText(text))
+        val descText = DashboardText(getString(Category.UTILITY, "stickyroles_state0_description"))
+        val rolesComboBox = DashboardMultiRolesComboBox(
+            Command.getCommandLanguage(StickyRolesCommand::class.java, locale).title,
+            locale,
+            guild.idLong,
+            atomicMember.idLong,
+            DBStickyRoles.getInstance().retrieve(guild.idLong).roleIds,
+            true,
+            StickyRolesCommand.MAX_ROLES,
+            true
+        )
+
+        mainContainer.add(descText, rolesComboBox)
     }
 
 }

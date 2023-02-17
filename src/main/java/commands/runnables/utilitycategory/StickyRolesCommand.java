@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 )
 public class StickyRolesCommand extends NavigationAbstract {
 
-    private static final int MAX_ROLES = 12;
+    public static final int MAX_ROLES = 12;
 
     private NavigationHelper<AtomicRole> roleNavigationHelper;
     private CustomObservableList<AtomicRole> roles;

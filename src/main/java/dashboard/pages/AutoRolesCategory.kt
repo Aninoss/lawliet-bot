@@ -1,17 +1,23 @@
 package dashboard.pages
 
+import commands.Category
 import commands.Command
 import commands.runnables.utilitycategory.AutoRolesCommand
-import core.TextManager
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
 import dashboard.component.DashboardText
+import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.VerticalContainer
+import mysql.modules.autoroles.DBAutoRoles
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
-    id = "autoroles"
+    id = "autoroles",
+    userPermissions = [Permission.MANAGE_ROLES],
+    botPermissions = [Permission.MANAGE_ROLES],
+    commandAccessRequirements = [AutoRolesCommand::class]
 )
 class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
 
@@ -20,8 +26,19 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashboard
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        val text = getString(TextManager.GENERAL, "dashboard_wip", Command.getCommandProperties(AutoRolesCommand::class.java).trigger)
-        mainContainer.add(DashboardText(text))
+        val descText = DashboardText(getString(Category.UTILITY, "autoroles_state0_description"))
+        val rolesComboBox = DashboardMultiRolesComboBox(
+            Command.getCommandLanguage(AutoRolesCommand::class.java, locale).title,
+            locale,
+            guild.idLong,
+            atomicMember.idLong,
+            DBAutoRoles.getInstance().retrieve(guild.idLong).roleIds,
+            true,
+            AutoRolesCommand.MAX_ROLES,
+            true
+        )
+
+        mainContainer.add(descText, rolesComboBox)
     }
 
 }
