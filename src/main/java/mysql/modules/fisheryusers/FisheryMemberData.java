@@ -24,10 +24,7 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import events.scheduleevents.events.FisheryVoiceChannelObserver;
-import modules.fishery.ExchangeRate;
-import modules.fishery.FisheryGear;
-import modules.fishery.Stock;
-import modules.fishery.StockMarket;
+import modules.fishery.*;
 import mysql.RedisManager;
 import mysql.modules.autosell.DBAutoSell;
 import mysql.modules.casinostats.DBCasinoStats;
@@ -63,6 +60,7 @@ public class FisheryMemberData implements MemberAsset {
     public final String FIELD_MESSAGES_THIS_HOUR_SLOT = "messages_this_hour_slot";
     public final String FIELD_MESSAGES_ANICORD = "messages_anicord";
     public final String FIELD_DIAMONDS = "diamonds";
+    public final String FIELD_POWERUP = "powerup";
 
     FisheryMemberData(FisheryGuildData fisheryGuildBean, long memberId) {
         this.fisheryGuildBean = fisheryGuildBean;
@@ -181,6 +179,40 @@ public class FisheryMemberData implements MemberAsset {
                 totalInvestment += RedisManager.parseLong(stockResponseEntry.getValue().get()) * StockMarket.getValue(stockResponseEntry.getKey());
             }
             return totalInvestment;
+        });
+    }
+
+    public List<FisheryPowerUp> getActivePowerUps() {
+        return RedisManager.get(jedis -> {
+            HashMap<FisheryPowerUp, Response<String>> powerUpRespMap = new HashMap<>();
+            ArrayList<FisheryPowerUp> powerUpList = new ArrayList<>();
+
+            Pipeline pipeline = jedis.pipelined();
+            for (FisheryPowerUp powerUp : FisheryPowerUp.values()) {
+                powerUpRespMap.put(powerUp, pipeline.hget(KEY_ACCOUNT, FIELD_POWERUP + ":" + powerUp.ordinal()));
+            }
+            pipeline.sync();
+
+            for (FisheryPowerUp powerUp : FisheryPowerUp.values()) {
+                String response = powerUpRespMap.get(powerUp).get();
+                if (response != null && Instant.now().isBefore(Instant.parse(response))) {
+                    powerUpList.add(powerUp);
+                }
+            }
+
+            return powerUpList;
+        });
+    }
+
+    public void activatePowerUp(FisheryPowerUp powerUp) {
+        RedisManager.update(jedis -> {
+            jedis.hset(KEY_ACCOUNT, FIELD_POWERUP + ":" + powerUp.ordinal(), Instant.now().plus(powerUp.getValidDuration()).toString());
+        });
+    }
+
+    public void deletePowerUp(FisheryPowerUp powerUp) {
+        RedisManager.update(jedis -> {
+            jedis.hdel(KEY_ACCOUNT, FIELD_POWERUP + ":" + powerUp.ordinal());
         });
     }
 
@@ -600,11 +632,25 @@ public class FisheryMemberData implements MemberAsset {
             codeBlock = CodeBlockColor.RED;
         }
 
-        eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_desription",
+        List<FisheryPowerUp> activePowerUps = getActivePowerUps();
+        StringBuilder activePowerUpsStringBuilder = new StringBuilder();
+        if (!activePowerUps.isEmpty()) {
+            for (int i = 0; i < activePowerUps.size(); i++) {
+                if (i > 0) {
+                    activePowerUpsStringBuilder.append(" ");
+                }
+                activePowerUpsStringBuilder.append(activePowerUps.get(i).getEmoji().getFormatted());
+            }
+        } else {
+            activePowerUpsStringBuilder.append(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_none"));
+        }
+
+        eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, getGuildData().isFisheryPowerups() ? "rankingprogress_desription_powerups" : "rankingprogress_desription",
                 getEmbedSlot(locale, fishIncome, fishIncomePrevious, false),
                 getEmbedSlot(locale, getFish(), fishPrevious, false),
                 getEmbedSlot(locale, getCoins(), coinsPrevious, false),
                 getEmbedSlot(locale, getDailyStreak(), newDailyStreak != null ? dailyStreakPrevious : getDailyStreak(), false),
+                activePowerUpsStringBuilder.toString(),
                 getEmbedSlot(locale, rank, rankPrevious, true),
                 codeBlock
         ));
