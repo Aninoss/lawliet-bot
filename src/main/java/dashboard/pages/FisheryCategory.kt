@@ -435,6 +435,19 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         switchTreasure.isChecked = guildData.isFisheryTreasureChests
         container.add(switchTreasure)
 
+        val switchPowerups = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mpowerups_title", "").trim()) {
+            if (!anyCommandsAreAccessible(FisheryCommand::class)) {
+                return@DashboardSwitch ActionResult()
+                    .withRedraw()
+            }
+
+            guildData.toggleFisheryPowerups()
+            ActionResult()
+        }
+        switchPowerups.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mpowerups_desc")
+        switchPowerups.isChecked = guildData.isFisheryPowerups
+        container.add(switchPowerups)
+
         val switchReminders = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mreminders_title", "").trim()) {
             if (!anyCommandsAreAccessible(FisheryCommand::class)) {
                 return@DashboardSwitch ActionResult()

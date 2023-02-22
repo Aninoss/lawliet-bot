@@ -102,28 +102,34 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         return true;
 
                     case 1:
+                        guildBean.toggleFisheryPowerups();
+                        setLog(LogStatus.SUCCESS, getString("powerupsset", guildBean.isFisheryPowerups()));
+                        stopLock = true;
+                        return true;
+
+                    case 2:
                         guildBean.toggleFisheryReminders();
                         setLog(LogStatus.SUCCESS, getString("remindersset", guildBean.isFisheryReminders()));
                         stopLock = true;
                         return true;
 
-                    case 2:
+                    case 3:
                         guildBean.toggleFisheryCoinsGivenLimit();
                         setLog(LogStatus.SUCCESS, getString("coinsgivenset", guildBean.hasFisheryCoinsGivenLimit()));
                         stopLock = true;
                         return true;
 
-                    case 3:
+                    case 4:
                         channelNavigationHelper.startDataAdd(1);
                         stopLock = true;
                         return true;
 
-                    case 4:
+                    case 5:
                         channelNavigationHelper.startDataRemove(2);
                         stopLock = true;
                         return true;
 
-                    case 5:
+                    case 6:
                         if (guildBean.getFisheryStatus() != FisheryStatus.ACTIVE) {
                             guildBean.setFisheryStatus(FisheryStatus.ACTIVE);
                         } else {
@@ -133,7 +139,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         stopLock = true;
                         return true;
 
-                    case 6:
+                    case 7:
                         if (guildBean.getFisheryStatus() == FisheryStatus.ACTIVE) {
                             if (stopLock) {
                                 stopLock = false;
@@ -186,6 +192,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[guildBean.getFisheryStatus().ordinal()] + "**\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
                         .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(channel, guildBean.isFisheryTreasureChests()).getFormatted()), getString("state0_mtreasurechests_desc"), true)
+                        .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, guildBean.isFisheryPowerups()).getFormatted()), getString("state0_mpowerups_desc"), true)
                         .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, guildBean.isFisheryReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
                         .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, guildBean.hasFisheryCoinsGivenLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc"), true)
                         .addField(getString("state0_mchannels"), new ListGen<AtomicTextChannel>().getList(ignoredChannels, getLocale(), MentionableAtomicAsset::getPrefixedNameInField), false);

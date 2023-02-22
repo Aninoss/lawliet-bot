@@ -17,6 +17,7 @@ public class GuildData extends DataWithGuild {
     private FisheryStatus fisheryStatus;
     private boolean fisherySingleRoles;
     private boolean fisheryTreasureChests;
+    private boolean fisheryPowerups;
     private boolean fisheryReminders;
     private boolean commandAuthorMessageRemove;
     private boolean fisheryCoinsGivenLimit;
@@ -25,9 +26,9 @@ public class GuildData extends DataWithGuild {
     private boolean big;
 
     public GuildData(long guildId, String prefix, Locale locale, FisheryStatus fisheryStatus, boolean fisherySingleRoles,
-                     Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax,
-                     Integer fisheryVcHoursCap, boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit,
-                     boolean big
+                     Long fisheryAnnouncementChannelId, boolean fisheryTreasureChests, boolean fisheryPowerups,
+                     boolean fisheryReminders, long fisheryRoleMin, long fisheryRoleMax, Integer fisheryVcHoursCap,
+                     boolean commandAuthorMessageRemove, boolean fisheryCoinsGivenLimit, boolean big
     ) {
         super(guildId);
         this.guildId = guildId;
@@ -38,6 +39,7 @@ public class GuildData extends DataWithGuild {
         this.fisheryStatus = fisheryStatus;
         this.fisherySingleRoles = fisherySingleRoles;
         this.fisheryTreasureChests = fisheryTreasureChests;
+        this.fisheryPowerups = fisheryPowerups;
         this.fisheryReminders = fisheryReminders;
         this.fisheryVcHoursCap = fisheryVcHoursCap;
         this.fisheryAnnouncementChannelId = fisheryAnnouncementChannelId != null && fisheryAnnouncementChannelId != 0 ? fisheryAnnouncementChannelId : null;
@@ -75,6 +77,10 @@ public class GuildData extends DataWithGuild {
 
     public boolean isFisheryTreasureChests() {
         return fisheryTreasureChests;
+    }
+
+    public boolean isFisheryPowerups() {
+        return fisheryPowerups;
     }
 
     public boolean isFisheryReminders() {
@@ -174,6 +180,12 @@ public class GuildData extends DataWithGuild {
 
     public void toggleFisheryTreasureChests() {
         this.fisheryTreasureChests = !this.fisheryTreasureChests;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void toggleFisheryPowerups() {
+        this.fisheryPowerups = !this.fisheryPowerups;
         setChanged();
         notifyObservers();
     }

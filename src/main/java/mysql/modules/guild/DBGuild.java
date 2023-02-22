@@ -41,11 +41,11 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
         }
 
         return MySQLManager.get(
-                "SELECT prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit, big FROM DServer WHERE serverId = ?;",
+                "SELECT prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantPowerups, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit, big FROM DServer WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
                     if (resultSet.next()) {
-                        Integer fisheryVcHoursCap = resultSet.getInt(10);
+                        Integer fisheryVcHoursCap = resultSet.getInt(11);
                         if (resultSet.wasNull()) {
                             fisheryVcHoursCap = null;
                         }
@@ -58,12 +58,13 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
                                 resultSet.getLong(5),
                                 resultSet.getBoolean(6),
                                 resultSet.getBoolean(7),
-                                resultSet.getLong(8),
+                                resultSet.getBoolean(8),
                                 resultSet.getLong(9),
+                                resultSet.getLong(10),
                                 fisheryVcHoursCap,
-                                resultSet.getBoolean(11),
                                 resultSet.getBoolean(12),
-                                resultSet.getBoolean(13)
+                                resultSet.getBoolean(13),
+                                resultSet.getBoolean(14)
                         );
                     } else {
                         GuildData guildBean = new GuildData(
@@ -73,6 +74,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
                                 FisheryStatus.STOPPED,
                                 false,
                                 null,
+                                true,
                                 true,
                                 true,
                                 50000,
@@ -108,7 +110,7 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
     private void insertData(GuildData guildData) {
         try {
-            MySQLManager.update("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit, big) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+            MySQLManager.update("INSERT INTO DServer (serverId, prefix, locale, powerPlant, powerPlantSingleRole, powerPlantAnnouncementChannelId, powerPlantTreasureChests, powerPlantPowerups, powerPlantReminders, powerPlantRoleMin, powerPlantRoleMax, powerPlantVCHoursCap, commandAuthorMessageRemove, fisheryCoinsGivenLimit, big) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
                 preparedStatement.setLong(1, guildData.getGuildId());
                 preparedStatement.setString(2, guildData.getPrefix());
                 preparedStatement.setString(3, guildData.getLocale().getDisplayName());
@@ -123,20 +125,21 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
                 }
 
                 preparedStatement.setBoolean(7, guildData.isFisheryTreasureChests());
-                preparedStatement.setBoolean(8, guildData.isFisheryReminders());
-                preparedStatement.setLong(9, guildData.getFisheryRoleMin());
-                preparedStatement.setLong(10, guildData.getFisheryRoleMax());
+                preparedStatement.setBoolean(8, guildData.isFisheryPowerups());
+                preparedStatement.setBoolean(9, guildData.isFisheryReminders());
+                preparedStatement.setLong(10, guildData.getFisheryRoleMin());
+                preparedStatement.setLong(11, guildData.getFisheryRoleMax());
 
                 Optional<Integer> VCHoursOpt = guildData.getFisheryVcHoursCap();
                 if (VCHoursOpt.isPresent()) {
-                    preparedStatement.setInt(11, VCHoursOpt.get());
+                    preparedStatement.setInt(12, VCHoursOpt.get());
                 } else {
-                    preparedStatement.setNull(11, Types.INTEGER);
+                    preparedStatement.setNull(12, Types.INTEGER);
                 }
 
-                preparedStatement.setBoolean(12, guildData.isCommandAuthorMessageRemove());
-                preparedStatement.setBoolean(13, guildData.hasFisheryCoinsGivenLimit());
-                preparedStatement.setBoolean(14, guildData.isBig());
+                preparedStatement.setBoolean(13, guildData.isCommandAuthorMessageRemove());
+                preparedStatement.setBoolean(14, guildData.hasFisheryCoinsGivenLimit());
+                preparedStatement.setBoolean(15, guildData.isBig());
             });
         } catch (SQLException | InterruptedException e) {
             throw new RuntimeException(e);
@@ -145,8 +148,8 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
     @Override
     protected void save(GuildData guildData) {
-        MySQLManager.asyncUpdate("UPDATE DServer SET prefix = ?, locale = ?, powerPlant = ?, powerPlantSingleRole = ?, powerPlantAnnouncementChannelId = ?, powerPlantTreasureChests = ?, powerPlantReminders = ?, powerPlantRoleMin = ?, powerPlantRoleMax = ?, powerPlantVCHoursCap = ?, commandAuthorMessageRemove = ?, fisheryCoinsGivenLimit = ?, big = ? WHERE serverId = ?;", preparedStatement -> {
-            preparedStatement.setLong(11, guildData.getGuildId());
+        MySQLManager.asyncUpdate("UPDATE DServer SET prefix = ?, locale = ?, powerPlant = ?, powerPlantSingleRole = ?, powerPlantAnnouncementChannelId = ?, powerPlantTreasureChests = ?, powerPlantPowerups = ?, powerPlantReminders = ?, powerPlantRoleMin = ?, powerPlantRoleMax = ?, powerPlantVCHoursCap = ?, commandAuthorMessageRemove = ?, fisheryCoinsGivenLimit = ?, big = ? WHERE serverId = ?;", preparedStatement -> {
+            preparedStatement.setLong(12, guildData.getGuildId());
 
             preparedStatement.setString(1, guildData.getPrefix());
             preparedStatement.setString(2, guildData.getLocale().getDisplayName());
@@ -161,22 +164,23 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
             }
 
             preparedStatement.setBoolean(6, guildData.isFisheryTreasureChests());
-            preparedStatement.setBoolean(7, guildData.isFisheryReminders());
-            preparedStatement.setLong(8, guildData.getFisheryRoleMin());
-            preparedStatement.setLong(9, guildData.getFisheryRoleMax());
+            preparedStatement.setBoolean(7, guildData.isFisheryPowerups());
+            preparedStatement.setBoolean(8, guildData.isFisheryReminders());
+            preparedStatement.setLong(9, guildData.getFisheryRoleMin());
+            preparedStatement.setLong(10, guildData.getFisheryRoleMax());
 
             Optional<Integer> VCHoursOpt = guildData.getFisheryVcHoursCap();
             if (VCHoursOpt.isPresent()) {
-                preparedStatement.setInt(10, VCHoursOpt.get());
+                preparedStatement.setInt(11, VCHoursOpt.get());
             } else {
-                preparedStatement.setNull(10, Types.INTEGER);
+                preparedStatement.setNull(11, Types.INTEGER);
             }
 
-            preparedStatement.setBoolean(11, guildData.isCommandAuthorMessageRemove());
-            preparedStatement.setBoolean(12, guildData.hasFisheryCoinsGivenLimit());
-            preparedStatement.setBoolean(13, guildData.isBig());
+            preparedStatement.setBoolean(12, guildData.isCommandAuthorMessageRemove());
+            preparedStatement.setBoolean(13, guildData.hasFisheryCoinsGivenLimit());
+            preparedStatement.setBoolean(14, guildData.isBig());
 
-            preparedStatement.setLong(14, guildData.getGuildId());
+            preparedStatement.setLong(15, guildData.getGuildId());
         });
     }
 

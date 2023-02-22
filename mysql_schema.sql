@@ -310,6 +310,7 @@ CREATE TABLE `DServer` (
   `powerPlantSingleRole` tinyint(1) NOT NULL DEFAULT '0',
   `powerPlantAnnouncementChannelId` bigint unsigned DEFAULT NULL,
   `powerPlantTreasureChests` tinyint(1) NOT NULL DEFAULT '1',
+  `powerPlantPowerups` tinyint(1) NOT NULL DEFAULT '1',
   `powerPlantReminders` tinyint(1) NOT NULL DEFAULT '1',
   `powerPlantRoleMin` bigint unsigned NOT NULL DEFAULT '50000',
   `powerPlantRoleMax` bigint unsigned NOT NULL DEFAULT '800000000',
@@ -381,7 +382,7 @@ CREATE TABLE `FeatureRequestBoosts` (
   `boostUserId` bigint unsigned NOT NULL,
   PRIMARY KEY (`id`,`boostDatetime`,`boostUserId`),
   CONSTRAINT `FeatureRequestsBase` FOREIGN KEY (`id`) REFERENCES `FeatureRequests` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=773 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=836 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -400,7 +401,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=806 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=846 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1470,4 +1471,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-11 15:56:28
+-- Dump completed on 2023-02-22 13:38:37

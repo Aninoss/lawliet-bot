@@ -99,4 +99,9 @@ public interface Emojis {
     CustomEmoji HEART_BAR_BORDER = Emoji.fromCustom("heart_bar_border", 729342822536183839L, false);
     CustomEmoji HEART_BAR = Emoji.fromCustom("heart_bar", 729338714702217256L, false);
 
+    CustomEmoji POWERUP_SHIELD = Emoji.fromCustom("powerup_shield", 1077261349463269440L, false);
+    CustomEmoji POWERUP_LOUPE = Emoji.fromCustom("powerup_loupe", 1077261347752005783L, false);
+    CustomEmoji POWERUP_SHOP = Emoji.fromCustom("powerup_shop", 1077261351275204698L, false);
+    CustomEmoji POWERUP_TEAM = Emoji.fromCustom("powerup_team", 1077261352722235442L, false);
+
 }
