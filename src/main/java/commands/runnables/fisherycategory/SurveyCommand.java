@@ -66,7 +66,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
     }
 
     @Override
-    public void onStaticButton(ButtonInteractionEvent event) throws Throwable {
+    public void onStaticButton(ButtonInteractionEvent event, String secondaryId) throws Throwable {
         SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
         if (event.getMessage().getTimeCreated().toInstant().isAfter(surveyData.getStartDate().atStartOfDay(ZoneId.systemDefault()).toInstant())) {
             String[] parts = event.getComponentId().split("_");

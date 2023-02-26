@@ -1,5 +1,6 @@
 package modules.fishery;
 
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Locale;
 import commands.Category;
@@ -8,6 +9,7 @@ import commands.runnables.fisherysettingscategory.FisheryCommand;
 import core.EmbedFactory;
 import core.TextManager;
 import core.components.ActionRows;
+import core.schedule.MainScheduler;
 import modules.JoinRoles;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
@@ -26,6 +28,8 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 public class Fishery {
+
+    private static final HashSet<Long> unusedPowerUpSet = new HashSet<>();
 
     public static void synchronizeRoles(Member member) {
         Guild guild = member.getGuild();
@@ -82,8 +86,38 @@ public class Fishery {
                 .setComponents(ActionRows.of(button))
                 .queue(m -> {
                     DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong())
-                            .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger()));
+                            .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger(), FisheryCommand.STATIC_MESSAGE_ID_TREASURE));
                 });
+    }
+
+    public static void spawnPowerUp(StandardGuildMessageChannel channel, Member member) {
+        GuildData guildBean = DBGuild.getInstance().retrieve(channel.getGuild().getIdLong());
+        Locale locale = guildBean.getLocale();
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                .setTitle(FisheryCommand.EMOJI_POWERUP + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_powerup_title"))
+                .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_powerup_desc", member.getEffectiveName()))
+                .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1078702766865788989/question.png");
+
+        Button button = Button.of(ButtonStyle.SECONDARY, "use", TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_powerup_button"));
+        channel.sendMessage(member.getAsMention())
+                .addEmbeds(eb.build())
+                .setComponents(ActionRows.of(button))
+                .queue(m -> {
+                    unusedPowerUpSet.add(m.getIdLong());
+                    DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong())
+                            .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger(), FisheryCommand.STATIC_MESSAGE_ID_POWERUP + ":" + member.getId()));
+
+                    MainScheduler.schedule(1, ChronoUnit.MINUTES, "remove_powerup_if_unused", () -> {
+                        if (unusedPowerUpSet.contains(m.getIdLong())) {
+                            m.delete().queue();
+                            deregisterPowerUp(m.getIdLong());
+                        }
+                    });
+                });
+    }
+
+    public static void deregisterPowerUp(long messageId) {
+        unusedPowerUpSet.remove(messageId);
     }
 
     public static String getChangeEmoji() {

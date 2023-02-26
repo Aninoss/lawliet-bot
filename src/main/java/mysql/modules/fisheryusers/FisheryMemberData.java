@@ -204,9 +204,9 @@ public class FisheryMemberData implements MemberAsset {
         });
     }
 
-    public void activatePowerUp(FisheryPowerUp powerUp) {
+    public void activatePowerUp(FisheryPowerUp powerUp, Instant expiration) {
         RedisManager.update(jedis -> {
-            jedis.hset(KEY_ACCOUNT, FIELD_POWERUP + ":" + powerUp.ordinal(), Instant.now().plus(powerUp.getValidDuration()).toString());
+            jedis.hset(KEY_ACCOUNT, FIELD_POWERUP + ":" + powerUp.ordinal(), expiration.toString());
         });
     }
 

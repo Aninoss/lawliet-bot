@@ -97,7 +97,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
     }
 
     @Override
-    public void onStaticButton(ButtonInteractionEvent event) {
+    public void onStaticButton(ButtonInteractionEvent event, String secondaryId) {
         if (event.getChannel() instanceof TextChannel) {
             EmbedBuilder eb = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
                     getLocale(),

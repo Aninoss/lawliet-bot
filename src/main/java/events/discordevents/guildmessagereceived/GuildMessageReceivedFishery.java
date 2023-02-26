@@ -1,7 +1,6 @@
 package events.discordevents.guildmessagereceived;
 
 import java.util.Random;
-import core.CustomObservableList;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
@@ -15,6 +14,7 @@ import mysql.modules.guild.GuildData;
 import mysql.modules.ticket.DBTicket;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @DiscordEvent(priority = EventPriority.LOW)
@@ -36,30 +36,35 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
                         .registerMessage(event.getMessage());
             }
 
-            //manage treasure chests
-            if (messageRegistered &&
-                    new Random().nextInt(400) == 0 &&
-                    guildBean.getFisheryStatus() == FisheryStatus.ACTIVE &&
-                    guildBean.isFisheryTreasureChests() &&
-                    BotPermissionUtil.canWriteEmbed(event.getGuildChannel(), Permission.MESSAGE_HISTORY) &&
-                    !DBTicket.getInstance().retrieve(event.getGuild().getIdLong()).getTicketChannels().containsKey(event.getChannel().getIdLong())
+            if (!messageRegistered ||
+                    guildBean.getFisheryStatus() != FisheryStatus.ACTIVE ||
+                    !BotPermissionUtil.canWriteEmbed(event.getGuildChannel(), Permission.MESSAGE_HISTORY) ||
+                    DBTicket.getInstance().retrieve(event.getGuild().getIdLong()).getTicketChannels().containsKey(event.getChannel().getIdLong())
             ) {
-                boolean noSpamChannel = true;
-                CustomObservableList<Long> ignoredChannelIds = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getIgnoredChannelIds();
-                for (long channelId : ignoredChannelIds) {
-                    if (channelId == event.getChannel().getIdLong()) {
-                        noSpamChannel = false;
-                        break;
-                    }
-                }
+                return true;
+            }
 
-                if (noSpamChannel) {
+            //manage treasure chests and power-ups
+            Random r = new Random();
+            if (guildBean.isFisheryTreasureChests() && r.nextInt(400) == 0) {
+                if (isNotASpamChannel(event.getGuildChannel())) {
                     Fishery.spawnTreasureChest(event.getChannel().asTextChannel());
+                }
+            } else if (guildBean.isFisheryPowerups() && r.nextInt(400) == 0) {
+                if (isNotASpamChannel(event.getGuildChannel())) {
+                    Fishery.spawnPowerUp(event.getChannel().asTextChannel(), event.getMember());
                 }
             }
         }
 
         return true;
+    }
+
+    private boolean isNotASpamChannel(GuildMessageChannelUnion channel) {
+        return DBFishery.getInstance().retrieve(channel.getGuild().getIdLong())
+                .getIgnoredChannelIds()
+                .stream()
+                .noneMatch(channelId -> channelId == channel.getIdLong());
     }
 
 }

@@ -23,7 +23,7 @@ public interface InteractionListenerHandler<T extends GenericComponentInteractio
                     case DENY -> {
                         EmbedBuilder eb = EmbedFactory.getEmbedError(
                                 listener.getCommand(),
-                                TextManager.getString(listener.getCommand().getLocale(), TextManager.GENERAL, "button_listener_denied", listener.getCommand().getMemberAsMention().get())
+                                TextManager.getString(listener.getCommand().getLocale(), TextManager.GENERAL, "button_listener_denied", listener.getCommand().getMemberAsTag().get())
                         );
                         event.replyEmbeds(eb.build())
                                 .setEphemeral(true)

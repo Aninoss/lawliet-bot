@@ -398,7 +398,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @Override
-    public void onStaticButton(ButtonInteractionEvent event) {
+    public void onStaticButton(ButtonInteractionEvent event, String secondaryId) {
         if (event.getChannel() instanceof TextChannel) {
             TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
             TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());

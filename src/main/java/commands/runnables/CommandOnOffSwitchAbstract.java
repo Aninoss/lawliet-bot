@@ -99,7 +99,7 @@ public abstract class CommandOnOffSwitchAbstract extends Command implements OnBu
 
     private String getSetText(Member member) {
         return TextManager.getString(getLocale(), TextManager.GENERAL, forMember ? "function_onoff_member" : "function_onoff",
-                isActive(member), getCommandLanguage().getTitle(), getMemberAsMention().get()
+                isActive(member), getCommandLanguage().getTitle(), getMemberAsTag().get()
         );
     }
 

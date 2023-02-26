@@ -113,6 +113,17 @@ public class GDPR {
             });
         }
 
+        if (table.equals("StaticReactionMessages")) {
+            MySQLManager.get("SELECT * FROM `StaticReactionMessages` WHERE `secondaryId` LIKE ?;", ps -> {
+                ps.setString(1, "%" + userId + "%");
+            }, resultSet -> {
+                while (resultSet.next()) {
+                    rowsSet.add(extractMySQLRow(resultSet, columns).toString());
+                }
+                return null;
+            });
+        }
+
         JSONArray rowsJsonArray = new JSONArray();
         rowsSet.forEach(row -> rowsJsonArray.put(new JSONObject(row)));
         return rowsJsonArray;

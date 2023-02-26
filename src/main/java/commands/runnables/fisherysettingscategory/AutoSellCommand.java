@@ -173,8 +173,8 @@ public class AutoSellCommand extends Command implements OnButtonListener {
 
     private EmbedBuilder generateSetEmbed(Integer threshold) {
         String text = threshold != null
-                ? getString("set_value", Emojis.FISH.getFormatted(), StringUtil.numToString(threshold), getMemberAsMention().get())
-                : TextManager.getString(getLocale(), TextManager.GENERAL, "function_onoff_member", false, getCommandLanguage().getTitle(), getMemberAsMention().get());
+                ? getString("set_value", Emojis.FISH.getFormatted(), StringUtil.numToString(threshold), getMemberAsTag().get())
+                : TextManager.getString(getLocale(), TextManager.GENERAL, "function_onoff_member", false, getCommandLanguage().getTitle(), getMemberAsTag().get());
         return EmbedFactory.getEmbedDefault(this, text);
     }
 

@@ -5,6 +5,6 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 interface OnStaticButtonListener {
 
     @Throws(Throwable::class)
-    fun onStaticButton(event: ButtonInteractionEvent)
+    fun onStaticButton(event: ButtonInteractionEvent, secondaryId: String?)
 
 }

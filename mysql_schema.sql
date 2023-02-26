@@ -879,6 +879,7 @@ CREATE TABLE `StaticReactionMessages` (
   `channelId` bigint unsigned NOT NULL,
   `messageId` bigint unsigned NOT NULL,
   `command` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `secondaryId` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`messageId`),
   KEY `StaticReactionMessagesServerBase` (`serverId`),
   CONSTRAINT `StaticReactionMessagesServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1471,4 +1472,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-22 13:38:37
+-- Dump completed on 2023-02-23 16:12:53

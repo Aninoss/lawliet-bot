@@ -9,12 +9,22 @@ public class StaticReactionMessageData implements MessageAsset {
     private final long channelId;
     private final long messageId;
     private final String command;
+    private final String secondaryId;
 
     public StaticReactionMessageData(Message message, String command) {
         this.guildId = message.getGuild().getIdLong();
         this.channelId = message.getChannel().getIdLong();
         this.messageId = message.getIdLong();
         this.command = command;
+        this.secondaryId = null;
+    }
+
+    public StaticReactionMessageData(Message message, String command, String secondaryId) {
+        this.guildId = message.getGuild().getIdLong();
+        this.channelId = message.getChannel().getIdLong();
+        this.messageId = message.getIdLong();
+        this.command = command;
+        this.secondaryId = secondaryId;
     }
 
     public StaticReactionMessageData(long guildId, long channelId, long messageId, String command) {
@@ -22,6 +32,15 @@ public class StaticReactionMessageData implements MessageAsset {
         this.channelId = channelId;
         this.messageId = messageId;
         this.command = command;
+        this.secondaryId = null;
+    }
+
+    public StaticReactionMessageData(long guildId, long channelId, long messageId, String command, String secondaryId) {
+        this.guildId = guildId;
+        this.channelId = channelId;
+        this.messageId = messageId;
+        this.command = command;
+        this.secondaryId = secondaryId;
     }
 
     public String getCommand() {
@@ -41,6 +60,10 @@ public class StaticReactionMessageData implements MessageAsset {
     @Override
     public long getStandardGuildMessageChannelId() {
         return channelId;
+    }
+
+    public String getSecondaryId() {
+        return secondaryId;
     }
 
 }
