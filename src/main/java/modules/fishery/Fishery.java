@@ -6,6 +6,7 @@ import java.util.Locale;
 import commands.Category;
 import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
+import constants.Settings;
 import core.EmbedFactory;
 import core.TextManager;
 import core.components.ActionRows;
@@ -80,13 +81,13 @@ public class Fishery {
                 .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription"))
                 .setImage("https://cdn.discordapp.com/attachments/711665837114654781/711665915355201576/treasure_closed.png");
 
-        Button button = Button.of(ButtonStyle.SECONDARY, "open", TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_button"))
+        Button button = Button.of(ButtonStyle.SECONDARY, FisheryCommand.BUTTON_ID_TREASURE, TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_button"))
                 .withEmoji(Emoji.fromUnicode(FisheryCommand.EMOJI_KEY));
         channel.sendMessageEmbeds(eb.build())
                 .setComponents(ActionRows.of(button))
                 .queue(m -> {
                     DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong())
-                            .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger(), FisheryCommand.STATIC_MESSAGE_ID_TREASURE));
+                            .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger()));
                 });
     }
 
@@ -98,16 +99,16 @@ public class Fishery {
                 .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_powerup_desc", member.getEffectiveName()))
                 .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1078702766865788989/question.png");
 
-        Button button = Button.of(ButtonStyle.SECONDARY, "use", TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_powerup_button"));
+        Button button = Button.of(ButtonStyle.SECONDARY, FisheryCommand.BUTTON_ID_POWERUP, TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_powerup_button"));
         channel.sendMessage(member.getAsMention())
                 .addEmbeds(eb.build())
                 .setComponents(ActionRows.of(button))
                 .queue(m -> {
                     unusedPowerUpSet.add(m.getIdLong());
                     DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong())
-                            .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger(), FisheryCommand.STATIC_MESSAGE_ID_POWERUP + ":" + member.getId()));
+                            .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger(), member.getId()));
 
-                    MainScheduler.schedule(1, ChronoUnit.MINUTES, "remove_powerup_if_unused", () -> {
+                    MainScheduler.schedule(Settings.FISHERY_POWERUP_TIMEOUT_MINUTES, ChronoUnit.MINUTES, "remove_powerup_if_unused", () -> {
                         if (unusedPowerUpSet.contains(m.getIdLong())) {
                             m.delete().queue();
                             deregisterPowerUp(m.getIdLong());

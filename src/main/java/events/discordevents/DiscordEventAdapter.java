@@ -33,6 +33,7 @@ import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionE
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -250,7 +251,15 @@ public class DiscordEventAdapter extends ListenerAdapter {
     public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
         if (event.getChannel() instanceof StandardGuildMessageChannel) {
             GlobalThreadPool.getExecutorService()
-                    .submit(() -> SelectMenuAbstract.onSelectMenuStatic(event, getListenerList(SelectMenuAbstract.class)));
+                    .submit(() -> StringSelectMenuAbstract.onStringSelectMenuStatic(event, getListenerList(StringSelectMenuAbstract.class)));
+        }
+    }
+
+    @Override
+    public void onEntitySelectInteraction(@NotNull EntitySelectInteractionEvent event) {
+        if (event.getChannel() instanceof StandardGuildMessageChannel) {
+            GlobalThreadPool.getExecutorService()
+                    .submit(() -> EntitySelectMenuAbstract.onEntitySelectMenuStatic(event, getListenerList(EntitySelectMenuAbstract.class)));
         }
     }
 

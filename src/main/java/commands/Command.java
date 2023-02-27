@@ -327,6 +327,12 @@ public abstract class Command implements OnTriggerListener {
         this.allowedMentions = MessageRequest.getDefaultMentions();
     }
 
+    public void registerStaticReactionMessage(Message message, String secondaryId) {
+        DBStaticReactionMessages.getInstance()
+                .retrieve(message.getGuild().getIdLong())
+                .put(message.getIdLong(), new StaticReactionMessageData(message, getTrigger(), secondaryId));
+    }
+
     public void registerStaticReactionMessage(Message message) {
         DBStaticReactionMessages.getInstance()
                 .retrieve(message.getGuild().getIdLong())

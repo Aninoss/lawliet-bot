@@ -12,6 +12,7 @@ import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnStaticButtonListener;
+import commands.listeners.OnStaticEntitySelectMenuListener;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
@@ -39,10 +40,12 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,12 +58,13 @@ import org.jetbrains.annotations.NotNull;
         usesExtEmotes = true,
         aliases = { "fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings" }
 )
-public class FisheryCommand extends NavigationAbstract implements OnStaticButtonListener {
+public class FisheryCommand extends NavigationAbstract implements OnStaticButtonListener, OnStaticEntitySelectMenuListener {
 
     public static final int MAX_CHANNELS = 50;
 
-    public static final String STATIC_MESSAGE_ID_TREASURE = "treasure";
-    public static final String STATIC_MESSAGE_ID_POWERUP = "powerup";
+    public static final String BUTTON_ID_TREASURE = "open";
+    public static final String BUTTON_ID_POWERUP = "use";
+    public static final String ENTITY_SELECT_MENU_ID_COLLABORATION = "member";
 
     private GuildData guildBean;
     private boolean stopLock = true;
@@ -222,10 +226,10 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
             return;
         }
 
-        if (secondaryId == null || secondaryId.equals(STATIC_MESSAGE_ID_TREASURE)) {
+        if (event.getComponent().getId().equals(BUTTON_ID_TREASURE)) {
             processTreasureChest(event);
-        } else if (secondaryId.split(":")[0].equals(STATIC_MESSAGE_ID_POWERUP)) {
-            if (event.getUser().getId().equals(secondaryId.split(":")[1])) {
+        } else if (event.getComponent().getId().equals(BUTTON_ID_POWERUP)) {
+            if (event.getUser().getId().equals(secondaryId)) {
                 processPowerUp(event);
             } else {
                 EmbedBuilder eb = EmbedFactory.getEmbedError()
@@ -303,6 +307,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1077942025460129852/roulette.gif");
 
         event.editMessageEmbeds(eb.build())
+                .setContent(null)
                 .setComponents()
                 .queue();
 
@@ -334,14 +339,91 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .setFooter(getString("powerup_footer"));
 
         StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getChannel();
-        hook.editOriginalEmbeds(eb.build()).queue();
+        if (powerUp == FisheryPowerUp.TEAM) {
+            EntitySelectMenu memberSelectMenu = EntitySelectMenu.create(ENTITY_SELECT_MENU_ID_COLLABORATION, EntitySelectMenu.SelectTarget.USER)
+                    .setRequiredRange(1, 1)
+                    .setPlaceholder(getString("powerup_collab_memberselect"))
+                    .build();
+            hook.editOriginalEmbeds(eb.build())
+                    .setActionRow(memberSelectMenu)
+                    .queue();
+            registerStaticReactionMessage(event.getMessage(), event.getUser().getId());
+        } else {
+            hook.editOriginalEmbeds(eb.build()).queue();
+        }
         memberData.activatePowerUp(powerUp, expiration);
 
-        MainScheduler.schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "powerup_remove", () -> {
+        int despawnMinutes = powerUp == FisheryPowerUp.TEAM ? Settings.FISHERY_POWERUP_TIMEOUT_MINUTES : Settings.FISHERY_DESPAWN_MINUTES;
+        MainScheduler.schedule(despawnMinutes, ChronoUnit.MINUTES, "powerup_remove", () -> {
             if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
                 hook.deleteOriginal().queue();
             }
         });
+    }
+
+    @Override
+    public void onStaticEntitySelectMenu(EntitySelectInteractionEvent event, String secondaryId) {
+        if (!(event.getChannel() instanceof TextChannel) ||
+                !event.getComponent().getId().equals(ENTITY_SELECT_MENU_ID_COLLABORATION)
+        ) {
+            return;
+        }
+
+        if (!event.getUser().getId().equals(secondaryId)) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
+                    .setDescription(getString("powerup_notforyou"));
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        if (event.getUser().getIdLong() == event.getMentions().getUsers().get(0).getIdLong()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
+                    .setDescription(getString("powerup_collab_yourself"));
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        if (event.getMentions().getUsers().get(0).isBot()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
+                    .setDescription(getString("powerup_collab_bot"));
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong())
+                .remove(event.getMessage().getIdLong());
+        processCollaboration(event);
+    }
+
+    private void processCollaboration(EntitySelectInteractionEvent event) {
+        Member member0 = event.getMember();
+        Member member1 = event.getMentions().getMembers().get(0);
+
+        FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
+        FisheryMemberData memberData0 = fisheryGuildData.getMemberData(member0.getIdLong());
+        FisheryMemberData memberData1 = fisheryGuildData.getMemberData(member1.getIdLong());
+
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                .setTitle(FisheryCommand.EMOJI_POWERUP + " " + getString("powerup", FisheryPowerUp.TEAM.ordinal()))
+                .setDescription(getString("powerup_collab_result", member0.getEffectiveName(), member1.getEffectiveName()))
+                .setThumbnail(FisheryPowerUp.TEAM.getImageUrl())
+                .setFooter(getString("powerup_footer"));
+
+        EmbedBuilder changeEmbed0 = memberData0.changeValuesEmbed(member0, 0, memberData0.getMemberGear(FisheryGear.TREASURE).getEffect());
+        EmbedBuilder changeEmbed1 = memberData1.changeValuesEmbed(member1, 0, memberData1.getMemberGear(FisheryGear.TREASURE).getEffect());
+
+        event.editMessageEmbeds(eb.build(), changeEmbed0.build(), changeEmbed1.build())
+                .setComponents()
+                .queue();
     }
 
 }
