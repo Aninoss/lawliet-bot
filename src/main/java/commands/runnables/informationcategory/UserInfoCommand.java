@@ -6,9 +6,11 @@ import commands.listeners.CommandProperties;
 import commands.runnables.MemberAccountAbstract;
 import constants.AssetIds;
 import core.EmbedFactory;
+import core.TextManager;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 @CommandProperties(
@@ -21,32 +23,35 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 public class UserInfoCommand extends MemberAccountAbstract {
 
     public UserInfoCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, true, false, true);
     }
 
     @Override
-    protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) {
+    protected EmbedBuilder processUser(CommandEvent event, User user, boolean userIsAuthor, String args) throws Throwable {
+        Member member = event.getGuild().getMemberById(user.getIdLong());
         String[] type = getString("type").split("\n");
         int typeN = 0;
-        if (!member.getUser().isBot()) {
+        if (!user.isBot()) {
             typeN = 1;
-            if (event.getGuild().getOwnerIdLong() == member.getIdLong()) typeN = 2;
-            if (member.getIdLong() == AssetIds.OWNER_USER_ID) typeN = 3;
+            if (event.getGuild().getOwnerIdLong() == user.getIdLong()) typeN = 2;
+            if (user.getIdLong() == AssetIds.OWNER_USER_ID) typeN = 3;
         }
+        String avatarUrl = member != null ? member.getEffectiveAvatarUrl() : user.getEffectiveAvatarUrl();
 
         String[] argsArray = {
                 type[typeN],
-                StringUtil.escapeMarkdown(member.getUser().getName()),
-                member.getNickname() != null ? member.getNickname() : "-",
-                member.getUser().getDiscriminator(),
-                member.getId(),
-                member.getEffectiveAvatarUrl() + "?size=1024",
-                member.hasTimeJoined() ? TimeFormat.DATE_TIME_SHORT.atInstant(member.getTimeJoined().toInstant()).toString() : "-",
-                TimeFormat.DATE_TIME_SHORT.atInstant(member.getTimeCreated().toInstant()).toString()
+                StringUtil.escapeMarkdown(user.getName()),
+                member != null && member.getNickname() != null ? member.getNickname() : "-",
+                user.getDiscriminator(),
+                user.getId(),
+                avatarUrl + "?size=1024",
+                member != null && member.hasTimeJoined() ? TimeFormat.DATE_TIME_SHORT.atInstant(member.getTimeJoined().toInstant()).toString() : "-",
+                TimeFormat.DATE_TIME_SHORT.atInstant(user.getTimeCreated().toInstant()).toString(),
+                TextManager.getString(getLocale(), TextManager.GENERAL, "noyes", member != null)
         };
 
         return EmbedFactory.getEmbedDefault(this, getString("template", argsArray)).
-                setThumbnail(member.getEffectiveAvatarUrl());
+                setThumbnail(avatarUrl);
     }
 
 }

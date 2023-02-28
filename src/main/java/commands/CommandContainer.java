@@ -134,6 +134,7 @@ public class CommandContainer {
         commandList.add(VCTimeCommand.class);
         commandList.add(FisheryManageCommand.class);
         commandList.add(TreasureCommand.class);
+        commandList.add(PowerUpCommand.class);
         commandList.add(AutoClaimCommand.class);
         commandList.add(AutoWorkCommand.class);
         commandList.add(AutoSellCommand.class);

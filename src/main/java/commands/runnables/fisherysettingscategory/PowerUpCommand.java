@@ -1,12 +1,10 @@
 package commands.runnables.fisherysettingscategory;
 
 import java.util.Locale;
-import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.runnables.FisheryInterface;
+import commands.runnables.FisheryMemberAccountInterface;
 import core.EmbedFactory;
-import core.ExceptionLogger;
 import core.TextManager;
 import core.atomicassets.AtomicTextChannel;
 import core.mention.MentionList;
@@ -14,25 +12,26 @@ import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 @CommandProperties(
-        trigger = "treasure",
+        trigger = "powerup",
         userGuildPermissions = Permission.MANAGE_SERVER,
-        emoji = "\uD83C\uDFF4\u200D☠️",
-        executableWithoutArgs = true,
-        patreonRequired = true,
-        aliases = { "tresure", "treasurechest" }
+        emoji = "❔",
+        executableWithoutArgs = false,
+        patreonRequired = true
 )
-public class TreasureCommand extends Command implements FisheryInterface {
+public class PowerUpCommand extends FisheryMemberAccountInterface {
 
-    public TreasureCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+    public PowerUpCommand(Locale locale, String prefix) {
+        super(locale, prefix, false, true, false);
     }
 
     @Override
-    public boolean onFisheryAccess(CommandEvent event, String args) {
+    protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         TextChannel channel = event.getTextChannel();
         MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
         if (channelMention.getList().size() > 0) {
@@ -42,8 +41,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
 
         if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY)) {
             String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", new AtomicTextChannel(channel).getPrefixedNameInField());
-            drawMessageNew(EmbedFactory.getEmbedError(this, error)).exceptionally(ExceptionLogger.get());
-            return false;
+            return EmbedFactory.getEmbedError(this, error);
         }
 
         int amount = 1;
@@ -51,26 +49,31 @@ public class TreasureCommand extends Command implements FisheryInterface {
             if (StringUtil.stringIsInt(args)) {
                 amount = Integer.parseInt(args);
                 if (amount < 1 || amount > 30) {
-                    drawMessageNew(EmbedFactory.getEmbedError(
+                    return EmbedFactory.getEmbedError(
                             this,
                             TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")
-                    )).exceptionally(ExceptionLogger.get());
-                    return false;
+                    );
                 }
             } else {
-                drawMessageNew(EmbedFactory.getEmbedError(
+                return EmbedFactory.getEmbedError(
                         this,
                         TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit")
-                )).exceptionally(ExceptionLogger.get());
-                return false;
+                );
             }
         }
 
         for (int i = 0; i < amount; i++) {
-            Fishery.spawnTreasureChest(channel);
+            Fishery.spawnPowerUp(channel, member);
         }
-        drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("success", amount != 1, StringUtil.numToString(amount), new AtomicTextChannel(channel).getPrefixedNameInField())));
-        return true;
+
+        String successText = getString(
+                "success",
+                amount != 1,
+                StringUtil.numToString(amount),
+                member.getEffectiveName(),
+                new AtomicTextChannel(channel).getPrefixedNameInField()
+        );
+        return EmbedFactory.getEmbedDefault(this, successText);
     }
 
 }

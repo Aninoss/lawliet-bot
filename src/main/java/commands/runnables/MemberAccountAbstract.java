@@ -3,6 +3,7 @@ package commands.runnables;
 import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
+import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.MentionList;
@@ -17,15 +18,19 @@ import org.jetbrains.annotations.NotNull;
 public abstract class MemberAccountAbstract extends Command {
 
     private final boolean includeNotInGuild;
+    private final boolean requireMemberMention;
+    private final boolean allowBots;
     private boolean found = false;
 
     public MemberAccountAbstract(Locale locale, String prefix) {
-        this(locale, prefix, false);
+        this(locale, prefix, false, false, true);
     }
 
-    public MemberAccountAbstract(Locale locale, String prefix, boolean includeNotInGuild) {
+    public MemberAccountAbstract(Locale locale, String prefix, boolean includeNotInGuild, boolean requireMemberMention, boolean allowBots) {
         super(locale, prefix);
         this.includeNotInGuild = includeNotInGuild;
+        this.requireMemberMention = requireMemberMention;
+        this.allowBots = allowBots;
     }
 
     protected void setFound() {
@@ -50,7 +55,7 @@ public abstract class MemberAccountAbstract extends Command {
         EmbedBuilder eb;
 
         if (includeNotInGuild) {
-            User user = event.getMember().getUser();
+            User user = requireMemberMention ? null : event.getMember().getUser();
             MentionList<User> userMention = MentionUtil.getUsers(event.getGuild(), args, event.getRepliedMember());
 
             if (userMention.getList().size() > 0) {
@@ -64,14 +69,36 @@ public abstract class MemberAccountAbstract extends Command {
                 }
             }
 
+            if (user == null) {
+                drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")))
+                        .exceptionally(ExceptionLogger.get());
+                return false;
+            }
+            if (user.isBot() && !allowBots) {
+                drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_bots")))
+                        .exceptionally(ExceptionLogger.get());
+                return false;
+            }
+
             eb = processUser(event, user, user.getIdLong() == event.getMember().getIdLong(), userMention.getFilteredArgs());
         } else {
-            Member member = event.getMember();
+            Member member = requireMemberMention ? null : event.getMember();
             MentionList<Member> memberMention = MentionUtil.getMembers(event.getGuild(), args, event.getRepliedMember());
 
             if (memberMention.getList().size() > 0) {
                 member = memberMention.getList().get(0);
                 userMentioned = true;
+            }
+
+            if (member == null) {
+                drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_mentions_no_bots")))
+                        .exceptionally(ExceptionLogger.get());
+                return false;
+            }
+            if (member.getUser().isBot() && !allowBots) {
+                drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_bots")))
+                        .exceptionally(ExceptionLogger.get());
+                return false;
             }
 
             eb = processMember(event, member, member.getIdLong() == event.getMember().getIdLong(), memberMention.getFilteredArgs());

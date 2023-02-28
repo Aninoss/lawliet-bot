@@ -53,7 +53,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
     private EmbedBuilder ebCache;
 
     public WarnLogCommand(Locale locale, String prefix) {
-        super(locale, prefix, true);
+        super(locale, prefix, true, false, true);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
             }
         }
 
-        return draw(member);
+        return draw(event.getMember());
     }
 
     @Override

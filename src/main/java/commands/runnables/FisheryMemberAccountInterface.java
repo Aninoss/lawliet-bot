@@ -7,7 +7,11 @@ import org.jetbrains.annotations.NotNull;
 public abstract class FisheryMemberAccountInterface extends MemberAccountAbstract implements FisheryInterface {
 
     public FisheryMemberAccountInterface(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, false, false, false);
+    }
+
+    public FisheryMemberAccountInterface(Locale locale, String prefix, boolean includeNotInGuild, boolean requireMemberMention, boolean allowBots) {
+        super(locale, prefix, includeNotInGuild, requireMemberMention, allowBots);
     }
 
     @Override

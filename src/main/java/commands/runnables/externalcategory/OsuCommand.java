@@ -52,7 +52,7 @@ public class OsuCommand extends MemberAccountAbstract implements OnButtonListene
     private String osuName;
 
     public OsuCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, false, false, false);
     }
 
     @Override
