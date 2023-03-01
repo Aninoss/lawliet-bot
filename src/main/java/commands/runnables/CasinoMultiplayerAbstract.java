@@ -15,6 +15,7 @@ import core.atomicassets.AtomicMember;
 import core.mention.Mention;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import modules.fishery.FisheryPowerUp;
 import modules.fishery.FisheryStatus;
 import mysql.modules.casinostats.DBCasinoStats;
 import mysql.modules.casinotracking.DBCasinoTracking;
@@ -229,6 +230,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         long totalCoinsInput = coinsInput * playerList.size();
         long price = totalCoinsInput / winners.size();
         ArrayList<Member> winnersMembers = new ArrayList<>();
+        ArrayList<Member> shieldProtectedMembers = new ArrayList<>();
         for (int player = 0; player < playerList.size(); player++) {
             AtomicMember atomicMember = playerList.get(player);
             if (fisheryGuildData != null) {
@@ -242,15 +244,30 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
                                 .add(getTrigger(), true, price - coinsInput);
                     }
                 } else {
-                    fisheryMemberData.addCoinsRaw(-coinsInput);
+                    long coinsLost = coinsInput;
+                    if (fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.SHIELD)) {
+                        fisheryMemberData.deletePowerUp(FisheryPowerUp.SHIELD);
+                        coinsLost = 0;
+                        atomicMember.get().ifPresent(shieldProtectedMembers::add);
+                    } else {
+                        fisheryMemberData.addCoinsRaw(-coinsInput);
+                    }
                     if (trackingActiveMap.get(atomicMember.getIdLong())) {
                         DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(fisheryGuildData.getGuildId(), atomicMember.getIdLong()))
-                                .add(getTrigger(), false, coinsInput);
+                                .add(getTrigger(), false, coinsLost);
                     }
                 }
             } else if (winners.contains(player)) {
                 atomicMember.get().ifPresent(winnersMembers::add);
             }
+        }
+
+        if (!shieldProtectedMembers.isEmpty()) {
+            Mention mentionedMembers = MentionUtil.getMentionedStringOfMembers(getLocale(), shieldProtectedMembers);
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                    .setDescription(TextManager.getString(getLocale(), Category.CASINO, "casino_protection", mentionedMembers.isMultiple(), mentionedMembers.getMentionText()))
+                    .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080517010443743352/shield_break.gif");
+            setAdditionalEmbeds(eb.build());
         }
 
         Mention mention = MentionUtil.getMentionedStringOfMembers(getLocale(), winnersMembers);

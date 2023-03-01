@@ -1,6 +1,7 @@
 package commands.runnables;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import commands.Category;
 import commands.Command;
@@ -13,8 +14,10 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import core.mention.Mention;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import modules.fishery.FisheryPowerUp;
 import modules.fishery.FisheryStatus;
 import mysql.modules.casinostats.DBCasinoStats;
 import mysql.modules.casinotracking.DBCasinoTracking;
@@ -38,7 +41,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     public static final String BUTTON_ID_RETRY = "retry";
     public static final String BUTTON_ID_QUIT = "quit";
 
-    protected final Button BUTTON_RETRY = Button.of(ButtonStyle.PRIMARY,  BUTTON_ID_RETRY, TextManager.getString(getLocale(), Category.CASINO, "casino_retry"));
+    protected final Button BUTTON_RETRY = Button.of(ButtonStyle.PRIMARY, BUTTON_ID_RETRY, TextManager.getString(getLocale(), Category.CASINO, "casino_retry"));
     protected final Button BUTTON_CANCEL = Button.of(ButtonStyle.SECONDARY, BUTTON_ID_QUIT, TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort"));
 
     private static final double BONUS_MULTIPLICATOR = 1;
@@ -173,15 +176,26 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             DBGameStatistics.getInstance().retrieve(compareKey).addValue(false, 1);
         }
 
-        EmbedBuilder eb = DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get())
-                .changeValuesEmbed(member, 0, -coinsInput);
+        long coinsLost = coinsInput;
         if (coinsInput > 0) {
+            FisheryMemberData fisheryMemberData = DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get());
+            EmbedBuilder eb;
+            if (fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.SHIELD)) {
+                fisheryMemberData.deletePowerUp(FisheryPowerUp.SHIELD);
+                coinsLost = 0;
+                Mention mentionedMembers = MentionUtil.getMentionedStringOfMembers(getLocale(), List.of(member));
+                eb = EmbedFactory.getEmbedDefault()
+                        .setDescription(TextManager.getString(getLocale(), Category.CASINO, "casino_protection", mentionedMembers.isMultiple(), mentionedMembers.getMentionText()))
+                        .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080517010443743352/shield_break.gif");
+            } else {
+                eb = fisheryMemberData.changeValuesEmbed(member, 0, -coinsInput);
+            }
             setAdditionalEmbeds(eb.build());
         }
 
         if (trackingActive) {
             DBCasinoStats.getInstance().retrieve(new DBCasinoStats.Key(member.getGuild().getIdLong(), member.getIdLong()))
-                    .add(getTrigger(), false, coinsInput);
+                    .add(getTrigger(), false, coinsLost);
         }
     }
 

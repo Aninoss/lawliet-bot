@@ -325,18 +325,18 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         FisheryPowerUp powerUp = possiblePowerUps.get(r.nextInt(possiblePowerUps.size()));
         Instant expiration = Instant.now().plus(powerUp.getValidDuration());
 
-        String desc = getString(
-                "powerup_result",
-                !powerUp.getValidDuration().isZero(),
-                getString("powerup_description_" + powerUp.ordinal()),
-                TimeFormat.DATE_TIME_SHORT.atInstant(expiration).toString()
-        );
-
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.EMOJI_POWERUP + " " + getString("powerup", powerUp.ordinal()))
-                .setDescription(desc)
+                .setDescription(getString("powerup_description_" + powerUp.ordinal()))
                 .setThumbnail(powerUp.getImageUrl())
                 .setFooter(getString("powerup_footer"));
+
+        if (!powerUp.getValidDuration().isZero()) {
+            eb = eb.addField(
+                    Emojis.ZERO_WIDTH_SPACE.getFormatted(),
+                    getString("powerup_expires", TimeFormat.DATE_TIME_SHORT.atInstant(expiration).toString()),
+                    false);
+        }
 
         StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getChannel();
         if (powerUp == FisheryPowerUp.TEAM) {
