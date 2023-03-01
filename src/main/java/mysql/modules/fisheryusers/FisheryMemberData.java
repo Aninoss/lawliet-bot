@@ -389,50 +389,53 @@ public class FisheryMemberData implements MemberAsset {
                 pipeline.sync();
             }
 
-            if (getFisheryGuildData().messageActivityIsValid(memberId, message.getContentRaw())) {
-                long level = RedisManager.parseLong(levelResp.get());
-                long effect = fisheryMemberGearData.getEffect(level);
-                long fish = Math.min(RedisManager.parseLong(fishResp.get()) + effect, Settings.FISHERY_MAX);
-                long recentFishGainsRaw = Math.min(RedisManager.parseLong(recentFishGainsRawResp.get()) + effect, Settings.FISHERY_MAX);
-                long recentFishGainsProcessed = Math.min(RedisManager.parseLong(recentFishGainsProcessedResp.get()) + effect, Settings.FISHERY_MAX);
-
-                pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
-                pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
-                pipeline.zadd(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, recentFishGainsProcessed, String.valueOf(memberId));
-
-                if (message.getGuild().getIdLong() == AnicordVerificationIds.GUILD_ID) {
-                    pipeline.hincrBy(KEY_ACCOUNT, FIELD_MESSAGES_ANICORD, 1);
-                }
-
-                Optional<Member> memberOpt;
-                if (fish >= 100 &&
-                        !RedisManager.parseBoolean(reminderSentResp.get()) &&
-                        getGuildData().isFisheryReminders() &&
-                        BotPermissionUtil.canWriteEmbed(message.getGuildChannel()) &&
-                        (memberOpt = getMember()).isPresent()
-                ) {
-                    pipeline.hset(KEY_ACCOUNT, FIELD_REMINDER_SENT, "true");
-                    Member member = memberOpt.get();
-                    Locale locale = getGuildData().getLocale();
-                    String prefix = getGuildData().getPrefix();
-
-                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                            .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
-                            .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("{PREFIX}", prefix))
-                            .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("{PREFIX}", prefix));
-                    EmbedUtil.setMemberAuthor(eb, member);
-
-                    message.getGuildChannel().sendMessage(member.getAsMention())
-                            .setEmbeds(eb.build())
-                            .queue(m -> m.delete().queueAfter(Settings.FISHERY_DESPAWN_MINUTES, TimeUnit.MINUTES));
-                }
-
+            if (!getFisheryGuildData().messageActivityIsValid(memberId, message.getContentRaw())) {
                 pipeline.sync();
-                return true;
-            } else {
-                pipeline.sync();
+                return false;
             }
-            return false;
+
+            long level = RedisManager.parseLong(levelResp.get());
+            long effect = fisheryMemberGearData.getEffect(level);
+            if (getActivePowerUps().contains(FisheryPowerUp.LOUPE)) {
+                effect += Math.round(effect * 0.25);
+            }
+            long fish = Math.min(RedisManager.parseLong(fishResp.get()) + effect, Settings.FISHERY_MAX);
+            long recentFishGainsRaw = Math.min(RedisManager.parseLong(recentFishGainsRawResp.get()) + effect, Settings.FISHERY_MAX);
+            long recentFishGainsProcessed = Math.min(RedisManager.parseLong(recentFishGainsProcessedResp.get()) + effect, Settings.FISHERY_MAX);
+
+            pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
+            pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
+            pipeline.zadd(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, recentFishGainsProcessed, String.valueOf(memberId));
+
+            if (message.getGuild().getIdLong() == AnicordVerificationIds.GUILD_ID) {
+                pipeline.hincrBy(KEY_ACCOUNT, FIELD_MESSAGES_ANICORD, 1);
+            }
+
+            Optional<Member> memberOpt;
+            if (fish >= 100 &&
+                    !RedisManager.parseBoolean(reminderSentResp.get()) &&
+                    getGuildData().isFisheryReminders() &&
+                    BotPermissionUtil.canWriteEmbed(message.getGuildChannel()) &&
+                    (memberOpt = getMember()).isPresent()
+            ) {
+                pipeline.hset(KEY_ACCOUNT, FIELD_REMINDER_SENT, "true");
+                Member member = memberOpt.get();
+                Locale locale = getGuildData().getLocale();
+                String prefix = getGuildData().getPrefix();
+
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                        .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))
+                        .setDescription(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_description").replace("{PREFIX}", prefix))
+                        .setFooter(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_footer").replace("{PREFIX}", prefix));
+                EmbedUtil.setMemberAuthor(eb, member);
+
+                message.getGuildChannel().sendMessage(member.getAsMention())
+                        .setEmbeds(eb.build())
+                        .queue(m -> m.delete().queueAfter(Settings.FISHERY_DESPAWN_MINUTES, TimeUnit.MINUTES));
+            }
+
+            pipeline.sync();
+            return true;
         });
     }
 
@@ -452,27 +455,32 @@ public class FisheryMemberData implements MemberAsset {
             pipeline.sync();
 
             Instant bannedUntil = RedisManager.parseInstant(bannedUntilResp.get());
-            if (bannedUntil == null || bannedUntil.isBefore(Instant.now())) {
-                Optional<Integer> limitOpt = getGuildData().getFisheryVcHoursCapEffectively();
-                if (limitOpt.isPresent()) {
-                    cleanDailyValues();
-                    newMinutes = Math.min(newMinutes, limitOpt.get() * 60 - RedisManager.parseInteger(voiceMinutesResp.get()));
-                }
+            if (bannedUntil != null && bannedUntil.isAfter(Instant.now())) {
+                return;
+            }
 
-                if (newMinutes > 0) {
-                    long level = RedisManager.parseLong(levelResp.get());
-                    long effect = fisheryMemberGearData.getEffect(level) * newMinutes;
-                    long fish = Math.min(RedisManager.parseLong(fishResp.get()) + effect, Settings.FISHERY_MAX);
-                    long recentFishGainsRaw = Math.min(RedisManager.parseLong(recentFishGainsRawResp.get()) + effect, Settings.FISHERY_MAX);
-                    long recentFishGainsProcessed = Math.min(RedisManager.parseLong(recentFishGainsProcessedResp.get()) + effect, Settings.FISHERY_MAX);
+            Optional<Integer> limitOpt = getGuildData().getFisheryVcHoursCapEffectively();
+            if (limitOpt.isPresent()) {
+                cleanDailyValues();
+                newMinutes = Math.min(newMinutes, limitOpt.get() * 60 - RedisManager.parseInteger(voiceMinutesResp.get()));
+            }
 
-                    pipeline = jedis.pipelined();
-                    pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
-                    pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
-                    pipeline.zadd(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, recentFishGainsProcessed, String.valueOf(memberId));
-                    pipeline.hincrBy(KEY_ACCOUNT, FIELD_VOICE_MINUTES, newMinutes);
-                    pipeline.sync();
+            if (newMinutes > 0) {
+                long level = RedisManager.parseLong(levelResp.get());
+                long effect = fisheryMemberGearData.getEffect(level) * newMinutes;
+                if (getActivePowerUps().contains(FisheryPowerUp.LOUPE)) {
+                    effect += Math.round(effect * 0.25);
                 }
+                long fish = Math.min(RedisManager.parseLong(fishResp.get()) + effect, Settings.FISHERY_MAX);
+                long recentFishGainsRaw = Math.min(RedisManager.parseLong(recentFishGainsRawResp.get()) + effect, Settings.FISHERY_MAX);
+                long recentFishGainsProcessed = Math.min(RedisManager.parseLong(recentFishGainsProcessedResp.get()) + effect, Settings.FISHERY_MAX);
+
+                pipeline = jedis.pipelined();
+                pipeline.hset(KEY_ACCOUNT, FIELD_FISH, String.valueOf(fish));
+                pipeline.hset(getFisheryGuildData().KEY_RECENT_FISH_GAINS_RAW, hour + ":" + memberId, String.valueOf(recentFishGainsRaw));
+                pipeline.zadd(getFisheryGuildData().KEY_RECENT_FISH_GAINS_PROCESSED, recentFishGainsProcessed, String.valueOf(memberId));
+                pipeline.hincrBy(KEY_ACCOUNT, FIELD_VOICE_MINUTES, newMinutes);
+                pipeline.sync();
             }
         });
     }

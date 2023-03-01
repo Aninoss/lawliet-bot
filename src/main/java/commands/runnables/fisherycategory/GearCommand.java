@@ -13,6 +13,7 @@ import core.cache.PatreonCache;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.fishery.FisheryGear;
+import modules.fishery.FisheryPowerUp;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.fisheryusers.FisheryMemberGearData;
@@ -55,7 +56,6 @@ public class GearCommand extends FisheryMemberAccountInterface {
                 .setThumbnail(member.getEffectiveAvatarUrl());
         if (patreon) eb.setColor(Color.YELLOW);
 
-        //Gear
         StringBuilder gearString = new StringBuilder();
         for (FisheryMemberGearData slot : fisheryMemberBean.getGearMap().values()) {
             gearString.append(getString(
@@ -68,11 +68,12 @@ public class GearCommand extends FisheryMemberAccountInterface {
         eb.addField(getString("gear_title"), gearString.toString(), false);
 
         int roleLvl = fisheryMemberBean.getMemberGear(FisheryGear.ROLE).getLevel();
+        boolean powerUpBonus = fisheryMemberBean.getActivePowerUps().contains(FisheryPowerUp.LOUPE);
         eb.addField(getString("stats_title"), getString(
                 "stats_content",
-                StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.MESSAGE).getEffect()),
+                numToStringWithPowerUpBonus(fisheryMemberBean.getMemberGear(FisheryGear.MESSAGE).getEffect(), powerUpBonus),
                 StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.DAILY).getEffect()),
-                StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.VOICE).getEffect()),
+                numToStringWithPowerUpBonus(fisheryMemberBean.getMemberGear(FisheryGear.VOICE).getEffect(), powerUpBonus),
                 StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.TREASURE).getEffect()),
                 buyableRoles.size() > 0 && roleLvl > 0 && roleLvl <= buyableRoles.size() ? StringUtil.escapeMarkdown(buyableRoles.get(roleLvl - 1).getName()) : "-",
                 StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.SURVEY).getEffect()),
@@ -80,6 +81,14 @@ public class GearCommand extends FisheryMemberAccountInterface {
                 fisheryMemberBean.getGuildData().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberBean.getCoinsGiveReceivedMax()) : "∞"
         ), false);
         return eb;
+    }
+
+    private String numToStringWithPowerUpBonus(long value, boolean powerUpBonus) {
+        String str = StringUtil.numToString(value);
+        if (powerUpBonus) {
+            str += " (+" + StringUtil.numToString(Math.round(value * 0.25)) + ")";
+        }
+        return str;
     }
 
 }

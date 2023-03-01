@@ -19,6 +19,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
+import modules.fishery.FisheryPowerUp;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -193,14 +194,14 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                 }
 
                 int roleLvl = fisheryMemberBean.getMemberGear(FisheryGear.ROLE).getLevel();
-
+                boolean powerUpBonus = fisheryMemberBean.getActivePowerUps().contains(FisheryPowerUp.LOUPE);
                 String status = getString(
                         "status",
                         StringUtil.numToString(fisheryMemberBean.getFish()),
                         StringUtil.numToString(fisheryMemberBean.getCoins()),
-                        StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.MESSAGE).getEffect()),
+                        numToStringWithPowerUpBonus(fisheryMemberBean.getMemberGear(FisheryGear.MESSAGE).getEffect(), powerUpBonus),
                         StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.DAILY).getEffect()),
-                        StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.VOICE).getEffect()),
+                        numToStringWithPowerUpBonus(fisheryMemberBean.getMemberGear(FisheryGear.VOICE).getEffect(), powerUpBonus),
                         StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.TREASURE).getEffect()),
                         roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? StringUtil.escapeMarkdown(roles.get(roleLvl - 1).getName()) : "-",
                         StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.SURVEY).getEffect()),
@@ -248,6 +249,14 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
     private long calculateRolePrice(Guild guild, FisheryMemberGearData slot) {
         return Fishery.getFisheryRolePrice(guild, fisheryGuildBean.getRoles().size(), slot.getLevel());
+    }
+
+    private String numToStringWithPowerUpBonus(long value, boolean powerUpBonus) {
+        String str = StringUtil.numToString(value);
+        if (powerUpBonus) {
+            str += " (+" + StringUtil.numToString(Math.round(value * 0.25)) + ")";
+        }
+        return str;
     }
 
 }
