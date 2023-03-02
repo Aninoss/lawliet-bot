@@ -26,6 +26,7 @@ public interface Emojis {
     UnicodeEmoji COINS_UNICODE = Emoji.fromUnicode("🪙");
     CustomEmoji GROWTH = Emoji.fromCustom("growth", 556164492678004741L, false);
     UnicodeEmoji DAILY_STREAK = Emoji.fromUnicode("🔥");
+    UnicodeEmoji COUPONS = Emoji.fromUnicode("🎟️");
 
     CustomEmoji COUNTDOWN_10 = Emoji.fromCustom("countdown_10", 729371766119727124L, true);
     CustomEmoji COUNTDOWN_3 = Emoji.fromCustom("countdown_3", 799006900753530880L, true);

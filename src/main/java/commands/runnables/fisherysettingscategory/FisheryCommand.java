@@ -349,6 +349,9 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     .queue();
             registerStaticReactionMessage(event.getMessage(), event.getUser().getId());
         } else {
+            if (powerUp == FisheryPowerUp.SHOP) {
+                memberData.setCoupons(3);
+            }
             hook.editOriginalEmbeds(eb.build()).queue();
         }
         memberData.activatePowerUp(powerUp, expiration);

@@ -40,9 +40,16 @@ public class GearCommand extends FisheryMemberAccountInterface {
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         List<Role> buyableRoles = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getRoles();
-        FisheryMemberData fisheryMemberBean = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong());
+        FisheryMemberData fisheryMemberData = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong());
+        int coupons = fisheryMemberData.getCoupons();
+        String desc = getString(
+                coupons > 0 ? "desc_ext" : "desc",
+                StringUtil.numToString(fisheryMemberData.getFish()),
+                StringUtil.numToString(fisheryMemberData.getCoins()),
+                StringUtil.numToString(coupons)
+        );
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setDescription(getString("desc", StringUtil.numToString(fisheryMemberBean.getFish()), StringUtil.numToString(fisheryMemberBean.getCoins())));
+                .setDescription(desc);
         EmbedUtil.setFooter(eb, this);
 
         boolean patreon = PatreonCache.getInstance().hasPremium(member.getIdLong(), false);
@@ -57,7 +64,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
         if (patreon) eb.setColor(Color.YELLOW);
 
         StringBuilder gearString = new StringBuilder();
-        for (FisheryMemberGearData slot : fisheryMemberBean.getGearMap().values()) {
+        for (FisheryMemberGearData slot : fisheryMemberData.getGearMap().values()) {
             gearString.append(getString(
                     "gear_slot",
                     slot.getGear().getEmoji(),
@@ -67,18 +74,18 @@ public class GearCommand extends FisheryMemberAccountInterface {
         }
         eb.addField(getString("gear_title"), gearString.toString(), false);
 
-        int roleLvl = fisheryMemberBean.getMemberGear(FisheryGear.ROLE).getLevel();
-        boolean powerUpBonus = fisheryMemberBean.getActivePowerUps().contains(FisheryPowerUp.LOUPE);
+        int roleLvl = fisheryMemberData.getMemberGear(FisheryGear.ROLE).getLevel();
+        boolean powerUpBonus = fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.LOUPE);
         eb.addField(getString("stats_title"), getString(
                 "stats_content",
-                numToStringWithPowerUpBonus(fisheryMemberBean.getMemberGear(FisheryGear.MESSAGE).getEffect(), powerUpBonus),
-                StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.DAILY).getEffect()),
-                numToStringWithPowerUpBonus(fisheryMemberBean.getMemberGear(FisheryGear.VOICE).getEffect(), powerUpBonus),
-                StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.TREASURE).getEffect()),
+                numToStringWithPowerUpBonus(fisheryMemberData.getMemberGear(FisheryGear.MESSAGE).getEffect(), powerUpBonus),
+                StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.DAILY).getEffect()),
+                numToStringWithPowerUpBonus(fisheryMemberData.getMemberGear(FisheryGear.VOICE).getEffect(), powerUpBonus),
+                StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.TREASURE).getEffect()),
                 buyableRoles.size() > 0 && roleLvl > 0 && roleLvl <= buyableRoles.size() ? StringUtil.escapeMarkdown(buyableRoles.get(roleLvl - 1).getName()) : "-",
-                StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.SURVEY).getEffect()),
-                StringUtil.numToString(fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect()),
-                fisheryMemberBean.getGuildData().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberBean.getCoinsGiveReceivedMax()) : "∞"
+                StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.SURVEY).getEffect()),
+                StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect()),
+                fisheryMemberData.getGuildData().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberData.getCoinsGiveReceivedMax()) : "∞"
         ), false);
         return eb;
     }

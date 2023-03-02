@@ -61,6 +61,7 @@ public class FisheryMemberData implements MemberAsset {
     public final String FIELD_MESSAGES_ANICORD = "messages_anicord";
     public final String FIELD_DIAMONDS = "diamonds";
     public final String FIELD_POWERUP = "powerup";
+    public final String FIELD_COUPONS = "coupons";
 
     FisheryMemberData(FisheryGuildData fisheryGuildBean, long memberId) {
         this.fisheryGuildBean = fisheryGuildBean;
@@ -179,6 +180,24 @@ public class FisheryMemberData implements MemberAsset {
                 totalInvestment += RedisManager.parseLong(stockResponseEntry.getValue().get()) * StockMarket.getValue(stockResponseEntry.getKey());
             }
             return totalInvestment;
+        });
+    }
+
+    public int getCoupons() {
+        return getActivePowerUps().contains(FisheryPowerUp.SHOP)
+                ? Math.max(0, RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_COUPONS)))
+                : 0;
+    }
+
+    public void decreaseCoupons() {
+        RedisManager.update(jedis -> {
+            jedis.hincrBy(KEY_ACCOUNT, FIELD_COUPONS, -1);
+        });
+    }
+
+    public void setCoupons(int coupons) {
+        RedisManager.update(jedis -> {
+            jedis.hset(KEY_ACCOUNT, FIELD_COUPONS, String.valueOf(coupons));
         });
     }
 

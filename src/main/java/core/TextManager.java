@@ -100,7 +100,8 @@ public class TextManager {
                 new Pair<>("CURRENCY", Emojis.FISH.getFormatted()),
                 new Pair<>("COINS", Emojis.COINS.getFormatted()),
                 new Pair<>("GROWTH", Emojis.GROWTH.getFormatted()),
-                new Pair<>("DAILY_STREAK", Emojis.DAILY_STREAK.getFormatted())
+                new Pair<>("DAILY_STREAK", Emojis.DAILY_STREAK.getFormatted()),
+                new Pair<>("COUPONS", Emojis.COUPONS.getFormatted())
         );
 
         for (String placeholder : placeholders) {
