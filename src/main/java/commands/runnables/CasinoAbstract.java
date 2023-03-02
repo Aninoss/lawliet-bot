@@ -186,7 +186,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 Mention mentionedMembers = MentionUtil.getMentionedStringOfMembers(getLocale(), List.of(member));
                 eb = EmbedFactory.getEmbedDefault()
                         .setDescription(TextManager.getString(getLocale(), Category.CASINO, "casino_protection", mentionedMembers.isMultiple(), mentionedMembers.getMentionText()))
-                        .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080517010443743352/shield_break.gif");
+                        .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080855203026313276/shield_break.gif");
             } else {
                 eb = fisheryMemberData.changeValuesEmbed(member, 0, -coinsInput);
             }
