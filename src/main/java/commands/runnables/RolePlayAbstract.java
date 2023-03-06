@@ -25,9 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class RolePlayAbstract extends Command {
 
-    private final BlockUserPair[] blockUserPairs = new BlockUserPair[] {
-            new BlockUserPair(321164798475894784L, 326714012022865930L)
-    };
+    private final BlockUserPair[] blockUserPairs = new BlockUserPair[0];
 
     private final boolean interactive;
     private final boolean blockable;
