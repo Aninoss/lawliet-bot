@@ -128,7 +128,11 @@ public class ShardManager {
     private static void startJDAPoller() {
         MainScheduler.poll(10, ChronoUnit.SECONDS, "api_poller", () -> {
             try {
-                new ArrayList<>(jdaMap.values()).forEach(JDAWrapper::checkConnection);
+                new ArrayList<>(jdaMap.values()).forEach(jdaWrapper -> {
+                    if (jdaWrapper != null) {
+                        jdaWrapper.checkConnection();
+                    }
+                });
             } catch (Throwable e) {
                 MainLogger.get().error("Error while polling apis", e);
             }
