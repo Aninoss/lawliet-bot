@@ -31,7 +31,6 @@ import net.dv8tion.jda.api.utils.TimeFormat;
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         emoji = "\uD83C\uDF80",
         executableWithoutArgs = true,
-        onlyPublicVersion = true,
         usesExtEmotes = true,
         aliases = { "c" }
 )

@@ -104,7 +104,8 @@ public class CommandManager {
     }
 
     private static void maybeSendBotInvite(CommandEvent event, Locale locale) {
-        if (random.nextInt(180) == 0 &&
+        if (Program.publicVersion() &&
+                random.nextInt(180) == 0 &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER, Permission.MESSAGE_MANAGE) &&
                 BotPermissionUtil.canWriteEmbed(event.getTextChannel())
         ) {

@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 @CommandProperties(
         trigger = "dashboard",
         emoji = "⚙️",
-        onlyPublicVersion = true,
         executableWithoutArgs = true
 )
 public class DashboardCommand extends Command {

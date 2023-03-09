@@ -78,7 +78,7 @@ public class FisherySurveyResults implements ExceptionRunnable {
         }
 
         /* sending reminders */
-        if (Program.getClusterId() == 1) {
+        if (Program.isMainCluster()) {
             CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.SURVEY);
             for (SubSlot sub : new ArrayList<>(subMap.values())) {
                 try {

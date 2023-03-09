@@ -36,7 +36,8 @@ public class TempBanScheduler {
             CustomObservableMap<Long, TempBanData> map = DBTempBan.getInstance().retrieve(guildId);
             if (map.containsKey(memberId) &&
                     map.get(memberId).getExpirationTime().getEpochSecond() == expires.getEpochSecond() &&
-                    ShardManager.guildIsManaged(guildId)
+                    ShardManager.guildIsManaged(guildId) &&
+                    ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
                 onTempBanExpire(map.get(memberId));
             }

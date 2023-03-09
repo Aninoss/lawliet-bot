@@ -11,14 +11,21 @@ import mysql.interfaces.SQLFunction;
 
 public class DBDataLoad<T> {
 
-    private final PreparedStatement preparedStatement;
+    private PreparedStatement preparedStatement;
+
+    public DBDataLoad() {
+    }
 
     public DBDataLoad(String table, String requiredAttributes, String where) {
-        this(table, requiredAttributes, where, ps -> {
+        init(table, requiredAttributes, where, ps -> {
         });
     }
 
     public DBDataLoad(String table, String requiredAttributes, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) {
+        init(table, requiredAttributes, where, wherePreparedStatementConsumer);
+    }
+
+    public void init(String table, String requiredAttributes, String where, SQLConsumer<PreparedStatement> wherePreparedStatementConsumer) {
         try {
             if (requiredAttributes.isEmpty()) {
                 throw new SQLException("No attributes specified!");

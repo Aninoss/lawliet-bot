@@ -8,14 +8,11 @@ import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
 import commands.runnables.interactionscategory.BiteCommand;
-import constants.AssetIds;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.RandomPicker;
 import core.TextManager;
 import core.mention.Mention;
-import core.utils.EmbedUtil;
-import core.utils.JDAUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -79,13 +76,6 @@ public abstract class RolePlayAbstract extends Command {
         if (blockable) {
             for (BlockUserPair blockUserPair : blockUserPairs) {
                 if (blockUserPair.isBlocked(event.getMember(), mention.getElementList())) {
-                    EmbedBuilder authorEmbed = EmbedFactory.getEmbedDefault()
-                            .setDescription(args);
-                    EmbedUtil.setMemberAuthor(authorEmbed, event.getMember());
-                    JDAUtil.openPrivateChannel(event.getJDA(), AssetIds.OWNER_USER_ID)
-                            .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(authorEmbed.build()))
-                            .queue();
-
                     String text = "**How disgusting! I refuse to run this command!**";
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, text)
                             .setImage("https://cdn.discordapp.com/attachments/736271623098990792/834837745754964008/slap.gif");

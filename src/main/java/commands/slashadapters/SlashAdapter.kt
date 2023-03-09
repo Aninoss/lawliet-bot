@@ -131,6 +131,14 @@ abstract class SlashAdapter {
         return slash.nsfw
     }
 
+    fun onlyPublicVersion(): Boolean {
+        val slash = javaClass.getAnnotation(Slash::class.java)
+        if (slash.command != Command::class) {
+            return Command.getCommandProperties(slash.command).onlyPublicVersion
+        }
+        return slash.onlyPublicVersion
+    }
+
     fun generateCommandData(): SlashCommandData {
         val commandData = Commands.slash(name(), description())
         commandData.setDescriptionLocalizations(descriptionLocalizations())

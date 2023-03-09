@@ -15,7 +15,11 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 public class EmbedFactory {
 
-    public static final Color DEFAULT_EMBED_COLOR = new Color(254, 254, 254);
+    public static final Color DEFAULT_EMBED_COLOR = new Color(
+            Integer.parseInt(System.getenv("EMBED_R")),
+            Integer.parseInt(System.getenv("EMBED_G")),
+            Integer.parseInt(System.getenv("EMBED_B"))
+    );
     public static final Color FAILED_EMBED_COLOR = Color.RED;
 
     public static EmbedBuilder getEmbedDefault(Command command) {
@@ -147,7 +151,9 @@ public class EmbedFactory {
         EmbedBuilder eb = EmbedFactory.getEmbedError()
                 .setTitle(TextManager.getString(locale, TextManager.GENERAL, "wrongchanneltype_title"))
                 .setDescription(TextManager.getString(locale, TextManager.GENERAL, "wrongchanneltype_desc"));
-        actionRowList.add(ActionRow.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"))));
+        if (Program.publicVersion()) {
+            actionRowList.add(ActionRow.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"))));
+        }
         return eb;
     }
 

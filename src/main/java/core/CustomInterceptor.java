@@ -33,7 +33,7 @@ public class CustomInterceptor implements Interceptor {
     }
 
     private synchronized void requestQuota() throws InterruptedException {
-        if (Program.productionMode()) {
+        if (Program.productionMode() && Program.publicVersion()) {
             try {
                 HttpResponse httpResponse = RestClient.RATELIMITER.get("relative").get();
                 int sleepTimeMillis = Integer.parseInt(httpResponse.getBody());

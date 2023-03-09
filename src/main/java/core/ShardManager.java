@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import constants.AssetIds;
 import core.cache.ExternalEmojiCache;
 import core.cache.ExternalGuildNameCache;
 import core.cache.SingleCache;
@@ -23,14 +22,14 @@ import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 public class ShardManager {
 
     static {
-        if (Program.productionMode()) {
+        if (Program.productionMode() && Program.publicVersion()) {
             startJDAPoller();
         }
     }
 
     private static final int GLOBAL_SHARD_ERROR_THRESHOLD = Integer.parseInt(System.getenv("GLOBAL_SHARD_ERROR_THRESHOLD"));
 
-    private static final JDABlocker JDABlocker = new JDABlocker();
+    private static final JDABlocker jdaBlocker = new JDABlocker();
     private static final HashMap<Integer, JDAWrapper> jdaMap = new HashMap<>();
     private static final HashSet<Consumer<Integer>> shardDisconnectConsumers = new HashSet<>();
     private static int shardIntervalMin = 0;
@@ -48,10 +47,9 @@ public class ShardManager {
         @Override
         protected Long fetchValue() {
             Optional<Long> localGuildSizeOpt = getLocalGuildSize();
-            if (localGuildSizeOpt.isEmpty()) {
-                return null;
-            }
-            return SendEvent.sendRequestGlobalGuildSize(localGuildSizeOpt.get()).join().orElse(null);
+            return localGuildSizeOpt
+                    .flatMap(aLong -> SendEvent.sendRequestGlobalGuildSize(aLong).join())
+                    .orElse(null);
         }
     };
 
@@ -91,7 +89,7 @@ public class ShardManager {
     }
 
     public static JDABlocker getJDABlocker() {
-        return JDABlocker;
+        return jdaBlocker;
     }
 
     public static void addShardDisconnectConsumer(Consumer<Integer> consumer) {
@@ -201,7 +199,7 @@ public class ShardManager {
     }
 
     public static boolean guildIsManaged(long guildId) {
-        if (!JDABlocker.guildIsAvailable(guildId)) {
+        if (!jdaBlocker.guildIsAvailable(guildId)) {
             return false;
         }
 
@@ -224,7 +222,7 @@ public class ShardManager {
         ArrayList<Guild> guildList = new ArrayList<>();
         for (JDAWrapper jda : jdaMap.values()) {
             jda.getJDA().getGuilds().stream()
-                    .filter(guild -> JDABlocker.guildIsAvailable(guild.getIdLong()))
+                    .filter(guild -> jdaBlocker.guildIsAvailable(guild.getIdLong()))
                     .forEach(guildList::add);
         }
 
@@ -248,13 +246,16 @@ public class ShardManager {
         if (localGuildSizeOpt.isEmpty()) {
             return Optional.empty();
         }
+        if (!Program.productionMode() || !Program.publicVersion()) {
+            return localGuildSizeOpt;
+        }
 
         Long globalGuildSize = globalGuildSizeCache.getAsync();
         return globalGuildSize != null ? Optional.of(globalGuildSize) : Optional.empty();
     }
 
     public static Optional<Guild> getLocalGuildById(long guildId) {
-        if (!JDABlocker.guildIsAvailable(guildId) || totalShards <= 0) {
+        if (!jdaBlocker.guildIsAvailable(guildId) || totalShards <= 0) {
             return Optional.empty();
         }
 
@@ -265,18 +266,22 @@ public class ShardManager {
 
     public static List<Guild> getLocalMutualGuilds(User user) {
         return getLocalGuilds().stream()
-                .filter(server -> JDABlocker.guildIsAvailable(server.getIdLong()) && server.isMember(user))
+                .filter(server -> jdaBlocker.guildIsAvailable(server.getIdLong()) && server.isMember(user))
                 .collect(Collectors.toList());
     }
 
     public static List<Guild> getLocalMutualGuilds(long userId) {
         return getLocalGuilds().stream()
-                .filter(server -> JDABlocker.guildIsAvailable(server.getIdLong()) && server.getMembers().stream().anyMatch(m -> m.getIdLong() == userId))
+                .filter(server -> jdaBlocker.guildIsAvailable(server.getIdLong()) && server.getMembers().stream().anyMatch(m -> m.getIdLong() == userId))
                 .collect(Collectors.toList());
     }
 
     public static Optional<String> getGuildName(long guildId) {
         Optional<String> guildNameOpt = getLocalGuildById(guildId).map(Guild::getName);
+        if (!Program.publicVersion()) {
+            return guildNameOpt;
+        }
+
         return guildNameOpt.or(() -> ExternalGuildNameCache.getGuildNameById(guildId));
     }
 
@@ -324,10 +329,6 @@ public class ShardManager {
         return future;
     }
 
-    public static CompletableFuture<User> fetchOwner() {
-        return fetchUserById(AssetIds.OWNER_USER_ID);
-    }
-
     public static User getSelf() {
         return getAnyJDA()
                 .map(JDA::getSelfUser)
@@ -359,6 +360,10 @@ public class ShardManager {
 
     public static Optional<String> getEmoteById(long emojiId) {
         Optional<String> emojiOptional = getLocalCustomEmojiById(emojiId).map(CustomEmoji::getAsMention);
+        if (!Program.publicVersion()) {
+            return emojiOptional;
+        }
+
         return emojiOptional.or(() -> ExternalEmojiCache.getEmoteById(emojiId));
     }
 

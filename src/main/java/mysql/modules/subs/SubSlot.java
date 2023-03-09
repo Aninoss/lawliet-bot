@@ -55,8 +55,9 @@ public class SubSlot extends Observable implements UserAsset {
                             notifyObservers();
                         }
                     }, e -> {
-                        if (++errors >= 3) {
-                            DBSubs.getInstance().retrieve(command).remove(userId);
+                        if (++errors >= 4) {
+                            DBSubs.getInstance().retrieve(command)
+                                    .remove(userId);
                         } else {
                             setChanged();
                             notifyObservers();

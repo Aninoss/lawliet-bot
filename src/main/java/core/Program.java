@@ -39,6 +39,10 @@ public class Program {
         return Integer.parseInt(System.getenv("CLUSTER"));
     }
 
+    public static boolean isMainCluster() {
+        return getClusterId() == 1 || !publicVersion();
+    }
+
     public static Instant getStartTime() {
         return startTime;
     }

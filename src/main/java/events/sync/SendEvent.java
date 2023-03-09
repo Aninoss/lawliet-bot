@@ -7,7 +7,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import core.PatreonData;
 import core.Program;
-import core.ShardManager;
 import core.cache.PatreonCache;
 import core.restclient.RestClient;
 import org.json.JSONObject;
@@ -23,10 +22,6 @@ public class SendEvent {
     }
 
     public static CompletableFuture<Optional<Long>> sendRequestGlobalGuildSize(long localServerSize) {
-        if (!Program.productionMode()) {
-            return CompletableFuture.completedFuture(ShardManager.getLocalGuildSize());
-        }
-
         return process(
                 "GLOBAL_SERVER_SIZE",
                 Map.of("local_server_size", localServerSize),

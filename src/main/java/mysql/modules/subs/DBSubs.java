@@ -1,10 +1,13 @@
 package mysql.modules.subs;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import com.google.common.cache.CacheBuilder;
 import core.CustomObservableMap;
+import core.Program;
+import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMapCache;
 import mysql.MySQLManager;
@@ -18,6 +21,8 @@ public class DBSubs extends DBMapCache<DBSubs.Command, CustomObservableMap<Long,
     public static DBSubs getInstance() {
         return ourInstance;
     }
+
+    //TODO: check
 
     private DBSubs() {
     }
@@ -44,7 +49,19 @@ public class DBSubs extends DBMapCache<DBSubs.Command, CustomObservableMap<Long,
                 }
         );
 
-        return new CustomObservableMap<>(subMap)
+        HashMap<Long, SubSlot> subHashMap;
+        if (Program.publicVersion()) {
+            subHashMap = new HashMap<>(subMap);
+        } else {
+            subHashMap = new HashMap<>();
+            for (long userId : subMap.keySet()) {
+                if (ShardManager.getCachedUserById(userId).isPresent()) {
+                    subHashMap.put(userId, subMap.get(userId));
+                }
+            }
+        }
+
+        return new CustomObservableMap<>(subHashMap)
                 .addMapAddListener(this::addSub)
                 .addMapUpdateListener(this::addSub)
                 .addMapRemoveListener(this::removeSub);

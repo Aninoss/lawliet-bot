@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import constants.AssetIds;
 import constants.ExternalLinks;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -57,23 +58,25 @@ public class StatsCommand extends Command {
             //Ignore
         }
 
-        String owner = StringUtil.escapeMarkdown(ShardManager.fetchOwner().get().getAsTag());
+        String owner = StringUtil.escapeMarkdown(ShardManager.fetchUserById(AssetIds.OWNER_USER_ID).get().getAsTag());
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                 this,
                 getString(
                         "template",
                         owner,
-                        ExternalLinks.BOT_INVITE_URL,
+                        "",
                         BotUtil.getCurrentVersion(),
                         TimeFormat.DATE_TIME_SHORT.atInstant(DBVersion.getInstance().retrieve().getCurrentVersion().getDate()).toString(),
                         ShardManager.getGlobalGuildSize().map(StringUtil::numToString).orElse("-"),
                         owner,
                         StringUtil.numToString(event.getJDA().getShardInfo().getShardId()),
-                        StringUtil.numToString(Program.getClusterId())
+                        StringUtil.numToString(Program.publicVersion() ? Program.getClusterId() : 1)
                 ) + "\n\n" + getString("translator", dephordName, neverCookFirstName, laleName)
         );
 
-        setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, getString("invite")));
+        if (Program.publicVersion()) {
+            setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, getString("invite")));
+        }
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
         return true;
     }

@@ -22,7 +22,7 @@ public class ReminderDaily implements ExceptionRunnable {
     }
 
     public static void execute() {
-        if (Program.getClusterId() == 1) {
+        if (Program.isMainCluster()) {
             CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.DAILY);
             for (SubSlot sub : new ArrayList<>(subMap.values())) {
                 Locale locale = sub.getLocale();

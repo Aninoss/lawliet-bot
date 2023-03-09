@@ -74,6 +74,7 @@ public class TextManager {
                 text = processReferences(text, placeholders, category, locale);
                 text = processParams(text, placeholders, args);
                 text = processEmojis(text, placeholders);
+                text = text.replace("{BOT}", System.getenv("BOT_NAME"));
 
                 return text;
             } catch (Throwable e) {

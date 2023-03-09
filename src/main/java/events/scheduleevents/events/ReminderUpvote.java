@@ -24,7 +24,7 @@ public class ReminderUpvote implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        if (Program.getClusterId() == 1) {
+        if (Program.isMainCluster()) {
             CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.CLAIM);
 
             for (UpvoteSlot upvoteSlot : DBUpvotes.getAllUpvoteSlots()) {

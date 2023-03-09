@@ -3,8 +3,6 @@ package events.discordevents.guildmemberroleremove;
 import constants.AssetIds;
 import constants.Settings;
 import core.MainLogger;
-import core.utils.JDAUtil;
-import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRoleRemoveAbstract;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
@@ -18,9 +16,6 @@ public class GuildMemberRoleRemovePatreonRole extends GuildMemberRoleRemoveAbstr
             for (long roleId : Settings.PATREON_ROLE_IDS) {
                 if (event.getRoles().get(0).getIdLong() == roleId) {
                     MainLogger.get().info("PATREON LEFT {} ({})", event.getUser().getAsTag(), event.getUser().getId());
-                    JDAUtil.openPrivateChannel(event.getJDA(), AssetIds.OWNER_USER_ID)
-                            .flatMap(messageChannel -> messageChannel.sendMessage("PATREON USER LEFT: " + StringUtil.escapeMarkdown(event.getUser().getAsTag())))
-                            .queue();
                     break;
                 }
             }

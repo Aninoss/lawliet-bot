@@ -11,7 +11,8 @@ public class UpdateBotActivity implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        ShardManager.getConnectedLocalJDAs().forEach(DiscordConnector::updateActivity);
+        ShardManager.getConnectedLocalJDAs()
+                .forEach(DiscordConnector::updateActivity);
     }
 
 }

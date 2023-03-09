@@ -16,7 +16,7 @@ public class ExceptionUtil {
     public static void handleCommandException(Throwable throwable, Command command, CommandEvent event) {
         Locale locale = command.getLocale();
         boolean postErrorMessage = true;
-        boolean submitToDeveloper = new ExceptionFilter().shouldBeVisible(throwable.toString());
+        boolean submitToDeveloper = Program.publicVersion() && new ExceptionFilter().shouldBeVisible(throwable.toString());
 
         String stacktrace = exceptionToString(throwable);
         String errorCause = stacktrace.split("\n")[0];

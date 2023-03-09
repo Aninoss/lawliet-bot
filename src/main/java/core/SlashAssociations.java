@@ -7,7 +7,9 @@ import commands.SlashCommandManager;
 
 public class SlashAssociations {
 
-    private static final HashMap<String, String> SlashToMessageAssociationMap = SlashCommandManager.generateSlashAssociationMap();
+    //TODO: check
+
+    private static final HashMap<String, String> slashToMessageCommandAssociationMap = SlashCommandManager.generateSlashAssociationMap();
     private static final HashMap<Long, String> idToNameAssociationMap = new HashMap<>();
 
     public static void registerSlashCommands(List<net.dv8tion.jda.api.interactions.commands.Command> commands) {
@@ -20,10 +22,10 @@ public class SlashAssociations {
         String trigger = Command.getCommandProperties(clazz).trigger();
         String categoryId = Command.getCategory(clazz).getId();
 
-        if (SlashToMessageAssociationMap.containsKey(trigger)) {
-            return SlashToMessageAssociationMap.get(trigger);
+        if (slashToMessageCommandAssociationMap.containsKey(trigger)) {
+            return slashToMessageCommandAssociationMap.get(trigger);
         } else {
-            return SlashToMessageAssociationMap.getOrDefault(categoryId, null);
+            return slashToMessageCommandAssociationMap.getOrDefault(categoryId, null);
         }
     }
 

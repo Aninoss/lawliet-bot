@@ -477,7 +477,7 @@ public class HelpCommand extends NavigationAbstract {
 
         if (Program.publicVersion()) {
             eb.addField(getString("links_title"), getString(
-                    "links_content",
+                    Program.publicVersion() ? "links_content" : "help_links_content_notpublic",
                     ExternalLinks.LAWLIET_WEBSITE,
                     ExternalLinks.SERVER_INVITE_URL,
                     ExternalLinks.BOT_INVITE_URL,

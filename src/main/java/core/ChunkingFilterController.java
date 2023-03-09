@@ -18,7 +18,8 @@ public class ChunkingFilterController implements ChunkingFilter {
 
     @Override
     public boolean filter(long guildId) {
-        return guildId == AssetIds.SUPPORT_SERVER_ID ||
+        return !Program.publicVersion() ||
+                guildId == AssetIds.SUPPORT_SERVER_ID ||
                 guildId == AssetIds.ANICORD_SERVER_ID ||
                 DBGuild.getInstance().retrieve(guildId).isBig() ||
                 DBStickyRoles.getInstance().retrieve(guildId).getRoleIds().size() > 0;

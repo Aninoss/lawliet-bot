@@ -25,7 +25,7 @@ public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbst
     @Override
     public boolean onPrivateMessageReceived(MessageReceivedEvent event) throws Throwable {
         User user = event.getAuthor();
-        if (Program.getClusterId() == 1 &&
+        if (Program.isMainCluster() &&
                 !usersDmNotified.asMap().containsKey(user.getIdLong()) &&
                 event.getAuthor().getIdLong() != AssetIds.OWNER_USER_ID
         ) {

@@ -97,14 +97,15 @@ public class Console {
     }
 
     private static void onUpdateLawlietSupportCommands(String[] args) {
-        ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).get()
-                .updateCommands()
-                .addCommands(SupportTemplates.generateSupportContextCommands())
-                .queue(commands -> MainLogger.get().info("Successfully sent {} support commands", commands.size()));
+        ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID).ifPresent(guild -> {
+            guild.updateCommands()
+                    .addCommands(SupportTemplates.generateSupportContextCommands())
+                    .queue(commands -> MainLogger.get().info("Successfully sent {} support commands", commands.size()));
+        });
     }
 
     private static void onGdpr(String[] args) throws SQLException, InterruptedException {
-        if (Program.getClusterId() == 1) {
+        if (Program.isMainCluster() && Program.publicVersion()) {
             long userId = Long.parseLong(args[1]);
             String userTag = args[2];
 
@@ -150,7 +151,7 @@ public class Console {
     }
 
     private static void onCommandsUpdate(String[] args) {
-        if (Program.getClusterId() == 1) {
+        if (Program.isMainCluster()) {
             MainLogger.get().info("Updating all slash commands");
             ShardManager.getAnyJDA().get()
                     .updateCommands()
@@ -258,7 +259,7 @@ public class Console {
     }
 
     private static void onServersMutual(String[] args) {
-        User user = ShardManager.fetchOwner().join();
+        User user = ShardManager.fetchUserById(AssetIds.OWNER_USER_ID).join();
         ShardManager
                 .getLocalMutualGuilds(user)
                 .stream()
@@ -404,9 +405,10 @@ public class Console {
         long userId = Long.parseLong(args[1]);
         String reason = collectArgs(args, 2).replace("\\n", "\n");
 
-        DBBannedUsers.getInstance().retrieve().getSlotsMap().put(userId, new BannedUserSlot(userId, reason));
+        DBBannedUsers.getInstance().retrieve().getSlotsMap()
+                .put(userId, new BannedUserSlot(userId, reason));
 
-        if (Program.getClusterId() == 1) {
+        if (Program.isMainCluster()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setDescription("⚠ You have been permanently banned from interaction with Lawliet!")
                     .addField("Reason", reason, false);

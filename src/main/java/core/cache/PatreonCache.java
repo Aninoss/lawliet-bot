@@ -38,7 +38,7 @@ public class PatreonCache extends SingleCache<PatreonData> {
 
     public boolean isUnlocked(long guildId) {
         PatreonData patreonData = getAsync();
-        return patreonData != null && patreonData.getGuildList().contains(guildId);
+        return !Program.publicVersion() || (patreonData != null && patreonData.getGuildList().contains(guildId));
     }
 
     public void requestUpdate() {

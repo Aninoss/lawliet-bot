@@ -143,9 +143,14 @@ public class DiscordConnector {
     }
 
     private static String getActivityText() {
-        return ShardManager.getGlobalGuildSize()
-                .map(globalGuildSize -> "L.help | " + StringUtil.numToStringShort(globalGuildSize) + " | www.lawlietbot.xyz")
-                .orElse("L.help | www.lawlietbot.xyz");
+        String activityText = System.getenv("ACTIVITY");
+        if (activityText.isBlank()) {
+            return ShardManager.getGlobalGuildSize()
+                    .map(globalGuildSize -> "L.help | " + StringUtil.numToStringShort(globalGuildSize) + " | www.lawlietbot.xyz")
+                    .orElse("L.help | www.lawlietbot.xyz");
+        } else {
+            return activityText;
+        }
     }
 
     public static boolean hasStarted() {

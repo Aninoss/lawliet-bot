@@ -5,6 +5,7 @@ import commands.slashadapters.Slash;
 import commands.slashadapters.SlashAdapter;
 import commands.slashadapters.SlashMeta;
 import core.MainLogger;
+import core.Program;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -37,7 +38,9 @@ public class SlashCommandManager {
     public static List<CommandData> initialize() {
         ArrayList<CommandData> commandDataList = new ArrayList<>();
         for (SlashAdapter slashAdapter : slashAdapterMap.values()) {
-            commandDataList.add(slashAdapter.generateCommandData());
+            if (!slashAdapter.onlyPublicVersion() || Program.publicVersion()) {
+                commandDataList.add(slashAdapter.generateCommandData());
+            }
         }
         return commandDataList;
     }

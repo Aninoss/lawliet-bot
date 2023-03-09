@@ -29,9 +29,10 @@ public class Main {
             }
 
             EventManager.register();
-            if (!Program.productionMode()) {
+            if (!Program.productionMode() || !Program.publicVersion()) {
                 DiscordConnector.connect(0, 0, 1);
-            } else {
+            }
+            if (Program.productionMode()) {
                 Runtime.getRuntime().addShutdownHook(new Thread(Program::onStop, "Shutdown Bot-Stop"));
             }
         } catch (Throwable e) {

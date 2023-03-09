@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 @CommandProperties(
         trigger = "upvote",
         emoji = "\uD83D\uDC4D",
-        onlyPublicVersion = true,
         executableWithoutArgs = true
 )
 public class UpvoteCommand extends Command {

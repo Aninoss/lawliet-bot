@@ -30,6 +30,7 @@ import commands.runnables.splatoon2category.SplatnetCommand;
 import commands.runnables.utilitycategory.*;
 import constants.Settings;
 import core.MainLogger;
+import core.Program;
 import core.utils.ExceptionUtil;
 
 public class CommandContainer {
@@ -327,8 +328,14 @@ public class CommandContainer {
 
         for (Class<? extends Command> clazz : commandList) {
             Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");
+            if (command.getCommandProperties().onlyPublicVersion() && !Program.publicVersion()) {
+                continue;
+            }
+
             addCommand(command.getTrigger(), command);
-            for (String str : command.getCommandProperties().aliases()) addCommand(str, command);
+            for (String str : command.getCommandProperties().aliases()) {
+                addCommand(str, command);
+            }
 
             if (command instanceof OnStaticReactionAddListener) {
                 staticReactionAddCommands.add(((OnStaticReactionAddListener) command).getClass());

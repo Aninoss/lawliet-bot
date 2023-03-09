@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 public class ReactionMessagesCache {
 
     private static final Cache<Long, Optional<ReactionMessage>> reactionMessageCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofHours(12))
+            .expireAfterAccess(Duration.ofHours(24))
             .build();
 
     public static void put(long messageId, ReactionMessage reactionMessage) {

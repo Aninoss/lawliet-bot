@@ -37,7 +37,8 @@ public class JailScheduler {
             CustomObservableMap<Long, JailData> map = DBJails.getInstance().retrieve(guildId);
             if (map.containsKey(memberId) &&
                     map.get(memberId).getExpirationTime().orElse(Instant.MIN).getEpochSecond() == expires.getEpochSecond() &&
-                    ShardManager.guildIsManaged(guildId)
+                    ShardManager.guildIsManaged(guildId) &&
+                    ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
                 onJailExpire(map.get(memberId));
             }
