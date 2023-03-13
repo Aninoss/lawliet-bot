@@ -1,6 +1,5 @@
 package commands.runnables;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -10,7 +9,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -31,10 +29,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
 import core.utils.StringUtil;
-import modules.porn.BooruImage;
-import modules.porn.BooruImageDownloader;
-import modules.porn.IllegalTagException;
-import modules.porn.TooManyTagsException;
+import modules.porn.*;
 import modules.schedulers.AlertResponse;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import mysql.modules.tracker.TrackerData;
@@ -151,10 +146,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                     drawMessageNew(tooManyTagsString(e.getMaxTags())).exceptionally(ExceptionLogger.get());
                 }
                 return false;
-            } catch (NoSuchElementException e) {
-                postApiUnavailable(event.getTextChannel());
-                return false;
-            } catch (IOException e) {
+            } catch (NoSuchElementException | IOException e) {
                 postApiUnavailable(event.getTextChannel());
                 return false;
             }
@@ -343,9 +335,11 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                 slot.sendMessage(false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
-            } else {
-                throw e;
             }
+            if (e.getMessage() != null && e.getMessage().contains("Booru retrieval error")) {
+                return AlertResponse.CONTINUE;
+            }
+            throw e;
         }
 
         if (pornImages.size() == 0) {
