@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
         emoji = "🖌️",
         executableWithoutArgs = false,
         patreonRequired = true,
-        aliases = { "stablediffusion", "diffusion" }
+        aliases = { "stablediffusion", "diffusion", "imagine" }
 )
 public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
 
