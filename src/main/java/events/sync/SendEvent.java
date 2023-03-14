@@ -1,5 +1,6 @@
 package events.sync;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import core.PatreonData;
 import core.Program;
 import core.cache.PatreonCache;
 import core.restclient.RestClient;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class SendEvent {
@@ -65,14 +67,28 @@ public class SendEvent {
     }
 
     public static CompletableFuture<Void> sendHeartbeat(String ip, boolean alreadyConnected, int totalShards, long totalServers) {
+        return sendHeartbeat(ip, alreadyConnected, totalShards, totalServers, null);
+    }
+
+    public static CompletableFuture<Void> sendHeartbeat(String ip, boolean alreadyConnected, int totalShards, long totalServers,
+                                                        Collection<Long> serverIds) {
+        JSONObject requestJson = new JSONObject();
+        requestJson.put("ip", ip);
+        requestJson.put("already_connected", alreadyConnected);
+        requestJson.put("total_shards", totalShards);
+        requestJson.put("total_servers", totalServers);
+
+        if (serverIds != null) {
+            JSONArray serverIdsJsonArray = new JSONArray();
+            for (long serverId : serverIds) {
+                serverIdsJsonArray.put(serverId);
+            }
+            requestJson.put("server_ids", serverIdsJsonArray);
+        }
+
         return process(
                 "HEARTBEAT",
-                Map.of(
-                        "ip", ip,
-                        "already_connected", alreadyConnected,
-                        "total_shards", totalShards,
-                        "total_servers", totalServers
-                ),
+                requestJson,
                 responseJson -> null
         );
     }
@@ -96,8 +112,11 @@ public class SendEvent {
     private static <T> CompletableFuture<T> process(String event, Map<String, Object> jsonMap, Function<JSONObject, T> function) {
         JSONObject dataJson = new JSONObject();
         jsonMap.keySet().forEach(k -> dataJson.put(k, jsonMap.get(k)));
-        dataJson.put("source_cluster_id", Program.getClusterId());
+        return process(event, dataJson, function);
+    }
 
+    private static <T> CompletableFuture<T> process(String event, JSONObject dataJson, Function<JSONObject, T> function) {
+        dataJson.put("source_cluster_id", Program.getClusterId());
         return RestClient.SYNC.post(event, "application/json", dataJson.toString())
                 .thenApply(jsonResponse -> function.apply(new JSONObject(jsonResponse.getBody())));
     }

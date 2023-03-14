@@ -7,9 +7,12 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import core.MainLogger;
+import core.Program;
 import core.ShardManager;
 import jakarta.ws.rs.core.UriBuilder;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.reflections.Reflections;
@@ -31,12 +34,22 @@ public class EventManager {
     private static void heartbeat() {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(() -> {
-            SendEvent.sendHeartbeat(
-                    System.getenv("SYNC_OWN_IP"),
-                    ShardManager.isEverythingConnected(),
-                    ShardManager.getTotalShards(),
-                    ShardManager.getLocalGuildSize().orElse(0L)
-            );
+            if (Program.publicVersion()) {
+                SendEvent.sendHeartbeat(
+                        System.getenv("SYNC_OWN_IP"),
+                        ShardManager.isEverythingConnected(),
+                        ShardManager.getTotalShards(),
+                        ShardManager.getLocalGuildSize().orElse(0L)
+                );
+            } else {
+                SendEvent.sendHeartbeat(
+                        System.getenv("SYNC_OWN_IP"),
+                        ShardManager.isEverythingConnected(),
+                        ShardManager.getTotalShards(),
+                        ShardManager.getLocalGuildSize().orElse(0L),
+                        ShardManager.getLocalGuilds().stream().map(ISnowflake::getIdLong).collect(Collectors.toList())
+                );
+            }
         }, 3, 3, TimeUnit.SECONDS);
     }
 
