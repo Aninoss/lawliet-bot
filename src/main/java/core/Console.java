@@ -49,6 +49,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("slash_update", Console::onSlashUpdate);
         tasks.put("update_lawliet_support_commands", Console::onUpdateLawlietSupportCommands);
         tasks.put("gdpr", Console::onGdpr);
         tasks.put("dev_votes_results", Console::onDevVotesResults);
@@ -94,6 +95,13 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onSlashUpdate(String[] args) {
+        MainLogger.get().info("Pushing new slash commands");
+        ShardManager.getAnyJDA().get().updateCommands()
+                .addCommands(SlashCommandManager.initialize())
+                .queue(SlashAssociations::registerSlashCommands);
     }
 
     private static void onUpdateLawlietSupportCommands(String[] args) {

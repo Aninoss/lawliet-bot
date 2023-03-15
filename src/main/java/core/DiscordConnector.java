@@ -99,15 +99,17 @@ public class DiscordConnector {
         try {
             List<CommandData> commandDataList = SlashCommandManager.initialize();
             if (Program.productionMode()) {
-                if (Program.isNewVersion()) {
-                    MainLogger.get().info("Pushing new slash commands");
-                    jda.updateCommands()
-                            .addCommands(commandDataList)
-                            .queue(SlashAssociations::registerSlashCommands);
-                } else {
-                    MainLogger.get().info("Skipping slash commands because it's not a new version");
-                    jda.retrieveCommands().queue(SlashAssociations::registerSlashCommands);
-                }
+                jda.retrieveCommands().queue(commands -> {
+                    if (commands.isEmpty() || Program.isNewVersion()) {
+                        MainLogger.get().info("Pushing new slash commands");
+                        jda.updateCommands()
+                                .addCommands(commandDataList)
+                                .queue(SlashAssociations::registerSlashCommands);
+                    } else {
+                        MainLogger.get().info("Skipping slash commands because it's not a new version");
+                        jda.retrieveCommands().queue(SlashAssociations::registerSlashCommands);
+                    }
+                });
             } else {
                 ShardManager.getLocalGuildById(AssetIds.BETA_SERVER_ID).get()
                         .updateCommands()

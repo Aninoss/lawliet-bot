@@ -12,6 +12,7 @@ public class Program {
     public static void init() {
         System.out.println("-------------------------------------");
         System.out.println("Production Mode: " + productionMode());
+        System.out.println("Public Version: " + publicVersion());
         System.out.println("Cluster ID: " + getClusterId());
         System.out.println("Version: " + BotUtil.getCurrentVersion());
         System.out.println("-------------------------------------");
@@ -32,7 +33,7 @@ public class Program {
     }
 
     public static boolean publicVersion() {
-        return true;
+        return System.getenv("PUBLIC").equals("true");
     }
 
     public static int getClusterId() {

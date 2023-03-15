@@ -13,6 +13,7 @@ public class SlashAssociations {
     private static final HashMap<Long, String> idToNameAssociationMap = new HashMap<>();
 
     public static void registerSlashCommands(List<net.dv8tion.jda.api.interactions.commands.Command> commands) {
+        idToNameAssociationMap.clear();
         for (net.dv8tion.jda.api.interactions.commands.Command command : commands) {
             idToNameAssociationMap.put(command.getIdLong(), command.getName());
         }

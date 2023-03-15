@@ -24,7 +24,6 @@ import org.jetbrains.annotations.NotNull;
         trigger = "stats",
         emoji = "\uD83D\uDCCA",
         executableWithoutArgs = true,
-        onlyPublicVersion = true,
         aliases = { "info" }
 )
 public class StatsCommand extends Command {
