@@ -36,6 +36,7 @@ public class ShardManager {
     private static int shardIntervalMax = 0;
     private static int totalShards = 0;
     private static boolean ready = false;
+    private static boolean allowBootUpCheck = true;
     private static long selfId = 0;
     private static int globalErrors = 0;
 
@@ -60,7 +61,7 @@ public class ShardManager {
 
         if (Program.productionMode()) {
             MainScheduler.schedule(5, ChronoUnit.MINUTES, "bootup_check", () -> {
-                if (!ready) {
+                if (!ready && allowBootUpCheck) {
                     MainLogger.get().error("EXIT - Could not boot up");
                     System.exit(5);
                 }
@@ -184,6 +185,10 @@ public class ShardManager {
         if (isEverythingConnected()) {
             ready = true;
         }
+    }
+
+    public static void blockBootUpCheck() {
+        allowBootUpCheck = false;
     }
 
     public static void stop() {

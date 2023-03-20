@@ -80,6 +80,14 @@ public class DiscordConnector {
     }
 
     public static void onJDAJoin(JDA jda) {
+        if (!Program.publicVersion() &&
+                jda.getGuilds().size() - 2 > Integer.parseInt(System.getenv("MAX_SERVERS"))
+        ) {
+            MainLogger.get().warn("Total server limit reached, refusing to boot up");
+            ShardManager.blockBootUpCheck();
+            return;
+        }
+
         boolean firstConnection = ShardManager.isNothingConnected();
         ShardManager.addJDA(jda);
         MainLogger.get().info("Shard {} connection established", jda.getShardInfo().getShardId());
