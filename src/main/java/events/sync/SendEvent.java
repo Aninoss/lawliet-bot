@@ -105,6 +105,14 @@ public class SendEvent {
         );
     }
 
+    public static CompletableFuture<Boolean> sendSubscriptionActive(long subId) {
+        return process(
+                "SUB_ACTIVE",
+                Map.of("sub_id", subId),
+                responseJson -> responseJson.getBoolean("active")
+        );
+    }
+
     public static CompletableFuture<JSONObject> sendEmpty(String event) {
         return process(event, Collections.emptyMap(), r -> r);
     }

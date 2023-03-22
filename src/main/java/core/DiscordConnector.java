@@ -2,11 +2,15 @@ package core;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import commands.SlashCommandManager;
 import constants.AssetIds;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
+import events.sync.SendEvent;
 import modules.BumpReminder;
 import modules.SupportTemplates;
 import modules.repair.MainRepair;
@@ -80,12 +84,22 @@ public class DiscordConnector {
     }
 
     public static void onJDAJoin(JDA jda) {
-        if (!Program.publicVersion() &&
-                jda.getGuilds().size() - 2 > Integer.parseInt(System.getenv("MAX_SERVERS"))
-        ) {
-            MainLogger.get().warn("Total server limit reached, refusing to boot up");
-            ShardManager.blockBootUpCheck();
-            return;
+        if (!Program.publicVersion()) {
+            if (jda.getGuilds().size() - 2 > Integer.parseInt(System.getenv("MAX_SERVERS"))) {
+                MainLogger.get().warn("Total server limit reached, refusing to boot up");
+                return;
+            }
+
+            long subId = Long.parseLong(System.getenv("SUB_ID"));
+            try {
+                if (subId != -1 && !SendEvent.sendSubscriptionActive(subId).get(5, TimeUnit.SECONDS)) {
+                    MainLogger.get().warn("Subscription not active anymore, refusing to boot up");
+                    return;
+                }
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                MainLogger.get().error("Subscription retrieval error", e);
+                return;
+            }
         }
 
         boolean firstConnection = ShardManager.isNothingConnected();
