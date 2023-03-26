@@ -20,7 +20,7 @@ public class LinkFilter {
         ) {
             message.delete().queue();
             if (guild.getIdLong() == AssetIds.ANICORD_SERVER_ID) {
-                String text = "⚠️ Du benötigst den ersten Fischereirang, bevor du Links auf **Anicord** senden kannst!\nMehr Informationen dazu findest du auf <#608455541978824739>";
+                String text = "⚠️ Du musst verifiziert sein, bevor du Links auf **Anicord** senden kannst!\nMehr Informationen dazu findest du auf <#1004011415499190292>";
                 JDAUtil.openPrivateChannel(message.getMember())
                         .flatMap(messageChannel -> messageChannel.sendMessage(text))
                         .queue();
