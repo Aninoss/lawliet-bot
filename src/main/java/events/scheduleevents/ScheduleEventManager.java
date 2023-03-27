@@ -30,6 +30,7 @@ public class ScheduleEventManager extends Startable {
     @Override
     protected void run() {
         processAnnotations(ScheduleEventFixedRate.class, this::attachFixedRate);
+        processAnnotations(ScheduleEventEveryMinute.class, this::attachEveryMinute);
         processAnnotations(ScheduleEventHourly.class, this::attachHourly);
         processAnnotations(ScheduleEventDaily.class, this::attachDaily);
     }
@@ -56,6 +57,14 @@ public class ScheduleEventManager extends Startable {
         if (fixedRateAnnotation != null) {
             long millis = Duration.of(fixedRateAnnotation.rateValue(), fixedRateAnnotation.rateUnit()).toMillis();
             scheduledExecutorService.scheduleAtFixedRate(new ScheduleAdapter(listener), millis + DELAY, millis, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void attachEveryMinute(ExceptionRunnable listener) {
+        ScheduleEventEveryMinute fixedRateEveryMinute = listener.getClass().getAnnotation(ScheduleEventEveryMinute.class);
+        if (fixedRateEveryMinute != null) {
+            long millis = TimeUtil.getMillisBetweenInstants(Instant.now(), TimeUtil.instantToNextMinute(Instant.now()));
+            scheduledExecutorService.scheduleAtFixedRate(new ScheduleAdapter(listener), millis + DELAY, 60 * 1000, TimeUnit.MILLISECONDS);
         }
     }
 

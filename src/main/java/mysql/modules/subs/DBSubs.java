@@ -22,8 +22,6 @@ public class DBSubs extends DBMapCache<DBSubs.Command, CustomObservableMap<Long,
         return ourInstance;
     }
 
-    //TODO: check
-
     private DBSubs() {
     }
 

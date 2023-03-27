@@ -57,6 +57,12 @@ public final class TimeUtil {
         return remaining;
     }
 
+    public static Instant instantToNextMinute(Instant instant) {
+        LocalDateTime now = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
+        LocalDateTime roundCeiling = now.truncatedTo(ChronoUnit.MINUTES).plusMinutes(1);
+        return roundCeiling.toInstant(ZoneOffset.UTC);
+    }
+
     public static Instant instantToNextHour(Instant instant) {
         LocalDateTime now = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
         LocalDateTime roundCeiling = now.truncatedTo(ChronoUnit.HOURS).plusHours(1);

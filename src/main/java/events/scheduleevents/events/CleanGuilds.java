@@ -14,8 +14,6 @@ import net.dv8tion.jda.api.entities.Guild;
 @ScheduleEventDaily
 public class CleanGuilds implements ExceptionRunnable {
 
-    //TODO: check
-
     @Override
     public void run() throws Throwable {
         execute();

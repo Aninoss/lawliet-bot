@@ -7,8 +7,6 @@ import commands.SlashCommandManager;
 
 public class SlashAssociations {
 
-    //TODO: check
-
     private static final HashMap<String, String> slashToMessageCommandAssociationMap = SlashCommandManager.generateSlashAssociationMap();
     private static final HashMap<Long, String> idToNameAssociationMap = new HashMap<>();
 
