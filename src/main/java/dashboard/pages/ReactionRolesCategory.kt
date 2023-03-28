@@ -6,7 +6,6 @@ import commands.runnables.utilitycategory.ReactionRolesCommand
 import core.ShardManager
 import core.TextManager
 import core.atomicassets.AtomicStandardGuildMessageChannel
-import core.emojiconnection.EmojiConnection
 import core.utils.MentionUtil
 import core.utils.StringUtil
 import dashboard.ActionResult
@@ -20,14 +19,16 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.GridRow
-import modules.ReactionMessage
 import modules.ReactionRoles
+import mysql.modules.reactionroles.ReactionRoleMessage
+import mysql.modules.reactionroles.ReactionRoleMessageSlot
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @DashboardProperties(
     id = "reactionroles",
@@ -56,7 +57,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
-        val reactionMessages: List<ReactionMessage> = ReactionRoles.getReactionMessagesInGuild(atomicGuild.idLong)
+        val reactionMessages: List<ReactionRoleMessage> = ReactionRoles.getReactionMessagesInGuild(atomicGuild.idLong)
 
         if (!editMode) {
             mainContainer.add(
@@ -67,7 +68,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
         mainContainer.add(generateReactionRolesDataField(guild))
     }
 
-    private fun generateReactionRolesTable(guild: Guild, reactionMessages: List<ReactionMessage>): DashboardComponent {
+    private fun generateReactionRolesTable(guild: Guild, reactionMessages: List<ReactionRoleMessage>): DashboardComponent {
         val title = getString(Category.UTILITY, "reactionroles_dashboard_active_title")
         val rowButton = getString(Category.UTILITY, "reactionroles_dashboard_active_button")
 
@@ -209,14 +210,16 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
             }
 
             val textChannel = guild.getTextChannelById(channelId!!)
-            val emojiConnections = slots
-                .map { EmojiConnection(it.emoji, it.roleMention) }
+            val convertedSlots = slots
+                .map { ReactionRoleMessageSlot(guild.idLong, it.emoji, it.roleId) }
 
-            val errorMessage = ReactionRoles.sendMessage(locale, textChannel, title, desc, emojiConnections, roleRemovement, multipleRoles,
+            val response = ReactionRoles.sendMessage(locale, textChannel, title, desc, convertedSlots, roleRemovement, multipleRoles,
                 image, editMode, messageId ?: 0L)
-            if (errorMessage != null) {
+            if (response.isError) {
                 return@DashboardButton ActionResult()
-                    .withErrorMessage(errorMessage)
+                    .withErrorMessage(response.errorMessage)
+            } else {
+                response.future.get(5, TimeUnit.SECONDS)
             }
 
             if (editMode) {
@@ -303,7 +306,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "reactionroles_dashboard_norole"))
             }
-            slots += Slot(newSlotEmoji!!, "@${newSlotRole!!.name}", newSlotRole!!.asMention)
+            slots += Slot(newSlotEmoji!!, "@${newSlotRole!!.name}", newSlotRole!!.idLong)
             newSlotEmoji = null
             newSlotRole = null
             ActionResult()
@@ -330,27 +333,27 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
         }
     }
 
-    private fun readValuesFromReactionMessage(guild: Guild, reactionRoleMessage: ReactionMessage) {
+    private fun readValuesFromReactionMessage(guild: Guild, reactionRoleMessage: ReactionRoleMessage) {
         this.channelId = reactionRoleMessage.standardGuildMessageChannelId
         this.title = reactionRoleMessage.title
-        this.desc = reactionRoleMessage.description.orElse("")
-        this.roleRemovement = reactionRoleMessage.isRemoveRole
-        this.multipleRoles = reactionRoleMessage.isMultipleRoles
-        this.image = reactionRoleMessage.banner.orElse(null)
+        this.desc = reactionRoleMessage.desc ?: ""
+        this.roleRemovement = reactionRoleMessage.roleRemoval
+        this.multipleRoles = reactionRoleMessage.multipleRoles
+        this.image = reactionRoleMessage.image ?: ""
         this.messageId = reactionRoleMessage.messageId
-        val newSlots = reactionRoleMessage.emojiConnections
+        val newSlots = reactionRoleMessage.slots
             .map {
-                val roleId = it.connection.substring(3, it.connection.length - 1)
+                val roleId = it.roleId
                 val role = guild.getRoleById(roleId)
                 val roleName = if (role != null) {
                     "@${role.name}"
                 } else {
-                    getString(TextManager.GENERAL, "notfound", StringUtil.numToHex(roleId.toLong()))
+                    getString(TextManager.GENERAL, "notfound", StringUtil.numToHex(roleId))
                 }
                 Slot(
                     it.emoji,
                     roleName,
-                    it.connection
+                    it.roleId
                 )
             }
             .filter { !it.roleName.isEmpty() }
@@ -359,7 +362,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
         this.newSlotEmoji = null
     }
 
-    data class Slot(val emoji: Emoji, val roleName: String, val roleMention: String) {
+    data class Slot(val emoji: Emoji, val roleName: String, val roleId: Long) {
 
     }
 

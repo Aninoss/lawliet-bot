@@ -53,6 +53,11 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
             } else {
                 preparedStatement.setNull(5, Types.VARCHAR);
             }
+        }).thenAccept(n -> {
+            Runnable runAfterSave = staticReactionMessageData.getRunAfterSave();
+            if (runAfterSave != null) {
+                runAfterSave.run();
+            }
         });
     }
 

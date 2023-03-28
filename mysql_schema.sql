@@ -401,7 +401,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=861 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=865 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -702,6 +702,47 @@ CREATE TABLE `Premium` (
   `serverId` bigint unsigned NOT NULL DEFAULT '0',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`userId`,`slot`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ReactionRolesMessage`
+--
+
+DROP TABLE IF EXISTS `ReactionRolesMessage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ReactionRolesMessage` (
+  `serverId` bigint unsigned NOT NULL,
+  `channelId` bigint unsigned NOT NULL,
+  `messageId` bigint unsigned NOT NULL,
+  `title` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `desc` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `image` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `roleRemoval` tinyint NOT NULL DEFAULT '1',
+  `multipleRoles` tinyint NOT NULL DEFAULT '1',
+  `newComponents` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`messageId`) USING BTREE,
+  KEY `ReactionRolesMessageServerBase` (`serverId`) USING BTREE,
+  CONSTRAINT `ReactionRolesMessageServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `ReactionRolesMessageStaticReactionMessagesBase` FOREIGN KEY (`messageId`) REFERENCES `StaticReactionMessages` (`messageId`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ReactionRolesMessageSlot`
+--
+
+DROP TABLE IF EXISTS `ReactionRolesMessageSlot`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ReactionRolesMessageSlot` (
+  `messageId` bigint unsigned NOT NULL,
+  `slotId` smallint unsigned NOT NULL,
+  `emoji` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `roleId` bigint unsigned NOT NULL,
+  PRIMARY KEY (`messageId`,`slotId`),
+  CONSTRAINT `ReactionRolesMessageSlotStaticReactionMessagesBase` FOREIGN KEY (`messageId`) REFERENCES `StaticReactionMessages` (`messageId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1473,4 +1514,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-03-20 14:05:03
+-- Dump completed on 2023-03-28 15:12:19
