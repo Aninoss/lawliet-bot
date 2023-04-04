@@ -2,10 +2,15 @@ package mysql.modules.staticreactionmessages;
 
 import java.sql.Types;
 import java.util.Map;
+import commands.Command;
+import commands.runnables.utilitycategory.ReactionRolesCommand;
 import core.CustomObservableMap;
+import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMapCache;
 import mysql.MySQLManager;
+import mysql.modules.reactionroles.DBReactionRoles;
+import net.dv8tion.jda.api.entities.Guild;
 
 public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableMap<Long, StaticReactionMessageData>> {
 
@@ -20,7 +25,7 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
 
     @Override
     protected CustomObservableMap<Long, StaticReactionMessageData> load(Long guildId) throws Exception {
-        Map<Long, StaticReactionMessageData> staticReactionMap = new DBDataLoad<StaticReactionMessageData>(
+        Map<Long, StaticReactionMessageData> map = new DBDataLoad<StaticReactionMessageData>(
                 "StaticReactionMessages",
                 "serverId, channelId, messageId, command, secondaryId",
                 "serverId = ?",
@@ -36,9 +41,19 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
                 )
         );
 
-        return new CustomObservableMap<>(staticReactionMap)
+        CustomObservableMap<Long, StaticReactionMessageData> staticReactionMap = new CustomObservableMap<>(map)
                 .addMapAddListener(this::addStaticReaction)
                 .addMapRemoveListener(this::removeStaticReaction);
+
+        Guild guild = ShardManager.getLocalGuildById(guildId).get();
+        for (long messageId : map.keySet()) {
+            StaticReactionMessageData staticReactionMessageData = map.get(messageId);
+            if (guild.getGuildChannelById(staticReactionMessageData.getStandardGuildMessageChannelId()) == null) {
+                staticReactionMap.remove(messageId);
+            }
+        }
+
+        return staticReactionMap;
     }
 
     private void addStaticReaction(StaticReactionMessageData staticReactionMessageData) {
@@ -62,6 +77,10 @@ public class DBStaticReactionMessages extends DBMapCache<Long, CustomObservableM
     }
 
     private void removeStaticReaction(StaticReactionMessageData staticReactionMessageData) {
+        if (staticReactionMessageData.getCommand().equals(Command.getCommandProperties(ReactionRolesCommand.class).trigger())) {
+            DBReactionRoles.getInstance().retrieve(staticReactionMessageData.getGuildId())
+                    .remove(staticReactionMessageData.getMessageId());
+        }
         MySQLManager.asyncUpdate("DELETE FROM StaticReactionMessages WHERE messageId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, staticReactionMessageData.getMessageId());
         });

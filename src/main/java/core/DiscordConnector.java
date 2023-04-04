@@ -2,6 +2,7 @@ package core;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -170,7 +171,7 @@ public class DiscordConnector {
         String activityText = System.getenv("ACTIVITY");
         if (activityText.isBlank()) {
             return ShardManager.getGlobalGuildSize()
-                    .map(globalGuildSize -> "L.help | " + StringUtil.numToStringShort(globalGuildSize) + " | www.lawlietbot.xyz")
+                    .map(globalGuildSize -> "L.help | " + StringUtil.numToStringShort(globalGuildSize, Locale.US) + " | www.lawlietbot.xyz")
                     .orElse("L.help | www.lawlietbot.xyz");
         } else {
             return activityText;

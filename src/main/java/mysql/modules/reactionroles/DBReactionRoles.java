@@ -25,7 +25,7 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
 
     @Override
     protected CustomObservableMap<Long, ReactionRoleMessage> load(Long serverId) throws Exception {
-        Map<Long, ReactionRoleMessage> reactionRolesMessageMap = new DBDataLoad<ReactionRoleMessage>("ReactionRolesMessage", "channelId, messageId, title, `desc`, image, roleRemoval, multipleRoles, newComponents", "serverId = ?",
+        Map<Long, ReactionRoleMessage> reactionRolesMessageMap = new DBDataLoad<ReactionRoleMessage>("ReactionRolesMessage", "channelId, messageId, title, `desc`, image, roleRemoval, multipleRoles, newComponents, showRoleNumbers", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getMap(
                 ReactionRoleMessage::getMessageId,
@@ -40,7 +40,8 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
                             resultSet.getString(5),
                             resultSet.getBoolean(6),
                             resultSet.getBoolean(7),
-                            resultSet.getBoolean(8),
+                            ReactionRoleMessage.ComponentType.values()[resultSet.getInt(8)],
+                            resultSet.getBoolean(9),
                             getReactionRoleMessageSlots(serverId, messageId)
                     );
                 }
@@ -56,16 +57,19 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
         return new DBDataLoad<ReactionRoleMessageSlot>("ReactionRolesMessageSlot", "emoji, roleId", "messageId = ? ORDER BY slotId",
                 preparedStatement -> preparedStatement.setLong(1, messageId)
         ).getList(
-                resultSet -> new ReactionRoleMessageSlot(
-                        serverId,
-                        Emoji.fromFormatted(resultSet.getString(1)),
-                        resultSet.getLong(2)
-                )
+                resultSet -> {
+                    String emojiString = resultSet.getString(1);
+                    return new ReactionRoleMessageSlot(
+                            serverId,
+                            emojiString != null ? Emoji.fromFormatted(emojiString) : null,
+                            resultSet.getLong(2)
+                    );
+                }
         );
     }
 
     private void addReactionRoleMessage(ReactionRoleMessage reactionRoleMessage) {
-        MySQLManager.asyncUpdate("REPLACE INTO ReactionRolesMessage (serverId, channelId, messageId, title, `desc`, image, roleRemoval, multipleRoles, newComponents) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO ReactionRolesMessage (serverId, channelId, messageId, title, `desc`, image, roleRemoval, multipleRoles, newComponents, showRoleNumbers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, reactionRoleMessage.getGuildId());
             preparedStatement.setLong(2, reactionRoleMessage.getStandardGuildMessageChannelId());
             preparedStatement.setLong(3, reactionRoleMessage.getMessageId());
@@ -90,7 +94,8 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
 
             preparedStatement.setBoolean(7, reactionRoleMessage.getRoleRemoval());
             preparedStatement.setBoolean(8, reactionRoleMessage.getMultipleRoles());
-            preparedStatement.setBoolean(9, reactionRoleMessage.getNewComponents());
+            preparedStatement.setInt(9, reactionRoleMessage.getNewComponents().ordinal());
+            preparedStatement.setBoolean(10, reactionRoleMessage.getShowRoleNumbers());
         });
 
         try {

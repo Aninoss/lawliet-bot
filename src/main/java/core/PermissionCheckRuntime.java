@@ -7,9 +7,9 @@ import java.util.Locale;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
+import core.atomicassets.AtomicRole;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
-import core.utils.StringUtil;
 import javafx.util.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -91,7 +91,7 @@ public class PermissionCheckRuntime {
 
         Guild guild = roles[0].getGuild();
         if (BotPermissionUtil.can(guild, Permission.MANAGE_ROLES) && canPostError(guild.getIdLong(), PERMISSION_ROLE_POS) && guild.getOwner() != null) {
-            String rolesList = new ListGen<Role>().getList(unreachableRoles, ListGen.SLOT_TYPE_BULLET, role -> "**@" + StringUtil.escapeMarkdown(role.getName()) + "**");
+            String rolesList = new ListGen<Role>().getList(unreachableRoles, ListGen.SLOT_TYPE_BULLET, role -> new AtomicRole(role).getPrefixedNameInField());
             EmbedBuilder eb = EmbedFactory.getEmbedError();
             eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
             eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", Command.getCommandProperties(c).trigger(), rolesList));

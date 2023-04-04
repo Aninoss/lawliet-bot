@@ -1,0 +1,45 @@
+package events.discordevents.stringselectmenu;
+
+import commands.Command;
+import commands.CommandManager;
+import commands.listeners.OnStaticStringSelectMenuListener;
+import core.CustomObservableMap;
+import core.MemberCacheController;
+import core.utils.BotPermissionUtil;
+import events.discordevents.DiscordEvent;
+import events.discordevents.eventtypeabstracts.StringSelectMenuAbstract;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildData;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
+import mysql.modules.staticreactionmessages.StaticReactionMessageData;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+
+@DiscordEvent
+public class StringSelectMenuCommandsStatic extends StringSelectMenuAbstract {
+
+    @Override
+    public boolean onStringSelectMenu(StringSelectInteractionEvent event) throws Throwable {
+        if (!BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
+            return true;
+        }
+
+        CustomObservableMap<Long, StaticReactionMessageData> map = DBStaticReactionMessages.getInstance()
+                .retrieve(event.getGuild().getIdLong());
+        StaticReactionMessageData messageData = map.get(event.getMessageIdLong());
+
+        if (messageData != null) {
+            GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+            Command command = CommandManager.createCommandByTrigger(messageData.getCommand(), guildBean.getLocale(), guildBean.getPrefix()).get();
+            if (command instanceof OnStaticStringSelectMenuListener && map.containsKey(event.getMessageIdLong())) {
+                if (command.getCommandProperties().requiresFullMemberCache()) {
+                    MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
+                }
+                ((OnStaticStringSelectMenuListener) command).onStaticStringSelectMenu(event, messageData.getSecondaryId());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+}

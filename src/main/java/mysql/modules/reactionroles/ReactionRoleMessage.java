@@ -5,6 +5,8 @@ import core.assets.MessageAsset;
 
 public class ReactionRoleMessage implements MessageAsset {
 
+    public enum ComponentType { REACTIONS, BUTTONS, SELECT_MENU }
+
     private final long guildId;
     private final long channelId;
     private final long messageId;
@@ -13,12 +15,13 @@ public class ReactionRoleMessage implements MessageAsset {
     private final String image;
     private final boolean roleRemoval;
     private final boolean multipleRoles;
-    private final boolean newComponents;
+    private final ComponentType newComponents;
+    private final boolean showRoleNumbers;
     private final List<ReactionRoleMessageSlot> slots;
 
     public ReactionRoleMessage(long guildId, long channelId, long messageId, String title, String desc, String image,
-                               boolean roleRemoval, boolean multipleRoles, boolean newComponents,
-                               List<ReactionRoleMessageSlot> slots) {
+                               boolean roleRemoval, boolean multipleRoles, ComponentType newComponents,
+                               boolean showRoleNumbers, List<ReactionRoleMessageSlot> slots) {
         this.guildId = guildId;
         this.channelId = channelId;
         this.messageId = messageId;
@@ -28,6 +31,7 @@ public class ReactionRoleMessage implements MessageAsset {
         this.roleRemoval = roleRemoval;
         this.multipleRoles = multipleRoles;
         this.newComponents = newComponents;
+        this.showRoleNumbers = showRoleNumbers;
         this.slots = slots;
     }
 
@@ -66,8 +70,12 @@ public class ReactionRoleMessage implements MessageAsset {
         return multipleRoles;
     }
 
-    public boolean getNewComponents() {
+    public ComponentType getNewComponents() {
         return newComponents;
+    }
+
+    public boolean getShowRoleNumbers() {
+        return showRoleNumbers;
     }
 
     public List<ReactionRoleMessageSlot> getSlots() {
