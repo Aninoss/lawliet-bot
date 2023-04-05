@@ -7,6 +7,7 @@ import commands.runnables.gimmickscategory.QuoteCommand;
 import core.EmbedFactory;
 import core.TextManager;
 import core.components.ActionRows;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -20,12 +21,9 @@ public class MessageQuote {
 
     public static MessageCreateData postQuote(String prefix, Locale locale, GuildMessageChannel channel, Message searchedMessage,
                                               boolean showAutoQuoteTurnOff) {
-        boolean channelIsNSFW = false;
-        if (channel instanceof StandardGuildMessageChannel) {
-            channelIsNSFW = ((StandardGuildMessageChannel) channel).isNSFW();
-        }
-
-        if (((StandardGuildMessageChannel) searchedMessage.getChannel()).isNSFW() && !channelIsNSFW) {
+        if (((StandardGuildMessageChannel) searchedMessage.getChannel()).isNSFW() &&
+                !JDAUtil.guildMessageChannelIsNsfw(channel)
+        ) {
             return new MessageCreateBuilder()
                     .setEmbeds(EmbedFactory.getNSFWBlockEmbed(locale).build())
                     .setComponents(ActionRows.of(EmbedFactory.getNSFWBlockButton(locale)))

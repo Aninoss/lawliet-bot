@@ -14,8 +14,12 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
@@ -180,6 +184,19 @@ public class JDAUtil {
                 messageType == MessageType.SLASH_COMMAND ||
                 messageType == MessageType.CONTEXT_COMMAND ||
                 messageType == MessageType.THREAD_STARTER_MESSAGE;
+    }
+
+    public static boolean guildMessageChannelIsNsfw(GuildMessageChannel channel) {
+        if (channel instanceof StandardGuildMessageChannel) {
+            return ((StandardGuildMessageChannel) channel).isNSFW();
+        }
+        if (channel instanceof ThreadChannel) {
+            GuildMessageChannelUnion parentMessageChannel = ((ThreadChannel) channel).getParentMessageChannel();
+            if (parentMessageChannel instanceof StandardGuildMessageChannel) {
+                return ((StandardGuildMessageChannel) parentMessageChannel).isNSFW();
+            }
+        }
+        return false;
     }
 
 }
