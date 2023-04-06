@@ -1,5 +1,6 @@
 package commands.runnables.aitoyscategory;
 
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import commands.Command;
@@ -7,14 +8,15 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnSelectMenuListener;
 import core.EmbedFactory;
+import core.MainLogger;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.ExceptionUtil;
 import core.utils.StringUtil;
-import modules.replicate.ReplicateCallTracker;
-import modules.replicate.Model;
-import modules.replicate.PredictionResult;
-import modules.replicate.ReplicateDownloader;
+import modules.txt2img.Model;
+import modules.txt2img.PredictionResult;
+import modules.txt2img.RunPodDownloader;
+import modules.txt2img.Txt2ImgCallTracker;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -40,6 +42,7 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
     private Model model = null;
     private PredictionResult predictionResult = null;
     private int currentImage = 0;
+    private Instant startTime;
 
     public Txt2ImgCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -55,10 +58,11 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
     @Override
     public boolean onSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
         if (event.getComponentId().equals(SELECT_ID_MODEL)) {
-            if (ReplicateCallTracker.getCalls(event.getGuild().getIdLong(), event.getUser().getIdLong()) < LIMIT_CREATIONS_PER_DAY) {
-                ReplicateCallTracker.increaseCalls(event.getGuild().getIdLong(), event.getUser().getIdLong());
+            if (Txt2ImgCallTracker.getCalls(event.getGuild().getIdLong(), event.getUser().getIdLong()) < LIMIT_CREATIONS_PER_DAY) {
+                Txt2ImgCallTracker.increaseCalls(event.getGuild().getIdLong(), event.getUser().getIdLong());
                 model = Model.values()[Integer.parseInt(event.getValues().get(0))];
-                predictionId = ReplicateDownloader.createPrediction(model, prompt).get();
+                predictionId = RunPodDownloader.createPrediction(model, prompt).get();
+                startTime = Instant.now();
             }
         } else if (event.getComponentId().equals(SELECT_ID_IMAGE) && predictionResult != null && predictionResult.getOutputs().size() > 1) {
             currentImage = Integer.parseInt(event.getValues().get(0));
@@ -71,7 +75,7 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
         EmbedBuilder eb;
         if (predictionId == null) {
-            if (ReplicateCallTracker.getCalls(member.getGuild().getIdLong(), member.getIdLong()) >= LIMIT_CREATIONS_PER_DAY) {
+            if (Txt2ImgCallTracker.getCalls(member.getGuild().getIdLong(), member.getIdLong()) >= LIMIT_CREATIONS_PER_DAY) {
                 return EmbedFactory.getEmbedError(this, getString("nocalls"), getString("nocalls_title"));
             }
 
@@ -90,12 +94,17 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
             String infoString = getString("info", StringUtil.escapeMarkdownInField(prompt));
             eb = EmbedFactory.getEmbedDefault(this, infoString);
         } else {
-            if (predictionResult == null || predictionResult.getStatus() != PredictionResult.Status.SUCCEEDED) {
-                predictionResult = ReplicateDownloader.retrievePrediction(predictionId, model.getCheckNsfw()).get();
+            if (predictionResult == null || predictionResult.getStatus() != PredictionResult.Status.COMPLETED) {
+                try {
+                    predictionResult = RunPodDownloader.retrievePrediction(model, predictionId, startTime).get();
+                } catch (Throwable e) {
+                    MainLogger.get().error("Prediction failed", e);
+                    predictionResult = PredictionResult.failed(PredictionResult.Error.GENERAL);
+                }
             }
 
             switch (predictionResult.getStatus()) {
-                case SUCCEEDED -> {
+                case COMPLETED -> {
                     if (predictionResult.getOutputs().size() > 1) {
                         StringSelectMenu.Builder menuBuilder = StringSelectMenu.create(SELECT_ID_IMAGE)
                                 .setMinValues(1)
@@ -116,7 +125,7 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
                 }
                 case FAILED -> {
                     String error;
-                    if (predictionResult.getError().contains("NSFW")) {
+                    if (predictionResult.getError() == PredictionResult.Error.NSFW) {
                         error = getString("nsfw");
                     } else {
                         error = getString("error");
@@ -143,7 +152,7 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
 
         String footer = getString(
                 "footer",
-                String.valueOf(LIMIT_CREATIONS_PER_DAY - ReplicateCallTracker.getCalls(member.getGuild().getIdLong(), member.getIdLong())),
+                String.valueOf(LIMIT_CREATIONS_PER_DAY - Txt2ImgCallTracker.getCalls(member.getGuild().getIdLong(), member.getIdLong())),
                 String.valueOf(LIMIT_CREATIONS_PER_DAY)
         );
         return EmbedUtil.setFooter(eb, this, footer);

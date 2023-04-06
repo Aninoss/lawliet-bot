@@ -1,9 +1,12 @@
 package core.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import com.google.common.net.UrlEscapers;
@@ -15,6 +18,12 @@ import net.dv8tion.jda.api.EmbedBuilder;
 public final class InternetUtil {
 
     private InternetUtil() {
+    }
+
+    public static void downloadFile(String url, File file) throws IOException {
+        try(InputStream inputStream = new URL(url).openStream()) {
+            Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 
     public static String getUrlFromInputStream(InputStream inputStream, String fileExt) throws IOException {

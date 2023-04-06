@@ -1,9 +1,9 @@
-package modules.replicate;
+package modules.txt2img;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 
-public class ReplicateCallTracker {
+public class Txt2ImgCallTracker {
 
     private static final HashMap<Long, Integer> callMap = new HashMap<>();
     private static LocalDate lastCallDate = LocalDate.now();
