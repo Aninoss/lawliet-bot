@@ -3,11 +3,13 @@ package commands.runnables.aitoyscategory;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import java.util.regex.Pattern;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnSelectMenuListener;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.MainLogger;
 import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
@@ -36,8 +38,10 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
     public static int LIMIT_CREATIONS_PER_DAY = 5;
     public static String SELECT_ID_MODEL = "model";
     public static String SELECT_ID_IMAGE = "image";
+    public static String DEFAULT_NEGATIVE_PROMPT = "worst quality, low quality, low-res, ugly, extra limbs, missing limb, floating limbs, disconnected limbs, mutated hands, extra legs, extra arms, bad anatomy, bad proportions, weird hands, malformed hands, disproportionate, disfigured, mutation, mutated, deformed, head out of frame, body out of frame, poorly drawn face, poorly drawn hands, poorly drawn feet, disfigured, out of frame, long neck, big ears, tiling, bad hands, bad art, cross-eye, blurry, blurred, watermark";
 
     private String prompt;
+    private String negativePrompt;
     private String predictionId = null;
     private Model model = null;
     private PredictionResult predictionResult = null;
@@ -50,7 +54,40 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        prompt = args;
+        if (args.contains("||")) {
+            String[] parts = args.split("\\|\\|");
+            if (parts.length <= 2) {
+                prompt = parts[0].trim();
+                negativePrompt = parts.length == 2 ? parts[1].trim() : "";
+            } else {
+                drawMessageNew(EmbedFactory.getEmbedError(this, getString("ambiguous_negativeprompt", "||")))
+                        .exceptionally(ExceptionLogger.get());
+                return false;
+            }
+        } else if (args.contains("|")) {
+            String[] parts = args.split("\\|");
+            if (parts.length <= 2) {
+                prompt = parts[0].trim();
+                String tempNegativePromptInput = parts.length == 2 ? parts[1].trim() : "";
+                StringBuilder negativePromptBuilder = new StringBuilder(tempNegativePromptInput);
+                for (String p : DEFAULT_NEGATIVE_PROMPT.split(", ")) {
+                    if (!tempNegativePromptInput.matches("(?i)(^|.*,)[ ]*" + Pattern.quote(p) + "[ ]*(,.*|$)")) {
+                        if (!negativePromptBuilder.isEmpty()) {
+                            negativePromptBuilder.append(", ");
+                        }
+                        negativePromptBuilder.append(p);
+                    }
+                }
+                negativePrompt = negativePromptBuilder.toString();
+            } else {
+                drawMessageNew(EmbedFactory.getEmbedError(this, getString("ambiguous_negativeprompt", "|")))
+                        .exceptionally(ExceptionLogger.get());
+                return false;
+            }
+        } else {
+            prompt = args;
+            negativePrompt = DEFAULT_NEGATIVE_PROMPT;
+        }
         registerSelectMenuListener(event.getMember());
         return true;
     }
@@ -61,7 +98,7 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
             if (Txt2ImgCallTracker.getCalls(event.getGuild().getIdLong(), event.getUser().getIdLong()) < LIMIT_CREATIONS_PER_DAY) {
                 Txt2ImgCallTracker.increaseCalls(event.getGuild().getIdLong(), event.getUser().getIdLong());
                 model = Model.values()[Integer.parseInt(event.getValues().get(0))];
-                predictionId = RunPodDownloader.createPrediction(model, prompt).get();
+                predictionId = RunPodDownloader.createPrediction(model, prompt, negativePrompt).get();
                 startTime = Instant.now();
             }
         } else if (event.getComponentId().equals(SELECT_ID_IMAGE) && predictionResult != null && predictionResult.getOutputs().size() > 1) {
@@ -85,14 +122,12 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
                     .setPlaceholder(getString("selectmodel"));
             for (int i = 0; i < Model.values().length; i++) {
                 menuBuilder.addOption(
-                        getString("models", i),
+                        getString("run", getString("models", i)),
                         String.valueOf(i)
                 );
             }
             setComponents(menuBuilder.build());
-
-            String infoString = getString("info", StringUtil.escapeMarkdownInField(prompt));
-            eb = EmbedFactory.getEmbedDefault(this, infoString);
+            eb = generateOptionsEmbed(null);
         } else {
             if (predictionResult == null || predictionResult.getStatus() != PredictionResult.Status.COMPLETED) {
                 try {
@@ -119,9 +154,7 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
                         setComponents(menuBuilder.build());
                     }
 
-                    String modelName = getString("models", model.ordinal());
-                    eb = EmbedFactory.getEmbedDefault(this, getString("success", prompt, modelName))
-                            .setImage(predictionResult.getOutputs().get(currentImage));
+                    eb = generateOptionsEmbed(predictionResult.getOutputs().get(currentImage));
                 }
                 case FAILED -> {
                     String error;
@@ -156,6 +189,23 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
                 String.valueOf(LIMIT_CREATIONS_PER_DAY)
         );
         return EmbedUtil.setFooter(eb, this, footer);
+    }
+
+    private EmbedBuilder generateOptionsEmbed(String imageUrl) {
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
+                .addField(getString("textprompt_title"), "```" + StringUtil.escapeMarkdownInField(prompt) + "```", false);
+
+        if (!negativePrompt.isEmpty()) {
+            eb.addField(getString("negativeprompt_title"), "```" + StringUtil.escapeMarkdownInField(negativePrompt) + "```", false);
+        }
+
+        if (imageUrl != null) {
+            String modelName = getString("models", model.ordinal());
+            eb.addField(getString("options_title"), getString("options", modelName), false);
+            eb.setImage(imageUrl);
+        }
+
+        return eb;
     }
 
 }

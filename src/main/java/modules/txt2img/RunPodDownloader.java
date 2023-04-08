@@ -26,10 +26,12 @@ public class RunPodDownloader {
 
     private static final Random r = new Random();
 
-    public static CompletableFuture<String> createPrediction(Model model, String prompt) {
+    public static CompletableFuture<String> createPrediction(Model model, String prompt, String negativePrompt) {
         JSONObject inputJson = new JSONObject();
         inputJson.put("prompt", prompt);
-        inputJson.put("negative_prompt", model.getNegativePrompt());
+        if (!negativePrompt.isBlank()) {
+            inputJson.put("negative_prompt", negativePrompt);
+        }
         inputJson.put("width", 768);
         inputJson.put("height", 768);
         inputJson.put("guidance_scale", model.getGuidanceScale());
@@ -37,7 +39,6 @@ public class RunPodDownloader {
         inputJson.put("num_outputs", model.getNumOutputs());
         inputJson.put("scheduler", model.getScheduler());
         inputJson.put("seed", Math.abs(r.nextLong()));
-        inputJson.put("nsfw", false);
 
         JSONObject requestJson = new JSONObject();
         requestJson.put("input", inputJson);

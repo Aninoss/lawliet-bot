@@ -4,7 +4,6 @@ public enum Model {
 
     STABLE_DIFFUSION_V1(
             "stable-diffusion-v1",
-            "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy, kitsch, low-res, missing limb, floating limbs, disconnected limbs, malformed hands",
             1,
             30,
             8,
@@ -15,7 +14,6 @@ public enum Model {
 
     STABLE_DIFFUSION_V2(
             "stable-diffusion-v2",
-            "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy, kitsch, low-res, missing limb, floating limbs, disconnected limbs, malformed hands",
             1,
             30,
             8,
@@ -26,9 +24,8 @@ public enum Model {
 
     OPENJOURNEY(
             "sd-openjourney",
-            "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy, kitsch, low-res, missing limb, floating limbs, disconnected limbs, malformed hands",
             1,
-            50,
+            30,
             7,
             "K-LMS",
             true,
@@ -37,7 +34,6 @@ public enum Model {
 
     ANYTHING_V3(
             "sd-anything-v3",
-            "lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name",
             1,
             25,
             7,
@@ -48,7 +44,6 @@ public enum Model {
 
 
     private final String modelId;
-    private final String negativePrompt;
     private final int numOutputs;
     private final int numInferenceSteps;
     private final double guidanceScale;
@@ -56,11 +51,10 @@ public enum Model {
     private final boolean checkNsfw;
     private final double timeMultiplier;
 
-    Model(String modelId, String negativePrompt, int numOutputs, int numInferenceSteps, double guidanceScale,
-          String scheduler, boolean checkNsfw, double timeMultiplier
+    Model(String modelId, int numOutputs, int numInferenceSteps, double guidanceScale, String scheduler,
+          boolean checkNsfw, double timeMultiplier
     ) {
         this.modelId = modelId;
-        this.negativePrompt = negativePrompt;
         this.numOutputs = numOutputs;
         this.numInferenceSteps = numInferenceSteps;
         this.guidanceScale = guidanceScale;
@@ -71,10 +65,6 @@ public enum Model {
 
     public String getModelId() {
         return modelId;
-    }
-
-    public String getNegativePrompt() {
-        return negativePrompt;
     }
 
     public int getNumOutputs() {
