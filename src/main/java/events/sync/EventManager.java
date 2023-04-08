@@ -39,7 +39,8 @@ public class EventManager {
                         System.getenv("SYNC_OWN_IP"),
                         ShardManager.isEverythingConnected(),
                         ShardManager.getTotalShards(),
-                        ShardManager.getLocalGuildSize().orElse(0L)
+                        ShardManager.getLocalGuildSize().orElse(0L),
+                        ShardManager.getConnectedLocalJDAs().size()
                 );
             } else {
                 SendEvent.sendHeartbeat(
@@ -47,6 +48,7 @@ public class EventManager {
                         ShardManager.isEverythingConnected(),
                         ShardManager.getTotalShards(),
                         ShardManager.getLocalGuildSize().orElse(0L),
+                        ShardManager.getConnectedLocalJDAs().size(),
                         ShardManager.getLocalGuilds().stream().map(ISnowflake::getIdLong).collect(Collectors.toList())
                 );
             }

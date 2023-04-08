@@ -66,17 +66,20 @@ public class SendEvent {
         );
     }
 
-    public static CompletableFuture<Void> sendHeartbeat(String ip, boolean alreadyConnected, int totalShards, long totalServers) {
-        return sendHeartbeat(ip, alreadyConnected, totalShards, totalServers, null);
+    public static CompletableFuture<Void> sendHeartbeat(String ip, boolean alreadyConnected, int totalShards, long totalServers,
+                                                        int connectedShards
+    ) {
+        return sendHeartbeat(ip, alreadyConnected, totalShards, totalServers, connectedShards, null);
     }
 
     public static CompletableFuture<Void> sendHeartbeat(String ip, boolean alreadyConnected, int totalShards, long totalServers,
-                                                        Collection<Long> serverIds) {
+                                                        int connectedShards, Collection<Long>serverIds) {
         JSONObject requestJson = new JSONObject();
         requestJson.put("ip", ip);
         requestJson.put("already_connected", alreadyConnected);
         requestJson.put("total_shards", totalShards);
         requestJson.put("total_servers", totalServers);
+        requestJson.put("connected_shards", connectedShards);
 
         if (serverIds != null) {
             JSONArray serverIdsJsonArray = new JSONArray();
