@@ -36,10 +36,10 @@ public enum Model {
             "sd-anything-v3",
             1,
             25,
-            7,
+            6,
             "K-LMS",
             true,
-            1.5
+            1.25
     );
 
 
