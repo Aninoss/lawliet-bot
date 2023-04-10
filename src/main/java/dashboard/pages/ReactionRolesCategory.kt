@@ -23,6 +23,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.ReactionRoles
+import mysql.modules.guild.DBGuild
 import mysql.modules.reactionroles.ReactionRoleMessage
 import mysql.modules.reactionroles.ReactionRoleMessage.ComponentType
 import mysql.modules.reactionroles.ReactionRoleMessageSlot
@@ -268,8 +269,9 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
                     .withErrorMessage(error)
             }
 
+            val guildLocale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
             ReactionRoles.sendMessage(
-                locale, textChannel, title, desc, convertedSlots, roleRemovement, multipleRoles, newComponents, showRoleNumbers,
+                guildLocale, textChannel, title, desc, convertedSlots, roleRemovement, multipleRoles, newComponents, showRoleNumbers,
                 image, editMode, messageId ?: 0L
             ).get(5, TimeUnit.SECONDS)
 
@@ -362,8 +364,9 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
     private fun switchMode(editMode: Boolean) {
         this.editMode = editMode
         if (!editMode) {
+            val guildLocale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
             channelId = null
-            title = Command.getCommandLanguage(ReactionRolesCommand::class.java, locale).title
+            title = Command.getCommandLanguage(ReactionRolesCommand::class.java, guildLocale).title
             desc = ""
             roleRemovement = true
             multipleRoles = true
