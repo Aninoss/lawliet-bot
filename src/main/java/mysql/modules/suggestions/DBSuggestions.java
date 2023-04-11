@@ -67,25 +67,38 @@ public class DBSuggestions extends DBObserverMapCache<Long, SuggestionsData> {
     }
 
     private Map<Long, SuggestionMessage> getSuggestionMessages(long serverId) {
-        return new DBDataLoad<SuggestionMessage>("SuggestionMessages", "messageId, content, author", "serverId = ?",
+        return new DBDataLoad<SuggestionMessage>("SuggestionMessages", "messageId, userId, content, author", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getMap(
                 SuggestionMessage::getMessageId,
                 resultSet -> new SuggestionMessage(
                         serverId,
                         resultSet.getLong(1),
-                        resultSet.getString(2),
-                        resultSet.getString(3)
+                        resultSet.getLong(2),
+                        resultSet.getString(3),
+                        resultSet.getString(4)
                 )
         );
     }
 
     private void addSuggestionMessage(SuggestionMessage suggestionMessage) {
-        MySQLManager.asyncUpdate("INSERT IGNORE INTO SuggestionMessages (serverId, messageId, content, author) VALUES (?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("INSERT IGNORE INTO SuggestionMessages (serverId, messageId, userId, content, author) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, suggestionMessage.getGuildId());
             preparedStatement.setLong(2, suggestionMessage.getMessageId());
-            preparedStatement.setString(3, suggestionMessage.getContent());
-            preparedStatement.setString(4, suggestionMessage.getAuthor());
+
+            if (suggestionMessage.getUserId() != null) {
+                preparedStatement.setLong(3, suggestionMessage.getUserId());
+            } else {
+                preparedStatement.setNull(3, Types.BIGINT);
+            }
+
+            preparedStatement.setString(4, suggestionMessage.getContent());
+
+            if (suggestionMessage.getAuthor() != null) {
+                preparedStatement.setString(5, suggestionMessage.getAuthor());
+            } else {
+                preparedStatement.setNull(5, Types.VARCHAR);
+            }
         });
     }
 

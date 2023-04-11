@@ -11,6 +11,7 @@ import commands.listeners.OnStaticReactionRemoveListener;
 import constants.AssetIds;
 import constants.Emojis;
 import core.*;
+import core.atomicassets.AtomicUser;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import modules.suggestions.SuggestionMessage;
@@ -50,10 +51,10 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
             if (channelOpt.isPresent() && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), channelOpt.get(), Permission.MESSAGE_SEND, Permission.MESSAGE_HISTORY, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ADD_REACTION)) {
                 if (ratelimitManager.checkAndSet(event.getMember().getIdLong(), 1, Duration.ofMinutes(1)).isEmpty()) {
                     TextChannel channel = channelOpt.get();
-                    String author = event.getMember().getUser().getAsTag();
                     String content = StringUtil.shortenString(args, 1024);
 
-                    MessageCreateAction messageAction = channel.sendMessageEmbeds(generateEmbed(content, StringUtil.escapeMarkdown(author), generateFooter(0, 0)).build());
+                    EmbedBuilder eb = generateEmbed(event.getUser().getAsTag(), content, 0, 0);
+                    MessageCreateAction messageAction = channel.sendMessageEmbeds(eb.build());
                     if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID) {
                         messageAction = messageAction.setContent("<@&762314049953988650>")
                                 .setAllowedMentions(null);
@@ -69,8 +70,9 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                                 new SuggestionMessage(
                                         event.getGuild().getIdLong(),
                                         message.getIdLong(),
+                                        event.getUser().getIdLong(),
                                         content,
-                                        author,
+                                        null,
                                         0,
                                         0
                                 )
@@ -97,7 +99,8 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
         return false;
     }
 
-    private EmbedBuilder generateEmbed(String content, String author, String footer) {
+    private EmbedBuilder generateEmbed(String author, String content, int likes, int dislikes) {
+        String footer = generateFooter(likes, dislikes);
         return EmbedFactory.getEmbedDefault()
                 .setTitle(getCommandProperties().emoji() + " " + getString("message_title", author))
                 .setDescription(content)
@@ -140,16 +143,24 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                         }
 
                         suggestionMessage.loadVoteValuesifAbsent(event.getChannel().asTextChannel());
-                        String footer = generateFooter(
-                                suggestionMessage.getUpvotes(),
-                                suggestionMessage.getDownvotes()
-                        );
 
+                        String author;
+                        Long userId = suggestionMessage.getUserId();
+                        if (userId != null) {
+                            MemberCacheController.getInstance().loadMember(event.getGuild(), userId).join();
+                            author = new AtomicUser(userId).getTaggedName();
+                        } else {
+                            author = suggestionMessage.getAuthor();
+                        }
+
+                        EmbedBuilder eb = generateEmbed(author, suggestionMessage.getContent(),
+                                suggestionMessage.getUpvotes(), suggestionMessage.getDownvotes()
+                        );
                         quickUpdater.update(
                                 messageId,
                                 event.getChannel().asTextChannel().editMessageEmbedsById(
                                         messageId,
-                                        generateEmbed(suggestionMessage.getContent(), StringUtil.escapeMarkdown(suggestionMessage.getAuthor()), footer).build()
+                                        eb.build()
                                 )
                         );
                     }

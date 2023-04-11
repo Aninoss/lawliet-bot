@@ -10,25 +10,24 @@ public class SuggestionMessage implements GuildAsset {
 
     private final long guildId;
     private final long messageId;
+    private final Long userId;
     private final String content;
     private final String author;
     private int upvotes = 0;
     private int downvotes = 0;
     private boolean loaded = false;
 
-    public SuggestionMessage(long guildId, long messageId, String content, String author, int upvotes, int downvotes) {
-        this.guildId = guildId;
-        this.messageId = messageId;
-        this.content = content;
-        this.author = author;
+    public SuggestionMessage(long guildId, long messageId, Long userId, String content, String author, int upvotes, int downvotes) {
+        this(guildId, messageId, userId, content, author);
         this.upvotes = upvotes;
         this.downvotes = downvotes;
         this.loaded = true;
     }
 
-    public SuggestionMessage(long guildId, long messageId, String content, String author) {
+    public SuggestionMessage(long guildId, long messageId, long userId, String content, String author) {
         this.guildId = guildId;
         this.messageId = messageId;
+        this.userId = userId != 0 ? userId : null;
         this.content = content;
         this.author = author;
     }
@@ -40,6 +39,10 @@ public class SuggestionMessage implements GuildAsset {
 
     public long getMessageId() {
         return messageId;
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 
     public String getContent() {
