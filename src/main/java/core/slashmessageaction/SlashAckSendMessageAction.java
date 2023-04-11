@@ -174,6 +174,13 @@ public class SlashAckSendMessageAction implements MessageCreateAction {
 
     @NotNull
     @Override
+    public MessageCreateAction setSuppressedNotifications(boolean suppressed) {
+        replyCallbackAction = replyCallbackAction.setSuppressedNotifications(suppressed);
+        return this;
+    }
+
+    @NotNull
+    @Override
     public MessageCreateAction setContent(@Nullable String content) {
         replyCallbackAction = replyCallbackAction.setContent(content);
         return this;

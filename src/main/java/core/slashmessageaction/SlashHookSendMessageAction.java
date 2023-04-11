@@ -170,6 +170,13 @@ public class SlashHookSendMessageAction implements MessageCreateAction {
 
     @NotNull
     @Override
+    public MessageCreateAction setSuppressedNotifications(boolean suppressed) {
+        webhookMessageAction = webhookMessageAction.setSuppressedNotifications(suppressed);
+        return this;
+    }
+
+    @NotNull
+    @Override
     public MessageCreateAction setContent(@Nullable String content) {
         webhookMessageAction = webhookMessageAction.setContent(content);
         return this;
