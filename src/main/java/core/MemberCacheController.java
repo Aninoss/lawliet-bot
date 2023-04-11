@@ -67,6 +67,7 @@ public class MemberCacheController implements MemberCachePolicy {
             future.complete(presentMembers);
         } else {
             guild.retrieveMembersByIds(missingMemberIds)
+                    .setTimeout(Duration.ofSeconds(20))
                     .onError(future::completeExceptionally)
                     .onSuccess(members -> {
                         presentMembers.addAll(members);
@@ -83,6 +84,7 @@ public class MemberCacheController implements MemberCachePolicy {
             future.complete(guild.getMembers());
         } else {
             guild.loadMembers()
+                    .setTimeout(Duration.ofSeconds(20))
                     .onError(future::completeExceptionally)
                     .onSuccess(future::complete);
         }
