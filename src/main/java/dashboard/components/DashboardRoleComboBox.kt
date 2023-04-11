@@ -27,7 +27,7 @@ class DashboardRoleComboBox(label: String, locale: Locale, guildId: Long, val me
             val role: Role? = AtomicRole(guildId, event.data.toLong()).get().orElse(null)
             val member: Member? = role?.let { MemberCacheController.getInstance().loadMember(it.guild, memberId).get() }
             if (member != null) {
-                if (BotPermissionUtil.canManage(member, role) && BotPermissionUtil.can(member, Permission.MANAGE_ROLES)) {
+                if (!checkManageable || (BotPermissionUtil.canManage(member, role) && BotPermissionUtil.can(member, Permission.MANAGE_ROLES))) {
                     if (event.data != null &&
                         checkManageable &&
                         (!BotPermissionUtil.canManage(role) || !BotPermissionUtil.can(role.guild.selfMember, Permission.MANAGE_ROLES))
