@@ -17,7 +17,7 @@ public class SuggestionMessage implements GuildAsset {
     private int downvotes = 0;
     private boolean loaded = false;
 
-    public SuggestionMessage(long guildId, long messageId, Long userId, String content, String author, int upvotes, int downvotes) {
+    public SuggestionMessage(long guildId, long messageId, long userId, String content, String author, int upvotes, int downvotes) {
         this(guildId, messageId, userId, content, author);
         this.upvotes = upvotes;
         this.downvotes = downvotes;
