@@ -49,11 +49,11 @@ public class QuizCommand extends CasinoAbstract {
     private final String url;
 
     public QuizCommand(Locale locale, String prefix) {
-        this(locale, prefix, true, "https://opentdb.com/api.php?amount=1");
+        this(locale, prefix, "https://opentdb.com/api.php?amount=1");
     }
 
-    public QuizCommand(Locale locale, String prefix, boolean allowBet, String url) {
-        super(locale, prefix, allowBet, true);
+    public QuizCommand(Locale locale, String prefix, String url) {
+        super(locale, prefix, false, true);
         this.url = url;
     }
 

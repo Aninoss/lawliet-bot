@@ -16,7 +16,7 @@ import net.dv8tion.jda.api.Permission;
 public class AnimeQuizCommand extends QuizCommand {
 
     public AnimeQuizCommand(Locale locale, String prefix) {
-        super(locale, prefix, false, "https://opentdb.com/api.php?amount=1&category=31");
+        super(locale, prefix, "https://opentdb.com/api.php?amount=1&category=31");
     }
 
 }
