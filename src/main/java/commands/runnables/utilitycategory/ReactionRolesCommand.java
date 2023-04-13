@@ -90,6 +90,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     private boolean removeRole = true;
     private boolean editMode = false;
     private boolean multipleRoles = true;
+    private boolean showRoleConnections = true;
     private ReactionRoleMessage.ComponentType newComponents = ReactionRoleMessage.ComponentType.REACTIONS;
     private boolean showRoleNumbers = false;
     private long editMessageId = 0L;
@@ -318,7 +319,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @ControllerButton(state = CONFIGURE_MESSAGE)
     public boolean onButtonConfigureMessage(ButtonInteractionEvent event, int i) throws ExecutionException, InterruptedException, TimeoutException {
-        if (i >= 8 && newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
+        if (i >= 9 && newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
             i++;
         }
 
@@ -373,15 +374,20 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
 
             case 7:
-                setState(UPDATE_COMPONENT_TYPE);
+                showRoleConnections = !showRoleConnections;
+                setLog(LogStatus.SUCCESS, getString("roleconnectionsset"));
                 return true;
 
             case 8:
+                setState(UPDATE_COMPONENT_TYPE);
+                return true;
+
+            case 9:
                 showRoleNumbers = !showRoleNumbers;
                 setLog(LogStatus.SUCCESS, getString("rolenumbersset"));
                 return true;
 
-            case 9:
+            case 10:
                 TextChannel textChannel = atomicTextChannel.get().orElse(null);
                 String error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, newComponents);
                 if (error != null) {
@@ -392,7 +398,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 setState(EXAMPLE);
                 return true;
 
-            case 10:
+            case 11:
                 textChannel = atomicTextChannel.get().orElse(null);
                 error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, newComponents);
                 if (error != null) {
@@ -400,7 +406,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                     return true;
                 }
                 ReactionRoles.sendMessage(getLocale(), textChannel, title, description, slots, removeRole,
-                        multipleRoles, newComponents, showRoleNumbers, banner, editMode, editMessageId
+                        multipleRoles, showRoleConnections, newComponents, showRoleNumbers, banner, editMode, editMessageId
                 ).get(5, TimeUnit.SECONDS);
 
                 setState(SENT);
@@ -544,7 +550,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         );
 
         TextChannel textChannel = getTextChannel().get();
-        String linkString = ReactionRoles.generateLinkString(slots);
+        String linkString = ReactionRoles.generateSlotOverview(slots);
         return EmbedFactory.getEmbedDefault(this, getString("state3_description", StringUtil.numToString(MAX_NEW_COMPONENTS_MESSAGES), ExternalLinks.PREMIUM_WEBSITE), getString("state3_title_" + (editMode ? "edit" : "new")))
                 .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(Optional.ofNullable(title).orElse(notSet)), true)
                 .addField(getString("state3_mdescription"), StringUtil.shortenString(StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), SLOTS_TEXT_LENGTH_MAX), true)
@@ -554,6 +560,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                                 newComponents == ReactionRoleMessage.ComponentType.REACTIONS ? "state3_mproperties_desc" : "state3_mproperties_desc_newcomponents",
                                 StringUtil.getOnOffForBoolean(textChannel, getLocale(), removeRole),
                                 StringUtil.getOnOffForBoolean(textChannel, getLocale(), multipleRoles),
+                                StringUtil.getOnOffForBoolean(textChannel, getLocale(), showRoleConnections),
                                 getString("componenttypes", newComponents.ordinal()),
                                 StringUtil.getOnOffForBoolean(textChannel, getLocale(), showRoleNumbers)
                         ), false
@@ -617,7 +624,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     @Draw(state = EXAMPLE)
     public EmbedBuilder onDrawExample(Member member) throws ExecutionException, InterruptedException {
         setActionRows(ReactionRoles.getComponents(getLocale(), member.getGuild(), slots, removeRole, multipleRoles, newComponents, showRoleNumbers));
-        return ReactionRoles.getMessageEmbed(getLocale(), title, description, slots, newComponents, banner);
+        return ReactionRoles.getMessageEmbed(getLocale(), title, description, slots, showRoleConnections, banner);
     }
 
     @Draw(state = SENT)
@@ -917,6 +924,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         this.banner = message.getImage();
         this.multipleRoles = message.getMultipleRoles();
         this.removeRole = message.getRoleRemoval();
+        this.showRoleConnections = message.getShowRoleConnections();
         this.newComponents = message.getNewComponents();
         this.showRoleNumbers = message.getShowRoleNumbers();
         this.slots = new ArrayList<>(message.getSlots());

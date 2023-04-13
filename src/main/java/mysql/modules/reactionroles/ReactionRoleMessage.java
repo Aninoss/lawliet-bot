@@ -17,11 +17,12 @@ public class ReactionRoleMessage implements MessageAsset {
     private final boolean multipleRoles;
     private final ComponentType newComponents;
     private final boolean showRoleNumbers;
+    private final boolean showRoleConnections;
     private final List<ReactionRoleMessageSlot> slots;
 
     public ReactionRoleMessage(long guildId, long channelId, long messageId, String title, String desc, String image,
                                boolean roleRemoval, boolean multipleRoles, ComponentType newComponents,
-                               boolean showRoleNumbers, List<ReactionRoleMessageSlot> slots) {
+                               boolean showRoleNumbers, Boolean showRoleConnections, List<ReactionRoleMessageSlot> slots) {
         this.guildId = guildId;
         this.channelId = channelId;
         this.messageId = messageId;
@@ -32,6 +33,9 @@ public class ReactionRoleMessage implements MessageAsset {
         this.multipleRoles = multipleRoles;
         this.newComponents = newComponents;
         this.showRoleNumbers = showRoleNumbers;
+        this.showRoleConnections = showRoleConnections != null
+                ? showRoleConnections
+                : newComponents == ComponentType.REACTIONS;
         this.slots = slots;
     }
 
@@ -76,6 +80,10 @@ public class ReactionRoleMessage implements MessageAsset {
 
     public boolean getShowRoleNumbers() {
         return showRoleNumbers;
+    }
+
+    public boolean getShowRoleConnections() {
+        return showRoleConnections;
     }
 
     public List<ReactionRoleMessageSlot> getSlots() {

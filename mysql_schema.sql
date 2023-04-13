@@ -401,7 +401,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=874 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=875 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -723,6 +723,7 @@ CREATE TABLE `ReactionRolesMessage` (
   `multipleRoles` tinyint NOT NULL,
   `newComponents` tinyint NOT NULL,
   `showRoleNumbers` tinyint NOT NULL,
+  `showRoleConnections` tinyint DEFAULT NULL,
   PRIMARY KEY (`messageId`) USING BTREE,
   KEY `ReactionRolesMessageServerBase` (`serverId`) USING BTREE,
   CONSTRAINT `ReactionRolesMessageServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -1516,4 +1517,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-04-11 13:55:28
+-- Dump completed on 2023-04-13 14:36:58

@@ -113,6 +113,7 @@ public class ReactionRoles {
                 multipleRoles,
                 ReactionRoleMessage.ComponentType.REACTIONS,
                 false,
+                true,
                 slots
         );
 
@@ -120,7 +121,7 @@ public class ReactionRoles {
         return reactionRoleMessage;
     }
 
-    public static String generateLinkString(List<ReactionRoleMessageSlot> slots) {
+    public static String generateSlotOverview(List<ReactionRoleMessageSlot> slots) {
         StringBuilder link = new StringBuilder();
         for (ReactionRoleMessageSlot slot : slots) {
             if (slot.getEmoji() != null) {
@@ -139,8 +140,8 @@ public class ReactionRoles {
     }
 
     public static EmbedBuilder getMessageEmbed(Locale locale, String title, String description,
-                                               List<ReactionRoleMessageSlot> slots,
-                                               ReactionRoleMessage.ComponentType newComponents, String banner
+                                               List<ReactionRoleMessageSlot> slots, boolean showRoleConnections,
+                                               String banner
     ) {
         String newTitle = title != null && !title.isEmpty() ? title : TextManager.getString(locale, Category.UTILITY, "reactionroles_title");
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
@@ -148,9 +149,9 @@ public class ReactionRoles {
                 .setDescription(description)
                 .setImage(banner == null || banner.isBlank() ? null : banner);
 
-        if (newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
-            String linkString = generateLinkString(slots);
-            eb = eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), linkString, false);
+        if (showRoleConnections) {
+            String linkString = generateSlotOverview(slots);
+            eb = eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), StringUtil.shortenString(linkString, ReactionRolesCommand.SLOTS_TEXT_LENGTH_MAX), false);
         }
 
         return eb;
@@ -260,9 +261,6 @@ public class ReactionRoles {
                     }
                 }
             }
-            if (generateLinkString(slots).length() > ReactionRolesCommand.SLOTS_TEXT_LENGTH_MAX) {
-                return TextManager.getString(locale, Category.UTILITY, "reactionroles_shortcutstoolong");
-            }
             if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION)) {
                 return TextManager.getString(locale, TextManager.GENERAL, "permission_channel_reactions", "#" + StringUtil.escapeMarkdownInField(channel.getName()));
             }
@@ -295,14 +293,14 @@ public class ReactionRoles {
 
     public static CompletableFuture<Void> sendMessage(Locale locale, TextChannel channel, String title, String description,
                                                       List<ReactionRoleMessageSlot> slots, boolean removeRole,
-                                                      boolean multipleRoles,
+                                                      boolean multipleRoles, boolean showRoleConnections,
                                                       ReactionRoleMessage.ComponentType newComponents,
                                                       boolean showRoleNumbers, String banner, boolean editMode,
                                                       long editMessageId
     ) throws ExecutionException, InterruptedException {
         CompletableFuture<Void> future = new CompletableFuture<>();
         if (!editMode) {
-            EmbedBuilder eb = getMessageEmbed(locale, title, description, slots, newComponents, banner);
+            EmbedBuilder eb = getMessageEmbed(locale, title, description, slots, showRoleConnections, banner);
             Message message = channel.sendMessageEmbeds(eb.build())
                     .setComponents(getComponents(locale, channel.getGuild(), slots, removeRole, multipleRoles, newComponents, showRoleNumbers))
                     .complete();
@@ -318,6 +316,7 @@ public class ReactionRoles {
                     multipleRoles,
                     newComponents,
                     showRoleNumbers,
+                    showRoleConnections,
                     slots
             );
             Runnable runAfterSave = () -> {
@@ -353,10 +352,11 @@ public class ReactionRoles {
                     multipleRoles,
                     newComponents,
                     showRoleNumbers,
+                    showRoleConnections,
                     slots
             );
 
-            EmbedBuilder eb = getMessageEmbed(locale, title, description, slots, newComponents, banner);
+            EmbedBuilder eb = getMessageEmbed(locale, title, description, slots, showRoleConnections, banner);
             Message message = channel.editMessageEmbedsById(editMessageId, eb.build())
                     .setComponents(getComponents(locale, channel.getGuild(), slots, removeRole, multipleRoles, newComponents, showRoleNumbers))
                     .complete();

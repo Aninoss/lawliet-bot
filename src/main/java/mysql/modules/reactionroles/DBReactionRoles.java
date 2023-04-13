@@ -25,12 +25,16 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
 
     @Override
     protected CustomObservableMap<Long, ReactionRoleMessage> load(Long serverId) throws Exception {
-        Map<Long, ReactionRoleMessage> reactionRolesMessageMap = new DBDataLoad<ReactionRoleMessage>("ReactionRolesMessage", "channelId, messageId, title, `desc`, image, roleRemoval, multipleRoles, newComponents, showRoleNumbers", "serverId = ?",
+        Map<Long, ReactionRoleMessage> reactionRolesMessageMap = new DBDataLoad<ReactionRoleMessage>("ReactionRolesMessage", "channelId, messageId, title, `desc`, image, roleRemoval, multipleRoles, newComponents, showRoleNumbers, showRoleConnections", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getMap(
                 ReactionRoleMessage::getMessageId,
                 resultSet -> {
                     long messageId = resultSet.getLong(2);
+                    Boolean showRoleConnections = resultSet.getBoolean(10);
+                    if (resultSet.wasNull()) {
+                        showRoleConnections = null;
+                    }
                     return new ReactionRoleMessage(
                             serverId,
                             resultSet.getLong(1),
@@ -42,6 +46,7 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
                             resultSet.getBoolean(7),
                             ReactionRoleMessage.ComponentType.values()[resultSet.getInt(8)],
                             resultSet.getBoolean(9),
+                            showRoleConnections,
                             getReactionRoleMessageSlots(serverId, messageId)
                     );
                 }
@@ -69,7 +74,7 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
     }
 
     private void addReactionRoleMessage(ReactionRoleMessage reactionRoleMessage) {
-        MySQLManager.asyncUpdate("REPLACE INTO ReactionRolesMessage (serverId, channelId, messageId, title, `desc`, image, roleRemoval, multipleRoles, newComponents, showRoleNumbers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO ReactionRolesMessage (serverId, channelId, messageId, title, `desc`, image, roleRemoval, multipleRoles, newComponents, showRoleNumbers, showRoleConnections) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, reactionRoleMessage.getGuildId());
             preparedStatement.setLong(2, reactionRoleMessage.getStandardGuildMessageChannelId());
             preparedStatement.setLong(3, reactionRoleMessage.getMessageId());
@@ -96,6 +101,7 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
             preparedStatement.setBoolean(8, reactionRoleMessage.getMultipleRoles());
             preparedStatement.setInt(9, reactionRoleMessage.getNewComponents().ordinal());
             preparedStatement.setBoolean(10, reactionRoleMessage.getShowRoleNumbers());
+            preparedStatement.setBoolean(11, reactionRoleMessage.getShowRoleConnections());
         });
 
         try {

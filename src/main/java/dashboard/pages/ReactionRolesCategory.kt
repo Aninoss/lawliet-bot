@@ -50,6 +50,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
     var desc = ""
     var roleRemovement = true
     var multipleRoles = true
+    var showRoleConnections = true
     var newComponents = ComponentType.REACTIONS
     var showRoleNumbers = false
     var image: String? = null
@@ -195,6 +196,14 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
         multipleRolesSwitch.isChecked = multipleRoles
         container.add(multipleRolesSwitch, DashboardSeparator())
 
+        val roleConnectionsSwitch = DashboardSwitch(getString(Category.UTILITY, "reactionroles_state3_mshowroleconnections")) {
+            showRoleConnections = it.data
+            ActionResult()
+        }
+        roleConnectionsSwitch.subtitle = getString(Category.UTILITY, "reactionroles_dashboard_showroleconnections_help")
+        roleConnectionsSwitch.isChecked = showRoleConnections
+        container.add(roleConnectionsSwitch, DashboardSeparator())
+
         val componentsEntities =
             ComponentType.values().mapIndexed { i, type -> DiscordEntity(i.toString(), getString(Category.UTILITY, "reactionroles_componenttypes", i)) }
         val newComponentsComboBox =
@@ -271,8 +280,8 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
 
             val guildLocale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
             ReactionRoles.sendMessage(
-                guildLocale, textChannel, title, desc, convertedSlots, roleRemovement, multipleRoles, newComponents, showRoleNumbers,
-                image, editMode, messageId ?: 0L
+                guildLocale, textChannel, title, desc, convertedSlots, roleRemovement, multipleRoles, showRoleConnections, newComponents,
+                showRoleNumbers, image, editMode, messageId ?: 0L
             ).get(5, TimeUnit.SECONDS)
 
             if (editMode) {
@@ -370,6 +379,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
             desc = ""
             roleRemovement = true
             multipleRoles = true
+            showRoleConnections = true
             newComponents = ComponentType.REACTIONS
             showRoleNumbers = false
             image = null
@@ -386,6 +396,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
         this.desc = reactionRoleMessage.desc ?: ""
         this.roleRemovement = reactionRoleMessage.roleRemoval
         this.multipleRoles = reactionRoleMessage.multipleRoles
+        this.showRoleConnections = reactionRoleMessage.showRoleConnections
         this.newComponents = reactionRoleMessage.newComponents
         this.showRoleNumbers = reactionRoleMessage.showRoleNumbers
         this.image = reactionRoleMessage.image ?: ""
