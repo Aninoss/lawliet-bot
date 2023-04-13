@@ -7,8 +7,6 @@ import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 
 public interface Emojis {
 
-    // TODO: check
-
     UnicodeEmoji CHECKMARK = Emoji.fromUnicode("✅");
     UnicodeEmoji X = Emoji.fromUnicode("❌");
     UnicodeEmoji LIKE = Emoji.fromUnicode("👍");
