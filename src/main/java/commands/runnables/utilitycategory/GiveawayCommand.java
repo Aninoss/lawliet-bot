@@ -513,7 +513,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             setState(CONFIGURE_MESSAGE);
             return true;
         } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown", emoji.getName()));
             return false;
         }
     }

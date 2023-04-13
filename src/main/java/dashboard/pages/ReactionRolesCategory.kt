@@ -340,7 +340,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
             }
             if (emoji != null && emoji is CustomEmoji && !ShardManager.customEmojiIsKnown(emoji)) {
                 return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown"))
+                    .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown", emoji.name))
             }
             if (slots.size >= ReactionRolesCommand.MAX_SLOTS_TOTAL) {
                 return@DashboardButton ActionResult()

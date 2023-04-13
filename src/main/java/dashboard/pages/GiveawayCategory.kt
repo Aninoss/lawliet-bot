@@ -232,7 +232,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardC
                 } else {
                     ActionResult()
                         .withRedraw()
-                        .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown"))
+                        .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown", emoji.name))
                 }
             }
         }

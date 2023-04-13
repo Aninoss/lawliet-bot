@@ -218,7 +218,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             this.emojiTemp = emoji;
             return true;
         } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown"));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "emojiunknown", emoji.getName()));
             return false;
         }
     }

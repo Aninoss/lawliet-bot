@@ -283,6 +283,13 @@ public class ReactionRoles {
             }
         }
 
+        for (ReactionRoleMessageSlot slot : slots) {
+            Emoji emoji = slot.getEmoji();
+            if (emoji instanceof CustomEmoji && !ShardManager.customEmojiIsKnown((CustomEmoji) emoji)) {
+                return TextManager.getString(locale, TextManager.GENERAL, "emojiunknown", emoji.getName());
+            }
+        }
+
         return null;
     }
 
