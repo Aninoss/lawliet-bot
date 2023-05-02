@@ -26,7 +26,9 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.attribute.IPositionableChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -185,11 +187,14 @@ public class ReactionRoles {
                 ArrayList<Button> buttons = new ArrayList<>();
                 for (int i = 0; i < slots.size(); i++) {
                     ReactionRoleMessageSlot slot = slots.get(i);
+                    Emoji emoji = slot.getEmoji();
                     String roleNumberString = showRoleNumbers ? roleNumbers.get(i) : "";
                     AtomicRole atomicRole = new AtomicRole(slot.getGuildId(), slot.getRoleId());
                     Button button = Button.of(ButtonStyle.PRIMARY, String.valueOf(i), StringUtil.shortenString(atomicRole.getName(), Button.LABEL_MAX_LENGTH - roleNumberString.length()) + roleNumberString);
-                    if (slot.getEmoji() != null) {
-                        button = button.withEmoji(slot.getEmoji());
+                    if (emoji != null &&
+                            (emoji instanceof UnicodeEmoji || ShardManager.customEmojiIsKnown((CustomEmoji) emoji))
+                    ) {
+                        button = button.withEmoji(emoji);
                     }
                     buttons.add(button);
                 }
@@ -208,11 +213,14 @@ public class ReactionRoles {
 
                 for (int i = 0; i < slots.size(); i++) {
                     ReactionRoleMessageSlot slot = slots.get(i);
+                    Emoji emoji = slot.getEmoji();
                     String roleNumberString = showRoleNumbers ? roleNumbers.get(i) : "";
                     AtomicRole atomicRole = new AtomicRole(slot.getGuildId(), slot.getRoleId());
                     SelectOption option = SelectOption.of(StringUtil.shortenString(atomicRole.getName(), SelectOption.LABEL_MAX_LENGTH - roleNumberString.length()) + roleNumberString, String.valueOf(i));
-                    if (slot.getEmoji() != null) {
-                        option = option.withEmoji(slot.getEmoji());
+                    if (emoji != null &&
+                            (emoji instanceof UnicodeEmoji || ShardManager.customEmojiIsKnown((CustomEmoji) emoji))
+                    ) {
+                        option = option.withEmoji(emoji);
                     }
                     builder.addOptions(option);
                 }

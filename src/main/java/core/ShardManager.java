@@ -365,7 +365,7 @@ public class ShardManager {
 
     public static Optional<String> getEmoteById(long emojiId) {
         Optional<String> emojiOptional = getLocalCustomEmojiById(emojiId).map(CustomEmoji::getAsMention);
-        if (!Program.publicVersion()) {
+        if (!Program.publicVersion() || !Program.productionMode()) {
             return emojiOptional;
         }
 
