@@ -193,10 +193,10 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
 
     private EmbedBuilder generateOptionsEmbed(String imageUrl) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
-                .addField(getString("textprompt_title"), "```" + StringUtil.escapeMarkdownInField(prompt) + "```", false);
+                .addField(getString("textprompt_title"), "```" + StringUtil.shortenString(StringUtil.escapeMarkdownInField(prompt), 1024) + "```", false);
 
         if (!negativePrompt.isEmpty()) {
-            eb.addField(getString("negativeprompt_title"), "```" + StringUtil.escapeMarkdownInField(negativePrompt) + "```", false);
+            eb.addField(getString("negativeprompt_title"), "```" + StringUtil.shortenString(StringUtil.escapeMarkdownInField(negativePrompt), 1024) + "```", false);
         }
 
         if (imageUrl != null) {
