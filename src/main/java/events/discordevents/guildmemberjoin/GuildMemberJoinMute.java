@@ -5,11 +5,13 @@ import java.time.Instant;
 import java.util.Locale;
 import commands.Command;
 import commands.runnables.moderationcategory.MuteCommand;
+import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.servermute.ServerMuteData;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
 @DiscordEvent(allowBots = true, allowBannedUser = true)
@@ -30,9 +32,11 @@ public class GuildMemberJoinMute extends GuildMemberJoinAbstract {
             if (expiration.isAfter(expirationMax)) {
                 expiration = expirationMax;
             }
-            event.getMember().timeoutUntil(expiration)
-                    .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())
-                    .queue();
+            if (!BotPermissionUtil.can(event.getMember(), Permission.ADMINISTRATOR)) {
+                event.getMember().timeoutUntil(expiration)
+                        .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())
+                        .queue();
+            }
         }
         return true;
     }

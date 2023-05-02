@@ -5,11 +5,13 @@ import java.time.Instant;
 import java.util.Optional;
 import core.CustomObservableMap;
 import core.MemberCacheController;
+import core.utils.BotPermissionUtil;
 import modules.schedulers.ServerMuteScheduler;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.servermute.ServerMuteData;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -31,9 +33,11 @@ public class Mute {
             if (rawExpiration == null || rawExpiration.isAfter(expirationMax)) {
                 rawExpiration = expirationMax;
             }
-            member.timeoutUntil(rawExpiration)
-                    .reason(reason)
-                    .queue();
+            if (!BotPermissionUtil.can(member, Permission.ADMINISTRATOR)) {
+                member.timeoutUntil(rawExpiration)
+                        .reason(reason)
+                        .queue();
+            }
         }
     }
 
@@ -44,7 +48,7 @@ public class Mute {
             if (newMethod) {
                 serverMuteMap.remove(target.getIdLong());
                 Member member = MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).join();
-                if (member != null) {
+                if (member != null && !BotPermissionUtil.can(member, Permission.ADMINISTRATOR)) {
                     member.removeTimeout()
                             .reason(reason)
                             .queue();

@@ -13,9 +13,11 @@ import core.GlobalThreadPool;
 import core.MainLogger;
 import core.MemberCacheController;
 import core.Program;
+import core.utils.BotPermissionUtil;
 import events.scheduleevents.ScheduleEventDaily;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.servermute.DBServerMute;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 
 @ScheduleEventDaily
@@ -53,9 +55,11 @@ public class MuteRefresh implements ExceptionRunnable {
                                 if (expiration.isAfter(timeOutEnd)) {
                                     Thread.sleep(2000 + r.nextInt(3000));
                                     counter.incrementAndGet();
-                                    member.timeoutUntil(expiration)
-                                            .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())
-                                            .complete();
+                                    if (!BotPermissionUtil.can(member, Permission.ADMINISTRATOR)) {
+                                        member.timeoutUntil(expiration)
+                                                .reason(Command.getCommandLanguage(MuteCommand.class, locale).getTitle())
+                                                .complete();
+                                    }
                                 }
                             }
                         } catch (Throwable e) {

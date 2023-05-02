@@ -5,8 +5,10 @@ import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
+import core.MemberCacheController;
 import core.mention.Mention;
 import core.mention.MentionValue;
+import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.Mute;
@@ -51,6 +53,13 @@ public class MuteCommand extends WarnCommand {
         } else {
             return super.setUserListAndReason(event, args);
         }
+    }
+
+    @Override
+    protected boolean canProcessBot(Guild guild, User target) {
+        Member memberTarget = MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).join();
+        return BotPermissionUtil.canInteract(guild, target) &&
+                (memberTarget == null || !BotPermissionUtil.can(memberTarget, Permission.ADMINISTRATOR));
     }
 
     @Override
