@@ -439,7 +439,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @ControllerButton(state = ADD_SLOT)
     public boolean onButtonAddSlot(ButtonInteractionEvent event, int i) {
-        if (i == 0 && roleTemp != null) {
+        if (i == 0) {
+            emojiTemp = null;
+            return true;
+        }
+
+        if (i == 1 && roleTemp != null) {
             slots.add(new ReactionRoleMessageSlot(event.getGuild().getIdLong(), emojiTemp, roleTemp.getIdLong()));
             setState(CONFIGURE_MESSAGE);
             setLog(LogStatus.SUCCESS, getString("linkadded"));
@@ -586,9 +591,14 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     @Draw(state = ADD_SLOT)
     public EmbedBuilder onDrawAddSlot(Member member) {
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
+
+        ArrayList<String> options = new ArrayList<>();
+        options.add(getString("state6_clearemoji"));
         if (roleTemp != null) {
-            setComponents(getString("state6_options"));
+            options.add(getString("state6_add"));
         }
+
+        setComponents(options.toArray(new String[0]));
         return EmbedFactory.getEmbedDefault(this, getString("state6_description", Optional.ofNullable(emojiTemp).map(Emoji::getFormatted).orElse(notSet), Optional.ofNullable(roleTemp).map(MentionableAtomicAsset::getPrefixedNameInField).orElse(notSet)), getString("state6_title"));
     }
 
