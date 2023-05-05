@@ -2,7 +2,6 @@ package dashboard.components
 
 import commands.Command
 import commands.CommandManager
-import core.CustomObservableList
 import core.MemberCacheController
 import core.ShardManager
 import core.TextManager
@@ -18,7 +17,7 @@ import net.dv8tion.jda.api.entities.Role
 import java.util.*
 import kotlin.reflect.KClass
 
-class DashboardMultiRolesComboBox(label: String, locale: Locale, guildId: Long, val memberId: Long, val selectedRoles: CustomObservableList<Long>,
+class DashboardMultiRolesComboBox(label: String, locale: Locale, guildId: Long, val memberId: Long, val selectedRoles: MutableList<Long>,
                                   canBeEmpty: Boolean,
                                   max: Int, checkManageable: Boolean, commandAccessRequirement: KClass<out Command>? = null
 ) : DashboardComboBox(label, DataType.ROLES, canBeEmpty, max) {

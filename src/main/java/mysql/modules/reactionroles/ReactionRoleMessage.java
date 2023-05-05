@@ -2,6 +2,7 @@ package mysql.modules.reactionroles;
 
 import java.util.List;
 import core.assets.MessageAsset;
+import core.atomicassets.AtomicRole;
 
 public class ReactionRoleMessage implements MessageAsset {
 
@@ -19,10 +20,12 @@ public class ReactionRoleMessage implements MessageAsset {
     private final boolean showRoleNumbers;
     private final boolean showRoleConnections;
     private final List<ReactionRoleMessageSlot> slots;
+    private final List<AtomicRole> roleRequirements;
 
     public ReactionRoleMessage(long guildId, long channelId, long messageId, String title, String desc, String image,
                                boolean roleRemoval, boolean multipleRoles, ComponentType newComponents,
-                               boolean showRoleNumbers, Boolean showRoleConnections, List<ReactionRoleMessageSlot> slots) {
+                               boolean showRoleNumbers, Boolean showRoleConnections, List<ReactionRoleMessageSlot> slots,
+                               List<AtomicRole> roleRequirements) {
         this.guildId = guildId;
         this.channelId = channelId;
         this.messageId = messageId;
@@ -37,6 +40,7 @@ public class ReactionRoleMessage implements MessageAsset {
                 ? showRoleConnections
                 : newComponents == ComponentType.REACTIONS;
         this.slots = slots;
+        this.roleRequirements = roleRequirements;
     }
 
     @Override
@@ -88,6 +92,10 @@ public class ReactionRoleMessage implements MessageAsset {
 
     public List<ReactionRoleMessageSlot> getSlots() {
         return slots;
+    }
+
+    public List<AtomicRole> getRoleRequirements() {
+        return roleRequirements;
     }
 
 }

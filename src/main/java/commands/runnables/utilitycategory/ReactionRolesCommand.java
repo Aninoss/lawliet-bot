@@ -10,8 +10,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
 import commands.CommandEvent;
+import commands.NavigationHelper;
 import commands.listeners.*;
 import commands.runnables.NavigationAbstract;
+import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
 import core.*;
@@ -19,6 +21,7 @@ import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
 import core.cache.MessageCache;
+import core.cache.ServerPatreonBoostCache;
 import core.utils.*;
 import modules.ReactionRoles;
 import mysql.modules.reactionroles.ReactionRoleMessage;
@@ -65,6 +68,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public static final int MAX_BUTTON_SLOTS = 25;
     public static final int MAX_SLOTS_TOTAL = MAX_BUTTON_SLOTS;
     public static final int MAX_NEW_COMPONENTS_MESSAGES = 3;
+    public static final int MAX_ROLE_REQUIREMENTS = 50;
 
     private final static int
             ADD_OR_EDIT = 0,
@@ -76,13 +80,21 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             UPDATE_IMAGE = 10,
             ADD_SLOT = 6,
             REMOVE_SLOT = 7,
+            ADD_ROLE_REQUIREMENT = 12,
+            REMOVE_ROLE_REQUIREMENT = 13,
             UPDATE_COMPONENT_TYPE = 11,
             EXAMPLE = 8,
             SENT = 9;
 
+    private static final Cache<Long, Boolean> USER_DM_CACHE = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofSeconds(30))
+            .build();
+
     private String title;
     private String description;
     private List<ReactionRoleMessageSlot> slots = new ArrayList<>();
+    private List<AtomicRole> roleRequirements = new ArrayList<>();
+    private NavigationHelper<AtomicRole> roleRequirementsNavigationHelper = new NavigationHelper<>(this, roleRequirements, AtomicRole.class, MAX_ROLE_REQUIREMENTS, false);
     private Emoji emojiTemp;
     private String banner;
     private AtomicRole roleTemp;
@@ -214,6 +226,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         return MessageInputResponse.FAILED;
     }
 
+    @ControllerMessage(state = ADD_ROLE_REQUIREMENT)
+    public MessageInputResponse onMessageAddRoleRequirement(MessageReceivedEvent event, String input) {
+        List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
+        return roleRequirementsNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), CONFIGURE_MESSAGE);
+    }
+
     private boolean processEmoji(Emoji emoji) {
         if (emoji instanceof UnicodeEmoji || ShardManager.customEmojiIsKnown((CustomEmoji) emoji)) {
             this.emojiTemp = emoji;
@@ -319,7 +337,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @ControllerButton(state = CONFIGURE_MESSAGE)
     public boolean onButtonConfigureMessage(ButtonInteractionEvent event, int i) throws ExecutionException, InterruptedException, TimeoutException {
-        if (i >= 9 && newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
+        if (i >= 11 && newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
             i++;
         }
 
@@ -364,32 +382,40 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
 
             case 5:
+                roleRequirementsNavigationHelper.startDataAdd(ADD_ROLE_REQUIREMENT);
+                return true;
+
+            case 6:
+                roleRequirementsNavigationHelper.startDataRemove(REMOVE_ROLE_REQUIREMENT);
+                return true;
+
+            case 7:
                 removeRole = !removeRole;
                 setLog(LogStatus.SUCCESS, getString("roleremoveset"));
                 return true;
 
-            case 6:
+            case 8:
                 multipleRoles = !multipleRoles;
                 setLog(LogStatus.SUCCESS, getString("multiplerolesset"));
                 return true;
 
-            case 7:
+            case 9:
                 showRoleConnections = !showRoleConnections;
                 setLog(LogStatus.SUCCESS, getString("roleconnectionsset"));
                 return true;
 
-            case 8:
+            case 10:
                 setState(UPDATE_COMPONENT_TYPE);
                 return true;
 
-            case 9:
+            case 11:
                 showRoleNumbers = !showRoleNumbers;
                 setLog(LogStatus.SUCCESS, getString("rolenumbersset"));
                 return true;
 
-            case 10:
+            case 12:
                 TextChannel textChannel = atomicTextChannel.get().orElse(null);
-                String error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, newComponents);
+                String error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, roleRequirements, newComponents);
                 if (error != null) {
                     setLog(LogStatus.FAILURE, error);
                     return true;
@@ -398,14 +424,14 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 setState(EXAMPLE);
                 return true;
 
-            case 11:
+            case 13:
                 textChannel = atomicTextChannel.get().orElse(null);
-                error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, newComponents);
+                error = ReactionRoles.checkForErrors(getLocale(), textChannel, slots, roleRequirements, newComponents);
                 if (error != null) {
                     setLog(LogStatus.FAILURE, error);
                     return true;
                 }
-                ReactionRoles.sendMessage(getLocale(), textChannel, title, description, slots, removeRole,
+                ReactionRoles.sendMessage(getLocale(), textChannel, title, description, slots, roleRequirements, removeRole,
                         multipleRoles, showRoleConnections, newComponents, showRoleNumbers, banner, editMode, editMessageId
                 ).get(5, TimeUnit.SECONDS);
 
@@ -503,6 +529,20 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         return false;
     }
 
+    @ControllerButton(state = ADD_ROLE_REQUIREMENT)
+    public boolean onButtonAddRoleRequirement(ButtonInteractionEvent event, int i) {
+        if (i == -1) {
+            setState(CONFIGURE_MESSAGE);
+            return true;
+        }
+        return false;
+    }
+
+    @ControllerButton(state = REMOVE_ROLE_REQUIREMENT)
+    public boolean onButtonRemoveRoleRequirement(ButtonInteractionEvent event, int i) {
+        return roleRequirementsNavigationHelper.removeData(i, CONFIGURE_MESSAGE);
+    }
+
     @ControllerButton(state = SENT)
     public boolean onButtonSent(ButtonInteractionEvent event, int i) {
         return false;
@@ -560,7 +600,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(Optional.ofNullable(title).orElse(notSet)), true)
                 .addField(getString("state3_mdescription"), StringUtil.shortenString(StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), SLOTS_TEXT_LENGTH_MAX), true)
                 .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), banner != null), true)
-                .addField(getString("state3_mshortcuts"), StringUtil.shortenString(Optional.ofNullable(linkString).orElse(notSet), SLOTS_TEXT_LENGTH_MAX), false)
+                .addField(getString("state3_mshortcuts"), StringUtil.shortenString(Optional.ofNullable(linkString).orElse(notSet), SLOTS_TEXT_LENGTH_MAX), true)
+                .addField(getString("state3_mrolerequirements") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), new ListGen<AtomicRole>().getList(roleRequirements, getLocale(), MentionableAtomicAsset::getPrefixedNameInField), true)
                 .addField(getString("state3_mproperties"), getString(
                                 newComponents == ReactionRoleMessage.ComponentType.REACTIONS ? "state3_mproperties_desc" : "state3_mproperties_desc_newcomponents",
                                 StringUtil.getOnOffForBoolean(textChannel, getLocale(), removeRole),
@@ -620,6 +661,16 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         return EmbedFactory.getEmbedDefault(this, getString("state7_description"), getString("state7_title"));
     }
 
+    @Draw(state = ADD_ROLE_REQUIREMENT)
+    public EmbedBuilder onDrawAddRoleRequirement(Member member) {
+        return roleRequirementsNavigationHelper.drawDataAdd(getString("state12_title"), getString("state12_description", ExternalLinks.PREMIUM_WEBSITE));
+    }
+
+    @Draw(state = REMOVE_ROLE_REQUIREMENT)
+    public EmbedBuilder onDrawRemoveRoleRequirement(Member member) {
+        return roleRequirementsNavigationHelper.drawDataRemove(getString("state13_title"));
+    }
+
     @Draw(state = UPDATE_COMPONENT_TYPE)
     public EmbedBuilder onDrawUpdateComponentType(Member member) {
         String[] options = new String[3];
@@ -634,7 +685,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     @Draw(state = EXAMPLE)
     public EmbedBuilder onDrawExample(Member member) throws ExecutionException, InterruptedException {
         setActionRows(ReactionRoles.getComponents(getLocale(), member.getGuild(), slots, removeRole, multipleRoles, newComponents, showRoleNumbers));
-        return ReactionRoles.getMessageEmbed(getLocale(), title, description, slots, showRoleConnections, banner);
+        return ReactionRoles.getMessageEmbed(getLocale(), title, description, slots, roleRequirements, showRoleConnections, banner);
     }
 
     @Draw(state = SENT)
@@ -652,7 +703,18 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(message.getGuildChannel().asStandardGuildMessageChannel(), message.getIdLong());
         if (reactionRoleMessage == null ||
                 reactionRoleMessage.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS ||
-                blockCache.asMap().containsKey(member.getIdLong())) {
+                blockCache.asMap().containsKey(member.getIdLong())
+        ) {
+            return;
+        }
+
+        if (!reactionRoleMessage.getRoleRequirements().isEmpty() && !ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+            sendUserErrorDm(event.getMember(), getString("components_result_nopro"));
+            return;
+        }
+
+        if (violatesRoleRequirements(reactionRoleMessage, event.getMember())) {
+            sendUserErrorDm(event.getMember(), getString("components_result_rolerequirements"));
             return;
         }
 
@@ -661,6 +723,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 if (!reactionRoleMessage.getMultipleRoles()) {
                     blockCache.put(member.getIdLong(), true);
                     if (removeMultipleRoles(event.getMember(), reactionRoleMessage, new ArrayList<>(), new ArrayList<>())) {
+                        sendUserErrorDm(event.getMember(), getString("components_result_noremoval"));
                         return;
                     }
                 }
@@ -669,6 +732,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                     if (EmojiUtil.equals(event.getEmoji(), slot.getEmoji())) {
                         Role role = event.getGuild().getRoleById(slot.getRoleId());
                         if (role == null) {
+                            sendUserErrorDm(event.getMember(), getString("components_result_norole"));
                             return;
                         }
 
@@ -692,9 +756,23 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
         ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(message.getGuildChannel().asStandardGuildMessageChannel(), message.getIdLong());
         if (reactionRoleMessage == null ||
-                reactionRoleMessage.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS ||
-                !reactionRoleMessage.getRoleRemoval()
+                reactionRoleMessage.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS
         ) {
+            return;
+        }
+
+        if (!reactionRoleMessage.getRoleRemoval()) {
+            sendUserErrorDm(event.getMember(), getString("components_result_noremoval"));
+            return;
+        }
+
+        if (!reactionRoleMessage.getRoleRequirements().isEmpty() && !ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+            sendUserErrorDm(event.getMember(), getString("components_result_nopro"));
+            return;
+        }
+
+        if (violatesRoleRequirements(reactionRoleMessage, event.getMember())) {
+            sendUserErrorDm(event.getMember(), getString("components_result_rolerequirements"));
             return;
         }
 
@@ -702,6 +780,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             if (EmojiUtil.equals(event.getEmoji(), slot.getEmoji())) {
                 Role role = event.getGuild().getRoleById(slot.getRoleId());
                 if (role == null) {
+                    sendUserErrorDm(event.getMember(), getString("components_result_norole"));
                     return;
                 }
 
@@ -722,6 +801,20 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         if (reactionRoleMessage == null ||
                 blockCache.asMap().containsKey(member.getIdLong())
         ) {
+            return;
+        }
+
+        if (!reactionRoleMessage.getRoleRequirements().isEmpty() && !ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+            event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_nopro")).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        if (violatesRoleRequirements(reactionRoleMessage, member)) {
+            event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_rolerequirements")).build())
+                    .setEphemeral(true)
+                    .queue();
             return;
         }
 
@@ -827,6 +920,20 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         if (reactionRoleMessage == null ||
                 blockCache.asMap().containsKey(member.getIdLong())
         ) {
+            return;
+        }
+
+        if (!reactionRoleMessage.getRoleRequirements().isEmpty() && !ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+            event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_nopro")).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        if (violatesRoleRequirements(reactionRoleMessage, member)) {
+            event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_rolerequirements")).build())
+                    .setEphemeral(true)
+                    .queue();
             return;
         }
 
@@ -938,6 +1045,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         this.newComponents = message.getNewComponents();
         this.showRoleNumbers = message.getShowRoleNumbers();
         this.slots = new ArrayList<>(message.getSlots());
+        this.roleRequirements = new ArrayList<>(message.getRoleRequirements());
+        this.roleRequirementsNavigationHelper = new NavigationHelper<>(this, roleRequirements, AtomicRole.class, MAX_ROLE_REQUIREMENTS, false);
         this.atomicTextChannel = new AtomicTextChannel(message.getGuildId(), message.getStandardGuildMessageChannelId());
     }
 
@@ -1000,6 +1109,21 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         }
 
         return eb;
+    }
+
+    private void sendUserErrorDm(Member member, String message) {
+        if (USER_DM_CACHE.getIfPresent(member.getIdLong()) == null) {
+            USER_DM_CACHE.put(member.getIdLong(), true);
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, message);
+            JDAUtil.openPrivateChannel(member)
+                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                    .queue();
+        }
+    }
+
+    private boolean violatesRoleRequirements(ReactionRoleMessage reactionRoleMessage, Member member) {
+        return !reactionRoleMessage.getRoleRequirements().isEmpty() &&
+                reactionRoleMessage.getRoleRequirements().stream().noneMatch(atomicRole -> member.getRoles().stream().anyMatch(r -> r.getIdLong() == atomicRole.getIdLong()));
     }
 
 }

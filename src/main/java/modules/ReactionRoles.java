@@ -10,6 +10,7 @@ import commands.runnables.utilitycategory.ReactionRolesCommand;
 import constants.Emojis;
 import core.*;
 import core.atomicassets.AtomicRole;
+import core.atomicassets.MentionableAtomicAsset;
 import core.cache.ServerPatreonBoostCache;
 import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
@@ -114,7 +115,8 @@ public class ReactionRoles {
                 ReactionRoleMessage.ComponentType.REACTIONS,
                 false,
                 true,
-                slots
+                slots,
+                Collections.emptyList()
         );
 
         reactionRolesMap.put(messageId, reactionRoleMessage);
@@ -140,8 +142,8 @@ public class ReactionRoles {
     }
 
     public static EmbedBuilder getMessageEmbed(Locale locale, String title, String description,
-                                               List<ReactionRoleMessageSlot> slots, boolean showRoleConnections,
-                                               String banner
+                                               List<ReactionRoleMessageSlot> slots, List<AtomicRole> roleRequirements,
+                                               boolean showRoleConnections, String banner
     ) {
         String newTitle = title != null && !title.isEmpty() ? title : TextManager.getString(locale, Category.UTILITY, "reactionroles_title");
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
@@ -151,7 +153,15 @@ public class ReactionRoles {
 
         if (showRoleConnections) {
             String linkString = generateSlotOverview(slots);
-            eb = eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), StringUtil.shortenString(linkString, ReactionRolesCommand.SLOTS_TEXT_LENGTH_MAX), false);
+            eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), StringUtil.shortenString(linkString, ReactionRolesCommand.SLOTS_TEXT_LENGTH_MAX), true);
+        }
+
+        if (!roleRequirements.isEmpty()) {
+            eb.addField(
+                    TextManager.getString(locale, Category.UTILITY, "reactionroles_state3_mrolerequirements"),
+                    new ListGen<AtomicRole>().getList(roleRequirements, locale, MentionableAtomicAsset::getPrefixedNameInField),
+                    true
+            );
         }
 
         return eb;
@@ -239,10 +249,14 @@ public class ReactionRoles {
     }
 
     public static String checkForErrors(Locale locale, TextChannel channel, List<ReactionRoleMessageSlot> slots,
-                                        ReactionRoleMessage.ComponentType newComponents
+                                        List<AtomicRole> roleRequirements, ReactionRoleMessage.ComponentType newComponents
     ) {
+        boolean isPro = ServerPatreonBoostCache.get(channel.getGuild().getIdLong());
         if (slots.isEmpty()) {
             return TextManager.getString(locale, Category.UTILITY, "reactionroles_noshortcuts");
+        }
+        if (!roleRequirements.isEmpty() && !isPro) {
+            return TextManager.getString(locale, Category.UTILITY, "reactionroles_rolerequirements_nopro");
         }
 
         if (newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
@@ -268,7 +282,7 @@ public class ReactionRoles {
             int newComponentTypeMessages = (int) DBReactionRoles.getInstance().retrieve(channel.getGuild().getIdLong()).values().stream()
                     .filter(r -> r.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS)
                     .count();
-            if (newComponentTypeMessages >= ReactionRolesCommand.MAX_NEW_COMPONENTS_MESSAGES && !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())) {
+            if (newComponentTypeMessages >= ReactionRolesCommand.MAX_NEW_COMPONENTS_MESSAGES && !isPro) {
                 return TextManager.getString(locale, Category.UTILITY, "reactionroles_limitexceeded");
             }
             if (newComponents == ReactionRoleMessage.ComponentType.SELECT_MENU &&
@@ -292,15 +306,15 @@ public class ReactionRoles {
     }
 
     public static CompletableFuture<Void> sendMessage(Locale locale, TextChannel channel, String title, String description,
-                                                      List<ReactionRoleMessageSlot> slots, boolean removeRole,
-                                                      boolean multipleRoles, boolean showRoleConnections,
+                                                      List<ReactionRoleMessageSlot> slots, List<AtomicRole> roleRequirements,
+                                                      boolean removeRole, boolean multipleRoles, boolean showRoleConnections,
                                                       ReactionRoleMessage.ComponentType newComponents,
                                                       boolean showRoleNumbers, String banner, boolean editMode,
                                                       long editMessageId
     ) throws ExecutionException, InterruptedException {
         CompletableFuture<Void> future = new CompletableFuture<>();
         if (!editMode) {
-            EmbedBuilder eb = getMessageEmbed(locale, title, description, slots, showRoleConnections, banner);
+            EmbedBuilder eb = getMessageEmbed(locale, title, description, slots, roleRequirements, showRoleConnections, banner);
             Message message = channel.sendMessageEmbeds(eb.build())
                     .setComponents(getComponents(locale, channel.getGuild(), slots, removeRole, multipleRoles, newComponents, showRoleNumbers))
                     .complete();
@@ -317,7 +331,8 @@ public class ReactionRoles {
                     newComponents,
                     showRoleNumbers,
                     showRoleConnections,
-                    slots
+                    slots,
+                    roleRequirements
             );
             Runnable runAfterSave = () -> {
                 DBReactionRoles.getInstance().retrieve(channel.getGuild().getIdLong())
@@ -353,10 +368,11 @@ public class ReactionRoles {
                     newComponents,
                     showRoleNumbers,
                     showRoleConnections,
-                    slots
+                    slots,
+                    roleRequirements
             );
 
-            EmbedBuilder eb = getMessageEmbed(locale, title, description, slots, showRoleConnections, banner);
+            EmbedBuilder eb = getMessageEmbed(locale, title, description, slots, roleRequirements, showRoleConnections, banner);
             Message message = channel.editMessageEmbedsById(editMessageId, eb.build())
                     .setComponents(getComponents(locale, channel.getGuild(), slots, removeRole, multipleRoles, newComponents, showRoleNumbers))
                     .complete();

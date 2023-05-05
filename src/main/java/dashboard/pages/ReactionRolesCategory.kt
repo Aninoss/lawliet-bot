@@ -5,6 +5,7 @@ import commands.Command
 import commands.runnables.utilitycategory.ReactionRolesCommand
 import core.ShardManager
 import core.TextManager
+import core.atomicassets.AtomicRole
 import core.atomicassets.AtomicStandardGuildMessageChannel
 import core.cache.MessageCache
 import core.utils.BotPermissionUtil
@@ -15,6 +16,7 @@ import dashboard.DashboardCategory
 import dashboard.DashboardComponent
 import dashboard.DashboardProperties
 import dashboard.component.*
+import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.components.DashboardRoleComboBox
 import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.HorizontalContainer
@@ -56,6 +58,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
     var image: String? = null
     var messageId: Long? = null
     var slots: ArrayList<Slot> = ArrayList()
+    var roleRequirements: ArrayList<Long> = ArrayList()
 
     var newSlotEmoji: String = ""
     var newSlotRole: Role? = null
@@ -241,6 +244,18 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
         slotGrid.rowButton = getString(Category.UTILITY, "reactionroles_dashboard_slots_button")
         container.add(DashboardText(getString(Category.UTILITY, "reactionroles_state3_mshortcuts")), slotGrid, generateSlotAddContainer(guild), DashboardSeparator())
 
+        val roleRequirementsComboBox = DashboardMultiRolesComboBox(
+            getString(Category.UTILITY, "reactionroles_dashboard_rolerequirements_title"),
+            locale,
+            guild.idLong,
+            atomicMember.idLong,
+            roleRequirements,
+            true,
+            ReactionRolesCommand.MAX_ROLE_REQUIREMENTS,
+            false
+        )
+        container.add(roleRequirementsComboBox, DashboardText(getString(Category.UTILITY, "reactionroles_dashboard_rolerequirements")), DashboardSeparator())
+
         val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "reactionroles_dashboard_includedimage"), "reactionroles") {
             image = it.data
             ActionResult()
@@ -272,7 +287,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
             val convertedSlots = slots
                 .map { ReactionRoleMessageSlot(guild.idLong, it.emoji, it.roleId) }
 
-            val error = ReactionRoles.checkForErrors(locale, textChannel, convertedSlots, newComponents)
+            val error = ReactionRoles.checkForErrors(locale, textChannel, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, newComponents)
             if (error != null) {
                 return@DashboardButton ActionResult()
                     .withErrorMessage(error)
@@ -280,8 +295,8 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
 
             val guildLocale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
             ReactionRoles.sendMessage(
-                guildLocale, textChannel, title, desc, convertedSlots, roleRemovement, multipleRoles, showRoleConnections, newComponents,
-                showRoleNumbers, image, editMode, messageId ?: 0L
+                guildLocale, textChannel, title, desc, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, roleRemovement,
+                multipleRoles, showRoleConnections, newComponents, showRoleNumbers, image, editMode, messageId ?: 0L
             ).get(5, TimeUnit.SECONDS)
 
             if (editMode) {
@@ -385,6 +400,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
             image = null
             messageId = null
             slots.clear()
+            roleRequirements.clear()
             newSlotRole = null
             newSlotEmoji = ""
         }
@@ -418,6 +434,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
             }
             .filter { !it.roleName.isEmpty() }
         this.slots = ArrayList(newSlots)
+        this.roleRequirements = ArrayList(reactionRoleMessage.roleRequirements.map { it.idLong })
         this.newSlotRole = null
         this.newSlotEmoji = ""
     }

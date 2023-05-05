@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import core.CustomObservableMap;
 import core.MainLogger;
+import core.atomicassets.AtomicRole;
 import mysql.DBBatch;
 import mysql.DBDataLoad;
 import mysql.DBMapCache;
@@ -47,7 +48,8 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
                             ReactionRoleMessage.ComponentType.values()[resultSet.getInt(8)],
                             resultSet.getBoolean(9),
                             showRoleConnections,
-                            getReactionRoleMessageSlots(serverId, messageId)
+                            getReactionRoleMessageSlots(serverId, messageId),
+                            getRoleRequirements(serverId, messageId)
                     );
                 }
         );
@@ -71,6 +73,12 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
                     );
                 }
         );
+    }
+
+    private List<AtomicRole> getRoleRequirements(long serverId, long messageId) {
+        return new DBDataLoad<AtomicRole>("ReactionRolesRoleRequirement", "roleId", "messageId = ?",
+                preparedStatement -> preparedStatement.setLong(1, messageId)
+        ).getList(resultSet -> new AtomicRole(serverId, resultSet.getLong(1)));
     }
 
     private void addReactionRoleMessage(ReactionRoleMessage reactionRoleMessage) {
@@ -104,6 +112,11 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
             preparedStatement.setBoolean(11, reactionRoleMessage.getShowRoleConnections());
         });
 
+        saveReactionRoleMessageSlots(reactionRoleMessage);
+        saveRoleRequirement(reactionRoleMessage);
+    }
+
+    private void saveReactionRoleMessageSlots(ReactionRoleMessage reactionRoleMessage) {
         try {
             MySQLManager.update("DELETE FROM ReactionRolesMessageSlot WHERE messageId = ?;", preparedStatement -> {
                 preparedStatement.setLong(1, reactionRoleMessage.getMessageId());
@@ -137,11 +150,38 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
         }
     }
 
+    private void saveRoleRequirement(ReactionRoleMessage reactionRoleMessage) {
+        try {
+            MySQLManager.update("DELETE FROM ReactionRolesRoleRequirement WHERE messageId = ?;", preparedStatement -> {
+                preparedStatement.setLong(1, reactionRoleMessage.getMessageId());
+            });
+        } catch (SQLException | InterruptedException e) {
+            MainLogger.get().error("SQL Exception", e);
+        }
+
+        if (!reactionRoleMessage.getRoleRequirements().isEmpty()) {
+            try (DBBatch batch = new DBBatch("INSERT IGNORE INTO ReactionRolesRoleRequirement (messageId, roleId) VALUES (?, ?)")) {
+                for (AtomicRole atomicRole : reactionRoleMessage.getRoleRequirements()) {
+                    batch.add(preparedStatement -> {
+                        preparedStatement.setLong(1, reactionRoleMessage.getMessageId());
+                        preparedStatement.setLong(2, atomicRole.getIdLong());
+                    });
+                }
+                batch.execute();
+            } catch (SQLException e) {
+                MainLogger.get().error("SQL Exception", e);
+            }
+        }
+    }
+
     private void removeReactionRoleMessage(ReactionRoleMessage reactionRoleMessage) {
         MySQLManager.asyncUpdate("DELETE FROM ReactionRolesMessage WHERE messageId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, reactionRoleMessage.getMessageId());
         });
         MySQLManager.asyncUpdate("DELETE FROM ReactionRolesMessageSlot WHERE messageId = ?;", preparedStatement -> {
+            preparedStatement.setLong(1, reactionRoleMessage.getMessageId());
+        });
+        MySQLManager.asyncUpdate("DELETE FROM ReactionRolesRoleRequirement WHERE messageId = ?;", preparedStatement -> {
             preparedStatement.setLong(1, reactionRoleMessage.getMessageId());
         });
     }
