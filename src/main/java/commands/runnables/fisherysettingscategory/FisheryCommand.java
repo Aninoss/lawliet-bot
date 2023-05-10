@@ -194,7 +194,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 Button[] buttons = new Button[options.length];
                 for (int i = 0; i < options.length; i++) {
                     buttons[i] = Button.of(
-                            i == 6 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY,
+                            i == 7 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY,
                             String.valueOf(i),
                             options[i]
                     );
