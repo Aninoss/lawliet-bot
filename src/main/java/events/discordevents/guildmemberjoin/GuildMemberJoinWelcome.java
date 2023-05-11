@@ -1,5 +1,6 @@
 package events.discordevents.guildmemberjoin;
 
+import java.io.InputStream;
 import java.util.Locale;
 import commands.Category;
 import commands.runnables.utilitycategory.WelcomeCommand;
@@ -21,6 +22,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 
 @DiscordEvent(allowBots = true, allowBannedUser = true)
@@ -37,9 +39,8 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         }
 
         if (welcomeMessageBean.isWelcomeActive()) {
-            welcomeMessageBean.getWelcomeChannel().ifPresent(channel -> {
-                sendWelcomeMessage(event, welcomeMessageBean, channel, locale);
-            });
+            welcomeMessageBean.getWelcomeChannel()
+                    .ifPresent(channel -> generateBannerAndSendMessage(event.getMember(), welcomeMessageBean, channel, locale));
         }
 
         return true;
@@ -70,31 +71,39 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         }
     }
 
-    private void sendWelcomeMessage(GuildMemberJoinEvent event, WelcomeMessageData welcomeMessageBean, TextChannel channel, Locale locale) {
-        Guild guild = event.getGuild();
-
-        if (PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)) {
-            WelcomeGraphics.createImageWelcome(event.getMember(), welcomeMessageBean.getWelcomeTitle())
-                    .thenAccept(image -> {
-                        Member member = event.getMember();
-                        String content = Welcome.resolveVariables(
-                                welcomeMessageBean.getWelcomeText(),
-                                StringUtil.escapeMarkdown(guild.getName()),
-                                event.getUser().getAsMention(),
-                                StringUtil.escapeMarkdown(member.getEffectiveName()),
-                                StringUtil.escapeMarkdown(event.getUser().getAsTag()),
-                                StringUtil.numToString(guild.getMemberCount())
-                        );
-
-                        if (image != null) {
-                            channel.sendMessage(content)
-                                    .addFiles(FileUpload.fromData(image, "welcome.png"))
-                                    .queue();
-                        } else {
-                            channel.sendMessage(content).queue();
-                        }
-                    });
+    private void generateBannerAndSendMessage(Member member, WelcomeMessageData welcomeMessageData, TextChannel channel, Locale locale) {
+        if (!PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES)) {
+            return;
         }
+
+        WelcomeGraphics.createImageWelcome(member, welcomeMessageData.getWelcomeTitle())
+                .thenAccept(image -> sendMessage(member, welcomeMessageData, channel, locale, image));
+    }
+
+    private void sendMessage(Member member, WelcomeMessageData welcomeMessageData, TextChannel channel, Locale locale, InputStream image) {
+        if (!PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
+            return;
+        }
+
+        Guild guild = member.getGuild();
+        String content = Welcome.resolveVariables(
+                welcomeMessageData.getWelcomeText(),
+                StringUtil.escapeMarkdown(guild.getName()),
+                member.getAsMention(),
+                StringUtil.escapeMarkdown(member.getEffectiveName()),
+                StringUtil.escapeMarkdown(member.getUser().getAsTag()),
+                StringUtil.numToString(guild.getMemberCount())
+        );
+
+        MessageCreateAction messageCreateAction = channel.sendMessage(content);
+        if (image != null) {
+            messageCreateAction.addFiles(FileUpload.fromData(image, "welcome.png"));
+        }
+
+        EmbedBuilder eb = new EmbedBuilder()
+                .setDescription(TextManager.getString(locale, Category.UTILITY, "welcome_action_text"));
+        messageCreateAction.addEmbeds(eb.build())
+                .queue();
     }
 
 }

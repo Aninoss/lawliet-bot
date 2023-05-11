@@ -73,7 +73,7 @@ public class ReminderScheduler {
         )) {
             String userMessage = StringUtil.shortenString(reminderData.getMessage(), 1800);
             if (BotPermissionUtil.canWriteEmbed(channel) && !InternetUtil.stringHasURL(userMessage)) {
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                EmbedBuilder eb = new EmbedBuilder()
                         .setDescription(TextManager.getString(reminderData.getGuildData().getLocale(), Category.UTILITY, "reminder_action_text"));
                 channel.sendMessage(userMessage)
                         .setEmbeds(eb.build())
