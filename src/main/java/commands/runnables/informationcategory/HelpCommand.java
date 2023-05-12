@@ -466,10 +466,14 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     private EmbedBuilder checkMainPage(Member member, TextChannel channel) {
+        String banner = Program.publicVersion()
+                ? "https://cdn.discordapp.com/attachments/499629904380297226/850825690399899658/help_banner.png"
+                : "https://cdn.discordapp.com/attachments/499629904380297226/1106609492256370779/help_banner_custom.png";
+
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(TextManager.getString(getLocale(), TextManager.COMMANDS, "categories"))
                 .setDescription(getString("sp"))
-                .setImage("https://cdn.discordapp.com/attachments/499629904380297226/850825690399899658/help_banner.png");
+                .setImage(banner);
         EmbedUtil.setFooter(eb, this, getString("navigation"));
 
         buttonMap.clear();
