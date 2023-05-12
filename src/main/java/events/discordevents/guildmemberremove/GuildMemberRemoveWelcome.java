@@ -1,10 +1,13 @@
 package events.discordevents.guildmemberremove;
 
+import java.util.HashSet;
 import java.util.Locale;
 import commands.Category;
 import commands.runnables.utilitycategory.WelcomeCommand;
+import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRemoveAbstract;
@@ -26,26 +29,40 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
         Guild guild = event.getGuild();
         Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
 
-        WelcomeMessageData welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
-        if (welcomeMessageBean.isGoodbyeActive()) {
-            welcomeMessageBean.getGoodbyeChannel().ifPresent(channel -> {
+        WelcomeMessageData welcomeMessageData = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
+        if (welcomeMessageData.isGoodbyeActive()) {
+            welcomeMessageData.getGoodbyeChannel().ifPresent(channel -> {
                 if (PermissionCheckRuntime.botHasPermission(locale, WelcomeCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                     User user = event.getUser();
-                    EmbedBuilder eb = new EmbedBuilder()
-                            .setDescription(TextManager.getString(locale, Category.UTILITY, "welcome_action_text"));
+                    String content = Welcome.resolveVariables(
+                            welcomeMessageData.getGoodbyeText(),
+                            StringUtil.escapeMarkdown(guild.getName()),
+                            user.getAsMention(),
+                            StringUtil.escapeMarkdown(user.getName()),
+                            StringUtil.escapeMarkdown(user.getAsTag()),
+                            StringUtil.numToString(guild.getMemberCount())
+                    );
 
-                    channel.sendMessage(
-                                    Welcome.resolveVariables(
-                                            welcomeMessageBean.getGoodbyeText(),
-                                            StringUtil.escapeMarkdown(guild.getName()),
-                                            user.getAsMention(),
-                                            StringUtil.escapeMarkdown(user.getName()),
-                                            StringUtil.escapeMarkdown(user.getAsTag()),
-                                            StringUtil.numToString(guild.getMemberCount())
-                                    )
-                            )
-                            .addEmbeds(eb.build())
-                            .queue();
+                    if (welcomeMessageData.getGoodbyeEmbed()) {
+                        HashSet<String> userMentions = MentionUtil.extractUserMentions(content);
+                        StringBuilder sb = new StringBuilder();
+                        userMentions.forEach(mention -> sb.append(mention).append(" "));
+
+                        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                                .setDescription(content)
+                                .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), Category.UTILITY, "welcome_action_text"));
+
+                        channel.sendMessage(sb.toString())
+                                .addEmbeds(eb.build())
+                                .queue();
+                    } else {
+                        EmbedBuilder eb = new EmbedBuilder()
+                                .setDescription(TextManager.getString(locale, Category.UTILITY, "welcome_action_text"));
+
+                        channel.sendMessage(content)
+                                .addEmbeds(eb.build())
+                                .queue();
+                    }
                 }
             });
         }

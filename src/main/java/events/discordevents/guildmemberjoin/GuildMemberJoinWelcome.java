@@ -1,6 +1,7 @@
 package events.discordevents.guildmemberjoin;
 
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Locale;
 import commands.Category;
 import commands.runnables.utilitycategory.WelcomeCommand;
@@ -8,6 +9,7 @@ import core.EmbedFactory;
 import core.PermissionCheckRuntime;
 import core.TextManager;
 import core.utils.JDAUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
@@ -33,41 +35,58 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
         Guild guild = event.getGuild();
         Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
 
-        WelcomeMessageData welcomeMessageBean = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
-        if (welcomeMessageBean.isDmActive()) {
-            sendDmMessage(event, welcomeMessageBean);
+        WelcomeMessageData welcomeMessageData = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
+        if (welcomeMessageData.isDmActive()) {
+            sendDmMessage(event, welcomeMessageData, locale);
         }
 
-        if (welcomeMessageBean.isWelcomeActive()) {
-            welcomeMessageBean.getWelcomeChannel()
-                    .ifPresent(channel -> generateBannerAndSendMessage(event.getMember(), welcomeMessageBean, channel, locale));
+        if (welcomeMessageData.isWelcomeActive()) {
+            welcomeMessageData.getWelcomeChannel()
+                    .ifPresent(channel -> {
+                        if (welcomeMessageData.getBanner()) {
+                            generateBannerAndSendMessage(event.getMember(), welcomeMessageData, channel, locale);
+                        } else {
+                            sendMessage(event.getMember(), welcomeMessageData, channel, locale, null);
+                        }
+                    });
         }
 
         return true;
     }
 
-    private void sendDmMessage(GuildMemberJoinEvent event, WelcomeMessageData welcomeMessageBean) {
+    private void sendDmMessage(GuildMemberJoinEvent event, WelcomeMessageData welcomeMessageData, Locale locale) {
         Guild guild = event.getGuild();
         Member member = event.getMember();
-        String text = welcomeMessageBean.getDmText();
+        String text = welcomeMessageData.getDmText();
 
         if (text.length() > 0) {
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setAuthor(TextManager.getString(welcomeMessageBean.getGuildData().getLocale(), Category.UTILITY, "welcome_dm", guild.getName()), null, guild.getIconUrl())
-                    .setDescription(
-                            Welcome.resolveVariables(
-                                    welcomeMessageBean.getDmText(),
-                                    StringUtil.escapeMarkdown(guild.getName()),
-                                    member.getAsMention(),
-                                    StringUtil.escapeMarkdown(member.getEffectiveName()),
-                                    StringUtil.escapeMarkdown(event.getUser().getAsTag()),
-                                    StringUtil.numToString(guild.getMemberCount())
-                            )
-                    );
+            String content = Welcome.resolveVariables(
+                    welcomeMessageData.getDmText(),
+                    StringUtil.escapeMarkdown(guild.getName()),
+                    member.getAsMention(),
+                    StringUtil.escapeMarkdown(member.getEffectiveName()),
+                    StringUtil.escapeMarkdown(event.getUser().getAsTag()),
+                    StringUtil.numToString(guild.getMemberCount())
+            );
 
-            JDAUtil.openPrivateChannel(member)
-                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
-                    .queue();
+            if (welcomeMessageData.getDmEmbed()) {
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                        .setDescription(content)
+                        .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), Category.UTILITY, "welcome_action_text"));
+
+                JDAUtil.openPrivateChannel(member)
+                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                        .queue();
+            } else {
+                EmbedBuilder eb = new EmbedBuilder()
+                        .setDescription(TextManager.getString(locale, Category.UTILITY, "welcome_action_text"));
+
+                JDAUtil.openPrivateChannel(member)
+                        .flatMap(messageChannel -> messageChannel.sendMessage(content)
+                                .addEmbeds(eb.build())
+                        )
+                        .queue();
+            }
         }
     }
 
@@ -95,15 +114,37 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                 StringUtil.numToString(guild.getMemberCount())
         );
 
-        MessageCreateAction messageCreateAction = channel.sendMessage(content);
-        if (image != null) {
-            messageCreateAction.addFiles(FileUpload.fromData(image, "welcome.png"));
-        }
+        if (welcomeMessageData.getWelcomeEmbed()) {
+            HashSet<String> userMentions = MentionUtil.extractUserMentions(content);
+            StringBuilder sb = new StringBuilder();
+            userMentions.forEach(mention -> sb.append(mention).append(" "));
 
-        EmbedBuilder eb = new EmbedBuilder()
-                .setDescription(TextManager.getString(locale, Category.UTILITY, "welcome_action_text"));
-        messageCreateAction.addEmbeds(eb.build())
-                .queue();
+            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                    .setDescription(content)
+                    .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), Category.UTILITY, "welcome_action_text"));
+
+            if (image != null) {
+                eb.setImage("attachment://welcome.png");
+                channel.sendMessageEmbeds(eb.build())
+                        .setContent(sb.toString())
+                        .addFiles(FileUpload.fromData(image, "welcome.png"))
+                        .queue();
+            } else {
+                channel.sendMessageEmbeds(eb.build())
+                        .setContent(sb.toString())
+                        .queue();
+            }
+        } else {
+            MessageCreateAction messageCreateAction = channel.sendMessage(content);
+            if (image != null) {
+                messageCreateAction.addFiles(FileUpload.fromData(image, "welcome.png"));
+            }
+
+            EmbedBuilder eb = new EmbedBuilder()
+                    .setDescription(TextManager.getString(locale, Category.UTILITY, "welcome_action_text"));
+            messageCreateAction.addEmbeds(eb.build())
+                    .queue();
+        }
     }
 
 }

@@ -11,19 +11,24 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class WelcomeMessageData extends DataWithGuild {
 
+    private boolean welcomeActive;
     private String welcomeTitle;
     private String welcomeText;
-    private String goodbyeText;
-    private String dmText;
     private long welcomeChannelId;
-    private long goodbyeChannelId;
-    private boolean welcomeActive;
+    private boolean welcomeEmbed;
     private boolean goodbyeActive;
+    private String goodbyeText;
+    private long goodbyeChannelId;
+    private boolean goodbyeEmbed;
     private boolean dmActive;
+    private String dmText;
+    private boolean dmEmbed;
+    private boolean banner;
 
     public WelcomeMessageData(long serverId, boolean welcomeActive, String welcomeTitle, String welcomeText,
-                              long welcomeChannelId, boolean goodbyeActive, String goodbyeText, long goodbyeChannelId,
-                              boolean dmActive, String dmText
+                              long welcomeChannelId, boolean welcomeEmbed, boolean goodbyeActive, String goodbyeText,
+                              long goodbyeChannelId, boolean goodbyeEmbed, boolean dmActive, String dmText,
+                              boolean dmEmbed, boolean banner
     ) {
         super(serverId);
         this.welcomeTitle = welcomeTitle;
@@ -35,6 +40,10 @@ public class WelcomeMessageData extends DataWithGuild {
         this.goodbyeActive = goodbyeActive;
         this.dmActive = dmActive;
         this.dmText = dmText;
+        this.welcomeEmbed = welcomeEmbed;
+        this.banner = banner;
+        this.goodbyeEmbed = goodbyeEmbed;
+        this.dmEmbed = dmEmbed;
     }
 
     public String getWelcomeTitle() {
@@ -93,6 +102,22 @@ public class WelcomeMessageData extends DataWithGuild {
 
     public boolean isDmActive() {
         return dmActive;
+    }
+
+    public boolean getWelcomeEmbed() {
+        return welcomeEmbed;
+    }
+
+    public boolean getGoodbyeEmbed() {
+        return goodbyeEmbed;
+    }
+
+    public boolean getDmEmbed() {
+        return dmEmbed;
+    }
+
+    public boolean getBanner() {
+        return banner;
     }
 
     public void setWelcomeTitle(String welcomeTitle) {
@@ -175,6 +200,54 @@ public class WelcomeMessageData extends DataWithGuild {
 
     public void toggleDmActive() {
         this.dmActive = !this.dmActive;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setWelcomeEmbed(boolean welcomeEmbed) {
+        if (this.welcomeEmbed != welcomeEmbed) {
+            toggleWelcomeEmbed();
+        }
+    }
+
+    public void toggleWelcomeEmbed() {
+        this.welcomeEmbed = !this.welcomeEmbed;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setGoodbyeEmbed(boolean goodbyeEmbed) {
+        if (this.goodbyeEmbed != goodbyeEmbed) {
+            toggleGoodbyeEmbed();
+        }
+    }
+
+    public void toggleGoodbyeEmbed() {
+        this.goodbyeEmbed = !this.goodbyeEmbed;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setDmEmbed(boolean dmEmbed) {
+        if (this.dmEmbed != dmEmbed) {
+            toggleDmEmbed();
+        }
+    }
+
+    public void toggleDmEmbed() {
+        this.dmEmbed = !this.dmEmbed;
+        setChanged();
+        notifyObservers();
+    }
+
+    public void setBanner(boolean banner) {
+        if (this.banner != banner) {
+            toggleBanner();
+        }
+    }
+
+    public void toggleBanner() {
+        this.banner = !this.banner;
         setChanged();
         notifyObservers();
     }

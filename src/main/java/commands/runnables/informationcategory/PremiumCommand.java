@@ -6,6 +6,7 @@ import java.util.Objects;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import constants.Emojis;
 import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -42,11 +43,10 @@ public class PremiumCommand extends Command {
         String content = getString("info",
                 StringUtil.getOnOffForBoolean(event.getTextChannel(), getLocale(), PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), false)),
                 StringUtil.getOnOffForBoolean(event.getTextChannel(), getLocale(), PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong()))
-        );
+        ) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, content)
-                .setImage("https://cdn.discordapp.com/attachments/499629904380297226/763202405474238464/Patreon_Banner_New.png")
-                .addBlankField(false);
+                .setImage("https://cdn.discordapp.com/attachments/499629904380297226/763202405474238464/Patreon_Banner_New.png");
 
         event.deferReply();
         StringBuilder sb = new StringBuilder();

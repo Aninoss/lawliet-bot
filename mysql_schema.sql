@@ -401,7 +401,7 @@ CREATE TABLE `FeatureRequests` (
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=888 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=891 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -897,11 +897,15 @@ CREATE TABLE `ServerWelcomeMessage` (
   `title` varchar(20) NOT NULL,
   `description` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `channel` bigint unsigned NOT NULL,
+  `embed` tinyint unsigned NOT NULL DEFAULT '0',
   `goodbye` tinyint(1) NOT NULL DEFAULT '0',
   `goodbyeText` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `goodbyeChannel` bigint unsigned NOT NULL,
+  `goodbyeEmbed` tinyint unsigned NOT NULL DEFAULT '0',
   `dm` tinyint(1) NOT NULL DEFAULT '0',
   `dmText` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  `dmEmbed` tinyint unsigned NOT NULL DEFAULT '1',
+  `banner` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`serverId`),
   CONSTRAINT `ServerWelcomeMessageServerBase` FOREIGN KEY (`serverId`) REFERENCES `DServer` (`serverId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -1532,4 +1536,4 @@ USE `Lawliet`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-05-04 15:33:48
+-- Dump completed on 2023-05-12 13:00:23

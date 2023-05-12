@@ -603,6 +603,16 @@ public class MentionUtil {
         }
     }
 
+    public static HashSet<String> extractUserMentions(String content) {
+        content = content.replace("<@!", "<@");
+        String[] groups = StringUtil.extractGroups(content, "<@", ">");
+        HashSet<String> set = new HashSet<>();
+        for (String group : groups) {
+            set.add("<@" + group + ">");
+        }
+        return set;
+    }
+
 
     private interface MentionFunction extends Function<Object, String> {
 
