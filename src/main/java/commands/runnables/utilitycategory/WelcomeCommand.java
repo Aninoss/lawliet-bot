@@ -273,6 +273,13 @@ public class WelcomeCommand extends NavigationAbstract {
             setState(0);
             return true;
         }
+        if (state == 4) {
+            LocalFile localFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", event.getGuild().getIdLong()));
+            localFile.delete();
+            setLog(LogStatus.SUCCESS, getString("backgroundset"));
+            setState(0);
+            return true;
+        }
         return false;
     }
 
@@ -327,6 +334,9 @@ public class WelcomeCommand extends NavigationAbstract {
             }
         } else if (state == 5) {
             return getWelcomeMessageTest(member);
+        }
+        if (state == 4) {
+            setComponents(getString("state4_options"));
         }
         return EmbedFactory.getEmbedDefault(this, getString("state" + state + "_description"), getString("state" + state + "_title"));
     }
