@@ -57,17 +57,6 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         activeSwitch.isChecked = welcomeData.isWelcomeActive
         container.add(activeSwitch, DashboardSeparator())
 
-        val titleField = DashboardTextField(
-            getString(Category.UTILITY, "welcome_state0_mtitle"),
-            1,
-            WelcomeCommand.MAX_WELCOME_TITLE_LENGTH
-        ) {
-            welcomeData.welcomeTitle = it.data
-            ActionResult()
-        }
-        titleField.value = welcomeData.welcomeTitle
-        container.add(titleField)
-
         val descriptionField = DashboardMultiLineTextField(
             getString(Category.UTILITY, "welcome_state0_mdescription"),
             1,
@@ -78,6 +67,13 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         }
         descriptionField.value = welcomeData.welcomeText
         container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables")), DashboardSeparator())
+
+        val embedSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_state0_membed")) {
+            welcomeData.welcomeEmbed = it.data
+            ActionResult()
+        }
+        embedSwitch.isChecked = welcomeData.welcomeEmbed
+        container.add(embedSwitch, DashboardSeparator())
 
         val channelComboBox = DashboardTextChannelComboBox(
             getString(Category.UTILITY, "welcome_state0_mchannel"),
@@ -107,6 +103,24 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         }
         container.add(DashboardSeparator())
 
+        val bannerSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_state0_mbanner")) {
+            welcomeData.banner = it.data
+            ActionResult()
+        }
+        bannerSwitch.isChecked = welcomeData.banner
+        container.add(bannerSwitch, DashboardSeparator())
+
+        val titleField = DashboardTextField(
+            getString(Category.UTILITY, "welcome_state0_mtitle"),
+            1,
+            WelcomeCommand.MAX_WELCOME_TITLE_LENGTH
+        ) {
+            welcomeData.welcomeTitle = it.data
+            ActionResult()
+        }
+        titleField.value = welcomeData.welcomeTitle
+        container.add(titleField)
+
         val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "welcome_dashboard_backgroundimage"), "temp") {
             val segments = it.data.split('/')
             val localFile = LocalFile(LocalFile.Directory.CDN, String.format("temp/%s", segments[segments.size - 1]))
@@ -132,7 +146,17 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
                 .withRedraw()
         }
         previewButton.style = DashboardButton.Style.PRIMARY
-        container.add(HorizontalContainer(previewButton, HorizontalPusher()))
+
+        val resetButton = DashboardButton(getString(Category.UTILITY, "welcome_state4_options")) {
+            val backgroundFile = LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guild.idLong))
+            backgroundFile.delete()
+            renderBannerPreview = true
+            ActionResult()
+                .withRedraw()
+        }
+        resetButton.style = DashboardButton.Style.DANGER
+
+        container.add(HorizontalContainer(previewButton, resetButton, HorizontalPusher()))
 
         return container
     }
@@ -148,7 +172,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         container.add(activeSwitch, DashboardSeparator())
 
         val descriptionField = DashboardMultiLineTextField(
-            getString(Category.UTILITY, "welcome_state0_mdmText"),
+            getString(Category.UTILITY, "welcome_state0_mdescription"),
             1,
             WelcomeCommand.MAX_DM_DESCRIPTION_LENGTH
         ) {
@@ -156,7 +180,14 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
             ActionResult()
         }
         descriptionField.value = welcomeData.dmText
-        container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables")))
+        container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables")), DashboardSeparator())
+
+        val embedSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_state0_membed")) {
+            welcomeData.dmEmbed = it.data
+            ActionResult()
+        }
+        embedSwitch.isChecked = welcomeData.dmEmbed
+        container.add(embedSwitch)
 
         return container
     }
@@ -172,7 +203,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         container.add(activeSwitch, DashboardSeparator())
 
         val descriptionField = DashboardMultiLineTextField(
-            getString(Category.UTILITY, "welcome_state0_mgoodbyeText"),
+            getString(Category.UTILITY, "welcome_state0_mdescription"),
             1,
             WelcomeCommand.MAX_FAREWELL_DESCRIPTION_LENGTH
         ) {
@@ -182,8 +213,15 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
         descriptionField.value = welcomeData.goodbyeText
         container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables")), DashboardSeparator())
 
+        val embedSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_state0_membed")) {
+            welcomeData.goodbyeEmbed = it.data
+            ActionResult()
+        }
+        embedSwitch.isChecked = welcomeData.goodbyeEmbed
+        container.add(embedSwitch, DashboardSeparator())
+
         val channelComboBox = DashboardTextChannelComboBox(
-            getString(Category.UTILITY, "welcome_state0_mfarewellchannel"),
+            getString(Category.UTILITY, "welcome_state0_mchannel"),
             atomicGuild.idLong,
             welcomeData.goodbyeChannelId,
             false
