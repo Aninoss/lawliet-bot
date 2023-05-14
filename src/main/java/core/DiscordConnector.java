@@ -40,13 +40,17 @@ public class DiscordConnector {
             .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGE_TYPING, GatewayIntent.MESSAGE_CONTENT)
             .enableCache(CacheFlag.ACTIVITY)
             .disableCache(CacheFlag.ROLE_TAGS)
-            .setActivity(Activity.watching(getActivityText()))
             .setHttpClient(IOUtil.newHttpClientBuilder().addInterceptor(new CustomInterceptor()).build())
             .addEventListeners(new DiscordEventAdapter());
 
     static {
         concurrentSessionController.setConcurrency(Integer.parseInt(System.getenv("CONCURRENCY")));
         ShardManager.addShardDisconnectConsumer(DiscordConnector::reconnectApi);
+
+        String activityText = getActivityText();
+        if (!activityText.isEmpty()) {
+            jdaBuilder.setActivity(Activity.watching(activityText));
+        }
     }
 
     public static void connect(int shardMin, int shardMax, int totalShards) {
@@ -168,13 +172,12 @@ public class DiscordConnector {
     }
 
     private static String getActivityText() {
-        String activityText = System.getenv("ACTIVITY");
-        if (activityText.isBlank()) {
+        if (Program.publicVersion()) {
             return ShardManager.getGlobalGuildSize()
                     .map(globalGuildSize -> "L.help | " + StringUtil.numToStringShort(globalGuildSize, Locale.US) + " | www.lawlietbot.xyz")
                     .orElse("L.help | www.lawlietbot.xyz");
         } else {
-            return activityText;
+            return System.getenv("ACTIVITY");
         }
     }
 

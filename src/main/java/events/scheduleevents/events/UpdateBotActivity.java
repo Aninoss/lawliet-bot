@@ -2,6 +2,7 @@ package events.scheduleevents.events;
 
 import java.time.temporal.ChronoUnit;
 import core.DiscordConnector;
+import core.Program;
 import core.ShardManager;
 import constants.ExceptionRunnable;
 import events.scheduleevents.ScheduleEventFixedRate;
@@ -11,8 +12,10 @@ public class UpdateBotActivity implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        ShardManager.getConnectedLocalJDAs()
-                .forEach(DiscordConnector::updateActivity);
+        if (Program.publicVersion()) {
+            ShardManager.getConnectedLocalJDAs()
+                    .forEach(DiscordConnector::updateActivity);
+        }
     }
 
 }
