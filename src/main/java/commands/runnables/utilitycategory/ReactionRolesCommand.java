@@ -86,10 +86,6 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             EXAMPLE = 8,
             SENT = 9;
 
-    private static final Cache<Long, Boolean> USER_DM_CACHE = CacheBuilder.newBuilder()
-            .expireAfterWrite(Duration.ofSeconds(30))
-            .build();
-
     private String title;
     private String description;
     private List<ReactionRoleMessageSlot> slots = new ArrayList<>();
@@ -108,8 +104,11 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     private long editMessageId = 0L;
     private File imageCdn = null;
 
-    private static final Cache<Long, Boolean> blockCache = CacheBuilder.newBuilder()
+    private static final Cache<Long, Boolean> BLOCK_CACHE = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofSeconds(30))
+            .build();
+    private static final Cache<Long, Boolean> USER_DM_CACHE = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofSeconds(15))
             .build();
 
     public ReactionRolesCommand(Locale locale, String prefix) {
@@ -703,7 +702,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(message.getGuildChannel().asStandardGuildMessageChannel(), message.getIdLong());
         if (reactionRoleMessage == null ||
                 reactionRoleMessage.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS ||
-                blockCache.asMap().containsKey(member.getIdLong())
+                BLOCK_CACHE.asMap().containsKey(member.getIdLong())
         ) {
             return;
         }
@@ -721,7 +720,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         GlobalThreadPool.getExecutorService().submit(() -> {
             try {
                 if (!reactionRoleMessage.getMultipleRoles()) {
-                    blockCache.put(member.getIdLong(), true);
+                    BLOCK_CACHE.put(member.getIdLong(), true);
                     if (removeMultipleRoles(event.getMember(), reactionRoleMessage, new ArrayList<>(), new ArrayList<>())) {
                         sendUserErrorDm(event.getMember(), getString("components_result_noremoval"));
                         return;
@@ -742,7 +741,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 }
             } finally {
                 if (!reactionRoleMessage.getMultipleRoles()) {
-                    blockCache.invalidate(member.getIdLong());
+                    BLOCK_CACHE.invalidate(member.getIdLong());
                 }
             }
         });
@@ -799,7 +798,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         Member member = event.getMember();
         ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(event.getGuildChannel().asStandardGuildMessageChannel(), event.getMessageIdLong());
         if (reactionRoleMessage == null ||
-                blockCache.asMap().containsKey(member.getIdLong())
+                BLOCK_CACHE.asMap().containsKey(member.getIdLong())
         ) {
             return;
         }
@@ -869,7 +868,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 ArrayList<Role> unmanageableRoles = new ArrayList<>();
 
                 if (!reactionRoleMessage.getMultipleRoles()) {
-                    blockCache.put(member.getIdLong(), true);
+                    BLOCK_CACHE.put(member.getIdLong(), true);
                     if (removeMultipleRoles(event.getMember(), reactionRoleMessage, removedRoles, unmanageableRoles)) {
                         event.getHook()
                                 .sendMessageEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_onlyone")).build())
@@ -903,7 +902,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 MainLogger.get().error("Error in reaction roles component update", e);
             } finally {
                 if (!reactionRoleMessage.getMultipleRoles()) {
-                    blockCache.invalidate(member.getIdLong());
+                    BLOCK_CACHE.invalidate(member.getIdLong());
                 }
             }
         });
@@ -918,7 +917,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         Member member = event.getMember();
         ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(event.getGuildChannel().asStandardGuildMessageChannel(), event.getMessageIdLong());
         if (reactionRoleMessage == null ||
-                blockCache.asMap().containsKey(member.getIdLong())
+                BLOCK_CACHE.asMap().containsKey(member.getIdLong())
         ) {
             return;
         }
