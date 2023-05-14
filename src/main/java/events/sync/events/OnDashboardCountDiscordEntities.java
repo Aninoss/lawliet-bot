@@ -28,7 +28,7 @@ public class OnDashboardCountDiscordEntities implements SyncServerFunction {
                     .count();
 
             case ROLES -> guild.getRoles().stream()
-                    .filter(r -> r.getName().toLowerCase().contains(filterText) && !r.isPublicRole() && !r.isManaged())
+                    .filter(r -> r.getName().toLowerCase().contains(filterText) && !r.isPublicRole())
                     .count();
 
             case TEXT_CHANNELS -> {

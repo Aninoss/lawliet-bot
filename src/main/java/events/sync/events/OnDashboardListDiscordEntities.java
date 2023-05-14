@@ -40,7 +40,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                         });
 
                 case ROLES -> guild.getRoles().stream()
-                        .filter(r -> r.getName().toLowerCase().contains(filterText) && !r.isPublicRole() && !r.isManaged())
+                        .filter(r -> r.getName().toLowerCase().contains(filterText) && !r.isPublicRole())
                         .skip(offset)
                         .limit(limit)
                         .forEach(r -> {
