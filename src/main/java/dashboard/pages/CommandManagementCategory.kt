@@ -106,10 +106,6 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : D
         val container = VerticalContainer()
         container.add(DashboardText(getString(Category.CONFIGURATION, "cman_state0_desc")))
 
-        val obsoleteWarning = DashboardText(getString(Category.CONFIGURATION, "cperms_obsolete_dashboard"))
-        obsoleteWarning.style = DashboardText.Style.ERROR
-        container.add(obsoleteWarning)
-
         val commandCategoryValues = Category.independentValues().map { DiscordEntity(it.id, getString(TextManager.COMMANDS, it.id)) }
         container.add(generateBlacklistComboBox(commandManagementData, getString(Category.CONFIGURATION, "cman_state0_mcategories"), commandCategoryValues))
 
