@@ -61,7 +61,7 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
     }
 
     private List<ReactionRoleMessageSlot> getReactionRoleMessageSlots(long serverId, long messageId) {
-        return new DBDataLoad<ReactionRoleMessageSlot>("ReactionRolesMessageSlot", "emoji, roleId", "messageId = ? ORDER BY slotId",
+        return new DBDataLoad<ReactionRoleMessageSlot>("ReactionRolesMessageSlot", "emoji, roleId, customLabel", "messageId = ? ORDER BY slotId",
                 preparedStatement -> preparedStatement.setLong(1, messageId)
         ).getList(
                 resultSet -> {
@@ -69,7 +69,8 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
                     return new ReactionRoleMessageSlot(
                             serverId,
                             emojiString != null ? Emoji.fromFormatted(emojiString) : null,
-                            resultSet.getLong(2)
+                            resultSet.getLong(2),
+                            resultSet.getString(3)
                     );
                 }
         );
@@ -126,7 +127,7 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
         }
 
         if (!reactionRoleMessage.getSlots().isEmpty()) {
-            try (DBBatch batch = new DBBatch("INSERT IGNORE INTO ReactionRolesMessageSlot (messageId, slotId, emoji, roleId) VALUES (?, ?, ?, ?)")) {
+            try (DBBatch batch = new DBBatch("INSERT IGNORE INTO ReactionRolesMessageSlot (messageId, slotId, emoji, roleId, customLabel) VALUES (?, ?, ?, ?, ?)")) {
                 for (int i = 0; i < reactionRoleMessage.getSlots().size(); i++) {
                     ReactionRoleMessageSlot slot = reactionRoleMessage.getSlots().get(i);
                     int finalI = i;
@@ -141,6 +142,12 @@ public class DBReactionRoles extends DBMapCache<Long, CustomObservableMap<Long, 
                         }
 
                         preparedStatement.setLong(4, slot.getRoleId());
+
+                        if (slot.getCustomLabel() != null) {
+                            preparedStatement.setString(5, slot.getCustomLabel());
+                        } else {
+                            preparedStatement.setNull(5, Types.VARCHAR);
+                        }
                     });
                 }
                 batch.execute();

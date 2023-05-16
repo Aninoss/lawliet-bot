@@ -8,11 +8,13 @@ public class ReactionRoleMessageSlot implements RoleAsset {
     private final long serverId;
     private final Emoji emoji;
     private final long roleId;
+    private final String customLabel;
 
-    public ReactionRoleMessageSlot(long serverId, Emoji emoji, long roleId) {
+    public ReactionRoleMessageSlot(long serverId, Emoji emoji, long roleId, String customLabel) {
         this.serverId = serverId;
         this.emoji = emoji;
         this.roleId = roleId;
+        this.customLabel = customLabel;
     }
 
     @Override
@@ -27,6 +29,10 @@ public class ReactionRoleMessageSlot implements RoleAsset {
     @Override
     public long getRoleId() {
         return roleId;
+    }
+
+    public String getCustomLabel() {
+        return customLabel;
     }
 
 }

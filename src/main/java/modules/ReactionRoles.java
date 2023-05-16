@@ -100,7 +100,7 @@ public class ReactionRoles {
         for (String line : embed.getFields().get(0).getValue().split("\n")) {
             String[] parts = line.split(" → ");
             long roleId = Long.parseLong(parts[1].substring(3, parts[1].length() - 1));
-            slots.add(new ReactionRoleMessageSlot(message.getGuild().getIdLong(), Emoji.fromFormatted(parts[0]), roleId));
+            slots.add(new ReactionRoleMessageSlot(message.getGuild().getIdLong(), Emoji.fromFormatted(parts[0]), roleId, null));
         }
 
         ReactionRoleMessage reactionRoleMessage = new ReactionRoleMessage(
@@ -123,14 +123,22 @@ public class ReactionRoles {
         return reactionRoleMessage;
     }
 
-    public static String generateSlotOverview(List<ReactionRoleMessageSlot> slots) {
+    public static String generateSlotOverview(List<ReactionRoleMessageSlot> slots, boolean allowCustomLabels, boolean configPreview) {
         StringBuilder link = new StringBuilder();
         for (ReactionRoleMessageSlot slot : slots) {
             if (slot.getEmoji() != null) {
                 link.append(slot.getEmoji().getFormatted())
-                        .append(" → <@&")
-                        .append(slot.getRoleId())
-                        .append(">");
+                        .append(" → ");
+            }
+            if (allowCustomLabels && slot.getCustomLabel() != null) {
+                if (configPreview) {
+                    link.append(StringUtil.escapeMarkdown(slot.getCustomLabel()))
+                            .append(" (<@&")
+                            .append(slot.getRoleId())
+                            .append(">)");
+                } else {
+                    link.append(StringUtil.escapeMarkdown(slot.getCustomLabel()));
+                }
             } else {
                 link.append("<@&")
                         .append(slot.getRoleId())
@@ -141,7 +149,7 @@ public class ReactionRoles {
         return link.isEmpty() ? null : link.toString();
     }
 
-    public static EmbedBuilder getMessageEmbed(Locale locale, String title, String description,
+    public static EmbedBuilder getMessageEmbed(Locale locale, long guildId, String title, String description,
                                                List<ReactionRoleMessageSlot> slots, List<AtomicRole> roleRequirements,
                                                boolean showRoleConnections, String banner
     ) {
@@ -152,7 +160,8 @@ public class ReactionRoles {
                 .setImage(banner == null || banner.isBlank() ? null : banner);
 
         if (showRoleConnections) {
-            String linkString = generateSlotOverview(slots);
+            boolean isPro = ServerPatreonBoostCache.get(guildId);
+            String linkString = generateSlotOverview(slots, isPro, false);
             eb.addField(TextManager.getString(locale, TextManager.GENERAL, "options"), StringUtil.shortenString(linkString, ReactionRolesCommand.SLOTS_TEXT_LENGTH_MAX), true);
         }
 
@@ -193,15 +202,18 @@ public class ReactionRoles {
             }
         }
 
+        boolean isPro = ServerPatreonBoostCache.get(guild.getIdLong());
         switch (newComponents) {
             case BUTTONS -> {
                 ArrayList<Button> buttons = new ArrayList<>();
                 for (int i = 0; i < slots.size(); i++) {
                     ReactionRoleMessageSlot slot = slots.get(i);
                     Emoji emoji = slot.getEmoji();
+
                     String roleNumberString = showRoleNumbers ? roleNumbers.get(i) : "";
                     AtomicRole atomicRole = new AtomicRole(slot.getGuildId(), slot.getRoleId());
-                    Button button = Button.of(ButtonStyle.PRIMARY, String.valueOf(i), StringUtil.shortenString(atomicRole.getName(), Button.LABEL_MAX_LENGTH - roleNumberString.length()) + roleNumberString);
+                    String label = slot.getCustomLabel() != null && isPro ? slot.getCustomLabel() : atomicRole.getName();
+                    Button button = Button.of(ButtonStyle.PRIMARY, String.valueOf(i), StringUtil.shortenString(label, Button.LABEL_MAX_LENGTH - roleNumberString.length()) + roleNumberString);
                     if (emoji != null &&
                             (emoji instanceof UnicodeEmoji || ShardManager.customEmojiIsKnown((CustomEmoji) emoji))
                     ) {
@@ -225,9 +237,11 @@ public class ReactionRoles {
                 for (int i = 0; i < slots.size(); i++) {
                     ReactionRoleMessageSlot slot = slots.get(i);
                     Emoji emoji = slot.getEmoji();
+
                     String roleNumberString = showRoleNumbers ? roleNumbers.get(i) : "";
                     AtomicRole atomicRole = new AtomicRole(slot.getGuildId(), slot.getRoleId());
-                    SelectOption option = SelectOption.of(StringUtil.shortenString(atomicRole.getName(), SelectOption.LABEL_MAX_LENGTH - roleNumberString.length()) + roleNumberString, String.valueOf(i));
+                    String label = slot.getCustomLabel() != null && isPro ? slot.getCustomLabel() : atomicRole.getName();
+                    SelectOption option = SelectOption.of(StringUtil.shortenString(label, SelectOption.LABEL_MAX_LENGTH - roleNumberString.length()) + roleNumberString, String.valueOf(i));
                     if (emoji != null &&
                             (emoji instanceof UnicodeEmoji || ShardManager.customEmojiIsKnown((CustomEmoji) emoji))
                     ) {
@@ -257,6 +271,9 @@ public class ReactionRoles {
         }
         if (!roleRequirements.isEmpty() && !isPro) {
             return TextManager.getString(locale, Category.UTILITY, "reactionroles_rolerequirements_nopro");
+        }
+        if (slots.stream().anyMatch(s -> s.getCustomLabel() != null) && !isPro) {
+            return TextManager.getString(locale, Category.UTILITY, "reactionroles_customlabels_nopro");
         }
 
         if (newComponents == ReactionRoleMessage.ComponentType.REACTIONS) {
@@ -314,7 +331,8 @@ public class ReactionRoles {
     ) throws ExecutionException, InterruptedException {
         CompletableFuture<Void> future = new CompletableFuture<>();
         if (!editMode) {
-            EmbedBuilder eb = getMessageEmbed(locale, title, description, slots, roleRequirements, showRoleConnections, banner);
+            EmbedBuilder eb = getMessageEmbed(locale, channel.getGuild().getIdLong(), title, description, slots,
+                    roleRequirements, showRoleConnections, banner);
             Message message = channel.sendMessageEmbeds(eb.build())
                     .setComponents(getComponents(locale, channel.getGuild(), slots, removeRole, multipleRoles, newComponents, showRoleNumbers))
                     .complete();
@@ -372,7 +390,8 @@ public class ReactionRoles {
                     roleRequirements
             );
 
-            EmbedBuilder eb = getMessageEmbed(locale, title, description, slots, roleRequirements, showRoleConnections, banner);
+            EmbedBuilder eb = getMessageEmbed(locale, channel.getGuild().getIdLong(), title, description, slots,
+                    roleRequirements, showRoleConnections, banner);
             Message message = channel.editMessageEmbedsById(editMessageId, eb.build())
                     .setComponents(getComponents(locale, channel.getGuild(), slots, removeRole, multipleRoles, newComponents, showRoleNumbers))
                     .complete();

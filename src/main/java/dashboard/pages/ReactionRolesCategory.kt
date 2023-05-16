@@ -62,6 +62,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
 
     var newSlotEmoji: String = ""
     var newSlotRole: Role? = null
+    var newSlotCustomLabel: String = ""
 
     var editMode = false
 
@@ -231,7 +232,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
 
         val rows = slots
             .mapIndexed { i, slot ->
-                val values = arrayOf(slot.emoji?.formatted ?: "", slot.roleName)
+                val values = arrayOf(slot.emoji?.formatted ?: "", slot.roleName, slot.customLabel ?: "")
                 GridRow(i.toString(), values)
             }
 
@@ -285,7 +286,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
 
             val textChannel = guild.getTextChannelById(channelId!!)
             val convertedSlots = slots
-                .map { ReactionRoleMessageSlot(guild.idLong, it.emoji, it.roleId) }
+                .map { ReactionRoleMessageSlot(guild.idLong, it.emoji, it.roleId, it.customLabel) }
 
             val error = ReactionRoles.checkForErrors(locale, textChannel, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, newComponents)
             if (error != null) {
@@ -351,6 +352,17 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
             }
         slotAddContainer.add(roleField)
 
+        val customLabelField = DashboardTextField(getString(Category.UTILITY, "reactionroles_dashboard_slots_customlabel"), 0, ReactionRolesCommand.CUSTOM_LABEL_MAX_LENGTH) {
+            newSlotCustomLabel = it.data
+            ActionResult()
+        }
+        customLabelField.editButton = false
+        customLabelField.placeholder = getString(Category.UTILITY, "reactionroles_dashboard_customlabelplaceholder")
+        if (newSlotCustomLabel.isNotEmpty()) {
+            customLabelField.value = newSlotCustomLabel
+        }
+        slotAddContainer.add(customLabelField)
+
         val addButton = DashboardButton(getString(Category.UTILITY, "reactionroles_dashboard_slots_add")) {
             val emojis = MentionUtil.getEmojis(guild, newSlotEmoji).list
             val emoji = if (emojis.isEmpty()) {
@@ -374,9 +386,17 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
                 return@DashboardButton ActionResult()
                     .withErrorMessage(getString(Category.UTILITY, "reactionroles_dashboard_norole"))
             }
-            slots += Slot(emoji, "@${newSlotRole!!.name}", newSlotRole!!.idLong)
+
+            val customLabel: String? = if (newSlotCustomLabel.isEmpty()) {
+                null
+            } else {
+                newSlotCustomLabel
+            }
+
+            slots += Slot(emoji, "@${newSlotRole!!.name}", newSlotRole!!.idLong, customLabel)
             newSlotEmoji = ""
             newSlotRole = null
+            newSlotCustomLabel = ""
             ActionResult()
                 .withRedraw()
         }
@@ -403,6 +423,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
             roleRequirements.clear()
             newSlotRole = null
             newSlotEmoji = ""
+            newSlotCustomLabel = ""
         }
     }
 
@@ -429,7 +450,8 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
                 Slot(
                     it.emoji,
                     roleName,
-                    it.roleId
+                    it.roleId,
+                    it.customLabel
                 )
             }
             .filter { !it.roleName.isEmpty() }
@@ -437,9 +459,10 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : Dashb
         this.roleRequirements = ArrayList(reactionRoleMessage.roleRequirements.map { it.idLong })
         this.newSlotRole = null
         this.newSlotEmoji = ""
+        this.newSlotCustomLabel = ""
     }
 
-    data class Slot(val emoji: Emoji?, val roleName: String, val roleId: Long) {
+    data class Slot(val emoji: Emoji?, val roleName: String, val roleId: Long, val customLabel: String?) {
 
     }
 

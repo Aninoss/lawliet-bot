@@ -69,6 +69,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     public static final int MAX_SLOTS_TOTAL = MAX_BUTTON_SLOTS;
     public static final int MAX_NEW_COMPONENTS_MESSAGES = 3;
     public static final int MAX_ROLE_REQUIREMENTS = 50;
+    public static final int CUSTOM_LABEL_MAX_LENGTH = 100;
 
     private final static int
             ADD_OR_EDIT = 0,
@@ -94,6 +95,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     private Emoji emojiTemp;
     private String banner;
     private AtomicRole roleTemp;
+    private String customLabelTemp;
     private AtomicTextChannel atomicTextChannel;
     private boolean removeRole = true;
     private boolean editMode = false;
@@ -216,9 +218,16 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 }
             }
 
-            if (ok) {
-                return MessageInputResponse.SUCCESS;
+            if (!ok) {
+                if (input.length() <= CUSTOM_LABEL_MAX_LENGTH) {
+                    this.customLabelTemp = input.replace("\n", " ");
+                } else {
+                    setLog(LogStatus.FAILURE, getString("customlabel_toomanychars", StringUtil.numToString(CUSTOM_LABEL_MAX_LENGTH)));
+                    return MessageInputResponse.FAILED;
+                }
             }
+
+            return MessageInputResponse.SUCCESS;
         }
 
         setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
@@ -370,6 +379,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 }
                 roleTemp = null;
                 emojiTemp = null;
+                customLabelTemp = null;
                 return true;
 
             case 4:
@@ -464,21 +474,27 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @ControllerButton(state = ADD_SLOT)
     public boolean onButtonAddSlot(ButtonInteractionEvent event, int i) {
-        if (i == 0) {
-            emojiTemp = null;
-            return true;
-        }
-
-        if (i == 1 && roleTemp != null) {
-            slots.add(new ReactionRoleMessageSlot(event.getGuild().getIdLong(), emojiTemp, roleTemp.getIdLong()));
-            setState(CONFIGURE_MESSAGE);
-            setLog(LogStatus.SUCCESS, getString("linkadded"));
-            return true;
-        }
-
-        if (i == -1) {
-            setState(CONFIGURE_MESSAGE);
-            return true;
+        switch (i) {
+            case -1: {
+                setState(CONFIGURE_MESSAGE);
+                return true;
+            }
+            case 0: {
+                emojiTemp = null;
+                return true;
+            }
+            case 1: {
+                customLabelTemp = null;
+                return true;
+            }
+            case 2: {
+                if (roleTemp != null) {
+                    slots.add(new ReactionRoleMessageSlot(event.getGuild().getIdLong(), emojiTemp, roleTemp.getIdLong(), customLabelTemp));
+                    setState(CONFIGURE_MESSAGE);
+                    setLog(LogStatus.SUCCESS, getString("linkadded"));
+                    return true;
+                }
+            }
         }
 
         return false;
@@ -594,7 +610,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         );
 
         TextChannel textChannel = getTextChannel().get();
-        String linkString = ReactionRoles.generateSlotOverview(slots);
+        String linkString = ReactionRoles.generateSlotOverview(slots, true, true);
         return EmbedFactory.getEmbedDefault(this, getString("state3_description", StringUtil.numToString(MAX_NEW_COMPONENTS_MESSAGES), ExternalLinks.PREMIUM_WEBSITE), getString("state3_title_" + (editMode ? "edit" : "new")))
                 .addField(getString("state3_mtitle"), StringUtil.escapeMarkdown(Optional.ofNullable(title).orElse(notSet)), true)
                 .addField(getString("state3_mdescription"), StringUtil.shortenString(StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), SLOTS_TEXT_LENGTH_MAX), true)
@@ -634,12 +650,21 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
         ArrayList<String> options = new ArrayList<>();
         options.add(getString("state6_clearemoji"));
+        options.add(getString("state6_clearcustomlabel"));
         if (roleTemp != null) {
             options.add(getString("state6_add"));
         }
 
         setComponents(options.toArray(new String[0]));
-        return EmbedFactory.getEmbedDefault(this, getString("state6_description", Optional.ofNullable(emojiTemp).map(Emoji::getFormatted).orElse(notSet), Optional.ofNullable(roleTemp).map(MentionableAtomicAsset::getPrefixedNameInField).orElse(notSet)), getString("state6_title"));
+        return EmbedFactory.getEmbedDefault(this, getString(
+                        "state6_description",
+                        Optional.ofNullable(emojiTemp).map(Emoji::getFormatted).orElse(notSet),
+                        Optional.ofNullable(roleTemp).map(MentionableAtomicAsset::getPrefixedNameInField).orElse(notSet),
+                        Emojis.COMMAND_ICON_PREMIUM.getFormatted(),
+                        Optional.ofNullable(customLabelTemp).map(StringUtil::escapeMarkdown).orElse(notSet)
+                ),
+                getString("state6_title")
+        );
     }
 
     @Draw(state = REMOVE_SLOT)
@@ -647,11 +672,15 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         ArrayList<Button> buttons = new ArrayList<>();
         ArrayList<ReactionRoleMessageSlot> tempSlots = new ArrayList<>(slots);
         for (int i = 0; i < tempSlots.size(); i++) {
-            long roleId = tempSlots.get(i).getRoleId();
+            ReactionRoleMessageSlot slot = tempSlots.get(i);
+            String roleName = new AtomicRole(getGuildId().get(), slot.getRoleId()).getPrefixedName();
+            String label = slot.getCustomLabel() != null
+                    ? slot.getCustomLabel() + " (" + roleName + ")"
+                    : roleName;
             Button button = Button.of(
                     ButtonStyle.PRIMARY,
                     String.valueOf(i),
-                    StringUtil.shortenString(new AtomicRole(getGuildId().get(), roleId).getPrefixedName(), 80)
+                    StringUtil.shortenString(label, 80)
             );
             buttons.add(button);
         }
@@ -684,7 +713,8 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     @Draw(state = EXAMPLE)
     public EmbedBuilder onDrawExample(Member member) throws ExecutionException, InterruptedException {
         setActionRows(ReactionRoles.getComponents(getLocale(), member.getGuild(), slots, removeRole, multipleRoles, newComponents, showRoleNumbers));
-        return ReactionRoles.getMessageEmbed(getLocale(), title, description, slots, roleRequirements, showRoleConnections, banner);
+        return ReactionRoles.getMessageEmbed(getLocale(), member.getGuild().getIdLong(), title, description, slots,
+                roleRequirements, showRoleConnections, banner);
     }
 
     @Draw(state = SENT)
