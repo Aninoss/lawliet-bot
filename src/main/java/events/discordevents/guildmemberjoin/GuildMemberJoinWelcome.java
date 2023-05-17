@@ -3,7 +3,6 @@ package events.discordevents.guildmemberjoin;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Locale;
-import commands.Category;
 import commands.runnables.utilitycategory.WelcomeCommand;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
@@ -72,15 +71,13 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
             if (welcomeMessageData.getDmEmbed()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setDescription(content)
-                        .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), Category.UTILITY, "welcome_action_text"));
+                        .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), TextManager.GENERAL, "serverstaff_text_server", event.getGuild().getName()));
 
                 JDAUtil.openPrivateChannel(member)
                         .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
                         .queue();
             } else {
-                EmbedBuilder eb = new EmbedBuilder()
-                        .setDescription(TextManager.getString(locale, Category.UTILITY, "welcome_action_text"));
-
+                EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(event.getGuild(), locale);
                 JDAUtil.openPrivateChannel(member)
                         .flatMap(messageChannel -> messageChannel.sendMessage(content)
                                 .addEmbeds(eb.build())
@@ -121,7 +118,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setDescription(content)
-                    .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), Category.UTILITY, "welcome_action_text"));
+                    .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), TextManager.GENERAL, "serverstaff_text"));
 
             if (image != null) {
                 eb.setImage("attachment://welcome.png");
@@ -140,8 +137,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
                 messageCreateAction.addFiles(FileUpload.fromData(image, "welcome.png"));
             }
 
-            EmbedBuilder eb = new EmbedBuilder()
-                    .setDescription(TextManager.getString(locale, Category.UTILITY, "welcome_action_text"));
+            EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(locale);
             messageCreateAction.addEmbeds(eb.build())
                     .queue();
         }

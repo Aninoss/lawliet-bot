@@ -157,7 +157,8 @@ public class ReactionRoles {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(Command.getCommandProperties(ReactionRolesCommand.class).emoji() + " " + newTitle)
                 .setDescription(description)
-                .setImage(banner == null || banner.isBlank() ? null : banner);
+                .setImage(banner == null || banner.isBlank() ? null : banner)
+                .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
 
         if (showRoleConnections) {
             boolean isPro = ServerPatreonBoostCache.get(guildId);

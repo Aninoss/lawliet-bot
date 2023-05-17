@@ -2,10 +2,7 @@ package mysql.modules.tracker;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,12 +15,15 @@ import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import commands.Category;
 import core.MainLogger;
 import core.ShardManager;
+import core.TextManager;
 import core.assets.StandardGuildMessageChannelAsset;
 import core.cache.ServerPatreonBoostCache;
 import core.components.WebhookMessageBuilderAdvanced;
 import core.utils.BotPermissionUtil;
+import core.utils.StringUtil;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -98,7 +98,11 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
     }
 
     public Optional<String> getUserMessage() {
-        return Optional.ofNullable(userMessage);
+        return Optional.ofNullable(userMessage)
+                .map(message -> {
+                    Locale locale = getGuildData().getLocale();
+                    return TextManager.getString(locale, Category.UTILITY, "alerts_action", StringUtil.shortenString(message, 1024));
+                });
     }
 
     public Instant getCreationTime() {

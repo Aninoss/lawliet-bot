@@ -2,7 +2,6 @@ package events.discordevents.guildmemberremove;
 
 import java.util.HashSet;
 import java.util.Locale;
-import commands.Category;
 import commands.runnables.utilitycategory.WelcomeCommand;
 import core.EmbedFactory;
 import core.PermissionCheckRuntime;
@@ -50,15 +49,13 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
 
                         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                                 .setDescription(content)
-                                .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), Category.UTILITY, "welcome_action_text"));
+                                .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), TextManager.GENERAL, "serverstaff_text"));
 
                         channel.sendMessage(sb.toString())
                                 .addEmbeds(eb.build())
                                 .queue();
                     } else {
-                        EmbedBuilder eb = new EmbedBuilder()
-                                .setDescription(TextManager.getString(locale, Category.UTILITY, "welcome_action_text"));
-
+                        EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(locale);
                         channel.sendMessage(content)
                                 .addEmbeds(eb.build())
                                 .queue();

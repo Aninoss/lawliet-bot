@@ -17,7 +17,8 @@ public class Giveaway {
                                                Emoji emoji, long durationMinutes, String imageUrl, Instant instant) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle("🎆 " + title)
-                .setDescription(desc);
+                .setDescription(desc)
+                .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
 
         String tutText = TextManager.getString(
                 locale,

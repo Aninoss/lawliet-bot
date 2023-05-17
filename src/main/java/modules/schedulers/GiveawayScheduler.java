@@ -103,7 +103,8 @@ public class GiveawayScheduler {
             CommandProperties commandProps = Command.getCommandProperties(GiveawayCommand.class);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(TextManager.getString(locale, Category.UTILITY, "giveaway_results_title", reroll, commandProps.emoji(), giveawayData.getTitle()))
-                    .setDescription(TextManager.getString(locale, "utility", "giveaway_results", winners.size() != 1));
+                    .setDescription(TextManager.getString(locale, "utility", "giveaway_results", winners.size() != 1))
+                    .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
             giveawayData.getImageUrl().ifPresent(eb::setImage);
             if (winners.size() > 0) {
                 eb.addField(

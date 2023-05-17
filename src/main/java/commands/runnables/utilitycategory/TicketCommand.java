@@ -526,15 +526,18 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 message.getEmbeds().get(0).getDescription().length() > 0
         ) {
             MessageEmbed messageEmbed = message.getEmbeds().get(0);
+            String newContent = message.getContentDisplay().isBlank()
+                    ? messageEmbed.getDescription()
+                    : message.getContentDisplay() + " | " + messageEmbed.getDescription();
             if (messageEmbed.getAuthor() != null &&
                     messageEmbed.getAuthor().getName() != null
             ) {
                 content = getString("csv_author",
                         messageEmbed.getAuthor().getName(),
-                        messageEmbed.getDescription()
+                        newContent
                 );
             } else {
-                content = messageEmbed.getDescription();
+                content = newContent;
             }
         }
         return content;

@@ -72,7 +72,7 @@ public class Ticket {
         CommandProperties commandProperties = Command.getCommandProperties(TicketCommand.class);
         String title = commandProperties.emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
 
-        if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, textChannel, Permission.MESSAGE_SEND)) {
+        if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, textChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
             /* member greeting */
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
@@ -98,6 +98,7 @@ public class Ticket {
             ticketData.getCreateMessage().ifPresent(createMessage -> {
                 if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, textChannel, Permission.MESSAGE_SEND)) {
                     textChannel.sendMessage(createMessage)
+                            .addEmbeds(EmbedFactory.getWrittenByServerStaffEmbed(locale).build())
                             .setAllowedMentions(null)
                             .queue();
                 }

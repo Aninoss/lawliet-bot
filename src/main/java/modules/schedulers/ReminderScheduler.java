@@ -73,14 +73,14 @@ public class ReminderScheduler {
         )) {
             String userMessage = StringUtil.shortenString(reminderData.getMessage(), 1800);
             if (BotPermissionUtil.canWriteEmbed(channel) && !InternetUtil.stringHasURL(userMessage)) {
-                EmbedBuilder eb = new EmbedBuilder()
-                        .setDescription(TextManager.getString(reminderData.getGuildData().getLocale(), Category.UTILITY, "reminder_action_text"));
+                EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(reminderData.getGuildData().getLocale());
                 channel.sendMessage(userMessage)
                         .setEmbeds(eb.build())
                         .setAllowedMentions(null)
                         .queue();
             } else {
-                channel.sendMessage(TextManager.getString(reminderData.getGuildData().getLocale(), Category.UTILITY, "reminder_action", userMessage))
+                String content = TextManager.getString(reminderData.getGuildData().getLocale(), Category.UTILITY, "reminder_action", userMessage);
+                channel.sendMessage(content)
                         .setAllowedMentions(null)
                         .queue();
             }
