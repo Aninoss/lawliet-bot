@@ -19,8 +19,8 @@ public class RedisManager {
 
     private static JedisPoolConfig buildPoolConfig() {
         final JedisPoolConfig poolConfig = new JedisPoolConfig();
-        poolConfig.setMaxTotal(32);
-        poolConfig.setMaxIdle(32);
+        poolConfig.setMaxTotal(48);
+        poolConfig.setMaxIdle(48);
         poolConfig.setMinIdle(0);
         return poolConfig;
     }
