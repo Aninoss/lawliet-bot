@@ -103,42 +103,46 @@ public class AlertScheduler {
         Optional<StandardGuildMessageChannel> channelOpt = slot.getStandardGuildMessageChannel();
         if (channelOpt.isPresent()) {
             StandardGuildMessageChannel channel = channelOpt.get();
-            if (PermissionCheckRuntime.botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
-                if (checkNSFW(slot, channel, (Command) command) ||
-                        checkPatreon(slot, channel, (Command) command) ||
-                        checkReleased(slot, channel, (Command) command)
-                ) {
-                    return;
-                }
+            if (channel.getGuild().getMember(channel.getJDA().getSelfUser()) == null) {
+                MainLogger.get().warn("Guild {} does not have a self member", channel.getGuild().getIdLong());
+                return;
+            }
 
-                switch (command.onTrackerRequest(slot)) {
-                    case STOP:
-                        slot.stop();
-                        break;
+            if (!PermissionCheckRuntime.botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS) ||
+                    checkNSFW(slot, channel, (Command) command) ||
+                    checkPatreon(slot, channel, (Command) command) ||
+                    checkReleased(slot, channel, (Command) command)
+            ) {
+                return;
+            }
 
-                    case STOP_AND_DELETE:
-                        slot.delete();
-                        break;
+            switch (command.onTrackerRequest(slot)) {
+                case STOP:
+                    slot.stop();
+                    break;
 
-                    case STOP_AND_SAVE:
-                        slot.stop();
-                        slot.save();
-                        break;
+                case STOP_AND_DELETE:
+                    slot.delete();
+                    break;
 
-                    case CONTINUE:
-                        break;
+                case STOP_AND_SAVE:
+                    slot.stop();
+                    slot.save();
+                    break;
 
-                    case CONTINUE_AND_SAVE:
-                        Instant minIntervalInstant = Instant.now().plus(slot.getMinInterval(), ChronoUnit.MINUTES);
-                        if (slot.getMinInterval() > 0 &&
-                                minIntervalInstant.isAfter(slot.getNextRequest()) &&
-                                ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
-                        ) {
-                            slot.setNextRequest(minIntervalInstant);
-                        }
-                        slot.save();
-                        break;
-                }
+                case CONTINUE:
+                    break;
+
+                case CONTINUE_AND_SAVE:
+                    Instant minIntervalInstant = Instant.now().plus(slot.getMinInterval(), ChronoUnit.MINUTES);
+                    if (slot.getMinInterval() > 0 &&
+                            minIntervalInstant.isAfter(slot.getNextRequest()) &&
+                            ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
+                    ) {
+                        slot.setNextRequest(minIntervalInstant);
+                    }
+                    slot.save();
+                    break;
             }
         } else {
             if (slot.getGuild().isPresent()) {
