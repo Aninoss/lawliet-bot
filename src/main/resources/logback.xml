@@ -7,9 +7,27 @@
             <onMatch>DENY</onMatch>
             <onMismatch>NEUTRAL</onMismatch>
         </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>NEUTRAL</onMismatch>
+        </filter>
 
         <encoder>
             <pattern>${CLUSTER} - %d [%-5level] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STD_WARN" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>NEUTRAL</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <target>System.err</target>
+        <encoder>
+            <pattern>${CLUSTER} - %d [%thread] [%-5level] %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -29,6 +47,7 @@
 
     <root level="INFO">
         <appender-ref ref="STD_OUT" />
+        <appender-ref ref="STD_WARN" />
         <appender-ref ref="STD_ERR" />
     </root>
 
