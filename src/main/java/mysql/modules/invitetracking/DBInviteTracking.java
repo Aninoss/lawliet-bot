@@ -151,7 +151,7 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
     }
 
     private void addGuildInvite(GuildInvite guildInvite) {
-        if (guildInvite.getCode().length() <= 50) {
+        if (guildInvite.getCode().length() <= 100) {
             MySQLManager.asyncUpdate("REPLACE INTO ServerInvites (serverId, code, userId, usages, maxAge) VALUES (?, ?, ?, ?, ?);", preparedStatement -> {
                 preparedStatement.setLong(1, guildInvite.getGuildId());
                 preparedStatement.setString(2, guildInvite.getCode());
@@ -164,7 +164,7 @@ public class DBInviteTracking extends DBObserverMapCache<Long, InviteTrackingDat
                 }
             });
         } else {
-            LOGGER.error("Invite code \"{}\" for server id {} is too long!", guildInvite.getCode(), guildInvite.getGuildId());
+            LOGGER.warn("Invite code \"{}\" for server id {} is too long!", guildInvite.getCode(), guildInvite.getGuildId());
         }
     }
 
