@@ -66,9 +66,11 @@ public class InviteFilter extends AutoModAbstract {
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), StringUtil.shortenString(content, 1024), false);
 
         for (Long userId : spBlockBean.getLogReceiverUserIds()) {
-            JDAUtil.openPrivateChannel(message.getJDA(), userId)
-                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
-                    .queue();
+            if (userId != message.getGuild().getSelfMember().getIdLong()) {
+                JDAUtil.openPrivateChannel(message.getJDA(), userId)
+                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                        .queue();
+            }
         }
     }
 

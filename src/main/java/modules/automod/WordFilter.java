@@ -37,9 +37,11 @@ public class WordFilter extends AutoModAbstract {
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), StringUtil.shortenString(message.getContentRaw(), 1024), true);
 
         for (Long userId : bannedWordsBean.getLogReceiverUserIds()) {
-            JDAUtil.openPrivateChannel(message.getJDA(), userId)
-                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
-                    .queue();
+            if (userId != message.getGuild().getSelfMember().getIdLong()) {
+                JDAUtil.openPrivateChannel(message.getJDA(), userId)
+                        .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                        .queue();
+            }
         }
     }
 
