@@ -4,6 +4,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
+import core.MemberCacheController;
 import core.mention.MentionList;
 import core.utils.MentionUtil;
 import net.dv8tion.jda.api.Permission;
@@ -15,7 +16,8 @@ import net.dv8tion.jda.api.entities.User;
         botGuildPermissions = Permission.BAN_MEMBERS,
         userGuildPermissions = Permission.BAN_MEMBERS,
         emoji = "🌼",
-        executableWithoutArgs = false
+        executableWithoutArgs = false,
+        requiresFullMemberCache = true
 )
 public class UnbanCommand extends WarnCommand {
 
@@ -29,7 +31,11 @@ public class UnbanCommand extends WarnCommand {
     }
 
     @Override
-    protected void process(Guild guild, User target, String reason) {
+    protected void process(Guild guild, User target, String reason) throws ExecutionException, InterruptedException {
+        if (MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).get() != null) {
+            return;
+        }
+
         guild.unban(target)
                 .reason(reason)
                 .submit()
