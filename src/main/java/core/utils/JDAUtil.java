@@ -190,7 +190,9 @@ public class JDAUtil {
         if (channel instanceof StandardGuildMessageChannel) {
             return ((StandardGuildMessageChannel) channel).isNSFW();
         }
-        if (channel instanceof ThreadChannel) {
+        if (channel instanceof ThreadChannel &&
+                ((ThreadChannel) channel).getParentChannel() instanceof GuildMessageChannelUnion
+        ) {
             GuildMessageChannelUnion parentMessageChannel = ((ThreadChannel) channel).getParentMessageChannel();
             if (parentMessageChannel instanceof StandardGuildMessageChannel) {
                 return ((StandardGuildMessageChannel) parentMessageChannel).isNSFW();
