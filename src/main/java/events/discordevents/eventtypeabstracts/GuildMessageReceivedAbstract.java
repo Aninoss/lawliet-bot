@@ -21,6 +21,10 @@ public abstract class GuildMessageReceivedAbstract extends DiscordEventAbstract 
 
 
     public static void onGuildMessageReceivedStatic(MessageReceivedEvent event, ArrayList<DiscordEventAbstract> listenerList) {
+        if (event.getMessage().getType().isSystem()) {
+            return;
+        }
+
         Instant startTime = Instant.now();
         execute(listenerList, event.getAuthor(), event.getGuild().getIdLong(),
                 listener -> {
