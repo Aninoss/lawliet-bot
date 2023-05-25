@@ -34,10 +34,6 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
 
     @Override
     public FilterReply decide(final ILoggingEvent event) {
-        if (!shouldBeVisible(event.getFormattedMessage())) {
-            return FilterReply.DENY;
-        }
-
         final IThrowableProxy throwableProxy = event.getThrowableProxy();
         if (throwableProxy == null) {
             return FilterReply.NEUTRAL;
@@ -56,7 +52,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             return FilterReply.NEUTRAL;
         }
 
-        return shouldBeVisible(message) ? FilterReply.NEUTRAL : FilterReply.DENY;
+        return FilterReply.NEUTRAL;
     }
 
     public boolean shouldBeVisible(String message) {
