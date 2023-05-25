@@ -162,6 +162,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
 
     public Optional<Long> sendMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
         if (embeds.isEmpty()) {
+            MainLogger.get().warn("Empty embeds for alert {} in guild {}", getCommandTrigger(), getGuildId());
             return Optional.empty();
         }
         return processMessage(true, acceptUserMessage, null, embeds, actionRows);
@@ -220,6 +221,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                 return processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows);
             }
         } else {
+            MainLogger.get().warn("Channel not present for alert {} in guild {}", getCommandTrigger(), getGuildId());
             return Optional.empty();
         }
     }
@@ -283,6 +285,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                 return Optional.empty();
             }
         } else {
+            MainLogger.get().warn("Channel not present for alert {} in guild {}", getCommandTrigger(), getGuildId());
             return Optional.empty();
         }
     }
@@ -339,6 +342,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                 return Optional.empty();
             }
         } else {
+            MainLogger.get().warn("Channel not present for alert {} in guild {}", getCommandTrigger(), getGuildId());
             return Optional.empty();
         }
     }
