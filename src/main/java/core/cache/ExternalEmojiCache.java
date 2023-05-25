@@ -13,7 +13,7 @@ import events.sync.SendEvent;
 public class ExternalEmojiCache {
 
     private static final LoadingCache<Long, Optional<String>> cache = CacheBuilder.newBuilder()
-            .expireAfterWrite(1, TimeUnit.MINUTES)
+            .expireAfterWrite(10, TimeUnit.SECONDS)
             .build(new CacheLoader<>() {
                        @Override
                        public Optional<String> load(@NonNull Long emojiId) throws ExecutionException, InterruptedException {
