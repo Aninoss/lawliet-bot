@@ -139,11 +139,14 @@ public class RedditCommand extends Command implements OnAlertListener {
 
             if (postBundleOpt.isPresent()) {
                 PostBundle<RedditPost> postBundle = postBundleOpt.get();
+                int totalEmbedSize = 0;
                 ArrayList<MessageEmbed> embedList = new ArrayList<>();
                 for (int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     RedditPost post = postBundle.getPosts().get(i);
                     if (!post.isNsfw() || channel.isNSFW()) {
-                        embedList.add(getEmbed(post).build());
+                        MessageEmbed messageEmbed = getEmbed(post).build();
+                        totalEmbedSize += messageEmbed.getLength();
+                        embedList.add(messageEmbed);
                         containsOnlyNsfw = false;
                         if (slot.getArgs().isEmpty()) {
                             break;
@@ -159,6 +162,9 @@ public class RedditCommand extends Command implements OnAlertListener {
                 }
 
                 if (embedList.size() > 0) {
+                    while (totalEmbedSize > MessageEmbed.EMBED_MAX_LENGTH_BOT) {
+                        totalEmbedSize -= embedList.remove(0).getLength();
+                    }
                     slot.sendMessage(true, embedList);
                 }
 
