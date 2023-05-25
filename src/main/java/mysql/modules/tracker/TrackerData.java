@@ -192,13 +192,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                     }
                     if (webhooks.size() < 10) {
                         Member self = channel.getGuild().getSelfMember();
-
-                        String name = self.getEffectiveName();
-                        if (name.length() < 2 || name.length() > 100) {
-                            name = self.getUser().getName();
-                        }
-
-                        Webhook webhook = channel.createWebhook(name)
+                        Webhook webhook = channel.createWebhook(self.getUser().getName())
                                 .complete();
 
                         webhookUrl = webhook.getUrl();
