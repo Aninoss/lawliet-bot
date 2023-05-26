@@ -3,6 +3,8 @@ package mysql.modules.subs;
 import java.util.Locale;
 import java.util.Observable;
 import commands.Category;
+import constants.AssetIds;
+import core.Program;
 import core.ShardManager;
 import core.TextManager;
 import core.assets.UserAsset;
@@ -44,7 +46,9 @@ public class SubSlot extends Observable implements UserAsset {
     }
 
     public void sendEmbed(Locale locale, EmbedBuilder eb, Button... buttons) {
-        if (!DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(userId)) {
+        if (!DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(userId) &&
+                (Program.publicVersion() || userId != AssetIds.OWNER_USER_ID)
+        ) {
             eb.setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
             JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
                     .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()).setComponents(ActionRows.of(buttons)))
