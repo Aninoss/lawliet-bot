@@ -50,7 +50,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
                 if (isNotASpamChannel(event.getGuildChannel())) {
                     Fishery.spawnTreasureChest(event.getChannel().asTextChannel());
                 }
-            } else if (guildBean.isFisheryPowerups() && r.nextInt(400) == 0) {
+            } else if (guildBean.isFisheryPowerups() && r.nextInt(300) == 0) {
                 if (isNotASpamChannel(event.getGuildChannel())) {
                     Fishery.spawnPowerUp(event.getChannel().asTextChannel(), event.getMember());
                 }
