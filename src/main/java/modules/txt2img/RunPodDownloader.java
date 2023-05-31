@@ -44,7 +44,7 @@ public class RunPodDownloader {
         requestJson.put("input", inputJson);
 
         return HttpRequest.post(
-                "https://api.runpod.ai/v1/" + model.getModelId() + "/run",
+                "https://api.runpod.ai/v2/" + model.getModelId() + "/run",
                 "application/json",
                 requestJson.toString(),
                 new HttpHeader("Authorization", "Bearer " + System.getenv("RUNPOD_TOKEN"))
@@ -59,7 +59,7 @@ public class RunPodDownloader {
 
     public static CompletableFuture<PredictionResult> retrievePrediction(Model model, String requestId, Instant startTime) {
         return HttpRequest.get(
-                "https://api.runpod.ai/v1/" + model.getModelId() + "/status/" + requestId,
+                "https://api.runpod.ai/v2/" + model.getModelId() + "/status/" + requestId,
                 new HttpHeader("Authorization", "Bearer " + System.getenv("RUNPOD_TOKEN"))
         ).thenApply(response -> {
             JSONObject responseJson = new JSONObject(response.getBody());
