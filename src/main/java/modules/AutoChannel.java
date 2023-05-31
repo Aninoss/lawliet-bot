@@ -33,8 +33,8 @@ public class AutoChannel {
         AutoChannelData autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
         if (autoChannelBean.isActive() && voiceChannel.getIdLong() == autoChannelBean.getParentChannelId().orElse(0L)) {
             GuildData guildBean = autoChannelBean.getGuildData();
-            if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, guild, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL) &&
-                    PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParentCategory(), Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL) &&
+            if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, guild, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS) &&
+                    PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParentCategory(), Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS) &&
                     PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
             ) {
                 int n = 1;
@@ -111,7 +111,7 @@ public class AutoChannel {
         channelAction = BotPermissionUtil.copyPermissions(parentVoice, channelAction);
         channelAction = BotPermissionUtil.addPermission(parentVoice, channelAction, parentVoice.getGuild().getSelfMember(), true,
                 Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT);
-        return BotPermissionUtil.addPermission(parentVoice, channelAction, member, true, Permission.MANAGE_CHANNEL);
+        return BotPermissionUtil.addPermission(parentVoice, channelAction, member, true, Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS);
     }
 
     private static String getNewVoiceName(AutoChannelData autoChannelBean, VoiceChannel parentVoice, Member member, int n) {
