@@ -240,7 +240,7 @@ public class WarnCommand extends Command implements OnButtonListener {
                     mentionError = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), memberMissingAccessList);
                 }
                 return EmbedFactory.getEmbedError(this,
-                        TextManager.getString(getLocale(), Category.MODERATION, "warn_usererror_description", i, mentionError.getMentionText()),
+                        TextManager.getString(getLocale(), Category.MODERATION, i == 0 ? "warn_rolepos_bot" : "warn_rolepos_user", mentionError.getMentionText()),
                         TextManager.getString(getLocale(), TextManager.GENERAL, "wrong_args")
                 );
 
