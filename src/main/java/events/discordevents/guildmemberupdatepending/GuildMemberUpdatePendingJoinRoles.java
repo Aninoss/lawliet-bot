@@ -11,7 +11,7 @@ public class GuildMemberUpdatePendingJoinRoles extends GuildMemberUpdatePendingA
 
     @Override
     public boolean onGuildMemberUpdatePending(GuildMemberUpdatePendingEvent event) throws Throwable {
-        JoinRoles.process(event.getMember(), true)
+        JoinRoles.process(event.getMember(), false)
                 .exceptionally(ExceptionLogger.get());
         return true;
     }
