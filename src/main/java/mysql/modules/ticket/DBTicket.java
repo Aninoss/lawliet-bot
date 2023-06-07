@@ -22,20 +22,26 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
     @Override
     protected TicketData load(Long serverId) throws Exception {
         TicketData ticketData = MySQLManager.get(
-                "SELECT channelId, counter, memberCanClose, createMessage, assignToAll, protocol, ping, userMessages FROM Ticket WHERE serverId = ?;",
+                "SELECT channelId, counter, memberCanClose, createMessage, assignToAll, protocol, ping, userMessages, autoCloseHours, deleteChannelOnTicketClose FROM Ticket WHERE serverId = ?;",
                 preparedStatement -> preparedStatement.setLong(1, serverId),
                 resultSet -> {
                     if (resultSet.next()) {
+                        Integer autoCloseHours = resultSet.getInt(9);
+                        if (resultSet.wasNull()) {
+                            autoCloseHours = null;
+                        }
                         return new TicketData(
                                 serverId,
                                 resultSet.getLong(1),
                                 resultSet.getInt(2),
                                 resultSet.getBoolean(3),
                                 resultSet.getString(4),
-                                resultSet.getBoolean(5),
+                                TicketData.TicketAssignmentMode.values()[resultSet.getInt(5)],
                                 resultSet.getBoolean(6),
                                 resultSet.getBoolean(7),
                                 resultSet.getBoolean(8),
+                                autoCloseHours,
+                                resultSet.getBoolean(10),
                                 getStaffRoles(serverId),
                                 getTicketChannels(serverId)
                         );
@@ -46,9 +52,11 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
                                 0,
                                 true,
                                 null,
-                                false,
+                                TicketData.TicketAssignmentMode.MANUAL,
                                 false,
                                 true,
+                                true,
+                                null,
                                 true,
                                 getStaffRoles(serverId),
                                 getTicketChannels(serverId)
@@ -71,7 +79,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
 
     @Override
     protected void save(TicketData ticketData) {
-        MySQLManager.asyncUpdate("REPLACE INTO Ticket (serverId, channelId, counter, memberCanClose, createMessage, assignToAll, protocol, ping, userMessages) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO Ticket (serverId, channelId, counter, memberCanClose, createMessage, assignToAll, protocol, ping, userMessages, autoCloseHours, deleteChannelOnTicketClose) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, ticketData.getGuildId());
 
             Optional<Long> channelIdOpt = ticketData.getAnnouncementTextChannelId();
@@ -91,15 +99,23 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
                 preparedStatement.setNull(5, Types.VARCHAR);
             }
 
-            preparedStatement.setBoolean(6, ticketData.getAssignToAll());
+            preparedStatement.setInt(6, ticketData.getTicketAssignmentMode().ordinal());
             preparedStatement.setBoolean(7, ticketData.getProtocol());
             preparedStatement.setBoolean(8, ticketData.getPingStaff());
             preparedStatement.setBoolean(9, ticketData.getUserMessages());
+
+            if (ticketData.getAutoCloseHours() != null) {
+                preparedStatement.setInt(10, ticketData.getAutoCloseHours());
+            } else {
+                preparedStatement.setNull(10, Types.INTEGER);
+            }
+
+            preparedStatement.setBoolean(11, ticketData.getDeleteChannelOnTicketClose());
         });
     }
 
     private Map<Long, TicketChannel> getTicketChannels(long serverId) {
-        return new DBDataLoad<TicketChannel>("TicketOpenChannel", "channelId, userId, messageChannelId, messageMessageId, assigned", "serverId = ?",
+        return new DBDataLoad<TicketChannel>("TicketOpenChannel", "channelId, userId, messageChannelId, messageMessageId, assigned, starterMessageId", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getMap(
                 TicketChannel::getTextChannelId,
@@ -109,19 +125,21 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
                         resultSet.getLong(2),
                         resultSet.getLong(3),
                         resultSet.getLong(4),
-                        resultSet.getBoolean(5)
+                        resultSet.getBoolean(5),
+                        resultSet.getLong(6)
                 )
         );
     }
 
     private void addTicketChannel(TicketChannel ticketChannel) {
-        MySQLManager.asyncUpdate("REPLACE INTO TicketOpenChannel (serverId, channelId, userId, messageChannelId, messageMessageId, assigned) VALUES (?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO TicketOpenChannel (serverId, channelId, userId, messageChannelId, messageMessageId, assigned, starterMessageId) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, ticketChannel.getGuildId());
             preparedStatement.setLong(2, ticketChannel.getTextChannelId());
             preparedStatement.setLong(3, ticketChannel.getMemberId());
             preparedStatement.setLong(4, ticketChannel.getAnnouncementChannelId());
             preparedStatement.setLong(5, ticketChannel.getAnnouncementMessageId());
             preparedStatement.setBoolean(6, ticketChannel.isAssigned());
+            preparedStatement.setLong(7, ticketChannel.getStarterMessageId());
         });
     }
 

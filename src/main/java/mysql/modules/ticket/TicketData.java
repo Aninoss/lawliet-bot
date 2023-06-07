@@ -11,30 +11,39 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class TicketData extends DataWithGuild {
 
+    public enum TicketAssignmentMode {
+        FIRST, EVERYONE, MANUAL
+    }
+
     private Long channelId;
     private int counter;
     private boolean memberCanClose;
     private String createMessage;
-    private boolean assignToAll;
+    private TicketAssignmentMode ticketAssignmentMode;
     private boolean protocol;
     private boolean pingStaff;
     private boolean userMessages;
+    private Integer autoCloseHours;
+    private boolean deleteChannelOnTicketClose;
     private final CustomObservableList<Long> staffRoleIds;
     private final CustomObservableMap<Long, TicketChannel> ticketChannels;
 
     public TicketData(long serverId, Long channelId, int counter, boolean memberCanClose, String createMessage,
-                      boolean assignToAll, boolean protocol, boolean pingStaff, boolean userMessages,
-                      List<Long> staffRoleIds, Map<Long, TicketChannel> ticketChannels
+                      TicketAssignmentMode ticketAssignmentMode, boolean protocol, boolean pingStaff, boolean userMessages,
+                      Integer autoCloseHours, boolean deleteChannelOnTicketClose, List<Long> staffRoleIds,
+                      Map<Long, TicketChannel> ticketChannels
     ) {
         super(serverId);
         this.channelId = channelId;
         this.counter = counter;
         this.memberCanClose = memberCanClose;
         this.createMessage = createMessage;
-        this.assignToAll = assignToAll;
+        this.ticketAssignmentMode = ticketAssignmentMode;
         this.protocol = protocol;
         this.pingStaff = pingStaff;
         this.userMessages = userMessages;
+        this.autoCloseHours = autoCloseHours;
+        this.deleteChannelOnTicketClose = deleteChannelOnTicketClose;
         this.staffRoleIds = new CustomObservableList<>(staffRoleIds);
         this.ticketChannels = new CustomObservableMap<>(ticketChannels);
     }
@@ -77,8 +86,8 @@ public class TicketData extends DataWithGuild {
         return ticketChannels;
     }
 
-    public void toggleMemberCanClose() {
-        this.memberCanClose = !this.memberCanClose;
+    public void setMemberCanClose(boolean memberCanClose) {
+        this.memberCanClose = memberCanClose;
         setChanged();
         notifyObservers();
     }
@@ -99,12 +108,12 @@ public class TicketData extends DataWithGuild {
         }
     }
 
-    public boolean getAssignToAll() {
-        return assignToAll;
+    public TicketAssignmentMode getTicketAssignmentMode() {
+        return ticketAssignmentMode;
     }
 
-    public void toggleAssignToAll() {
-        this.assignToAll = !this.assignToAll;
+    public void setTicketAssignmentMode(TicketAssignmentMode ticketAssignmentMode) {
+        this.ticketAssignmentMode = ticketAssignmentMode;
         setChanged();
         notifyObservers();
     }
@@ -117,8 +126,8 @@ public class TicketData extends DataWithGuild {
         return getProtocol() && ServerPatreonBoostCache.get(getGuildId());
     }
 
-    public void toggleProtocol() {
-        this.protocol = !this.protocol;
+    public void setProtocol(boolean protocol) {
+        this.protocol = protocol;
         setChanged();
         notifyObservers();
     }
@@ -127,8 +136,8 @@ public class TicketData extends DataWithGuild {
         return pingStaff;
     }
 
-    public void togglePingStaff() {
-        this.pingStaff = !this.pingStaff;
+    public void setPingStaff(boolean pingStaff) {
+        this.pingStaff = pingStaff;
         setChanged();
         notifyObservers();
     }
@@ -137,8 +146,36 @@ public class TicketData extends DataWithGuild {
         return userMessages;
     }
 
-    public void toggleUserMessages() {
-        this.userMessages = !this.userMessages;
+    public void setUserMessages(boolean userMessages) {
+        this.userMessages = userMessages;
+        setChanged();
+        notifyObservers();
+    }
+
+    public Integer getAutoCloseHours() {
+        return autoCloseHours;
+    }
+
+    public Integer getAutoCloseHoursEffectively() {
+        if (ServerPatreonBoostCache.get(getGuildId())) {
+            return getAutoCloseHours();
+        } else {
+            return null;
+        }
+    }
+
+    public void setAutoCloseHours(Integer autoCloseHours) {
+        this.autoCloseHours = autoCloseHours;
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean getDeleteChannelOnTicketClose() {
+        return deleteChannelOnTicketClose;
+    }
+
+    public void setDeleteChannelOnTicketClose(boolean deleteChannelOnTicketClose) {
+        this.deleteChannelOnTicketClose = deleteChannelOnTicketClose;
         setChanged();
         notifyObservers();
     }

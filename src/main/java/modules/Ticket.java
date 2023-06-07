@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import commands.Category;
 import commands.Command;
@@ -72,18 +73,26 @@ public class Ticket {
         CommandProperties commandProperties = Command.getCommandProperties(TicketCommand.class);
         String title = commandProperties.emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
 
+        long starterMessageId = 0;
         if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, textChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
             /* member greeting */
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
                     .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_greeting", TicketCommand.TICKET_CLOSE_EMOJI.getFormatted()));
-            textChannel.sendMessageEmbeds(eb.build())
-                    .setComponents(ActionRows.of(Button.of(ButtonStyle.DANGER, TicketCommand.BUTTON_ID_CLOSE, TextManager.getString(locale, Category.UTILITY, "ticket_button_close"))))
-                    .setContent(member.getAsMention())
-                    .queue(message -> DBStaticReactionMessages.getInstance()
-                            .retrieve(message.getGuild().getIdLong())
-                            .put(message.getIdLong(), new StaticReactionMessageData(message, commandProperties.trigger()))
-                    );
+
+            try {
+                Message starterMessage = textChannel.sendMessageEmbeds(eb.build())
+                        .setComponents(ActionRows.of(Button.of(ButtonStyle.DANGER, TicketCommand.BUTTON_ID_CLOSE, TextManager.getString(locale, Category.UTILITY, "ticket_button_close"))))
+                        .setContent(member.getAsMention())
+                        .submit()
+                        .get();
+                starterMessageId = starterMessage.getIdLong();
+                DBStaticReactionMessages.getInstance()
+                        .retrieve(textChannel.getGuild().getIdLong())
+                        .put(starterMessage.getIdLong(), new StaticReactionMessageData(starterMessage, commandProperties.trigger()));
+            } catch (InterruptedException | ExecutionException e) {
+                MainLogger.get().error("Starter message could not be sent for ticket in guild {}", textChannel.getGuild().getIdLong());
+            }
 
             /* user message */
             if (userMessage != null) {
@@ -106,6 +115,7 @@ public class Ticket {
         }
 
         /* post announcement to staff channel */
+        long finalStarterMessageId = starterMessageId;
         AtomicBoolean announcementNotPosted = new AtomicBoolean(true);
         ticketData.getAnnouncementTextChannel().ifPresent(announcementChannel -> {
             if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, announcementChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
@@ -123,7 +133,8 @@ public class Ticket {
                                     member.getIdLong(),
                                     announcementChannel.getIdLong(),
                                     m.getIdLong(),
-                                    false
+                                    false,
+                                    finalStarterMessageId
                             ));
                         }, e -> {
                             MainLogger.get().error("Ticket announcement error", e);
@@ -133,7 +144,8 @@ public class Ticket {
                                     member.getIdLong(),
                                     0L,
                                     0L,
-                                    false
+                                    false,
+                                    finalStarterMessageId
                             ));
                         });
             }
@@ -146,7 +158,8 @@ public class Ticket {
                     member.getIdLong(),
                     0L,
                     0L,
-                    false
+                    false,
+                    starterMessageId
             ));
         }
     }
@@ -180,28 +193,30 @@ public class Ticket {
 
     public static void removeTicket(TextChannel ticketTextChannel, TicketData ticketData, TicketChannel ticketChannel) {
         ticketData.getTicketChannels().remove(ticketChannel.getTextChannelId());
-        TextChannel textChannel = ticketTextChannel.getGuild().getTextChannelById(ticketChannel.getAnnouncementChannelId());
-        if (textChannel != null) {
-            Class<TicketCommand> clazz = TicketCommand.class;
-            String csvUrl = TicketProtocolCache.getUrl(ticketChannel.getTextChannelId());
-            Locale locale = ticketChannel.getGuildData().getLocale();
-            String title = Command.getCommandProperties(clazz).emoji() + " " + Command.getCommandLanguage(clazz, locale).getTitle();
-
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setTitle(title)
-                    .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", StringUtil.escapeMarkdownInField(ticketTextChannel.getName()), StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName())));
-            if (csvUrl != null) {
-                EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.UTILITY, "ticket_csv_warning"));
-            }
-
-            MessageEditAction messageAction = textChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), Emojis.ZERO_WIDTH_SPACE.getFormatted())
-                    .setEmbeds(eb.build());
-            if (csvUrl != null) {
-                Button button = Button.of(ButtonStyle.LINK, csvUrl, TextManager.getString(locale, Category.UTILITY, "ticket_csv_download"));
-                messageAction = messageAction.setComponents(ActionRows.of(button));
-            }
-            messageAction.queue();
+        TextChannel announcementChannel = ticketTextChannel.getGuild().getTextChannelById(ticketChannel.getAnnouncementChannelId());
+        if (announcementChannel == null) {
+            return;
         }
+
+        Class<TicketCommand> clazz = TicketCommand.class;
+        String csvUrl = TicketProtocolCache.getUrl(ticketChannel.getTextChannelId());
+        Locale locale = ticketChannel.getGuildData().getLocale();
+        String title = Command.getCommandProperties(clazz).emoji() + " " + Command.getCommandLanguage(clazz, locale).getTitle();
+
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                .setTitle(title)
+                .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", StringUtil.escapeMarkdownInField(ticketTextChannel.getName()), StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName())));
+        if (csvUrl != null) {
+            EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.UTILITY, "ticket_csv_warning"));
+        }
+
+        MessageEditAction messageAction = announcementChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), Emojis.ZERO_WIDTH_SPACE.getFormatted())
+                .setEmbeds(eb.build());
+        if (csvUrl != null) {
+            Button button = Button.of(ButtonStyle.LINK, csvUrl, TextManager.getString(locale, Category.UTILITY, "ticket_csv_download"));
+            messageAction = messageAction.setComponents(ActionRows.of(button));
+        }
+        messageAction.queue();
     }
 
     public static synchronized void assignTicket(Member member, TextChannel channel, TicketData ticketData, TicketChannel ticketChannel) {
@@ -214,7 +229,7 @@ public class Ticket {
         ) {
             ticketChannel.setAssigned();
 
-            if (!DBTicket.getInstance().retrieve(guild.getIdLong()).getAssignToAll()) {
+            if (DBTicket.getInstance().retrieve(guild.getIdLong()).getTicketAssignmentMode() != TicketData.TicketAssignmentMode.EVERYONE) {
                 TextChannelManager channelManager = channel.getManager();
                 List<Role> staffRoles = ticketData.getStaffRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
                 for (Role staffRole : staffRoles) {
@@ -258,12 +273,15 @@ public class Ticket {
         }
         for (Role staffRole : staffRoles) {
             channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, staffRole, true,
-                    Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND);
+                    Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND
+            );
         }
         channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, member, true,
-                Permission.VIEW_CHANNEL,Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND);
+                Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND
+        );
         channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, parentChannel.getGuild().getSelfMember(), true,
-                Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND);
+                Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND
+        );
         return channelAction;
     }
 
