@@ -1,38 +1,34 @@
 package modules;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import commands.Category;
 import commands.Command;
 import commands.listeners.CommandProperties;
 import commands.runnables.utilitycategory.TicketCommand;
 import constants.Emojis;
 import constants.LogStatus;
-import core.EmbedFactory;
-import core.MainLogger;
-import core.PermissionCheckRuntime;
-import core.TextManager;
+import core.*;
 import core.atomicassets.AtomicUser;
 import core.cache.TicketProtocolCache;
 import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
+import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
-import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
 import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.managers.channel.concrete.TextChannelManager;
@@ -82,7 +78,7 @@ public class Ticket {
 
             try {
                 Message starterMessage = textChannel.sendMessageEmbeds(eb.build())
-                        .setComponents(ActionRows.of(Button.of(ButtonStyle.DANGER, TicketCommand.BUTTON_ID_CLOSE, TextManager.getString(locale, Category.UTILITY, "ticket_button_close"))))
+                        .setComponents(generateButtons(locale, ticketData.getTicketAssignmentMode() == TicketData.TicketAssignmentMode.MANUAL))
                         .setContent(member.getAsMention())
                         .submit()
                         .get();
@@ -125,7 +121,7 @@ public class Ticket {
                         .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_open", StringUtil.escapeMarkdown(member.getUser().getAsTag()), textChannel.getAsMention()));
                 announcementChannel.sendMessage(ticketData.getPingStaff() ? getRolePing(textChannel.getGuild(), ticketData) : " ")
                         .setEmbeds(ebAnnouncement.build())
-                        .setComponents(ActionRows.of(Button.of(ButtonStyle.DANGER, TicketCommand.BUTTON_ID_CLOSE, TextManager.getString(locale, Category.UTILITY, "ticket_button_close"))))
+                        .setComponents(generateButtons(locale, ticketData.getTicketAssignmentMode() == TicketData.TicketAssignmentMode.MANUAL))
                         .setAllowedMentions(Collections.singleton(Message.MentionType.ROLE))
                         .queue(m -> {
                             ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
@@ -135,7 +131,8 @@ public class Ticket {
                                     announcementChannel.getIdLong(),
                                     m.getIdLong(),
                                     false,
-                                    finalStarterMessageId
+                                    finalStarterMessageId,
+                                    ticketData.getTicketAssignmentMode()
                             ));
                             DBStaticReactionMessages.getInstance()
                                     .retrieve(textChannel.getGuild().getIdLong())
@@ -149,7 +146,8 @@ public class Ticket {
                                     0L,
                                     0L,
                                     false,
-                                    finalStarterMessageId
+                                    finalStarterMessageId,
+                                    ticketData.getTicketAssignmentMode()
                             ));
                         });
             }
@@ -163,9 +161,21 @@ public class Ticket {
                     0L,
                     0L,
                     false,
-                    starterMessageId
+                    starterMessageId,
+                    ticketData.getTicketAssignmentMode()
             ));
         }
+    }
+
+    private static ActionRow generateButtons(Locale locale, boolean includeAssignButton) {
+        List<Button> buttonList = new ArrayList<>();
+
+        if (includeAssignButton) {
+            buttonList.add(Button.of(ButtonStyle.PRIMARY, TicketCommand.BUTTON_ID_ASSIGN, TextManager.getString(locale, Category.UTILITY, "ticket_button_assign")));
+        }
+        buttonList.add(Button.of(ButtonStyle.DANGER, TicketCommand.BUTTON_ID_CLOSE, TextManager.getString(locale, Category.UTILITY, "ticket_button_close")));
+
+        return ActionRow.of(buttonList);
     }
 
     private static String getRolePing(Guild guild, TicketData ticketData) {
@@ -226,36 +236,70 @@ public class Ticket {
         messageAction.queue();
     }
 
-    public static synchronized void assignTicket(Member member, TextChannel channel, TicketData ticketData, TicketChannel ticketChannel) {
+    public static synchronized void assignTicket(Member member, TextChannel channel, TicketData ticketData, TicketChannel ticketChannel) throws ExecutionException, InterruptedException {
         Guild guild = member.getGuild();
         GuildData guildData = DBGuild.getInstance().retrieve(guild.getIdLong());
         Locale locale = guildData.getLocale();
-        if (!ticketChannel.isAssigned() && ticketChannel.getMemberId() != member.getIdLong() &&
+
+        PermissionOverride memberPermissionOverride = channel.getPermissionOverride(member);
+        if (memberPermissionOverride != null && memberPermissionOverride.getAllowed().contains(Permission.MESSAGE_SEND)) {
+            return;
+        }
+
+        if (ticketChannel.getMemberId() != member.getIdLong() &&
                 PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, channel.getParentCategory(), Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND) &&
                 PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, channel, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS)
         ) {
             ticketChannel.setAssigned();
 
-            if (DBTicket.getInstance().retrieve(guild.getIdLong()).getTicketAssignmentMode() != TicketData.TicketAssignmentMode.EVERYONE) {
-                TextChannelManager channelManager = channel.getManager();
-                List<Role> staffRoles = ticketData.getStaffRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
-                for (Role staffRole : staffRoles) {
+            TextChannelManager channelManager = channel.getManager();
+            List<Role> staffRoles = ticketData.getStaffRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
+            for (Role staffRole : staffRoles) {
+                PermissionOverride permissionOverride = channel.getPermissionOverride(staffRole);
+                if (permissionOverride == null || !permissionOverride.getDenied().contains(Permission.MESSAGE_SEND)) {
                     channelManager = (TextChannelManager) BotPermissionUtil.addPermission(channel, channelManager, staffRole, false, Permission.MESSAGE_SEND);
                 }
-                BotPermissionUtil.addPermission(channel, channelManager, member, true, Permission.MESSAGE_SEND)
-                        .reason(Command.getCommandLanguage(TicketCommand.class, locale).getTitle())
-                        .queue();
+            }
+            BotPermissionUtil.addPermission(channel, channelManager, member, true, Permission.MESSAGE_SEND)
+                    .reason(Command.getCommandLanguage(TicketCommand.class, locale).getTitle())
+                    .queue();
 
-                TextChannel announcementChannel = guild.getTextChannelById(ticketChannel.getAnnouncementChannelId());
-                if (announcementChannel != null) {
-                    String title = Command.getCommandProperties(TicketCommand.class).emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
-                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                            .setTitle(title)
-                            .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_assigned", channel.getAsMention(), StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName()), StringUtil.escapeMarkdown(member.getUser().getAsTag())));
-                    announcementChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), " ")
-                            .setEmbeds(eb.build())
-                            .queue();
+            HashSet<Long> assignedMemberIds = new HashSet<>(Collections.singleton(member.getIdLong()));
+            for (PermissionOverride permissionOverride : channel.getMemberPermissionOverrides()) {
+                if (permissionOverride.getAllowed().contains(Permission.MESSAGE_SEND) &&
+                        permissionOverride.getIdLong() != ticketChannel.getMemberId() &&
+                        permissionOverride.getIdLong() != guild.getSelfMember().getIdLong()
+                ) {
+                    assignedMemberIds.add(permissionOverride.getIdLong());
                 }
+            }
+            List<User> assignedUsers = MemberCacheController.getInstance().loadMembers(channel.getGuild(), assignedMemberIds).get().stream()
+                    .map(Member::getUser)
+                    .collect(Collectors.toList());
+
+            TextChannel announcementChannel = guild.getTextChannelById(ticketChannel.getAnnouncementChannelId());
+            if (announcementChannel != null) {
+                String title = Command.getCommandProperties(TicketCommand.class).emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
+                String desc = TextManager.getString(
+                        locale,
+                        Category.UTILITY,
+                        "ticket_announcement_assigned",
+                        channel.getAsMention(),
+                        StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName()),
+                        MentionUtil.getMentionedStringOfDiscriminatedUsers(locale, assignedUsers).getMentionText()
+                );
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                        .setTitle(title)
+                        .setDescription(desc);
+                announcementChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), " ")
+                        .setEmbeds(eb.build())
+                        .queue();
+            }
+
+            if (BotPermissionUtil.canWriteEmbed(channel)) {
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                        .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_assign", member.getUser().getAsTag()));
+                channel.sendMessageEmbeds(eb.build()).queue();
             }
         }
     }
@@ -270,22 +314,23 @@ public class Ticket {
         }
 
         channelAction = BotPermissionUtil.clearPermissionOverrides(channelAction);
-        return addPermissions(parentChannel, channelAction, ticketData.getStaffRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong), member);
+        return addPermissions(ticketData, parentChannel, channelAction, ticketData.getStaffRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong), member);
     }
 
-    private static ChannelAction<TextChannel> addPermissions(TextChannel parentChannel, ChannelAction<TextChannel> channelAction, List<Role> staffRoles, Member member) {
+    private static ChannelAction<TextChannel> addPermissions(TicketData ticketData, TextChannel parentChannel, ChannelAction<TextChannel> channelAction, List<Role> staffRoles, Member member) {
         channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, member.getGuild().getPublicRole(), false, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND);
         for (PermissionOverride permissionOverride : parentChannel.getPermissionOverrides()) {
             channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, permissionOverride, false, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND);
         }
+
+        Permission[] staffRolePermissions = ticketData.getTicketAssignmentMode() != TicketData.TicketAssignmentMode.MANUAL
+                ? new Permission[] { Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND }
+                : new Permission[] { Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY };
         for (Role staffRole : staffRoles) {
-            channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, staffRole, true,
-                    Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND
-            );
+            channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, staffRole, true, staffRolePermissions);
         }
-        channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, member, true,
-                Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND
-        );
+
+        channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, member, true, Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND);
         channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, parentChannel.getGuild().getSelfMember(), true,
                 Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND
         );

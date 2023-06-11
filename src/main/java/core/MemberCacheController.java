@@ -43,12 +43,12 @@ public class MemberCacheController implements MemberCachePolicy {
         return loadMembers(guild, userIdList);
     }
 
-    public CompletableFuture<List<Member>> loadMembersWithUsers(Guild guild, List<User> users) {
+    public CompletableFuture<List<Member>> loadMembersWithUsers(Guild guild, Collection<User> users) {
         List<Long> userIdList = users.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
         return loadMembers(guild, userIdList);
     }
 
-    public CompletableFuture<List<Member>> loadMembers(Guild guild, List<Long> userIds) {
+    public CompletableFuture<List<Member>> loadMembers(Guild guild, Collection<Long> userIds) {
         cacheGuild(guild);
         CompletableFuture<List<Member>> future = new CompletableFuture<>();
 

@@ -30,36 +30,38 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
                         if (resultSet.wasNull()) {
                             autoCloseHours = null;
                         }
+                        int ticketAssignmentIndex = resultSet.getInt(5);
                         return new TicketData(
                                 serverId,
                                 resultSet.getLong(1),
                                 resultSet.getInt(2),
                                 resultSet.getBoolean(3),
                                 resultSet.getString(4),
-                                TicketData.TicketAssignmentMode.values()[resultSet.getInt(5)],
+                                TicketData.TicketAssignmentMode.values()[ticketAssignmentIndex],
                                 resultSet.getBoolean(6),
                                 resultSet.getBoolean(7),
                                 resultSet.getBoolean(8),
                                 autoCloseHours,
                                 resultSet.getBoolean(10),
                                 getStaffRoles(serverId),
-                                getTicketChannels(serverId)
+                                getTicketChannels(serverId, ticketAssignmentIndex)
                         );
                     } else {
+                        TicketData.TicketAssignmentMode ticketAssignmentMode = TicketData.TicketAssignmentMode.MANUAL;
                         return new TicketData(
                                 serverId,
                                 null,
                                 0,
                                 true,
                                 null,
-                                TicketData.TicketAssignmentMode.MANUAL,
+                                ticketAssignmentMode,
                                 false,
                                 true,
                                 true,
                                 null,
                                 true,
                                 getStaffRoles(serverId),
-                                getTicketChannels(serverId)
+                                getTicketChannels(serverId, ticketAssignmentMode.ordinal())
                         );
                     }
                 }
@@ -114,25 +116,32 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
         });
     }
 
-    private Map<Long, TicketChannel> getTicketChannels(long serverId) {
-        return new DBDataLoad<TicketChannel>("TicketOpenChannel", "channelId, userId, messageChannelId, messageMessageId, assigned, starterMessageId", "serverId = ?",
+    private Map<Long, TicketChannel> getTicketChannels(long serverId, int defaultTicketAssignmentIndex) {
+        return new DBDataLoad<TicketChannel>("TicketOpenChannel", "channelId, userId, messageChannelId, messageMessageId, assigned, starterMessageId, assignMode", "serverId = ?",
                 preparedStatement -> preparedStatement.setLong(1, serverId)
         ).getMap(
                 TicketChannel::getTextChannelId,
-                resultSet -> new TicketChannel(
-                        serverId,
-                        resultSet.getLong(1),
-                        resultSet.getLong(2),
-                        resultSet.getLong(3),
-                        resultSet.getLong(4),
-                        resultSet.getBoolean(5),
-                        resultSet.getLong(6)
-                )
+                resultSet -> {
+                    int ticketAssignmentIndex = resultSet.getInt(7);
+                    if (resultSet.wasNull()) {
+                        ticketAssignmentIndex = defaultTicketAssignmentIndex;
+                    }
+                    return new TicketChannel(
+                            serverId,
+                            resultSet.getLong(1),
+                            resultSet.getLong(2),
+                            resultSet.getLong(3),
+                            resultSet.getLong(4),
+                            resultSet.getBoolean(5),
+                            resultSet.getLong(6),
+                            TicketData.TicketAssignmentMode.values()[ticketAssignmentIndex]
+                    );
+                }
         );
     }
 
     private void addTicketChannel(TicketChannel ticketChannel) {
-        MySQLManager.asyncUpdate("REPLACE INTO TicketOpenChannel (serverId, channelId, userId, messageChannelId, messageMessageId, assigned, starterMessageId) VALUES (?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
+        MySQLManager.asyncUpdate("REPLACE INTO TicketOpenChannel (serverId, channelId, userId, messageChannelId, messageMessageId, assigned, starterMessageId, assignMode) VALUES (?, ?, ?, ?, ?, ?, ?, ?);", preparedStatement -> {
             preparedStatement.setLong(1, ticketChannel.getGuildId());
             preparedStatement.setLong(2, ticketChannel.getTextChannelId());
             preparedStatement.setLong(3, ticketChannel.getMemberId());
@@ -140,6 +149,7 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
             preparedStatement.setLong(5, ticketChannel.getAnnouncementMessageId());
             preparedStatement.setBoolean(6, ticketChannel.isAssigned());
             preparedStatement.setLong(7, ticketChannel.getStarterMessageId());
+            preparedStatement.setInt(8, ticketChannel.getTicketAssignmentMode().ordinal());
         });
     }
 

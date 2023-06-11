@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
@@ -83,6 +84,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             CLOSE_ON_INACTIVITY = 7;
     public final static String BUTTON_ID_CREATE = "create";
     public final static String BUTTON_ID_CLOSE = "close";
+    public final static String BUTTON_ID_ASSIGN = "assign";
 
     private TicketData ticketData;
     private NavigationHelper<AtomicRole> staffRoleNavigationHelper;
@@ -501,10 +503,18 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     }
 
     @Override
-    public void onStaticButton(ButtonInteractionEvent event, String secondaryId) {
+    public void onStaticButton(ButtonInteractionEvent event, String secondaryId) throws ExecutionException, InterruptedException {
         GuildChannel channelTemp = secondaryId == null
                 ? event.getGuildChannel()
                 : event.getGuild().getGuildChannelById(secondaryId);
+
+        if (channelTemp == null) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("channeldelete"));
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
 
         if (!(channelTemp instanceof TextChannel)) {
             return;
@@ -538,19 +548,30 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                             .queue();
                 }
             }
-        } else if (ticketChannel != null && event.getComponentId().equals(BUTTON_ID_CLOSE)) {
-            if (memberIsStaff(event.getMember(), ticketData.getStaffRoleIds()) ||
-                    (event.getMember().getIdLong() == ticketChannel.getMemberId() && ticketData.memberCanClose())
-            ) {
-                if (secondaryId == null) {
-                    ticketChannel.setStarterMessageId(event.getMessageIdLong());
+        } else if (ticketChannel != null) {
+            if (event.getComponentId().equals(BUTTON_ID_CLOSE)) {
+                if (memberIsStaff(event.getMember(), ticketData.getStaffRoleIds()) ||
+                        (event.getMember().getIdLong() == ticketChannel.getMemberId() && ticketData.memberCanClose())
+                ) {
+                    if (secondaryId == null) {
+                        ticketChannel.setStarterMessageId(event.getMessageIdLong());
+                    }
+                    onTicketRemove(ticketData, channel, ticketChannel);
+                } else {
+                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
+                    event.replyEmbeds(eb.build())
+                            .setEphemeral(true)
+                            .queue();
                 }
-                onTicketRemove(ticketData, channel, ticketChannel);
-            } else {
-                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
-                event.replyEmbeds(eb.build())
-                        .setEphemeral(true)
-                        .queue();
+            } else if (event.getComponentId().equals(BUTTON_ID_ASSIGN)) {
+                if (memberIsStaff(event.getMember(), ticketData.getStaffRoleIds())) {
+                    Ticket.assignTicket(event.getMember(), channel, ticketData, ticketChannel);
+                } else {
+                    EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotassign"));
+                    event.replyEmbeds(eb.build())
+                            .setEphemeral(true)
+                            .queue();
+                }
             }
         }
         new ComponentInteractionResponse(event).complete();

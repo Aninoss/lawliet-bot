@@ -13,9 +13,10 @@ public class TicketChannel extends Observable implements TextChannelAsset, Membe
     private final long messageMessageId;
     private boolean assigned;
     private long starterMessageId;
+    private final TicketData.TicketAssignmentMode ticketAssignmentMode;
 
     public TicketChannel(long guildId, long channelId, long userId, long messageChannelId, long messageMessageId,
-                         boolean assigned, long starterMessageId
+                         boolean assigned, long starterMessageId, TicketData.TicketAssignmentMode ticketAssignmentMode
     ) {
         this.guildId = guildId;
         this.channelId = channelId;
@@ -24,6 +25,7 @@ public class TicketChannel extends Observable implements TextChannelAsset, Membe
         this.messageMessageId = messageMessageId;
         this.assigned = assigned;
         this.starterMessageId = starterMessageId;
+        this.ticketAssignmentMode = ticketAssignmentMode;
     }
 
     @Override
@@ -55,6 +57,10 @@ public class TicketChannel extends Observable implements TextChannelAsset, Membe
 
     public void setStarterMessageId(long starterMessageId) {
         this.starterMessageId = starterMessageId;
+    }
+
+    public TicketData.TicketAssignmentMode getTicketAssignmentMode() {
+        return ticketAssignmentMode;
     }
 
     public boolean isAssigned() {

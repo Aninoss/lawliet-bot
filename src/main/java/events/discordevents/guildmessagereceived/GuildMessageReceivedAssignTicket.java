@@ -18,7 +18,10 @@ public class GuildMessageReceivedAssignTicket extends GuildMessageReceivedAbstra
         if (event.getChannel() instanceof TextChannel) {
             TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
             TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
-            if (ticketChannel != null) {
+            if (ticketChannel != null &&
+                    ticketChannel.getTicketAssignmentMode() == TicketData.TicketAssignmentMode.FIRST &&
+                    !ticketChannel.isAssigned()
+            ) {
                 Ticket.assignTicket(event.getMember(), event.getChannel().asTextChannel(), ticketData, ticketChannel);
             }
         }

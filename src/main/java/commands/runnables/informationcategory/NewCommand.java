@@ -11,6 +11,7 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import constants.AssetIds;
+import constants.Emojis;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
@@ -105,12 +106,25 @@ public class NewCommand extends Command implements OnAlertListener {
         if (showEmptyFooter) EmbedUtil.setFooter(eb, this, getString("footer"));
         for (int i = versions.size() - 1; i >= 0; i--) {
             VersionSlot slot = versions.get(i);
-            String versionsString = TextManager.getString(getLocale(), TextManager.VERSIONS, slot.getVersion());
-            eb.addField(
-                    slot.getVersion(),
-                    ("• " + versionsString).replace("\n", "\n• ").replace("{PREFIX}", getPrefix()),
-                    false
-            );
+
+            StringBuilder[] stringBuilders = new StringBuilder[] { new StringBuilder(), new StringBuilder() };
+            String[] lines = TextManager.getString(getLocale(), TextManager.VERSIONS, slot.getVersion())
+                    .replace("{PREFIX}", getPrefix())
+                    .split("\n");
+
+            for (String line : lines) {
+                String newLine = "• " + line + "\n";
+                if (stringBuilders[0].length() + newLine.length() < 1024) {
+                    stringBuilders[0].append(newLine);
+                } else {
+                    stringBuilders[1].append(newLine);
+                }
+            }
+
+            eb.addField(slot.getVersion(), stringBuilders[0].toString(), false);
+            if (!stringBuilders[1].isEmpty()) {
+                eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilders[1].toString(), false);
+            }
         }
         return eb;
     }
