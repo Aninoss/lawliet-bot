@@ -125,6 +125,7 @@ public class Ticket {
                         .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_open", StringUtil.escapeMarkdown(member.getUser().getAsTag()), textChannel.getAsMention()));
                 announcementChannel.sendMessage(ticketData.getPingStaff() ? getRolePing(textChannel.getGuild(), ticketData) : " ")
                         .setEmbeds(ebAnnouncement.build())
+                        .setComponents(ActionRows.of(Button.of(ButtonStyle.DANGER, TicketCommand.BUTTON_ID_CLOSE, TextManager.getString(locale, Category.UTILITY, "ticket_button_close"))))
                         .setAllowedMentions(Collections.singleton(Message.MentionType.ROLE))
                         .queue(m -> {
                             ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
@@ -136,6 +137,9 @@ public class Ticket {
                                     false,
                                     finalStarterMessageId
                             ));
+                            DBStaticReactionMessages.getInstance()
+                                    .retrieve(textChannel.getGuild().getIdLong())
+                                    .put(m.getIdLong(), new StaticReactionMessageData(m, commandProperties.trigger(), textChannel.getId()));
                         }, e -> {
                             MainLogger.get().error("Ticket announcement error", e);
                             ticketData.getTicketChannels().put(textChannel.getIdLong(), new TicketChannel(
@@ -210,7 +214,10 @@ public class Ticket {
             EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.UTILITY, "ticket_csv_warning"));
         }
 
+        DBStaticReactionMessages.getInstance().retrieve(ticketTextChannel.getGuild().getIdLong())
+                .remove(ticketChannel.getAnnouncementMessageId());
         MessageEditAction messageAction = announcementChannel.editMessageById(ticketChannel.getAnnouncementMessageId(), Emojis.ZERO_WIDTH_SPACE.getFormatted())
+                .setComponents()
                 .setEmbeds(eb.build());
         if (csvUrl != null) {
             Button button = Button.of(ButtonStyle.LINK, csvUrl, TextManager.getString(locale, Category.UTILITY, "ticket_csv_download"));
