@@ -1,13 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -20,16 +12,16 @@ import commands.listeners.OnStaticReactionAddListener;
 import commands.runnables.NavigationAbstract;
 import constants.Emojis;
 import constants.LogStatus;
-import core.*;
+import core.CustomObservableList;
+import core.EmbedFactory;
+import core.ListGen;
+import core.TextManager;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
 import core.cache.ServerPatreonBoostCache;
-import core.cache.TicketProtocolCache;
 import core.components.ActionRows;
 import core.interactionresponse.ComponentInteractionResponse;
-import core.lock.Lock;
-import core.lock.LockOccupiedException;
 import core.utils.*;
 import events.discordevents.modalinteraction.ModalInteractionTicket;
 import kotlin.Pair;
@@ -39,7 +31,9 @@ import mysql.modules.ticket.TicketChannel;
 import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
@@ -53,9 +47,6 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import net.dv8tion.jda.api.managers.channel.concrete.TextChannelManager;
-import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
-import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
 @CommandProperties(
@@ -492,7 +483,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         (event.getMember().getIdLong() == ticketChannel.getMemberId() && ticketData.memberCanClose())
                 ) {
                     ticketChannel.setStarterMessageId(event.getMessageIdLong());
-                    onTicketRemove(ticketData, event.getChannel().asTextChannel(), ticketChannel);
+                    Ticket.closeTicket(ticketData, event.getChannel().asTextChannel(), ticketChannel);
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
                     event.getChannel().asTextChannel().sendMessageEmbeds(eb.build())
@@ -556,7 +547,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                     if (secondaryId == null) {
                         ticketChannel.setStarterMessageId(event.getMessageIdLong());
                     }
-                    onTicketRemove(ticketData, channel, ticketChannel);
+                    Ticket.closeTicket(ticketData, channel, ticketChannel);
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
                     event.replyEmbeds(eb.build())
@@ -580,145 +571,6 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     private boolean memberIsStaff(Member member, List<Long> staffRoleIds) {
         return BotPermissionUtil.can(member, Permission.ADMINISTRATOR) ||
                 staffRoleIds.stream().anyMatch(roleId -> member.getRoles().stream().anyMatch(r -> roleId == r.getIdLong()));
-    }
-
-    private void onTicketRemove(TicketData ticketData, TextChannel channel, TicketChannel ticketChannel) {
-        AuditableRestAction<Void> channelDeleteRestAction = channel.delete()
-                .reason(getCommandLanguage().getTitle());
-
-        if (!ticketData.getProtocolEffectively()) {
-            if (ticketData.getDeleteChannelOnTicketClose()) {
-                channelDeleteRestAction.queue();
-            } else {
-                closeChannelWithoutDeletion(ticketData, channel, ticketChannel);
-            }
-            return;
-        }
-
-        GlobalThreadPool.getExecutorService().submit(() -> {
-            try (Lock lock = new Lock(TicketCommand.class)) {
-                MessageHistory messageHistory = channel.getHistory();
-                List<Message> messageLoadList;
-                do {
-                    messageLoadList = messageHistory.retrievePast(100).complete();
-                } while (messageLoadList.size() == 100);
-
-                ArrayList<Message> messageList = new ArrayList<>(messageHistory.getRetrievedHistory());
-                Collections.reverse(messageList);
-
-                ArrayList<String[]> csvRows = new ArrayList<>();
-                csvRows.add(getString("csv_titles").split("\n"));
-                DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                        .withLocale(Locale.US);
-                long lastAuthorId = 0L;
-                Instant lastMessageTime = null;
-
-                for (Message message : messageList) {
-                    String contentRaw = extractContentFromMessage(message);
-                    if (contentRaw.isEmpty() && message.getAttachments().isEmpty()) {
-                        continue;
-                    }
-
-                    String content = WordUtils.wrap(contentRaw, 100);
-                    String[] row = new String[] { " ", " ", content.length() > 0 ? content : " ", " " };
-
-                    if (message.getAuthor().getIdLong() != lastAuthorId ||
-                            lastMessageTime == null ||
-                            message.getTimeCreated().toInstant().isAfter(lastMessageTime.plus(Duration.ofMinutes(15)))
-                    ) {
-                        row[0] = formatter.format(message.getTimeCreated());
-                        row[1] = message.getAuthor().getAsTag();
-                    }
-
-                    if (message.getAttachments().size() > 0) {
-                        StringBuilder attachments = new StringBuilder();
-                        for (Message.Attachment attachment : message.getAttachments()) {
-                            if (attachments.length() > 0) {
-                                attachments.append("\n");
-                            }
-                            attachments.append(attachment.getUrl());
-                        }
-                        row[3] = attachments.toString();
-                    }
-
-                    lastAuthorId = message.getAuthor().getIdLong();
-                    lastMessageTime = message.getTimeCreated().toInstant();
-                    csvRows.add(row);
-                }
-
-                LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("tickets/%s.csv", RandomUtil.generateRandomString(30)));
-                try (InputStream is = CSVGenerator.generateInputStream(csvRows)) {
-                    FileUtil.writeInputStreamToFile(is, tempFile);
-                } catch (IOException e) {
-                    MainLogger.get().error("Error", e);
-                }
-                TicketProtocolCache.setUrl(channel.getIdLong(), tempFile.cdnGetUrl());
-
-                if (ticketData.getDeleteChannelOnTicketClose()) {
-                    channelDeleteRestAction.queue();
-                } else {
-                    closeChannelWithoutDeletion(ticketData, channel, ticketChannel);
-                }
-            } catch (LockOccupiedException e) {
-                //Ignore
-            }
-        });
-    }
-
-    private void closeChannelWithoutDeletion(TicketData ticketData, TextChannel channel, TicketChannel ticketChannel) {
-        if (ticketChannel.getStarterMessageId() != 0) {
-            channel.editMessageComponentsById(ticketChannel.getStarterMessageId())
-                    .queue();
-        }
-
-        TextChannelManager channelManager = channel.getManager()
-                .removePermissionOverride(ticketChannel.getMemberId());
-
-        for (PermissionOverride permissionOverride : channel.getPermissionOverrides()) {
-            if (permissionOverride.getIdLong() != ticketChannel.getMemberId() &&
-                    permissionOverride.getIdLong() != channel.getGuild().getSelfMember().getIdLong() &&
-                    permissionOverride.getAllowed().contains(Permission.MESSAGE_SEND)
-            ) {
-                channelManager = (TextChannelManager) BotPermissionUtil.addPermission(channel, channelManager, permissionOverride, false, Permission.MESSAGE_SEND);
-            }
-        }
-
-        channelManager.reason(getCommandLanguage().getTitle())
-                .queue();
-
-        if (PermissionCheckRuntime.botHasPermission(getLocale(), TicketCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setTitle(getString("close_title"))
-                    .setDescription(getString("close"));
-            channel.sendMessageEmbeds(eb.build()).queue();
-        }
-
-        Ticket.removeTicket(channel, ticketData, ticketChannel);
-    }
-
-    private String extractContentFromMessage(Message message) {
-        String content = message.getContentDisplay();
-        if (message.getEmbeds().size() > 0 &&
-                message.getEmbeds().get(0).getDescription() != null &&
-                message.getEmbeds().get(0).getDescription().length() > 0
-        ) {
-            MessageEmbed messageEmbed = message.getEmbeds().get(0);
-            String newContent = message.getContentDisplay().isBlank()
-                    ? messageEmbed.getDescription()
-                    : message.getContentDisplay() + " | " + messageEmbed.getDescription();
-            if (messageEmbed.getAuthor() != null &&
-                    messageEmbed.getAuthor().getName() != null
-            ) {
-                content = getString(
-                        "csv_author",
-                        messageEmbed.getAuthor().getName(),
-                        newContent
-                );
-            } else {
-                content = newContent;
-            }
-        }
-        return content;
     }
 
 }

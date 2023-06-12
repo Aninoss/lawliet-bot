@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import mysql.DBDataLoad;
+import mysql.DBDataLoadAll;
 import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
 
@@ -178,6 +179,11 @@ public class DBTicket extends DBObserverMapCache<Long, TicketData> {
             preparedStatement.setLong(1, serverId);
             preparedStatement.setLong(2, roleId);
         });
+    }
+
+    public List<Long> retrieveAllGuildIdsWithAutoClose() {
+        return new DBDataLoadAll<Long>("Ticket", "serverId", " AND autoCloseHours IS NOT NULL")
+                .getList(resultSet -> resultSet.getLong(1));
     }
 
 }
