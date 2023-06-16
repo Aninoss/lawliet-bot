@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
@@ -256,9 +255,9 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                 }
 
                 if (newMessage) {
-                    return Optional.of(webhookClient.send(wmb.build()).get(10, TimeUnit.SECONDS).getId());
+                    return Optional.of(webhookClient.send(wmb.build()).get().getId());
                 } else {
-                    return Optional.of(webhookClient.edit(messageId, wmb.build()).get(10, TimeUnit.SECONDS).getId());
+                    return Optional.of(webhookClient.edit(messageId, wmb.build()).get().getId());
                 }
             } catch (InterruptedException e) {
                 throw e;
