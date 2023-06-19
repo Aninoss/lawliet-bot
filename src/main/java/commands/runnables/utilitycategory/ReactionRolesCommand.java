@@ -747,7 +747,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             return;
         }
 
-        GlobalThreadPool.getExecutorService().submit(() -> {
+        GlobalThreadPool.submit(() -> {
             try {
                 if (!reactionRoleMessage.getMultipleRoles()) {
                     BLOCK_CACHE.put(member.getIdLong(), true);
@@ -848,7 +848,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         }
 
         event.deferEdit().queue();
-        GlobalThreadPool.getExecutorService().submit(() -> {
+        GlobalThreadPool.submit(() -> {
             try {
                 ReactionRoleMessageSlot slot = reactionRoleMessage.getSlots().get(Integer.parseInt(event.getComponentId()));
                 Role role = slot.getRole().orElse(null);
@@ -967,7 +967,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         }
 
         event.deferEdit().queue();
-        GlobalThreadPool.getExecutorService().submit(() -> {
+        GlobalThreadPool.submit(() -> {
             try {
                 HashSet<Role> checkedRoles = new HashSet<>();
                 ArrayList<Role> addedRoles = new ArrayList<>();

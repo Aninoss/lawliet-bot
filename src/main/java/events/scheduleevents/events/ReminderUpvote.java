@@ -24,7 +24,7 @@ public class ReminderUpvote implements ExceptionRunnable {
     @Override
     public void run() throws Throwable {
         if (Program.isMainCluster()) {
-            GlobalThreadPool.getExecutorService().submit(this::processReminderUpvote);
+            GlobalThreadPool.submit(this::processReminderUpvote);
         }
     }
 

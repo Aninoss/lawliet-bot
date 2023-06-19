@@ -17,7 +17,7 @@ public class EmojiTable {
 
     public static void load() {
         if (Program.productionMode()) {
-            GlobalThreadPool.getExecutorService().submit(() -> {
+            GlobalThreadPool.submit(() -> {
                 Arrays.stream(Emojis.LETTERS)
                         .map(UnicodeEmoji::getFormatted)
                         .forEach(emojis::add);

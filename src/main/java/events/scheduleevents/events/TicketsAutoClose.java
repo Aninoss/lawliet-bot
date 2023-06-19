@@ -2,6 +2,7 @@ package events.scheduleevents.events;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ public class TicketsAutoClose implements ExceptionRunnable {
     }
 
     public static void execute() {
-        GlobalThreadPool.getExecutorService().submit(() -> {
+        GlobalThreadPool.submit(() -> {
             MainLogger.get().info("Starting ticket auto closer...");
             AtomicInteger counter = new AtomicInteger(0);
 
@@ -34,7 +35,7 @@ public class TicketsAutoClose implements ExceptionRunnable {
                     .map(guildId -> DBTicket.getInstance().retrieve(guildId))
                     .filter(ticketData -> ticketData.getAutoCloseHoursEffectively() != null)
                     .forEach(ticketData -> {
-                        for (TicketChannel ticketChannel : ticketData.getTicketChannels().values()) {
+                        for (TicketChannel ticketChannel : new ArrayList<>(ticketData.getTicketChannels().values())) {
                             TextChannel textChannel = ticketChannel.getTextChannel().orElse(null);
                             if (textChannel == null) {
                                 continue;

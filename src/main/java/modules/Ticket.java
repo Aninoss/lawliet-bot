@@ -226,7 +226,7 @@ public class Ticket {
             return;
         }
 
-        GlobalThreadPool.getExecutorService().submit(() -> {
+        GlobalThreadPool.submit(() -> {
             try (Lock lock = new Lock(TicketCommand.class)) {
                 MessageHistory messageHistory = channel.getHistory();
                 List<Message> messageLoadList;

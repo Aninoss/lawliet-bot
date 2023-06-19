@@ -59,7 +59,7 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
 
     @Override
     public void update(Observable o, Object arg) {
-        GlobalThreadPool.getExecutorService().submit(() -> {
+        GlobalThreadPool.submit(() -> {
             synchronized (this) {
                 U u = (U) o;
                 if (!changed.contains(u)) {

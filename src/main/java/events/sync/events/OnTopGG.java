@@ -32,7 +32,7 @@ public class OnTopGG implements SyncServerFunction {
         boolean isWeekend = jsonObject.has("isWeekend") && jsonObject.getBoolean("isWeekend");
 
         if (type.equals("upvote")) {
-            GlobalThreadPool.getExecutorService().submit(() -> {
+            GlobalThreadPool.submit(() -> {
                 try {
                     processUpvote(userId, isWeekend);
                 } catch (ExecutionException | InterruptedException e) {

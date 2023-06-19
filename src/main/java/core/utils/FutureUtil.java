@@ -8,7 +8,7 @@ public class FutureUtil {
 
     public static <T> CompletableFuture<T> supplyAsync(Supplier<T> supplier) {
         CompletableFuture<T> future = new CompletableFuture<>();
-        GlobalThreadPool.getExecutorService().submit(() -> {
+        GlobalThreadPool.submit(() -> {
             try {
                 future.complete(supplier.get());
             } catch (Throwable e) {

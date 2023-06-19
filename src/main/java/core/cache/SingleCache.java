@@ -26,7 +26,7 @@ public abstract class SingleCache<T> {
 
         if (nextReset == null || Instant.now().isAfter(nextReset)) {
             resetUpdateTimer();
-            GlobalThreadPool.getExecutorService().submit(this::fetch);
+            GlobalThreadPool.submit(this::fetch);
         }
 
         return value;

@@ -31,7 +31,7 @@ public class MuteRefresh implements ExceptionRunnable {
     }
 
     public static void execute() {
-        GlobalThreadPool.getExecutorService().submit(() -> {
+        GlobalThreadPool.submit(() -> {
             MainLogger.get().info("Starting mute refresher...");
             AtomicInteger counter = new AtomicInteger(0);
             Random r = new Random();

@@ -29,7 +29,7 @@ public class FisherySurveyResults implements ExceptionRunnable {
     @Override
     public void run() {
         if (Program.productionMode()) {
-            GlobalThreadPool.getExecutorService().submit(() -> {
+            GlobalThreadPool.submit(() -> {
                 SurveyData surveyData = DBSurvey.getInstance().getCurrentSurvey();
                 LocalDate today = LocalDate.now();
                 if (!today.isBefore(surveyData.getNextDate())) {

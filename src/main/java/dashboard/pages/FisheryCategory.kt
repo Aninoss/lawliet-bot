@@ -501,7 +501,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCa
                             .withRedraw()
                     }
 
-                    GlobalThreadPool.getExecutorService().submit { DBFishery.getInstance().invalidateGuildId(guildData.guildId) }
+                    GlobalThreadPool.submit { DBFishery.getInstance().invalidateGuildId(guildData.guildId) }
                     guildData.fisheryStatus = FisheryStatus.STOPPED
                     ActionResult()
                         .withRedraw()

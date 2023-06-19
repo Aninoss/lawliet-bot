@@ -534,7 +534,7 @@ public class Console {
         String[] args = input.split(" ");
         ConsoleTask task = tasks.get(args[0]);
         if (task != null) {
-            GlobalThreadPool.getExecutorService().submit(() -> {
+            GlobalThreadPool.submit(() -> {
                 try {
                     task.process(args);
                 } catch (Throwable throwable) {

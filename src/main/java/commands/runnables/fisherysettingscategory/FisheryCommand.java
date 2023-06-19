@@ -158,8 +158,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                                 stopLock = false;
                                 setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
                             } else {
-                                GlobalThreadPool.getExecutorService()
-                                        .submit(() -> DBFishery.getInstance().invalidateGuildId(event.getGuild().getIdLong()));
+                                GlobalThreadPool.submit(() -> DBFishery.getInstance().invalidateGuildId(event.getGuild().getIdLong()));
                                 DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setFisheryStatus(FisheryStatus.STOPPED);
                                 setLog(LogStatus.SUCCESS, getString("setstatus"));
                                 stopLock = true;

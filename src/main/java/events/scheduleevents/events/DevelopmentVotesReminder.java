@@ -27,7 +27,7 @@ public class DevelopmentVotesReminder implements ExceptionRunnable {
     @Override
     public void run() throws Throwable {
         if (Calendar.getInstance().get(Calendar.DAY_OF_MONTH) == 1 && Program.productionMode()) {
-            GlobalThreadPool.getExecutorService().submit(() -> {
+            GlobalThreadPool.submit(() -> {
                 try {
                     executeVoteNotification();
                 } catch (InterruptedException e) {
@@ -35,7 +35,7 @@ public class DevelopmentVotesReminder implements ExceptionRunnable {
                 }
             });
         } else if (Calendar.getInstance().get(Calendar.DAY_OF_MONTH) == 8 && Program.productionMode()) {
-            GlobalThreadPool.getExecutorService().submit(() -> {
+            GlobalThreadPool.submit(() -> {
                 try {
                     executeResultsNotification();
                 } catch (InterruptedException e) {

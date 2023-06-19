@@ -25,7 +25,7 @@ public class MainScheduler {
     public static void schedule(long millis, String name, Runnable listener) {
         if (Program.isRunning()) {
             schedulers.schedule(() -> {
-                GlobalThreadPool.getExecutorService().submit(() -> {
+                GlobalThreadPool.submit(() -> {
                     try (AsyncTimer asyncTimer = new AsyncTimer(MAX_TASK_DURATION)) {
                         asyncTimer.setTimeOutListener(t -> {
                             t.interrupt();
@@ -56,7 +56,7 @@ public class MainScheduler {
     public static void poll(long millis, String name, Supplier<Boolean> listener) {
         if (Program.isRunning()) {
             pollers.schedule(() -> {
-                GlobalThreadPool.getExecutorService().submit(() -> {
+                GlobalThreadPool.submit(() -> {
                     try (AsyncTimer asyncTimer = new AsyncTimer(MAX_TASK_DURATION)) {
                         asyncTimer.setTimeOutListener(t -> {
                             t.interrupt();
