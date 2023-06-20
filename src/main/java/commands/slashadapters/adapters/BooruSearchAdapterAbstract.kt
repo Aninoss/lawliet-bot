@@ -24,7 +24,7 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
                 generateOptionData(OptionType.STRING, "tag3", Category.NSFW.id, "porn_tag", false, true),
                 generateOptionData(OptionType.STRING, "tag4", Category.NSFW.id, "porn_tag", false, true),
                 generateOptionData(OptionType.STRING, "tag5", Category.NSFW.id, "porn_tag", false, true),
-                generateOptionData(OptionType.INTEGER, "amount", Category.NSFW.id, "porn_amount", false, true)
+                generateOptionData(OptionType.INTEGER, "amount", Category.NSFW.id, "porn_amount", false)
             )
     }
 
