@@ -59,6 +59,17 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                        int minInterval
     ) {
         super(serverId);
+
+        if (userMessage != null) {
+            userMessage = userMessage.replace("\r\n", "\n");
+            if (userMessage.contains("\n\n⎻")) {
+                userMessage = userMessage.substring(0, userMessage.indexOf("\n\n⎻"));
+            }
+            if (userMessage.isBlank()) {
+                userMessage = null;
+            }
+        }
+
         this.channelId = channelId;
         this.messageId = messageId;
         this.commandTrigger = commandTrigger;
@@ -97,11 +108,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
     }
 
     public Optional<String> getUserMessage() {
-        return Optional.ofNullable(userMessage)
-                .map(message -> {
-                    Locale locale = getGuildData().getLocale();
-                    return TextManager.getString(locale, Category.UTILITY, "alerts_action", StringUtil.shortenString(message, 1024));
-                });
+        return Optional.ofNullable(userMessage);
     }
 
     public Instant getCreationTime() {
@@ -116,7 +123,11 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
         if (!ServerPatreonBoostCache.get(getGuildId())) {
             return Optional.empty();
         }
-        return getUserMessage();
+        return getUserMessage()
+                .map(message -> {
+                    Locale locale = getGuildData().getLocale();
+                    return TextManager.getString(locale, Category.UTILITY, "alerts_action", StringUtil.shortenString(message, 1024));
+                });
     }
 
     public Instant getNextRequest() {
