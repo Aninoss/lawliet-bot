@@ -6,6 +6,7 @@ import commands.runnables.PornAbstract
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import constants.Language
+import core.utils.StringUtil
 import modules.porn.BooruAutoComplete
 import mysql.modules.nsfwfilter.DBNSFWFilters
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
@@ -53,7 +54,10 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
             } else {
                 return booruAutoComplete.getTags(command.getDomain(), tag, nsfwAdditionalFilters).get()
                     .map {
-                        Command.Choice(it.name.replace("\\", ""), it.value.replace("\\", ""))
+                        Command.Choice(
+                            StringUtil.shortenString(it.name.replace("\\", ""), 100),
+                            StringUtil.shortenString(it.value.replace("\\", ""), 100)
+                        )
                     }
             }
         } else {
