@@ -79,6 +79,10 @@ public class MemberCacheController implements MemberCachePolicy {
 
     public CompletableFuture<List<Member>> loadMembersFull(Guild guild) {
         cacheGuild(guild);
+        if (guild.getMemberCount() >= BIG_SERVER_THRESHOLD) {
+            return CompletableFuture.completedFuture(guild.getMembers());
+        }
+
         CompletableFuture<List<Member>> future = new CompletableFuture<>();
         if (guild.isLoaded()) {
             future.complete(guild.getMembers());
@@ -101,7 +105,6 @@ public class MemberCacheController implements MemberCachePolicy {
                 member.isPending() ||
                 member.isOwner() ||
                 member.getIdLong() == AssetIds.OWNER_USER_ID ||
-                guild.getMemberCount() >= BIG_SERVER_THRESHOLD ||
                 guildIsCached(guild) ||
                 (Program.productionMode() && PatreonCache.getInstance().hasPremium(member.getIdLong(), false)) ||
                 DBSubs.getInstance().retrieve(DBSubs.Command.WORK).containsKey(member.getIdLong());

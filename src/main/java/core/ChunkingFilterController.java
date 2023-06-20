@@ -21,8 +21,7 @@ public class ChunkingFilterController implements ChunkingFilter {
         return !Program.publicVersion() ||
                 guildId == AssetIds.SUPPORT_SERVER_ID ||
                 guildId == AssetIds.ANICORD_SERVER_ID ||
-                DBGuild.getInstance().retrieve(guildId).isBig() ||
-                DBStickyRoles.getInstance().retrieve(guildId).getRoleIds().size() > 0;
+                (!DBStickyRoles.getInstance().retrieve(guildId).getRoleIds().isEmpty() && !DBGuild.getInstance().retrieve(guildId).isBig());
     }
 
 }
