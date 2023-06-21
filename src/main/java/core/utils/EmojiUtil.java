@@ -1,6 +1,7 @@
 package core.utils;
 
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Optional;
 import constants.Emojis;
 import net.dv8tion.jda.api.Permission;
@@ -39,6 +40,27 @@ public class EmojiUtil {
         } else {
             return "⏳";
         }
+    }
+
+    public static CustomEmoji getCustomEmojiFromOverride(CustomEmoji def, String id) {
+        String emojiOverride = System.getenv("EMOJI_OVERRIDE_" + id);
+        return emojiOverride != null
+                ? Emoji.fromFormatted(emojiOverride).asCustom()
+                : def;
+    }
+
+    public static UnicodeEmoji getUnicodeEmojiFromOverride(UnicodeEmoji def, String id) {
+        String emojiOverride = System.getenv("EMOJI_OVERRIDE_" + id);
+        return emojiOverride != null
+                ? Emoji.fromUnicode(new String(Base64.getUrlDecoder().decode(emojiOverride)))
+                : def;
+    }
+
+    public static String getEmojiFromOverride(String def, String id) {
+        String emojiOverride = System.getenv("EMOJI_OVERRIDE_" + id);
+        return emojiOverride != null
+                ? new String(Base64.getUrlDecoder().decode(emojiOverride))
+                : def;
     }
 
 }

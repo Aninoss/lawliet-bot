@@ -1,5 +1,7 @@
 package modules.fishery;
 
+import core.utils.EmojiUtil;
+
 public enum FisheryGear {
 
     MESSAGE("🎣", 25000, 1),
@@ -21,7 +23,7 @@ public enum FisheryGear {
     }
 
     public String getEmoji() {
-        return emoji;
+        return EmojiUtil.getEmojiFromOverride(emoji, name());
     }
 
     public int getStartPrice() {

@@ -15,6 +15,7 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.mention.MentionList;
+import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryManage;
@@ -216,7 +217,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
     private String emojiOfProperty(int i) {
         return switch (i) {
-            case 0 -> Emojis.FISH.getFormatted();
+            case 0 -> EmojiUtil.getUnicodeEmojiFromOverride(Emojis.FISH, "FISH").getFormatted();
             case 1 -> Emojis.COINS.getFormatted();
             case 2 -> Emojis.DAILY_STREAK.getFormatted();
             default -> FisheryGear.values()[i - 3].getEmoji();

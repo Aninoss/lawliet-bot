@@ -14,6 +14,7 @@ import commands.Category;
 import constants.Emojis;
 import constants.Language;
 import constants.RegexPatterns;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -69,6 +70,15 @@ public class TextManager {
         if (texts.containsKey(key)) {
             try {
                 String text = texts.getString(key);
+
+                String textOverrides = System.getenv("TEXT_OVERRIDES");
+                if (textOverrides != null) {
+                    for (String entry : textOverrides.split(",")) {
+                        String[] parts = entry.split(":");
+                        text = text.replaceAll("\\b" + Pattern.quote(parts[0]) + "\\b", parts[1]);
+                    }
+                }
+
                 String[] placeholders = extractGroups(RegexPatterns.TEXT_PLACEHOLDER, text);
                 text = processMultiOptions(text, option);
                 text = processReferences(text, placeholders, category, locale);
@@ -98,9 +108,9 @@ public class TextManager {
 
     private static String processEmojis(String text, String[] placeholders) {
         List<Pair<String, String>> emojiPairs = List.of(
-                new Pair<>("CURRENCY", Emojis.FISH.getFormatted()),
+                new Pair<>("CURRENCY", EmojiUtil.getUnicodeEmojiFromOverride(Emojis.FISH, "FISH").getFormatted()),
                 new Pair<>("COINS", Emojis.COINS.getFormatted()),
-                new Pair<>("GROWTH", Emojis.GROWTH.getFormatted()),
+                new Pair<>("GROWTH", EmojiUtil.getCustomEmojiFromOverride(Emojis.GROWTH, "GROWTH").getFormatted()),
                 new Pair<>("DAILY_STREAK", Emojis.DAILY_STREAK.getFormatted()),
                 new Pair<>("COUPONS", Emojis.COUPONS.getFormatted())
         );

@@ -16,6 +16,7 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import core.utils.EmojiUtil;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
 import modules.fishery.FisheryGear;
@@ -42,7 +43,12 @@ import org.jetbrains.annotations.NotNull;
 )
 public class WorkCommand extends Command implements FisheryInterface, OnButtonListener, OnMessageInputListener {
 
-    private final String[] EMOJIS = new String[] { "🐟", "🐠", "🐡", Emojis.FULL_SPACE_UNICODE.getFormatted() + Emojis.FULL_SPACE_UNICODE.getFormatted() };
+    private final String[] EMOJIS = new String[] {
+            EmojiUtil.getEmojiFromOverride("🐟", "WORKCOUNT1"),
+            EmojiUtil.getEmojiFromOverride("🐠", "WORKCOUNT2"),
+                    EmojiUtil.getEmojiFromOverride("🐡", "WORKCOUNT3"),
+            Emojis.FULL_SPACE_UNICODE.getFormatted() + Emojis.FULL_SPACE_UNICODE.getFormatted()
+    };
 
     private FisheryMemberData fisheryMemberBean;
     private String[][] area;

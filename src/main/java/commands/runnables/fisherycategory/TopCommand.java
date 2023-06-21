@@ -7,6 +7,7 @@ import commands.runnables.FisheryInterface;
 import commands.runnables.ListAbstract;
 import constants.Emojis;
 import core.TextManager;
+import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import mysql.modules.fisheryusers.DBFishery;
@@ -111,8 +112,8 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
 
     private String getEntryValue(FisheryMemberDataCache fisheryMemberDataCache, OrderBy orderBy) {
         FisheryProperty[] fisheryProperties = new FisheryProperty[]{
-                new FisheryProperty(Emojis.GROWTH, fisheryMemberDataCache.getRecentFishGains(), orderBy == OrderBy.RECENT_FISH_GAINS),
-                new FisheryProperty(Emojis.FISH, fisheryMemberDataCache.getFish(), orderBy == OrderBy.FISH || orderBy == OrderBy.RECENT_FISH_GAINS),
+                new FisheryProperty(EmojiUtil.getCustomEmojiFromOverride(Emojis.GROWTH, "GROWTH"), fisheryMemberDataCache.getRecentFishGains(), orderBy == OrderBy.RECENT_FISH_GAINS),
+                new FisheryProperty(EmojiUtil.getUnicodeEmojiFromOverride(Emojis.FISH, "FISH"), fisheryMemberDataCache.getFish(), orderBy == OrderBy.FISH || orderBy == OrderBy.RECENT_FISH_GAINS),
                 new FisheryProperty(Emojis.COINS, fisheryMemberDataCache.getCoins(), orderBy == OrderBy.COINS || orderBy == OrderBy.RECENT_FISH_GAINS),
                 new FisheryProperty(Emojis.DAILY_STREAK, fisheryMemberDataCache.getDailyStreak(), orderBy == OrderBy.DAILY_STREAK)
         };
