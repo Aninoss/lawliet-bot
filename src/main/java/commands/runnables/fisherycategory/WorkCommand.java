@@ -46,7 +46,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     private final String[] EMOJIS = new String[] {
             EmojiUtil.getEmojiFromOverride("🐟", "WORKCOUNT1"),
             EmojiUtil.getEmojiFromOverride("🐠", "WORKCOUNT2"),
-                    EmojiUtil.getEmojiFromOverride("🐡", "WORKCOUNT3"),
+            EmojiUtil.getEmojiFromOverride("🐡", "WORKCOUNT3"),
             Emojis.FULL_SPACE_UNICODE.getFormatted() + Emojis.FULL_SPACE_UNICODE.getFormatted()
     };
 
