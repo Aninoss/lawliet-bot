@@ -72,7 +72,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCat
             .map {
                 val atomicChannel =
                     AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
-                val values = arrayOf(atomicChannel.prefixedName, it.commandTrigger, it.commandKey)
+                val values = arrayOf(it.commandTrigger, atomicChannel.prefixedName, it.commandKey)
                 GridRow(it.hashCode().toString(), values)
             }
 
