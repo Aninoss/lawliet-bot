@@ -17,12 +17,14 @@ import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
 import commands.runningchecker.RunningCheckerManager;
 import constants.Emojis;
+import constants.ExceptionIds;
 import constants.ExternalLinks;
 import constants.Settings;
 import core.*;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
 import core.components.ActionRows;
+import core.utils.ExceptionUtil;
 import core.schedule.MainScheduler;
 import core.utils.*;
 import mysql.modules.commandmanagement.DBCommandManagement;
@@ -370,9 +372,11 @@ public class CommandManager {
                     messageList.add(event.getMessageReceivedEvent().getMessage());
                 }
                 if (messageList.size() >= 2) {
-                    event.getGuildMessageChannel().deleteMessages(messageList).queue();
+                    event.getGuildMessageChannel().deleteMessages(messageList).submit()
+                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
                 } else if (messageList.size() >= 1) {
-                    event.getGuildMessageChannel().deleteMessageById(messageList.get(0).getId()).queue();
+                    event.getGuildMessageChannel().deleteMessageById(messageList.get(0).getId()).submit()
+                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
                 }
             }
         });

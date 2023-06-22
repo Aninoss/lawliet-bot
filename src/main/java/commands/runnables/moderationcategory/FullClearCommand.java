@@ -10,6 +10,7 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnButtonListener;
+import constants.ExceptionIds;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.PermissionCheckRuntime;
@@ -47,7 +48,6 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
 
     private boolean interrupt = false;
     private List<Member> memberFilter;
-    private long hoursMin;
     StandardGuildMessageChannel channel;
 
     public FullClearCommand(Locale locale, String prefix) {
@@ -80,7 +80,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
         MentionList<Member> memberMention = MentionUtil.getMembers(event.getGuild(), args, null);
         memberFilter = memberMention.getList();
         args = memberMention.getFilteredArgs();
-        hoursMin = Math.max(0, MentionUtil.getAmountExt(args));
+        long hoursMin = Math.max(0, MentionUtil.getAmountExt(args));
 
         if (hoursMin <= HOURS_MAX) {
             long messageId = registerButtonListener(event.getMember()).get();
@@ -103,7 +103,8 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
             } else {
                 restAction = event.getTextChannel().deleteMessageById(messageId);
             }
-            restAction.queueAfter(8, TimeUnit.SECONDS);
+            restAction.submitAfter(8, TimeUnit.SECONDS)
+                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
             return true;
         } else {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args", "0", StringUtil.numToString(HOURS_MAX))))

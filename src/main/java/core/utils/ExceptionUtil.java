@@ -16,7 +16,6 @@ public class ExceptionUtil {
     public static void handleCommandException(Throwable throwable, Command command, CommandEvent event) {
         Locale locale = command.getLocale();
         boolean postErrorMessage = true;
-        boolean submitToDeveloper = Program.publicVersion() && new ExceptionFilter().shouldBeVisible(throwable.toString());
 
         String stacktrace = exceptionToString(throwable);
         String errorCause = stacktrace.split("\n")[0];
@@ -44,11 +43,11 @@ public class ExceptionUtil {
         if (postErrorMessage && BotPermissionUtil.can(event.getGuildMessageChannel())) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code))
-                    .setDescription(errorMessage + (submitToDeveloper ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""));
+                    .setDescription(errorMessage + (Program.publicVersion() ? TextManager.getString(locale, TextManager.GENERAL, "error_submit") : ""));
             event.replyMessageEmbeds(eb.build()).queue();
         }
 
-        if (submitToDeveloper) {
+        if (Program.publicVersion()) {
             int state = -1;
             if (command instanceof NavigationAbstract) {
                 state = ((NavigationAbstract) command).getState();

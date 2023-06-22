@@ -5,7 +5,9 @@ import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
+import constants.ExceptionIds;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
 import modules.Mod;
@@ -37,7 +39,8 @@ public abstract class AutoModAbstract {
                 GuildData guildBean = DBGuild.getInstance().retrieve(message.getGuild().getIdLong());
                 Class<? extends Command> commandClass = getCommandClass();
                 if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), commandClass, message.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
-                    message.delete().queue();
+                    message.delete().submit()
+                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
                 }
                 punish(message, guildBean, commandClass);
                 return false;

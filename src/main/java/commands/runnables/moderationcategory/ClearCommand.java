@@ -12,6 +12,7 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
+import constants.ExceptionIds;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
@@ -112,7 +113,8 @@ public class ClearCommand extends Command implements OnButtonListener {
         } else {
             restAction = event.getTextChannel().deleteMessageById(messageId);
         }
-        restAction.queueAfter(8, TimeUnit.SECONDS);
+        restAction.submitAfter(8, TimeUnit.SECONDS)
+                .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
         return true;
     }
 
