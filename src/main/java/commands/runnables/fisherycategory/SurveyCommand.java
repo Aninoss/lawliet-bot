@@ -17,6 +17,7 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.ShardManager;
 import core.TextManager;
+import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -239,7 +240,9 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
-        slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).queue());
+        if (BotPermissionUtil.canReadHistory(channel)) {
+            slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).queue());
+        }
 
         SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(null);
         slot.sendMessage(true, surveyEmbeds.resultEmbed.build()).get();
