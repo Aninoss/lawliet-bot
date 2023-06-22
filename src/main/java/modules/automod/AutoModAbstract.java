@@ -40,7 +40,7 @@ public abstract class AutoModAbstract {
                 Class<? extends Command> commandClass = getCommandClass();
                 if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), commandClass, message.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
                     message.delete().submit()
-                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
+                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
                 }
                 punish(message, guildBean, commandClass);
                 return false;

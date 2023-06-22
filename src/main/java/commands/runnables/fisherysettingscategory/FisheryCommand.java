@@ -285,16 +285,16 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getChannel();
         if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
             event.getMessage().editMessageEmbeds(eb.build(), memberData.changeValuesEmbed(event.getMember(), 0, won).build()).submit()
-                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
+                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
         } else {
             hook.editOriginalEmbeds(eb.build()).submit()
-                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
+                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
         }
 
         MainScheduler.schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
             if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
                 hook.deleteOriginal().submit()
-                        .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
+                        .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
             }
         });
     }
@@ -351,14 +351,14 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
             hook.editOriginalEmbeds(eb.build())
                     .setActionRow(memberSelectMenu)
                     .submit()
-                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
+                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
             registerStaticReactionMessage(event.getMessage(), event.getUser().getId());
         } else {
             if (powerUp == FisheryPowerUp.SHOP) {
                 memberData.setCoupons(3);
             }
             hook.editOriginalEmbeds(eb.build()).submit()
-                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
+                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
         }
         memberData.activatePowerUp(powerUp, expiration);
 
@@ -366,7 +366,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         MainScheduler.schedule(despawnMinutes, ChronoUnit.MINUTES, "powerup_remove", () -> {
             if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
                 hook.deleteOriginal().submit()
-                        .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
+                        .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
             }
         });
     }

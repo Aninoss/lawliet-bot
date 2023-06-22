@@ -104,7 +104,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                 restAction = event.getTextChannel().deleteMessageById(messageId);
             }
             restAction.submitAfter(8, TimeUnit.SECONDS)
-                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
+                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
             return true;
         } else {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("wrong_args", "0", StringUtil.numToString(HOURS_MAX))))
