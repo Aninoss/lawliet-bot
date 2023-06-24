@@ -4,13 +4,13 @@ import java.util.concurrent.TimeUnit;
 import core.EmbedFactory;
 import core.ShardManager;
 import core.utils.JDAUtil;
-import net.dv8tion.jda.api.EmbedBuilder;
-import org.json.JSONObject;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
+import net.dv8tion.jda.api.EmbedBuilder;
+import org.json.JSONObject;
 
 @SyncServerEvent(event = "NOTIFY")
-public class OnNotifyOwner implements SyncServerFunction {
+public class OnNotify implements SyncServerFunction {
 
     @Override
     public JSONObject apply(JSONObject jsonObject) {

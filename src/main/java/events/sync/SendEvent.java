@@ -116,6 +116,10 @@ public class SendEvent {
         );
     }
 
+    public static CompletableFuture<Void> sendException(String message) {
+        return process("EXCEPTION", Map.of("message", message), r -> null);
+    }
+
     public static CompletableFuture<JSONObject> sendEmpty(String event) {
         return process(event, Collections.emptyMap(), r -> r);
     }
