@@ -124,6 +124,12 @@ public class ShardManager {
                 .collect(Collectors.toList());
     }
 
+    public static synchronized List<JDAWrapper> getConnectedLocalJDAWrappers() {
+        return new ArrayList<>(jdaMap.values()).stream()
+                .filter(JDAWrapper::isActive)
+                .collect(Collectors.toList());
+    }
+
     private static void startJDAPoller() {
         MainScheduler.poll(10, ChronoUnit.SECONDS, "api_poller", () -> {
             try {

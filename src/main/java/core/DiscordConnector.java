@@ -53,6 +53,16 @@ public class DiscordConnector {
         }
     }
 
+    public static String getActivityText() {
+        if (Program.publicVersion()) {
+            return ShardManager.getGlobalGuildSize()
+                    .map(globalGuildSize -> "L.help | " + StringUtil.numToStringShort(globalGuildSize, Locale.US) + " | www.lawlietbot.xyz")
+                    .orElse("L.help | www.lawlietbot.xyz");
+        } else {
+            return System.getenv("ACTIVITY");
+        }
+    }
+
     public static void connect(int shardMin, int shardMax, int totalShards) {
         if (started) return;
         started = true;
@@ -165,24 +175,6 @@ public class DiscordConnector {
         JailScheduler.start();
         ShardManager.start();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
-    }
-
-    public static void updateActivity(JDA jda) {
-        jda.getPresence().setActivity(Activity.watching(getActivityText()));
-    }
-
-    private static String getActivityText() {
-        if (Program.publicVersion()) {
-            return ShardManager.getGlobalGuildSize()
-                    .map(globalGuildSize -> "L.help | " + StringUtil.numToStringShort(globalGuildSize, Locale.US) + " | www.lawlietbot.xyz")
-                    .orElse("L.help | www.lawlietbot.xyz");
-        } else {
-            return System.getenv("ACTIVITY");
-        }
-    }
-
-    public static boolean hasStarted() {
-        return started;
     }
 
 }
