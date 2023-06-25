@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.0.0-beta.9'
+    implementation 'net.dv8tion:JDA:5.0.0-beta.11'
     implementation 'club.minnced:discord-webhooks:0.5.8'
     implementation 'mysql:mysql-connector-java:8.0.23'
     implementation 'org.apache.commons:commons-dbcp2:2.9.0'
@@ -42,7 +42,7 @@ dependencies {
     implementation 'redis.clients:jedis:3.6.0'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0-RC2'
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.0-RC2'
-    implementation 'com.github.Aninoss:lawliet-dashboard-components:4d6bad27ef'
+    implementation 'com.github.Aninoss:lawliet-dashboard-components:-SNAPSHOT'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1'
 
