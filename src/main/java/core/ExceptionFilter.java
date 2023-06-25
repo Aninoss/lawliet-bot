@@ -29,8 +29,7 @@ public class ExceptionFilter extends Filter<ILoggingEvent> {
             String message = throwableProxy != null
                     ? event.getFormattedMessage() + "\n" + extractMessageAndStackTrace(throwableProxy)
                     : event.getFormattedMessage();
-            SendEvent.sendException(message)
-                    .exceptionally(ExceptionLogger.get());
+            SendEvent.sendException(message);
         }
 
         return FilterReply.NEUTRAL;
