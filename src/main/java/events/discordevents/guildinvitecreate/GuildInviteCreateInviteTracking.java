@@ -3,6 +3,7 @@ package events.discordevents.guildinvitecreate;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildInviteCreateAbstract;
 import modules.invitetracking.InviteTracking;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.GuildInvite;
 import mysql.modules.invitetracking.InviteTrackingData;
@@ -12,7 +13,7 @@ import net.dv8tion.jda.api.events.guild.invite.GuildInviteCreateEvent;
 public class GuildInviteCreateInviteTracking extends GuildInviteCreateAbstract {
 
     @Override
-    public boolean onGuildInviteCreate(GuildInviteCreateEvent event) {
+    public boolean onGuildInviteCreate(GuildInviteCreateEvent event, EntityManagerWrapper entityManager) {
         InviteTrackingData inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
         if (inviteTrackingData.isActive() && event.getInvite() != null && event.getInvite().getInviter() != null) {
             GuildInvite guildInvite = new GuildInvite(

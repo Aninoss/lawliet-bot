@@ -5,6 +5,8 @@ import core.ShardManager;
 import dashboard.ActionResult;
 import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
 import net.dv8tion.jda.api.Permission;
 import org.json.JSONObject;
 import events.sync.SyncServerEvent;
@@ -24,18 +26,21 @@ public class OnDashboardAction implements SyncServerFunction {
             if (category != null) {
                 List<Permission> missingBotPermissions = category.missingBotPermissions();
                 List<Permission> missingUserPermissions = category.missingUserPermissions();
-                if (missingBotPermissions.isEmpty() && missingUserPermissions.isEmpty() && category.anyCommandRequirementsAreAccessible()) {
-                    ActionResult actionResult = category.receiveAction(jsonObject.getJSONObject("action"));
-                    if (actionResult != null) {
+                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                    category.setEntityManager(entityManager);
+                    if (missingBotPermissions.isEmpty() && missingUserPermissions.isEmpty() && category.anyCommandRequirementsAreAccessible()) {
+                        ActionResult actionResult = category.receiveAction(jsonObject.getJSONObject("action"));
+                        if (actionResult != null) {
+                            resultJson.put("ok", true);
+                            resultJson.put("redraw", actionResult.getRedraw());
+                            resultJson.put("scroll_to_top", actionResult.getScrollToTop());
+                            resultJson.put("success_message", actionResult.getSuccessMessage());
+                            resultJson.put("error_message", actionResult.getErrorMessage());
+                        }
+                    } else {
                         resultJson.put("ok", true);
-                        resultJson.put("redraw", actionResult.getRedraw());
-                        resultJson.put("scroll_to_top", actionResult.getScrollToTop());
-                        resultJson.put("success_message", actionResult.getSuccessMessage());
-                        resultJson.put("error_message", actionResult.getErrorMessage());
+                        resultJson.put("redraw", true);
                     }
-                } else {
-                    resultJson.put("ok", true);
-                    resultJson.put("redraw", true);
                 }
             }
         }

@@ -18,6 +18,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.invitetracking.InviteTracking
+import mysql.hibernate.EntityManagerWrapper
 import mysql.modules.invitetracking.DBInviteTracking
 import mysql.modules.invitetracking.InviteTrackingData
 import mysql.modules.invitetracking.InviteTrackingSlot
@@ -32,7 +33,7 @@ import java.util.*
     botPermissions = [Permission.MANAGE_SERVER],
     commandAccessRequirements = [InviteTrackingCommand::class, InvitesManageCommand::class]
 )
-class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
 
     var manageMember: Long? = null
     var addInviteMember: Long? = null

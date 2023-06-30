@@ -3,13 +3,14 @@ package events.discordevents.eventtypeabstracts;
 import java.time.Instant;
 import java.util.ArrayList;
 import events.discordevents.DiscordEventAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public abstract class GuildMessageReceivedAbstract extends DiscordEventAbstract {
 
     private Instant startTime;
 
-    public abstract boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable;
+    public abstract boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable;
 
     public Instant getStartTime() {
         return startTime;
@@ -27,10 +28,10 @@ public abstract class GuildMessageReceivedAbstract extends DiscordEventAbstract 
 
         Instant startTime = Instant.now();
         execute(listenerList, event.getAuthor(), event.getGuild().getIdLong(),
-                listener -> {
+                (listener, entityManager) -> {
                     if (!event.isWebhookMessage() || listener.isAllowingBots()) {
                         ((GuildMessageReceivedAbstract) listener).setStartTime(startTime);
-                        return ((GuildMessageReceivedAbstract) listener).onGuildMessageReceived(event);
+                        return ((GuildMessageReceivedAbstract) listener).onGuildMessageReceived(event, entityManager);
                     } else {
                         return true;
                     }

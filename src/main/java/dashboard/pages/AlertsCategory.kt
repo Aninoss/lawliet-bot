@@ -22,6 +22,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.schedulers.AlertScheduler
+import mysql.hibernate.EntityManagerWrapper
 import mysql.modules.tracker.DBTracker
 import mysql.modules.tracker.TrackerData
 import net.dv8tion.jda.api.Permission
@@ -36,7 +37,7 @@ import java.util.*
     userPermissions = [Permission.MANAGE_SERVER],
     commandAccessRequirements = [AlertsCommand::class]
 )
-class AlertsCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+class AlertsCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
 
     var command: Command? = null
     var channelId: Long? = null

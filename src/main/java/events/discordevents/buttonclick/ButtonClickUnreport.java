@@ -6,6 +6,7 @@ import core.components.ActionRows;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
 import events.sync.SendEvent;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionComponent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -14,7 +15,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 public class ButtonClickUnreport extends ButtonClickAbstract {
 
     @Override
-    public boolean onButtonClick(ButtonInteractionEvent event) {
+    public boolean onButtonClick(ButtonInteractionEvent event, EntityManagerWrapper entityManager) {
         if (event.getChannel().getIdLong() == 896872855248183316L) {
             event.deferEdit().queue();
             if (event.getComponentId().equals("allow")) {

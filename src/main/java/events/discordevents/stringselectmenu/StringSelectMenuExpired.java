@@ -6,6 +6,7 @@ import core.TextManager;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.StringSelectMenuAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -14,7 +15,7 @@ import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionE
 public class StringSelectMenuExpired extends StringSelectMenuAbstract {
 
     @Override
-    public boolean onStringSelectMenu(StringSelectInteractionEvent event) {
+    public boolean onStringSelectMenu(StringSelectInteractionEvent event, EntityManagerWrapper entityManager) {
         Locale locale = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedError()
                 .setTitle(TextManager.getString(locale, TextManager.GENERAL, "button_listener_expired_title"))

@@ -27,6 +27,7 @@ import core.components.ActionRows;
 import core.utils.ExceptionUtil;
 import core.schedule.MainScheduler;
 import core.utils.*;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -45,11 +46,11 @@ public class CommandManager {
     private final static int SEC_UNTIL_REMOVAL = 20;
     private final static Random random = new Random();
 
-    public static void manage(CommandEvent event, Command command, String args, Instant startTime) {
-        manage(event, command, args, startTime, true);
+    public static void manage(CommandEvent event, Command command, String args, EntityManagerWrapper entityManager, Instant startTime) {
+        manage(event, command, args, entityManager, startTime, true);
     }
 
-    public static void manage(CommandEvent event, Command command, String args, Instant startTime, boolean freshCommand) {
+    public static void manage(CommandEvent event, Command command, String args, EntityManagerWrapper entityManager, Instant startTime, boolean freshCommand) {
         if (command instanceof PingCommand) {
             command.getAttachments().put("starting_time", startTime);
         }
@@ -58,7 +59,7 @@ public class CommandManager {
                 checkCorrectChannelType(event, command) &&
                 checkRunningCommands(event, command)
         ) {
-            process(event, command, args, startTime, freshCommand);
+            process(event, command, args, entityManager, freshCommand);
         }
 
         command.getCompletedListeners().forEach(runnable -> {
@@ -70,7 +71,7 @@ public class CommandManager {
         });
     }
 
-    private static void process(CommandEvent event, Command command, String args, Instant startTime, boolean freshCommand) {
+    private static void process(CommandEvent event, Command command, String args, EntityManagerWrapper entityManager, boolean freshCommand) {
         if (botCanPost(event, command) &&
                 isWhiteListed(event, command) &&
                 botCanUseEmbeds(event, command) &&
@@ -93,7 +94,7 @@ public class CommandManager {
                 cleanPreviousListeners(command, event.getMember());
                 sendOverwrittenSignals(command, event.getMember());
 
-                boolean success = command.processTrigger(event, args, freshCommand);
+                boolean success = command.processTrigger(event, args, entityManager, freshCommand);
                 if (success && Program.publicVersion()) {
                     maybeSendBotInvite(event, command.getLocale());
                 }

@@ -2,6 +2,7 @@ package events.discordevents.guildmessagedelete;
 
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageDeleteAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 
@@ -9,7 +10,7 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 public class GuildMessageDeleteRemoveStaticReactionMessage extends GuildMessageDeleteAbstract {
 
     @Override
-    public boolean onGuildMessageDelete(MessageDeleteEvent event) {
+    public boolean onGuildMessageDelete(MessageDeleteEvent event, EntityManagerWrapper entityManager) {
         DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong()).remove(event.getMessageIdLong());
         return true;
     }

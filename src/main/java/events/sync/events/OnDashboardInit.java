@@ -7,6 +7,8 @@ import core.ShardManager;
 import core.cache.PatreonCache;
 import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import events.sync.SyncServerEvent;
@@ -33,12 +35,14 @@ public class OnDashboardInit implements SyncServerFunction {
 
     private void addTitles(long guildId, long userId, Locale locale, JSONObject resultJson) {
         JSONArray titlesJson = new JSONArray();
-        for (DashboardCategory retrieveCategory : DashboardManager.retrieveCategories(guildId, userId, locale)) {
-            if (retrieveCategory.anyCommandRequirementsAreAccessible()) {
-                JSONObject data = new JSONObject();
-                data.put("id", retrieveCategory.getProperties().id());
-                data.put("title", retrieveCategory.retrievePageTitle());
-                titlesJson.put(data);
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            for (DashboardCategory retrieveCategory : DashboardManager.retrieveCategories(guildId, userId, locale, entityManager)) {
+                if (retrieveCategory.anyCommandRequirementsAreAccessible()) {
+                    JSONObject data = new JSONObject();
+                    data.put("id", retrieveCategory.getProperties().id());
+                    data.put("title", retrieveCategory.retrievePageTitle());
+                    titlesJson.put(data);
+                }
             }
         }
         resultJson.put("titles", titlesJson);

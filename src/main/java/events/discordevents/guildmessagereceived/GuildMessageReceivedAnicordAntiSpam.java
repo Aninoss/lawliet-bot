@@ -10,6 +10,7 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @DiscordEvent(priority = EventPriority.HIGH, allowBannedUser = true)
@@ -18,7 +19,7 @@ public class GuildMessageReceivedAnicordAntiSpam extends GuildMessageReceivedAbs
     private final RatelimitManager ratelimitManager = new RatelimitManager();
 
     @Override
-    public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
         if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID &&
                 event.getChannel().getIdLong() != 758285721877479504L &&
                 event.getChannel().getIdLong() != 462405404211675136L &&

@@ -20,6 +20,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.Prefix
+import mysql.hibernate.EntityManagerWrapper
 import mysql.modules.autoquote.DBAutoQuote
 import mysql.modules.guild.DBGuild
 import net.dv8tion.jda.api.Permission
@@ -32,7 +33,7 @@ import java.util.*
     botPermissions = [Permission.MESSAGE_MANAGE],
     commandAccessRequirements = [LanguageCommand::class, PrefixCommand::class, AutoQuoteCommand::class, TriggerDeleteCommand::class]
 )
-class GeneralCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+class GeneralCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
 
     override fun retrievePageTitle(): String {
         return getString(TextManager.GENERAL, "dashboard_general")

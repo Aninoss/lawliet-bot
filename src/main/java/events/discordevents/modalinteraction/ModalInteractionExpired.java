@@ -6,6 +6,7 @@ import core.TextManager;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.ModalInteractionAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -14,7 +15,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 public class ModalInteractionExpired extends ModalInteractionAbstract {
 
     @Override
-    public boolean onModalInteraction(ModalInteractionEvent event) throws Throwable {
+    public boolean onModalInteraction(ModalInteractionEvent event, EntityManagerWrapper entityManager) throws Throwable {
         Locale locale = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedError()
                 .setTitle(TextManager.getString(locale, TextManager.GENERAL, "button_listener_expired_title"))

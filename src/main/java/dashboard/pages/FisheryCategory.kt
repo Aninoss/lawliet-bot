@@ -32,6 +32,7 @@ import modules.fishery.Fishery
 import modules.fishery.FisheryGear
 import modules.fishery.FisheryManage
 import modules.fishery.FisheryStatus
+import mysql.hibernate.EntityManagerWrapper
 import mysql.modules.fisheryusers.DBFishery
 import mysql.modules.fisheryusers.FisheryGuildData
 import mysql.modules.fisheryusers.FisheryMemberData
@@ -46,7 +47,7 @@ import java.util.*
     botPermissions = [Permission.MANAGE_ROLES],
     commandAccessRequirements = [FisheryCommand::class, VCTimeCommand::class, FisheryRolesCommand::class, FisheryManageCommand::class]
 )
-class FisheryCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+class FisheryCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
 
     var manageMembers = CustomObservableList<Long>(emptyList())
     var manageRoles = CustomObservableList<Long>(emptyList())

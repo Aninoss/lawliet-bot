@@ -6,13 +6,14 @@ import core.ShardManager;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildJoinAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 
 @DiscordEvent(priority = EventPriority.HIGH)
 public class GuildJoinCheckNonPublicLimit extends GuildJoinAbstract {
 
     @Override
-    public boolean onGuildJoin(GuildJoinEvent event) {
+    public boolean onGuildJoin(GuildJoinEvent event, EntityManagerWrapper entityManager) {
         if (Program.publicVersion() ||
                 ShardManager.getLocalGuilds().size() - 2 <= Integer.parseInt(System.getenv("MAX_SERVERS"))
         ) {

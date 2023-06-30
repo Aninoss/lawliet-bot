@@ -14,6 +14,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.invitetracking.InviteMetrics;
 import modules.invitetracking.InviteTracking;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.InviteTrackingData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -29,7 +30,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
 
     @Override
-    public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
+    public boolean onGuildMemberJoin(GuildMemberJoinEvent event, EntityManagerWrapper entityManager) throws Throwable {
         InviteTrackingData inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
         if (inviteTrackingData.isActive()) {
             InviteTracking.registerMemberJoin(event.getMember())

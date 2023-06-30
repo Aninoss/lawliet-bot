@@ -19,6 +19,7 @@ import core.interactionresponse.InteractionResponse;
 import core.utils.*;
 import kotlin.jvm.JvmClassMappingKt;
 import kotlin.reflect.KClass;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -56,6 +57,7 @@ public abstract class Command implements OnTriggerListener {
     private String log = "";
     private CommandEvent commandEvent = null;
     private InteractionResponse interactionResponse;
+    private EntityManagerWrapper entityManager;
     private boolean canHaveTimeOut = true;
     private List<ActionRow> actionRows = Collections.emptyList();
     private List<MessageEmbed> additionalEmbeds = Collections.emptyList();
@@ -545,6 +547,14 @@ public abstract class Command implements OnTriggerListener {
 
     public InteractionResponse getInteractionResponse() {
         return interactionResponse;
+    }
+
+    public EntityManagerWrapper getEntityManager() {
+        return entityManager;
+    }
+
+    public void setEntityManager(EntityManagerWrapper entityManager) {
+        this.entityManager = entityManager;
     }
 
     public Optional<Guild> getGuild() {

@@ -11,6 +11,7 @@ import core.interactionresponse.InteractionResponse
 import core.interactionresponse.SlashCommandResponse
 import core.schedule.MainScheduler
 import core.utils.ExceptionUtil
+import mysql.hibernate.EntityManagerWrapper
 import mysql.modules.commandusages.DBCommandUsages
 import mysql.modules.guild.DBGuild
 import net.dv8tion.jda.api.Permission
@@ -24,7 +25,7 @@ interface OnTriggerListener {
     fun onTrigger(event: CommandEvent, args: String): Boolean
 
     @Throws(Throwable::class)
-    fun processTrigger(event: CommandEvent, args: String, freshCommand: Boolean): Boolean {
+    fun processTrigger(event: CommandEvent, args: String, entityManager: EntityManagerWrapper, freshCommand: Boolean): Boolean {
         val command = this as Command
         if (freshCommand && event.isSlashCommandInteractionEvent()) {
             val interactionResponse: InteractionResponse = SlashCommandResponse(event.slashCommandInteractionEvent!!.hook)
@@ -44,6 +45,7 @@ interface OnTriggerListener {
             if (command.commandProperties.requiresFullMemberCache) {
                 MemberCacheController.getInstance().loadMembersFull(event.guild).get()
             }
+            command.entityManager = entityManager
             return onTrigger(event, args)
         } catch (e: Throwable) {
             ExceptionUtil.handleCommandException(e, command, event)

@@ -8,6 +8,7 @@ import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
@@ -18,7 +19,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 public class ButtonClickCommandsStatic extends ButtonClickAbstract {
 
     @Override
-    public boolean onButtonClick(ButtonInteractionEvent event) throws Throwable {
+    public boolean onButtonClick(ButtonInteractionEvent event, EntityManagerWrapper entityManager) throws Throwable {
         if (!BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
             return true;
         }
@@ -34,6 +35,7 @@ public class ButtonClickCommandsStatic extends ButtonClickAbstract {
                 if (command.getCommandProperties().requiresFullMemberCache()) {
                     MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
                 }
+                command.setEntityManager(entityManager);
                 ((OnStaticButtonListener) command).onStaticButton(event, messageData.getSecondaryId());
                 return false;
             }

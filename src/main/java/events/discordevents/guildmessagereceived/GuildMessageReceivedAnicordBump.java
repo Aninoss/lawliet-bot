@@ -8,6 +8,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.BumpReminder;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.bump.DBBump;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -16,7 +17,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class GuildMessageReceivedAnicordBump extends GuildMessageReceivedAbstract {
 
     @Override
-    public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
         if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID && event.getAuthor().getIdLong() == 302050872383242240L) {
             List<MessageEmbed> embedList = event.getMessage().getEmbeds();
             if (embedList.size() > 0 && embedList.get(0).getImage() != null && embedList.get(0).getDescription() != null) {

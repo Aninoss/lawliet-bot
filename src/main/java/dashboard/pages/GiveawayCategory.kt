@@ -18,6 +18,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.GridRow
 import modules.Giveaway
 import modules.schedulers.GiveawayScheduler
+import mysql.hibernate.EntityManagerWrapper
 import mysql.modules.giveaway.DBGiveaway
 import mysql.modules.giveaway.GiveawayData
 import mysql.modules.guild.DBGuild
@@ -37,7 +38,7 @@ import java.util.concurrent.TimeUnit
     userPermissions = [Permission.MANAGE_SERVER],
     commandAccessRequirements = [GiveawayCommand::class]
 )
-class GiveawayCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
 
     enum class Mode { OVERVIEW, EDIT, REROLL }
 

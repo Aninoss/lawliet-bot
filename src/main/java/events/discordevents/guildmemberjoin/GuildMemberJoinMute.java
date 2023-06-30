@@ -8,6 +8,7 @@ import commands.runnables.moderationcategory.MuteCommand;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.servermute.ServerMuteData;
@@ -18,7 +19,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 public class GuildMemberJoinMute extends GuildMemberJoinAbstract {
 
     @Override
-    public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
+    public boolean onGuildMemberJoin(GuildMemberJoinEvent event, EntityManagerWrapper entityManager) throws Throwable {
         ServerMuteData serverMuteData = DBServerMute.getInstance().retrieve(event.getGuild().getIdLong())
                 .get(event.getMember().getIdLong());
 

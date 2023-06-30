@@ -37,7 +37,7 @@ public class MySQLManager {
         rv.setServerTimezone(TimeZone.getDefault().getID());
         rv.setRewriteBatchedStatements(true);
 
-        MainLogger.get().info("Connecting with database {}", rv.getUrl());
+        MainLogger.get().info("Connecting with MySQL database {}", rv.getUrl());
         connection = rv.getConnection();
     }
 

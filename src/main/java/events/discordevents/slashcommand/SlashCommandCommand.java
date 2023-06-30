@@ -15,6 +15,7 @@ import core.TextManager;
 import core.utils.ExceptionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.SlashCommandAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -27,7 +28,7 @@ public class SlashCommandCommand extends SlashCommandAbstract {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     @Override
-    public boolean onSlashCommand(SlashCommandInteractionEvent event) {
+    public boolean onSlashCommand(SlashCommandInteractionEvent event, EntityManagerWrapper entityManager) {
         if (event.getChannel() instanceof TextChannel) {
             SlashMeta slashCommandMeta = SlashCommandManager.process(event);
             if (slashCommandMeta == null) {
@@ -54,7 +55,7 @@ public class SlashCommandCommand extends SlashCommandAbstract {
             deferAfterOneSecond(event);
             CommandEvent commandEvent = new CommandEvent(event);
             try {
-                CommandManager.manage(new CommandEvent(event), command, args, getStartTime());
+                CommandManager.manage(new CommandEvent(event), command, args, entityManager, getStartTime());
             } catch (Throwable e) {
                 ExceptionUtil.handleCommandException(e, command, commandEvent);
             }

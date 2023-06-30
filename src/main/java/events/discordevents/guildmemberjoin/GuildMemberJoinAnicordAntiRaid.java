@@ -10,6 +10,7 @@ import core.schedule.MainScheduler;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
 @DiscordEvent(priority = EventPriority.HIGH, allowBots = true, allowBannedUser = true)
@@ -19,7 +20,7 @@ public class GuildMemberJoinAnicordAntiRaid extends GuildMemberJoinAbstract {
     private static final ArrayList<Instant> instantList = new ArrayList<>();
 
     @Override
-    public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
+    public boolean onGuildMemberJoin(GuildMemberJoinEvent event, EntityManagerWrapper entityManager) throws Throwable {
         if (event.getGuild().getIdLong() != AssetIds.ANICORD_SERVER_ID) {
             return true;
         }

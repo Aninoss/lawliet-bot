@@ -19,6 +19,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.MessageQuote;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.autoquote.DBAutoQuote;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
@@ -32,7 +33,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     @Override
-    public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
         GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         String prefix = guildBean.getPrefix();
         String content = event.getMessage().getContentRaw();
@@ -56,7 +57,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
         }
 
         if (prefixFound > -1) {
-            if (prefixFound > 0 && manageMessageInput(event)) {
+            if (prefixFound > 0 && manageMessageInput(event, entityManager)) {
                 return true;
             }
 
@@ -91,14 +92,14 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
                     CommandEvent commandEvent = new CommandEvent(event);
                     try {
-                        CommandManager.manage(commandEvent, command, args, getStartTime());
+                        CommandManager.manage(commandEvent, command, args, entityManager, getStartTime());
                     } catch (Throwable e) {
                         ExceptionUtil.handleCommandException(e, command, commandEvent);
                     }
                 }
             }
         } else {
-            if (manageMessageInput(event)) {
+            if (manageMessageInput(event, entityManager)) {
                 return true;
             }
             checkAutoQuote(event);
@@ -132,7 +133,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
         }
     }
 
-    private boolean manageMessageInput(MessageReceivedEvent event) {
+    private boolean manageMessageInput(MessageReceivedEvent event, EntityManagerWrapper entityManager) {
         GuildMessageChannel channel = event.getGuildChannel();
         if (channel.getPermissionContainer() != null && BotPermissionUtil.canWriteEmbed(channel)) {
             List<CommandListenerMeta<?>> listeners = CommandContainer.getListeners(OnMessageInputListener.class).stream()
@@ -147,7 +148,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     });
 
                     for (CommandListenerMeta<?> listener : listeners) {
-                        MessageInputResponse messageInputResponse = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event);
+                        MessageInputResponse messageInputResponse = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event, entityManager);
                         if (messageInputResponse != null) {
                             return true;
                         }

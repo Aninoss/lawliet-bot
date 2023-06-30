@@ -8,6 +8,7 @@ import dashboard.DashboardProperties
 import dashboard.component.DashboardText
 import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.VerticalContainer
+import mysql.hibernate.EntityManagerWrapper
 import mysql.modules.stickyroles.DBStickyRoles
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
@@ -19,7 +20,7 @@ import java.util.*
     botPermissions = [Permission.MANAGE_ROLES],
     commandAccessRequirements = [StickyRolesCommand::class]
 )
-class StickyRolesCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+class StickyRolesCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
 
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(StickyRolesCommand::class.java, locale).title

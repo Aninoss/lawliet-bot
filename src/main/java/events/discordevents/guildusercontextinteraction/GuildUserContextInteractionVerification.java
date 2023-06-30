@@ -6,6 +6,7 @@ import core.ModalMediator;
 import core.ShardManager;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildUserContextInteractionAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -19,7 +20,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 public class GuildUserContextInteractionVerification extends GuildUserContextInteractionAbstract {
 
     @Override
-    public boolean onGuildUserContextInteraction(UserContextInteractionEvent event) throws Throwable {
+    public boolean onGuildUserContextInteraction(UserContextInteractionEvent event, EntityManagerWrapper entityManager) throws Throwable {
         Guild guild = ShardManager.getLocalGuildById(AnicordVerificationIds.GUILD_ID).orElse(null);
         if (guild == null) {
             return true;

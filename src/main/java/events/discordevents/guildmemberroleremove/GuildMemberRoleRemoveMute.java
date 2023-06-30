@@ -3,6 +3,7 @@ package events.discordevents.guildmemberroleremove;
 import core.MemberCacheController;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRoleRemoveAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.servermute.DBServerMute;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
@@ -11,7 +12,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 public class GuildMemberRoleRemoveMute extends GuildMemberRoleRemoveAbstract {
 
     @Override
-    public boolean onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) throws Throwable {
+    public boolean onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event, EntityManagerWrapper entityManager) throws Throwable {
         DBModeration.getInstance().retrieve(event.getGuild().getIdLong()).getMuteRole().ifPresent(muteRole -> {
             if (event.getRoles().stream().anyMatch(r -> r.getIdLong() == muteRole.getIdLong())) {
                 MemberCacheController.getInstance().cacheGuildIfNotExist(event.getGuild());

@@ -2,6 +2,7 @@ package dashboard
 
 import com.google.common.cache.CacheBuilder
 import dashboard.pages.*
+import mysql.hibernate.EntityManagerWrapper
 import java.time.Duration
 import java.util.*
 import kotlin.reflect.KClass
@@ -38,13 +39,13 @@ object DashboardManager {
     }
 
     @JvmStatic
-    fun retrieveCategories(guildId: Long, userId: Long, locale: Locale): List<DashboardCategory> {
-        return pageClasses.map { it.primaryConstructor!!.call(guildId, userId, locale) }
+    fun retrieveCategories(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper): List<DashboardCategory> {
+        return pageClasses.map { it.primaryConstructor!!.call(guildId, userId, locale, entityManager) }
     }
 
     @JvmStatic
-    fun retrieveCategory(categoryId: String, guildId: Long, userId: Long, locale: Locale): DashboardCategory {
-        return pageClasses.map { it.primaryConstructor!!.call(guildId, userId, locale) }
+    fun retrieveCategory(categoryId: String, guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper): DashboardCategory {
+        return pageClasses.map { it.primaryConstructor!!.call(guildId, userId, locale, entityManager) }
             .filter { it.properties.id == categoryId }[0]
     }
 

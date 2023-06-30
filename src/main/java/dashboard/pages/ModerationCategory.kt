@@ -19,6 +19,7 @@ import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.automod.WordFilter
+import mysql.hibernate.EntityManagerWrapper
 import mysql.modules.bannedwords.BannedWordsData
 import mysql.modules.bannedwords.DBBannedWords
 import mysql.modules.moderation.DBModeration
@@ -35,7 +36,7 @@ import java.util.*
     botPermissions = [Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.MODERATE_MEMBERS],
     commandAccessRequirements = [ModSettingsCommand::class, InviteFilterCommand::class, WordFilterCommand::class]
 )
-class ModerationCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+class ModerationCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
 
     var autoModConfigSlot: AutoModSlots? = null
     var autoModConfigStep = 0

@@ -14,6 +14,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.Welcome;
 import modules.graphics.WelcomeGraphics;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageData;
@@ -30,7 +31,7 @@ import net.dv8tion.jda.api.utils.FileUpload;
 public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
 
     @Override
-    public boolean onGuildMemberJoin(GuildMemberJoinEvent event) {
+    public boolean onGuildMemberJoin(GuildMemberJoinEvent event, EntityManagerWrapper entityManager) {
         Guild guild = event.getGuild();
         Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
 

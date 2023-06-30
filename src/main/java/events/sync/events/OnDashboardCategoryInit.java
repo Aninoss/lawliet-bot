@@ -9,6 +9,8 @@ import core.TextManager;
 import core.cache.PatreonCache;
 import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
 import net.dv8tion.jda.api.Permission;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,18 +34,22 @@ public class OnDashboardCategoryInit implements SyncServerFunction {
             boolean createNew = jsonObject.getBoolean("create_new");
             Locale locale = Language.from(localeString).getLocale();
 
-            DashboardCategory category = DashboardManager.getCategoryCache().getIfPresent(userId);
-            if (createNew || category == null) {
-                category = DashboardManager.retrieveCategory(categoryId, guildId, userId, locale);
-            }
+            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                DashboardCategory category = DashboardManager.getCategoryCache().getIfPresent(userId);
+                if (createNew || category == null) {
+                    category = DashboardManager.retrieveCategory(categoryId, guildId, userId, locale, entityManager);
+                } else {
+                    category.setEntityManager(entityManager);
+                }
 
-            List<Permission> missingBotPermissions = category.missingBotPermissions();
-            List<Permission> missingUserPermissions = category.missingUserPermissions();
-            resultJson.put("missing_bot_permissions", generateMissingPermissionsJson(locale, missingBotPermissions));
-            resultJson.put("missing_user_permissions", generateMissingPermissionsJson(locale, missingUserPermissions));
-            if (missingBotPermissions.isEmpty() && missingUserPermissions.isEmpty()) {
-                resultJson.put("components", category.draw().toJSON());
-                DashboardManager.getCategoryCache().put(userId, category);
+                List<Permission> missingBotPermissions = category.missingBotPermissions();
+                List<Permission> missingUserPermissions = category.missingUserPermissions();
+                resultJson.put("missing_bot_permissions", generateMissingPermissionsJson(locale, missingBotPermissions));
+                resultJson.put("missing_user_permissions", generateMissingPermissionsJson(locale, missingUserPermissions));
+                if (missingBotPermissions.isEmpty() && missingUserPermissions.isEmpty()) {
+                    resultJson.put("components", category.draw().toJSON());
+                    DashboardManager.getCategoryCache().put(userId, category);
+                }
             }
         }
         return resultJson;

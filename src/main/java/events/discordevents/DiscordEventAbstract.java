@@ -3,6 +3,8 @@ package events.discordevents;
 import java.util.ArrayList;
 import core.MainLogger;
 import core.ShardManager;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
 import mysql.modules.bannedusers.DBBannedUsers;
 import net.dv8tion.jda.api.entities.User;
 
@@ -53,13 +55,15 @@ public abstract class DiscordEventAbstract {
 
     private static boolean runListenerPriority(ArrayList<DiscordEventAbstract> listenerList, EventExecution function,
                                                EventPriority priority, boolean banned, boolean bot) {
-        for (DiscordEventAbstract listener : listenerList) {
-            if (listener.getPriority() == priority &&
-                    (!banned || listener.isAllowingBannedUser()) &&
-                    (!bot || listener.isAllowingBots()) &&
-                    !run(function, listener)
-            ) {
-                return false;
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            for (DiscordEventAbstract listener : listenerList) {
+                if (listener.getPriority() == priority &&
+                        (!banned || listener.isAllowingBannedUser()) &&
+                        (!bot || listener.isAllowingBots()) &&
+                        !run(function, listener, entityManager)
+                ) {
+                    return false;
+                }
             }
         }
 
@@ -70,9 +74,9 @@ public abstract class DiscordEventAbstract {
         return DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(userId);
     }
 
-    private static boolean run(EventExecution function, DiscordEventAbstract listener) {
+    private static boolean run(EventExecution function, DiscordEventAbstract listener, EntityManagerWrapper entityManager) {
         try {
-            return function.apply(listener);
+            return function.apply(listener, entityManager);
         } catch (Throwable throwable) {
             MainLogger.get().error("Uncaught Exception", throwable);
         }
@@ -82,7 +86,7 @@ public abstract class DiscordEventAbstract {
 
     public interface EventExecution {
 
-        boolean apply(DiscordEventAbstract discordEventAbstract) throws Throwable;
+        boolean apply(DiscordEventAbstract discordEventAbstract, EntityManagerWrapper entityManager) throws Throwable;
 
     }
 

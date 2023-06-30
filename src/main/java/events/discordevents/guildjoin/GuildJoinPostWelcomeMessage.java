@@ -11,6 +11,7 @@ import core.utils.EmbedUtil;
 import core.utils.JDAUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildJoinAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -24,7 +25,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 public class GuildJoinPostWelcomeMessage extends GuildJoinAbstract {
 
     @Override
-    public boolean onGuildJoin(GuildJoinEvent event) {
+    public boolean onGuildJoin(GuildJoinEvent event, EntityManagerWrapper entityManager) {
         JDAUtil.getFirstWritableChannelOfGuild(event.getGuild())
                 .ifPresent(this::sendNewMessage);
         return true;

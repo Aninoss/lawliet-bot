@@ -8,6 +8,7 @@ import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.EntitySelectMenuAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
@@ -18,7 +19,7 @@ import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionE
 public class EntitySelectMenuCommandsStatic extends EntitySelectMenuAbstract {
 
     @Override
-    public boolean onEntitySelectMenu(EntitySelectInteractionEvent event) throws Throwable {
+    public boolean onEntitySelectMenu(EntitySelectInteractionEvent event, EntityManagerWrapper entityManager) throws Throwable {
         if (!BotPermissionUtil.canWriteEmbed(event.getGuildChannel())) {
             return true;
         }
@@ -34,6 +35,7 @@ public class EntitySelectMenuCommandsStatic extends EntitySelectMenuAbstract {
                 if (command.getCommandProperties().requiresFullMemberCache()) {
                     MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
                 }
+                command.setEntityManager(entityManager);
                 ((OnStaticEntitySelectMenuListener) command).onStaticEntitySelectMenu(event, messageData.getSecondaryId());
                 return false;
             }

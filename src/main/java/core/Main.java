@@ -6,6 +6,7 @@ import core.emoji.EmojiTable;
 import core.utils.BotUtil;
 import events.sync.EventManager;
 import mysql.MySQLManager;
+import mysql.hibernate.HibernateManager;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionData;
 import mysql.modules.version.VersionSlot;
@@ -19,6 +20,7 @@ public class Main {
 
             Console.start();
             FontManager.init();
+            HibernateManager.connect();
             MySQLManager.connect();
             EmojiTable.load();
             if (Program.productionMode()) {

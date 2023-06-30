@@ -7,6 +7,7 @@ import commands.runnables.utilitycategory.AutoChannelCommand;
 import core.PermissionCheckRuntime;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.VoiceChannelUpdateUserLimitAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.autochannel.AutoChannelData;
 import mysql.modules.autochannel.DBAutoChannel;
 import mysql.modules.guild.DBGuild;
@@ -19,7 +20,7 @@ import net.dv8tion.jda.api.events.channel.update.ChannelUpdateUserLimitEvent;
 public class VoiceChannelChangeUserLimitAutoChannel extends VoiceChannelUpdateUserLimitAbstract {
 
     @Override
-    public boolean onVoiceChannelUpdateUserLimit(ChannelUpdateUserLimitEvent event) {
+    public boolean onVoiceChannelUpdateUserLimit(ChannelUpdateUserLimitEvent event, EntityManagerWrapper entityManager) {
         AutoChannelData autoChannelBean = DBAutoChannel.getInstance().retrieve(event.getGuild().getIdLong());
         for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (event.getChannel().getIdLong() == childChannelId) {

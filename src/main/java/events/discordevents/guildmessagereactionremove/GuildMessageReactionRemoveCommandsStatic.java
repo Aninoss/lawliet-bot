@@ -10,6 +10,7 @@ import core.cache.MessageCache;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageReactionRemoveAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
@@ -22,7 +23,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReactionRemoveAbstract {
 
     @Override
-    public boolean onGuildMessageReactionRemove(MessageReactionRemoveEvent event) throws Throwable {
+    public boolean onGuildMessageReactionRemove(MessageReactionRemoveEvent event, EntityManagerWrapper entityManager) throws Throwable {
         if (!BotPermissionUtil.canReadHistory(event.getGuildChannel(), Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
             return true;
         }
@@ -49,6 +50,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
                     } else {
                         MemberCacheController.getInstance().loadMember(event.getGuild(), event.getUserIdLong()).get();
                     }
+                    command.setEntityManager(entityManager);
                     if (event.getMember() != null && !event.getMember().getUser().isBot()) {
                         ((OnStaticReactionRemoveListener) command).onStaticReactionRemove(message, event);
                     }

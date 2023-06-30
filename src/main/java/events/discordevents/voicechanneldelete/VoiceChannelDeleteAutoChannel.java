@@ -2,6 +2,7 @@ package events.discordevents.voicechanneldelete;
 
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.VoiceChannelDeleteAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.autochannel.DBAutoChannel;
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 
@@ -9,7 +10,7 @@ import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 public class VoiceChannelDeleteAutoChannel extends VoiceChannelDeleteAbstract {
 
     @Override
-    public boolean onVoiceChannelDelete(ChannelDeleteEvent event) {
+    public boolean onVoiceChannelDelete(ChannelDeleteEvent event, EntityManagerWrapper entityManager) {
         DBAutoChannel.getInstance()
                 .retrieve(event.getGuild().getIdLong())
                 .getChildChannelIds()

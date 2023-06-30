@@ -258,7 +258,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
             setActionRows();
             drawMessage(lastEmbedBuilder).exceptionally(ExceptionLogger.get());
             Command command = CommandManager.createCommandByClass(this.getClass(), getLocale(), getPrefix());
-            CommandManager.manage(getCommandEvent(), command, String.valueOf(coinsInput), Instant.now(), false);
+            CommandManager.manage(getCommandEvent(), command, String.valueOf(coinsInput), getEntityManager(), Instant.now(), false);
             return false;
         }
         return false;

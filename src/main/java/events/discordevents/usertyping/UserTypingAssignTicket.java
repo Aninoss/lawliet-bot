@@ -3,6 +3,7 @@ package events.discordevents.usertyping;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.UserTypingAbstract;
 import modules.Ticket;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
 import mysql.modules.ticket.TicketData;
@@ -12,7 +13,7 @@ import net.dv8tion.jda.api.events.user.UserTypingEvent;
 public class UserTypingAssignTicket extends UserTypingAbstract {
 
     @Override
-    public boolean onUserTyping(UserTypingEvent event) throws Throwable {
+    public boolean onUserTyping(UserTypingEvent event, EntityManagerWrapper entityManager) throws Throwable {
         TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
         TicketChannel ticketChannel = ticketData.getTicketChannels().get(event.getChannel().getIdLong());
         if (ticketChannel != null &&

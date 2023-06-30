@@ -6,11 +6,12 @@ import core.AsyncTimer;
 import core.MainLogger;
 import core.utils.ExceptionUtil;
 import events.discordevents.DiscordEventAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 public abstract class GuildMessageReactionAddAbstract extends DiscordEventAbstract {
 
-    public abstract boolean onGuildMessageReactionAdd(MessageReactionAddEvent event) throws Throwable;
+    public abstract boolean onGuildMessageReactionAdd(MessageReactionAddEvent event, EntityManagerWrapper entityManager) throws Throwable;
 
     public static void onGuildMessageReactionAddStatic(MessageReactionAddEvent event, ArrayList<DiscordEventAbstract> listenerList) {
         try(AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
@@ -19,7 +20,7 @@ public abstract class GuildMessageReactionAddAbstract extends DiscordEventAbstra
             });
 
             execute(listenerList, event.getUser(), event.getGuild().getIdLong(),
-                    listener -> ((GuildMessageReactionAddAbstract) listener).onGuildMessageReactionAdd(event)
+                    (listener, entityManager) -> ((GuildMessageReactionAddAbstract) listener).onGuildMessageReactionAdd(event, entityManager)
             );
         } catch (InterruptedException e) {
             MainLogger.get().error("Interrupted exception", e);

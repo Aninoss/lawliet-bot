@@ -7,13 +7,14 @@ import dashboard.DashboardCategory
 import dashboard.DashboardProperties
 import dashboard.component.DashboardText
 import dashboard.container.VerticalContainer
+import mysql.hibernate.EntityManagerWrapper
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
     id = "autochannel"
 )
-class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+class AutoChannelCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
 
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(AutoChannelCommand::class.java, locale).title

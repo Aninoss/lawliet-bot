@@ -9,6 +9,7 @@ import core.MainLogger
 import core.MemberCacheController
 import core.utils.BotPermissionUtil
 import core.utils.ExceptionUtil
+import mysql.hibernate.EntityManagerWrapper
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
@@ -60,13 +61,14 @@ interface OnMessageInputListener : Drawable {
         }
     }
 
-    fun processMessageInput(event: MessageReceivedEvent): MessageInputResponse? {
+    fun processMessageInput(event: MessageReceivedEvent, entityManager: EntityManagerWrapper): MessageInputResponse? {
         val command = this as Command
         val isProcessing = AtomicBoolean(true)
         try {
             if (command.commandProperties.requiresFullMemberCache) {
                 MemberCacheController.getInstance().loadMembersFull(event.guild).get()
             }
+            command.entityManager = entityManager
             val messageInputResponse = onMessageInput(event, event.message.contentRaw)
             if (messageInputResponse != null) {
                 if (messageInputResponse === MessageInputResponse.SUCCESS) {

@@ -18,6 +18,8 @@ import core.cache.ServerPatreonBoostCache;
 import core.utils.EmbedUtil;
 import core.utils.ExceptionUtil;
 import core.utils.TimeUtil;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -74,8 +76,8 @@ public class AlertScheduler {
     private static boolean manageAlert(TrackerData slot) {
         Instant minInstant = Instant.now().plus(1, ChronoUnit.MINUTES);
 
-        try {
-            processAlert(slot);
+        try(EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            processAlert(slot, entityManager);
         } catch (Throwable throwable) {
             MainLogger.get().error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);
             minInstant = Instant.now().plus(10, ChronoUnit.MINUTES);
@@ -91,7 +93,7 @@ public class AlertScheduler {
         return false;
     }
 
-    private static void processAlert(TrackerData slot) throws Throwable {
+    private static void processAlert(TrackerData slot, EntityManagerWrapper entityManager) throws Throwable {
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), slot.getGuildData().getLocale(), slot.getGuildData().getPrefix());
         if (commandOpt.isEmpty()) {
             MainLogger.get().error("Invalid alert for command: {}", slot.getCommandTrigger());
@@ -99,7 +101,10 @@ public class AlertScheduler {
             return;
         }
 
-        OnAlertListener command = (OnAlertListener) commandOpt.get();
+        Command command = commandOpt.get();
+        command.setEntityManager(entityManager);
+
+        OnAlertListener alertCommand = (OnAlertListener) command;
         Optional<StandardGuildMessageChannel> channelOpt = slot.getStandardGuildMessageChannel();
         if (channelOpt.isPresent()) {
             StandardGuildMessageChannel channel = channelOpt.get();
@@ -108,15 +113,15 @@ public class AlertScheduler {
                 return;
             }
 
-            if (!PermissionCheckRuntime.botHasPermission(((Command) command).getLocale(), AlertsCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS) ||
-                    checkNSFW(slot, channel, (Command) command) ||
-                    checkPatreon(slot, channel, (Command) command) ||
-                    checkReleased(slot, channel, (Command) command)
+            if (!PermissionCheckRuntime.botHasPermission(((Command) alertCommand).getLocale(), AlertsCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS) ||
+                    checkNSFW(slot, channel, (Command) alertCommand) ||
+                    checkPatreon(slot, channel, (Command) alertCommand) ||
+                    checkReleased(slot, channel, (Command) alertCommand)
             ) {
                 return;
             }
 
-            switch (command.onTrackerRequest(slot)) {
+            switch (alertCommand.onTrackerRequest(slot)) {
                 case STOP:
                     slot.stop();
                     break;

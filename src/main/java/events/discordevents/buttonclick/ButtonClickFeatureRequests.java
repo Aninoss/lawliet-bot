@@ -4,6 +4,7 @@ import core.ModalMediator;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
 import events.sync.SendEvent;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
@@ -13,7 +14,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 public class ButtonClickFeatureRequests extends ButtonClickAbstract {
 
     @Override
-    public boolean onButtonClick(ButtonInteractionEvent event) {
+    public boolean onButtonClick(ButtonInteractionEvent event, EntityManagerWrapper entityManager) {
         if (event.getChannel().getIdLong() == 1031135108033429534L) {
             int id = Integer.parseInt(event.getMessage().getEmbeds().get(0).getFooter().getText());
 

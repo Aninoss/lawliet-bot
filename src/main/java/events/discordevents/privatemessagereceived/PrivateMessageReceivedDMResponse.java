@@ -10,6 +10,7 @@ import core.EmbedFactory;
 import core.Program;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.PrivateMessageReceivedAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -23,7 +24,7 @@ public class PrivateMessageReceivedDMResponse extends PrivateMessageReceivedAbst
             .build();
 
     @Override
-    public boolean onPrivateMessageReceived(MessageReceivedEvent event) throws Throwable {
+    public boolean onPrivateMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
         User user = event.getAuthor();
         if (Program.isMainCluster() &&
                 !usersDmNotified.asMap().containsKey(user.getIdLong()) &&

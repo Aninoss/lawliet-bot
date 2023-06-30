@@ -11,7 +11,6 @@ import core.ModalMediator;
 import core.TextManager;
 import core.utils.StringUtil;
 import modules.Prefix;
-import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -58,7 +57,7 @@ public class PrefixCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
-        String prefix = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getPrefix();
+        String prefix = getEntityManager().findGuildEntity(event.getGuild().getIdLong()).getPrefix();
         TextInput textInput = TextInput.create("text", getString("new"), TextInputStyle.SHORT)
                 .setValue(prefix)
                 .setMinLength(1)
@@ -84,7 +83,7 @@ public class PrefixCommand extends Command implements OnButtonListener {
 
     @Override
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
-        String prefix = DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).getPrefix();
+        String prefix = getEntityManager().findGuildEntity(member.getGuild().getIdLong()).getPrefix();
         setComponents(getString("button"));
         return EmbedFactory.getEmbedDefault(this, getString("current", StringUtil.escapeMarkdownInField(prefix)));
     }

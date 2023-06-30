@@ -11,6 +11,7 @@ import core.RestActionQueue
 import core.utils.BotPermissionUtil
 import core.utils.EmojiUtil
 import core.utils.ExceptionUtil
+import mysql.hibernate.EntityManagerWrapper
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
@@ -113,7 +114,7 @@ interface OnReactionListener : Drawable {
         return future
     }
 
-    fun processReaction(event: GenericMessageReactionEvent) {
+    fun processReaction(event: GenericMessageReactionEvent, entityManager: EntityManagerWrapper) {
         val command = this as Command
         try {
             if (command.commandProperties.requiresFullMemberCache) {
@@ -124,6 +125,7 @@ interface OnReactionListener : Drawable {
             if (event.user == null || event.user!!.isBot) {
                 return
             }
+            command.entityManager = entityManager
             if (onReaction(event)) {
                 CommandContainer.refreshListeners(command)
                 val eb = draw(event.member!!)

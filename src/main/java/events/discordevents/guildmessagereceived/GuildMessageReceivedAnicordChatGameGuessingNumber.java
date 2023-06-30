@@ -7,6 +7,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.ChatGameGuessingNames;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -16,7 +17,7 @@ public class GuildMessageReceivedAnicordChatGameGuessingNumber extends GuildMess
     private final ChatGameGuessingNames chatGameGuessingNames = new ChatGameGuessingNames();
 
     @Override
-    public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
         final long GAME_CHANNEL_ID = 758285721877479504L;
 
         if (event.getGuild().getIdLong() == AssetIds.ANICORD_SERVER_ID && event.getChannel().getIdLong() == GAME_CHANNEL_ID) {

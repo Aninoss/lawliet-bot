@@ -18,6 +18,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
+import mysql.hibernate.EntityManagerWrapper
 import mysql.modules.commandmanagement.CommandManagementData
 import mysql.modules.commandmanagement.DBCommandManagement
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels
@@ -30,7 +31,7 @@ import java.util.*
     userPermissions = [Permission.ADMINISTRATOR],
     commandAccessRequirements = [CommandManagementCommand::class, WhiteListCommand::class, CommandPermissionsCommand::class]
 )
-class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
 
     override fun retrievePageTitle(): String {
         return getString(TextManager.GENERAL, "dashboard_cman")

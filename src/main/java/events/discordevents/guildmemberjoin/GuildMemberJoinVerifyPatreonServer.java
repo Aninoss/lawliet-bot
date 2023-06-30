@@ -8,6 +8,7 @@ import core.schedule.MainScheduler;
 import core.utils.JDAUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
@@ -15,7 +16,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 public class GuildMemberJoinVerifyPatreonServer extends GuildMemberJoinAbstract {
 
     @Override
-    public boolean onGuildMemberJoin(GuildMemberJoinEvent event) throws Throwable {
+    public boolean onGuildMemberJoin(GuildMemberJoinEvent event, EntityManagerWrapper entityManager) throws Throwable {
         Member member = event.getMember();
         if (event.getGuild().getIdLong() == AssetIds.BETA_SERVER_ID &&
                 Program.productionMode() &&

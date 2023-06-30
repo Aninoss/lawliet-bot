@@ -29,6 +29,8 @@ dependencies {
     implementation 'net.dv8tion:JDA:5.0.0-beta.11'
     implementation 'club.minnced:discord-webhooks:0.5.8'
     implementation 'mysql:mysql-connector-java:8.0.23'
+    implementation 'org.hibernate.ogm:hibernate-ogm-mongodb:5.4.1.Final'
+    implementation 'org.jboss.jbossts:jbossjta:4.16.6.Final'
     implementation 'org.apache.commons:commons-dbcp2:2.9.0'
     implementation 'com.kcthota:emoji4j:6.0'
     implementation 'commons-io:commons-io:2.6'

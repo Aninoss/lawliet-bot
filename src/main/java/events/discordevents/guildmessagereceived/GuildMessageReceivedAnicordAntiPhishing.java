@@ -7,6 +7,7 @@ import core.internet.HttpRequest;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
@@ -15,7 +16,7 @@ import org.json.JSONObject;
 public class GuildMessageReceivedAnicordAntiPhishing extends GuildMessageReceivedAbstract {
 
     @Override
-    public boolean onGuildMessageReceived(MessageReceivedEvent event) throws Throwable {
+    public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
         Guild guild = event.getGuild();
         if (Program.productionMode() &&
                 (guild.getIdLong() == AssetIds.ANICORD_SERVER_ID || guild.getIdLong() == AssetIds.SUPPORT_SERVER_ID || guild.getIdLong() == AssetIds.BETA_SERVER_ID ) &&

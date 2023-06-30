@@ -6,6 +6,7 @@ import core.TextManager;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ModalInteractionAbstract;
 import modules.Ticket;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -19,7 +20,7 @@ public class ModalInteractionTicket extends ModalInteractionAbstract {
     public static String ID = "ticket_create";
 
     @Override
-    public boolean onModalInteraction(ModalInteractionEvent event) throws Throwable {
+    public boolean onModalInteraction(ModalInteractionEvent event, EntityManagerWrapper entityManager) throws Throwable {
         if (event.getChannel() instanceof TextChannel && event.getModalId().equals(ID)) {
             TicketData ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
             Category category = event.getChannel().asTextChannel().getParentCategory();

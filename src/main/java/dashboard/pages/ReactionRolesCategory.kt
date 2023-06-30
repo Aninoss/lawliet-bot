@@ -25,6 +25,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.ReactionRoles
+import mysql.hibernate.EntityManagerWrapper
 import mysql.modules.guild.DBGuild
 import mysql.modules.reactionroles.ReactionRoleMessage
 import mysql.modules.reactionroles.ReactionRoleMessage.ComponentType
@@ -45,7 +46,7 @@ import java.util.concurrent.TimeUnit
     userPermissions = [Permission.MANAGE_ROLES],
     commandAccessRequirements = [ReactionRolesCommand::class]
 )
-class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
 
     var channelId: Long? = null
     var title = ""

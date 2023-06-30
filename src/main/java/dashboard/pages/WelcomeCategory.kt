@@ -17,6 +17,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import modules.graphics.WelcomeGraphics
+import mysql.hibernate.EntityManagerWrapper
 import mysql.modules.welcomemessage.DBWelcomeMessage
 import mysql.modules.welcomemessage.WelcomeMessageData
 import net.dv8tion.jda.api.Permission
@@ -29,7 +30,7 @@ import java.util.*
     userPermissions = [Permission.MANAGE_SERVER],
     commandAccessRequirements = [WelcomeCommand::class]
 )
-class WelcomeCategory(guildId: Long, userId: Long, locale: Locale) : DashboardCategory(guildId, userId, locale) {
+class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
 
     private var renderBannerPreview = false
 

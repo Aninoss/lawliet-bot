@@ -11,6 +11,7 @@ import core.utils.StringUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRemoveAbstract;
 import modules.Welcome;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageData;
@@ -24,7 +25,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
 
     @Override
-    public boolean onGuildMemberRemove(GuildMemberRemoveEvent event) {
+    public boolean onGuildMemberRemove(GuildMemberRemoveEvent event, EntityManagerWrapper entityManager) {
         Guild guild = event.getGuild();
         Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
 
