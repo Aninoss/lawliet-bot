@@ -16,6 +16,7 @@ import core.utils.ExceptionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.SlashCommandAbstract;
 import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -41,10 +42,10 @@ public class SlashCommandCommand extends SlashCommandAbstract {
                 return true;
             }
 
-            GuildData guildData = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+            GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
             String args = slashCommandMeta.getArgs().trim();
-            String prefix = guildData.getPrefix();
-            Locale locale = guildData.getLocale();
+            String prefix = guildEntity.getPrefix();
+            Locale locale = guildEntity.getLocale();
             Class<? extends Command> clazz = slashCommandMeta.getCommandClass();
             Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
             Function<Locale, String> errorFunction = slashCommandMeta.getErrorFunction();

@@ -12,7 +12,7 @@ public class GuildMessageReceivedWordFilter extends GuildMessageReceivedAbstract
 
     @Override
     public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
-        return new WordFilter(event.getMessage()).check();
+        return new WordFilter(event.getMessage()).check(entityManager);
     }
 
 }

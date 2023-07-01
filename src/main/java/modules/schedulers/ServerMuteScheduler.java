@@ -10,6 +10,9 @@ import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import modules.Mod;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.servermute.ServerMuteData;
@@ -40,17 +43,22 @@ public class ServerMuteScheduler {
                     ShardManager.guildIsManaged(guildId) &&
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
-                onServerMuteExpire(map.get(memberId));
+                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                    onServerMuteExpire(entityManager, map.get(memberId));
+                }
             }
         });
     }
 
-    private static void onServerMuteExpire(ServerMuteData serverMuteData) {
-        Locale locale = serverMuteData.getGuildData().getLocale();
+    private static void onServerMuteExpire(EntityManagerWrapper entityManager, ServerMuteData serverMuteData) {
+        GuildEntity guildEntity = entityManager.findGuildEntity(serverMuteData.getGuildId());
         DBServerMute.getInstance().retrieve(serverMuteData.getGuildId())
                 .remove(serverMuteData.getMemberId(), serverMuteData);
 
         MemberCacheController.getInstance().loadMember(serverMuteData.getGuild().get(), serverMuteData.getMemberId()).thenAccept(member -> {
+            String prefix = guildEntity.getPrefix();
+            Locale locale = guildEntity.getLocale();
+
             if (member != null) {
                 if (!serverMuteData.isNewMethod()) {
                     Role muteRole = DBModeration.getInstance().retrieve(member.getGuild().getIdLong()).getMuteRole().orElse(null);
@@ -61,13 +69,13 @@ public class ServerMuteScheduler {
                     }
                 }
 
-                Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildData().getPrefix());
+                Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, prefix);
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", StringUtil.escapeMarkdown(member.getUser().getAsTag())));
                 Mod.postLogMembers(command, eb, member.getGuild(), member);
             } else {
                 ShardManager.fetchUserById(serverMuteData.getMemberId())
                         .thenAccept(user -> {
-                            Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, serverMuteData.getGuildData().getPrefix());
+                            Command command = CommandManager.createCommandByClass(MuteCommand.class, locale, prefix);
                             EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "mute_expired", StringUtil.escapeMarkdown(user.getAsTag())));
                             Mod.postLogUsers(command, eb, serverMuteData.getGuild().get(), user);
                         });

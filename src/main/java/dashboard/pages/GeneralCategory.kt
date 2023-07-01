@@ -91,10 +91,10 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, entityManager
                 }
 
                 val prefix = it.data
-                Prefix.changePrefix(guild, locale, prefix)
+                Prefix.changePrefix(guild, locale, prefix, entityManager)
                 ActionResult()
             }
-            prefixField.value = DBGuild.getInstance().retrieve(atomicGuild.idLong).prefix
+            prefixField.value = entityManager.findGuildEntity(atomicGuild.idLong).prefix
             container.add(prefixField)
         }
 

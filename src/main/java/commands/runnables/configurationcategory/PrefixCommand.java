@@ -7,7 +7,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
-import core.ModalMediator;
+import core.modals.ModalMediator;
 import core.TextManager;
 import core.utils.StringUtil;
 import modules.Prefix;
@@ -38,7 +38,7 @@ public class PrefixCommand extends Command implements OnButtonListener {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         if (args.length() > 0 && !args.isBlank()) {
             if (args.length() <= MAX_LENGTH) {
-                Prefix.changePrefix(event.getGuild(), getLocale(), args);
+                Prefix.changePrefix(event.getGuild(), getLocale(), args, getEntityManager());
                 drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(args))))
                         .exceptionally(ExceptionLogger.get());
                 return true;
@@ -64,13 +64,13 @@ public class PrefixCommand extends Command implements OnButtonListener {
                 .setMaxLength(MAX_LENGTH)
                 .build();
 
-        Modal modal = ModalMediator.createModal(getString("button"), e -> {
+        Modal modal = ModalMediator.createModal(getString("button"), (e, em) -> {
                     deregisterListeners();
                     String newPrefix = e.getValues().get(0).getAsString();
                     if (newPrefix.isBlank()) {
                         newPrefix = "L.";
                     }
-                    Prefix.changePrefix(event.getGuild(), getLocale(), newPrefix);
+                    Prefix.changePrefix(event.getGuild(), getLocale(), newPrefix, em);
                     drawMessage(EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(newPrefix))))
                             .exceptionally(ExceptionLogger.get());
                     e.deferEdit().queue();

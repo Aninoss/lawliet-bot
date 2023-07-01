@@ -11,6 +11,9 @@ import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import modules.Jail;
 import modules.Mod;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.jails.DBJails;
 import mysql.modules.jails.JailData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -40,22 +43,26 @@ public class JailScheduler {
                     ShardManager.guildIsManaged(guildId) &&
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
-                onJailExpire(map.get(memberId));
+                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                    onJailExpire(entityManager, map.get(memberId));
+                }
             }
         });
     }
 
-    private static void onJailExpire(JailData jailData) {
+    private static void onJailExpire(EntityManagerWrapper entityManager, JailData jailData) {
+        GuildEntity guildEntity = entityManager.findGuildEntity(jailData.getGuildId());
         DBJails.getInstance().retrieve(jailData.getGuildId())
                 .remove(jailData.getMemberId(), jailData);
 
-        MemberCacheController.getInstance().loadMember(jailData.getGuild().get(),jailData.getMemberId()).thenAccept(member -> {
+        MemberCacheController.getInstance().loadMember(jailData.getGuild().get(), jailData.getMemberId()).thenAccept(member -> {
             if (member != null) {
-                Locale locale = jailData.getGuildData().getLocale();
+                Locale locale = guildEntity.getLocale();
+                String prefix = guildEntity.getPrefix();
                 Guild guild = jailData.getGuild().get();
                 Jail.unjail(jailData, guild, member, TextManager.getString(locale, Category.MODERATION, "jail_expired_title"));
 
-                Command command = CommandManager.createCommandByClass(JailCommand.class, locale, jailData.getGuildData().getPrefix());
+                Command command = CommandManager.createCommandByClass(JailCommand.class, locale, prefix);
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "jail_expired", StringUtil.escapeMarkdown(member.getUser().getAsTag())));
                 Mod.postLogMembers(command, eb, member.getGuild(), member);
             }

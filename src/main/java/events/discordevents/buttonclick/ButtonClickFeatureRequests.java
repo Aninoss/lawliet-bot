@@ -1,6 +1,6 @@
 package events.discordevents.buttonclick;
 
-import core.ModalMediator;
+import core.modals.ModalMediator;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
 import events.sync.SendEvent;
@@ -25,7 +25,7 @@ public class ButtonClickFeatureRequests extends ButtonClickAbstract {
                 TextInput textInput = TextInput.create("text", "Reason", TextInputStyle.PARAGRAPH)
                         .build();
 
-                Modal modal = ModalMediator.createModal("Deny Feature Request", e -> {
+                Modal modal = ModalMediator.createModal("Deny Feature Request", (e, em) -> {
                             SendEvent.sendFeatureRequestAction(id, false, e.getValues().get(0).getAsString()).join();
                             event.getMessage().delete().queue();
                             e.deferEdit().queue();

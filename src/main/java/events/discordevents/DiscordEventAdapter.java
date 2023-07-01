@@ -1,5 +1,6 @@
 package events.discordevents;
 
+import java.time.Instant;
 import java.util.*;
 import commands.SlashCommandManager;
 import core.*;
@@ -95,8 +96,9 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        Instant startTime = Instant.now();
         if (event.getChannel() instanceof GuildMessageChannel && event.getGuildChannel().getPermissionContainer() != null) {
-            GlobalThreadPool.submit(() -> GuildMessageReceivedAbstract.onGuildMessageReceivedStatic(event, getListenerList(GuildMessageReceivedAbstract.class)));
+            GlobalThreadPool.submit(() -> GuildMessageReceivedAbstract.onGuildMessageReceivedStatic(event, getListenerList(GuildMessageReceivedAbstract.class), startTime));
         } else if (event.getChannel() instanceof PrivateChannel) {
             GlobalThreadPool.submit(() -> PrivateMessageReceivedAbstract.onPrivateMessageReceivedStatic(event, getListenerList(PrivateMessageReceivedAbstract.class)));
         }

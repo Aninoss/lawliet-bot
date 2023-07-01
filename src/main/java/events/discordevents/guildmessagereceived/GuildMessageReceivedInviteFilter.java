@@ -12,7 +12,7 @@ public class GuildMessageReceivedInviteFilter extends GuildMessageReceivedAbstra
 
     @Override
     public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
-        return new InviteFilter(event.getMessage()).check();
+        return new InviteFilter(event.getMessage()).check(entityManager);
     }
 
 }

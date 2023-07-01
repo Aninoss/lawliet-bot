@@ -8,7 +8,7 @@ import commands.listeners.OnButtonListener;
 import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
-import core.ModalMediator;
+import core.modals.ModalMediator;
 import core.TextManager;
 import core.cache.PatreonCache;
 import core.utils.StringUtil;
@@ -95,7 +95,7 @@ public class AutoSellCommand extends Command implements OnButtonListener {
                     .setMaxLength(3)
                     .build();
 
-            Modal modal = ModalMediator.createModal(getString("modal_title"), e -> {
+            Modal modal = ModalMediator.createModal(getString("modal_title"), (e, em) -> {
                         deregisterListeners();
                         String newThresholdString = e.getValues().get(0).getAsString();
                         int newThreshold = StringUtil.stringIsInt(newThresholdString)

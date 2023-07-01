@@ -1,10 +1,12 @@
 package mysql.hibernate.entity;
 
 import java.time.LocalDate;
+import java.util.Locale;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import constants.Language;
 import core.assets.GuildAsset;
+import core.cache.ServerPatreonBoostCache;
 
 @Entity(name = "Guild")
 public class GuildEntity implements GuildAsset {
@@ -45,6 +47,10 @@ public class GuildEntity implements GuildAsset {
         this.language = language.name();
     }
 
+    public Locale getLocale() {
+        return getLanguage().getLocale();
+    }
+
     public boolean getBig() {
         return big;
     }
@@ -55,6 +61,10 @@ public class GuildEntity implements GuildAsset {
 
     public boolean getRemoveAuthorMessage() {
         return removeAuthorMessage;
+    }
+
+    public boolean getRemoveAuthorMessageEffectively() {
+        return getRemoveAuthorMessage() && ServerPatreonBoostCache.get(getGuildId());
     }
 
     public void setRemoveAuthorMessage(boolean removeAuthorMessage) {

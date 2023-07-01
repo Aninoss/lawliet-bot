@@ -20,9 +20,8 @@ import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.MessageQuote;
 import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.autoquote.DBAutoQuote;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -34,8 +33,8 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
     @Override
     public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
-        GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-        String prefix = guildBean.getPrefix();
+        GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
+        String prefix = guildEntity.getPrefix();
         String content = event.getMessage().getContentRaw();
 
         if (content.toLowerCase().startsWith("i.") && prefix.equalsIgnoreCase("L.")) {
@@ -76,7 +75,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
             }
 
             if (commandTrigger.length() > 0) {
-                Locale locale = guildBean.getLocale();
+                Locale locale = guildEntity.getLocale();
                 Class<? extends Command> clazz;
                 clazz = CommandContainer.getCommandMap().get(commandTrigger);
                 if (clazz != null) {
@@ -102,24 +101,24 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
             if (manageMessageInput(event, entityManager)) {
                 return true;
             }
-            checkAutoQuote(event);
+            checkAutoQuote(event, entityManager);
         }
 
         return true;
     }
 
-    private void checkAutoQuote(MessageReceivedEvent event) {
+    private void checkAutoQuote(MessageReceivedEvent event, EntityManagerWrapper entityManager) {
         if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel()) &&
                 DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive()
         ) {
-            GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+            GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
             MentionUtil.getMessageWithLinks(event.getGuild(), event.getMessage().getContentRaw()).thenAccept(mentionMessages -> {
                 List<Message> messages = mentionMessages.getList();
                 if (messages.size() > 0) {
                     try {
                         for (int i = 0; i < Math.min(3, messages.size()); i++) {
                             Message message = messages.get(i);
-                            try (MessageCreateData m = MessageQuote.postQuote(guildBean.getPrefix(), guildBean.getLocale(), event.getGuildChannel(), message, true)) {
+                            try (MessageCreateData m = MessageQuote.postQuote(guildEntity.getPrefix(), guildEntity.getLocale(), event.getGuildChannel(), message, true)) {
                                 JDAUtil.replyMessageEmbeds(event.getMessage(), m.getEmbeds().get(0))
                                         .setComponents(m.getComponents().stream().map(c -> (ActionRow) c).collect(Collectors.toList()))
                                         .queue();

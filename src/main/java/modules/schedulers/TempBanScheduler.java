@@ -10,6 +10,9 @@ import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import modules.Mod;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.tempban.DBTempBan;
 import mysql.modules.tempban.TempBanData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -39,18 +42,23 @@ public class TempBanScheduler {
                     ShardManager.guildIsManaged(guildId) &&
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
-                onTempBanExpire(map.get(memberId));
+                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                    onTempBanExpire(entityManager, map.get(memberId));
+                }
             }
         });
     }
 
-    private static void onTempBanExpire(TempBanData tempBanData) {
+    private static void onTempBanExpire(EntityManagerWrapper entityManager, TempBanData tempBanData) {
+        GuildEntity guildEntity = entityManager.findGuildEntity(tempBanData.getGuildId());
         DBTempBan.getInstance().retrieve(tempBanData.getGuildId())
                 .remove(tempBanData.getMemberId(), tempBanData);
 
-        Locale locale = tempBanData.getGuildData().getLocale();
         tempBanData.getGuild()
                 .ifPresent(guild -> {
+                    String prefix = guildEntity.getPrefix();
+                    Locale locale = guildEntity.getLocale();
+
                     if (PermissionCheckRuntime.botHasPermission(
                             locale,
                             BanCommand.class,
@@ -62,7 +70,7 @@ public class TempBanScheduler {
                                 .queue();
 
                         ShardManager.fetchUserById(tempBanData.getMemberId()).thenAccept(user -> {
-                            Command command = CommandManager.createCommandByClass(BanCommand.class, locale, tempBanData.getGuildData().getPrefix());
+                            Command command = CommandManager.createCommandByClass(BanCommand.class, locale, prefix);
                             EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "ban_expired", StringUtil.escapeMarkdown(user.getAsTag())));
                             Mod.postLogUsers(command, eb, guild, user);
                         });

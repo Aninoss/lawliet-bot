@@ -26,6 +26,8 @@ import core.utils.TimeUtil;
 import events.scheduleevents.events.FisheryVoiceChannelObserver;
 import modules.fishery.*;
 import mysql.RedisManager;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.autosell.DBAutoSell;
 import mysql.modules.casinostats.DBCasinoStats;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -372,7 +374,9 @@ public class FisheryMemberData implements MemberAsset {
         RedisManager.update(jedis -> jedis.hdel(KEY_ACCOUNT, FIELD_NEXT_WORK));
     }
 
-    public boolean registerMessage(Message message) {
+    public boolean registerMessage(Message message, EntityManagerWrapper entityManager) {
+        GuildEntity guildEntity = entityManager.findGuildEntity(getGuildId());
+
         return RedisManager.get(jedis -> {
             long hour = TimeUtil.currentHour();
             FisheryMemberGearData fisheryMemberGearData = getMemberGear(FisheryGear.MESSAGE);
@@ -439,8 +443,8 @@ public class FisheryMemberData implements MemberAsset {
             ) {
                 pipeline.hset(KEY_ACCOUNT, FIELD_REMINDER_SENT, "true");
                 Member member = memberOpt.get();
-                Locale locale = getGuildData().getLocale();
-                String prefix = getGuildData().getPrefix();
+                Locale locale = guildEntity.getLocale();
+                String prefix = guildEntity.getPrefix();
 
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(TextManager.getString(locale, TextManager.GENERAL, "hundret_joule_collected_title"))

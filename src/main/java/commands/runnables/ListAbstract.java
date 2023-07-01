@@ -9,7 +9,7 @@ import commands.listeners.OnSelectMenuListener;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
-import core.ModalMediator;
+import core.modals.ModalMediator;
 import core.TextManager;
 import core.utils.EmbedUtil;
 import core.utils.ExceptionUtil;
@@ -122,17 +122,17 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
                         .build();
 
                 String title = TextManager.getString(getLocale(), TextManager.GENERAL, "list_goto");
-                Modal modal = ModalMediator.createModal(title, modalEvent -> {
-                            modalEvent.deferEdit().queue();
-                            String pageString = modalEvent.getValue(textId).getAsString();
+                Modal modal = ModalMediator.createModal(title, (e, em) -> {
+                            e.deferEdit().queue();
+                            String pageString = e.getValue(textId).getAsString();
                             if (StringUtil.stringIsInt(pageString)) {
                                 page = Math.min(getPageSize() - 1, Math.max(0, Integer.parseInt(pageString) - 1));
                             }
                             try {
-                                drawMessage(draw(modalEvent.getMember()))
+                                drawMessage(draw(e.getMember()))
                                         .exceptionally(ExceptionLogger.get());
-                            } catch (Throwable e) {
-                                ExceptionUtil.handleCommandException(e, this, getCommandEvent());
+                            } catch (Throwable throwable) {
+                                ExceptionUtil.handleCommandException(throwable, this, getCommandEvent());
                             }
                         }).addActionRows(ActionRow.of(message))
                         .build();

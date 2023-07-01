@@ -2,7 +2,7 @@ package events.discordevents.guildusercontextinteraction;
 
 import constants.AnicordVerificationIds;
 import core.EmbedFactory;
-import core.ModalMediator;
+import core.modals.ModalMediator;
 import core.ShardManager;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildUserContextInteractionAbstract;
@@ -43,7 +43,7 @@ public class GuildUserContextInteractionVerification extends GuildUserContextInt
                 .setValue("Schalte andere Mitglieder nur frei, wenn du sie persönlich kennst. Sollte diese Person negativ auffallen, kannst du für die Folgen mitverantwortlich gemacht werden.")
                 .build();
 
-        Modal modal = ModalMediator.createModal("Verifizieren", e -> {
+        Modal modal = ModalMediator.createModal("Verifizieren", (e, em) -> {
                     verificationRole.getGuild().addRoleToMember(event.getTargetMember(), verificationRole).queue();
                     verificationChannel.sendMessage(String.format("%s wurde von %s verifiziert!", event.getTargetMember().getAsMention(), event.getMember().getAsMention())).queue();
 

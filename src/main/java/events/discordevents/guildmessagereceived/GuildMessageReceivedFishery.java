@@ -34,7 +34,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
                     !fisheryGuildBean.getIgnoredChannelIds().contains(event.getChannel().getIdLong())
             ) {
                 messageRegistered = fisheryGuildBean.getMemberData(event.getMember().getIdLong())
-                        .registerMessage(event.getMessage());
+                        .registerMessage(event.getMessage(), entityManager);
             }
 
             if (!messageRegistered ||

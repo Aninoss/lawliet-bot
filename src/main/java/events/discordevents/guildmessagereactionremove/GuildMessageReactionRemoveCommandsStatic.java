@@ -11,8 +11,7 @@ import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMessageReactionRemoveAbstract;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.Permission;
@@ -33,8 +32,8 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
         StaticReactionMessageData messageData = map.get(event.getMessageIdLong());
 
         if (messageData != null) {
-            GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-            Command command = CommandManager.createCommandByTrigger(messageData.getCommand(), guildBean.getLocale(), guildBean.getPrefix()).get();
+            GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
+            Command command = CommandManager.createCommandByTrigger(messageData.getCommand(), guildEntity.getLocale(), guildEntity.getPrefix()).get();
             if (command instanceof OnStaticReactionRemoveListener) {
                 Message message;
                 try {

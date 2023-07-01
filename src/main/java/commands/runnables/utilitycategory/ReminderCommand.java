@@ -16,6 +16,7 @@ import core.*;
 import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.mention.MentionValue;
+import core.modals.ModalMediator;
 import core.utils.*;
 import modules.schedulers.ReminderScheduler;
 import mysql.modules.reminders.DBReminders;
@@ -137,7 +138,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
                                 .setMaxLength(12)
                                 .build();
 
-                        Modal modal = ModalMediator.createModal(getString("repeatafter"), e -> {
+                        Modal modal = ModalMediator.createModal(getString("repeatafter"), (e, em) -> {
                                     String value = e.getValues().get(0).getAsString();
                                     long minutes = MentionUtil.getTimeMinutes(value).getValue();
 

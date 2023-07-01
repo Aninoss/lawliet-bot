@@ -12,8 +12,7 @@ import core.utils.JDAUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildJoinAbstract;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -27,14 +26,14 @@ public class GuildJoinPostWelcomeMessage extends GuildJoinAbstract {
     @Override
     public boolean onGuildJoin(GuildJoinEvent event, EntityManagerWrapper entityManager) {
         JDAUtil.getFirstWritableChannelOfGuild(event.getGuild())
-                .ifPresent(this::sendNewMessage);
+                .ifPresent(channel -> sendNewMessage(channel, entityManager));
         return true;
     }
 
-    private void sendNewMessage(TextChannel channel) {
-        GuildData guildData = DBGuild.getInstance().retrieve(channel.getGuild().getIdLong());
-        String prefix = guildData.getPrefix();
-        Locale locale = guildData.getLocale();
+    private void sendNewMessage(TextChannel channel, EntityManagerWrapper entityManager) {
+        GuildEntity guildEntity = entityManager.findGuildEntity(channel.getGuild().getIdLong());
+        String prefix = guildEntity.getPrefix();
+        Locale locale = guildEntity.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(TextManager.getString(locale, TextManager.GENERAL, "bot_invite_text").replace("{PREFIX}", prefix))
                 .setThumbnail(ShardManager.getSelf().getEffectiveAvatarUrl());
