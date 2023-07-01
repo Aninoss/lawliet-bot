@@ -4,6 +4,7 @@ import commands.runnables.gimmickscategory.ShipCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
@@ -18,7 +19,7 @@ class ShipAdapter : SlashAdapter() {
         )
     }
 
-    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         return SlashMeta(ShipCommand::class.java, collectArgs(event))
     }
 }

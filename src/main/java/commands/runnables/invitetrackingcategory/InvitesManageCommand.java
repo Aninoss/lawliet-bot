@@ -129,7 +129,7 @@ public class InvitesManageCommand extends NavigationAbstract {
                 } else {
                     DBInviteTracking.getInstance().resetInviteTrackerSlotsOfInviter(event.getGuild().getIdLong(), atomicMember.getIdLong());
                     resetLog = true;
-                    setLog(LogStatus.SUCCESS, getString("reset", atomicMember.getIdLong() == 0, StringUtil.escapeMarkdownInField(atomicMember.getName())));
+                    setLog(LogStatus.SUCCESS, getString("reset", atomicMember.getIdLong() == 0, StringUtil.escapeMarkdownInField(atomicMember.getName(getLocale()))));
                     setState(0);
                 }
                 return true;
@@ -198,7 +198,7 @@ public class InvitesManageCommand extends NavigationAbstract {
         }
         setComponents(buttons);
 
-        return EmbedFactory.getEmbedDefault(this, getString("state0_desc", atomicMember.getIdLong() == 0L, StringUtil.escapeMarkdown(atomicMember.getTaggedName())))
+        return EmbedFactory.getEmbedDefault(this, getString("state0_desc", atomicMember.getIdLong() == 0L, StringUtil.escapeMarkdown(atomicMember.getTaggedName(getLocale()))))
                 .addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), inviteMetricsString, false);
     }
 
@@ -210,7 +210,7 @@ public class InvitesManageCommand extends NavigationAbstract {
         }
         return EmbedFactory.getEmbedDefault(
                 this,
-                getString("state1_desc", fakeInviteAtomicMember != null ? fakeInviteAtomicMember.getPrefixedNameInField() : notSet),
+                getString("state1_desc", fakeInviteAtomicMember != null ? fakeInviteAtomicMember.getPrefixedNameInField(getLocale()) : notSet),
                 getString("state1_title")
         );
     }
@@ -221,7 +221,7 @@ public class InvitesManageCommand extends NavigationAbstract {
                 .filter(inviteTrackingSlot -> inviteTrackingSlot.getInviterUserId() == atomicMember.getIdLong())
                 .map(inviteTrackingSlot -> {
                     AtomicMember atomicMember = new AtomicMember(member.getGuild().getIdLong(), inviteTrackingSlot.getMemberId());
-                    return Button.of(ButtonStyle.PRIMARY, atomicMember.getId(), atomicMember.getPrefixedName());
+                    return Button.of(ButtonStyle.PRIMARY, atomicMember.getId(), atomicMember.getPrefixedName(getLocale()));
                 })
                 .collect(Collectors.toList());
         setComponents(buttons);

@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import constants.Language;
 import core.CustomObservableList;
 import core.ShardManager;
 import core.TextManager;
@@ -36,11 +35,6 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
     }
 
     @Override
-    public Locale getLocale() {
-        return Language.EN.getLocale();
-    }
-
-    @Override
     public Optional<String> getPrefixedNameRaw() {
         return get().map(u -> "@" + u.getName());
     }
@@ -54,9 +48,9 @@ public class AtomicUser implements MentionableAtomicAsset<User> {
         return get().map(User::getAsTag);
     }
 
-    public String getTaggedName() {
+    public String getTaggedName(Locale locale) {
         return getTaggedNameRaw()
-                .orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));
+                .orElseGet(() -> TextManager.getString(locale, TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));
     }
 
     @Override

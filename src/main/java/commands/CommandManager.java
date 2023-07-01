@@ -24,10 +24,9 @@ import core.*;
 import core.cache.PatreonCache;
 import core.cache.ServerPatreonBoostCache;
 import core.components.ActionRows;
-import core.utils.ExceptionUtil;
 import core.schedule.MainScheduler;
 import core.utils.*;
-import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -46,11 +45,11 @@ public class CommandManager {
     private final static int SEC_UNTIL_REMOVAL = 20;
     private final static Random random = new Random();
 
-    public static void manage(CommandEvent event, Command command, String args, EntityManagerWrapper entityManager, Instant startTime) {
-        manage(event, command, args, entityManager, startTime, true);
+    public static void manage(CommandEvent event, Command command, String args, GuildEntity guildEntity, Instant startTime) {
+        manage(event, command, args, guildEntity, startTime, true);
     }
 
-    public static void manage(CommandEvent event, Command command, String args, EntityManagerWrapper entityManager, Instant startTime, boolean freshCommand) {
+    public static void manage(CommandEvent event, Command command, String args, GuildEntity guildEntity, Instant startTime, boolean freshCommand) {
         if (command instanceof PingCommand) {
             command.getAttachments().put("starting_time", startTime);
         }
@@ -59,7 +58,7 @@ public class CommandManager {
                 checkCorrectChannelType(event, command) &&
                 checkRunningCommands(event, command)
         ) {
-            process(event, command, args, entityManager, freshCommand);
+            process(event, command, args, guildEntity, freshCommand);
         }
 
         command.getCompletedListeners().forEach(runnable -> {
@@ -71,7 +70,7 @@ public class CommandManager {
         });
     }
 
-    private static void process(CommandEvent event, Command command, String args, EntityManagerWrapper entityManager, boolean freshCommand) {
+    private static void process(CommandEvent event, Command command, String args, GuildEntity guildEntity, boolean freshCommand) {
         if (botCanPost(event, command) &&
                 isWhiteListed(event, command) &&
                 botCanUseEmbeds(event, command) &&
@@ -94,7 +93,7 @@ public class CommandManager {
                 cleanPreviousListeners(command, event.getMember());
                 sendOverwrittenSignals(command, event.getMember());
 
-                boolean success = command.processTrigger(event, args, entityManager, freshCommand);
+                boolean success = command.processTrigger(event, args, guildEntity, freshCommand);
                 if (success && Program.publicVersion()) {
                     maybeSendBotInvite(event, command.getLocale());
                 }

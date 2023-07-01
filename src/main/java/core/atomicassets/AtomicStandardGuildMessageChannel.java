@@ -1,13 +1,11 @@
 package core.atomicassets;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.ShardManager;
-import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
@@ -35,11 +33,6 @@ public class AtomicStandardGuildMessageChannel implements MentionableAtomicAsset
     public Optional<StandardGuildMessageChannel> get() {
         return ShardManager.getLocalGuildById(guildId)
                 .map(guild -> guild.getChannelById(StandardGuildMessageChannel.class, channelId));
-    }
-
-    @Override
-    public Locale getLocale() {
-        return DBGuild.getInstance().retrieve(guildId).getLocale();
     }
 
     @Override

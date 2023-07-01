@@ -312,7 +312,7 @@ public class WelcomeCommand extends NavigationAbstract {
                             .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.isWelcomeActive()), true)
                             .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getWelcomeText()), 1024), true)
                             .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.getWelcomeEmbed()), true)
-                            .addField(getString("state0_mchannel"), welcomeMessageData.getWelcomeChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField()).orElse(notSet), true)
+                            .addField(getString("state0_mchannel"), welcomeMessageData.getWelcomeChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
                             .addField(getString("state0_mbanner"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.getBanner()), true)
                             .addField(getString("state0_mtitle"), StringUtil.escapeMarkdown(welcomeMessageData.getWelcomeTitle()), true);
 
@@ -327,7 +327,7 @@ public class WelcomeCommand extends NavigationAbstract {
                             .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.isGoodbyeActive()), true)
                             .addField(getString("state0_mdescription"), StringUtil.shortenString(stressVariables(welcomeMessageData.getGoodbyeText()), 1024), true)
                             .addField(getString("state0_membed"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), welcomeMessageData.getGoodbyeEmbed()), true)
-                            .addField(getString("state0_mchannel"), welcomeMessageData.getGoodbyeChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField()).orElse(notSet), true);
+                            .addField(getString("state0_mchannel"), welcomeMessageData.getGoodbyeChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
 
                 default:
                     throw new UnsupportedOperationException("Invalid category");

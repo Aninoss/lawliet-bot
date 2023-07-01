@@ -19,7 +19,7 @@ import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.automod.WordFilter
-import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.bannedwords.BannedWordsData
 import mysql.modules.bannedwords.DBBannedWords
 import mysql.modules.moderation.DBModeration
@@ -36,7 +36,7 @@ import java.util.*
     botPermissions = [Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.MODERATE_MEMBERS],
     commandAccessRequirements = [ModSettingsCommand::class, InviteFilterCommand::class, WordFilterCommand::class]
 )
-class ModerationCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
+class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     var autoModConfigSlot: AutoModSlots? = null
     var autoModConfigStep = 0
@@ -93,6 +93,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, entityMana
     fun generateNotificationChannelComponent(): DashboardComponent {
         val channelComboBox = DashboardTextChannelComboBox(
             getString(Category.MODERATION, "mod_state0_mchannel"),
+            locale,
             atomicGuild.idLong,
             DBModeration.getInstance().retrieve(atomicGuild.idLong).announcementChannelId.orElse(null),
             true
@@ -229,6 +230,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, entityMana
 
         val logReceivers = DashboardMultiMembersComboBox(
             getString(Category.MODERATION, "invitefilter_state0_mlogreciever"),
+            locale,
             atomicGuild.idLong,
             inviteFilter.logReceiverUserIds,
             true,
@@ -262,6 +264,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, entityMana
 
         val ignoredUsers = DashboardMultiMembersComboBox(
             getString(Category.MODERATION, "invitefilter_state0_mignoredusers"),
+            locale,
             atomicGuild.idLong,
             inviteFilter.ignoredUserIds,
             true,
@@ -273,6 +276,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, entityMana
 
         val ignoredChannels = DashboardMultiTextChannelsComboBox(
             getString(Category.MODERATION, "invitefilter_state0_mignoredchannels"),
+            locale,
             atomicGuild.idLong,
             inviteFilter.ignoredChannelIds,
             true,
@@ -305,6 +309,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, entityMana
 
         val ignoredUsers = DashboardMultiMembersComboBox(
             getString(Category.MODERATION, "wordfilter_state0_mignoredusers"),
+            locale,
             atomicGuild.idLong,
             wordFilter.ignoredUserIds,
             true,
@@ -316,6 +321,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, entityMana
 
         val logReceivers = DashboardMultiMembersComboBox(
             getString(Category.MODERATION, "wordfilter_state0_mlogreciever"),
+            locale,
             atomicGuild.idLong,
             wordFilter.logReceiverUserIds,
             true,

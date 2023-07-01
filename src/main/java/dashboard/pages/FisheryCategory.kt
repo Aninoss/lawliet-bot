@@ -32,7 +32,7 @@ import modules.fishery.Fishery
 import modules.fishery.FisheryGear
 import modules.fishery.FisheryManage
 import modules.fishery.FisheryStatus
-import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.fisheryusers.DBFishery
 import mysql.modules.fisheryusers.FisheryGuildData
 import mysql.modules.fisheryusers.FisheryMemberData
@@ -47,7 +47,7 @@ import java.util.*
     botPermissions = [Permission.MANAGE_ROLES],
     commandAccessRequirements = [FisheryCommand::class, VCTimeCommand::class, FisheryRolesCommand::class, FisheryManageCommand::class]
 )
-class FisheryCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
+class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     var manageMembers = CustomObservableList<Long>(emptyList())
     var manageRoles = CustomObservableList<Long>(emptyList())
@@ -223,6 +223,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, entityManager
 
         val manageMembers = DashboardMultiMembersComboBox(
             getString(Category.FISHERY_SETTINGS, "fisherymanage_members"),
+            locale,
             atomicGuild.idLong,
             manageMembers,
             true,
@@ -293,6 +294,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, entityManager
 
         val announcementChannelComboBox = DashboardTextChannelComboBox(
             getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_mannouncementchannel"),
+            locale,
             atomicGuild.idLong,
             guildData.fisheryAnnouncementChannelId.orElse(null),
             true
@@ -410,6 +412,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, entityManager
         container.add(DashboardTitle(getString(Category.FISHERY_SETTINGS, "fishery_state0_mchannels")))
         val comboBox = DashboardMultiTextChannelsComboBox(
             "",
+            locale,
             fisheryData.guildId,
             fisheryData.ignoredChannelIds,
             true,

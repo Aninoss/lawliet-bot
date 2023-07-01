@@ -4,6 +4,7 @@ import commands.runnables.utilitycategory.SuggestionCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
@@ -16,7 +17,7 @@ class SuggestionAdapter : SlashAdapter() {
             .addOptions(generateOptionData(OptionType.STRING, "text", "suggestion_text", true))
     }
 
-    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         return SlashMeta(SuggestionCommand::class.java, collectArgs(event))
     }
 

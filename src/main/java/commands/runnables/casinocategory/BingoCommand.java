@@ -150,7 +150,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
                 String playerBoardValue = boardId != -1
                         ? getString("board", StringUtil.numToString(boardId + 1))
                         : TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
-                sb.append(getString("memberboardselect", StringUtil.escapeMarkdown(atomicMember.getName()), playerBoardValue))
+                sb.append(getString("memberboardselect", StringUtil.escapeMarkdown(atomicMember.getName(getLocale())), playerBoardValue))
                         .append("\n");
             }
             sb.append("\n");
@@ -176,7 +176,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
         for (BingoBoard board : boards) {
             String boardName = selectionMode
                     ? getString("board", StringUtil.numToString(board.getId() + 1))
-                    : StringUtil.escapeMarkdown(getPlayerList().get(boardToPlayer[board.getId()]).getName());
+                    : StringUtil.escapeMarkdown(getPlayerList().get(boardToPlayer[board.getId()]).getName(getLocale()));
             eb.addField(boardName, board.draw(), true);
 
             Button button = Button.of(ButtonStyle.PRIMARY, String.valueOf(board.getId()), boardName);

@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import commands.Category;
 import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.ModSettingsCommand;
-import commands.Category;
 import core.*;
 import core.utils.BotPermissionUtil;
 import core.utils.FutureUtil;
@@ -19,7 +19,6 @@ import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import modules.schedulers.TempBanScheduler;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
@@ -37,13 +36,13 @@ public class Mod {
 
     private static final String EMOJI_AUTOMOD = "👷";
 
-    public static void insertWarning(EntityManagerWrapper entityManager, Member target, Member requester, String reason,
+    public static void insertWarning(GuildEntity guildEntity, Member target, Member requester, String reason,
                                      boolean withAutoActions
     ) {
-        insertWarning(entityManager, requester.getGuild(), target.getUser(), requester, reason, withAutoActions);
+        insertWarning(guildEntity, requester.getGuild(), target.getUser(), requester, reason, withAutoActions);
     }
 
-    public static void insertWarning(EntityManagerWrapper entityManager, Guild guild, User target, Member requester, String reason,
+    public static void insertWarning(GuildEntity guildEntity, Guild guild, User target, Member requester, String reason,
                                      boolean withAutoActions
     ) {
         ServerWarningsData serverWarningsBean = DBServerWarnings.getInstance().retrieve(new Pair<>(guild.getIdLong(), target.getIdLong()));
@@ -57,7 +56,6 @@ public class Mod {
         );
 
         if (withAutoActions) {
-            GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
             String prefix = guildEntity.getPrefix();
             Locale locale = guildEntity.getLocale();
 
@@ -123,7 +121,7 @@ public class Mod {
                             .setDescription(TextManager.getString(locale, Category.MODERATION, "mod_autojail_template", duration > 0, StringUtil.escapeMarkdown(target.getAsTag()), TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(duration)).toString()));
 
                     postLogUsers(CommandManager.createCommandByClass(ModSettingsCommand.class, locale, prefix), eb, guild, moderationBean, target).thenRun(() -> {
-                        Jail.jail(guild, member, duration, TextManager.getString(locale, Category.MODERATION, "mod_autojail"));
+                        Jail.jail(guild, member, duration, TextManager.getString(locale, Category.MODERATION, "mod_autojail"), guildEntity);
                     });
                 }
             }

@@ -9,16 +9,17 @@ import core.atomicassets.AtomicMember
 import dashboard.ActionResult
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
+import java.util.*
 import kotlin.reflect.KClass
 
-class DashboardMultiMembersComboBox(label: String, guildId: Long, val selectedMembers: CustomObservableList<Long>, canBeEmpty: Boolean, max: Int,
-                                    memberId: Long? = null, commandAccessRequirement: KClass<out Command>? = null
+class DashboardMultiMembersComboBox(label: String, locale: Locale, guildId: Long, val selectedMembers: CustomObservableList<Long>, canBeEmpty: Boolean,
+                                    max: Int, memberId: Long? = null, commandAccessRequirement: KClass<out Command>? = null
 ) : DashboardComboBox(label, DataType.MEMBERS, canBeEmpty, max) {
 
     init {
         selectedValues = selectedMembers.map {
             val atomicMember = AtomicMember(guildId, it)
-            DiscordEntity(it.toString(), atomicMember.taggedName)
+            DiscordEntity(it.toString(), atomicMember.getTaggedName(locale))
         }
         setActionListener {
             if (commandAccessRequirement != null && memberId != null) {

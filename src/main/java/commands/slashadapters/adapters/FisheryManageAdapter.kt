@@ -7,6 +7,7 @@ import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import constants.Language
 import core.TextManager
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command.Choice
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -44,7 +45,7 @@ class FisheryManageAdapter : SlashAdapter() {
         )
     }
 
-    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         return SlashMeta(FisheryManageCommand::class.java, collectArgs(event))
     }
 

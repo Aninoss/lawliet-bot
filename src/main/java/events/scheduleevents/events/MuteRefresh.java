@@ -15,7 +15,8 @@ import core.MemberCacheController;
 import core.Program;
 import core.utils.BotPermissionUtil;
 import events.scheduleevents.ScheduleEventDaily;
-import mysql.modules.guild.DBGuild;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
 import mysql.modules.servermute.DBServerMute;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -42,8 +43,8 @@ public class MuteRefresh implements ExceptionRunnable {
                             serverMuteData.getExpirationTime().orElse(Instant.MAX).isAfter(Instant.now().plus(Duration.ofDays(10)))
                     )
                     .forEach(serverMuteData -> {
-                        try {
-                            Locale locale = DBGuild.getInstance().retrieve(serverMuteData.getGuildId()).getLocale();
+                        try(EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                            Locale locale = entityManager.findGuildEntity(serverMuteData.getGuildId()).getLocale();
                             Member member = MemberCacheController.getInstance().loadMember(serverMuteData.getGuild().get(), serverMuteData.getMemberId()).get();
                             if (member != null && member.getTimeOutEnd() != null) {
                                 Instant timeOutEnd = member.getTimeOutEnd().toInstant();

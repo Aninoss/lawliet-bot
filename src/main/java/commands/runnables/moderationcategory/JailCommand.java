@@ -82,11 +82,11 @@ public class JailCommand extends WarnCommand {
         if (jail) {
             MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).thenAccept(member -> {
                 if (member != null) {
-                    newPermissionIssues.set(!Jail.jail(guild, member, minutes, reason));
+                    newPermissionIssues.set(!Jail.jail(guild, member, minutes, reason, getGuildEntity()));
                 }
             });
         } else {
-            newPermissionIssues.set(!Jail.unjail(guild, target, reason));
+            newPermissionIssues.set(!Jail.unjail(guild, target, reason, getGuildEntity()));
         }
 
         if (newPermissionIssues.get()) {

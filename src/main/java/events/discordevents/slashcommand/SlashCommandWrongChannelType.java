@@ -7,7 +7,6 @@ import core.EmbedFactory;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.SlashCommandAbstract;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -21,7 +20,7 @@ public class SlashCommandWrongChannelType extends SlashCommandAbstract {
         if (!(event.getChannel() instanceof TextChannel)) {
             Locale locale = Language.EN.getLocale();
             if (event.getGuild() != null) {
-                locale = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
+                locale = entityManager.findGuildEntity(event.getGuild().getIdLong()).getLocale();
             }
 
             ArrayList<ActionRow> actionRowList = new ArrayList<>();

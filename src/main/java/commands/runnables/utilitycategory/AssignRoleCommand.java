@@ -83,7 +83,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
         }
 
         rolesMention = MentionUtil.getMentionedStringOfRoles(getLocale(), roles);
-        Optional<CompletableFuture<Boolean>> futureOpt = roleAssigner.assignRoles(event.getGuild(), roles, addRole());
+        Optional<CompletableFuture<Boolean>> futureOpt = roleAssigner.assignRoles(event.getGuild(), roles, addRole(), getLocale());
 
         /* check for busy */
         if (futureOpt.isEmpty()) {

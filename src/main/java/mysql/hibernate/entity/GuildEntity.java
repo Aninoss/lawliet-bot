@@ -9,7 +9,7 @@ import core.assets.GuildAsset;
 import core.cache.ServerPatreonBoostCache;
 
 @Entity(name = "Guild")
-public class GuildEntity implements GuildAsset {
+public class GuildEntity extends HibernateEntity implements GuildAsset {
 
     @Id
     private long guildId;

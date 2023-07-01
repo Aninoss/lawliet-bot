@@ -9,7 +9,7 @@ import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import core.TextManager
-import mysql.modules.guild.DBGuild
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command
@@ -33,9 +33,9 @@ class NSFWAdapter : SlashAdapter() {
         )
     }
 
-    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         val name = event.getOption("command")!!.asString
-        val locale = DBGuild.getInstance().retrieve(event.guild!!.idLong).locale
+        val locale = guildEntity.locale
         for (clazz in CommandContainer.getCommandCategoryMap()[Category.NSFW]!!) {
             if (PornPredefinedAbstract::class.java.isAssignableFrom(clazz) &&
                 (commands.Command.getCommandProperties(clazz).trigger == name || commands.Command.getCommandLanguage(clazz, locale).title == name)

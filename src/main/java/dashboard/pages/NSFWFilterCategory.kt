@@ -12,6 +12,7 @@ import dashboard.component.DashboardText
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.nsfwfilter.DBNSFWFilters
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
@@ -22,7 +23,7 @@ import java.util.*
     userPermissions = [Permission.MANAGE_SERVER],
     commandAccessRequirements = [NSFWFilterCommand::class]
 )
-class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
+class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     override fun retrievePageTitle(): String {
         return Command.getCommandLanguage(NSFWFilterCommand::class.java, locale).title

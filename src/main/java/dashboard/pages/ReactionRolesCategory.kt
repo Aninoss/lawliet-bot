@@ -25,8 +25,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.ReactionRoles
-import mysql.hibernate.EntityManagerWrapper
-import mysql.modules.guild.DBGuild
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.reactionroles.ReactionRoleMessage
 import mysql.modules.reactionroles.ReactionRoleMessage.ComponentType
 import mysql.modules.reactionroles.ReactionRoleMessageSlot
@@ -46,7 +45,7 @@ import java.util.concurrent.TimeUnit
     userPermissions = [Permission.MANAGE_ROLES],
     commandAccessRequirements = [ReactionRolesCommand::class]
 )
-class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
+class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     var channelId: Long? = null
     var title = ""
@@ -92,7 +91,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, entityM
             .map {
                 val atomicChannel =
                     AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
-                val values = arrayOf(it.title, atomicChannel.prefixedName)
+                val values = arrayOf(it.title, atomicChannel.getPrefixedName(locale))
                 GridRow(it.messageId.toString(), values)
             }
 
@@ -149,7 +148,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, entityM
         channelTitleContainer.allowWrap = true
 
         val channelLabel = getString(Category.UTILITY, "reactionroles_dashboard_channel")
-        val channelComboBox = DashboardTextChannelComboBox(channelLabel, guild.idLong, channelId, false) {
+        val channelComboBox = DashboardTextChannelComboBox(channelLabel, locale, guild.idLong, channelId, false) {
             if (editMode) {
                 return@DashboardTextChannelComboBox ActionResult()
             }
@@ -295,7 +294,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, entityM
                     .withErrorMessage(error)
             }
 
-            val guildLocale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
+            val guildLocale = guildEntity.locale
             ReactionRoles.sendMessage(
                 guildLocale, textChannel, title, desc, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, roleRemovement,
                 multipleRoles, showRoleConnections, newComponents, showRoleNumbers, image, editMode, messageId ?: 0L
@@ -409,7 +408,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, entityM
     private fun switchMode(editMode: Boolean) {
         this.editMode = editMode
         if (!editMode) {
-            val guildLocale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
+            val guildLocale = guildEntity.locale
             channelId = null
             title = Command.getCommandLanguage(ReactionRolesCommand::class.java, guildLocale).title
             desc = ""

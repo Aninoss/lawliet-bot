@@ -1,6 +1,7 @@
 package commands;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
@@ -116,26 +117,28 @@ public class NavigationHelper<T> {
         return EmbedFactory.getEmbedDefault(command, desc, title);
     }
 
-    public EmbedBuilder drawDataRemove() {
+    public EmbedBuilder drawDataRemove(Locale locale) {
         return drawDataRemove(
                 TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_remove_title" + typeString),
-                TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_remove_desc" + typeString)
+                TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_remove_desc" + typeString),
+                locale
         );
     }
 
-    public EmbedBuilder drawDataRemove(String title) {
+    public EmbedBuilder drawDataRemove(String title, Locale locale) {
         return drawDataRemove(
                 title,
-                TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_remove_desc" + typeString)
+                TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_draw_remove_desc" + typeString),
+                locale
         );
     }
 
-    public EmbedBuilder drawDataRemove(String title, String desc) {
+    public EmbedBuilder drawDataRemove(String title, String desc, Locale locale) {
         Function<T, String> nameFunction;
         if (type == Type.Unknown) {
             nameFunction = Object::toString;
         } else {
-            nameFunction = obj -> ((MentionableAtomicAsset<?>) obj).getPrefixedName();
+            nameFunction = obj -> ((MentionableAtomicAsset<?>) obj).getPrefixedName(locale);
         }
 
         String[] strings = new String[srcList.size()];

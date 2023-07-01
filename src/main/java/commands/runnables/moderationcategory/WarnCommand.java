@@ -175,7 +175,7 @@ public class WarnCommand extends Command implements OnButtonListener {
 
         for (User user : userList) {
             if (sendWarning) {
-                Mod.insertWarning(getEntityManager(), channel.getGuild(), user, executor, reason, autoActions);
+                Mod.insertWarning(getGuildEntity(), channel.getGuild(), user, executor, reason, autoActions);
             }
             process(channel.getGuild(), user, reason);
         }

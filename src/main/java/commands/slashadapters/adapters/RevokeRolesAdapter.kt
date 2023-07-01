@@ -4,6 +4,7 @@ import commands.runnables.utilitycategory.RevokeRoleCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
@@ -16,7 +17,7 @@ class RevokeRolesAdapter : SlashAdapter() {
             .addOptions(generateOptionData(OptionType.STRING, "role", "revokeroles_roles", true))
     }
 
-    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         return SlashMeta(RevokeRoleCommand::class.java, collectArgs(event))
     }
 

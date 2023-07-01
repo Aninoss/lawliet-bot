@@ -17,8 +17,6 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.SlashCommandAbstract;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.GuildEntity;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -30,36 +28,37 @@ public class SlashCommandCommand extends SlashCommandAbstract {
 
     @Override
     public boolean onSlashCommand(SlashCommandInteractionEvent event, EntityManagerWrapper entityManager) {
-        if (event.getChannel() instanceof TextChannel) {
-            SlashMeta slashCommandMeta = SlashCommandManager.process(event);
-            if (slashCommandMeta == null) {
-                GuildData guildData = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-                EmbedBuilder eb = EmbedFactory.getEmbedError()
-                        .setTitle(TextManager.getString(guildData.getLocale(), TextManager.GENERAL, "wrong_args"))
-                        .setDescription(TextManager.getString(guildData.getLocale(), TextManager.GENERAL, "invalid_noargs"));
-                event.replyEmbeds(eb.build())
-                        .queue();
-                return true;
-            }
+        if (!(event.getChannel() instanceof TextChannel)) {
+            return true;
+        }
 
-            GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
-            String args = slashCommandMeta.getArgs().trim();
-            String prefix = guildEntity.getPrefix();
-            Locale locale = guildEntity.getLocale();
-            Class<? extends Command> clazz = slashCommandMeta.getCommandClass();
-            Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
-            Function<Locale, String> errorFunction = slashCommandMeta.getErrorFunction();
-            if (errorFunction != null) {
-                command.getAttachments().put("error", errorFunction.apply(locale));
-            }
+        GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
+        SlashMeta slashCommandMeta = SlashCommandManager.process(event, guildEntity);
+        if (slashCommandMeta == null) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "wrong_args"))
+                    .setDescription(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "invalid_noargs"));
+            event.replyEmbeds(eb.build())
+                    .queue();
+            return true;
+        }
 
-            deferAfterOneSecond(event);
-            CommandEvent commandEvent = new CommandEvent(event);
-            try {
-                CommandManager.manage(new CommandEvent(event), command, args, entityManager, getStartTime());
-            } catch (Throwable e) {
-                ExceptionUtil.handleCommandException(e, command, commandEvent);
-            }
+        String args = slashCommandMeta.getArgs().trim();
+        String prefix = guildEntity.getPrefix();
+        Locale locale = guildEntity.getLocale();
+        Class<? extends Command> clazz = slashCommandMeta.getCommandClass();
+        Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+        Function<Locale, String> errorFunction = slashCommandMeta.getErrorFunction();
+        if (errorFunction != null) {
+            command.getAttachments().put("error", errorFunction.apply(locale));
+        }
+
+        deferAfterOneSecond(event);
+        CommandEvent commandEvent = new CommandEvent(event);
+        try {
+            CommandManager.manage(new CommandEvent(event), command, args, guildEntity, getStartTime());
+        } catch (Throwable e) {
+            ExceptionUtil.handleCommandException(e, command, commandEvent);
         }
 
         return true;

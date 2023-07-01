@@ -4,6 +4,7 @@ import commands.runnables.fisherysettingscategory.AutoWorkCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
@@ -18,7 +19,7 @@ class AutoWorkAdapter : SlashAdapter() {
             )
     }
 
-    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         var args = ""
         if (event.getOption("active") != null) {
             args = if (event.getOption("active")!!.asBoolean) "on" else "off"

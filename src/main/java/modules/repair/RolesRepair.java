@@ -7,6 +7,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import core.MemberCacheController;
 import modules.JoinRoles;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -27,15 +30,18 @@ public class RolesRepair {
     public void run(JDA jda, int minutes) {
         for (Guild guild : jda.getGuilds()) {
             if (JoinRoles.guildIsRelevant(guild)) {
-                MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
-                        .filter(member -> userJoinedRecently(member, minutes))
-                        .forEach(member -> {
-                            try {
-                                JoinRoles.process(member, true).get();
-                            } catch (InterruptedException | ExecutionException e) {
-                                LOGGER.error("Error on roles repair", e);
-                            }
-                        });
+                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                    GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
+                    MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
+                            .filter(member -> userJoinedRecently(member, minutes))
+                            .forEach(member -> {
+                                try {
+                                    JoinRoles.process(member, true, guildEntity).get();
+                                } catch (InterruptedException | ExecutionException e) {
+                                    LOGGER.error("Error on roles repair", e);
+                                }
+                            });
+                }
             }
         }
     }

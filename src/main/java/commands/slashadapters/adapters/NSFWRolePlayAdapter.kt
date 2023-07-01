@@ -9,7 +9,7 @@ import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import core.TextManager
-import mysql.modules.guild.DBGuild
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -32,11 +32,10 @@ class NSFWRolePlayAdapter : SlashAdapter() {
         )
     }
 
-    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         val name = event.getOption("gesture")!!.asString
-        val locale = DBGuild.getInstance().retrieve(event.guild!!.idLong).locale
         for (clazz in CommandContainer.getCommandCategoryMap()[Category.NSFW_INTERACTIONS]!!) {
-            if (Command.getCommandProperties(clazz).trigger == name || Command.getCommandLanguage(clazz, locale).title == name) {
+            if (Command.getCommandProperties(clazz).trigger == name || Command.getCommandLanguage(clazz, guildEntity.locale).title == name) {
                 return SlashMeta(clazz, collectArgs(event, "gesture"))
             }
         }

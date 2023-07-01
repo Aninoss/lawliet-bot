@@ -14,12 +14,11 @@ import core.atomicassets.AtomicGuild;
 import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
 import core.components.ActionRows;
-import core.utils.ExceptionUtil;
 import core.interactionresponse.InteractionResponse;
 import core.utils.*;
 import kotlin.jvm.JvmClassMappingKt;
 import kotlin.reflect.KClass;
-import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -57,7 +56,7 @@ public abstract class Command implements OnTriggerListener {
     private String log = "";
     private CommandEvent commandEvent = null;
     private InteractionResponse interactionResponse;
-    private EntityManagerWrapper entityManager;
+    private GuildEntity guildEntity;
     private boolean canHaveTimeOut = true;
     private List<ActionRow> actionRows = Collections.emptyList();
     private List<MessageEmbed> additionalEmbeds = Collections.emptyList();
@@ -549,12 +548,12 @@ public abstract class Command implements OnTriggerListener {
         return interactionResponse;
     }
 
-    public EntityManagerWrapper getEntityManager() {
-        return entityManager;
+    public GuildEntity getGuildEntity() {
+        return guildEntity;
     }
 
-    public void setEntityManager(EntityManagerWrapper entityManager) {
-        this.entityManager = entityManager;
+    public void setGuildEntity(GuildEntity guildEntity) {
+        this.guildEntity = guildEntity;
     }
 
     public Optional<Guild> getGuild() {

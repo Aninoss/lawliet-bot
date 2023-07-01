@@ -12,7 +12,6 @@ import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.atomicassets.AtomicRole;
-import core.atomicassets.MentionableAtomicAsset;
 import core.utils.MentionUtil;
 import mysql.modules.stickyroles.DBStickyRoles;
 import mysql.modules.stickyroles.StickyRolesData;
@@ -105,13 +104,13 @@ public class StickyRolesCommand extends NavigationAbstract {
             case 0:
                 setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(roles, getLocale(), MentionableAtomicAsset::getPrefixedNameInField), true);
+                        .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(roles, getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
 
             case 1:
                 return roleNavigationHelper.drawDataAdd();
 
             case 2:
-                return roleNavigationHelper.drawDataRemove();
+                return roleNavigationHelper.drawDataRemove(getLocale());
 
             default:
                 return null;

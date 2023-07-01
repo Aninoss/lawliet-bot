@@ -1,13 +1,11 @@
 package core.atomicassets;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.ShardManager;
-import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 
@@ -35,11 +33,6 @@ public class AtomicRole implements MentionableAtomicAsset<Role> {
     public Optional<Role> get() {
         return ShardManager.getLocalGuildById(guildId)
                 .map(guild -> guild.getRoleById(roleId));
-    }
-
-    @Override
-    public Locale getLocale() {
-        return DBGuild.getInstance().retrieve(guildId).getLocale();
     }
 
     @Override

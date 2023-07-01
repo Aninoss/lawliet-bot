@@ -14,7 +14,6 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicTextChannel;
-import core.atomicassets.MentionableAtomicAsset;
 import core.utils.MentionUtil;
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
 import mysql.modules.whitelistedchannels.WhiteListedChannelsData;
@@ -116,7 +115,7 @@ public class WhiteListCommand extends NavigationAbstract {
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(
                                 getString("state0_mchannel"),
-                                new ListGen<AtomicTextChannel>().getList(whiteListedChannels, everyChannel, MentionableAtomicAsset::getPrefixedNameInField),
+                                new ListGen<AtomicTextChannel>().getList(whiteListedChannels, everyChannel, m -> m.getPrefixedNameInField(getLocale())),
                                 true
                         );
             }
@@ -124,7 +123,7 @@ public class WhiteListCommand extends NavigationAbstract {
                 return channelNavigationHelper.drawDataAdd();
             }
             case 2 -> {
-                return channelNavigationHelper.drawDataRemove();
+                return channelNavigationHelper.drawDataRemove(getLocale());
             }
         }
         return null;

@@ -43,14 +43,13 @@ public class TempBanScheduler {
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
                 try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                    onTempBanExpire(entityManager, map.get(memberId));
+                    onTempBanExpire(entityManager.findGuildEntity(guildId), map.get(memberId));
                 }
             }
         });
     }
 
-    private static void onTempBanExpire(EntityManagerWrapper entityManager, TempBanData tempBanData) {
-        GuildEntity guildEntity = entityManager.findGuildEntity(tempBanData.getGuildId());
+    private static void onTempBanExpire(GuildEntity guildEntity, TempBanData tempBanData) {
         DBTempBan.getInstance().retrieve(tempBanData.getGuildId())
                 .remove(tempBanData.getMemberId(), tempBanData);
 

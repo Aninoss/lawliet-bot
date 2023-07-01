@@ -199,7 +199,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
                 StringBuilder sb = new StringBuilder();
                 for (int i = 1; i < playerList.size(); i++) {
                     AtomicMember player = playerList.get(i);
-                    sb.append(player.getAsMention());
+                    sb.append(player.getAsMention(getLocale()));
                 }
                 drawMessageNew(sb.toString())
                         .thenAccept(m -> m.delete().queue())
@@ -308,7 +308,7 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
         String notSet = Emojis.LOADING.getFormatted();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < playersMax; i++) {
-            String playerTag = playerList.size() > i ? StringUtil.escapeMarkdown(playerList.get(i).getName()) : notSet;
+            String playerTag = playerList.size() > i ? StringUtil.escapeMarkdown(playerList.get(i).getName(getLocale())) : notSet;
             sb.append(i + 1).append(" - ");
             if (i == 0 && playerList.size() > 0) {
                 sb.append(EMOJI_HOST).append(" ");

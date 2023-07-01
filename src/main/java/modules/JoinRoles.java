@@ -17,10 +17,10 @@ import core.RestActionQueue;
 import core.utils.BotPermissionUtil;
 import core.utils.TimeUtil;
 import modules.fishery.FisheryStatus;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
-import mysql.modules.guild.DBGuild;
 import mysql.modules.jails.DBJails;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
@@ -49,11 +49,11 @@ public class JoinRoles {
                 moderationData.getMuteRoleId().isPresent();
     }
 
-    public static CompletableFuture<Void> process(Member member, boolean bulk) {
+    public static CompletableFuture<Void> process(Member member, boolean bulk, GuildEntity guildEntity) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         if (!member.isPending()) {
             HashSet<Role> rolesToAdd = new HashSet<>();
-            Locale locale = DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).getLocale();
+            Locale locale = guildEntity.getLocale();
 
             if (DBJails.getInstance().retrieve(member.getGuild().getIdLong()).containsKey(member.getIdLong())) {
                 getJailRoles(locale, member, rolesToAdd);

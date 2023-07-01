@@ -10,7 +10,6 @@ import commands.runnables.utilitycategory.ReactionRolesCommand;
 import constants.Emojis;
 import core.*;
 import core.atomicassets.AtomicRole;
-import core.atomicassets.MentionableAtomicAsset;
 import core.cache.ServerPatreonBoostCache;
 import core.components.ActionRows;
 import core.utils.BotPermissionUtil;
@@ -169,7 +168,7 @@ public class ReactionRoles {
         if (!roleRequirements.isEmpty()) {
             eb.addField(
                     TextManager.getString(locale, Category.UTILITY, "reactionroles_state3_mrolerequirements"),
-                    new ListGen<AtomicRole>().getList(roleRequirements, locale, MentionableAtomicAsset::getPrefixedNameInField),
+                    new ListGen<AtomicRole>().getList(roleRequirements, locale, m -> m.getPrefixedNameInField(locale)),
                     true
             );
         }
@@ -213,7 +212,7 @@ public class ReactionRoles {
 
                     String roleNumberString = showRoleNumbers ? roleNumbers.get(i) : "";
                     AtomicRole atomicRole = new AtomicRole(slot.getGuildId(), slot.getRoleId());
-                    String label = slot.getCustomLabel() != null && isPro ? slot.getCustomLabel() : atomicRole.getName();
+                    String label = slot.getCustomLabel() != null && isPro ? slot.getCustomLabel() : atomicRole.getName(locale);
                     Button button = Button.of(ButtonStyle.PRIMARY, String.valueOf(i), StringUtil.shortenString(label, Button.LABEL_MAX_LENGTH - roleNumberString.length()) + roleNumberString);
                     if (emoji != null &&
                             (emoji instanceof UnicodeEmoji || ShardManager.customEmojiIsKnown((CustomEmoji) emoji))
@@ -241,7 +240,7 @@ public class ReactionRoles {
 
                     String roleNumberString = showRoleNumbers ? roleNumbers.get(i) : "";
                     AtomicRole atomicRole = new AtomicRole(slot.getGuildId(), slot.getRoleId());
-                    String label = slot.getCustomLabel() != null && isPro ? slot.getCustomLabel() : atomicRole.getName();
+                    String label = slot.getCustomLabel() != null && isPro ? slot.getCustomLabel() : atomicRole.getName(locale);
                     SelectOption option = SelectOption.of(StringUtil.shortenString(label, SelectOption.LABEL_MAX_LENGTH - roleNumberString.length()) + roleNumberString, String.valueOf(i));
                     if (emoji != null &&
                             (emoji instanceof UnicodeEmoji || ShardManager.customEmojiIsKnown((CustomEmoji) emoji))

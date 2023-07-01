@@ -212,7 +212,8 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        GlobalThreadPool.submit(() -> SlashCommandAbstract.onSlashCommandStatic(event, getListenerList(SlashCommandAbstract.class)));
+        Instant startTime = Instant.now();
+        GlobalThreadPool.submit(() -> SlashCommandAbstract.onSlashCommandStatic(event, getListenerList(SlashCommandAbstract.class), startTime));
     }
 
     @Override

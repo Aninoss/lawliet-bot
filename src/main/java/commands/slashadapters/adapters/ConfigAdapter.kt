@@ -16,6 +16,7 @@ import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import core.TextManager
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
@@ -47,7 +48,7 @@ class ConfigAdapter : SlashAdapter() {
         return commandData.addOptions(optionData)
     }
 
-    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         val type = event.getOption("command")!!.asString
         val clazz = CommandContainer.getCommandMap()[type]
         if (clazz != null) {

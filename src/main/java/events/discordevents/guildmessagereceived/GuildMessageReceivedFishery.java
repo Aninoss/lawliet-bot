@@ -8,6 +8,7 @@ import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.guild.DBGuild;
@@ -25,6 +26,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
     public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
         if (event.getChannel() instanceof TextChannel) {
             GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
+            GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
 
             //manage message
             boolean messageRegistered = false;
@@ -34,7 +36,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
                     !fisheryGuildBean.getIgnoredChannelIds().contains(event.getChannel().getIdLong())
             ) {
                 messageRegistered = fisheryGuildBean.getMemberData(event.getMember().getIdLong())
-                        .registerMessage(event.getMessage(), entityManager);
+                        .registerMessage(event.getMessage(), guildEntity);
             }
 
             if (!messageRegistered ||

@@ -19,9 +19,9 @@ public class GuildMessageReceivedSetServerBig extends GuildMessageReceivedAbstra
 
         GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
         if (isBig != guildEntity.getBig()) {
-            entityManager.getTransaction().begin();
+            guildEntity.beginTransaction();
             guildEntity.setBig(isBig);
-            entityManager.getTransaction().commit();
+            guildEntity.commitTransaction();
         }
 
         return true;

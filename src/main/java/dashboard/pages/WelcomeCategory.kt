@@ -17,7 +17,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import modules.graphics.WelcomeGraphics
-import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.welcomemessage.DBWelcomeMessage
 import mysql.modules.welcomemessage.WelcomeMessageData
 import net.dv8tion.jda.api.Permission
@@ -30,7 +30,7 @@ import java.util.*
     userPermissions = [Permission.MANAGE_SERVER],
     commandAccessRequirements = [WelcomeCommand::class]
 )
-class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
+class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     private var renderBannerPreview = false
 
@@ -78,6 +78,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, entityManager
 
         val channelComboBox = DashboardTextChannelComboBox(
             getString(Category.UTILITY, "welcome_state0_mchannel"),
+            locale,
             atomicGuild.idLong,
             welcomeData.welcomeChannelId,
             false
@@ -223,6 +224,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, entityManager
 
         val channelComboBox = DashboardTextChannelComboBox(
             getString(Category.UTILITY, "welcome_state0_mchannel"),
+            locale,
             atomicGuild.idLong,
             welcomeData.goodbyeChannelId,
             false

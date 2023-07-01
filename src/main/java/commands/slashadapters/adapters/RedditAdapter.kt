@@ -4,6 +4,7 @@ import commands.runnables.externalcategory.RedditCommand
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
@@ -25,7 +26,7 @@ class RedditAdapter : SlashAdapter() {
             )
     }
 
-    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         var args = event.getOption("subreddit")!!.asString
         if (event.getOption("sort_by") != null) {
             args += "/" + event.getOption("sort_by")!!.asString

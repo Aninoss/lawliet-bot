@@ -20,7 +20,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.Prefix
-import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.autoquote.DBAutoQuote
 import mysql.modules.guild.DBGuild
 import net.dv8tion.jda.api.Permission
@@ -33,7 +33,7 @@ import java.util.*
     botPermissions = [Permission.MESSAGE_MANAGE],
     commandAccessRequirements = [LanguageCommand::class, PrefixCommand::class, AutoQuoteCommand::class, TriggerDeleteCommand::class]
 )
-class GeneralCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
+class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     override fun retrievePageTitle(): String {
         return getString(TextManager.GENERAL, "dashboard_general")
@@ -77,7 +77,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, entityManager
                 DBGuild.getInstance().retrieve(atomicGuild.idLong).locale = language.locale
                 ActionResult()
             }
-            val guildLocale = DBGuild.getInstance().retrieve(atomicGuild.idLong).locale
+            val guildLocale = guildEntity.locale
             val language = Language.from(guildLocale)
             languageSelect.selectedValue = DiscordEntity(language.name, getString(Category.CONFIGURATION, "language_" + language.name))
             container.add(languageSelect)
@@ -91,10 +91,10 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, entityManager
                 }
 
                 val prefix = it.data
-                Prefix.changePrefix(guild, locale, prefix, entityManager)
+                Prefix.changePrefix(guild, locale, prefix, guildEntity)
                 ActionResult()
             }
-            prefixField.value = entityManager.findGuildEntity(atomicGuild.idLong).prefix
+            prefixField.value = guildEntity.prefix
             container.add(prefixField)
         }
 

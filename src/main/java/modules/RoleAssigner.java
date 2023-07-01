@@ -13,7 +13,6 @@ import core.MainLogger;
 import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
 import core.utils.FutureUtil;
-import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -26,8 +25,7 @@ public class RoleAssigner {
             .expireAfterWrite(Duration.ofHours(1))
             .build();
 
-    public Optional<CompletableFuture<Boolean>> assignRoles(Guild guild, List<Role> roles, boolean add) {
-        Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
+    public Optional<CompletableFuture<Boolean>> assignRoles(Guild guild, List<Role> roles, boolean add, Locale locale) {
         synchronized (guild) {
             if (busyServers.asMap().containsKey(guild.getIdLong())) {
                 return Optional.empty();

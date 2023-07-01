@@ -20,7 +20,6 @@ import constants.LogStatus;
 import constants.Settings;
 import core.*;
 import core.atomicassets.AtomicTextChannel;
-import core.atomicassets.MentionableAtomicAsset;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
@@ -208,12 +207,12 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, guildBean.isFisheryPowerups()).getFormatted()), getString("state0_mpowerups_desc"), true)
                         .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, guildBean.isFisheryReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
                         .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, guildBean.hasFisheryCoinsGivenLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc"), true)
-                        .addField(getString("state0_mchannels"), new ListGen<AtomicTextChannel>().getList(ignoredChannels, getLocale(), MentionableAtomicAsset::getPrefixedNameInField), false);
+                        .addField(getString("state0_mchannels"), new ListGen<AtomicTextChannel>().getList(ignoredChannels, getLocale(), m -> m.getPrefixedNameInField(getLocale())), false);
 
             case 1:
                 return channelNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));
             case 2:
-                return channelNavigationHelper.drawDataRemove();
+                return channelNavigationHelper.drawDataRemove(getLocale());
 
             default:
                 return null;

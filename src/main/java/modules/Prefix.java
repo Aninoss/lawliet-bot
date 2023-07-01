@@ -5,7 +5,6 @@ import commands.Command;
 import commands.runnables.configurationcategory.PrefixCommand;
 import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -13,11 +12,10 @@ import net.dv8tion.jda.api.entities.Member;
 
 public class Prefix {
 
-    public static void changePrefix(Guild guild, Locale locale, String prefix, EntityManagerWrapper entityManager) {
-        GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
-        entityManager.getTransaction().begin();
+    public static void changePrefix(Guild guild, Locale locale, String prefix, GuildEntity guildEntity) {
+        guildEntity.beginTransaction();
         guildEntity.setPrefix(prefix);
-        entityManager.getTransaction().commit();
+        guildEntity.commitTransaction();
 
         if (BotPermissionUtil.can(guild, Permission.NICKNAME_CHANGE)) {
             Member self = guild.getSelfMember();

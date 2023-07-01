@@ -11,9 +11,8 @@ import core.interactionresponse.InteractionResponse
 import core.interactionresponse.SlashCommandResponse
 import core.schedule.MainScheduler
 import core.utils.ExceptionUtil
-import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.commandusages.DBCommandUsages
-import mysql.modules.guild.DBGuild
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import java.time.temporal.ChronoUnit
@@ -25,7 +24,7 @@ interface OnTriggerListener {
     fun onTrigger(event: CommandEvent, args: String): Boolean
 
     @Throws(Throwable::class)
-    fun processTrigger(event: CommandEvent, args: String, entityManager: EntityManagerWrapper, freshCommand: Boolean): Boolean {
+    fun processTrigger(event: CommandEvent, args: String, guildEntity: GuildEntity, freshCommand: Boolean): Boolean {
         val command = this as Command
         if (freshCommand && event.isSlashCommandInteractionEvent()) {
             val interactionResponse: InteractionResponse = SlashCommandResponse(event.slashCommandInteractionEvent!!.hook)
@@ -38,14 +37,14 @@ interface OnTriggerListener {
             DBCommandUsages.getInstance().retrieve(command.trigger).increase()
         }
         if (event.isMessageReceivedEvent()) {
-            processTriggerDelete(event.messageReceivedEvent!!)
+            processTriggerDelete(event.messageReceivedEvent!!, guildEntity)
         }
         addKillTimer(isProcessing)
         try {
             if (command.commandProperties.requiresFullMemberCache) {
                 MemberCacheController.getInstance().loadMembersFull(event.guild).get()
             }
-            command.entityManager = entityManager
+            command.guildEntity = guildEntity
             return onTrigger(event, args)
         } catch (e: Throwable) {
             ExceptionUtil.handleCommandException(e, command, event)
@@ -65,10 +64,9 @@ interface OnTriggerListener {
         }
     }
 
-    private fun processTriggerDelete(event: MessageReceivedEvent) {
-        val guildBean = DBGuild.getInstance().retrieve(event.guild.idLong)
-        if (guildBean.isCommandAuthorMessageRemoveEffectively &&
-            PermissionCheckRuntime.botHasPermission(guildBean.locale, TriggerDeleteCommand::class.java, event.guildChannel, Permission.MESSAGE_MANAGE)
+    private fun processTriggerDelete(event: MessageReceivedEvent, guildEntity: GuildEntity) {
+        if (guildEntity.removeAuthorMessageEffectively &&
+            PermissionCheckRuntime.botHasPermission(guildEntity.locale, TriggerDeleteCommand::class.java, event.guildChannel, Permission.MESSAGE_MANAGE)
         ) {
             event.message.delete().queue()
         }

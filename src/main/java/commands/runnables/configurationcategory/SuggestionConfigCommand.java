@@ -113,7 +113,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
                 setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), suggestionsBean.isActive()), true)
-                        .addField(getString("state0_mchannel"), suggestionsBean.getTextChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField()).orElse(notSet), true);
+                        .addField(getString("state0_mchannel"), suggestionsBean.getTextChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true);
 
             case 1:
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));

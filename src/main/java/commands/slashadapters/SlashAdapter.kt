@@ -5,6 +5,7 @@ import commands.Command
 import commands.CommandContainer
 import constants.Language
 import core.TextManager
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -25,7 +26,7 @@ abstract class SlashAdapter {
 
     protected abstract fun addOptions(commandData: SlashCommandData): SlashCommandData
 
-    abstract fun process(event: SlashCommandInteractionEvent): SlashMeta
+    abstract fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta
 
     fun name(): String {
         val slash = javaClass.getAnnotation(Slash::class.java)

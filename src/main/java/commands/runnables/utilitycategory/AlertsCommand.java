@@ -332,7 +332,7 @@ public class AlertsCommand extends NavigationAbstract {
     public EmbedBuilder onDrawAdd(Member member) throws Throwable {
         setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
         AtomicStandardGuildMessageChannel atomicChannel = new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), channelId);
-        return EmbedFactory.getEmbedDefault(this, getString("state5_description", atomicChannel.getPrefixedNameInField()), getString("state5_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state5_description", atomicChannel.getPrefixedNameInField(getLocale())), getString("state5_title"));
     }
 
     @Draw(state = STATE_REMOVE)
@@ -349,7 +349,7 @@ public class AlertsCommand extends NavigationAbstract {
                 })
                 .map(alert -> {
                     String trigger = alert.getCommandTrigger();
-                    String channelName = StringUtil.shortenString(StringUtil.escapeMarkdown(new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), alert.getStandardGuildMessageChannelId()).getPrefixedName()), 40);
+                    String channelName = StringUtil.shortenString(StringUtil.escapeMarkdown(new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), alert.getStandardGuildMessageChannelId()).getPrefixedName(getLocale())), 40);
                     String label = getString("slot_remove", false, channelName, trigger);
                     return Button.of(ButtonStyle.PRIMARY, String.valueOf(alert.hashCode()), label);
                 })

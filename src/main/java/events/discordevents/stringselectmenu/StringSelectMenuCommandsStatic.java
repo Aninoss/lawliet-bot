@@ -23,18 +23,18 @@ public class StringSelectMenuCommandsStatic extends StringSelectMenuAbstract {
             return true;
         }
 
+        GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
         CustomObservableMap<Long, StaticReactionMessageData> map = DBStaticReactionMessages.getInstance()
                 .retrieve(event.getGuild().getIdLong());
         StaticReactionMessageData messageData = map.get(event.getMessageIdLong());
 
         if (messageData != null) {
-            GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
             Command command = CommandManager.createCommandByTrigger(messageData.getCommand(), guildEntity.getLocale(), guildEntity.getPrefix()).get();
             if (command instanceof OnStaticStringSelectMenuListener && map.containsKey(event.getMessageIdLong())) {
                 if (command.getCommandProperties().requiresFullMemberCache()) {
                     MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
                 }
-                command.setEntityManager(entityManager);
+                command.setGuildEntity(guildEntity);
                 ((OnStaticStringSelectMenuListener) command).onStaticStringSelectMenu(event, messageData.getSecondaryId());
                 return false;
             }

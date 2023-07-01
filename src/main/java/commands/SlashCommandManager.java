@@ -6,6 +6,7 @@ import commands.slashadapters.SlashAdapter;
 import commands.slashadapters.SlashMeta;
 import core.MainLogger;
 import core.Program;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -45,10 +46,10 @@ public class SlashCommandManager {
         return commandDataList;
     }
 
-    public static SlashMeta process(SlashCommandInteractionEvent event) {
+    public static SlashMeta process(SlashCommandInteractionEvent event, GuildEntity guildEntity) {
         SlashAdapter slashAdapter = slashAdapterMap.get(event.getName());
         if (slashAdapter != null) {
-            return slashAdapter.process(event);
+            return slashAdapter.process(event, guildEntity);
         } else {
             return null;
         }

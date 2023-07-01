@@ -15,7 +15,6 @@ import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.Welcome;
 import modules.graphics.WelcomeGraphics;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.modules.guild.DBGuild;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -33,7 +32,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
     @Override
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event, EntityManagerWrapper entityManager) {
         Guild guild = event.getGuild();
-        Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
+        Locale locale = entityManager.findGuildEntity(guild.getIdLong()).getLocale();
 
         WelcomeMessageData welcomeMessageData = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
         if (welcomeMessageData.isDmActive()) {
@@ -72,7 +71,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
             if (welcomeMessageData.getDmEmbed()) {
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setDescription(content)
-                        .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), TextManager.GENERAL, "serverstaff_text_server", event.getGuild().getName()));
+                        .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text_server", event.getGuild().getName()));
 
                 JDAUtil.openPrivateChannel(member)
                         .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
@@ -119,7 +118,7 @@ public class GuildMemberJoinWelcome extends GuildMemberJoinAbstract {
 
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setDescription(content)
-                    .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), TextManager.GENERAL, "serverstaff_text"));
+                    .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
 
             if (image != null) {
                 eb.setImage("attachment://welcome.png");

@@ -22,7 +22,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.schedulers.AlertScheduler
-import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.tracker.DBTracker
 import mysql.modules.tracker.TrackerData
 import net.dv8tion.jda.api.Permission
@@ -37,7 +37,7 @@ import java.util.*
     userPermissions = [Permission.MANAGE_SERVER],
     commandAccessRequirements = [AlertsCommand::class]
 )
-class AlertsCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
+class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     var command: Command? = null
     var channelId: Long? = null
@@ -73,7 +73,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, entityManager:
             .map {
                 val atomicChannel =
                     AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
-                val values = arrayOf(it.commandTrigger, atomicChannel.prefixedName, it.commandKey)
+                val values = arrayOf(it.commandTrigger, atomicChannel.getPrefixedName(locale), it.commandKey)
                 GridRow(it.hashCode().toString(), values)
             }
 
@@ -215,7 +215,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, entityManager:
         }
         if (channelId != null) {
             val atomicChannel = AtomicTextChannel(atomicGuild.idLong, channelId!!)
-            channelComboBox.selectedValues = listOf(DiscordEntity(channelId.toString(), atomicChannel.prefixedName))
+            channelComboBox.selectedValues = listOf(DiscordEntity(channelId.toString(), atomicChannel.getPrefixedName(locale)))
         }
         container.add(channelComboBox)
 

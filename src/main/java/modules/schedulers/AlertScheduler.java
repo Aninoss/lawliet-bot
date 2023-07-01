@@ -78,7 +78,7 @@ public class AlertScheduler {
         Instant minInstant = Instant.now().plus(1, ChronoUnit.MINUTES);
 
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-            processAlert(slot, entityManager);
+            processAlert(entityManager.findGuildEntity(slot.getGuildId()), slot);
         } catch (Throwable throwable) {
             MainLogger.get().error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);
             minInstant = Instant.now().plus(10, ChronoUnit.MINUTES);
@@ -94,8 +94,7 @@ public class AlertScheduler {
         return false;
     }
 
-    private static void processAlert(TrackerData slot, EntityManagerWrapper entityManager) throws Throwable {
-        GuildEntity guildEntity = entityManager.findGuildEntity(slot.getGuildId());
+    private static void processAlert(GuildEntity guildEntity, TrackerData slot) throws Throwable {
         Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), guildEntity.getLocale(), guildEntity.getPrefix());
         if (commandOpt.isEmpty()) {
             MainLogger.get().error("Invalid alert for command: {}", slot.getCommandTrigger());
@@ -104,7 +103,7 @@ public class AlertScheduler {
         }
 
         Command command = commandOpt.get();
-        command.setEntityManager(entityManager);
+        command.setGuildEntity(guildEntity);
 
         OnAlertListener alertCommand = (OnAlertListener) command;
         Optional<StandardGuildMessageChannel> channelOpt = slot.getStandardGuildMessageChannel();

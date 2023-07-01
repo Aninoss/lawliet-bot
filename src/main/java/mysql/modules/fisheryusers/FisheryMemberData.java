@@ -26,7 +26,6 @@ import core.utils.TimeUtil;
 import events.scheduleevents.events.FisheryVoiceChannelObserver;
 import modules.fishery.*;
 import mysql.RedisManager;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.autosell.DBAutoSell;
 import mysql.modules.casinostats.DBCasinoStats;
@@ -374,9 +373,7 @@ public class FisheryMemberData implements MemberAsset {
         RedisManager.update(jedis -> jedis.hdel(KEY_ACCOUNT, FIELD_NEXT_WORK));
     }
 
-    public boolean registerMessage(Message message, EntityManagerWrapper entityManager) {
-        GuildEntity guildEntity = entityManager.findGuildEntity(getGuildId());
-
+    public boolean registerMessage(Message message, GuildEntity guildEntity) {
         return RedisManager.get(jedis -> {
             long hour = TimeUtil.currentHour();
             FisheryMemberGearData fisheryMemberGearData = getMemberGear(FisheryGear.MESSAGE);

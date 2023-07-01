@@ -206,7 +206,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(TextManager.getString(locale, Category.UTILITY, "reminder_template", Emojis.X.getFormatted()))
-                .addField(TextManager.getString(locale, Category.UTILITY, "reminder_channel"), new AtomicStandardGuildMessageChannel(channel).getPrefixedNameInField(), true)
+                .addField(TextManager.getString(locale, Category.UTILITY, "reminder_channel"), new AtomicStandardGuildMessageChannel(channel).getPrefixedNameInField(locale), true)
                 .addField(TextManager.getString(locale, Category.UTILITY, "reminder_timespan"), TimeFormat.RELATIVE.atInstant(time).toString(), true)
                 .addField(TextManager.getString(locale, Category.UTILITY, "reminder_repeatafter") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), intervalText, true)
                 .addField(TextManager.getString(locale, Category.UTILITY, "reminder_content"), StringUtil.shortenString(messageText, 1024), false);

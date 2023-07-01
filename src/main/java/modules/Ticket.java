@@ -23,6 +23,7 @@ import core.components.ActionRows;
 import core.lock.Lock;
 import core.lock.LockOccupiedException;
 import core.utils.*;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
@@ -44,16 +45,16 @@ import org.apache.commons.text.WordUtils;
 
 public class Ticket {
 
-    public static void createTicket(TicketData ticketData, TextChannel channel, Member member, String userMessage) {
+    public static void createTicket(TicketData ticketData, GuildEntity guildEntity, TextChannel channel, Member member, String userMessage) {
         Optional<TextChannel> existingTicketChannelOpt = findTicketChannelOfUser(ticketData, member);
         if (existingTicketChannelOpt.isEmpty()) {
-            Ticket.createTicketChannel(channel, member, ticketData).ifPresent(channelAction -> {
-                channelAction.queue(textChannel -> setupNewTicketChannel(ticketData, textChannel, member, userMessage));
+            Ticket.createTicketChannel(channel, member, ticketData, guildEntity.getLocale()).ifPresent(channelAction -> {
+                channelAction.queue(textChannel -> setupNewTicketChannel(ticketData, textChannel, member, userMessage, guildEntity.getLocale()));
             });
         } else {
             TextChannel existingTicketChannel = existingTicketChannelOpt.get();
-            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, existingTicketChannel, Permission.MESSAGE_SEND)) {
-                String text = TextManager.getString(ticketData.getGuildData().getLocale(), commands.Category.UTILITY, "ticket_alreadyopen", member.getAsMention());
+            if (PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), TicketCommand.class, existingTicketChannel, Permission.MESSAGE_SEND)) {
+                String text = TextManager.getString(guildEntity.getLocale(), commands.Category.UTILITY, "ticket_alreadyopen", member.getAsMention());
                 existingTicketChannel.sendMessage(text).queue();
             }
         }
@@ -71,13 +72,12 @@ public class Ticket {
         return Optional.empty();
     }
 
-    private static void setupNewTicketChannel(TicketData ticketData, TextChannel textChannel, Member member, String userMessage) {
-        Locale locale = ticketData.getGuildData().getLocale();
+    private static void setupNewTicketChannel(TicketData ticketData, TextChannel textChannel, Member member, String userMessage, Locale locale) {
         CommandProperties commandProperties = Command.getCommandProperties(TicketCommand.class);
         String title = commandProperties.emoji() + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle();
 
         long starterMessageId = 0;
-        if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, textChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
+        if (PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, textChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
             /* member greeting */
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setTitle(title)
@@ -108,7 +108,7 @@ public class Ticket {
 
             /* create message */
             ticketData.getCreateMessage().ifPresent(createMessage -> {
-                if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, textChannel, Permission.MESSAGE_SEND)) {
+                if (PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, textChannel, Permission.MESSAGE_SEND)) {
                     textChannel.sendMessage(createMessage)
                             .addEmbeds(EmbedFactory.getWrittenByServerStaffEmbed(locale).build())
                             .setAllowedMentions(null)
@@ -121,7 +121,7 @@ public class Ticket {
         long finalStarterMessageId = starterMessageId;
         AtomicBoolean announcementNotPosted = new AtomicBoolean(true);
         ticketData.getAnnouncementTextChannel().ifPresent(announcementChannel -> {
-            if (PermissionCheckRuntime.botHasPermission(ticketData.getGuildData().getLocale(), TicketCommand.class, announcementChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
+            if (PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, announcementChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 announcementNotPosted.set(false);
                 EmbedBuilder ebAnnouncement = EmbedFactory.getEmbedDefault()
                         .setTitle(title)
@@ -199,11 +199,10 @@ public class Ticket {
         return pings.toString();
     }
 
-    private static Optional<ChannelAction<TextChannel>> createTicketChannel(TextChannel textChannel, Member member, TicketData ticketData) {
+    private static Optional<ChannelAction<TextChannel>> createTicketChannel(TextChannel textChannel, Member member, TicketData ticketData, Locale locale) {
         Guild guild = textChannel.getGuild();
-        GuildData guildBean = ticketData.getGuildData();
-        if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), TicketCommand.class, guild, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL) &&
-                PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), TicketCommand.class, textChannel.getParentCategory(), Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MANAGE_CHANNEL)
+        if (PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, guild, Permission.VIEW_CHANNEL, Permission.MANAGE_CHANNEL) &&
+                PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, textChannel.getParentCategory(), Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MANAGE_CHANNEL)
         ) {
             String ticket = String.format("%04d", ticketData.increaseCounterAndGet());
             return Optional.of(createNewChannel(ticketData, textChannel, member, ticket));
@@ -212,8 +211,8 @@ public class Ticket {
         return Optional.empty();
     }
 
-    public static void closeTicket(TicketData ticketData, TextChannel channel, TicketChannel ticketChannel) {
-        Locale locale = ticketData.getGuildData().getLocale();
+    public static void closeTicket(TicketData ticketData, GuildEntity guildEntity, TextChannel channel, TicketChannel ticketChannel) {
+        Locale locale = guildEntity.getLocale();
         AuditableRestAction<Void> channelDeleteRestAction = channel.delete()
                 .reason(Command.getCommandLanguage(TicketCommand.class, locale).getTitle());
 
@@ -221,7 +220,7 @@ public class Ticket {
             if (ticketData.getDeleteChannelOnTicketClose()) {
                 channelDeleteRestAction.queue();
             } else {
-                closeChannelWithoutDeletion(locale, ticketData, channel, ticketChannel);
+                closeChannelWithoutDeletion(locale, ticketData, guildEntity, channel, ticketChannel);
             }
             return;
         }
@@ -288,7 +287,7 @@ public class Ticket {
                 if (ticketData.getDeleteChannelOnTicketClose()) {
                     channelDeleteRestAction.queue();
                 } else {
-                    closeChannelWithoutDeletion(locale, ticketData, channel, ticketChannel);
+                    closeChannelWithoutDeletion(locale, ticketData, guildEntity, channel, ticketChannel);
                 }
             } catch (LockOccupiedException e) {
                 //Ignore
@@ -296,7 +295,7 @@ public class Ticket {
         });
     }
 
-    public static void removeTicket(TextChannel ticketTextChannel, TicketData ticketData, TicketChannel ticketChannel) {
+    public static void removeTicket(TextChannel ticketTextChannel, TicketData ticketData, TicketChannel ticketChannel, GuildEntity guildEntity) {
         ticketData.getTicketChannels().remove(ticketChannel.getTextChannelId());
         TextChannel announcementChannel = ticketTextChannel.getGuild().getTextChannelById(ticketChannel.getAnnouncementChannelId());
         if (announcementChannel == null) {
@@ -305,12 +304,16 @@ public class Ticket {
 
         Class<TicketCommand> clazz = TicketCommand.class;
         String csvUrl = TicketProtocolCache.getUrl(ticketChannel.getTextChannelId());
-        Locale locale = ticketChannel.getGuildData().getLocale();
+        Locale locale = guildEntity.getLocale();
         String title = Command.getCommandProperties(clazz).emoji() + " " + Command.getCommandLanguage(clazz, locale).getTitle();
+        String desc = TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed",
+                StringUtil.escapeMarkdownInField(ticketTextChannel.getName()),
+                StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName(locale))
+        );
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(title)
-                .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_announcement_closed", StringUtil.escapeMarkdownInField(ticketTextChannel.getName()), StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName())));
+                .setDescription(desc);
         if (csvUrl != null) {
             EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.UTILITY, "ticket_csv_warning"));
         }
@@ -327,7 +330,9 @@ public class Ticket {
         messageAction.queue();
     }
 
-    public static synchronized void assignTicket(Member member, TextChannel channel, TicketData ticketData, TicketChannel ticketChannel) throws ExecutionException, InterruptedException {
+    public static synchronized void assignTicket(Member member, TextChannel channel, TicketData ticketData,
+                                                 TicketChannel ticketChannel, GuildEntity guildEntity
+    ) throws ExecutionException, InterruptedException {
         Guild guild = member.getGuild();
         GuildData guildData = DBGuild.getInstance().retrieve(guild.getIdLong());
         Locale locale = guildData.getLocale();
@@ -376,7 +381,7 @@ public class Ticket {
                         Category.UTILITY,
                         "ticket_announcement_assigned",
                         channel.getAsMention(),
-                        StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName()),
+                        StringUtil.escapeMarkdown(AtomicUser.fromOutsideCache(ticketChannel.getMemberId()).getTaggedName(locale)),
                         MentionUtil.getMentionedStringOfDiscriminatedUsers(locale, assignedUsers).getMentionText()
                 );
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
@@ -428,7 +433,7 @@ public class Ticket {
         return channelAction;
     }
 
-    private static void closeChannelWithoutDeletion(Locale locale, TicketData ticketData, TextChannel channel, TicketChannel ticketChannel) {
+    private static void closeChannelWithoutDeletion(Locale locale, TicketData ticketData, GuildEntity guildEntity, TextChannel channel, TicketChannel ticketChannel) {
         if (ticketChannel.getStarterMessageId() != 0) {
             channel.editMessageComponentsById(ticketChannel.getStarterMessageId())
                     .queue();
@@ -456,7 +461,7 @@ public class Ticket {
             channel.sendMessageEmbeds(eb.build()).queue();
         }
 
-        Ticket.removeTicket(channel, ticketData, ticketChannel);
+        Ticket.removeTicket(channel, ticketData, ticketChannel, guildEntity);
     }
 
     private static String extractContentFromMessage(Locale locale, Message message) {

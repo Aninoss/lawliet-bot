@@ -8,6 +8,7 @@ import commands.slashadapters.SlashMeta
 import constants.Language
 import core.utils.StringUtil
 import modules.porn.BooruAutoComplete
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.nsfwfilter.DBNSFWFilters
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -29,7 +30,7 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
             )
     }
 
-    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         val argsBuilder = StringBuilder()
         for (option in event.options) {
             val value = option.asString.replace(Regex("\\([0-9]*\\)"), "")

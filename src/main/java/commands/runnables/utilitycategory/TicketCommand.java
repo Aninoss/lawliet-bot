@@ -18,7 +18,6 @@ import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
-import core.atomicassets.MentionableAtomicAsset;
 import core.cache.ServerPatreonBoostCache;
 import core.components.ActionRows;
 import core.interactionresponse.ComponentInteractionResponse;
@@ -358,8 +357,8 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         setComponents(getString("state0_options").split("\n"));
         return EmbedFactory.getEmbedDefault(this)
-                .addField(getString("state0_mannouncement"), ticketData.getAnnouncementTextChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField()).orElse(notSet), true)
-                .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), MentionableAtomicAsset::getPrefixedNameInField), true)
+                .addField(getString("state0_mannouncement"), ticketData.getAnnouncementTextChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
+                .addField(getString("state0_mstaffroles"), new ListGen<AtomicRole>().getList(staffRoles, getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
                 .addField(getString("state0_massign"), getString("assignment_modes").split("\n")[ticketData.getTicketAssignmentMode().ordinal()], true)
                 .addField(getString("state0_mcloseoninactivity") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), getCloseOnInactivityValue(), true)
                 .addField(getString("state0_mcreatemessage"), StringUtil.shortenString(StringUtil.escapeMarkdown(ticketData.getCreateMessage().orElse(notSet)), 1024), false)
@@ -420,7 +419,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @Draw(state = REMOVE_STAFF_ROLE)
     public EmbedBuilder onDrawRemoveStaffRole(Member member) {
-        return staffRoleNavigationHelper.drawDataRemove(getString("state3_title"), getString("state3_description"));
+        return staffRoleNavigationHelper.drawDataRemove(getString("state3_title"), getString("state3_description"), getLocale());
     }
 
     @Draw(state = ASSIGNMENT_MODE)
@@ -451,7 +450,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         }
         return EmbedFactory.getEmbedDefault(
                 this,
-                getString("state4_description", tempPostChannel != null ? new AtomicTextChannel(tempPostChannel).getPrefixedNameInField() : notSet),
+                getString("state4_description", tempPostChannel != null ? new AtomicTextChannel(tempPostChannel).getPrefixedNameInField(getLocale()) : notSet),
                 getString("state4_title")
         );
     }
@@ -471,7 +470,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             if (ticketChannel == null && event.getEmoji().getFormatted().equals(getCommandProperties().emoji())) {
                 Category category = event.getChannel().asTextChannel().getParentCategory();
                 if (category == null || category.getTextChannels().size() < 50) {
-                    Ticket.createTicket(ticketData, event.getChannel().asTextChannel(), event.getMember(), null);
+                    Ticket.createTicket(ticketData, getGuildEntity(), event.getChannel().asTextChannel(), event.getMember(), null);
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
                     JDAUtil.openPrivateChannel(event.getMember())
@@ -483,7 +482,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                         (event.getMember().getIdLong() == ticketChannel.getMemberId() && ticketData.memberCanClose())
                 ) {
                     ticketChannel.setStarterMessageId(event.getMessageIdLong());
-                    Ticket.closeTicket(ticketData, event.getChannel().asTextChannel(), ticketChannel);
+                    Ticket.closeTicket(ticketData, getGuildEntity(), event.getChannel().asTextChannel(), ticketChannel);
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
                     event.getChannel().asTextChannel().sendMessageEmbeds(eb.build())
@@ -531,7 +530,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
             } else {
                 Category category = channel.getParentCategory();
                 if (category == null || category.getTextChannels().size() < 50) {
-                    Ticket.createTicket(ticketData, channel, event.getMember(), null);
+                    Ticket.createTicket(ticketData, getGuildEntity(), channel, event.getMember(), null);
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("toomanychannels"));
                     event.replyEmbeds(eb.build())
@@ -547,7 +546,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                     if (secondaryId == null) {
                         ticketChannel.setStarterMessageId(event.getMessageIdLong());
                     }
-                    Ticket.closeTicket(ticketData, channel, ticketChannel);
+                    Ticket.closeTicket(ticketData, getGuildEntity(), channel, ticketChannel);
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotclose"));
                     event.replyEmbeds(eb.build())
@@ -556,7 +555,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
                 }
             } else if (event.getComponentId().equals(BUTTON_ID_ASSIGN)) {
                 if (memberIsStaff(event.getMember(), ticketData.getStaffRoleIds())) {
-                    Ticket.assignTicket(event.getMember(), channel, ticketData, ticketChannel);
+                    Ticket.assignTicket(event.getMember(), channel, ticketData, ticketChannel, getGuildEntity());
                 } else {
                     EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("cannotassign"));
                     event.replyEmbeds(eb.build())

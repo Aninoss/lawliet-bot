@@ -1,15 +1,16 @@
 package modules;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import commands.Command;
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import core.PermissionCheckRuntime;
 import core.utils.BotPermissionUtil;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.autochannel.AutoChannelData;
 import mysql.modules.autochannel.DBAutoChannel;
-import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -24,18 +25,19 @@ public class AutoChannel {
                 .replaceAll("(?i)" + Pattern.quote("%creator"), Matcher.quoteReplacement(arg3));
     }
 
-    public static void processCreate(VoiceChannel voiceChannel, Member member) {
+    public static void processCreate(VoiceChannel voiceChannel, Member member, GuildEntity guildEntity) {
         if (!voiceChannel.getMembers().contains(member)) {
             return;
         }
 
         Guild guild = voiceChannel.getGuild();
         AutoChannelData autoChannelBean = DBAutoChannel.getInstance().retrieve(guild.getIdLong());
+
         if (autoChannelBean.isActive() && voiceChannel.getIdLong() == autoChannelBean.getParentChannelId().orElse(0L)) {
-            GuildData guildBean = autoChannelBean.getGuildData();
-            if (PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, guild, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS) &&
-                    PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel.getParentCategory(), Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS) &&
-                    PermissionCheckRuntime.botHasPermission(guildBean.getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
+            Locale locale = guildEntity.getLocale();
+            if (PermissionCheckRuntime.botHasPermission(locale, AutoChannelCommand.class, guild, Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS) &&
+                    PermissionCheckRuntime.botHasPermission(locale, AutoChannelCommand.class, voiceChannel.getParentCategory(), Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL, Permission.VOICE_MOVE_OTHERS) &&
+                    PermissionCheckRuntime.botHasPermission(locale, AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.VOICE_MOVE_OTHERS)
             ) {
                 int n = 1;
                 for (int i = 0; i < 50; i++) {
@@ -52,20 +54,20 @@ public class AutoChannel {
 
                 ChannelAction<VoiceChannel> channelAction = createNewVoice(autoChannelBean, voiceChannel, member, n);
                 channelAction.queue(
-                        vc -> processCreatedVoice(autoChannelBean, vc, member),
+                        vc -> processCreatedVoice(autoChannelBean, guildEntity, vc, member),
                         e -> channelAction.setName("???")
-                                .queue(vc -> processCreatedVoice(autoChannelBean, vc, member))
+                                .queue(vc -> processCreatedVoice(autoChannelBean, guildEntity, vc, member))
                 );
             }
         }
     }
 
-    public static void processRemove(VoiceChannel voiceChannel) {
+    public static void processRemove(VoiceChannel voiceChannel, GuildEntity guildEntity) {
         AutoChannelData autoChannelBean = DBAutoChannel.getInstance().retrieve(voiceChannel.getGuild().getIdLong());
 
         for (long childChannelId : new ArrayList<>(autoChannelBean.getChildChannelIds())) {
             if (voiceChannel.getIdLong() == childChannelId) {
-                if (PermissionCheckRuntime.botHasPermission(autoChannelBean.getGuildData().getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
+                if (PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), AutoChannelCommand.class, voiceChannel, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL)) {
                     if (voiceChannel.getMembers().size() == 0) {
                         voiceChannel.delete().queue();
                     }
@@ -75,19 +77,21 @@ public class AutoChannel {
         }
     }
 
-    private static void processCreatedVoice(AutoChannelData autoChannelBean, VoiceChannel voiceChannel, Member member) {
+    private static void processCreatedVoice(AutoChannelData autoChannelBean, GuildEntity guildEntity,
+                                            VoiceChannel voiceChannel, Member member
+    ) {
         if (member.getVoiceState() != null && member.getVoiceState().inAudioChannel()) {
             member.getGuild().moveVoiceMember(member, voiceChannel).queue(v -> {
                 autoChannelBean.getChildChannelIds().add(voiceChannel.getIdLong());
                 if (!voiceChannel.getMembers().contains(member)) {
                     voiceChannel.delete()
-                            .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildData().getLocale()).getTitle())
+                            .reason(Command.getCommandLanguage(AutoChannelCommand.class, guildEntity.getLocale()).getTitle())
                             .queue();
                     autoChannelBean.getChildChannelIds().remove(voiceChannel.getIdLong());
                 }
             }, e -> {
                 voiceChannel.delete()
-                        .reason(Command.getCommandLanguage(AutoChannelCommand.class, autoChannelBean.getGuildData().getLocale()).getTitle())
+                        .reason(Command.getCommandLanguage(AutoChannelCommand.class, guildEntity.getLocale()).getTitle())
                         .queue();
             });
         }

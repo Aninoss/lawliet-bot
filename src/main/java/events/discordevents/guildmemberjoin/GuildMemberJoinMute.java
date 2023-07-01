@@ -9,7 +9,6 @@ import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.modules.guild.DBGuild;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.servermute.ServerMuteData;
 import net.dv8tion.jda.api.Permission;
@@ -27,7 +26,7 @@ public class GuildMemberJoinMute extends GuildMemberJoinAbstract {
                 serverMuteData.isNewMethod() &&
                 !event.getMember().isTimedOut()
         ) {
-            Locale locale = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
+            Locale locale = entityManager.findGuildEntity(event.getGuild().getIdLong()).getLocale();
             Instant expirationMax = Instant.now().plus(Duration.ofDays(27));
             Instant expiration = serverMuteData.getExpirationTime().orElse(Instant.MAX);
             if (expiration.isAfter(expirationMax)) {

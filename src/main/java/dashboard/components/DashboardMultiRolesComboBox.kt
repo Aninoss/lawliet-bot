@@ -18,14 +18,13 @@ import java.util.*
 import kotlin.reflect.KClass
 
 class DashboardMultiRolesComboBox(label: String, locale: Locale, guildId: Long, val memberId: Long, val selectedRoles: MutableList<Long>,
-                                  canBeEmpty: Boolean,
-                                  max: Int, checkManageable: Boolean, commandAccessRequirement: KClass<out Command>? = null
+                                  canBeEmpty: Boolean, max: Int, checkManageable: Boolean, commandAccessRequirement: KClass<out Command>? = null
 ) : DashboardComboBox(label, DataType.ROLES, canBeEmpty, max) {
 
     init {
         selectedValues = selectedRoles.map {
             val atomicRole = AtomicRole(guildId, it)
-            DiscordEntity(it.toString(), atomicRole.name)
+            DiscordEntity(it.toString(), atomicRole.getName(locale))
         }
         setActionListener { event ->
             val guild: Guild = ShardManager.getLocalGuildById(guildId).orElse(null) ?: return@setActionListener ActionResult()

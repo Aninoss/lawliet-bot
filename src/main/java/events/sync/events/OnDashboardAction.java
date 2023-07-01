@@ -7,6 +7,7 @@ import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.Permission;
 import org.json.JSONObject;
 import events.sync.SyncServerEvent;
@@ -22,12 +23,16 @@ public class OnDashboardAction implements SyncServerFunction {
         resultJson.put("ok", false);
         if (ShardManager.getLocalGuildById(guildId).isPresent()) {
             long userId = jsonObject.getLong("user_id");
+
             DashboardCategory category = DashboardManager.getCategoryCache().getIfPresent(userId);
             if (category != null) {
                 List<Permission> missingBotPermissions = category.missingBotPermissions();
                 List<Permission> missingUserPermissions = category.missingUserPermissions();
+
                 try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                    category.setEntityManager(entityManager);
+                    GuildEntity guildEntity = entityManager.findGuildEntity(guildId);
+                    category.setGuildEntity(guildEntity);
+
                     if (missingBotPermissions.isEmpty() && missingUserPermissions.isEmpty() && category.anyCommandRequirementsAreAccessible()) {
                         ActionResult actionResult = category.receiveAction(jsonObject.getJSONObject("action"));
                         if (actionResult != null) {

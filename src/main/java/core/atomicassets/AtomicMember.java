@@ -10,7 +10,6 @@ import core.MemberCacheController;
 import core.ShardManager;
 import core.TextManager;
 import core.utils.StringUtil;
-import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -41,11 +40,6 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
     }
 
     @Override
-    public Locale getLocale() {
-        return DBGuild.getInstance().retrieve(guildId).getLocale();
-    }
-
-    @Override
     public Optional<String> getPrefixedNameRaw() {
         return get().map(m -> "@" + m.getEffectiveName());
     }
@@ -59,9 +53,9 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
         return get().map(member -> member.getUser().getAsTag());
     }
 
-    public String getTaggedName() {
+    public String getTaggedName(Locale locale) {
         return getTaggedNameRaw()
-                .orElseGet(() -> TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));
+                .orElseGet(() -> TextManager.getString(locale, TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));
     }
 
     @Override

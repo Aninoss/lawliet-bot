@@ -85,7 +85,7 @@ public class HelpCommand extends NavigationAbstract {
                 String className = searchTerm.split(":")[1];
                 Command command = CommandManager.createCommandByClassName(className, getLocale(), getPrefix());
 
-                CommandManager.manage(getCommandEvent(), command, "", getEntityManager(), Instant.now(), false);
+                CommandManager.manage(getCommandEvent(), command, "", getGuildEntity(), Instant.now(), false);
                 return false;
             }
 

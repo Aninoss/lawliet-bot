@@ -6,6 +6,7 @@ import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import core.utils.StringUtil
 import modules.mandaupdates.MangaUpdatesDownloader
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.Command
@@ -20,7 +21,7 @@ class MangaUpdatesAdapter : SlashAdapter() {
             .addOptions(generateOptionData(OptionType.STRING, "manga_name", "mangaupdates_manganame", true, true))
     }
 
-    override fun process(event: SlashCommandInteractionEvent): SlashMeta {
+    override fun process(event: SlashCommandInteractionEvent, guildEntity: GuildEntity): SlashMeta {
         return SlashMeta(MangaUpdatesCommand::class.java, collectArgs(event).replace("…", ""))
     }
 

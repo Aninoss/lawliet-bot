@@ -9,6 +9,7 @@ import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import events.sync.SyncServerEvent;
@@ -36,7 +37,8 @@ public class OnDashboardInit implements SyncServerFunction {
     private void addTitles(long guildId, long userId, Locale locale, JSONObject resultJson) {
         JSONArray titlesJson = new JSONArray();
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-            for (DashboardCategory retrieveCategory : DashboardManager.retrieveCategories(guildId, userId, locale, entityManager)) {
+            GuildEntity guildEntity = entityManager.findGuildEntity(guildId);
+            for (DashboardCategory retrieveCategory : DashboardManager.retrieveCategories(guildId, userId, locale, guildEntity)) {
                 if (retrieveCategory.anyCommandRequirementsAreAccessible()) {
                     JSONObject data = new JSONObject();
                     data.put("id", retrieveCategory.getProperties().id());

@@ -11,6 +11,7 @@ import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.Permission;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,11 +36,12 @@ public class OnDashboardCategoryInit implements SyncServerFunction {
             Locale locale = Language.from(localeString).getLocale();
 
             try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                GuildEntity guildEntity = entityManager.findGuildEntity(guildId);
                 DashboardCategory category = DashboardManager.getCategoryCache().getIfPresent(userId);
                 if (createNew || category == null) {
-                    category = DashboardManager.retrieveCategory(categoryId, guildId, userId, locale, entityManager);
+                    category = DashboardManager.retrieveCategory(categoryId, guildId, userId, locale, guildEntity);
                 } else {
-                    category.setEntityManager(entityManager);
+                    category.setGuildEntity(guildEntity);
                 }
 
                 List<Permission> missingBotPermissions = category.missingBotPermissions();

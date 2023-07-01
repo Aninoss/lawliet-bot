@@ -27,12 +27,12 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
             return true;
         }
 
+        GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
         CustomObservableMap<Long, StaticReactionMessageData> map = DBStaticReactionMessages.getInstance()
                 .retrieve(event.getGuild().getIdLong());
         StaticReactionMessageData messageData = map.get(event.getMessageIdLong());
 
         if (messageData != null) {
-            GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
             Command command = CommandManager.createCommandByTrigger(messageData.getCommand(), guildEntity.getLocale(), guildEntity.getPrefix()).get();
             if (command instanceof OnStaticReactionRemoveListener) {
                 Message message;
@@ -49,7 +49,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
                     } else {
                         MemberCacheController.getInstance().loadMember(event.getGuild(), event.getUserIdLong()).get();
                     }
-                    command.setEntityManager(entityManager);
+                    command.setGuildEntity(guildEntity);
                     if (event.getMember() != null && !event.getMember().getUser().isBot()) {
                         ((OnStaticReactionRemoveListener) command).onStaticReactionRemove(message, event);
                     }

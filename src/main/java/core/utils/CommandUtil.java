@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import core.EmbedFactory;
@@ -61,7 +60,7 @@ public class CommandUtil {
         return new ChannelResponse(args, channel);
     }
 
-    public static CompletableFuture<Message> differentChannelSendMessage(Command command, CommandEvent event, StandardGuildMessageChannel channel, EmbedBuilder eb, Map<String, InputStream> fileAttachmentMap) throws ExecutionException, InterruptedException {
+    public static CompletableFuture<Message> differentChannelSendMessage(Command command, CommandEvent event, StandardGuildMessageChannel channel, EmbedBuilder eb, Map<String, InputStream> fileAttachmentMap) {
         if (event.getChannel() == channel) {
             command.addAllFileAttachments(fileAttachmentMap);
             return command.drawMessageNew(eb);
@@ -72,7 +71,7 @@ public class CommandUtil {
             }
             CompletableFuture<Message> messageFuture = messageAction.submit();
 
-            EmbedBuilder confirmEmbed = EmbedFactory.getEmbedDefault(command, TextManager.getString(command.getLocale(), TextManager.GENERAL, "message_sent_channel", new AtomicStandardGuildMessageChannel(channel).getPrefixedNameInField()));
+            EmbedBuilder confirmEmbed = EmbedFactory.getEmbedDefault(command, TextManager.getString(command.getLocale(), TextManager.GENERAL, "message_sent_channel", new AtomicStandardGuildMessageChannel(channel).getPrefixedNameInField(command.getLocale())));
             command.drawMessageNew(confirmEmbed).exceptionally(ExceptionLogger.get());
 
             return messageFuture;

@@ -40,7 +40,7 @@ public class PowerUpCommand extends FisheryMemberAccountInterface {
         }
 
         if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY)) {
-            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", new AtomicTextChannel(channel).getPrefixedNameInField());
+            String error = TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel", new AtomicTextChannel(channel).getPrefixedNameInField(getLocale()));
             return EmbedFactory.getEmbedError(this, error);
         }
 
@@ -71,7 +71,7 @@ public class PowerUpCommand extends FisheryMemberAccountInterface {
                 amount != 1,
                 StringUtil.numToString(amount),
                 member.getEffectiveName(),
-                new AtomicTextChannel(channel).getPrefixedNameInField()
+                new AtomicTextChannel(channel).getPrefixedNameInField(getLocale())
         );
         return EmbedFactory.getEmbedDefault(this, successText);
     }

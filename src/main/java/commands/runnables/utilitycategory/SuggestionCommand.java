@@ -148,7 +148,7 @@ public class SuggestionCommand extends Command implements OnStaticReactionAddLis
                         Long userId = suggestionMessage.getUserId();
                         if (userId != null) {
                             MemberCacheController.getInstance().loadMember(event.getGuild(), userId).join();
-                            author = new AtomicUser(userId).getTaggedName();
+                            author = new AtomicUser(userId).getTaggedName(getLocale());
                         } else {
                             author = suggestionMessage.getAuthor();
                         }

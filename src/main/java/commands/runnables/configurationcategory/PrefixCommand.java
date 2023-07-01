@@ -38,7 +38,7 @@ public class PrefixCommand extends Command implements OnButtonListener {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         if (args.length() > 0 && !args.isBlank()) {
             if (args.length() <= MAX_LENGTH) {
-                Prefix.changePrefix(event.getGuild(), getLocale(), args, getEntityManager());
+                Prefix.changePrefix(event.getGuild(), getLocale(), args, getGuildEntity());
                 drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(args))))
                         .exceptionally(ExceptionLogger.get());
                 return true;
@@ -57,20 +57,20 @@ public class PrefixCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
-        String prefix = getEntityManager().findGuildEntity(event.getGuild().getIdLong()).getPrefix();
+        String prefix = getGuildEntity().getPrefix();
         TextInput textInput = TextInput.create("text", getString("new"), TextInputStyle.SHORT)
                 .setValue(prefix)
                 .setMinLength(1)
                 .setMaxLength(MAX_LENGTH)
                 .build();
 
-        Modal modal = ModalMediator.createModal(getString("button"), (e, em) -> {
+        Modal modal = ModalMediator.createModal(getString("button"), (e, guildEntity) -> {
                     deregisterListeners();
                     String newPrefix = e.getValues().get(0).getAsString();
                     if (newPrefix.isBlank()) {
                         newPrefix = "L.";
                     }
-                    Prefix.changePrefix(event.getGuild(), getLocale(), newPrefix, em);
+                    Prefix.changePrefix(event.getGuild(), getLocale(), newPrefix, guildEntity);
                     drawMessage(EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(newPrefix))))
                             .exceptionally(ExceptionLogger.get());
                     e.deferEdit().queue();
@@ -83,7 +83,7 @@ public class PrefixCommand extends Command implements OnButtonListener {
 
     @Override
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
-        String prefix = getEntityManager().findGuildEntity(member.getGuild().getIdLong()).getPrefix();
+        String prefix = getGuildEntity().getPrefix();
         setComponents(getString("button"));
         return EmbedFactory.getEmbedDefault(this, getString("current", StringUtil.escapeMarkdownInField(prefix)));
     }

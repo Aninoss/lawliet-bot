@@ -5,6 +5,7 @@ import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.automod.InviteFilter;
 import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @DiscordEvent(priority = EventPriority.HIGH, allowBannedUser = true)
@@ -12,7 +13,8 @@ public class GuildMessageReceivedInviteFilter extends GuildMessageReceivedAbstra
 
     @Override
     public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
-        return new InviteFilter(event.getMessage()).check(entityManager);
+        GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
+        return new InviteFilter(event.getMessage()).check(guildEntity);
     }
 
 }

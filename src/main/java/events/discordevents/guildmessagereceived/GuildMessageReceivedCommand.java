@@ -56,7 +56,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
         }
 
         if (prefixFound > -1) {
-            if (prefixFound > 0 && manageMessageInput(event, entityManager)) {
+            if (prefixFound > 0 && manageMessageInput(event, guildEntity)) {
                 return true;
             }
 
@@ -91,27 +91,26 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
 
                     CommandEvent commandEvent = new CommandEvent(event);
                     try {
-                        CommandManager.manage(commandEvent, command, args, entityManager, getStartTime());
+                        CommandManager.manage(commandEvent, command, args, guildEntity, getStartTime());
                     } catch (Throwable e) {
                         ExceptionUtil.handleCommandException(e, command, commandEvent);
                     }
                 }
             }
         } else {
-            if (manageMessageInput(event, entityManager)) {
+            if (manageMessageInput(event, guildEntity)) {
                 return true;
             }
-            checkAutoQuote(event, entityManager);
+            checkAutoQuote(event, guildEntity);
         }
 
         return true;
     }
 
-    private void checkAutoQuote(MessageReceivedEvent event, EntityManagerWrapper entityManager) {
+    private void checkAutoQuote(MessageReceivedEvent event, GuildEntity guildEntity) {
         if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel()) &&
                 DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive()
         ) {
-            GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
             MentionUtil.getMessageWithLinks(event.getGuild(), event.getMessage().getContentRaw()).thenAccept(mentionMessages -> {
                 List<Message> messages = mentionMessages.getList();
                 if (messages.size() > 0) {
@@ -132,7 +131,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
         }
     }
 
-    private boolean manageMessageInput(MessageReceivedEvent event, EntityManagerWrapper entityManager) {
+    private boolean manageMessageInput(MessageReceivedEvent event, GuildEntity guildEntity) {
         GuildMessageChannel channel = event.getGuildChannel();
         if (channel.getPermissionContainer() != null && BotPermissionUtil.canWriteEmbed(channel)) {
             List<CommandListenerMeta<?>> listeners = CommandContainer.getListeners(OnMessageInputListener.class).stream()
@@ -147,7 +146,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     });
 
                     for (CommandListenerMeta<?> listener : listeners) {
-                        MessageInputResponse messageInputResponse = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event, entityManager);
+                        MessageInputResponse messageInputResponse = ((OnMessageInputListener) listener.getCommand()).processMessageInput(event, guildEntity);
                         if (messageInputResponse != null) {
                             return true;
                         }

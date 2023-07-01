@@ -15,7 +15,6 @@ import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.*;
 import core.atomicassets.AtomicStandardGuildMessageChannel;
-import core.atomicassets.MentionableAtomicAsset;
 import core.utils.*;
 import modules.Giveaway;
 import modules.schedulers.GiveawayScheduler;
@@ -530,7 +529,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         if (channel != null) {
             setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
         }
-        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(channel).map(MentionableAtomicAsset::getPrefixedNameInField).orElse(notSet)), getString("state1_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(channel).map(m -> m.getPrefixedNameInField(getLocale())).orElse(notSet)), getString("state1_title"));
     }
 
     @Draw(state = EDIT_MESSAGE)
@@ -538,7 +537,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         String[] options = getActiveGiveawaySlots().stream()
                 .map(giveawayData -> {
                     AtomicStandardGuildMessageChannel atomicStandardGuildMessageChannel = new AtomicStandardGuildMessageChannel(giveawayData.getGuildId(), giveawayData.getStandardGuildMessageChannelId());
-                    return getString("state2_slot", giveawayData.getTitle(), atomicStandardGuildMessageChannel.getName());
+                    return getString("state2_slot", giveawayData.getTitle(), atomicStandardGuildMessageChannel.getName(getLocale()));
                 })
                 .toArray(String[]::new);
         setComponents(options);
@@ -548,7 +547,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @Draw(state = REROLL_MESSAGE)
     public EmbedBuilder onDrawRerollMessage(Member member) {
         String[] options = getCompletedGiveawaySlots().stream()
-                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), giveawayData.getStandardGuildMessageChannelId()).getName()))
+                .map(giveawayData -> getString("state2_slot", giveawayData.getTitle(), new AtomicStandardGuildMessageChannel(member.getGuild().getIdLong(), giveawayData.getStandardGuildMessageChannelId()).getName(getLocale())))
                 .toArray(String[]::new);
         setComponents(options);
         return EmbedFactory.getEmbedDefault(this, getString("state12_description"), getString("state12_title"));

@@ -18,10 +18,9 @@ import dashboard.container.VerticalContainer
 import dashboard.data.GridRow
 import modules.Giveaway
 import modules.schedulers.GiveawayScheduler
-import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.giveaway.DBGiveaway
 import mysql.modules.giveaway.GiveawayData
-import mysql.modules.guild.DBGuild
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji
@@ -38,7 +37,7 @@ import java.util.concurrent.TimeUnit
     userPermissions = [Permission.MANAGE_SERVER],
     commandAccessRequirements = [GiveawayCommand::class]
 )
-class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
+class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     enum class Mode { OVERVIEW, EDIT, REROLL }
 
@@ -112,9 +111,8 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, entityManage
         val rows = giveawayDataMap.values
             .filter(filter)
             .map {
-                val atomicChannel =
-                    AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
-                val values = arrayOf(it.title, atomicChannel.prefixedName)
+                val atomicChannel = AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
+                val values = arrayOf(it.title, atomicChannel.getPrefixedName(locale))
                 GridRow(it.messageId.toString(), values)
             }
 
@@ -144,7 +142,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, entityManage
         channelArticleContainer.allowWrap = true
 
         val channelLabel = getString(Category.UTILITY, "giveaway_dashboard_channel")
-        val channelComboBox = DashboardTextChannelComboBox(channelLabel, guild.idLong, channelId, false) {
+        val channelComboBox = DashboardTextChannelComboBox(channelLabel, locale, guild.idLong, channelId, false) {
             if (mode != Mode.OVERVIEW) {
                 return@DashboardTextChannelComboBox ActionResult()
             }
@@ -395,8 +393,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, entityManage
 
     private fun sendMessage(guild: Guild, channelId: Long, instant: Instant): Long {
         val channel = guild.getTextChannelById(channelId)
-        val locale = DBGuild.getInstance().retrieve(guild.idLong).locale
-        val eb = Giveaway.getMessageEmbed(locale, article, desc, winners.toInt(), emoji, duration, image, instant)
+        val eb = Giveaway.getMessageEmbed(guildEntity.locale, article, desc, winners.toInt(), emoji, duration, image, instant)
 
         if (mode == Mode.OVERVIEW) {
             val message = channel!!.sendMessageEmbeds(eb.build()).complete()

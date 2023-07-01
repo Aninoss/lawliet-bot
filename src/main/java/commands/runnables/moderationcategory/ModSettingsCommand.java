@@ -16,7 +16,6 @@ import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
-import core.atomicassets.MentionableAtomicAsset;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
@@ -517,14 +516,15 @@ public class ModSettingsCommand extends NavigationAbstract {
     public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
-                String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
+                Locale locale = getLocale();
+                String notSet = TextManager.getString(locale, TextManager.GENERAL, "notset");
                 TextChannel textChannel = getTextChannel().get();
                 setComponents(getString("state0_options").split("\n"));
 
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mchannel"), moderationData.getAnnouncementChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField()).orElse(notSet), true)
-                        .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), moderationData.getQuestion()), true)
-                        .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(jailRoles, getLocale(), MentionableAtomicAsset::getPrefixedNameInField), true)
+                        .addField(getString("state0_mchannel"), moderationData.getAnnouncementChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(locale)).orElse(notSet), true)
+                        .addField(getString("state0_mquestion"), StringUtil.getOnOffForBoolean(textChannel, locale, moderationData.getQuestion()), true)
+                        .addField(getString("state0_mjailroles"), new ListGen<AtomicRole>().getList(jailRoles, locale, m -> m.getPrefixedNameInField(locale)), true)
                         .addField(getString("state0_mautomod"), getString(
                                 "state0_mautomod_desc",
                                 getAutoModString(textChannel, moderationData.getAutoMute(), moderationData.getAutoMuteDays(), moderationData.getAutoMuteDuration()),
@@ -573,7 +573,7 @@ public class ModSettingsCommand extends NavigationAbstract {
                 return jailRolesNavigationHelper.drawDataAdd(getString("state11_title"));
 
             case 12:
-                return jailRolesNavigationHelper.drawDataRemove(getString("state12_title"));
+                return jailRolesNavigationHelper.drawDataRemove(getString("state12_title"), getLocale());
 
             case 13:
                 setComponents(getString("state13_options"));

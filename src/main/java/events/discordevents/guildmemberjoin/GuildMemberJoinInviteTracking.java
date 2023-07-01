@@ -15,6 +15,7 @@ import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.invitetracking.InviteMetrics;
 import modules.invitetracking.InviteTracking;
 import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.InviteTrackingData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -33,20 +34,21 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
     public boolean onGuildMemberJoin(GuildMemberJoinEvent event, EntityManagerWrapper entityManager) throws Throwable {
         InviteTrackingData inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
         if (inviteTrackingData.isActive()) {
+            GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
             InviteTracking.registerMemberJoin(event.getMember())
-                    .thenAccept(invite -> sendLog(inviteTrackingData, event.getMember(), invite))
+                    .thenAccept(invite -> sendLog(inviteTrackingData, guildEntity, event.getMember(), invite))
                     .exceptionally(e -> {
                         //ignore
-                        sendLog(inviteTrackingData, event.getMember(), null);
+                        sendLog(inviteTrackingData, guildEntity, event.getMember(), null);
                         return null;
                     });
         }
         return true;
     }
 
-    private void sendLog(InviteTrackingData inviteTrackingData, Member member, InviteTracking.TempInvite invite) {
+    private void sendLog(InviteTrackingData inviteTrackingData, GuildEntity guildEntity, Member member, InviteTracking.TempInvite invite) {
         inviteTrackingData.getTextChannel().ifPresent(channel -> {
-            Locale locale = inviteTrackingData.getGuildData().getLocale();
+            Locale locale = guildEntity.getLocale();
             if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 String invitedTag = StringUtil.escapeMarkdown(member.getUser().getAsTag());
                 String inviterTag = "";

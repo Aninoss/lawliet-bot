@@ -18,7 +18,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
-import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.commandmanagement.CommandManagementData
 import mysql.modules.commandmanagement.DBCommandManagement
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels
@@ -31,7 +31,8 @@ import java.util.*
     userPermissions = [Permission.ADMINISTRATOR],
     commandAccessRequirements = [CommandManagementCommand::class, WhiteListCommand::class, CommandPermissionsCommand::class]
 )
-class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
+class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) :
+    DashboardCategory(guildId, userId, locale, guildEntity) {
 
     override fun retrievePageTitle(): String {
         return getString(TextManager.GENERAL, "dashboard_cman")
@@ -94,7 +95,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, ent
 
         container.add(
             DashboardMultiTextChannelsComboBox(
-                "", guild.idLong, DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds,
+                "", locale, guild.idLong, DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds,
                 true, WhiteListCommand.MAX_CHANNELS, atomicMember.idLong, WhiteListCommand::class
             )
         )

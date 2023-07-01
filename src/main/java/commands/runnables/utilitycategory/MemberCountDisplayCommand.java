@@ -14,7 +14,6 @@ import core.ListGen;
 import core.MemberCacheController;
 import core.TextManager;
 import core.atomicassets.AtomicVoiceChannel;
-import core.atomicassets.MentionableAtomicAsset;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -223,7 +222,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                         .addField(getString("state0_mdisplays"), highlightVariables(new ListGen<MemberCountDisplaySlot>()
                                 .getList(memberCountBean.getMemberCountBeanSlots().values(), getLocale(), bean -> {
                                     if (bean.getVoiceChannel().isPresent()) {
-                                        return getString("state0_displays", new AtomicVoiceChannel(bean.getVoiceChannel().get()).getPrefixedNameInField(), StringUtil.escapeMarkdown(bean.getMask()));
+                                        return getString("state0_displays", new AtomicVoiceChannel(bean.getVoiceChannel().get()).getPrefixedNameInField(getLocale()), StringUtil.escapeMarkdown(bean.getMask()));
                                     } else {
                                         return getString("state0_displays", TextManager.getString(getLocale(), TextManager.GENERAL, "notfound", StringUtil.numToHex(bean.getVoiceChannelId())), StringUtil.escapeMarkdown(bean.getMask()));
                                     }
@@ -233,7 +232,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                 if (currentName != null && currentVC != null) {
                     setComponents(getString("state1_options"));
                 }
-                String currentVoiceChannel = Optional.ofNullable(currentVC).map(MentionableAtomicAsset::getPrefixedNameInField).orElse("**" + notSet + "**");
+                String currentVoiceChannel = Optional.ofNullable(currentVC).map(m -> m.getPrefixedNameInField(getLocale())).orElse("**" + notSet + "**");
                 String currentNameMask = "**" + highlightVariables(Optional.ofNullable(currentName).map(StringUtil::escapeMarkdown).orElse(notSet)) + "**";
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"))
                         .addField(getString("state1_status_title"), getString("state1_status_desc", currentVoiceChannel, currentNameMask), false);

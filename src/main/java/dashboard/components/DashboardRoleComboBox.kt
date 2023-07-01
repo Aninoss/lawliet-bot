@@ -20,7 +20,7 @@ class DashboardRoleComboBox(label: String, locale: Locale, guildId: Long, val me
     init {
         selectedValues = selectedRole?.let {
             val atomicRole = AtomicRole(guildId, it)
-            listOf(DiscordEntity(it.toString(), atomicRole.name))
+            listOf(DiscordEntity(it.toString(), atomicRole.getName(locale)))
         } ?: emptyList<DiscordEntity>()
 
         setActionListener { event ->

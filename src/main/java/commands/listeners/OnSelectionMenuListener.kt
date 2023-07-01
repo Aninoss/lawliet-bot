@@ -1,7 +1,7 @@
 package commands.listeners
 
 import commands.CommandListenerMeta.CheckResponse
-import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent
 import java.util.concurrent.CompletableFuture
@@ -23,8 +23,8 @@ interface OnSelectMenuListener : OnInteractionListener {
         return registerInteractionListener(member, OnSelectMenuListener::class.java, draw, { onSelectMenuOverridden() }, validityChecker)
     }
 
-    fun processSelectMenu(event: StringSelectInteractionEvent, entityManager: EntityManagerWrapper) {
-        processInteraction(event, entityManager) { onSelectMenu(it) }
+    fun processSelectMenu(event: StringSelectInteractionEvent, guildEntity: GuildEntity) {
+        processInteraction(event, guildEntity) { onSelectMenu(it) }
     }
 
     @Throws(Throwable::class)

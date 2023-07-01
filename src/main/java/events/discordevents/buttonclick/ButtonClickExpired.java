@@ -7,7 +7,6 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.ButtonClickAbstract;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
@@ -16,7 +15,7 @@ public class ButtonClickExpired extends ButtonClickAbstract {
 
     @Override
     public boolean onButtonClick(ButtonInteractionEvent event, EntityManagerWrapper entityManager) {
-        Locale locale = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getLocale();
+        Locale locale = entityManager.findGuildEntity(event.getGuild().getIdLong()).getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedError()
                 .setTitle(TextManager.getString(locale, TextManager.GENERAL, "button_listener_expired_title"))
                 .setDescription(TextManager.getString(locale, TextManager.GENERAL, "button_listener_expired_desc"));

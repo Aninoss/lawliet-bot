@@ -12,7 +12,6 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRemoveAbstract;
 import modules.Welcome;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.modules.guild.DBGuild;
 import mysql.modules.welcomemessage.DBWelcomeMessage;
 import mysql.modules.welcomemessage.WelcomeMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -27,7 +26,7 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
     @Override
     public boolean onGuildMemberRemove(GuildMemberRemoveEvent event, EntityManagerWrapper entityManager) {
         Guild guild = event.getGuild();
-        Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
+        Locale locale = entityManager.findGuildEntity(guild.getIdLong()).getLocale();
 
         WelcomeMessageData welcomeMessageData = DBWelcomeMessage.getInstance().retrieve(guild.getIdLong());
         if (welcomeMessageData.isGoodbyeActive()) {
@@ -50,7 +49,7 @@ public class GuildMemberRemoveWelcome extends GuildMemberRemoveAbstract {
 
                         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                                 .setDescription(content)
-                                .setFooter(TextManager.getString(welcomeMessageData.getGuildData().getLocale(), TextManager.GENERAL, "serverstaff_text"));
+                                .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
 
                         channel.sendMessage(sb.toString())
                                 .addEmbeds(eb.build())

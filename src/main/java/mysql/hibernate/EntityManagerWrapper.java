@@ -10,6 +10,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
 import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.HibernateEntity;
 
 public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
@@ -68,6 +69,7 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
             entityManager.persist(object);
             entityManager.getTransaction().commit();
         }
+        ((HibernateEntity) object).setEntityManager(this);
         return object;
     }
 

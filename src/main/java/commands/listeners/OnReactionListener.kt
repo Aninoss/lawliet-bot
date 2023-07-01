@@ -125,7 +125,7 @@ interface OnReactionListener : Drawable {
             if (event.user == null || event.user!!.isBot) {
                 return
             }
-            command.entityManager = entityManager
+            command.guildEntity = guildEntity
             if (onReaction(event)) {
                 CommandContainer.refreshListeners(command)
                 val eb = draw(event.member!!)

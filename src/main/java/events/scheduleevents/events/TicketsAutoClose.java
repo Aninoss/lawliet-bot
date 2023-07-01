@@ -12,6 +12,9 @@ import core.MainLogger;
 import core.ShardManager;
 import events.scheduleevents.ScheduleEventHourly;
 import modules.Ticket;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
 import net.dv8tion.jda.api.entities.Message;
@@ -49,7 +52,10 @@ public class TicketsAutoClose implements ExceptionRunnable {
                                     messages.get(0).getAuthor().getIdLong() != ticketChannel.getMemberId() &&
                                     messages.get(0).getTimeCreated().toInstant().plus(Duration.ofHours(ticketData.getAutoCloseHours())).isBefore(Instant.now())
                             ) {
-                                Ticket.closeTicket(ticketData, textChannel, ticketChannel);
+                                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                                    GuildEntity guildEntity = entityManager.findGuildEntity(ticketData.getGuildId());
+                                    Ticket.closeTicket(ticketData, guildEntity, textChannel, ticketChannel);
+                                }
                                 counter.incrementAndGet();
                             }
                         }

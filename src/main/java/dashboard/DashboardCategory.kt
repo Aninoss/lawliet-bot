@@ -13,14 +13,14 @@ import core.utils.BotPermissionUtil
 import dashboard.component.DashboardText
 import dashboard.container.DashboardContainer
 import dashboard.container.VerticalContainer
-import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import org.json.JSONObject
 import java.util.*
 import kotlin.reflect.KClass
 
-abstract class DashboardCategory(private val guildId: Long, private val userId: Long, val locale: Locale, var entityManager: EntityManagerWrapper) {
+abstract class DashboardCategory(private val guildId: Long, private val userId: Long, val locale: Locale, var guildEntity: GuildEntity) {
 
     val atomicGuild: AtomicGuild
     val atomicMember: AtomicMember
@@ -36,7 +36,7 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
         atomicGuild = AtomicGuild(guildId)
         atomicMember = AtomicMember(guildId, userId)
         properties = this.javaClass.getAnnotation(DashboardProperties::class.java)
-        prefix = entityManager.findGuildEntity(guildId).prefix
+        prefix = guildEntity.prefix
     }
 
     abstract fun retrievePageTitle(): String

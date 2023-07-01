@@ -10,7 +10,6 @@ import core.ExceptionLogger;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
 import modules.Mod;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
@@ -32,20 +31,19 @@ public abstract class AutoModAbstract {
     /*
      * returns true if the message is fine
      */
-    public boolean check(EntityManagerWrapper entityManager) {
+    public boolean check(GuildEntity guildEntity) {
         boolean isTicketChannel = DBTicket.getInstance().retrieve(message.getGuild().getIdLong()).getTicketChannels()
                 .containsKey(message.getChannel().getIdLong());
 
         if (!message.getAuthor().isBot() && !isTicketChannel && checkCondition(message)) {
             try {
                 GuildData guildBean = DBGuild.getInstance().retrieve(message.getGuild().getIdLong());
-                GuildEntity guildEntity = entityManager.findGuildEntity(message.getGuild().getIdLong());
                 Class<? extends Command> commandClass = getCommandClass();
                 if (PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), commandClass, message.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
                     message.delete().submit()
                             .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
                 }
-                punish(message, guildBean, entityManager, commandClass);
+                punish(message, guildBean, guildEntity, commandClass);
                 return false;
             } catch (Throwable e) {
                 MainLogger.get().error("Exception in auto mod check", e);
@@ -55,9 +53,8 @@ public abstract class AutoModAbstract {
         return true;
     }
 
-    private void punish(Message message, GuildData guildBean, EntityManagerWrapper entityManager, Class<? extends Command> commandClass) {
+    private void punish(Message message, GuildData guildBean, GuildEntity guildEntity, Class<? extends Command> commandClass) {
         Guild guild = message.getGuild();
-        GuildEntity guildEntity = entityManager.findGuildEntity(message.getGuild().getIdLong());
         Member member = message.getMember();
         CommandProperties commandProperties = Command.getCommandProperties(commandClass);
         String commandTitle = Command.getCommandLanguage(commandClass, guildBean.getLocale()).getTitle();
@@ -67,7 +64,7 @@ public abstract class AutoModAbstract {
 
         Command command = CommandManager.createCommandByClass(commandClass, guildBean.getLocale(), guildEntity.getPrefix());
         Mod.postLogMembers(command, eb, guild, member).thenRun(() -> {
-            Mod.insertWarning(entityManager, member, guild.getSelfMember(), commandTitle,
+            Mod.insertWarning(guildEntity, member, guild.getSelfMember(), commandTitle,
                     withAutoActions(message, guildEntity.getLocale())
             );
         });

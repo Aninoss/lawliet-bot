@@ -44,14 +44,13 @@ public class JailScheduler {
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
                 try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                    onJailExpire(entityManager, map.get(memberId));
+                    onJailExpire(entityManager.findGuildEntity(guildId), map.get(memberId));
                 }
             }
         });
     }
 
-    private static void onJailExpire(EntityManagerWrapper entityManager, JailData jailData) {
-        GuildEntity guildEntity = entityManager.findGuildEntity(jailData.getGuildId());
+    private static void onJailExpire(GuildEntity guildEntity, JailData jailData) {
         DBJails.getInstance().retrieve(jailData.getGuildId())
                 .remove(jailData.getMemberId(), jailData);
 
@@ -60,7 +59,7 @@ public class JailScheduler {
                 Locale locale = guildEntity.getLocale();
                 String prefix = guildEntity.getPrefix();
                 Guild guild = jailData.getGuild().get();
-                Jail.unjail(jailData, guild, member, TextManager.getString(locale, Category.MODERATION, "jail_expired_title"));
+                Jail.unjail(jailData, guild, member, TextManager.getString(locale, Category.MODERATION, "jail_expired_title"), guildEntity);
 
                 Command command = CommandManager.createCommandByClass(JailCommand.class, locale, prefix);
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(command, TextManager.getString(locale, Category.MODERATION, "jail_expired", StringUtil.escapeMarkdown(member.getUser().getAsTag())));

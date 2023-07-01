@@ -44,14 +44,13 @@ public class ServerMuteScheduler {
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
                 try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                    onServerMuteExpire(entityManager, map.get(memberId));
+                    onServerMuteExpire(entityManager.findGuildEntity(guildId), map.get(memberId));
                 }
             }
         });
     }
 
-    private static void onServerMuteExpire(EntityManagerWrapper entityManager, ServerMuteData serverMuteData) {
-        GuildEntity guildEntity = entityManager.findGuildEntity(serverMuteData.getGuildId());
+    private static void onServerMuteExpire(GuildEntity guildEntity, ServerMuteData serverMuteData) {
         DBServerMute.getInstance().retrieve(serverMuteData.getGuildId())
                 .remove(serverMuteData.getMemberId(), serverMuteData);
 

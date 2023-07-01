@@ -19,7 +19,6 @@ import constants.LogStatus;
 import core.*;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
-import core.atomicassets.MentionableAtomicAsset;
 import core.cache.MessageCache;
 import core.cache.ServerPatreonBoostCache;
 import core.utils.*;
@@ -584,7 +583,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         if (atomicTextChannel != null) {
             setComponents(TextManager.getString(getLocale(), TextManager.GENERAL, "continue"));
         }
-        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(atomicTextChannel).map(MentionableAtomicAsset::getPrefixedNameInField).orElse(notSet)), getString("state1_title"));
+        return EmbedFactory.getEmbedDefault(this, getString("state1_description", Optional.ofNullable(atomicTextChannel).map(m -> m.getPrefixedNameInField(getLocale())).orElse(notSet)), getString("state1_title"));
     }
 
     @Draw(state = EDIT_MESSAGE)
@@ -594,7 +593,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         for (int i = 0; i < reactionRoleMessages.size(); i++) {
             ReactionRoleMessage reactionRoleMessage = reactionRoleMessages.get(i);
             AtomicTextChannel channel = new AtomicTextChannel(reactionRoleMessage.getGuildId(), reactionRoleMessage.getStandardGuildMessageChannelId());
-            options[i] = getString("state2_template", reactionRoleMessage.getTitle(), channel.getPrefixedName());
+            options[i] = getString("state2_template", reactionRoleMessage.getTitle(), channel.getPrefixedName(getLocale()));
         }
 
         setComponents(options);
@@ -616,7 +615,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 .addField(getString("state3_mdescription"), StringUtil.shortenString(StringUtil.escapeMarkdown(Optional.ofNullable(description).orElse(notSet)), SLOTS_TEXT_LENGTH_MAX), true)
                 .addField(getString("state3_mimage"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), banner != null), true)
                 .addField(getString("state3_mshortcuts"), StringUtil.shortenString(Optional.ofNullable(linkString).orElse(notSet), SLOTS_TEXT_LENGTH_MAX), true)
-                .addField(getString("state3_mrolerequirements") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), new ListGen<AtomicRole>().getList(roleRequirements, getLocale(), MentionableAtomicAsset::getPrefixedNameInField), true)
+                .addField(getString("state3_mrolerequirements") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), new ListGen<AtomicRole>().getList(roleRequirements, getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
                 .addField(getString("state3_mproperties"), getString(
                                 newComponents == ReactionRoleMessage.ComponentType.REACTIONS ? "state3_mproperties_desc" : "state3_mproperties_desc_newcomponents",
                                 StringUtil.getOnOffForBoolean(textChannel, getLocale(), removeRole),
@@ -659,7 +658,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         return EmbedFactory.getEmbedDefault(this, getString(
                         "state6_description",
                         Optional.ofNullable(emojiTemp).map(Emoji::getFormatted).orElse(notSet),
-                        Optional.ofNullable(roleTemp).map(MentionableAtomicAsset::getPrefixedNameInField).orElse(notSet),
+                        Optional.ofNullable(roleTemp).map(m -> m.getPrefixedNameInField(getLocale())).orElse(notSet),
                         Emojis.COMMAND_ICON_PREMIUM.getFormatted(),
                         Optional.ofNullable(customLabelTemp).map(StringUtil::escapeMarkdown).orElse(notSet)
                 ),
@@ -673,7 +672,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         ArrayList<ReactionRoleMessageSlot> tempSlots = new ArrayList<>(slots);
         for (int i = 0; i < tempSlots.size(); i++) {
             ReactionRoleMessageSlot slot = tempSlots.get(i);
-            String roleName = new AtomicRole(getGuildId().get(), slot.getRoleId()).getPrefixedName();
+            String roleName = new AtomicRole(getGuildId().get(), slot.getRoleId()).getPrefixedName(getLocale());
             String label = slot.getCustomLabel() != null
                     ? slot.getCustomLabel() + " (" + roleName + ")"
                     : roleName;
@@ -696,7 +695,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     @Draw(state = REMOVE_ROLE_REQUIREMENT)
     public EmbedBuilder onDrawRemoveRoleRequirement(Member member) {
-        return roleRequirementsNavigationHelper.drawDataRemove(getString("state13_title"));
+        return roleRequirementsNavigationHelper.drawDataRemove(getString("state13_title"), getLocale());
     }
 
     @Draw(state = UPDATE_COMPONENT_TYPE)
@@ -1126,10 +1125,10 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             eb.setDescription(getString("components_result_noupdates"));
         } else {
             if (!removedRoles.isEmpty()) {
-                eb.addField(getString("components_result_removedroles"), new ListGen<Role>().getList(removedRoles, r -> new AtomicRole(r).getPrefixedNameInField()), true);
+                eb.addField(getString("components_result_removedroles"), new ListGen<Role>().getList(removedRoles, r -> new AtomicRole(r).getPrefixedNameInField(getLocale())), true);
             }
             if (!addedRoles.isEmpty()) {
-                eb.addField(getString("components_result_newroles"), new ListGen<Role>().getList(addedRoles, r -> new AtomicRole(r).getPrefixedNameInField()), true);
+                eb.addField(getString("components_result_newroles"), new ListGen<Role>().getList(addedRoles, r -> new AtomicRole(r).getPrefixedNameInField(getLocale())), true);
             }
         }
 

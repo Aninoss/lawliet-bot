@@ -91,7 +91,7 @@ public class PermissionCheckRuntime {
 
         Guild guild = roles[0].getGuild();
         if (BotPermissionUtil.can(guild, Permission.MANAGE_ROLES) && canPostError(guild.getIdLong(), PERMISSION_ROLE_POS) && guild.getOwner() != null) {
-            String rolesList = new ListGen<Role>().getList(unreachableRoles, ListGen.SLOT_TYPE_BULLET, role -> new AtomicRole(role).getPrefixedNameInField());
+            String rolesList = new ListGen<Role>().getList(unreachableRoles, ListGen.SLOT_TYPE_BULLET, role -> new AtomicRole(role).getPrefixedNameInField(locale));
             EmbedBuilder eb = EmbedFactory.getEmbedError();
             eb.setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
             eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, "permission_runtime_rolespos", Command.getCommandProperties(c).trigger(), rolesList));

@@ -11,6 +11,7 @@ import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import core.utils.BotPermissionUtil;
 import modules.schedulers.JailScheduler;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.jails.DBJails;
 import mysql.modules.jails.JailData;
 import mysql.modules.moderation.DBModeration;
@@ -19,7 +20,7 @@ import net.dv8tion.jda.api.entities.*;
 
 public class Jail {
 
-    public static boolean jail(Guild guild, Member member, long minutes, String reason) {
+    public static boolean jail(Guild guild, Member member, long minutes, String reason, GuildEntity guildEntity) {
         ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
         long muteRoleId = moderationData.getMuteRoleId().orElse(0L);
 
@@ -40,7 +41,7 @@ public class Jail {
         JailScheduler.loadJail(jailData);
 
         List<Role> jailRoles =  moderationData.getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
-        PermissionCheckRuntime.botCanManageRoles(moderationData.getGuildData().getLocale(), JailCommand.class, jailRoles);
+        PermissionCheckRuntime.botCanManageRoles(guildEntity.getLocale(), JailCommand.class, jailRoles);
         List<Role> jailRolesAdd = jailRoles.stream()
                 .filter(BotPermissionUtil::canManage)
                 .collect(Collectors.toList());
@@ -61,18 +62,18 @@ public class Jail {
         return allRolePermissionsFine;
     }
 
-    public static boolean unjail(Guild guild, User target, String reason) {
+    public static boolean unjail(Guild guild, User target, String reason, GuildEntity guildEntity) {
         JailData jailData = DBJails.getInstance().retrieve(guild.getIdLong()).remove(target.getIdLong());
         if (jailData != null) {
             Member member = MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).join();
             if (member != null) {
-                return unjail(jailData, guild, member, reason);
+                return unjail(jailData, guild, member, reason, guildEntity);
             }
         }
         return true;
     }
 
-    public static boolean unjail(JailData jailData, Guild guild, Member member, String reason) {
+    public static boolean unjail(JailData jailData, Guild guild, Member member, String reason, GuildEntity guildEntity) {
         ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
 
         boolean allRolePermissionsFine = jailData.getPreviousRoleIds().stream()
@@ -85,7 +86,7 @@ public class Jail {
                 .collect(Collectors.toList());
 
         List<Role> jailRoles =  moderationData.getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong);
-        PermissionCheckRuntime.botCanManageRoles(moderationData.getGuildData().getLocale(), UnjailCommand.class, jailRoles);
+        PermissionCheckRuntime.botCanManageRoles(guildEntity.getLocale(), UnjailCommand.class, jailRoles);
         List<Role> previousRolesRemove = jailRoles.stream()
                 .filter(role -> !previousRolesAdd.contains(role) && BotPermissionUtil.canManage(role))
                 .collect(Collectors.toList());

@@ -18,7 +18,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.invitetracking.InviteTracking
-import mysql.hibernate.EntityManagerWrapper
+import mysql.hibernate.entity.GuildEntity
 import mysql.modules.invitetracking.DBInviteTracking
 import mysql.modules.invitetracking.InviteTrackingData
 import mysql.modules.invitetracking.InviteTrackingSlot
@@ -33,7 +33,7 @@ import java.util.*
     botPermissions = [Permission.MANAGE_SERVER],
     commandAccessRequirements = [InviteTrackingCommand::class, InvitesManageCommand::class]
 )
-class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, entityManager: EntityManagerWrapper) : DashboardCategory(guildId, userId, locale, entityManager) {
+class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     var manageMember: Long? = null
     var addInviteMember: Long? = null
@@ -87,6 +87,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, entity
 
         val channelComboBox = DashboardTextChannelComboBox(
             getString(Category.INVITE_TRACKING, "invitetracking_state0_mchannel"),
+            locale,
             atomicGuild.idLong,
             inviteTrackingData.textChannelId.orElse(null),
             true
@@ -154,6 +155,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, entity
 
         val manageMemberComboBox = DashboardMemberComboBox(
             getString(Category.INVITE_TRACKING, "invmanage_member"),
+            locale,
             atomicGuild.idLong,
             manageMember,
             true
@@ -196,7 +198,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, entity
                 .filter { it.inviterUserId == manageMember }
                 .map {
                     val atomicMember = AtomicMember(atomicGuild.idLong, it.memberId)
-                    GridRow(it.memberId.toString(), arrayOf(atomicMember.taggedName))
+                    GridRow(it.memberId.toString(), arrayOf(atomicMember.getTaggedName(locale)))
                 }
 
             if (!gridRows.isEmpty()) {
@@ -236,6 +238,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, entity
 
             val addInviteMemberComboBox = DashboardMemberComboBox(
                 getString(Category.INVITE_TRACKING, "invmanage_invitedmember"),
+                locale,
                 atomicGuild.idLong,
                 addInviteMember,
                 true

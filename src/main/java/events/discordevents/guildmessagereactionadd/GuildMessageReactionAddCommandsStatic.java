@@ -49,7 +49,7 @@ public class GuildMessageReactionAddCommandsStatic extends GuildMessageReactionA
                     } else {
                         MemberCacheController.getInstance().loadMember(event.getGuild(), event.getUserIdLong()).get();
                     }
-                    command.setEntityManager(entityManager);
+                    command.setGuildEntity(guildEntity);
                     if (event.getMember() != null && !event.getMember().getUser().isBot()) {
                         ((OnStaticReactionAddListener) command).onStaticReactionAdd(message, event);
                     }

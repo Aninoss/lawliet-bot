@@ -154,7 +154,7 @@ public class AutoChannelCommand extends NavigationAbstract {
                 TextChannel textChannel = getTextChannel().get();
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mactive"), StringUtil.getOnOffForBoolean(textChannel, getLocale(), autoChannelBean.isActive()), true)
-                        .addField(getString("state0_mchannel"), autoChannelBean.getParentChannel().map(c -> new AtomicVoiceChannel(c).getPrefixedNameInField()).orElse(notSet), true)
+                        .addField(getString("state0_mchannel"), autoChannelBean.getParentChannel().map(c -> new AtomicVoiceChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
                         .addField(getString("state0_mchannelname"), AutoChannel.resolveVariables(
                                 StringUtil.escapeMarkdown(autoChannelBean.getNameMask()),
                                 "`%VCNAME`",
