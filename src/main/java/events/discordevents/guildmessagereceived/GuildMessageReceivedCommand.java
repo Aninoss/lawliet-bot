@@ -93,7 +93,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     try {
                         CommandManager.manage(commandEvent, command, args, guildEntity, getStartTime());
                     } catch (Throwable e) {
-                        ExceptionUtil.handleCommandException(e, command, commandEvent);
+                        ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity);
                     }
                 }
             }
@@ -118,7 +118,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                         for (int i = 0; i < Math.min(3, messages.size()); i++) {
                             Message message = messages.get(i);
                             try (MessageCreateData m = MessageQuote.postQuote(guildEntity.getPrefix(), guildEntity.getLocale(), event.getGuildChannel(), message, true)) {
-                                JDAUtil.replyMessageEmbeds(event.getMessage(), m.getEmbeds().get(0))
+                                JDAUtil.replyMessageEmbeds(event.getMessage(), guildEntity, m.getEmbeds().get(0))
                                         .setComponents(m.getComponents().stream().map(c -> (ActionRow) c).collect(Collectors.toList()))
                                         .queue();
                             }

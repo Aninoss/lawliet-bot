@@ -3,6 +3,7 @@ package commands
 import core.slashmessageaction.SlashAckSendMessageAction
 import core.slashmessageaction.SlashHookSendMessageAction
 import core.utils.JDAUtil
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
@@ -60,9 +61,9 @@ class CommandEvent : GenericChannelEvent {
         return messageReceivedEvent != null
     }
 
-    fun replyMessage(content: String): MessageCreateAction {
+    fun replyMessage(guildEntity: GuildEntity, content: String): MessageCreateAction {
         if (isMessageReceivedEvent()) {
-            return JDAUtil.replyMessage(messageReceivedEvent!!.message, content)
+            return JDAUtil.replyMessage(messageReceivedEvent!!.message, guildEntity, content)
         } else {
             if (slashCommandInteractionEvent!!.isAcknowledged) {
                 return SlashHookSendMessageAction(slashCommandInteractionEvent.hook.sendMessage(content))
@@ -72,14 +73,14 @@ class CommandEvent : GenericChannelEvent {
         }
     }
 
-    fun replyMessageEmbeds(embed: MessageEmbed, vararg embeds: MessageEmbed): MessageCreateAction {
+    fun replyMessageEmbeds(guildEntity: GuildEntity, embed: MessageEmbed, vararg embeds: MessageEmbed): MessageCreateAction {
         val fullEmbeds = arrayOf(embed).plus(embeds);
-        return replyMessageEmbeds(fullEmbeds.toList())
+        return replyMessageEmbeds(guildEntity, fullEmbeds.toList())
     }
 
-    fun replyMessageEmbeds(embeds: Collection<MessageEmbed>): MessageCreateAction {
+    fun replyMessageEmbeds(guildEntity: GuildEntity, embeds: Collection<MessageEmbed>): MessageCreateAction {
         if (isMessageReceivedEvent()) {
-            return JDAUtil.replyMessageEmbeds(messageReceivedEvent!!.message, embeds)
+            return JDAUtil.replyMessageEmbeds(messageReceivedEvent!!.message, guildEntity, embeds)
         } else {
             if (slashCommandInteractionEvent!!.isAcknowledged) {
                 return SlashHookSendMessageAction(slashCommandInteractionEvent.hook.sendMessageEmbeds(embeds))

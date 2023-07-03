@@ -69,7 +69,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
             EmbedUtil.addLog(eb, LogStatus.WARNING, getString("reminder"));
 
-            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fishes * upvotesUnclaimed, 0).build();
+            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fishes * upvotesUnclaimed, 0, getLocale()).build();
             setComponents(upvoteButton);
             setAdditionalEmbeds(userChangeValueEmbed);
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());

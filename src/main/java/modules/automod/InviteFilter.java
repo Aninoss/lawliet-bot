@@ -37,14 +37,14 @@ public class InviteFilter extends AutoModAbstract {
         ) {
             message.getGuild()
                     .ban(message.getMember(), 0, TimeUnit.DAYS)
-                    .reason(TextManager.getString(spBlockBean.getGuildData().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
+                    .reason(TextManager.getString(locale, Category.MODERATION, "invitefilter_auditlog_sp"))
                     .queue();
             return false;
         } else if (spBlockBean.getAction() == SPBlockData.ActionList.KICK_USER &&
                 PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.KICK_MEMBERS)
         ) {
             message.getGuild()
-                    .kick(message.getMember(), TextManager.getString(spBlockBean.getGuildData().getLocale(), Category.MODERATION, "invitefilter_auditlog_sp"))
+                    .kick(message.getMember(), TextManager.getString(locale, Category.MODERATION, "invitefilter_auditlog_sp"))
                     .queue();
             return false;
         }

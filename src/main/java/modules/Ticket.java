@@ -24,8 +24,6 @@ import core.lock.Lock;
 import core.lock.LockOccupiedException;
 import core.utils.*;
 import mysql.hibernate.entity.GuildEntity;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.ticket.TicketChannel;
@@ -334,8 +332,7 @@ public class Ticket {
                                                  TicketChannel ticketChannel, GuildEntity guildEntity
     ) throws ExecutionException, InterruptedException {
         Guild guild = member.getGuild();
-        GuildData guildData = DBGuild.getInstance().retrieve(guild.getIdLong());
-        Locale locale = guildData.getLocale();
+        Locale locale = guildEntity.getLocale();
 
         PermissionOverride memberPermissionOverride = channel.getPermissionOverride(member);
         if (memberPermissionOverride != null && memberPermissionOverride.getAllowed().contains(Permission.MESSAGE_SEND)) {

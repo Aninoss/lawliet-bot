@@ -82,7 +82,7 @@ public class DailyCommand extends Command implements FisheryInterface {
                     Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_button_unlock"))
             );
 
-            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fish + bonusCombo + bonusDonation, 0, dailyStreakNow).build();
+            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fish + bonusCombo + bonusDonation, 0, dailyStreakNow, getLocale()).build();
             setActionRows(rows);
             setAdditionalEmbeds(userChangeValueEmbed);
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());

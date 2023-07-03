@@ -182,7 +182,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             if (manageMembers.size > 0 || manageRoles.size > 0) {
                 val fisheryMemberList = collectFisheryMemberList(fisheryGuildData)
-                if (FisheryManage.updateValues(fisheryMemberList, managePropertyIndex, manageNewValue)) {
+                if (FisheryManage.updateValues(fisheryMemberList, guildEntity, managePropertyIndex, manageNewValue)) {
                     ActionResult()
                         .withSuccessMessage(getString(Category.FISHERY_SETTINGS, "fisherymanage_modify_success", fisheryMemberList.size != 1, StringUtil.numToString(fisheryMemberList.size)))
                 } else {

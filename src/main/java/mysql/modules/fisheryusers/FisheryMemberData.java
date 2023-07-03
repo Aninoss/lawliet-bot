@@ -582,15 +582,15 @@ public class FisheryMemberData implements MemberAsset {
         });
     }
 
-    public EmbedBuilder getAccountEmbed(Member member) {
-        return changeValuesEmbed(member, 0, 0);
+    public EmbedBuilder getAccountEmbed(Member member, Locale locale) {
+        return changeValuesEmbed(member, 0, 0, locale);
     }
 
-    public EmbedBuilder changeValuesEmbed(Member member, long fishAdd, long coinsAdd) {
-        return changeValuesEmbed(member, fishAdd, coinsAdd, null);
+    public EmbedBuilder changeValuesEmbed(Member member, long fishAdd, long coinsAdd, Locale locale) {
+        return changeValuesEmbed(member, fishAdd, coinsAdd, null, locale);
     }
 
-    public synchronized EmbedBuilder changeValuesEmbed(Member member, long fishAdd, long coinsAdd, Long newDailyStreak) {
+    public synchronized EmbedBuilder changeValuesEmbed(Member member, long fishAdd, long coinsAdd, Long newDailyStreak, Locale locale) {
         return RedisManager.get(jedis -> {
             long coinsHidden = getCoinsHidden();
 
@@ -617,7 +617,6 @@ public class FisheryMemberData implements MemberAsset {
             }
 
             /* generate account embed */
-            Locale locale = getGuildData().getLocale();
             FisheryRecentFishGainsData finalFisheryRecentFishGainsDataAfterwards = fisheryRecentFishGainsDataAfterwards;
             return generateUserChangeEmbed(member, locale, fishAdd, coinsAdd,
                     finalFisheryRecentFishGainsDataAfterwards.getRank(), fisheryRecentFishGainsDataPrevious.getRank(),

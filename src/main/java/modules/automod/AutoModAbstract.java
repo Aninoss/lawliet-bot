@@ -43,7 +43,7 @@ public abstract class AutoModAbstract {
                     message.delete().submit()
                             .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
                 }
-                punish(message, guildBean, guildEntity, commandClass);
+                punish(message, guildEntity, commandClass);
                 return false;
             } catch (Throwable e) {
                 MainLogger.get().error("Exception in auto mod check", e);
@@ -53,16 +53,16 @@ public abstract class AutoModAbstract {
         return true;
     }
 
-    private void punish(Message message, GuildData guildBean, GuildEntity guildEntity, Class<? extends Command> commandClass) {
+    private void punish(Message message, GuildEntity guildEntity, Class<? extends Command> commandClass) {
         Guild guild = message.getGuild();
         Member member = message.getMember();
         CommandProperties commandProperties = Command.getCommandProperties(commandClass);
-        String commandTitle = Command.getCommandLanguage(commandClass, guildBean.getLocale()).getTitle();
+        String commandTitle = Command.getCommandLanguage(commandClass, guildEntity.getLocale()).getTitle();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(commandProperties.emoji() + " " + commandTitle);
-        designEmbed(message, guildBean.getLocale(), eb);
+        designEmbed(message, guildEntity.getLocale(), eb);
 
-        Command command = CommandManager.createCommandByClass(commandClass, guildBean.getLocale(), guildEntity.getPrefix());
+        Command command = CommandManager.createCommandByClass(commandClass, guildEntity.getLocale(), guildEntity.getPrefix());
         Mod.postLogMembers(command, eb, guild, member).thenRun(() -> {
             Mod.insertWarning(guildEntity, member, guild.getSelfMember(), commandTitle,
                     withAutoActions(message, guildEntity.getLocale())

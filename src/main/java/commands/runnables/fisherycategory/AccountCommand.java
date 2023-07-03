@@ -27,7 +27,7 @@ public class AccountCommand extends FisheryMemberAccountInterface {
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         return DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong())
-                .getAccountEmbed(member);
+                .getAccountEmbed(member, getLocale());
     }
 
 }

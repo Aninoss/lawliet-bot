@@ -12,6 +12,7 @@ import core.TextManager;
 import core.components.ActionRows;
 import core.schedule.MainScheduler;
 import modules.JoinRoles;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -32,10 +33,10 @@ public class Fishery {
 
     private static final HashSet<Long> unusedPowerUpSet = new HashSet<>();
 
-    public static void synchronizeRoles(Member member) {
+    public static void synchronizeRoles(Member member, GuildEntity guildEntity) {
         Guild guild = member.getGuild();
         FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
-        Locale locale = fisheryGuildBean.getGuildData().getLocale();
+        Locale locale = guildEntity.getLocale();
         if (fisheryGuildBean.getGuildData().getFisheryStatus() == FisheryStatus.STOPPED) {
             return;
         }
@@ -73,9 +74,8 @@ public class Fishery {
         return Math.round(userBean.getMemberGear(FisheryGear.DAILY).getEffect() * 0.25);
     }
 
-    public static void spawnTreasureChest(StandardGuildMessageChannel channel) {
-        GuildData guildBean = DBGuild.getInstance().retrieve(channel.getGuild().getIdLong());
-        Locale locale = guildBean.getLocale();
+    public static void spawnTreasureChest(StandardGuildMessageChannel channel, GuildEntity guildEntity) {
+        Locale locale = guildEntity.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.EMOJI_TREASURE + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_title"))
                 .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_treasure_desription"))
@@ -91,9 +91,8 @@ public class Fishery {
                 });
     }
 
-    public static void spawnPowerUp(StandardGuildMessageChannel channel, Member member) {
-        GuildData guildBean = DBGuild.getInstance().retrieve(channel.getGuild().getIdLong());
-        Locale locale = guildBean.getLocale();
+    public static void spawnPowerUp(StandardGuildMessageChannel channel, Member member, GuildEntity guildEntity) {
+        Locale locale = guildEntity.getLocale();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(FisheryCommand.EMOJI_POWERUP + " " + TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_powerup_title"))
                 .setDescription(TextManager.getString(locale, Category.FISHERY_SETTINGS, "fishery_powerup_desc", member.getEffectiveName()))

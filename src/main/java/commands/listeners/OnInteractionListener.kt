@@ -96,7 +96,7 @@ interface OnInteractionListener : Drawable {
                 }
             }
         } catch (e: Throwable) {
-            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent) }
+            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity) }
         }
         return CompletableFuture.failedFuture(NoSuchElementException("No message sent"))
     }
@@ -119,7 +119,7 @@ interface OnInteractionListener : Drawable {
                 }
             }
         } catch (e: Throwable) {
-            ExceptionUtil.handleCommandException(e, command, commandEvent)
+            ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity)
         }
         if (command.drawMessage.isPresent) {
             interactionResponse.complete()

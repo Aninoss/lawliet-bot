@@ -224,10 +224,10 @@ public abstract class Command implements OnTriggerListener {
                     MessageCreateAction messageAction;
                     Message message = commandEvent.getMessageReceivedEvent().getMessage();
                     if (content != null) {
-                        messageAction = JDAUtil.replyMessage(message, content)
+                        messageAction = JDAUtil.replyMessage(message, getGuildEntity(), content)
                                 .setEmbeds(embeds);
                     } else {
-                        messageAction = JDAUtil.replyMessageEmbeds(message, embeds);
+                        messageAction = JDAUtil.replyMessageEmbeds(message, getGuildEntity(), embeds);
                     }
                     if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
                         if (fileAttachmentMap.size() > 0) {
@@ -241,10 +241,10 @@ public abstract class Command implements OnTriggerListener {
                 } else {
                     MessageCreateAction messageAction;
                     if (content != null) {
-                        messageAction = commandEvent.replyMessage(content)
+                        messageAction = commandEvent.replyMessage(getGuildEntity(), content)
                                 .setEmbeds(embeds);
                     } else {
-                        messageAction = commandEvent.replyMessageEmbeds(embeds);
+                        messageAction = commandEvent.replyMessageEmbeds(getGuildEntity(), embeds);
                     }
                     if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
                         if (fileAttachmentMap.size() > 0) {

@@ -96,15 +96,15 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
             } else if (type == 3 + FisheryGear.values().length) {
                 fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
-                drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag())))
+                drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag(getLocale()))))
                         .exceptionally(ExceptionLogger.get());
                 return true;
             } else {
                 String amountString = args.substring(typeString.length()).trim();
                 String valueBefore = valueOfProperty(type);
-                if (FisheryManage.updateValues(fisheryMemberGroup.getFisheryMemberList(), type, amountString)) {
+                if (FisheryManage.updateValues(fisheryMemberGroup.getFisheryMemberList(), getGuildEntity(), type, amountString)) {
                     String valueNow = valueOfProperty(type);
-                    drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("set", fisheryMemberGroup.getAsTag(), emojiOfProperty(type), valueBefore, valueNow)))
+                    drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("set", fisheryMemberGroup.getAsTag(getLocale()), emojiOfProperty(type), valueBefore, valueNow)))
                             .exceptionally(ExceptionLogger.get());
                     return true;
                 } else {
@@ -123,13 +123,13 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state >= 1) {
             String valueBefore = valueOfProperty(state - 1);
-            if (!FisheryManage.updateValues(fisheryMemberGroup.getFisheryMemberList(), state - 1, input)) {
+            if (!FisheryManage.updateValues(fisheryMemberGroup.getFisheryMemberList(), getGuildEntity(), state - 1, input)) {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "no_digit"));
                 return MessageInputResponse.FAILED;
             }
             String valueNow = valueOfProperty(state - 1);
 
-            setLog(LogStatus.SUCCESS, getString("set_log", fisheryMemberGroup.getAsTag(), nameOfProperty(state - 1), valueBefore, valueNow));
+            setLog(LogStatus.SUCCESS, getString("set_log", fisheryMemberGroup.getAsTag(getLocale()), nameOfProperty(state - 1), valueBefore, valueNow));
             resetLog = true;
             setState(0);
 
@@ -157,7 +157,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 } else {
                     fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
                     resetLog = true;
-                    setLog(LogStatus.SUCCESS, getString("reset_log", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag()));
+                    setLog(LogStatus.SUCCESS, getString("reset_log", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag(getLocale())));
                     setState(0);
                 }
                 return true;
@@ -172,7 +172,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
     @Override
     public EmbedBuilder draw(Member member, int state) throws Throwable {
         if (state == 0) {
-            String desc = getString("state0_description", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag());
+            String desc = getString("state0_description", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag(getLocale()));
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, desc);
 
             StringBuilder sb = new StringBuilder();

@@ -188,7 +188,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                         .setDescription(TextManager.getString(getLocale(), Category.CASINO, "casino_protection", mentionedMembers.isMultiple(), mentionedMembers.getMentionText()))
                         .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1080855203026313276/shield_break.gif");
             } else {
-                eb = fisheryMemberData.changeValuesEmbed(member, 0, -coinsInput);
+                eb = fisheryMemberData.changeValuesEmbed(member, 0, -coinsInput, getLocale());
             }
             setAdditionalEmbeds(eb.build());
         }
@@ -233,7 +233,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
 
         long valueWon = (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR);
         EmbedBuilder eb = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
-                .changeValuesEmbed(member, 0, valueWon);
+                .changeValuesEmbed(member, 0, valueWon, getLocale());
         if (coinsInput > 0) {
             setAdditionalEmbeds(eb.build());
         }

@@ -10,7 +10,9 @@ import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
-import mysql.modules.guild.DBGuild;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -56,30 +58,40 @@ public class ReminderScheduler {
                         StandardGuildMessageChannel sourceChannel = targetChannel.getGuild().getChannelById(StandardGuildMessageChannel.class, reminderData.getSourceChannelId());
                         if (sourceChannel != null) {
                             sourceChannel.retrieveMessageById(reminderData.getMessageId())
-                                    .queue(message -> sendReminder(message, reminderData, targetChannel));
+                                    .queue(message -> {
+                                        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                                            GuildEntity guildEntity = entityManager.findGuildEntity(reminderData.getGuildId());
+                                            sendReminder(message, reminderData, guildEntity, targetChannel);
+                                        }
+                                    });
                         }
                     } else {
-                        sendReminder(null, reminderData, targetChannel);
+                        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                            GuildEntity guildEntity = entityManager.findGuildEntity(reminderData.getGuildId());
+                            sendReminder(null, reminderData, guildEntity, targetChannel);
+                        }
                     }
                 });
     }
 
-    private static void sendReminder(Message message, ReminderData reminderData, StandardGuildMessageChannel channel) {
+    private static void sendReminder(Message message, ReminderData reminderData, GuildEntity guildEntity, StandardGuildMessageChannel channel) {
+        Locale locale = guildEntity.getLocale();
+
         if (PermissionCheckRuntime.botHasPermission(
-                reminderData.getGuildData().getLocale(),
+                locale,
                 ReminderCommand.class,
                 channel,
                 Permission.MESSAGE_SEND
         )) {
             String userMessage = StringUtil.shortenString(reminderData.getMessage(), 1800);
             if (BotPermissionUtil.canWriteEmbed(channel) && !InternetUtil.stringHasURL(userMessage)) {
-                EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(reminderData.getGuildData().getLocale());
+                EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(locale);
                 channel.sendMessage(userMessage)
                         .setEmbeds(eb.build())
                         .setAllowedMentions(null)
                         .queue();
             } else {
-                String content = TextManager.getString(reminderData.getGuildData().getLocale(), Category.UTILITY, "reminder_action", userMessage);
+                String content = TextManager.getString(locale, Category.UTILITY, "reminder_action", userMessage);
                 channel.sendMessage(content)
                         .setAllowedMentions(null)
                         .queue();
@@ -104,7 +116,6 @@ public class ReminderScheduler {
                         .put(newReminderData.getId(), newReminderData);
                 ReminderScheduler.loadReminderData(newReminderData);
 
-                Locale locale = DBGuild.getInstance().retrieve(message.getGuild().getIdLong()).getLocale();
                 EmbedBuilder eb = ReminderCommand.generateEmbed(locale, message.getChannel().asTextChannel(), newReminderData.getTime(), newReminderData.getMessage(), newReminderData.getInterval());
                 message.getGuildChannel().editMessageEmbedsById(message.getId(), eb.build())
                         .queue();

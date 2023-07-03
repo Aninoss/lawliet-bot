@@ -5,7 +5,7 @@ import java.util.Optional;
 import javax.annotation.CheckReturnValue;
 import core.MemberCacheController;
 import core.ShardManager;
-import mysql.modules.guild.DBGuild;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.userprivatechannels.DBUserPrivateChannels;
 import mysql.modules.userprivatechannels.PrivateChannelData;
 import net.dv8tion.jda.api.JDA;
@@ -146,31 +146,31 @@ public class JDAUtil {
         };
     }
 
-    public static MessageCreateAction replyMessage(Message originalMessage, String content) {
+    public static MessageCreateAction replyMessage(Message originalMessage, GuildEntity guildEntity, String content) {
         MessageCreateAction messageAction = originalMessage.getChannel().sendMessage(content);
-        messageAction = messageActionSetMessageReference(messageAction, originalMessage);
+        messageAction = messageActionSetMessageReference(messageAction, guildEntity, originalMessage);
         return messageAction;
     }
 
-    public static MessageCreateAction replyMessageEmbeds(Message originalMessage, Collection<MessageEmbed> embeds) {
+    public static MessageCreateAction replyMessageEmbeds(Message originalMessage, GuildEntity guildEntity, Collection<MessageEmbed> embeds) {
         MessageCreateAction messageAction = originalMessage.getChannel().sendMessageEmbeds(embeds);
-        messageAction = messageActionSetMessageReference(messageAction, originalMessage);
+        messageAction = messageActionSetMessageReference(messageAction, guildEntity, originalMessage);
         return messageAction;
     }
 
-    public static MessageCreateAction replyMessageEmbeds(Message originalMessage, MessageEmbed embed, MessageEmbed... other) {
+    public static MessageCreateAction replyMessageEmbeds(Message originalMessage, GuildEntity guildEntity, MessageEmbed embed, MessageEmbed... other) {
         MessageCreateAction messageAction = originalMessage.getChannel().sendMessageEmbeds(embed, other);
-        messageAction = messageActionSetMessageReference(messageAction, originalMessage);
+        messageAction = messageActionSetMessageReference(messageAction, guildEntity, originalMessage);
         return messageAction;
     }
 
-    public static MessageCreateAction messageActionSetMessageReference(MessageCreateAction messageAction, Message originalMessage) {
-        return messageActionSetMessageReference(messageAction, originalMessage.getGuildChannel(), originalMessage.getIdLong());
+    public static MessageCreateAction messageActionSetMessageReference(MessageCreateAction messageAction, GuildEntity guildEntity, Message originalMessage) {
+        return messageActionSetMessageReference(messageAction, guildEntity, originalMessage.getGuildChannel(), originalMessage.getIdLong());
     }
 
-    public static MessageCreateAction messageActionSetMessageReference(MessageCreateAction messageAction, GuildChannel textChannel, long messageId) {
+    public static MessageCreateAction messageActionSetMessageReference(MessageCreateAction messageAction, GuildEntity guildEntity, GuildChannel textChannel, long messageId) {
         if (BotPermissionUtil.can(textChannel, Permission.MESSAGE_HISTORY) &&
-                !DBGuild.getInstance().retrieve(textChannel.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively()
+                !guildEntity.getRemoveAuthorMessageEffectively()
         ) {
             messageAction = messageAction.setMessageReference(messageId);
         }

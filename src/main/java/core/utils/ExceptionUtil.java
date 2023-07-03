@@ -9,11 +9,12 @@ import commands.runnables.NavigationAbstract;
 import core.EmbedFactory;
 import core.MainLogger;
 import core.TextManager;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class ExceptionUtil {
 
-    public static void handleCommandException(Throwable throwable, Command command, CommandEvent event) {
+    public static void handleCommandException(Throwable throwable, Command command, CommandEvent event, GuildEntity guildEntity) {
         Locale locale = command.getLocale();
         boolean postErrorMessage = true;
 
@@ -44,7 +45,7 @@ public class ExceptionUtil {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "error_code", code))
                     .setDescription(errorMessage + TextManager.getString(locale, TextManager.GENERAL, "error_submit"));
-            event.replyMessageEmbeds(eb.build()).queue();
+            event.replyMessageEmbeds(guildEntity, eb.build()).queue();
         }
 
         int state = -1;

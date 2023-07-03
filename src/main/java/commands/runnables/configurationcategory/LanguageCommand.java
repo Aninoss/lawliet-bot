@@ -12,7 +12,7 @@ import constants.Language;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import mysql.modules.guild.DBGuild;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -58,7 +58,12 @@ public class LanguageCommand extends Command implements OnSelectMenuListener {
                 return false;
             } else {
                 setLocale(language.getLocale());
-                DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setLocale(getLocale());
+
+                GuildEntity guildEntity = getGuildEntity();
+                guildEntity.beginTransaction();
+                guildEntity.setLanguage(language);
+                guildEntity.commitTransaction();
+
                 if (language.isDeepLGenerated()) {
                     setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.GITHUB, getString("github")));
                 }
@@ -83,11 +88,16 @@ public class LanguageCommand extends Command implements OnSelectMenuListener {
     }
 
     @Override
-    public boolean onSelectMenu(StringSelectInteractionEvent event) throws Throwable {
+    public boolean onSelectMenu(StringSelectInteractionEvent event) {
         Language language = Language.valueOf(event.getValues().get(0));
         deregisterListenersWithComponents();
         setLocale(language.getLocale());
-        DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setLocale(getLocale());
+
+        GuildEntity guildEntity = getGuildEntity();
+        guildEntity.beginTransaction();
+        guildEntity.setLanguage(language);
+        guildEntity.commitTransaction();
+
         set = true;
         return true;
     }

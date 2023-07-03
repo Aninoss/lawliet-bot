@@ -98,7 +98,7 @@ public class ExchangeRateCommand extends Command implements OnButtonListener, On
 
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
-        slot.sendMessage(true, generateEmbed(true).build());
+        slot.sendMessage(getLocale(), true, generateEmbed(true).build());
         slot.setNextRequest(TimeUtil.setInstantToNextDay(Instant.now()).plusSeconds(10));
 
         return AlertResponse.CONTINUE_AND_SAVE;

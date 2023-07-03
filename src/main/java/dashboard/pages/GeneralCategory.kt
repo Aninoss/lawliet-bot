@@ -22,7 +22,6 @@ import dashboard.data.DiscordEntity
 import modules.Prefix
 import mysql.hibernate.entity.GuildEntity
 import mysql.modules.autoquote.DBAutoQuote
-import mysql.modules.guild.DBGuild
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
@@ -74,7 +73,10 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 }
 
                 val language = Language.valueOf(it.data)
-                DBGuild.getInstance().retrieve(atomicGuild.idLong).locale = language.locale
+                guildEntity.beginTransaction()
+                guildEntity.language = language
+                guildEntity.commitTransaction()
+
                 ActionResult()
             }
             val guildLocale = guildEntity.locale
@@ -124,10 +126,12 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     .withRedraw()
             }
 
-            DBGuild.getInstance().retrieve(atomicGuild.idLong).isCommandAuthorMessageRemove = it.data
+            guildEntity.beginTransaction()
+            guildEntity.removeAuthorMessage = it.data
+            guildEntity.commitTransaction()
             ActionResult()
         }
-        switch.isChecked = DBGuild.getInstance().retrieve(atomicGuild.idLong).isCommandAuthorMessageRemove
+        switch.isChecked = guildEntity.removeAuthorMessage
         switch.subtitle = getString(Category.UTILITY, "triggerdelete_info")
         switch.isEnabled = isPremium
         return switch

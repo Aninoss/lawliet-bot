@@ -57,7 +57,7 @@ interface OnMessageInputListener : Drawable {
                 }
             }
         } catch (e: Throwable) {
-            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent) }
+            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity) }
         }
     }
 
@@ -84,7 +84,7 @@ interface OnMessageInputListener : Drawable {
             }
             return messageInputResponse
         } catch (e: Throwable) {
-            ExceptionUtil.handleCommandException(e, command, commandEvent)
+            ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity)
             return MessageInputResponse.ERROR
         } finally {
             isProcessing.set(false)

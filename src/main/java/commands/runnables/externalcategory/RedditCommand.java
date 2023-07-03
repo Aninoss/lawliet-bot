@@ -129,7 +129,7 @@ public class RedditCommand extends Command implements OnAlertListener {
         if (key.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-            slot.sendMessage(false, eb.build());
+            slot.sendMessage(getLocale(), false, eb.build());
             return AlertResponse.STOP_AND_DELETE;
         } else {
             slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
@@ -157,7 +157,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    slot.sendMessage(false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(getLocale())));
+                    slot.sendMessage(getLocale(), false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(getLocale())));
                     return AlertResponse.STOP_AND_DELETE;
                 }
 
@@ -165,7 +165,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                     while (totalEmbedSize > MessageEmbed.EMBED_MAX_LENGTH_BOT) {
                         totalEmbedSize -= embedList.remove(0).getLength();
                     }
-                    slot.sendMessage(true, embedList);
+                    slot.sendMessage(getLocale(), true, embedList);
                 }
 
                 slot.setArgs(postBundle.getNewestPost());
@@ -174,7 +174,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 if (slot.getArgs().isEmpty()) {
                     EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, key);
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    slot.sendMessage(false, eb.build());
+                    slot.sendMessage(getLocale(), false, eb.build());
                     return AlertResponse.STOP_AND_DELETE;
                 } else {
                     return AlertResponse.CONTINUE;

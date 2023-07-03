@@ -69,7 +69,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
             clearAttributes()
             inviteTrackingData.isActive = it.data
             if (inviteTrackingData.isActive) {
-                InviteTracking.synchronizeGuildInvites(atomicGuild.get().orElseThrow())
+                InviteTracking.synchronizeGuildInvites(atomicGuild.get().orElseThrow(), locale)
             }
             ActionResult()
                 .withRedraw()

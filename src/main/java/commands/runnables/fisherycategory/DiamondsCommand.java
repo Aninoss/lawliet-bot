@@ -51,7 +51,7 @@ public class DiamondsCommand extends Command implements OnButtonListener {
         if (fisheryMemberData.getDiamonds() >= 3) {
             fisheryMemberData.removeThreeDiamonds();
             long coins = fisheryMemberData.getCoins();
-            accountChangeEmbed = fisheryMemberData.changeValuesEmbed(event.getMember(), 0L, coins);
+            accountChangeEmbed = fisheryMemberData.changeValuesEmbed(event.getMember(), 0L, coins, getLocale());
             setLog(LogStatus.SUCCESS, "Du hast deine Coins verdoppelt!");
             deregisterListeners();
         } else {

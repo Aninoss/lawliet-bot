@@ -132,7 +132,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
                                 drawMessage(draw(e.getMember()))
                                         .exceptionally(ExceptionLogger.get());
                             } catch (Throwable throwable) {
-                                ExceptionUtil.handleCommandException(throwable, this, getCommandEvent());
+                                ExceptionUtil.handleCommandException(throwable, this, getCommandEvent(), em);
                             }
                         }).addActionRows(ActionRow.of(message))
                         .build();

@@ -19,6 +19,8 @@ import modules.txt2img.Model;
 import modules.txt2img.PredictionResult;
 import modules.txt2img.RunPodDownloader;
 import modules.txt2img.Txt2ImgCallTracker;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -175,7 +177,9 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
                         try {
                             drawMessage(draw(member));
                         } catch (Throwable e) {
-                            ExceptionUtil.handleCommandException(e, this, getCommandEvent());
+                            try(EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                                ExceptionUtil.handleCommandException(e, this, getCommandEvent(), entityManager.findGuildEntity(getGuildId().get()));
+                            }
                         }
                     });
                     eb = EmbedFactory.getEmbedDefault(this, processingString);

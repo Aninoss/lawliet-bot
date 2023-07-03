@@ -102,7 +102,7 @@ public class SalmonCommand extends Command implements OnAlertListener {
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         EmbedBuilder eb = getEmbed(true);
         if (eb != null) {
-            slot.sendMessage(true, eb.build());
+            slot.sendMessage(getLocale(), true, eb.build());
             slot.setNextRequest(trackingTime);
             return AlertResponse.CONTINUE_AND_SAVE;
         } else {

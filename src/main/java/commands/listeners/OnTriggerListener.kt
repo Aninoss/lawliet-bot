@@ -47,7 +47,7 @@ interface OnTriggerListener {
             command.guildEntity = guildEntity
             return onTrigger(event, args)
         } catch (e: Throwable) {
-            ExceptionUtil.handleCommandException(e, command, event)
+            ExceptionUtil.handleCommandException(e, command, event, guildEntity)
             return false
         } finally {
             isProcessing.set(false)

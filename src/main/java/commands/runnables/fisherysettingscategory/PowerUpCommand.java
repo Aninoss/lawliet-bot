@@ -63,7 +63,7 @@ public class PowerUpCommand extends FisheryMemberAccountInterface {
         }
 
         for (int i = 0; i < amount; i++) {
-            Fishery.spawnPowerUp(channel, member);
+            Fishery.spawnPowerUp(channel, member, getGuildEntity());
         }
 
         String successText = getString(

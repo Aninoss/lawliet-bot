@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -95,7 +96,8 @@ public class AlertScheduler {
     }
 
     private static void processAlert(GuildEntity guildEntity, TrackerData slot) throws Throwable {
-        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), guildEntity.getLocale(), guildEntity.getPrefix());
+        Locale locale = guildEntity.getLocale();
+        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), locale, guildEntity.getPrefix());
         if (commandOpt.isEmpty()) {
             MainLogger.get().error("Invalid alert for command: {}", slot.getCommandTrigger());
             slot.delete();
@@ -115,9 +117,9 @@ public class AlertScheduler {
             }
 
             if (!PermissionCheckRuntime.botHasPermission(((Command) alertCommand).getLocale(), AlertsCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS) ||
-                    checkNSFW(slot, channel, (Command) alertCommand) ||
-                    checkPatreon(slot, channel, (Command) alertCommand) ||
-                    checkReleased(slot, channel, (Command) alertCommand)
+                    checkNSFW(locale, slot, channel, (Command) alertCommand) ||
+                    checkPatreon(locale, slot, channel, (Command) alertCommand) ||
+                    checkReleased(locale, slot, channel, (Command) alertCommand)
             ) {
                 return;
             }
@@ -159,31 +161,31 @@ public class AlertScheduler {
         }
     }
 
-    private static boolean checkNSFW(TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
+    private static boolean checkNSFW(Locale locale, TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
         if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            slot.sendMessage(false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(command.getLocale())));
+            slot.sendMessage(locale, false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(command.getLocale())));
             slot.delete();
             return true;
         }
         return false;
     }
 
-    private static boolean checkPatreon(TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
+    private static boolean checkPatreon(Locale locale, TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
         if (command.getCommandProperties().patreonRequired() &&
                 !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
         ) {
             EmbedBuilder eb = EmbedFactory.getPatreonBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            slot.sendMessage(false, eb.build());
+            slot.sendMessage(locale, false, eb.build());
             slot.delete();
             return true;
         }
         return false;
     }
 
-    private static boolean checkReleased(TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
+    private static boolean checkReleased(Locale locale, TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
         LocalDate releaseDate = command.getReleaseDate().orElse(LocalDate.now());
         if (releaseDate.isAfter(LocalDate.now()) &&
                 !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
@@ -194,7 +196,7 @@ public class AlertScheduler {
                     .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description"));
 
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            slot.sendMessage(false, eb.build());
+            slot.sendMessage(locale, false, eb.build());
             slot.delete();
             return true;
         }

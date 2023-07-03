@@ -17,6 +17,8 @@ import core.ExceptionLogger;
 import core.MainLogger;
 import core.TextManager;
 import core.utils.*;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -99,7 +101,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                         .exceptionally(ExceptionLogger.get());
             }
         } catch (Throwable throwable) {
-            ExceptionUtil.handleCommandException(throwable, this, getCommandEvent());
+            ExceptionUtil.handleCommandException(throwable, this, getCommandEvent(), getGuildEntity());
         }
         return changed;
     }
@@ -286,7 +288,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                     return message.getIdLong();
                 })
                 .exceptionally(e -> {
-                    ExceptionUtil.handleCommandException(e, this, getCommandEvent());
+                    try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                        ExceptionUtil.handleCommandException(e, this, getCommandEvent(), entityManager.findGuildEntity(member.getGuild().getIdLong()));
+                    }
                     return null;
                 });
     }

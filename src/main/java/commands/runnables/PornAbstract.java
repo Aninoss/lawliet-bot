@@ -327,13 +327,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             if (e.getCause() instanceof IllegalTagException) {
                 EmbedBuilder eb = illegalTagsEmbed();
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessage(false, eb.build());
+                slot.sendMessage(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             }
             if (e.getCause() instanceof TooManyTagsException) {
                 EmbedBuilder eb = tooManyTagsEmbed(((TooManyTagsException) e.getCause()).getMaxTags());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessage(false, eb.build());
+                slot.sendMessage(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             }
             if (e.getMessage() != null && e.getMessage().contains("Booru retrieval error")) {
@@ -346,7 +346,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             if (slot.getArgs().isEmpty()) {
                 EmbedBuilder eb = noResultsEmbed(slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                slot.sendMessage(false, eb.build());
+                slot.sendMessage(getLocale(), false, eb.build());
                 return AlertResponse.STOP_AND_DELETE;
             } else {
                 return AlertResponse.CONTINUE;
@@ -357,7 +357,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         String messageContent;
         if ((messageContent = generatePostMessagesText(pornImages, channel, 1)) != null) {
             try {
-                slot.sendMessage(true, messageContent, ActionRow.of(messageButtons));
+                slot.sendMessage(getLocale(), true, messageContent, ActionRow.of(messageButtons));
             } catch (InterruptedException e) {
                 //Ignore
             }

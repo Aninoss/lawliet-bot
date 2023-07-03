@@ -35,20 +35,20 @@ public class GuildMemberJoinInviteTracking extends GuildMemberJoinAbstract {
         InviteTrackingData inviteTrackingData = DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong());
         if (inviteTrackingData.isActive()) {
             GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
-            InviteTracking.registerMemberJoin(event.getMember())
-                    .thenAccept(invite -> sendLog(inviteTrackingData, guildEntity, event.getMember(), invite))
+            Locale locale = guildEntity.getLocale();
+            InviteTracking.registerMemberJoin(event.getMember(), locale)
+                    .thenAccept(invite -> sendLog(inviteTrackingData, locale, event.getMember(), invite))
                     .exceptionally(e -> {
                         //ignore
-                        sendLog(inviteTrackingData, guildEntity, event.getMember(), null);
+                        sendLog(inviteTrackingData, locale, event.getMember(), null);
                         return null;
                     });
         }
         return true;
     }
 
-    private void sendLog(InviteTrackingData inviteTrackingData, GuildEntity guildEntity, Member member, InviteTracking.TempInvite invite) {
+    private void sendLog(InviteTrackingData inviteTrackingData, Locale locale, Member member, InviteTracking.TempInvite invite) {
         inviteTrackingData.getTextChannel().ifPresent(channel -> {
-            Locale locale = guildEntity.getLocale();
             if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
                 String invitedTag = StringUtil.escapeMarkdown(member.getUser().getAsTag());
                 String inviterTag = "";

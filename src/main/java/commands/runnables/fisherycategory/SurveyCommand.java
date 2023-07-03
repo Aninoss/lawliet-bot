@@ -245,8 +245,8 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         }
 
         SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(null);
-        slot.sendMessage(true, surveyEmbeds.resultEmbed.build()).get();
-        long messageId = slot.sendMessage(false, surveyEmbeds.newEmbed.build(), surveyEmbeds.actionRows).get();
+        slot.sendMessage(getLocale(), true, surveyEmbeds.resultEmbed.build()).get();
+        long messageId = slot.sendMessage(getLocale(), false, surveyEmbeds.newEmbed.build(), surveyEmbeds.actionRows).get();
         registerStaticReactionMessage(slot.getStandardGuildMessageChannel().get(), messageId);
 
         slot.setMessageId(messageId);

@@ -87,7 +87,7 @@ public class InviteTrackingCommand extends NavigationAbstract {
                 inviteTrackingData.toggleActive();
                 setLog(LogStatus.SUCCESS, getString("activeset", inviteTrackingData.isActive()));
                 if (inviteTrackingData.isActive()) {
-                    InviteTracking.synchronizeGuildInvites(event.getGuild());
+                    InviteTracking.synchronizeGuildInvites(event.getGuild(), getLocale());
                 }
                 resetLog = true;
                 return true;

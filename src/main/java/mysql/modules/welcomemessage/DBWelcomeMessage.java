@@ -3,10 +3,10 @@ package mysql.modules.welcomemessage;
 import java.util.Locale;
 import commands.Category;
 import core.TextManager;
-import mysql.MySQLManager;
 import mysql.DBObserverMapCache;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
+import mysql.MySQLManager;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
 
 public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageData> {
 
@@ -43,8 +43,10 @@ public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageDat
                                 resultSet.getBoolean(13)
                         );
                     } else {
-                        GuildData guildBean = DBGuild.getInstance().retrieve(serverId);
-                        Locale locale = guildBean.getLocale();
+                        Locale locale;
+                        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                            locale = entityManager.findGuildEntity(serverId).getLocale();
+                        }
 
                         return new WelcomeMessageData(
                                 serverId,

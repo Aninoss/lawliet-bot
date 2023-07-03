@@ -119,15 +119,12 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
         return minInterval;
     }
 
-    public Optional<String> getEffectiveUserMessage() {
+    public Optional<String> getEffectiveUserMessage(Locale locale) {
         if (!ServerPatreonBoostCache.get(getGuildId())) {
             return Optional.empty();
         }
         return getUserMessage()
-                .map(message -> {
-                    Locale locale = getGuildData().getLocale();
-                    return TextManager.getString(locale, Category.UTILITY, "alerts_action", StringUtil.shortenString(message, 1024));
-                });
+                .map(message -> TextManager.getString(locale, Category.UTILITY, "alerts_action", StringUtil.shortenString(message, 1024)));
     }
 
     public Instant getNextRequest() {
@@ -152,44 +149,44 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
         }
     }
 
-    public Optional<Long> sendMessage(boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
-        if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
-            content = getEffectiveUserMessage().get() + "\n" + content;
+    public Optional<Long> sendMessage(Locale locale, boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
+        if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
+            content = getEffectiveUserMessage(locale).get() + "\n" + content;
         }
-        return processMessage(true, acceptUserMessage, content, Collections.emptyList(), actionRows);
+        return processMessage(locale, true, acceptUserMessage, content, Collections.emptyList(), actionRows);
     }
 
-    public Optional<Long> editMessage(boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
-        if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
-            content = getEffectiveUserMessage().get() + "\n" + content;
+    public Optional<Long> editMessage(Locale locale, boolean acceptUserMessage, String content, ActionRow... actionRows) throws InterruptedException {
+        if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
+            content = getEffectiveUserMessage(locale).get() + "\n" + content;
         }
-        return processMessage(false, acceptUserMessage, content, Collections.emptyList(), actionRows);
+        return processMessage(locale, false, acceptUserMessage, content, Collections.emptyList(), actionRows);
     }
 
-    public Optional<Long> sendMessage(boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) throws InterruptedException {
-        return sendMessage(acceptUserMessage, Collections.singletonList(embed), actionRows);
+    public Optional<Long> sendMessage(Locale locale, boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) throws InterruptedException {
+        return sendMessage(locale, acceptUserMessage, Collections.singletonList(embed), actionRows);
     }
 
-    public Optional<Long> editMessage(boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) throws InterruptedException {
-        return editMessage(acceptUserMessage, Collections.singletonList(embed), actionRows);
+    public Optional<Long> editMessage(Locale locale, boolean acceptUserMessage, MessageEmbed embed, ActionRow... actionRows) throws InterruptedException {
+        return editMessage(locale, acceptUserMessage, Collections.singletonList(embed), actionRows);
     }
 
-    public Optional<Long> sendMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
+    public Optional<Long> sendMessage(Locale locale, boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
         if (embeds.isEmpty()) {
             MainLogger.get().warn("Empty embeds for alert {} in guild {}", getCommandTrigger(), getGuildId());
             return Optional.empty();
         }
-        return processMessage(true, acceptUserMessage, null, embeds, actionRows);
+        return processMessage(locale, true, acceptUserMessage, null, embeds, actionRows);
     }
 
-    public Optional<Long> editMessage(boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
+    public Optional<Long> editMessage(Locale locale, boolean acceptUserMessage, List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
         if (embeds.isEmpty()) {
             return Optional.empty();
         }
-        return processMessage(false, acceptUserMessage, null, embeds, actionRows);
+        return processMessage(locale, false, acceptUserMessage, null, embeds, actionRows);
     }
 
-    private Optional<Long> processMessage(boolean newMessage, boolean acceptUserMessage, String content,
+    private Optional<Long> processMessage(Locale locale, boolean newMessage, boolean acceptUserMessage, String content,
                                           List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
         Optional<StandardGuildMessageChannel> channelOpt = getStandardGuildMessageChannel();
         if (channelOpt.isPresent()) {
@@ -201,7 +198,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                         Member webhookOwner = webhook.getOwner();
                         if (webhookOwner != null && webhookOwner.getIdLong() == ShardManager.getSelfId()) {
                             webhookUrl = webhook.getUrl();
-                            return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds, actionRows);
+                            return processMessageViaWebhook(locale, newMessage, acceptUserMessage, content, embeds, actionRows);
                         }
                     }
                     if (webhooks.size() < 10) {
@@ -210,23 +207,23 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                                 .complete();
 
                         webhookUrl = webhook.getUrl();
-                        return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds, actionRows);
+                        return processMessageViaWebhook(locale, newMessage, acceptUserMessage, content, embeds, actionRows);
                     } else {
                         preferWebhook = false;
-                        getStandardGuildMessageChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows));
+                        getStandardGuildMessageChannel().map(textChannel -> processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, actionRows));
                     }
                 } catch (InterruptedException e) {
                     throw e;
                 } catch (Throwable e) {
                     MainLogger.get().error("Could not process webhooks", e);
-                    getStandardGuildMessageChannel().map(textChannel -> processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows));
+                    getStandardGuildMessageChannel().map(textChannel -> processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, actionRows));
                 }
             }
 
             if (webhookUrl != null) {
-                return processMessageViaWebhook(newMessage, acceptUserMessage, content, embeds, actionRows);
+                return processMessageViaWebhook(locale, newMessage, acceptUserMessage, content, embeds, actionRows);
             } else {
-                return processMessageViaRest(newMessage, acceptUserMessage, content, embeds, actionRows);
+                return processMessageViaRest(locale, newMessage, acceptUserMessage, content, embeds, actionRows);
             }
         } else {
             MainLogger.get().warn("Channel not present for alert {} in guild {}", getCommandTrigger(), getGuildId());
@@ -234,8 +231,9 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
         }
     }
 
-    private Optional<Long> processMessageViaWebhook(boolean newMessage, boolean acceptUserMessage, String content,
-                                                    List<MessageEmbed> embeds, ActionRow... actionRows) throws InterruptedException {
+    private Optional<Long> processMessageViaWebhook(Locale locale, boolean newMessage, boolean acceptUserMessage,
+                                                    String content, List<MessageEmbed> embeds, ActionRow... actionRows
+    ) throws InterruptedException {
         Optional<StandardGuildMessageChannel> channelOpt = getStandardGuildMessageChannel();
         if (channelOpt.isPresent()) {
             try {
@@ -258,8 +256,8 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
 
                 if (embeds.size() > 0) {
                     wmb.addEmbeds(webhookEmbeds);
-                    if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
-                        wmb.setContent(getEffectiveUserMessage().get());
+                    if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
+                        wmb.setContent(getEffectiveUserMessage(locale).get());
                     }
                 } else {
                     wmb = wmb.setContent(content);
@@ -277,9 +275,9 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                 if (e.toString().contains("10015")) { /* Unknown Webhook */
                     webhookClientMap.invalidate(channelId);
                     this.webhookUrl = null;
-                    messageIdOpt = processMessageViaRest(true, acceptUserMessage, content, embeds, actionRows);
+                    messageIdOpt = processMessageViaRest(locale, true, acceptUserMessage, content, embeds, actionRows);
                 } else if (e.toString().contains("10008") || e.toString().contains("50005")) { /* Unknown Message || Another User */
-                    messageIdOpt = processMessageViaWebhook(true, acceptUserMessage, content, embeds, actionRows);
+                    messageIdOpt = processMessageViaWebhook(locale, true, acceptUserMessage, content, embeds, actionRows);
                 }
 
                 if (messageIdOpt.isPresent()) {
@@ -298,7 +296,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
         }
     }
 
-    private Optional<Long> processMessageViaRest(boolean newMessage, boolean acceptUserMessage, String content,
+    private Optional<Long> processMessageViaRest(Locale locale, boolean newMessage, boolean acceptUserMessage, String content,
                                                  List<MessageEmbed> embeds, ActionRow... actionRows) {
         Optional<StandardGuildMessageChannel> channelOpt = getStandardGuildMessageChannel();
         if (channelOpt.isPresent()) {
@@ -308,8 +306,8 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                     if (newMessage) {
                         MessageCreateAction messageAction = channel.sendMessageEmbeds(embeds)
                                 .setComponents(actionRows);
-                        if (acceptUserMessage && getEffectiveUserMessage().isPresent()) {
-                            messageAction = messageAction.setContent(getEffectiveUserMessage().get());
+                        if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
+                            messageAction = messageAction.setContent(getEffectiveUserMessage(locale).get());
                         }
                         long newMessageId = messageAction
                                 .setAllowedMentions(null)
@@ -319,8 +317,8 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                     } else {
                         MessageEditAction messageAction = channel.editMessageEmbedsById(messageId, embeds)
                                 .setComponents(actionRows);
-                        if (getEffectiveUserMessage().isPresent()) {
-                            messageAction = messageAction.setContent(getEffectiveUserMessage().get());
+                        if (getEffectiveUserMessage(locale).isPresent()) {
+                            messageAction = messageAction.setContent(getEffectiveUserMessage(locale).get());
                         }
                         return Optional.of(messageAction.setAllowedMentions(null).complete().getIdLong());
                     }
@@ -337,7 +335,7 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
                 }
             } catch (Throwable e) {
                 if (e.toString().contains("10008") || e.toString().contains("50005")) { /* Unknown Message || Another User */
-                    return processMessageViaRest(true, acceptUserMessage, content, embeds, actionRows)
+                    return processMessageViaRest(locale, true, acceptUserMessage, content, embeds, actionRows)
                             .map(messageId -> {
                                 if (!newMessage) {
                                     this.messageId = messageId;

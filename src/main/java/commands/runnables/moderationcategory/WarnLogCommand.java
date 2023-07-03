@@ -123,7 +123,7 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
                                 drawMessage(draw(e.getMember()))
                                         .exceptionally(ExceptionLogger.get());
                             } catch (Throwable throwable) {
-                                ExceptionUtil.handleCommandException(throwable, this, getCommandEvent());
+                                ExceptionUtil.handleCommandException(throwable, this, getCommandEvent(), em);
                             }
                         }).addActionRows(ActionRow.of(message))
                         .build();

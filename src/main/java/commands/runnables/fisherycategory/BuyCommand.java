@@ -164,7 +164,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         fisheryMemberData.levelUp(slot.getGear());
 
         if (slot.getGear() == FisheryGear.ROLE) {
-            Fishery.synchronizeRoles(member);
+            Fishery.synchronizeRoles(member, getGuildEntity());
             Optional<TextChannel> announcementChannelOpt = guildBean.getFisheryAnnouncementChannel();
             if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.MESSAGE_SEND)) {
                 String announcementText = getString("newrole", StringUtil.escapeMarkdown(member.getEffectiveName()), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));

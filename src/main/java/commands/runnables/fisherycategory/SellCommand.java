@@ -113,7 +113,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
         if (value >= 1) {
             long coins = ExchangeRate.get(0) * value;
             this.eb = EmbedFactory.getEmbedDefault(this, getString("done"));
-            setAdditionalEmbeds(userBean.changeValuesEmbed(member, -value, coins).build());
+            setAdditionalEmbeds(userBean.changeValuesEmbed(member, -value, coins, getLocale()).build());
             return true;
         } else if (value == 0) {
             if (userBean.getFish() <= 0) {

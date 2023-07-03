@@ -3,6 +3,7 @@ package modules.fishery;
 import java.util.List;
 import constants.Settings;
 import core.utils.MentionUtil;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 
@@ -10,7 +11,7 @@ public class FisheryManage {
 
     public enum ValueProcedure { ABSOLUTE, ADD, SUB }
 
-    public static boolean updateValues(List<FisheryMemberData> fisheryMemberList, int type, String inputString) {
+    public static boolean updateValues(List<FisheryMemberData> fisheryMemberList, GuildEntity guildEntity, int type, String inputString) {
         boolean success = false;
         ValueProcedure valueProcedure = ValueProcedure.ABSOLUTE;
         inputString = inputString
@@ -37,14 +38,14 @@ public class FisheryManage {
             }
 
             newValue = calculateNewValue(fisheryMemberData.getGuildId(), baseValue, newValue, valueProcedure, type);
-            setNewValues(fisheryMemberData, newValue, type);
+            setNewValues(fisheryMemberData, guildEntity, newValue, type);
             success = true;
         }
 
         return success;
     }
 
-    private static void setNewValues(FisheryMemberData fisheryMemberBean, long newValue, int type) {
+    private static void setNewValues(FisheryMemberData fisheryMemberBean, GuildEntity guildEntity, long newValue, int type) {
         switch (type) {
             /* fish */
             case 0 -> fisheryMemberBean.setFish(newValue);
@@ -59,7 +60,7 @@ public class FisheryManage {
             default -> {
                 fisheryMemberBean.setLevel(FisheryGear.values()[type - 3], (int) newValue);
                 if (type == FisheryGear.ROLE.ordinal() + 3) {
-                    Fishery.synchronizeRoles(fisheryMemberBean.getMember().get());
+                    Fishery.synchronizeRoles(fisheryMemberBean.getMember().get(), guildEntity);
                 }
             }
         }

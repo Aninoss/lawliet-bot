@@ -3,7 +3,6 @@ package commands.runnables.utilitycategory;
 import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.CommandOnOffSwitchAbstract;
-import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -25,12 +24,14 @@ public class TriggerDeleteCommand extends CommandOnOffSwitchAbstract {
 
     @Override
     protected boolean isActive(Member member) {
-        return DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).isCommandAuthorMessageRemoveEffectively();
+        return getGuildEntity().getRemoveAuthorMessageEffectively();
     }
 
     @Override
     protected boolean setActive(Member member, boolean active) {
-        DBGuild.getInstance().retrieve(member.getGuild().getIdLong()).setCommandAuthorMessageRemove(active);
+        getGuildEntity().beginTransaction();
+        getGuildEntity().setRemoveAuthorMessage(active);
+        getGuildEntity().commitTransaction();
         return true;
     }
 

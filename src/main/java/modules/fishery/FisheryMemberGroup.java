@@ -10,7 +10,6 @@ import core.atomicassets.AtomicMember;
 import core.utils.StringUtil;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
-import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.entities.Member;
 
 public class FisheryMemberGroup implements GuildAsset {
@@ -25,12 +24,11 @@ public class FisheryMemberGroup implements GuildAsset {
                 .collect(Collectors.toList());
     }
 
-    public String getAsTag() {
+    public String getAsTag(Locale locale) {
         AtomicMember atomicMember = members.get(0);
         if (members.size() == 1 && atomicMember.get().isPresent()) {
             return StringUtil.escapeMarkdown(atomicMember.get().get().getUser().getAsTag());
         } else {
-            Locale locale = DBGuild.getInstance().retrieve(guildId).getLocale();
             return StringUtil.numToString(members.size()) + " " + TextManager.getString(locale, TextManager.GENERAL, "members", members.size() != 1);
         }
     }

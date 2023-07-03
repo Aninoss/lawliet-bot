@@ -2,6 +2,7 @@ package events.sync.events;
 
 import java.text.MessageFormat;
 import constants.AssetIds;
+import constants.Language;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MemberCacheController;
@@ -30,7 +31,7 @@ public class OnTopGGAnicord extends OnTopGG {
                 String desc = MessageFormat.format("✅ | **{0}** hat auf [top.gg]({3}) für **{1}** geupvotet und dafür **🐟 {2}** (25% der Daily-Fische) erhalten!", StringUtil.escapeMarkdown(member.getEffectiveName()), StringUtil.escapeMarkdown(guild.getName()), StringUtil.numToString(add), String.format("https://top.gg/servers/%d/vote", AssetIds.ANICORD_SERVER_ID));
                 bumpChannel.sendMessageEmbeds(
                         EmbedFactory.getEmbedDefault().setDescription(desc).build(),
-                        userBean.changeValuesEmbed(member, add, 0).build()
+                        userBean.changeValuesEmbed(member, add, 0, Language.DE.getLocale()).build()
                 ).queue();
             }
         }).exceptionally(ExceptionLogger.get());

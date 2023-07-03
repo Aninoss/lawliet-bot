@@ -20,7 +20,7 @@ public class GuildMessageReceivedSingleBotMention extends GuildMessageReceivedAb
             GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
             String text = TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "bot_ping_help", guildEntity.getPrefix());
             if (BotPermissionUtil.canWrite(event.getGuildChannel())) {
-                JDAUtil.replyMessage(event.getMessage(), text).queue();
+                JDAUtil.replyMessage(event.getMessage(), guildEntity, text).queue();
             }
 
             return false;

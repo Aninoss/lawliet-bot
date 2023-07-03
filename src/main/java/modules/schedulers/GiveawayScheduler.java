@@ -14,6 +14,9 @@ import constants.Emojis;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -75,8 +78,12 @@ public class GiveawayScheduler {
                     future.complete(true);
                     for (MessageReaction reaction : message.getReactions()) {
                         if (reaction.getEmoji().getFormatted().equals(giveawayData.getEmoji())) {
-                            reaction.retrieveUsers().queue(users ->
-                                    processGiveaway(giveawayData, message, new ArrayList<>(users), numberOfWinners, reroll)
+                            reaction.retrieveUsers().queue(users -> {
+                                        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                                            GuildEntity guildEntity = entityManager.findGuildEntity(giveawayData.getGuildId());
+                                            processGiveaway(giveawayData, guildEntity, message, new ArrayList<>(users), numberOfWinners, reroll);
+                                        }
+                                    }
                             );
                             break;
                         }
@@ -85,15 +92,15 @@ public class GiveawayScheduler {
         return future;
     }
 
-    private static void processGiveaway(GiveawayData giveawayData, Message message, ArrayList<User> users, int numberOfWinners,
-                                 boolean reroll
+    private static void processGiveaway(GiveawayData giveawayData, GuildEntity guildEntity, Message message, ArrayList<User> users, int numberOfWinners,
+                                        boolean reroll
     ) {
         GuildMessageChannel channel = (GuildMessageChannel) message.getChannel();
         MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).thenAccept(members -> {
             users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user) || message.getMentions().getMembers().stream().anyMatch(m -> m.getIdLong() == user.getIdLong()));
             Collections.shuffle(users);
             List<User> winners = users.subList(0, Math.min(users.size(), numberOfWinners));
-            Locale locale = giveawayData.getGuildData().getLocale();
+            Locale locale = guildEntity.getLocale();
 
             StringBuilder mentions = new StringBuilder();
             for (User user : winners) {

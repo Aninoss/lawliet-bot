@@ -7,7 +7,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import commands.runnables.invitetrackingcategory.InviteTrackingCommand;
 import core.*;
-import mysql.modules.guild.DBGuild;
 import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.GuildInvite;
 import mysql.modules.invitetracking.InviteTrackingData;
@@ -61,12 +60,11 @@ public class InviteTracking {
         }
     }
 
-    public static CompletableFuture<TempInvite> registerMemberJoin(Member member) {
+    public static CompletableFuture<TempInvite> registerMemberJoin(Member member, Locale locale) {
         CompletableFuture<TempInvite> future = new CompletableFuture<>();
 
         try {
             Guild guild = member.getGuild();
-            Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
             if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, guild, Permission.MANAGE_SERVER)) {
                 collectInvites(guild)
                         .thenAccept(guildInvites -> {
@@ -136,10 +134,9 @@ public class InviteTracking {
         return future;
     }
 
-    public static CompletableFuture<Void> synchronizeGuildInvites(Guild guild) {
+    public static CompletableFuture<Void> synchronizeGuildInvites(Guild guild, Locale locale) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        Locale locale = DBGuild.getInstance().retrieve(guild.getIdLong()).getLocale();
         if (PermissionCheckRuntime.botHasPermission(locale, InviteTrackingCommand.class, guild, Permission.MANAGE_SERVER)) {
             collectInvites(guild)
                     .thenAccept(guildInvites -> {
