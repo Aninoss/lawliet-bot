@@ -1,7 +1,5 @@
 package commands.runnables.casinocategory;
 
-import java.util.Locale;
-import java.util.Random;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -11,7 +9,6 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -20,6 +17,10 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
+import java.time.Duration;
+import java.util.Locale;
+import java.util.Random;
 
 @CommandProperties(
         trigger = "slot",
@@ -119,10 +120,10 @@ public class SlotCommand extends CasinoAbstract {
         deregisterListenersWithComponents();
 
         Member member = event.getMember();
-        MainScheduler.schedule(1000, "slot_0", () -> unlockFruit(member, 0));
-        MainScheduler.schedule(2000, "slot_1", () -> unlockFruit(member, 1));
-        MainScheduler.schedule(3000, "slot_2", () -> unlockFruit(member, 2));
-        MainScheduler.schedule(4000, "slot_results", () -> manageEnd(member));
+        schedule(Duration.ofSeconds(1), () -> unlockFruit(member, 0));
+        schedule(Duration.ofSeconds(2), () -> unlockFruit(member, 1));
+        schedule(Duration.ofSeconds(3), () -> unlockFruit(member, 2));
+        schedule(Duration.ofSeconds(4), () -> manageEnd(member));
 
         return true;
     }

@@ -12,6 +12,8 @@ import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 
+import java.time.Duration;
+
 @DiscordEvent
 public class GuildMemberJoinVerifyPatreonServer extends GuildMemberJoinAbstract {
 
@@ -30,7 +32,7 @@ public class GuildMemberJoinVerifyPatreonServer extends GuildMemberJoinAbstract 
                     .submit()
                     .thenRun(() -> event.getGuild().kick(member).queue());
 
-            MainScheduler.schedule(5_000, "kick_member", () -> {
+            MainScheduler.schedule(Duration.ofSeconds(5), () -> {
                 if (event.getGuild().getMembers().contains(member)) {
                     MainLogger.get().info("Member is still present, trying to kick again");
                     event.getGuild().kick(member).queue();

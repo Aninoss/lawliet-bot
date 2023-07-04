@@ -1,8 +1,5 @@
 package modules.fishery;
 
-import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.Locale;
 import commands.Category;
 import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
@@ -28,6 +25,10 @@ import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChanne
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
+import java.time.Duration;
+import java.util.HashSet;
+import java.util.Locale;
 
 public class Fishery {
 
@@ -107,7 +108,7 @@ public class Fishery {
                     DBStaticReactionMessages.getInstance().retrieve(channel.getGuild().getIdLong())
                             .put(m.getIdLong(), new StaticReactionMessageData(m, Command.getCommandProperties(FisheryCommand.class).trigger(), member.getId()));
 
-                    MainScheduler.schedule(Settings.FISHERY_POWERUP_TIMEOUT_MINUTES, ChronoUnit.MINUTES, "remove_powerup_if_unused", () -> {
+                    MainScheduler.schedule(Duration.ofMinutes(Settings.FISHERY_POWERUP_TIMEOUT_MINUTES), () -> {
                         if (unusedPowerUpSet.contains(m.getIdLong())) {
                             m.delete().queue();
                             deregisterPowerUp(m.getIdLong());

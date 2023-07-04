@@ -1,9 +1,5 @@
 package commands.runnables.casinocategory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Random;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -13,7 +9,6 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -22,6 +17,12 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Random;
 
 @CommandProperties(
         trigger = "blackjack",
@@ -70,7 +71,7 @@ public class BlackjackCommand extends CasinoAbstract {
 
                 if (getCardsValue(PlayerType.PLAYER) > 21) {
                     turnForPlayer = false;
-                    MainScheduler.schedule(TIME_BEFORE_END, "blackjack_player_overdrew", () -> {
+                    schedule(Duration.ofMillis(TIME_BEFORE_END), () -> {
                         lose(event.getMember());
                         setLog(LogStatus.LOSE, getString("toomany", 0));
                         drawMessage(draw(event.getMember())).exceptionally(ExceptionLogger.get());
@@ -90,7 +91,7 @@ public class BlackjackCommand extends CasinoAbstract {
     }
 
     private void onCPUTurn(Member member) {
-        MainScheduler.poll(TIME_BETWEEN_EVENTS, "blackjack_cpu", () -> onCPUTurnStep(member));
+        poll(Duration.ofMillis(TIME_BETWEEN_EVENTS), () -> onCPUTurnStep(member));
     }
 
     private boolean onCPUTurnStep(Member member) {
@@ -102,11 +103,11 @@ public class BlackjackCommand extends CasinoAbstract {
         int cardsValue = getCardsValue(PlayerType.DEALER);
         if (cardsValue >= 17) {
             if (cardsValue <= 21) {
-                MainScheduler.schedule(TIME_BETWEEN_EVENTS, "blackjack_cpu_stop", () -> {
+                schedule(Duration.ofMillis(TIME_BETWEEN_EVENTS), () -> {
                     setLog(LogStatus.SUCCESS, getString("stopcard", 1));
                     drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
 
-                    MainScheduler.schedule(TIME_BEFORE_END, "blackjack_checkresults", () -> {
+                    schedule(Duration.ofMillis(TIME_BEFORE_END), () -> {
                         HashMap<PlayerType, Boolean> hasBlackJackMap = new HashMap<>();
                         for (PlayerType playerType : PlayerType.values()) {
                             hasBlackJackMap.put(
@@ -147,7 +148,7 @@ public class BlackjackCommand extends CasinoAbstract {
                     });
                 });
             } else {
-                MainScheduler.schedule(TIME_BEFORE_END, "blackjack_cpu_overdrew", () -> {
+                schedule(Duration.ofMillis(TIME_BEFORE_END), () -> {
                     win(member);
                     setLog(LogStatus.WIN, getString("toomany", 1));
                     drawMessage(draw(member)).exceptionally(ExceptionLogger.get());

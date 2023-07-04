@@ -1,11 +1,5 @@
 package commands.runnables.fisherysettingscategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
 import commands.Category;
 import commands.CommandEvent;
 import commands.NavigationHelper;
@@ -20,7 +14,6 @@ import constants.LogStatus;
 import constants.Settings;
 import core.*;
 import core.atomicassets.AtomicTextChannel;
-import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
@@ -48,6 +41,13 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 @CommandProperties(
         trigger = "fishery",
@@ -253,7 +253,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .setComponents()
                 .queue();
 
-        MainScheduler.schedule(3, ChronoUnit.SECONDS, "treasure_reveal", () -> processTreasureChestReveal(event));
+        schedule(Duration.ofSeconds(3), () -> processTreasureChestReveal(event));
     }
 
     private void processTreasureChestReveal(ButtonInteractionEvent event) {
@@ -290,7 +290,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                     .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
         }
 
-        MainScheduler.schedule(Settings.FISHERY_DESPAWN_MINUTES, ChronoUnit.MINUTES, "treasure_remove", () -> {
+        schedule(Duration.ofMinutes(Settings.FISHERY_DESPAWN_MINUTES), () -> {
             if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
                 hook.deleteOriginal().submit()
                         .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
@@ -313,7 +313,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .setComponents()
                 .queue();
 
-        MainScheduler.schedule(3, ChronoUnit.SECONDS, "powerup_reveal", () -> processPowerUpReveal(event));
+        schedule(Duration.ofSeconds(3), () -> processPowerUpReveal(event));
     }
 
     private void processPowerUpReveal(ButtonInteractionEvent event) {
@@ -362,7 +362,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         memberData.activatePowerUp(powerUp, expiration);
 
         int despawnMinutes = powerUp == FisheryPowerUp.TEAM ? Settings.FISHERY_POWERUP_TIMEOUT_MINUTES : Settings.FISHERY_DESPAWN_MINUTES;
-        MainScheduler.schedule(despawnMinutes, ChronoUnit.MINUTES, "powerup_remove", () -> {
+        schedule(Duration.ofMinutes(despawnMinutes), () -> {
             if (BotPermissionUtil.can(channel, Permission.VIEW_CHANNEL)) {
                 hook.deleteOriginal().submit()
                         .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));

@@ -1,11 +1,5 @@
 package core;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import core.cache.ExternalEmojiCache;
@@ -18,6 +12,12 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ShardManager {
 
@@ -60,7 +60,7 @@ public class ShardManager {
         ShardManager.totalShards = totalShards;
 
         if (Program.productionMode()) {
-            MainScheduler.schedule(5, ChronoUnit.MINUTES, "bootup_check", () -> {
+            MainScheduler.schedule(Duration.ofMinutes(5), () -> {
                 if (!ready && allowBootUpCheck) {
                     MainLogger.get().error("EXIT - Could not boot up");
                     System.exit(5);
@@ -131,7 +131,7 @@ public class ShardManager {
     }
 
     private static void startJDAPoller() {
-        MainScheduler.poll(10, ChronoUnit.SECONDS, "api_poller", () -> {
+        MainScheduler.poll(Duration.ofSeconds(10), () -> {
             try {
                 new ArrayList<>(jdaMap.values()).forEach(jdaWrapper -> {
                     if (jdaWrapper != null) {

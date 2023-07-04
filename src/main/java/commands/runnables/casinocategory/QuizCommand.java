@@ -1,23 +1,16 @@
 package commands.runnables.casinocategory;
 
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
 import constants.Emojis;
 import constants.LogStatus;
-import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.components.ActionRows;
 import core.internet.HttpRequest;
-import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -29,6 +22,12 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "quiz",
@@ -98,7 +97,7 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         setCompareKey("quiz_" + answers.length + "_" + difficulty);
-        MainScheduler.schedule(10, ChronoUnit.SECONDS, "quiz_timeup", () -> onTimeUp(event.getMember()));
+        schedule(Duration.ofSeconds(10), () -> onTimeUp(event.getMember()));
         return true;
     }
 
@@ -171,7 +170,6 @@ public class QuizCommand extends CasinoAbstract {
         }
 
         answerSelected = selected;
-        MainScheduler.schedule(Settings.TIME_OUT_MINUTES, ChronoUnit.MINUTES, "quiz_remove", this::deregisterListenersWithComponentMessage);
     }
 
 }

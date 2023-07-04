@@ -1,7 +1,5 @@
 package commands.runnables.casinocategory;
 
-import java.util.*;
-import java.util.stream.Collectors;
 import commands.Category;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoMultiplayerAbstract;
@@ -10,7 +8,6 @@ import core.EmbedFactory;
 import core.MainLogger;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
-import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import modules.BingoBoard;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -19,6 +16,10 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
+import java.time.Duration;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "bingo",
@@ -104,13 +105,13 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
     }
 
     private void startDisclosure(Member member) {
-        MainScheduler.schedule(3000, "Bingo-Disclosure", () -> disclosureStep(member));
+        schedule(Duration.ofSeconds(3), () -> disclosureStep(member));
     }
 
     private void disclosureStep(Member member) {
         if (disclosurePending) {
             disclosurePending = false;
-            MainScheduler.schedule(2000, "Bingo-Disclosure", () -> disclosureStep(member));
+            schedule(Duration.ofSeconds(2), () -> disclosureStep(member));
         } else {
             ArrayList<Integer> winners = new ArrayList<>();
             for (int player = 0; player < playerToBoard.length; player++) {
@@ -126,7 +127,7 @@ public class BingoCommand extends CasinoMultiplayerAbstract {
             } else {
                 ballsDisclosed++;
                 disclosurePending = true;
-                MainScheduler.schedule(3000, "Bingo-Disclosure", () -> disclosureStep(member));
+                schedule(Duration.ofSeconds(3), () -> disclosureStep(member));
             }
         }
         try {

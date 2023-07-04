@@ -1,10 +1,5 @@
 package commands;
 
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import commands.listeners.*;
 import constants.LogStatus;
 import core.MainLogger;
@@ -15,9 +10,11 @@ import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
 import core.components.ActionRows;
 import core.interactionresponse.InteractionResponse;
+import core.schedule.MainScheduler;
 import core.utils.*;
 import kotlin.jvm.JvmClassMappingKt;
 import kotlin.reflect.KClass;
+import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
@@ -38,6 +35,14 @@ import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public abstract class Command implements OnTriggerListener {
 
@@ -554,6 +559,13 @@ public abstract class Command implements OnTriggerListener {
 
     public void setGuildEntity(GuildEntity guildEntity) {
         this.guildEntity = guildEntity;
+        setLocale(guildEntity.getLocale());
+    }
+
+    public GuildEntity refreshGuildEntity() {
+        GuildEntity guildEntity = HibernateManager.findGuildEntity(getGuildId().get());
+        setGuildEntity(guildEntity);
+        return guildEntity;
     }
 
     public Optional<Guild> getGuild() {
@@ -641,6 +653,22 @@ public abstract class Command implements OnTriggerListener {
         String usage = TextManager.getString(locale, category, trigger + "_usage");
         String examples = TextManager.getString(locale, category, trigger + "_examples");
         return new CommandLanguage(title, descShort, descLong, usage, examples);
+    }
+
+    public void schedule(Duration duration, Runnable command) {
+        MainScheduler.schedule(duration, () -> {
+            try (GuildEntity guildEntity = refreshGuildEntity()) {
+                command.run();
+            }
+        });
+    }
+
+    public void poll(Duration duration, Supplier<Boolean> command) {
+        MainScheduler.poll(duration, () -> {
+            try (GuildEntity guildEntity = refreshGuildEntity()) {
+                return command.get();
+            }
+        });
     }
 
 }

@@ -50,15 +50,19 @@ interface OnReactionListener : Drawable {
         val command = this as Command
         val onTimeOut = {
             try {
-                command.deregisterListeners()
-                command.onListenerTimeOutSuper()
+                command.refreshGuildEntity().use {
+                    command.deregisterListeners()
+                    command.onListenerTimeOutSuper()
+                }
             } catch (throwable: Throwable) {
                 MainLogger.get().error("Exception on time out", throwable)
             }
         }
         val onOverridden = {
             try {
-                onReactionOverridden()
+                command.refreshGuildEntity().use {
+                    onReactionOverridden()
+                }
             } catch (throwable: Throwable) {
                 MainLogger.get().error("Exception on overridden", throwable)
             }

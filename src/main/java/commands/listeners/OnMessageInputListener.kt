@@ -33,15 +33,19 @@ interface OnMessageInputListener : Drawable {
         val command = this as Command
         val onTimeOut = {
             try {
-                command.deregisterListeners()
-                command.onListenerTimeOutSuper()
+                command.refreshGuildEntity().use {
+                    command.deregisterListeners()
+                    command.onListenerTimeOutSuper()
+                }
             } catch (throwable: Throwable) {
                 MainLogger.get().error("Exception on time out", throwable)
             }
         }
         val onOverridden = {
             try {
-                onMessageInputOverridden()
+                command.refreshGuildEntity().use {
+                    onMessageInputOverridden()
+                }
             } catch (throwable: Throwable) {
                 MainLogger.get().error("Exception on overridden", throwable)
             }

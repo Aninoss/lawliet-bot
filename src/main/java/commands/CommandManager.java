@@ -1,12 +1,5 @@
 package commands;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.stream.Collectors;
 import commands.cooldownchecker.CoolDownManager;
 import commands.cooldownchecker.CoolDownUserData;
 import commands.listeners.OnButtonListener;
@@ -39,6 +32,14 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.TimeFormat;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CommandManager {
 
@@ -362,7 +363,7 @@ public class CommandManager {
     }
 
     private static void autoRemoveMessageAfterCountdown(CommandEvent event, Message message) {
-        MainScheduler.schedule(SEC_UNTIL_REMOVAL, ChronoUnit.SECONDS, "command_manager_error_countdown", () -> {
+        MainScheduler.schedule(Duration.ofSeconds(SEC_UNTIL_REMOVAL), () -> {
             if (BotPermissionUtil.can(event.getGuildMessageChannel())) {
                 ArrayList<Message> messageList = new ArrayList<>();
                 if (message != null) {

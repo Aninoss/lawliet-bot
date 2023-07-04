@@ -1,7 +1,5 @@
 package commands.runnables.casinocategory;
 
-import java.util.Locale;
-import java.util.Random;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -10,7 +8,6 @@ import constants.Emojis;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.schedule.MainScheduler;
 import core.utils.EmbedUtil;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
@@ -20,6 +17,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
+import java.time.Duration;
+import java.util.Locale;
+import java.util.Random;
 
 @CommandProperties(
         trigger = "coinflip",
@@ -111,11 +112,11 @@ public class CoinFlipCommand extends CasinoAbstract {
         if (selection[0] == -1) return;
         deregisterListenersWithComponents();
 
-        MainScheduler.schedule(3000, "coinflip_cputhrow", () -> {
+        schedule(Duration.ofSeconds(3), () -> {
             selection[1] = new Random().nextBoolean() ? 1 : 0;
             drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
 
-            MainScheduler.schedule(1000, "coinflip_results", () -> {
+            schedule(Duration.ofSeconds(1), () -> {
                 if (selection[0] == selection[1]) {
                     win(member);
                 } else {

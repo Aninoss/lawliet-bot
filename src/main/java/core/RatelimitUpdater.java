@@ -1,21 +1,20 @@
 package core;
 
-import java.time.temporal.TemporalUnit;
-import java.util.HashMap;
-import java.util.Optional;
 import core.schedule.MainScheduler;
 import net.dv8tion.jda.api.requests.RestAction;
 
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Optional;
+
 public class RatelimitUpdater {
 
-    private final long amount;
-    private final TemporalUnit temporalUnit;
+    private final Duration duration;
 
     private final HashMap<Long, Optional<RestAction<?>>> restActionMap = new HashMap<>();
 
-    public RatelimitUpdater(long amount, TemporalUnit temporalUnit) {
-        this.amount = amount;
-        this.temporalUnit = temporalUnit;
+    public RatelimitUpdater(Duration duration) {
+        this.duration = duration;
     }
 
     public synchronized void update(long key, RestAction<?> restAction) {
@@ -29,7 +28,7 @@ public class RatelimitUpdater {
     }
 
     private void startTimer(long key) {
-        MainScheduler.schedule(amount, temporalUnit, "ratelimit_updater", () -> {
+        MainScheduler.schedule(duration, () -> {
             if (restActionMap.containsKey(key)) {
                 restActionMap.get(key).ifPresentOrElse(restAction -> {
                     restAction.queue();

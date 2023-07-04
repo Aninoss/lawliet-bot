@@ -44,7 +44,7 @@ public class GiveawayScheduler {
     }
 
     public static void loadGiveawayBean(long guildId, long messageId, Instant due) {
-        MainScheduler.schedule(due, "giveaway_" + messageId, () -> {
+        MainScheduler.schedule(due, () -> {
             CustomObservableMap<Long, GiveawayData> map = DBGiveaway.getInstance().retrieve(guildId);
             if (map.containsKey(messageId) && ShardManager.guildIsManaged(guildId)) {
                 onGiveawayDue(map.get(messageId));

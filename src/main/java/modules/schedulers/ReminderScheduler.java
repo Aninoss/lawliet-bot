@@ -36,7 +36,7 @@ public class ReminderScheduler {
     }
 
     public static void loadReminderData(long guildId, long reminderId, Instant due) {
-        MainScheduler.schedule(due, "reminder_" + reminderId, () -> {
+        MainScheduler.schedule(due, () -> {
             CustomObservableMap<Long, ReminderData> map = DBReminders.getInstance().retrieve(guildId);
             if (map.containsKey(reminderId) &&
                     ShardManager.guildIsManaged(guildId) &&

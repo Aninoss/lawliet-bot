@@ -1,6 +1,5 @@
 package modules.automod;
 
-import java.util.Locale;
 import commands.Command;
 import commands.CommandManager;
 import commands.listeners.CommandProperties;
@@ -11,14 +10,14 @@ import core.MainLogger;
 import core.PermissionCheckRuntime;
 import modules.Mod;
 import mysql.hibernate.entity.GuildEntity;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 import mysql.modules.ticket.DBTicket;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+
+import java.util.Locale;
 
 public abstract class AutoModAbstract {
 
@@ -37,7 +36,6 @@ public abstract class AutoModAbstract {
 
         if (!message.getAuthor().isBot() && !isTicketChannel && checkCondition(message)) {
             try {
-                GuildData guildBean = DBGuild.getInstance().retrieve(message.getGuild().getIdLong());
                 Class<? extends Command> commandClass = getCommandClass();
                 if (PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), commandClass, message.getGuildChannel(), Permission.MESSAGE_MANAGE)) {
                     message.delete().submit()
@@ -63,11 +61,10 @@ public abstract class AutoModAbstract {
         designEmbed(message, guildEntity.getLocale(), eb);
 
         Command command = CommandManager.createCommandByClass(commandClass, guildEntity.getLocale(), guildEntity.getPrefix());
-        Mod.postLogMembers(command, eb, guild, member).thenRun(() -> {
-            Mod.insertWarning(guildEntity, member, guild.getSelfMember(), commandTitle,
-                    withAutoActions(message, guildEntity.getLocale())
-            );
-        });
+        Mod.postLogMembers(command, eb, guild, member).join();
+        Mod.insertWarning(guildEntity, member, guild.getSelfMember(), commandTitle,
+                withAutoActions(message, guildEntity.getLocale())
+        );
     }
 
     protected abstract boolean withAutoActions(Message message, Locale locale);

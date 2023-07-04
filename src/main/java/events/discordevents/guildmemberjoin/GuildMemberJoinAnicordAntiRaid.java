@@ -1,9 +1,5 @@
 package events.discordevents.guildmemberjoin;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import constants.AssetIds;
 import core.MainLogger;
 import core.schedule.MainScheduler;
@@ -12,6 +8,10 @@ import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
 
 @DiscordEvent(priority = EventPriority.HIGH, allowBots = true, allowBannedUser = true)
 public class GuildMemberJoinAnicordAntiRaid extends GuildMemberJoinAbstract {
@@ -44,7 +44,7 @@ public class GuildMemberJoinAnicordAntiRaid extends GuildMemberJoinAbstract {
                             .sendMessage("Raid wurde erkannt! Invites zum Server sind temporär deaktiviert.")
                             .queue();
 
-                    MainScheduler.schedule(10, ChronoUnit.MINUTES, "anicord_anti_raid", () -> {
+                    MainScheduler.schedule(Duration.ofMinutes(10), () -> {
                         event.getGuild().getMembers().stream()
                                 .filter(m -> m.hasTimeJoined() && m.getTimeJoined().plusMinutes(1).toInstant().isAfter(now))
                                 .forEach(m -> MainLogger.get().warn("Raid user: " + m.getUser().getAsTag()));

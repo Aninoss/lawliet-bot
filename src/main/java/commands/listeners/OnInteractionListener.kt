@@ -67,36 +67,40 @@ interface OnInteractionListener : Drawable {
         val command = this as Command
         val onTimeOut = {
             try {
-                command.deregisterListeners()
-                command.onListenerTimeOutSuper()
+                command.refreshGuildEntity().use {
+                    command.deregisterListeners()
+                    command.onListenerTimeOutSuper()
+                }
             } catch (throwable: Throwable) {
                 MainLogger.get().error("Exception on time out", throwable)
             }
         }
         val onOverridden = {
             try {
-                overriddenMethod.run()
+                command.refreshGuildEntity().use {
+                    overriddenMethod.run()
+                }
             } catch (throwable: Throwable) {
                 MainLogger.get().error("Exception on overridden", throwable)
             }
         }
         val commandListenerMeta = CommandListenerMeta(member.idLong, validityChecker, onTimeOut, onOverridden, command)
         CommandContainer.registerListener(clazz, commandListenerMeta)
-        try {
-            if (draw) {
+        if (draw) {
+            try {
                 if (command.drawMessageId.isEmpty) {
                     val eb = draw(member)
                     if (eb != null) {
                         return command.drawMessage(eb)
-                            .thenApply { it.idLong }
-                            .exceptionally(ExceptionLogger.get())
+                                .thenApply { it.idLong }
+                                .exceptionally(ExceptionLogger.get())
                     }
                 } else {
                     return CompletableFuture.completedFuture(command.drawMessageId.get())
                 }
+            } catch (e: Throwable) {
+                command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity) }
             }
-        } catch (e: Throwable) {
-            command.textChannel.ifPresent { ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity) }
         }
         return CompletableFuture.failedFuture(NoSuchElementException("No message sent"))
     }
@@ -115,7 +119,7 @@ interface OnInteractionListener : Drawable {
                 val eb = draw(event.member!!)
                 if (eb != null) {
                     (this as Command).drawMessage(eb)
-                        .exceptionally(ExceptionLogger.get())
+                            .exceptionally(ExceptionLogger.get())
                 }
             }
         } catch (e: Throwable) {

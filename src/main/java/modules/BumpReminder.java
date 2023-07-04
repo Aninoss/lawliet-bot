@@ -1,7 +1,5 @@
 package modules;
 
-import java.time.Instant;
-import java.util.Collections;
 import constants.AssetIds;
 import core.MainLogger;
 import core.ShardManager;
@@ -9,6 +7,10 @@ import core.schedule.MainScheduler;
 import core.utils.TimeUtil;
 import mysql.modules.bump.DBBump;
 import net.dv8tion.jda.api.entities.Message;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Collections;
 
 public class BumpReminder {
 
@@ -31,7 +33,7 @@ public class BumpReminder {
         final long ANINOSS_SERVER_ID = AssetIds.ANICORD_SERVER_ID;
         final long BUMP_CHANNEL_ID = 713849992611102781L;
 
-        MainScheduler.schedule(millis, "anicord_bump", () -> {
+        MainScheduler.schedule(Duration.ofMillis(millis), () -> {
             ShardManager.getLocalGuildById(ANINOSS_SERVER_ID)
                     .map(guild -> guild.getTextChannelById(BUMP_CHANNEL_ID))
                     .ifPresent(channel -> {

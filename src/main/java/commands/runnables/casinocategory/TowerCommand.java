@@ -1,7 +1,5 @@
 package commands.runnables.casinocategory;
 
-import java.util.Locale;
-import java.util.Random;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.CasinoAbstract;
@@ -16,6 +14,9 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
+import java.util.Locale;
+import java.util.Random;
 
 @CommandProperties(
         trigger = "tower",
@@ -47,7 +48,7 @@ public class TowerCommand extends CasinoAbstract {
     }
 
     @Override
-    public boolean onButtonCasino(ButtonInteractionEvent event) throws Throwable {
+    public boolean onButtonCasino(ButtonInteractionEvent event) {
         int i = Integer.parseInt(event.getComponentId());
         if (i == 0) {
             if (towerMultiplier < 10.0) {

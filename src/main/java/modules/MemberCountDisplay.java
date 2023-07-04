@@ -1,11 +1,5 @@
 package modules;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.runnables.utilitycategory.MemberCountDisplayCommand;
@@ -20,9 +14,15 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class MemberCountDisplay {
 
-    private static final RatelimitUpdater ratelimitUpdater = new RatelimitUpdater(5, ChronoUnit.MINUTES);
+    private static final RatelimitUpdater ratelimitUpdater = new RatelimitUpdater(Duration.ofMinutes(5));
     private static final Cache<Long, String> voiceNameCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(20))
             .build();

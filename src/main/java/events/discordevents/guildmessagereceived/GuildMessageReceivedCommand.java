@@ -1,9 +1,5 @@
 package events.discordevents.guildmessagereceived;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import commands.*;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnMessageInputListener;
@@ -11,6 +7,7 @@ import commands.runnables.informationcategory.HelpCommand;
 import core.AsyncTimer;
 import core.MainLogger;
 import core.ShardManager;
+import core.mention.MentionList;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
 import core.utils.JDAUtil;
@@ -27,6 +24,11 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @DiscordEvent(priority = EventPriority.LOW)
 public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
@@ -108,26 +110,27 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
     }
 
     private void checkAutoQuote(MessageReceivedEvent event, GuildEntity guildEntity) {
-        if (BotPermissionUtil.canWriteEmbed(event.getGuildChannel()) &&
-                DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive()
+        if (!BotPermissionUtil.canWriteEmbed(event.getGuildChannel()) ||
+                !DBAutoQuote.getInstance().retrieve(event.getGuild().getIdLong()).isActive()
         ) {
-            MentionUtil.getMessageWithLinks(event.getGuild(), event.getMessage().getContentRaw()).thenAccept(mentionMessages -> {
-                List<Message> messages = mentionMessages.getList();
-                if (messages.size() > 0) {
-                    try {
-                        for (int i = 0; i < Math.min(3, messages.size()); i++) {
-                            Message message = messages.get(i);
-                            try (MessageCreateData m = MessageQuote.postQuote(guildEntity.getPrefix(), guildEntity.getLocale(), event.getGuildChannel(), message, true)) {
-                                JDAUtil.replyMessageEmbeds(event.getMessage(), guildEntity, m.getEmbeds().get(0))
-                                        .setComponents(m.getComponents().stream().map(c -> (ActionRow) c).collect(Collectors.toList()))
-                                        .queue();
-                            }
-                        }
-                    } catch (Throwable throwable) {
-                        MainLogger.get().error("Exception in Auto Quote", throwable);
+            return;
+        }
+
+        MentionList<Message> mentionMessages = MentionUtil.getMessageWithLinks(event.getGuild(), event.getMessage().getContentRaw()).join();
+        List<Message> messages = mentionMessages.getList();
+        if (messages.size() > 0) {
+            try {
+                for (int i = 0; i < Math.min(3, messages.size()); i++) {
+                    Message message = messages.get(i);
+                    try (MessageCreateData m = MessageQuote.postQuote(guildEntity.getPrefix(), guildEntity.getLocale(), event.getGuildChannel(), message, true)) {
+                        JDAUtil.replyMessageEmbeds(event.getMessage(), guildEntity, m.getEmbeds().get(0))
+                                .setComponents(m.getComponents().stream().map(c -> (ActionRow) c).collect(Collectors.toList()))
+                                .queue();
                     }
                 }
-            });
+            } catch (Throwable throwable) {
+                MainLogger.get().error("Exception in Auto Quote", throwable);
+            }
         }
     }
 
@@ -140,7 +143,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     .collect(Collectors.toList());
 
             if (listeners.size() > 0) {
-                try(AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
+                try (AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
                     timeOutTimer.setTimeOutListener(t -> {
                         MainLogger.get().error("Message input \"{}\" of guild {} stuck", event.getMessage().getContentRaw(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
                     });
