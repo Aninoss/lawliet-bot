@@ -1,11 +1,5 @@
 package events.scheduleevents.events;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 import commands.Command;
 import commands.runnables.moderationcategory.MuteCommand;
 import constants.ExceptionRunnable;
@@ -15,11 +9,18 @@ import core.MemberCacheController;
 import core.Program;
 import core.utils.BotPermissionUtil;
 import events.scheduleevents.ScheduleEventDaily;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.servermute.DBServerMute;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @ScheduleEventDaily
 public class MuteRefresh implements ExceptionRunnable {
@@ -43,8 +44,8 @@ public class MuteRefresh implements ExceptionRunnable {
                             serverMuteData.getExpirationTime().orElse(Instant.MAX).isAfter(Instant.now().plus(Duration.ofDays(10)))
                     )
                     .forEach(serverMuteData -> {
-                        try(EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                            Locale locale = entityManager.findGuildEntity(serverMuteData.getGuildId()).getLocale();
+                        try(GuildEntity guildEntity = HibernateManager.findGuildEntity(serverMuteData.getGuildId())) {
+                            Locale locale = guildEntity.getLocale();
                             Member member = MemberCacheController.getInstance().loadMember(serverMuteData.getGuild().get(), serverMuteData.getMemberId()).get();
                             if (member != null && member.getTimeOutEnd() != null) {
                                 Instant timeOutEnd = member.getTimeOutEnd().toInstant();

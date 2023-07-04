@@ -2,7 +2,7 @@ package mysql.hibernate.entity;
 
 import mysql.hibernate.EntityManagerWrapper;
 
-public class HibernateEntity {
+public class HibernateEntity implements AutoCloseable {
 
     private EntityManagerWrapper entityManager;
 
@@ -20,6 +20,11 @@ public class HibernateEntity {
 
     public void commitTransaction() {
         entityManager.getTransaction().commit();
+    }
+
+    @Override
+    public void close() {
+        entityManager.close();
     }
 
 }

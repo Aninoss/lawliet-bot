@@ -1,16 +1,13 @@
 package modules.schedulers;
 
-import java.time.Instant;
-import java.util.Locale;
+import commands.Category;
 import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.BanCommand;
-import commands.Category;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import modules.Mod;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.tempban.DBTempBan;
@@ -18,6 +15,9 @@ import mysql.modules.tempban.TempBanData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.UserSnowflake;
+
+import java.time.Instant;
+import java.util.Locale;
 
 public class TempBanScheduler {
 
@@ -42,8 +42,8 @@ public class TempBanScheduler {
                     ShardManager.guildIsManaged(guildId) &&
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
-                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                    onTempBanExpire(entityManager.findGuildEntity(guildId), map.get(memberId));
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+                    onTempBanExpire(guildEntity, map.get(memberId));
                 }
             }
         });

@@ -1,14 +1,5 @@
 package commands.runnables;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 import commands.Command;
 import commands.CommandContainer;
 import commands.listeners.*;
@@ -17,8 +8,8 @@ import core.ExceptionLogger;
 import core.MainLogger;
 import core.TextManager;
 import core.utils.*;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -33,6 +24,16 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener, OnSelectMenuListener {
 
@@ -288,8 +289,8 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                     return message.getIdLong();
                 })
                 .exceptionally(e -> {
-                    try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                        ExceptionUtil.handleCommandException(e, this, getCommandEvent(), entityManager.findGuildEntity(member.getGuild().getIdLong()));
+                    try (GuildEntity guildEntity = HibernateManager.findGuildEntity(member.getGuild().getIdLong())) {
+                        ExceptionUtil.handleCommandException(e, this, getCommandEvent(), guildEntity);
                     }
                     return null;
                 });

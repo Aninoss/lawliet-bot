@@ -1,12 +1,13 @@
 package mysql.modules.welcomemessage;
 
-import java.util.Locale;
 import commands.Category;
 import core.TextManager;
 import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
+
+import java.util.Locale;
 
 public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageData> {
 
@@ -44,8 +45,8 @@ public class DBWelcomeMessage extends DBObserverMapCache<Long, WelcomeMessageDat
                         );
                     } else {
                         Locale locale;
-                        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                            locale = entityManager.findGuildEntity(serverId).getLocale();
+                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(serverId)) {
+                            locale = guildEntity.getLocale();
                         }
 
                         return new WelcomeMessageData(

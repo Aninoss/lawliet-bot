@@ -1,24 +1,24 @@
 package events.scheduleevents.events;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import constants.ExceptionRunnable;
 import core.GlobalThreadPool;
 import core.MainLogger;
 import core.ShardManager;
 import events.scheduleevents.ScheduleEventHourly;
 import modules.Ticket;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @ScheduleEventHourly
 public class TicketsAutoClose implements ExceptionRunnable {
@@ -52,8 +52,7 @@ public class TicketsAutoClose implements ExceptionRunnable {
                                     messages.get(0).getAuthor().getIdLong() != ticketChannel.getMemberId() &&
                                     messages.get(0).getTimeCreated().toInstant().plus(Duration.ofHours(ticketData.getAutoCloseHours())).isBefore(Instant.now())
                             ) {
-                                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                                    GuildEntity guildEntity = entityManager.findGuildEntity(ticketData.getGuildId());
+                                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(ticketData.getGuildId())) {
                                     Ticket.closeTicket(ticketData, guildEntity, textChannel, ticketChannel);
                                 }
                                 counter.incrementAndGet();

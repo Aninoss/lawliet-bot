@@ -1,14 +1,5 @@
 package modules.schedulers;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnAlertListener;
@@ -19,7 +10,6 @@ import core.cache.ServerPatreonBoostCache;
 import core.utils.EmbedUtil;
 import core.utils.ExceptionUtil;
 import core.utils.TimeUtil;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.tracker.DBTracker;
@@ -29,6 +19,16 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class AlertScheduler {
 
@@ -78,8 +78,8 @@ public class AlertScheduler {
     private static boolean manageAlert(TrackerData slot) {
         Instant minInstant = Instant.now().plus(1, ChronoUnit.MINUTES);
 
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-            processAlert(entityManager.findGuildEntity(slot.getGuildId()), slot);
+        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(slot.getGuildId())) {
+            processAlert(guildEntity, slot);
         } catch (Throwable throwable) {
             MainLogger.get().error("Error in tracker \"{}\" with key \"{}\"", slot.getCommandTrigger(), slot.getCommandKey(), throwable);
             minInstant = Instant.now().plus(10, ChronoUnit.MINUTES);

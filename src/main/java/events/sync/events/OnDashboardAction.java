@@ -1,17 +1,17 @@
 package events.sync.events;
 
-import java.util.List;
 import core.ShardManager;
 import dashboard.ActionResult;
 import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
-import mysql.hibernate.EntityManagerWrapper;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.Permission;
 import org.json.JSONObject;
-import events.sync.SyncServerEvent;
-import events.sync.SyncServerFunction;
+
+import java.util.List;
 
 @SyncServerEvent(event = "DASH_ACTION")
 public class OnDashboardAction implements SyncServerFunction {
@@ -29,8 +29,7 @@ public class OnDashboardAction implements SyncServerFunction {
                 List<Permission> missingBotPermissions = category.missingBotPermissions();
                 List<Permission> missingUserPermissions = category.missingUserPermissions();
 
-                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                    GuildEntity guildEntity = entityManager.findGuildEntity(guildId);
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
                     category.setGuildEntity(guildEntity);
 
                     if (missingBotPermissions.isEmpty() && missingUserPermissions.isEmpty() && category.anyCommandRequirementsAreAccessible()) {

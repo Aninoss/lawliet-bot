@@ -1,14 +1,13 @@
 package commands.runnables.configurationcategory;
 
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
-import core.modals.ModalMediator;
 import core.TextManager;
+import core.modals.ModalMediator;
 import core.utils.StringUtil;
 import modules.Prefix;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -19,6 +18,8 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "prefix",
@@ -57,9 +58,8 @@ public class PrefixCommand extends Command implements OnButtonListener {
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
-        String prefix = getGuildEntity().getPrefix();
         TextInput textInput = TextInput.create("text", getString("new"), TextInputStyle.SHORT)
-                .setValue(prefix)
+                .setValue(getGuildEntity().getPrefix())
                 .setMinLength(1)
                 .setMaxLength(MAX_LENGTH)
                 .build();

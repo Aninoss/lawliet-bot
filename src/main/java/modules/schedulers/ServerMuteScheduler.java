@@ -1,16 +1,13 @@
 package modules.schedulers;
 
-import java.time.Instant;
-import java.util.Locale;
+import commands.Category;
 import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.MuteCommand;
-import commands.Category;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import modules.Mod;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.moderation.DBModeration;
@@ -18,6 +15,9 @@ import mysql.modules.servermute.DBServerMute;
 import mysql.modules.servermute.ServerMuteData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
+
+import java.time.Instant;
+import java.util.Locale;
 
 public class ServerMuteScheduler {
 
@@ -43,8 +43,8 @@ public class ServerMuteScheduler {
                     ShardManager.guildIsManaged(guildId) &&
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
-                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                    onServerMuteExpire(entityManager.findGuildEntity(guildId), map.get(memberId));
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+                    onServerMuteExpire(guildEntity, map.get(memberId));
                 }
             }
         });

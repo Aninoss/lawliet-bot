@@ -1,10 +1,12 @@
 package mysql.hibernate;
 
-import java.util.HashMap;
-import java.util.Map;
+import core.MainLogger;
+import mysql.hibernate.entity.GuildEntity;
+
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import core.MainLogger;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HibernateManager {
 
@@ -22,6 +24,10 @@ public class HibernateManager {
 
     public static EntityManagerWrapper createEntityManager() {
         return new EntityManagerWrapper(entityManagerFactory.createEntityManager());
+    }
+
+    public static GuildEntity findGuildEntity(long guildId) {
+        return createEntityManager().findGuildEntity(guildId);
     }
 
     private static void addConfigOverride(Map<String, Object> configOverrides, String configKey, String environmentKey) {

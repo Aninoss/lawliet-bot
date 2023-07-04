@@ -1,23 +1,23 @@
 package modules.schedulers;
 
-import java.time.Instant;
-import java.util.Locale;
+import commands.Category;
 import commands.Command;
 import commands.CommandManager;
 import commands.runnables.moderationcategory.JailCommand;
-import commands.Category;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import modules.Jail;
 import modules.Mod;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.jails.DBJails;
 import mysql.modules.jails.JailData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+
+import java.time.Instant;
+import java.util.Locale;
 
 public class JailScheduler {
 
@@ -43,8 +43,8 @@ public class JailScheduler {
                     ShardManager.guildIsManaged(guildId) &&
                     ShardManager.getLocalGuildById(guildId).isPresent()
             ) {
-                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                    onJailExpire(entityManager.findGuildEntity(guildId), map.get(memberId));
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+                    onJailExpire(guildEntity, map.get(memberId));
                 }
             }
         });

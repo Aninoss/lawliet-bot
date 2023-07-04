@@ -1,13 +1,7 @@
 package modules.repair;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import core.MemberCacheController;
 import modules.JoinRoles;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.JDA;
@@ -16,6 +10,12 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RolesRepair {
 
@@ -30,8 +30,7 @@ public class RolesRepair {
     public void run(JDA jda, int minutes) {
         for (Guild guild : jda.getGuilds()) {
             if (JoinRoles.guildIsRelevant(guild)) {
-                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                    GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guild.getIdLong())) {
                     MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
                             .filter(member -> userJoinedRecently(member, minutes))
                             .forEach(member -> {

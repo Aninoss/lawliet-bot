@@ -1,9 +1,5 @@
 package commands.runnables.aitoyscategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Locale;
-import java.util.regex.Pattern;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -19,14 +15,19 @@ import modules.txt2img.Model;
 import modules.txt2img.PredictionResult;
 import modules.txt2img.RunPodDownloader;
 import modules.txt2img.Txt2ImgCallTracker;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 @CommandProperties(
         trigger = "txt2img",
@@ -177,8 +178,8 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
                         try {
                             drawMessage(draw(member));
                         } catch (Throwable e) {
-                            try(EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                                ExceptionUtil.handleCommandException(e, this, getCommandEvent(), entityManager.findGuildEntity(getGuildId().get()));
+                            try(GuildEntity guildEntity = HibernateManager.findGuildEntity(getGuildId().get())) {
+                                ExceptionUtil.handleCommandException(e, this, getCommandEvent(), guildEntity);
                             }
                         }
                     });

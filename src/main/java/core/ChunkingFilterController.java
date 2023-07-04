@@ -1,8 +1,8 @@
 package core;
 
 import constants.AssetIds;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.stickyroles.DBStickyRoles;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 
@@ -26,8 +26,8 @@ public class ChunkingFilterController implements ChunkingFilter {
     }
 
     private boolean guildIsBig(long guildId) {
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-            return entityManager.findGuildEntity(guildId).getBig();
+        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+            return guildEntity.getBig();
         }
     }
 

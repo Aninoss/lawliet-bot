@@ -1,19 +1,19 @@
 package events.sync.events;
 
-import java.util.Locale;
 import constants.Language;
 import core.Program;
 import core.ShardManager;
 import core.cache.PatreonCache;
 import dashboard.DashboardCategory;
 import dashboard.DashboardManager;
-import mysql.hibernate.EntityManagerWrapper;
+import events.sync.SyncServerEvent;
+import events.sync.SyncServerFunction;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import events.sync.SyncServerEvent;
-import events.sync.SyncServerFunction;
+
+import java.util.Locale;
 
 @SyncServerEvent(event = "DASH_INIT")
 public class OnDashboardInit implements SyncServerFunction {
@@ -36,8 +36,7 @@ public class OnDashboardInit implements SyncServerFunction {
 
     private void addTitles(long guildId, long userId, Locale locale, JSONObject resultJson) {
         JSONArray titlesJson = new JSONArray();
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-            GuildEntity guildEntity = entityManager.findGuildEntity(guildId);
+        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
             for (DashboardCategory retrieveCategory : DashboardManager.retrieveCategories(guildId, userId, locale, guildEntity)) {
                 if (retrieveCategory.anyCommandRequirementsAreAccessible()) {
                     JSONObject data = new JSONObject();

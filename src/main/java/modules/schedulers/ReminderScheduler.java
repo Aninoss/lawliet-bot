@@ -1,8 +1,5 @@
 package modules.schedulers;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Locale;
 import commands.Category;
 import commands.runnables.utilitycategory.ReminderCommand;
 import core.*;
@@ -10,7 +7,6 @@ import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.reminders.DBReminders;
@@ -19,6 +15,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Locale;
 
 public class ReminderScheduler {
 
@@ -59,15 +59,13 @@ public class ReminderScheduler {
                         if (sourceChannel != null) {
                             sourceChannel.retrieveMessageById(reminderData.getMessageId())
                                     .queue(message -> {
-                                        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                                            GuildEntity guildEntity = entityManager.findGuildEntity(reminderData.getGuildId());
+                                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(reminderData.getGuildId())) {
                                             sendReminder(message, reminderData, guildEntity, targetChannel);
                                         }
                                     });
                         }
                     } else {
-                        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                            GuildEntity guildEntity = entityManager.findGuildEntity(reminderData.getGuildId());
+                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(reminderData.getGuildId())) {
                             sendReminder(null, reminderData, guildEntity, targetChannel);
                         }
                     }

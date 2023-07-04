@@ -1,11 +1,5 @@
 package modules.schedulers;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 import commands.Category;
 import commands.Command;
 import commands.listeners.CommandProperties;
@@ -14,7 +8,6 @@ import constants.Emojis;
 import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.giveaway.DBGiveaway;
@@ -26,6 +19,13 @@ import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 
 public class GiveawayScheduler {
 
@@ -79,8 +79,7 @@ public class GiveawayScheduler {
                     for (MessageReaction reaction : message.getReactions()) {
                         if (reaction.getEmoji().getFormatted().equals(giveawayData.getEmoji())) {
                             reaction.retrieveUsers().queue(users -> {
-                                        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                                            GuildEntity guildEntity = entityManager.findGuildEntity(giveawayData.getGuildId());
+                                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(giveawayData.getGuildId())) {
                                             processGiveaway(giveawayData, guildEntity, message, new ArrayList<>(users), numberOfWinners, reroll);
                                         }
                                     }
