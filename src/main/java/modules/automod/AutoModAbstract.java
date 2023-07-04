@@ -55,15 +55,16 @@ public abstract class AutoModAbstract {
         Guild guild = message.getGuild();
         Member member = message.getMember();
         CommandProperties commandProperties = Command.getCommandProperties(commandClass);
-        String commandTitle = Command.getCommandLanguage(commandClass, guildEntity.getLocale()).getTitle();
+        Locale locale = guildEntity.getLocale();
+        String commandTitle = Command.getCommandLanguage(commandClass, locale).getTitle();
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(commandProperties.emoji() + " " + commandTitle);
-        designEmbed(message, guildEntity.getLocale(), eb);
+        designEmbed(message, locale, eb);
 
-        Command command = CommandManager.createCommandByClass(commandClass, guildEntity.getLocale(), guildEntity.getPrefix());
+        Command command = CommandManager.createCommandByClass(commandClass, locale, guildEntity.getPrefix());
         Mod.postLogMembers(command, eb, guild, member).join();
         Mod.insertWarning(guildEntity, member, guild.getSelfMember(), commandTitle,
-                withAutoActions(message, guildEntity.getLocale())
+                withAutoActions(message, locale)
         );
     }
 

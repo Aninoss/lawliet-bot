@@ -1,15 +1,5 @@
 package modules;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import commands.Category;
 import commands.Command;
 import commands.listeners.CommandProperties;
@@ -41,18 +31,30 @@ import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
 import org.apache.commons.text.WordUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
 public class Ticket {
 
     public static void createTicket(TicketData ticketData, GuildEntity guildEntity, TextChannel channel, Member member, String userMessage) {
+        Locale locale = guildEntity.getLocale();
         Optional<TextChannel> existingTicketChannelOpt = findTicketChannelOfUser(ticketData, member);
         if (existingTicketChannelOpt.isEmpty()) {
-            Ticket.createTicketChannel(channel, member, ticketData, guildEntity.getLocale()).ifPresent(channelAction -> {
+            Ticket.createTicketChannel(channel, member, ticketData, locale).ifPresent(channelAction -> {
                 channelAction.queue(textChannel -> setupNewTicketChannel(ticketData, textChannel, member, userMessage, guildEntity.getLocale()));
             });
         } else {
             TextChannel existingTicketChannel = existingTicketChannelOpt.get();
-            if (PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), TicketCommand.class, existingTicketChannel, Permission.MESSAGE_SEND)) {
-                String text = TextManager.getString(guildEntity.getLocale(), commands.Category.UTILITY, "ticket_alreadyopen", member.getAsMention());
+            if (PermissionCheckRuntime.botHasPermission(locale, TicketCommand.class, existingTicketChannel, Permission.MESSAGE_SEND)) {
+                String text = TextManager.getString(locale, commands.Category.UTILITY, "ticket_alreadyopen", member.getAsMention());
                 existingTicketChannel.sendMessage(text).queue();
             }
         }
@@ -223,74 +225,72 @@ public class Ticket {
             return;
         }
 
-        GlobalThreadPool.submit(() -> {
-            try (Lock lock = new Lock(TicketCommand.class)) {
-                MessageHistory messageHistory = channel.getHistory();
-                List<Message> messageLoadList;
-                do {
-                    messageLoadList = messageHistory.retrievePast(100).complete();
-                } while (messageLoadList.size() == 100);
+        try (Lock lock = new Lock(TicketCommand.class)) {
+            MessageHistory messageHistory = channel.getHistory();
+            List<Message> messageLoadList;
+            do {
+                messageLoadList = messageHistory.retrievePast(100).complete();
+            } while (messageLoadList.size() == 100);
 
-                ArrayList<Message> messageList = new ArrayList<>(messageHistory.getRetrievedHistory());
-                Collections.reverse(messageList);
+            ArrayList<Message> messageList = new ArrayList<>(messageHistory.getRetrievedHistory());
+            Collections.reverse(messageList);
 
-                ArrayList<String[]> csvRows = new ArrayList<>();
-                csvRows.add(TextManager.getString(locale, Category.UTILITY, "ticket_csv_titles").split("\n"));
-                DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                        .withLocale(Locale.US);
-                long lastAuthorId = 0L;
-                Instant lastMessageTime = null;
+            ArrayList<String[]> csvRows = new ArrayList<>();
+            csvRows.add(TextManager.getString(locale, Category.UTILITY, "ticket_csv_titles").split("\n"));
+            DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                    .withLocale(Locale.US);
+            long lastAuthorId = 0L;
+            Instant lastMessageTime = null;
 
-                for (Message message : messageList) {
-                    String contentRaw = extractContentFromMessage(locale, message);
-                    if (contentRaw.isEmpty() && message.getAttachments().isEmpty()) {
-                        continue;
-                    }
+            for (Message message : messageList) {
+                String contentRaw = extractContentFromMessage(locale, message);
+                if (contentRaw.isEmpty() && message.getAttachments().isEmpty()) {
+                    continue;
+                }
 
-                    String content = WordUtils.wrap(contentRaw, 100);
-                    String[] row = new String[] { " ", " ", content.length() > 0 ? content : " ", " " };
+                String content = WordUtils.wrap(contentRaw, 100);
+                String[] row = new String[]{" ", " ", content.length() > 0 ? content : " ", " "};
 
-                    if (message.getAuthor().getIdLong() != lastAuthorId ||
-                            lastMessageTime == null ||
-                            message.getTimeCreated().toInstant().isAfter(lastMessageTime.plus(Duration.ofMinutes(15)))
-                    ) {
-                        row[0] = formatter.format(message.getTimeCreated());
-                        row[1] = message.getAuthor().getAsTag();
-                    }
+                if (message.getAuthor().getIdLong() != lastAuthorId ||
+                        lastMessageTime == null ||
+                        message.getTimeCreated().toInstant().isAfter(lastMessageTime.plus(Duration.ofMinutes(15)))
+                ) {
+                    row[0] = formatter.format(message.getTimeCreated());
+                    row[1] = message.getAuthor().getAsTag();
+                }
 
-                    if (message.getAttachments().size() > 0) {
-                        StringBuilder attachments = new StringBuilder();
-                        for (Message.Attachment attachment : message.getAttachments()) {
-                            if (attachments.length() > 0) {
-                                attachments.append("\n");
-                            }
-                            attachments.append(attachment.getUrl());
+                if (message.getAttachments().size() > 0) {
+                    StringBuilder attachments = new StringBuilder();
+                    for (Message.Attachment attachment : message.getAttachments()) {
+                        if (attachments.length() > 0) {
+                            attachments.append("\n");
                         }
-                        row[3] = attachments.toString();
+                        attachments.append(attachment.getUrl());
                     }
-
-                    lastAuthorId = message.getAuthor().getIdLong();
-                    lastMessageTime = message.getTimeCreated().toInstant();
-                    csvRows.add(row);
+                    row[3] = attachments.toString();
                 }
 
-                LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("tickets/%s.csv", RandomUtil.generateRandomString(30)));
-                try (InputStream is = CSVGenerator.generateInputStream(csvRows)) {
-                    FileUtil.writeInputStreamToFile(is, tempFile);
-                } catch (IOException e) {
-                    MainLogger.get().error("Error", e);
-                }
-                TicketProtocolCache.setUrl(channel.getIdLong(), tempFile.cdnGetUrl());
-
-                if (ticketData.getDeleteChannelOnTicketClose()) {
-                    channelDeleteRestAction.queue();
-                } else {
-                    closeChannelWithoutDeletion(locale, ticketData, guildEntity, channel, ticketChannel);
-                }
-            } catch (LockOccupiedException e) {
-                //Ignore
+                lastAuthorId = message.getAuthor().getIdLong();
+                lastMessageTime = message.getTimeCreated().toInstant();
+                csvRows.add(row);
             }
-        });
+
+            LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("tickets/%s.csv", RandomUtil.generateRandomString(30)));
+            try (InputStream is = CSVGenerator.generateInputStream(csvRows)) {
+                FileUtil.writeInputStreamToFile(is, tempFile);
+            } catch (IOException e) {
+                MainLogger.get().error("Error", e);
+            }
+            TicketProtocolCache.setUrl(channel.getIdLong(), tempFile.cdnGetUrl());
+
+            if (ticketData.getDeleteChannelOnTicketClose()) {
+                channelDeleteRestAction.queue();
+            } else {
+                closeChannelWithoutDeletion(locale, ticketData, guildEntity, channel, ticketChannel);
+            }
+        } catch (LockOccupiedException e) {
+            //Ignore
+        }
     }
 
     public static void removeTicket(TextChannel ticketTextChannel, TicketData ticketData, TicketChannel ticketChannel, GuildEntity guildEntity) {
@@ -417,8 +417,8 @@ public class Ticket {
         }
 
         Permission[] staffRolePermissions = ticketData.getTicketAssignmentMode() != TicketData.TicketAssignmentMode.MANUAL
-                ? new Permission[] { Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND }
-                : new Permission[] { Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY };
+                ? new Permission[]{Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND}
+                : new Permission[]{Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY};
         for (Role staffRole : staffRoles) {
             channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, staffRole, true, staffRolePermissions);
         }

@@ -294,9 +294,8 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
                     .withErrorMessage(error)
             }
 
-            val guildLocale = guildEntity.locale
             ReactionRoles.sendMessage(
-                guildLocale, textChannel, title, desc, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, roleRemovement,
+                guildEntity.locale, textChannel, title, desc, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, roleRemovement,
                 multipleRoles, showRoleConnections, newComponents, showRoleNumbers, image, editMode, messageId ?: 0L
             ).get(5, TimeUnit.SECONDS)
 
@@ -408,9 +407,8 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
     private fun switchMode(editMode: Boolean) {
         this.editMode = editMode
         if (!editMode) {
-            val guildLocale = guildEntity.locale
             channelId = null
-            title = Command.getCommandLanguage(ReactionRolesCommand::class.java, guildLocale).title
+            title = Command.getCommandLanguage(ReactionRolesCommand::class.java, guildEntity.locale).title
             desc = ""
             roleRemovement = true
             multipleRoles = true

@@ -95,52 +95,52 @@ public class GiveawayScheduler {
                                         boolean reroll
     ) {
         GuildMessageChannel channel = (GuildMessageChannel) message.getChannel();
-        MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).thenAccept(members -> {
-            users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user) || message.getMentions().getMembers().stream().anyMatch(m -> m.getIdLong() == user.getIdLong()));
-            Collections.shuffle(users);
-            List<User> winners = users.subList(0, Math.min(users.size(), numberOfWinners));
-            Locale locale = guildEntity.getLocale();
+        MemberCacheController.getInstance().loadMembersWithUsers(channel.getGuild(), users).join();
 
-            StringBuilder mentions = new StringBuilder();
-            for (User user : winners) {
-                mentions.append(user.getAsMention()).append(" ");
-            }
+        users.removeIf(user -> user.isBot() || !channel.getGuild().isMember(user) || message.getMentions().getMembers().stream().anyMatch(m -> m.getIdLong() == user.getIdLong()));
+        Collections.shuffle(users);
+        List<User> winners = users.subList(0, Math.min(users.size(), numberOfWinners));
+        Locale locale = guildEntity.getLocale();
 
-            CommandProperties commandProps = Command.getCommandProperties(GiveawayCommand.class);
-            EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                    .setTitle(TextManager.getString(locale, Category.UTILITY, "giveaway_results_title", reroll, commandProps.emoji(), giveawayData.getTitle()))
-                    .setDescription(TextManager.getString(locale, "utility", "giveaway_results", winners.size() != 1))
-                    .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
-            giveawayData.getImageUrl().ifPresent(eb::setImage);
-            if (winners.size() > 0) {
-                eb.addField(
-                        Emojis.ZERO_WIDTH_SPACE.getFormatted(),
-                        new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getAsTag()) + "**"),
-                        false
-                );
-            } else {
-                eb.setDescription(TextManager.getString(locale, "utility", "giveaway_results_empty"));
-            }
-            giveawayData.stop();
+        StringBuilder mentions = new StringBuilder();
+        for (User user : winners) {
+            mentions.append(user.getAsMention()).append(" ");
+        }
 
-            if (PermissionCheckRuntime.botHasPermission(locale, GiveawayCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
-                if (!reroll) {
-                    message.editMessageEmbeds(eb.build())
-                            .setContent(winners.size() > 0 ? mentions.toString() : null)
-                            .queue();
+        CommandProperties commandProps = Command.getCommandProperties(GiveawayCommand.class);
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                .setTitle(TextManager.getString(locale, Category.UTILITY, "giveaway_results_title", reroll, commandProps.emoji(), giveawayData.getTitle()))
+                .setDescription(TextManager.getString(locale, "utility", "giveaway_results", winners.size() != 1))
+                .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
+        giveawayData.getImageUrl().ifPresent(eb::setImage);
+        if (winners.size() > 0) {
+            eb.addField(
+                    Emojis.ZERO_WIDTH_SPACE.getFormatted(),
+                    new ListGen<User>().getList(winners, ListGen.SLOT_TYPE_BULLET, user -> "**" + StringUtil.escapeMarkdown(user.getAsTag()) + "**"),
+                    false
+            );
+        } else {
+            eb.setDescription(TextManager.getString(locale, "utility", "giveaway_results_empty"));
+        }
+        giveawayData.stop();
 
-                    if (winners.size() > 0) {
-                        channel.sendMessage(mentions.toString())
-                                .flatMap(Message::delete)
-                                .queue();
-                    }
-                } else {
-                    channel.sendMessageEmbeds(eb.build())
-                            .setContent(winners.size() > 0 ? mentions.toString() : null)
+        if (PermissionCheckRuntime.botHasPermission(locale, GiveawayCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS)) {
+            if (!reroll) {
+                message.editMessageEmbeds(eb.build())
+                        .setContent(winners.size() > 0 ? mentions.toString() : null)
+                        .queue();
+
+                if (winners.size() > 0) {
+                    channel.sendMessage(mentions.toString())
+                            .flatMap(Message::delete)
                             .queue();
                 }
+            } else {
+                channel.sendMessageEmbeds(eb.build())
+                        .setContent(winners.size() > 0 ? mentions.toString() : null)
+                        .queue();
             }
-        });
+        }
     }
 
 }

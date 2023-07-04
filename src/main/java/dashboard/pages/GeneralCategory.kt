@@ -79,8 +79,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
                 ActionResult()
             }
-            val guildLocale = guildEntity.locale
-            val language = Language.from(guildLocale)
+            val language = guildEntity.language
             languageSelect.selectedValue = DiscordEntity(language.name, getString(Category.CONFIGURATION, "language_" + language.name))
             container.add(languageSelect)
         }
@@ -131,7 +130,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             guildEntity.commitTransaction()
             ActionResult()
         }
-        switch.isChecked = guildEntity.removeAuthorMessage
+        switch.isChecked = guildEntity.removeAuthorMessageEffectively
         switch.subtitle = getString(Category.UTILITY, "triggerdelete_info")
         switch.isEnabled = isPremium
         return switch

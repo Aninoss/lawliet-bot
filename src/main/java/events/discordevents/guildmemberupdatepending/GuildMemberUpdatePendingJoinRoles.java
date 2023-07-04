@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdatePendingEv
 public class GuildMemberUpdatePendingJoinRoles extends GuildMemberUpdatePendingAbstract {
 
     @Override
-    public boolean onGuildMemberUpdatePending(GuildMemberUpdatePendingEvent event, EntityManagerWrapper entityManager) throws Throwable {
+    public boolean onGuildMemberUpdatePending(GuildMemberUpdatePendingEvent event, EntityManagerWrapper entityManager) {
         GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
         JoinRoles.process(event.getMember(), false, guildEntity)
                 .exceptionally(ExceptionLogger.get());

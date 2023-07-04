@@ -1,10 +1,5 @@
 package events.discordevents.slashcommand;
 
-import java.util.Locale;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import commands.Command;
 import commands.CommandEvent;
 import commands.CommandManager;
@@ -21,6 +16,12 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
+import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+
 @DiscordEvent
 public class SlashCommandCommand extends SlashCommandAbstract {
 
@@ -33,19 +34,20 @@ public class SlashCommandCommand extends SlashCommandAbstract {
         }
 
         GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
+        String prefix = guildEntity.getPrefix();
+        Locale locale = guildEntity.getLocale();
+
         SlashMeta slashCommandMeta = SlashCommandManager.process(event, guildEntity);
         if (slashCommandMeta == null) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setTitle(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "wrong_args"))
-                    .setDescription(TextManager.getString(guildEntity.getLocale(), TextManager.GENERAL, "invalid_noargs"));
+                    .setTitle(TextManager.getString(locale, TextManager.GENERAL, "wrong_args"))
+                    .setDescription(TextManager.getString(locale, TextManager.GENERAL, "invalid_noargs"));
             event.replyEmbeds(eb.build())
                     .queue();
             return true;
         }
 
         String args = slashCommandMeta.getArgs().trim();
-        String prefix = guildEntity.getPrefix();
-        Locale locale = guildEntity.getLocale();
         Class<? extends Command> clazz = slashCommandMeta.getCommandClass();
         Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
         Function<Locale, String> errorFunction = slashCommandMeta.getErrorFunction();

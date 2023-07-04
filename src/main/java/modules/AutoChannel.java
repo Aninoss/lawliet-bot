@@ -1,9 +1,5 @@
 package modules;
 
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import commands.Command;
 import commands.runnables.utilitycategory.AutoChannelCommand;
 import core.PermissionCheckRuntime;
@@ -16,6 +12,11 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
+
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AutoChannel {
 
@@ -54,9 +55,9 @@ public class AutoChannel {
 
                 ChannelAction<VoiceChannel> channelAction = createNewVoice(autoChannelBean, voiceChannel, member, n);
                 channelAction.queue(
-                        vc -> processCreatedVoice(autoChannelBean, guildEntity, vc, member),
+                        vc -> processCreatedVoice(autoChannelBean, locale, vc, member),
                         e -> channelAction.setName("???")
-                                .queue(vc -> processCreatedVoice(autoChannelBean, guildEntity, vc, member))
+                                .queue(vc -> processCreatedVoice(autoChannelBean, locale, vc, member))
                 );
             }
         }
@@ -77,21 +78,21 @@ public class AutoChannel {
         }
     }
 
-    private static void processCreatedVoice(AutoChannelData autoChannelBean, GuildEntity guildEntity,
-                                            VoiceChannel voiceChannel, Member member
+    private static void processCreatedVoice(AutoChannelData autoChannelBean, Locale locale, VoiceChannel voiceChannel,
+                                            Member member
     ) {
         if (member.getVoiceState() != null && member.getVoiceState().inAudioChannel()) {
             member.getGuild().moveVoiceMember(member, voiceChannel).queue(v -> {
                 autoChannelBean.getChildChannelIds().add(voiceChannel.getIdLong());
                 if (!voiceChannel.getMembers().contains(member)) {
                     voiceChannel.delete()
-                            .reason(Command.getCommandLanguage(AutoChannelCommand.class, guildEntity.getLocale()).getTitle())
+                            .reason(Command.getCommandLanguage(AutoChannelCommand.class, locale).getTitle())
                             .queue();
                     autoChannelBean.getChildChannelIds().remove(voiceChannel.getIdLong());
                 }
             }, e -> {
                 voiceChannel.delete()
-                        .reason(Command.getCommandLanguage(AutoChannelCommand.class, guildEntity.getLocale()).getTitle())
+                        .reason(Command.getCommandLanguage(AutoChannelCommand.class, locale).getTitle())
                         .queue();
             });
         }

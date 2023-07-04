@@ -1,10 +1,5 @@
 package commands.runnables.moderationcategory;
 
-import java.time.Duration;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -27,6 +22,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.TimeFormat;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "jail",
@@ -80,11 +81,10 @@ public class JailCommand extends WarnCommand {
     protected void process(Guild guild, User target, String reason) {
         AtomicBoolean newPermissionIssues = new AtomicBoolean(false);
         if (jail) {
-            MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).thenAccept(member -> {
-                if (member != null) {
-                    newPermissionIssues.set(!Jail.jail(guild, member, minutes, reason, getGuildEntity()));
-                }
-            });
+            Member member = MemberCacheController.getInstance().loadMember(guild, target.getIdLong()).join();
+            if (member != null) {
+                newPermissionIssues.set(!Jail.jail(guild, member, minutes, reason, getGuildEntity()));
+            }
         } else {
             newPermissionIssues.set(!Jail.unjail(guild, target, reason, getGuildEntity()));
         }

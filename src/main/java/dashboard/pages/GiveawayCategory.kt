@@ -265,7 +265,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         val sendButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_send", mode.ordinal)) {
             if (mode != Mode.REROLL) {
-                confirm(guild, false)
+                return@DashboardButton confirm(guild, false)
             } else {
                 val giveawayMap = DBGiveaway.getInstance().retrieve(guild.getIdLong())
                 val giveawayData = giveawayMap.get(messageId)
@@ -293,7 +293,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         if (mode == Mode.EDIT) {
             val endPrematurelyButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_endpre")) {
-                confirm(guild, true)
+                return@DashboardButton confirm(guild, true)
             }
             endPrematurelyButton.style = DashboardButton.Style.PRIMARY
             buttonContainer.add(endPrematurelyButton)
