@@ -5,21 +5,21 @@ import mysql.hibernate.entity.GuildEntity;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.Properties;
 
 public class HibernateManager {
 
     private static EntityManagerFactory entityManagerFactory;
 
-    public static void connect() {
-        Map<String, Object> configOverrides = new HashMap<>();
-        addConfigOverride(configOverrides, "hibernate.ogm.mongodb.host", "MONGODB_HOST");
-        addConfigOverride(configOverrides, "hibernate.ogm.mongodb.port", "MONGODB_PORT");
-        addConfigOverride(configOverrides, "hibernate.ogm.mongodb.username", "MONGODB_USER");
-        addConfigOverride(configOverrides, "hibernate.ogm.mongodb.username", "MONGODB_PASSWORD");
+    public static void connect() throws IOException {
+        Properties props = new Properties();
+        props.put("hibernate.ogm.datastore.host", System.getenv("MONGODB_HOST"));
+        props.put("hibernate.ogm.datastore.username", System.getenv("MONGODB_USER"));
+        props.put("hibernate.ogm.datastore.password", System.getenv("MONGODB_PASSWORD"));
+
         MainLogger.get().info("Connecting with MongoDB database");
-        entityManagerFactory = Persistence.createEntityManagerFactory("lawliet", configOverrides);
+        entityManagerFactory = Persistence.createEntityManagerFactory("lawliet", props);
     }
 
     public static EntityManagerWrapper createEntityManager() {
@@ -28,13 +28,6 @@ public class HibernateManager {
 
     public static GuildEntity findGuildEntity(long guildId) {
         return createEntityManager().findGuildEntity(guildId);
-    }
-
-    private static void addConfigOverride(Map<String, Object> configOverrides, String configKey, String environmentKey) {
-        String value = System.getenv(environmentKey);
-        if (value != null) {
-            configOverrides.put(configKey, value);
-        }
     }
 
 }

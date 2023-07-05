@@ -1,8 +1,6 @@
 package core;
 
 import constants.AssetIds;
-import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.stickyroles.DBStickyRoles;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 
@@ -22,13 +20,13 @@ public class ChunkingFilterController implements ChunkingFilter {
         return !Program.publicVersion() ||
                 guildId == AssetIds.SUPPORT_SERVER_ID ||
                 guildId == AssetIds.ANICORD_SERVER_ID ||
-                (!DBStickyRoles.getInstance().retrieve(guildId).getRoleIds().isEmpty() && !guildIsBig(guildId));
+                (!DBStickyRoles.getInstance().retrieve(guildId).getRoleIds().isEmpty() && allowChunking(guildId));
     }
 
-    private boolean guildIsBig(long guildId) {
-        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
-            return guildEntity.getBig();
-        }
+    public boolean allowChunking(long guildId) {
+        return ShardManager.getLocalGuildById(guildId)
+                .map(guild -> guild.getMemberCount() < MemberCacheController.BIG_SERVER_THRESHOLD)
+                .orElse(false);
     }
 
 }

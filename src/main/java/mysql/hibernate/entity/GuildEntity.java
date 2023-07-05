@@ -13,22 +13,29 @@ import java.util.Locale;
 public class GuildEntity extends HibernateEntity implements GuildAsset {
 
     @Id
-    private long guildId;
+    private String guildId;
 
     private String prefix = "L.";
     private String language = Language.EN.name();
-    private boolean big = false;
     private boolean removeAuthorMessage = false;
 
-    public GuildEntity(Long guildId) {
+    public GuildEntity(String guildId) {
         this.guildId = guildId;
+    }
+
+    public GuildEntity(String guildId, String prefix, String language, boolean removeAuthorMessage) {
+        this.guildId = guildId;
+        this.prefix = prefix;
+        this.language = language;
+        this.removeAuthorMessage = removeAuthorMessage;
     }
 
     public GuildEntity() {
     }
 
+    @Override
     public long getGuildId() {
-        return guildId;
+        return Long.parseLong(guildId);
     }
 
     public String getPrefix() {
@@ -37,7 +44,7 @@ public class GuildEntity extends HibernateEntity implements GuildAsset {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
-        DBGuild.getInstance().retrieve(guildId).setPrefix(prefix); // TODO: remove after migration
+        DBGuild.getInstance().retrieve(Long.parseLong(guildId)).setPrefix(prefix); // TODO: remove after migration
     }
 
     public Language getLanguage() {
@@ -46,20 +53,11 @@ public class GuildEntity extends HibernateEntity implements GuildAsset {
 
     public void setLanguage(Language language) {
         this.language = language.name();
-        DBGuild.getInstance().retrieve(guildId).setLocale(language.getLocale()); // TODO: remove after migration
+        DBGuild.getInstance().retrieve(Long.parseLong(guildId)).setLocale(language.getLocale()); // TODO: remove after migration
     }
 
     public Locale getLocale() {
         return getLanguage().getLocale();
-    }
-
-    public boolean getBig() {
-        return big;
-    }
-
-    public void setBig(boolean big) {
-        this.big = big;
-        DBGuild.getInstance().retrieve(guildId).setBig(big); // TODO: remove after migration
     }
 
     public boolean getRemoveAuthorMessage() {
@@ -67,12 +65,12 @@ public class GuildEntity extends HibernateEntity implements GuildAsset {
     }
 
     public boolean getRemoveAuthorMessageEffectively() {
-        return getRemoveAuthorMessage() && ServerPatreonBoostCache.get(getGuildId());
+        return getRemoveAuthorMessage() && ServerPatreonBoostCache.get(Long.parseLong(guildId));
     }
 
     public void setRemoveAuthorMessage(boolean removeAuthorMessage) {
         this.removeAuthorMessage = removeAuthorMessage;
-        DBGuild.getInstance().retrieve(guildId).setCommandAuthorMessageRemove(removeAuthorMessage); // TODO: remove after migration
+        DBGuild.getInstance().retrieve(Long.parseLong(guildId)).setCommandAuthorMessageRemove(removeAuthorMessage); // TODO: remove after migration
     }
 
 }

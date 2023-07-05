@@ -1,13 +1,5 @@
 package mysql.modules.guild;
 
-import java.sql.Date;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import constants.Language;
@@ -17,6 +9,17 @@ import modules.fishery.FisheryStatus;
 import mysql.DBDataLoadAll;
 import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
+
+import java.sql.Date;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 public class DBGuild extends DBObserverMapCache<Long, GuildData> {
 
@@ -203,6 +206,12 @@ public class DBGuild extends DBObserverMapCache<Long, GuildData> {
         LocalFile welcomeBackgroundFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", guildId));
         if (welcomeBackgroundFile.exists()) {
             welcomeBackgroundFile.delete();
+        }
+
+        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+            guildEntity.beginTransaction();
+            guildEntity.remove();
+            guildEntity.commitTransaction();
         }
     }
 

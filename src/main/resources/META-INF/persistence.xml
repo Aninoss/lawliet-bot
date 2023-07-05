@@ -11,10 +11,6 @@
         <class>mysql.hibernate.entity.GuildEntity</class>
         <properties>
             <property name="hibernate.ogm.datastore.provider" value="mongodb" />
-            <property name="hibernate.ogm.mongodb.host" value="127.0.0.1"/>
-            <property name="hibernate.ogm.mongodb.port" value="27017"/>
-            <property name="hibernate.ogm.mongodb.username" value="" />
-            <property name="hibernate.ogm.mongodb.password" value="" />
             <property name="hibernate.ogm.datastore.database" value="Lawliet" />
             <property name="hibernate.ogm.datastore.create_database" value="true"/>
         </properties>

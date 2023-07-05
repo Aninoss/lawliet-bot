@@ -1,6 +1,5 @@
 package core;
 
-import java.time.Instant;
 import core.cache.PatreonCache;
 import core.emoji.EmojiTable;
 import core.utils.BotUtil;
@@ -10,6 +9,8 @@ import mysql.hibernate.HibernateManager;
 import mysql.modules.version.DBVersion;
 import mysql.modules.version.VersionData;
 import mysql.modules.version.VersionSlot;
+
+import java.time.Instant;
 
 public class Main {
 

@@ -22,6 +22,10 @@ public class HibernateEntity implements AutoCloseable {
         entityManager.getTransaction().commit();
     }
 
+    public void remove() {
+        entityManager.remove(this);
+    }
+
     @Override
     public void close() {
         entityManager.close();

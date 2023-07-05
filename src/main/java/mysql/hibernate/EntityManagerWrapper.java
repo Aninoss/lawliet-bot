@@ -1,16 +1,19 @@
 package mysql.hibernate;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Map;
+import constants.Language;
+import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.HibernateEntity;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildData;
+
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
-import mysql.hibernate.entity.GuildEntity;
-import mysql.hibernate.entity.HibernateEntity;
+import java.util.List;
+import java.util.Map;
 
 public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
@@ -58,13 +61,18 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     public <T> T findOrDefault(Class<T> entityClass, Object primaryKey) {
         T object = entityManager.find(entityClass, primaryKey);
         if (object == null) {
-            try {
+            /*try {
                 object = entityClass.getConstructor(primaryKey.getClass())
                         .newInstance(primaryKey);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                      NoSuchMethodException e) {
                 throw new RuntimeException(e);
-            }
+            } TODO: temporary*/
+            String guildId = (String) primaryKey;
+
+            GuildData guildData = DBGuild.getInstance().retrieve(Long.parseLong(guildId));
+            object = (T) new GuildEntity(guildId, guildData.getPrefix(), Language.from(guildData.getLocale()).name(), guildData.isCommandAuthorMessageRemove());
+
             entityManager.getTransaction().begin();
             entityManager.persist(object);
             entityManager.getTransaction().commit();
@@ -74,7 +82,7 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     }
 
     public GuildEntity findGuildEntity(long guildId) {
-        return findOrDefault(GuildEntity.class, guildId);
+        return findOrDefault(GuildEntity.class, String.valueOf(guildId));
     }
 
     @Override
