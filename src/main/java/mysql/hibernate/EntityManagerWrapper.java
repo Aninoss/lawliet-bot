@@ -1,6 +1,7 @@
 package mysql.hibernate;
 
 import constants.Language;
+import core.MainLogger;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.hibernate.entity.HibernateEntity;
 import mysql.modules.guild.DBGuild;
@@ -73,9 +74,17 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
             GuildData guildData = DBGuild.getInstance().retrieve(Long.parseLong(guildId));
             object = (T) new GuildEntity(guildId, guildData.getPrefix(), Language.from(guildData.getLocale()).name(), guildData.isCommandAuthorMessageRemove());
 
-            entityManager.getTransaction().begin();
-            entityManager.persist(object);
-            entityManager.getTransaction().commit();
+            try {
+                entityManager.getTransaction().begin();
+                entityManager.persist(object);
+                entityManager.getTransaction().commit();
+            } catch (RollbackException e) {
+                MainLogger.get().warn("Rollback exception on entity persistence for class {} and id {}", entityClass, primaryKey);
+                object = entityManager.find(entityClass, primaryKey);
+                if (object == null) {
+                    throw e;
+                }
+            }
         }
         ((HibernateEntity) object).setEntityManager(this);
         return object;
