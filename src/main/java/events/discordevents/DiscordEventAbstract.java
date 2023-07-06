@@ -1,12 +1,13 @@
 package events.discordevents;
 
-import java.util.ArrayList;
 import core.MainLogger;
 import core.ShardManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.modules.bannedusers.DBBannedUsers;
 import net.dv8tion.jda.api.entities.User;
+
+import java.util.ArrayList;
 
 public abstract class DiscordEventAbstract {
 
@@ -46,24 +47,26 @@ public abstract class DiscordEventAbstract {
 
         boolean banned = user != null && userIsBanned(user.getIdLong());
         boolean bot = user != null && user.isBot();
-        for (EventPriority priority : EventPriority.values()) {
-            if (!runListenerPriority(listenerList, function, priority, banned, bot)) {
-                return;
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            for (EventPriority priority : EventPriority.values()) {
+                if (!runListenerPriority(listenerList, function, priority, entityManager, banned, bot)) {
+                    return;
+                }
             }
         }
     }
 
     private static boolean runListenerPriority(ArrayList<DiscordEventAbstract> listenerList, EventExecution function,
-                                               EventPriority priority, boolean banned, boolean bot) {
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-            for (DiscordEventAbstract listener : listenerList) {
-                if (listener.getPriority() == priority &&
-                        (!banned || listener.isAllowingBannedUser()) &&
-                        (!bot || listener.isAllowingBots()) &&
-                        !run(function, listener, entityManager)
-                ) {
-                    return false;
-                }
+                                               EventPriority priority, EntityManagerWrapper entityManager,
+                                               boolean banned, boolean bot
+    ) {
+        for (DiscordEventAbstract listener : listenerList) {
+            if (listener.getPriority() == priority &&
+                    (!banned || listener.isAllowingBannedUser()) &&
+                    (!bot || listener.isAllowingBots()) &&
+                    !run(function, listener, entityManager)
+            ) {
+                return false;
             }
         }
 
