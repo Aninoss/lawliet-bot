@@ -1,9 +1,10 @@
 package mysql;
 
-import java.util.List;
 import core.Program;
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.Guild;
+
+import java.util.List;
 
 public class DBDataLoadAll<T> extends DBDataLoad<T> {
 
@@ -23,7 +24,7 @@ public class DBDataLoadAll<T> extends DBDataLoad<T> {
             );
         } else {
             List<Guild> guilds = ShardManager.getLocalGuilds();
-            init(table, requiredAttributes, guilds.isEmpty() ? "0" : ("(" + "serverId = ? OR ".repeat(guilds.size()) + "1)" + add),
+            init(table, requiredAttributes, guilds.isEmpty() ? "0" : ("(" + "serverId = ? OR ".repeat(guilds.size()) + "0)" + add),
                     preparedStatement -> {
                         for (int i = 0; i < guilds.size(); i++) {
                             preparedStatement.setLong(i + 1, guilds.get(i).getIdLong());
