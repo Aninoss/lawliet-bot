@@ -35,6 +35,7 @@ public class EntitySelectMenuCommandsStatic extends EntitySelectMenuAbstract {
                     MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
                 }
                 command.setGuildEntity(guildEntity);
+                command.setAtomicGuild(event.getGuild());
                 ((OnStaticEntitySelectMenuListener) command).onStaticEntitySelectMenu(event, messageData.getSecondaryId());
                 return false;
             }

@@ -1,6 +1,5 @@
 package events.discordevents.guildmessagereactionremove;
 
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnStaticReactionRemoveListener;
@@ -17,6 +16,8 @@ import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
+
+import java.util.concurrent.ExecutionException;
 
 @DiscordEvent
 public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReactionRemoveAbstract {
@@ -50,6 +51,7 @@ public class GuildMessageReactionRemoveCommandsStatic extends GuildMessageReacti
                         MemberCacheController.getInstance().loadMember(event.getGuild(), event.getUserIdLong()).get();
                     }
                     command.setGuildEntity(guildEntity);
+                    command.setAtomicGuild(event.getGuild());
                     if (event.getMember() != null && !event.getMember().getUser().isBot()) {
                         ((OnStaticReactionRemoveListener) command).onStaticReactionRemove(message, event);
                     }

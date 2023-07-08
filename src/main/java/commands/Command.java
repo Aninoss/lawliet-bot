@@ -415,7 +415,7 @@ public abstract class Command implements OnTriggerListener {
 
     private Permission[] processUserPermissions(Permission[] permissions) {
         if (Arrays.stream(permissions).anyMatch(permission -> permission == Permission.ADMINISTRATOR)) {
-            return new Permission[] { Permission.ADMINISTRATOR };
+            return new Permission[]{Permission.ADMINISTRATOR};
         }
 
         if ((this instanceof OnReactionListener || this instanceof OnStaticReactionAddListener || this instanceof OnStaticReactionRemoveListener) &&
@@ -444,7 +444,7 @@ public abstract class Command implements OnTriggerListener {
 
     private Permission[] processBotPermissions(Permission[] permissions) {
         if (Arrays.stream(permissions).anyMatch(permission -> permission == Permission.ADMINISTRATOR)) {
-            return new Permission[] { Permission.ADMINISTRATOR };
+            return new Permission[]{Permission.ADMINISTRATOR};
         }
 
         if (this instanceof OnReactionListener || this instanceof OnStaticReactionAddListener || this instanceof OnStaticReactionRemoveListener) {
@@ -525,6 +525,10 @@ public abstract class Command implements OnTriggerListener {
 
     public JSONObject getAttachments() {
         return attachments;
+    }
+
+    public void setAtomicGuild(Guild guild) {
+        atomicGuild = new AtomicGuild(guild);
     }
 
     public void setAtomicAssets(TextChannel textChannel, Member member) {

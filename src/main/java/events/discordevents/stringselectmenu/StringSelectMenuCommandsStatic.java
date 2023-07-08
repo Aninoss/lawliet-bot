@@ -35,6 +35,7 @@ public class StringSelectMenuCommandsStatic extends StringSelectMenuAbstract {
                     MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
                 }
                 command.setGuildEntity(guildEntity);
+                command.setAtomicGuild(event.getGuild());
                 ((OnStaticStringSelectMenuListener) command).onStaticStringSelectMenu(event, messageData.getSecondaryId());
                 return false;
             }

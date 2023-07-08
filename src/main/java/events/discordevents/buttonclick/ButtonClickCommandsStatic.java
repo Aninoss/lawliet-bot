@@ -35,6 +35,7 @@ public class ButtonClickCommandsStatic extends ButtonClickAbstract {
                     MemberCacheController.getInstance().loadMembersFull(event.getGuild()).get();
                 }
                 command.setGuildEntity(guildEntity);
+                command.setAtomicGuild(event.getGuild());
                 ((OnStaticButtonListener) command).onStaticButton(event, messageData.getSecondaryId());
                 return false;
             }
