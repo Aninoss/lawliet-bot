@@ -1,14 +1,15 @@
 package commands;
 
-import java.time.Duration;
-import java.util.*;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
 import commands.listeners.OnAlertListener;
 import commands.listeners.OnStaticReactionAddListener;
 import commands.listeners.OnStaticReactionRemoveListener;
-import commands.runnables.aitoyscategory.*;
+import commands.runnables.aitoyscategory.ColorCommand;
+import commands.runnables.aitoyscategory.ImitateCommand;
+import commands.runnables.aitoyscategory.Txt2ImgCommand;
+import commands.runnables.aitoyscategory.Waifu2xCommand;
 import commands.runnables.casinocategory.*;
 import commands.runnables.configurationcategory.*;
 import commands.runnables.externalcategory.*;
@@ -32,6 +33,9 @@ import constants.Settings;
 import core.MainLogger;
 import core.Program;
 import core.utils.ExceptionUtil;
+
+import java.time.Duration;
+import java.util.*;
 
 public class CommandContainer {
 
@@ -64,7 +68,6 @@ public class CommandContainer {
         commandList.add(ImitateCommand.class);
         commandList.add(Waifu2xCommand.class);
         commandList.add(ColorCommand.class);
-        commandList.add(DeepDreamCommand.class);
         commandList.add(Txt2ImgCommand.class);
 
         //CONFIGURATION
