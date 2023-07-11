@@ -3,7 +3,7 @@ package mysql.hibernate;
 import constants.Language;
 import core.MainLogger;
 import mysql.hibernate.entity.GuildEntity;
-import mysql.hibernate.entity.HibernateEntity;
+import mysql.hibernate.template.HibernateEntity;
 import mysql.modules.guild.DBGuild;
 import mysql.modules.guild.GuildData;
 

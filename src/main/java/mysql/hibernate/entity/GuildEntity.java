@@ -3,8 +3,10 @@ package mysql.hibernate.entity;
 import constants.Language;
 import core.assets.GuildAsset;
 import core.cache.ServerPatreonBoostCache;
+import mysql.hibernate.template.HibernateEntity;
 import mysql.modules.guild.DBGuild;
 
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.Locale;
@@ -18,6 +20,9 @@ public class GuildEntity extends HibernateEntity implements GuildAsset {
     private String prefix = "L.";
     private String language = Language.EN.name();
     private boolean removeAuthorMessage = false;
+
+    @Embedded
+    FisheryEntity fishery = new FisheryEntity();
 
     public GuildEntity(String guildId) {
         this.guildId = guildId;
@@ -73,4 +78,8 @@ public class GuildEntity extends HibernateEntity implements GuildAsset {
         DBGuild.getInstance().retrieve(Long.parseLong(guildId)).setCommandAuthorMessageRemove(removeAuthorMessage); // TODO: remove after migration
     }
 
+    public FisheryEntity getFishery() {
+        fishery.setHibernateEntity(this);
+        return fishery;
+    }
 }
