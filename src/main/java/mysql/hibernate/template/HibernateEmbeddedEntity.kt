@@ -1,42 +1,27 @@
-package mysql.hibernate.template;
+package mysql.hibernate.template
 
-import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.EntityManagerWrapper
 
-public abstract class HibernateEmbeddedEntity<T extends HibernateEntity> implements HibernateEntityInterface {
+abstract class HibernateEmbeddedEntity<T : HibernateEntity> : HibernateEntityInterface {
 
-    private T hibernateEntity;
+    lateinit var hibernateEntity: T
 
-    public void setHibernateEntity(T hibernateEntity) {
-        this.hibernateEntity = hibernateEntity;
+    override var entityManager: EntityManagerWrapper
+        get() = hibernateEntity.entityManager
+        set(entityManager) {
+            hibernateEntity.entityManager = entityManager
+        }
+
+    override fun beginTransaction() {
+        hibernateEntity.beginTransaction()
     }
 
-    public T getHibernateEntity() {
-        return hibernateEntity;
+    override fun commitTransaction() {
+        hibernateEntity.commitTransaction()
     }
 
-    @Override
-    public EntityManagerWrapper getEntityManager() {
-        return hibernateEntity.getEntityManager();
-    }
-
-    @Override
-    public void setEntityManager(EntityManagerWrapper entityManager) {
-        hibernateEntity.setEntityManager(entityManager);
-    }
-
-    @Override
-    public void beginTransaction() {
-        hibernateEntity.beginTransaction();
-    }
-
-    @Override
-    public void commitTransaction() {
-        hibernateEntity.commitTransaction();
-    }
-
-    @Override
-    public void close() {
-        hibernateEntity.close();
+    override fun close() {
+        hibernateEntity.close()
     }
 
 }

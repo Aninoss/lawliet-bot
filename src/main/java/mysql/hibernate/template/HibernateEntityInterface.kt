@@ -1,15 +1,11 @@
-package mysql.hibernate.template;
+package mysql.hibernate.template
 
-import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.EntityManagerWrapper
 
-public interface HibernateEntityInterface extends AutoCloseable {
+interface HibernateEntityInterface : AutoCloseable {
 
-    EntityManagerWrapper getEntityManager();
-
-    void setEntityManager(EntityManagerWrapper entityManager);
-
-    void beginTransaction();
-
-    void commitTransaction();
+    var entityManager: EntityManagerWrapper
+    fun beginTransaction()
+    fun commitTransaction()
 
 }

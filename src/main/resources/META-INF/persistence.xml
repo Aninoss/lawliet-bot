@@ -13,7 +13,6 @@
             <property name="hibernate.ogm.datastore.provider" value="mongodb" />
             <property name="hibernate.ogm.datastore.database" value="Lawliet" />
             <property name="hibernate.ogm.datastore.create_database" value="true"/>
-            <property name="hibernate.create_empty_composites.enabled" value="true"/>
         </properties>
     </persistence-unit>
 </persistence>

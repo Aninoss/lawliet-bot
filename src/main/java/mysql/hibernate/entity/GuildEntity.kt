@@ -1,85 +1,38 @@
-package mysql.hibernate.entity;
+package mysql.hibernate.entity
 
-import constants.Language;
-import core.assets.GuildAsset;
-import core.cache.ServerPatreonBoostCache;
-import mysql.hibernate.template.HibernateEntity;
-import mysql.modules.guild.DBGuild;
+import constants.Language
+import core.assets.GuildAsset
+import core.cache.ServerPatreonBoostCache
+import mysql.hibernate.template.HibernateEntity
+import java.util.*
+import javax.persistence.*
 
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import java.util.Locale;
 
 @Entity(name = "Guild")
-public class GuildEntity extends HibernateEntity implements GuildAsset {
+class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
 
-    @Id
-    private String guildId;
+    @Id private val guildId = key
+    var prefix = "L."
+    @Enumerated(EnumType.STRING) var language: Language = Language.EN
+    var removeAuthorMessage = false
 
-    private String prefix = "L.";
-    private String language = Language.EN.name();
-    private boolean removeAuthorMessage = false;
+    @Embedded var fishery: FisheryEntity = FisheryEntity()
 
-    @Embedded
-    FisheryEntity fishery = new FisheryEntity();
+    val locale: Locale
+        get() = language.locale
 
-    public GuildEntity(String guildId) {
-        this.guildId = guildId;
+    val removeAuthorMessageEffectively: Boolean
+        get() = removeAuthorMessage && ServerPatreonBoostCache.get(guildId.toLong())
+
+    constructor() : this("0")
+
+    override fun getGuildId(): Long {
+        return guildId.toLong()
     }
 
-    public GuildEntity(String guildId, String prefix, String language, boolean removeAuthorMessage) {
-        this.guildId = guildId;
-        this.prefix = prefix;
-        this.language = language;
-        this.removeAuthorMessage = removeAuthorMessage;
+    @PostLoad
+    override fun postLoad() {
+        fishery?.hibernateEntity = this
     }
 
-    public GuildEntity() {
-    }
-
-    @Override
-    public long getGuildId() {
-        return Long.parseLong(guildId);
-    }
-
-    public String getPrefix() {
-        return prefix;
-    }
-
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-        DBGuild.getInstance().retrieve(Long.parseLong(guildId)).setPrefix(prefix); // TODO: remove after migration
-    }
-
-    public Language getLanguage() {
-        return Language.valueOf(language);
-    }
-
-    public void setLanguage(Language language) {
-        this.language = language.name();
-        DBGuild.getInstance().retrieve(Long.parseLong(guildId)).setLocale(language.getLocale()); // TODO: remove after migration
-    }
-
-    public Locale getLocale() {
-        return getLanguage().getLocale();
-    }
-
-    public boolean getRemoveAuthorMessage() {
-        return removeAuthorMessage;
-    }
-
-    public boolean getRemoveAuthorMessageEffectively() {
-        return getRemoveAuthorMessage() && ServerPatreonBoostCache.get(Long.parseLong(guildId));
-    }
-
-    public void setRemoveAuthorMessage(boolean removeAuthorMessage) {
-        this.removeAuthorMessage = removeAuthorMessage;
-        DBGuild.getInstance().retrieve(Long.parseLong(guildId)).setCommandAuthorMessageRemove(removeAuthorMessage); // TODO: remove after migration
-    }
-
-    public FisheryEntity getFishery() {
-        fishery.setHibernateEntity(this);
-        return fishery;
-    }
 }

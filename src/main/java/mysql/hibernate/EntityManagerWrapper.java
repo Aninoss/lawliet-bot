@@ -1,11 +1,8 @@
 package mysql.hibernate;
 
-import constants.Language;
 import core.MainLogger;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.hibernate.template.HibernateEntity;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -13,6 +10,7 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
@@ -62,17 +60,14 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     public <T> T findOrDefault(Class<T> entityClass, Object primaryKey) {
         T object = entityManager.find(entityClass, primaryKey);
         if (object == null) {
-            /*try {
+            try {
                 object = entityClass.getConstructor(primaryKey.getClass())
                         .newInstance(primaryKey);
+                ((HibernateEntity) object).postLoad();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                      NoSuchMethodException e) {
                 throw new RuntimeException(e);
-            } TODO: temporary*/
-            String guildId = (String) primaryKey;
-
-            GuildData guildData = DBGuild.getInstance().retrieve(Long.parseLong(guildId));
-            object = (T) new GuildEntity(guildId, guildData.getPrefix(), Language.from(guildData.getLocale()).name(), guildData.isCommandAuthorMessageRemove());
+            }
 
             try {
                 entityManager.getTransaction().begin();

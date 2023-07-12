@@ -1,38 +1,28 @@
-package mysql.hibernate.template;
+package mysql.hibernate.template
 
-import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.EntityManagerWrapper
 
-public abstract class HibernateEntity implements HibernateEntityInterface {
+abstract class HibernateEntity : HibernateEntityInterface {
 
-    private EntityManagerWrapper entityManager;
+    override lateinit var entityManager: EntityManagerWrapper
 
-    @Override
-    public EntityManagerWrapper getEntityManager() {
-        return entityManager;
+    override fun beginTransaction() {
+        entityManager.transaction.begin()
     }
 
-    @Override
-    public void setEntityManager(EntityManagerWrapper entityManager) {
-        this.entityManager = entityManager;
+    override fun commitTransaction() {
+        entityManager.transaction.commit()
     }
 
-    @Override
-    public void beginTransaction() {
-        entityManager.getTransaction().begin();
+    override fun close() {
+        entityManager.close()
     }
 
-    @Override
-    public void commitTransaction() {
-        entityManager.getTransaction().commit();
+    fun remove() {
+        entityManager.remove(this)
     }
 
-    @Override
-    public void close() {
-        entityManager.close();
-    }
-
-    public void remove() {
-        entityManager.remove(this);
+    open fun postLoad() {
     }
 
 }
