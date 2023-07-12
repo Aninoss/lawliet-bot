@@ -1,33 +1,35 @@
-package mysql.hibernate;
+package mysql.hibernate
 
-import core.MainLogger;
-import mysql.hibernate.entity.GuildEntity;
+import core.MainLogger
+import mysql.hibernate.entity.GuildEntity
+import java.io.IOException
+import java.util.*
+import javax.persistence.EntityManagerFactory
+import javax.persistence.Persistence
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import java.io.IOException;
-import java.util.Properties;
+object HibernateManager {
 
-public class HibernateManager {
+    private lateinit var entityManagerFactory: EntityManagerFactory
 
-    private static EntityManagerFactory entityManagerFactory;
-
-    public static void connect() throws IOException {
-        Properties props = new Properties();
-        props.put("hibernate.ogm.datastore.host", System.getenv("MONGODB_HOST"));
-        props.put("hibernate.ogm.datastore.username", System.getenv("MONGODB_USER"));
-        props.put("hibernate.ogm.datastore.password", System.getenv("MONGODB_PASSWORD"));
-
-        MainLogger.get().info("Connecting with MongoDB database");
-        entityManagerFactory = Persistence.createEntityManagerFactory("lawliet", props);
+    @JvmStatic
+    @Throws(IOException::class)
+    fun connect() {
+        val props = Properties()
+        props["hibernate.ogm.datastore.host"] = System.getenv("MONGODB_HOST")
+        props["hibernate.ogm.datastore.username"] = System.getenv("MONGODB_USER")
+        props["hibernate.ogm.datastore.password"] = System.getenv("MONGODB_PASSWORD")
+        MainLogger.get().info("Connecting with MongoDB database")
+        entityManagerFactory = Persistence.createEntityManagerFactory("lawliet", props)
     }
 
-    public static EntityManagerWrapper createEntityManager() {
-        return new EntityManagerWrapper(entityManagerFactory.createEntityManager());
+    @JvmStatic
+    fun createEntityManager(): EntityManagerWrapper {
+        return EntityManagerWrapper(entityManagerFactory.createEntityManager())
     }
 
-    public static GuildEntity findGuildEntity(long guildId) {
-        return createEntityManager().findGuildEntity(guildId);
+    @JvmStatic
+    fun findGuildEntity(guildId: Long): GuildEntity {
+        return createEntityManager().findGuildEntity(guildId)
     }
 
 }
