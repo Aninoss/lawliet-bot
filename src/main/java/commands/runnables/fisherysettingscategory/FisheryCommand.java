@@ -112,20 +112,29 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         return false;
 
                     case 0:
-                        guildBean.toggleFisheryTreasureChests();
-                        setLog(LogStatus.SUCCESS, getString("treasurechestsset", guildBean.isFisheryTreasureChests()));
+                        fishery.beginTransaction();
+                        fishery.setTreasureChests(!fishery.getTreasureChests());
+                        fishery.commitTransaction();
+
+                        setLog(LogStatus.SUCCESS, getString("treasurechestsset", fishery.getTreasureChests()));
                         stopLock = true;
                         return true;
 
                     case 1:
-                        guildBean.toggleFisheryPowerups();
-                        setLog(LogStatus.SUCCESS, getString("powerupsset", guildBean.isFisheryPowerups()));
+                        fishery.beginTransaction();
+                        fishery.setPowerUps(!fishery.getPowerUps());
+                        fishery.commitTransaction();
+
+                        setLog(LogStatus.SUCCESS, getString("powerupsset", fishery.getPowerUps()));
                         stopLock = true;
                         return true;
 
                     case 2:
-                        guildBean.toggleFisheryReminders();
-                        setLog(LogStatus.SUCCESS, getString("remindersset", guildBean.isFisheryReminders()));
+                        fishery.beginTransaction();
+                        fishery.setFishReminders(!fishery.getFishReminders());
+                        fishery.commitTransaction();
+
+                        setLog(LogStatus.SUCCESS, getString("remindersset", fishery.getFishReminders()));
                         stopLock = true;
                         return true;
 
@@ -215,9 +224,9 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 TextChannel channel = getTextChannel().get();
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
                         .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[fishery.getFisheryStatus().ordinal()] + "**\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
-                        .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(channel, guildBean.isFisheryTreasureChests()).getFormatted()), getString("state0_mtreasurechests_desc"), true)
-                        .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, guildBean.isFisheryPowerups()).getFormatted()), getString("state0_mpowerups_desc"), true)
-                        .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, guildBean.isFisheryReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
+                        .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(channel, fishery.getTreasureChests()).getFormatted()), getString("state0_mtreasurechests_desc"), true)
+                        .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, fishery.getPowerUps()).getFormatted()), getString("state0_mpowerups_desc"), true)
+                        .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, fishery.getFishReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
                         .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, guildBean.hasFisheryCoinsGivenLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc"), true)
                         .addField(getString("state0_mchannels"), new ListGen<AtomicTextChannel>().getList(ignoredChannels, getLocale(), m -> m.getPrefixedNameInField(getLocale())), false);
 
@@ -295,7 +304,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
         StandardGuildMessageChannel channel = (StandardGuildMessageChannel) event.getChannel();
         if (resultInt == 0 && BotPermissionUtil.canWriteEmbed(channel)) {
-            event.getMessage().editMessageEmbeds(eb.build(), memberData.changeValuesEmbed(event.getMember(), 0, won, getLocale()).build()).submit()
+            event.getMessage().editMessageEmbeds(eb.build(), memberData.changeValuesEmbed(event.getMember(), 0, won, getGuildEntity()).build()).submit()
                     .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
         } else {
             hook.editOriginalEmbeds(eb.build()).submit()
@@ -439,8 +448,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .setThumbnail(FisheryPowerUp.TEAM.getImageUrl())
                 .setFooter(getString("powerup_footer"));
 
-        EmbedBuilder changeEmbed0 = memberData0.changeValuesEmbed(member0, 0, memberData0.getMemberGear(FisheryGear.TREASURE).getEffect(), getLocale());
-        EmbedBuilder changeEmbed1 = memberData1.changeValuesEmbed(member1, 0, memberData1.getMemberGear(FisheryGear.TREASURE).getEffect(), getLocale());
+        EmbedBuilder changeEmbed0 = memberData0.changeValuesEmbed(member0, 0, memberData0.getMemberGear(FisheryGear.TREASURE).getEffect(), getGuildEntity());
+        EmbedBuilder changeEmbed1 = memberData1.changeValuesEmbed(member1, 0, memberData1.getMemberGear(FisheryGear.TREASURE).getEffect(), getGuildEntity());
 
         event.editMessageEmbeds(eb.build(), changeEmbed0.build(), changeEmbed1.build())
                 .setComponents()

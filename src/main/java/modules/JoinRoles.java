@@ -117,7 +117,7 @@ public class JoinRoles {
             return;
         }
 
-        List<Role> memberRoles = fisheryGuildBean.getMemberData(member.getIdLong()).getRoles();
+        List<Role> memberRoles = fisheryGuildBean.getMemberData(member.getIdLong()).getRoles(guildEntity.getFishery());
         for (Role role : fisheryGuildBean.getRoles()) {
             boolean give = memberRoles.contains(role);
             if (PermissionCheckRuntime.botCanManageRoles(locale, FisheryCommand.class, role) && give != member.getRoles().contains(role)) {

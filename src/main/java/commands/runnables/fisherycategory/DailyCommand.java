@@ -1,10 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -30,6 +25,12 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "daily",
@@ -82,7 +83,7 @@ public class DailyCommand extends Command implements FisheryInterface {
                     Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_button_unlock"))
             );
 
-            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fish + bonusCombo + bonusDonation, 0, dailyStreakNow, getLocale()).build();
+            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fish + bonusCombo + bonusDonation, 0, dailyStreakNow, getGuildEntity()).build();
             setActionRows(rows);
             setAdditionalEmbeds(userChangeValueEmbed);
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());

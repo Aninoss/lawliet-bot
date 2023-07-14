@@ -1,9 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import java.time.Instant;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Random;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -32,6 +28,11 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Random;
 
 @CommandProperties(
         trigger = "work",
@@ -93,7 +94,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
                     deregisterListenersWithComponents();
                     active = false;
                     long coins = fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect();
-                    setAdditionalEmbeds(fisheryMemberBean.changeValuesEmbed(event.getMember(), 0, coins, getLocale()).build());
+                    setAdditionalEmbeds(fisheryMemberBean.changeValuesEmbed(event.getMember(), 0, coins, getGuildEntity()).build());
                     fisheryMemberBean.completeWork();
                     setLog(LogStatus.SUCCESS, getString("right"));
                     return MessageInputResponse.SUCCESS;

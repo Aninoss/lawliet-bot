@@ -1,6 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryMemberAccountInterface;
@@ -8,6 +7,8 @@ import mysql.modules.fisheryusers.DBFishery;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "acc",
@@ -27,7 +28,7 @@ public class AccountCommand extends FisheryMemberAccountInterface {
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         return DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong())
-                .getAccountEmbed(member, getLocale());
+                .getAccountEmbed(member, getGuildEntity());
     }
 
 }

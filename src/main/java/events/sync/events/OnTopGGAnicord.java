@@ -1,8 +1,6 @@
 package events.sync.events;
 
-import java.text.MessageFormat;
 import constants.AssetIds;
-import constants.Language;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MemberCacheController;
@@ -10,10 +8,14 @@ import core.ShardManager;
 import core.utils.StringUtil;
 import events.sync.SyncServerEvent;
 import modules.fishery.Fishery;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+
+import java.text.MessageFormat;
 
 @SyncServerEvent(event = "TOPGG_ANICORD")
 public class OnTopGGAnicord extends OnTopGG {
@@ -29,10 +31,12 @@ public class OnTopGGAnicord extends OnTopGG {
                 long add = Fishery.getClaimValue(userBean);
 
                 String desc = MessageFormat.format("✅ | **{0}** hat auf [top.gg]({3}) für **{1}** geupvotet und dafür **🐟 {2}** (25% der Daily-Fische) erhalten!", StringUtil.escapeMarkdown(member.getEffectiveName()), StringUtil.escapeMarkdown(guild.getName()), StringUtil.numToString(add), String.format("https://top.gg/servers/%d/vote", AssetIds.ANICORD_SERVER_ID));
-                bumpChannel.sendMessageEmbeds(
-                        EmbedFactory.getEmbedDefault().setDescription(desc).build(),
-                        userBean.changeValuesEmbed(member, add, 0, Language.DE.getLocale()).build()
-                ).queue();
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guild.getIdLong())) {
+                    bumpChannel.sendMessageEmbeds(
+                            EmbedFactory.getEmbedDefault().setDescription(desc).build(),
+                            userBean.changeValuesEmbed(member, add, 0, guildEntity).build()
+                    ).queue();
+                }
             }
         }).exceptionally(ExceptionLogger.get());
     }

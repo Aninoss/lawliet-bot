@@ -157,6 +157,8 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
     @Override
     public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
+        FisheryEntity fishery = getGuildEntity().getFishery();
+
         switch (state) {
             case 0:
                 switch (i) {
@@ -183,8 +185,11 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         }
 
                     case 2:
-                        guildBean.toggleFisherySingleRoles();
-                        setLog(LogStatus.SUCCESS, getString("singleroleset", guildBean.isFisherySingleRoles()));
+                        fishery.beginTransaction();
+                        fishery.setSingleRoles(!fishery.getSingleRoles());
+                        fishery.commitTransaction();
+
+                        setLog(LogStatus.SUCCESS, getString("singleroleset", fishery.getSingleRoles()));
                         return true;
 
                     case 3:
@@ -268,7 +273,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(fisheryGuildBean.getRoles(), getLocale(), this::getRoleString), false)
-                        .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), guildBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
+                        .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), fishery.getSingleRoles())), getString("state0_msinglerole_desc"), false)
                         .addField(getString("state0_mannouncementchannel"), guildBean.getFisheryAnnouncementChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
                         .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(fishery.getRolePriceMin()), StringUtil.numToString(fishery.getRolePriceMax())), true);
 

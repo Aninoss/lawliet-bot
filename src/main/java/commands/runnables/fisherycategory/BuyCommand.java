@@ -256,7 +256,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         }
 
         if (slot.getGear() == FisheryGear.TREASURE) {
-            return guildBean.isFisheryTreasureChests();
+            return getGuildEntity().getFishery().getTreasureChests();
         }
 
         return true;

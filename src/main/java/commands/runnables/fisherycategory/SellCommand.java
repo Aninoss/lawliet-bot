@@ -1,6 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -25,6 +24,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "sell",
@@ -113,7 +114,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
         if (value >= 1) {
             long coins = ExchangeRate.get(0) * value;
             this.eb = EmbedFactory.getEmbedDefault(this, getString("done"));
-            setAdditionalEmbeds(userBean.changeValuesEmbed(member, -value, coins, getLocale()).build());
+            setAdditionalEmbeds(userBean.changeValuesEmbed(member, -value, coins, getGuildEntity()).build());
             return true;
         } else if (value == 0) {
             if (userBean.getFish() <= 0) {

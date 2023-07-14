@@ -16,6 +16,7 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.fishery.*;
 import mysql.RedisManager;
+import mysql.hibernate.entity.FisheryEntity;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.autosell.DBAutoSell;
 import mysql.modules.casinostats.DBCasinoStats;
@@ -84,7 +85,7 @@ public class FisheryMemberData implements MemberAsset {
         return memberId;
     }
 
-    public List<Role> getRoles() {
+    public List<Role> getRoles(FisheryEntity fishery) {
         CustomObservableList<Role> allRoles = fisheryGuildBean.getRoles();
 
         ArrayList<Role> userRoles = new ArrayList<>();
@@ -96,7 +97,7 @@ public class FisheryMemberData implements MemberAsset {
         }
 
         if (level > 0) {
-            if (fisheryGuildBean.getGuildData().isFisherySingleRoles()) {
+            if (fishery.getSingleRoles()) {
                 Role role = allRoles.get(level - 1);
                 if (role != null) {
                     userRoles.add(role);
@@ -434,7 +435,7 @@ public class FisheryMemberData implements MemberAsset {
             Optional<Member> memberOpt;
             if (fish >= 100 &&
                     !RedisManager.parseBoolean(reminderSentResp.get()) &&
-                    getGuildData().isFisheryReminders() &&
+                    guildEntity.getFishery().getFishReminders() &&
                     BotPermissionUtil.canWriteEmbed(message.getGuildChannel()) &&
                     (memberOpt = getMember()).isPresent()
             ) {
@@ -582,15 +583,15 @@ public class FisheryMemberData implements MemberAsset {
         });
     }
 
-    public EmbedBuilder getAccountEmbed(Member member, Locale locale) {
-        return changeValuesEmbed(member, 0, 0, locale);
+    public EmbedBuilder getAccountEmbed(Member member, GuildEntity guildEntity) {
+        return changeValuesEmbed(member, 0, 0, guildEntity);
     }
 
-    public EmbedBuilder changeValuesEmbed(Member member, long fishAdd, long coinsAdd, Locale locale) {
-        return changeValuesEmbed(member, fishAdd, coinsAdd, null, locale);
+    public EmbedBuilder changeValuesEmbed(Member member, long fishAdd, long coinsAdd, GuildEntity guildEntity) {
+        return changeValuesEmbed(member, fishAdd, coinsAdd, null, guildEntity);
     }
 
-    public synchronized EmbedBuilder changeValuesEmbed(Member member, long fishAdd, long coinsAdd, Long newDailyStreak, Locale locale) {
+    public synchronized EmbedBuilder changeValuesEmbed(Member member, long fishAdd, long coinsAdd, Long newDailyStreak, GuildEntity guildEntity) {
         return RedisManager.get(jedis -> {
             long coinsHidden = getCoinsHidden();
 
@@ -618,7 +619,7 @@ public class FisheryMemberData implements MemberAsset {
 
             /* generate account embed */
             FisheryRecentFishGainsData finalFisheryRecentFishGainsDataAfterwards = fisheryRecentFishGainsDataAfterwards;
-            return generateUserChangeEmbed(member, locale, fishAdd, coinsAdd,
+            return generateUserChangeEmbed(member, guildEntity, fishAdd, coinsAdd,
                     finalFisheryRecentFishGainsDataAfterwards.getRank(), fisheryRecentFishGainsDataPrevious.getRank(),
                     finalFisheryRecentFishGainsDataAfterwards.getRecentFishGains(),
                     fisheryRecentFishGainsDataPrevious.getRecentFishGains(), fishPrevious, coinsPrevious, newDailyStreak,
@@ -627,12 +628,13 @@ public class FisheryMemberData implements MemberAsset {
         });
     }
 
-    private synchronized EmbedBuilder generateUserChangeEmbed(Member member, Locale locale, long fishAdd, long coinsAdd,
+    private synchronized EmbedBuilder generateUserChangeEmbed(Member member, GuildEntity guildEntity, long fishAdd, long coinsAdd,
                                                               long rank, long rankPrevious, long fishIncome,
                                                               long fishIncomePrevious, long fishPrevious,
                                                               long coinsPrevious, Long newDailyStreak,
                                                               long dailyStreakPrevious, boolean isBanned
     ) {
+        Locale locale = guildEntity.getLocale();
         boolean patreon = PatreonCache.getInstance().hasPremium(memberId, false);
 
         String patreonEmoji = "👑";
@@ -672,7 +674,7 @@ public class FisheryMemberData implements MemberAsset {
             activePowerUpsStringBuilder.append(TextManager.getString(locale, TextManager.GENERAL, "rankingprogress_none"));
         }
 
-        eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, getGuildData().isFisheryPowerups() ? "rankingprogress_desription_powerups" : "rankingprogress_desription",
+        eb.setDescription(TextManager.getString(locale, TextManager.GENERAL, guildEntity.getFishery().getPowerUps() ? "rankingprogress_desription_powerups" : "rankingprogress_desription",
                 getEmbedSlot(locale, fishIncome, fishIncomePrevious, false),
                 getEmbedSlot(locale, getFish(), fishPrevious, false),
                 getEmbedSlot(locale, getCoins(), coinsPrevious, false),

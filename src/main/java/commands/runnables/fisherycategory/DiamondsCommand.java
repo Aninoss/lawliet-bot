@@ -1,7 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import java.util.List;
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -19,6 +17,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "diamonds",
@@ -51,7 +52,7 @@ public class DiamondsCommand extends Command implements OnButtonListener {
         if (fisheryMemberData.getDiamonds() >= 3) {
             fisheryMemberData.removeThreeDiamonds();
             long coins = fisheryMemberData.getCoins();
-            accountChangeEmbed = fisheryMemberData.changeValuesEmbed(event.getMember(), 0L, coins, getLocale());
+            accountChangeEmbed = fisheryMemberData.changeValuesEmbed(event.getMember(), 0L, coins, getGuildEntity());
             setLog(LogStatus.SUCCESS, "Du hast deine Coins verdoppelt!");
             deregisterListeners();
         } else {

@@ -1,8 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -25,6 +22,10 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "claim",
@@ -69,7 +70,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
             if (nextUpvote != null) addRemainingTimeNotification(eb, nextUpvote);
             EmbedUtil.addLog(eb, LogStatus.WARNING, getString("reminder"));
 
-            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fishes * upvotesUnclaimed, 0, getLocale()).build();
+            MessageEmbed userChangeValueEmbed = userBean.changeValuesEmbed(event.getMember(), fishes * upvotesUnclaimed, 0, getGuildEntity()).build();
             setComponents(upvoteButton);
             setAdditionalEmbeds(userChangeValueEmbed);
             drawMessageNew(eb).exceptionally(ExceptionLogger.get());
