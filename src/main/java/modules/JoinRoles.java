@@ -1,12 +1,5 @@
 package modules;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
 import commands.runnables.moderationcategory.JailCommand;
 import commands.runnables.moderationcategory.MuteCommand;
@@ -35,15 +28,23 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+
 public class JoinRoles {
 
     private static final AninossRaidProtection aninossRaidProtection = new AninossRaidProtection();
 
-    public static boolean guildIsRelevant(Guild guild) {
+    public static boolean guildIsRelevant(Guild guild, GuildEntity guildEntity) {
         FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guild.getIdLong());
         ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
         return DBAutoRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds().size() > 0 ||
-                (fisheryGuildData.getGuildData().getFisheryStatus() == FisheryStatus.ACTIVE && fisheryGuildData.getRoleIds().size() > 0) ||
+                (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE && fisheryGuildData.getRoleIds().size() > 0) ||
                 DBStickyRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds().size() > 0 ||
                 moderationData.getJailRoleIds().size() > 0 ||
                 moderationData.getMuteRoleId().isPresent();
@@ -60,7 +61,7 @@ public class JoinRoles {
             } else {
                 getAutoRoles(locale, member, rolesToAdd);
                 getStickyRoles(locale, member, rolesToAdd);
-                getFisheryRoles(locale, member, rolesToAdd, new HashSet<>());
+                getFisheryRoles(locale, member, guildEntity, rolesToAdd, new HashSet<>());
             }
             getMuteRole(locale, member, rolesToAdd);
 
@@ -109,10 +110,10 @@ public class JoinRoles {
         }
     }
 
-    public static void getFisheryRoles(Locale locale, Member member, HashSet<Role> rolesToAdd, HashSet<Role> rolesToRemove) {
+    public static void getFisheryRoles(Locale locale, Member member, GuildEntity guildEntity, HashSet<Role> rolesToAdd, HashSet<Role> rolesToRemove) {
         Guild guild = member.getGuild();
         FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
-        if (fisheryGuildBean.getGuildData().getFisheryStatus() == FisheryStatus.STOPPED) {
+        if (guildEntity.getFishery().getFisheryStatus() != FisheryStatus.ACTIVE) {
             return;
         }
 

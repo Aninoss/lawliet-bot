@@ -1,14 +1,5 @@
 package mysql.modules.fisheryusers;
 
-import java.awt.*;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import constants.AnicordVerificationIds;
 import constants.CodeBlockColor;
 import constants.LogStatus;
@@ -23,7 +14,6 @@ import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
-import events.scheduleevents.events.FisheryVoiceChannelObserver;
 import modules.fishery.*;
 import mysql.RedisManager;
 import mysql.hibernate.entity.GuildEntity;
@@ -37,6 +27,16 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
+
+import java.awt.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class FisheryMemberData implements MemberAsset {
 
@@ -718,7 +718,7 @@ public class FisheryMemberData implements MemberAsset {
                 guildVoiceState.getChannel() instanceof VoiceChannel
         ) {
             voiceChannel = (VoiceChannel) guildVoiceState.getChannel();
-            boolean active = FisheryVoiceChannelObserver.getValidVCMembers(voiceChannel).contains(member);
+            boolean active = Fishery.getValidVoiceMembers(voiceChannel).contains(member);
             if (active) {
                 int voiceMinutes = RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_VOICE_MINUTES));
                 int voiceLimit = getGuildData().getFisheryVcHoursCapEffectively()

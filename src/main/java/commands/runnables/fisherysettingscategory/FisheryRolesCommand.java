@@ -1,8 +1,5 @@
 package commands.runnables.fisherysettingscategory;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -18,6 +15,7 @@ import core.atomicassets.AtomicTextChannel;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
+import mysql.hibernate.entity.FisheryEntity;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.guild.DBGuild;
@@ -30,6 +28,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "fisheryroles",
@@ -64,6 +66,8 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
     @Override
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
+        FisheryEntity fishery = getGuildEntity().getFishery();
+
         switch (state) {
             case 1:
                 List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
@@ -126,9 +130,14 @@ public class FisheryRolesCommand extends NavigationAbstract {
                     long priceMax = MentionUtil.getAmountExt(parts[1]);
 
                     if (priceMin >= -1 && priceMax >= -1 && priceMin <= Settings.FISHERY_MAX && priceMax <= Settings.FISHERY_MAX) {
-                        if (priceMin == -1) priceMin = guildBean.getFisheryRoleMin();
-                        if (priceMax == -1) priceMax = guildBean.getFisheryRoleMax();
-                        guildBean.setFisheryRolePrices(priceMin, priceMax);
+                        if (priceMin == -1) priceMin = fishery.getRolePriceMin();
+                        if (priceMax == -1) priceMax = fishery.getRolePriceMax();
+
+                        fishery.beginTransaction();
+                        fishery.setRolePriceMin(priceMin);
+                        fishery.setRolePriceMax(priceMax);
+                        fishery.commitTransaction();
+
                         setLog(LogStatus.SUCCESS, getString("pricesset"));
                         setState(0);
                         return MessageInputResponse.SUCCESS;
@@ -231,23 +240,26 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
     private String getRoleString(Role role) {
         int n = fisheryGuildBean.getRoles().indexOf(role);
+        FisheryEntity fishery = getGuildEntity().getFishery();
         return getString(
                 "state0_rolestring",
                 new AtomicRole(role).getPrefixedNameInField(getLocale()),
-                StringUtil.numToString(Fishery.getFisheryRolePrice(role.getGuild(), fisheryGuildBean.getRoles().size(), n))
+                StringUtil.numToString(Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), fisheryGuildBean.getRoles().size(), n))
         );
     }
 
     private String getRoleString2(Role role) {
         int n = fisheryGuildBean.getRoles().indexOf(role);
+        FisheryEntity fishery = getGuildEntity().getFishery();
         return getString(
                 "state2_rolestring",
-                role.getName(), StringUtil.numToString(Fishery.getFisheryRolePrice(role.getGuild(), fisheryGuildBean.getRoles().size(), n))
+                role.getName(), StringUtil.numToString(Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), fisheryGuildBean.getRoles().size(), n))
         );
     }
 
     @Override
     public EmbedBuilder draw(Member member, int state) {
+        FisheryEntity fishery = getGuildEntity().getFishery();
         String notSet = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
 
         switch (state) {
@@ -258,7 +270,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(fisheryGuildBean.getRoles(), getLocale(), this::getRoleString), false)
                         .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), guildBean.isFisherySingleRoles())), getString("state0_msinglerole_desc"), false)
                         .addField(getString("state0_mannouncementchannel"), guildBean.getFisheryAnnouncementChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
-                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(guildBean.getFisheryRoleMin()), StringUtil.numToString(guildBean.getFisheryRoleMax())), true);
+                        .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(fishery.getRolePriceMin()), StringUtil.numToString(fishery.getRolePriceMax())), true);
 
             case 1:
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));

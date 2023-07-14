@@ -1,6 +1,5 @@
 package events.discordevents.guildmessagereceived;
 
-import java.util.Random;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
@@ -19,6 +18,8 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Random;
+
 @DiscordEvent(priority = EventPriority.LOW)
 public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
 
@@ -32,7 +33,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
             boolean messageRegistered = false;
             FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
             if (!event.getMessage().getContentRaw().isEmpty() &&
-                    guildBean.getFisheryStatus() == FisheryStatus.ACTIVE &&
+                    guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE &&
                     !fisheryGuildBean.getIgnoredChannelIds().contains(event.getChannel().getIdLong())
             ) {
                 messageRegistered = fisheryGuildBean.getMemberData(event.getMember().getIdLong())
@@ -40,7 +41,7 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
             }
 
             if (!messageRegistered ||
-                    guildBean.getFisheryStatus() != FisheryStatus.ACTIVE ||
+                    guildEntity.getFishery().getFisheryStatus() != FisheryStatus.ACTIVE ||
                     !BotPermissionUtil.canWriteEmbed(event.getGuildChannel(), Permission.MESSAGE_HISTORY) ||
                     DBTicket.getInstance().retrieve(event.getGuild().getIdLong()).getTicketChannels().containsKey(event.getChannel().getIdLong())
             ) {

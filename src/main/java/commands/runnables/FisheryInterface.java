@@ -7,7 +7,6 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import modules.fishery.FisheryStatus;
-import mysql.modules.guild.DBGuild;
 import org.jetbrains.annotations.NotNull;
 
 public interface FisheryInterface extends OnTriggerListener {
@@ -21,7 +20,7 @@ public interface FisheryInterface extends OnTriggerListener {
 
     default boolean onFisheryTrigger(CommandEvent event, String args) throws Throwable {
         Command command = (Command) this;
-        FisheryStatus status = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getFisheryStatus();
+        FisheryStatus status = command.getGuildEntity().getFishery().getFisheryStatus();
         if (status == FisheryStatus.ACTIVE) {
             return onFisheryAccess(event, args);
         } else {

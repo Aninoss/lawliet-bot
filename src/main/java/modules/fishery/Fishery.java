@@ -5,30 +5,29 @@ import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
 import constants.Settings;
 import core.EmbedFactory;
+import core.Program;
 import core.TextManager;
 import core.components.ActionRows;
 import core.schedule.MainScheduler;
 import modules.JoinRoles;
 import mysql.hibernate.entity.GuildEntity;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
+import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.FisheryMemberData;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.Locale;
+import java.util.*;
 
 public class Fishery {
 
@@ -36,15 +35,14 @@ public class Fishery {
 
     public static void synchronizeRoles(Member member, GuildEntity guildEntity) {
         Guild guild = member.getGuild();
-        FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
         Locale locale = guildEntity.getLocale();
-        if (fisheryGuildBean.getGuildData().getFisheryStatus() == FisheryStatus.STOPPED) {
+        if (guildEntity.getFishery().getFisheryStatus() != FisheryStatus.ACTIVE) {
             return;
         }
 
         HashSet<Role> rolesToAdd = new HashSet<>();
         HashSet<Role> rolesToRemove = new HashSet<>();
-        JoinRoles.getFisheryRoles(locale, member, rolesToAdd, rolesToRemove);
+        JoinRoles.getFisheryRoles(locale, member, guildEntity, rolesToAdd, rolesToRemove);
 
         if (rolesToAdd.size() > 0 || rolesToRemove.size() > 0) {
             guild.modifyMemberRoles(member, rolesToAdd, rolesToRemove)
@@ -53,22 +51,39 @@ public class Fishery {
         }
     }
 
-    public static long getFisheryRolePrice(Guild guild, int size, int n) {
-        GuildData guildBean = DBGuild.getInstance().retrieve(guild.getIdLong());
-
-        double priceIdealMin = guildBean.getFisheryRoleMin();
-        double priceIdealMax = guildBean.getFisheryRoleMax();
-
+    public static long getFisheryRolePrice(long rolePriceMin, long rolePriceMax, int size, int n) {
         if (size == 1) {
-            return (long) priceIdealMin;
+            return rolePriceMin;
         }
 
-        double power = Math.pow(priceIdealMax / priceIdealMin, 1 / (double) (size - 1));
+        double power = Math.pow((double) rolePriceMax / (double) rolePriceMin, 1 / (double) (size - 1));
 
         double price = Math.pow(power, n);
         double priceMax = Math.pow(power, size - 1);
 
-        return Math.round(price * (priceIdealMax / priceMax));
+        return Math.round(price * ((double) rolePriceMax / priceMax));
+    }
+
+    public static List<Member> getValidVoiceMembers(VoiceChannel voiceChannel) {
+        ArrayList<Member> validMembers = new ArrayList<>();
+        for (Member member : voiceChannel.getMembers()) {
+            GuildVoiceState voice = member.getVoiceState();
+            if (voice != null &&
+                    !member.getUser().isBot() &&
+                    !voice.isMuted() &&
+                    !voice.isDeafened() &&
+                    !voice.isSuppressed() &&
+                    !DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(member.getIdLong())
+            ) {
+                validMembers.add(member);
+            }
+        }
+
+        if (validMembers.size() >= (Program.productionMode() ? 2 : 1)) {
+            return Collections.unmodifiableList(validMembers);
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     public static long getClaimValue(FisheryMemberData userBean) {

@@ -1,8 +1,5 @@
 package commands.runnables;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
 import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
@@ -25,7 +22,6 @@ import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.gamestatistics.DBGameStatistics;
 import mysql.modules.gamestatistics.GameStatisticsData;
-import mysql.modules.guild.DBGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -33,6 +29,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Locale;
 
 public abstract class CasinoAbstract extends Command implements OnButtonListener, OnMessageInputListener {
 
@@ -88,8 +88,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 return true;
             }
 
-            FisheryStatus status = DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).getFisheryStatus();
-            if (status != FisheryStatus.ACTIVE) {
+            if (getGuildEntity().getFishery().getFisheryStatus() != FisheryStatus.ACTIVE) {
                 coinsInput = 0;
                 trackingActive = false;
                 registerButtonListener(event.getMember());

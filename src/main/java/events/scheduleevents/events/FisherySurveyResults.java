@@ -1,20 +1,15 @@
 package events.scheduleevents.events;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import commands.Category;
 import constants.ExceptionRunnable;
 import core.*;
 import events.scheduleevents.ScheduleEventDaily;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
-import mysql.modules.guild.DBGuild;
 import mysql.modules.subs.DBSubs;
 import mysql.modules.subs.SubSlot;
 import mysql.modules.survey.DBSurvey;
@@ -22,6 +17,11 @@ import mysql.modules.survey.SurveyData;
 import mysql.modules.survey.SurveyQuestion;
 import mysql.modules.survey.SurveySecondVote;
 import net.dv8tion.jda.api.EmbedBuilder;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @ScheduleEventDaily
 public class FisherySurveyResults implements ExceptionRunnable {
@@ -55,23 +55,14 @@ public class FisherySurveyResults implements ExceptionRunnable {
         byte won = lastSurvey.getWon();
         int percent = won != 2 ? (int) Math.round(lastSurvey.getFirstVoteNumbers(won) / (double) lastSurvey.getFirstVoteNumber() * 100) : 0;
 
-        /* Group each second vote into a specific group for each user */
-        HashMap<Long, ArrayList<SurveySecondVote>> secondVotesMap = new HashMap<>();
-        for (SurveySecondVote surveySecondVote : lastSurvey.getSecondVotes().values()) {
-            if (surveySecondVote.getGuild().isPresent() &&
-                    DBGuild.getInstance().retrieve(surveySecondVote.getGuildId()).getFisheryStatus() == FisheryStatus.ACTIVE
-            ) {
-                secondVotesMap.computeIfAbsent(surveySecondVote.getMemberId(), k -> new ArrayList<>())
-                        .add(surveySecondVote);
-            }
-        }
+        HashMap<Long, ArrayList<SurveySecondVote>> secondVotesByMember = groupSecondVotesToMembers(lastSurvey);
 
         /* processing survey results */
-        MainLogger.get().info("Survey giving out prices for {} users", secondVotesMap.keySet().size());
-        for (long userId : secondVotesMap.keySet()) {
+        MainLogger.get().info("Survey giving out prices for {} users", secondVotesByMember.keySet().size());
+        for (long userId : secondVotesByMember.keySet()) {
             try {
                 MainLogger.get().info("### SURVEY MANAGE USER {} ###", userId);
-                processSurveyUser(secondVotesMap.get(userId), userId, won);
+                processSurveyUser(secondVotesByMember.get(userId), userId, won);
             } catch (Throwable e) {
                 MainLogger.get().error("Exception while managing user {}", userId, e);
             }
@@ -90,6 +81,28 @@ public class FisherySurveyResults implements ExceptionRunnable {
         }
 
         MainLogger.get().info("Survey results finished");
+    }
+
+    private static HashMap<Long, ArrayList<SurveySecondVote>> groupSecondVotesToMembers(SurveyData lastSurvey) {
+        Map<Long, List<SurveySecondVote>> secondVotesByGuild = lastSurvey.getSecondVotes().values().stream()
+                .filter(v -> v.getGuild().isPresent())
+                .collect(Collectors.groupingBy(SurveySecondVote::getGuildId));
+
+        HashMap<Long, ArrayList<SurveySecondVote>> secondVotesMap = new HashMap<>();
+        for (Long guildId : secondVotesByGuild.keySet()) {
+            try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+                if (guildEntity.getFishery().getFisheryStatus() != FisheryStatus.ACTIVE) {
+                    continue;
+                }
+
+                for (SurveySecondVote surveySecondVote : secondVotesByGuild.get(guildId)) {
+                    secondVotesMap.computeIfAbsent(surveySecondVote.getMemberId(), k -> new ArrayList<>())
+                            .add(surveySecondVote);
+                }
+            }
+        }
+
+        return secondVotesMap;
     }
 
     private static void processSurveyUser(List<SurveySecondVote> secondVotes, long userId, byte won) {

@@ -1,10 +1,5 @@
 package core;
 
-import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import commands.CommandContainer;
 import commands.SlashCommandManager;
 import commands.runningchecker.RunningCheckerManager;
@@ -18,6 +13,7 @@ import core.utils.TimeUtil;
 import events.scheduleevents.events.*;
 import javafx.util.Pair;
 import modules.SupportTemplates;
+import modules.fishery.Fishery;
 import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
@@ -31,6 +27,12 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.json.JSONObject;
+
+import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Console {
 
@@ -338,7 +340,7 @@ public class Console {
         long serverId = Long.parseLong(args[1]);
         ShardManager.getLocalGuildById(serverId).ifPresent(guild -> {
             HashSet<Member> members = new HashSet<>();
-            guild.getVoiceChannels().forEach(vc -> members.addAll(FisheryVoiceChannelObserver.getValidVCMembers(vc)));
+            guild.getVoiceChannels().forEach(vc -> members.addAll(Fishery.getValidVoiceMembers(vc)));
 
             String title = String.format("### VALID VC MEMBERS OF %s ###", guild.getName());
             System.out.println(title);

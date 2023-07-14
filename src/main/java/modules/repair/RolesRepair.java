@@ -29,8 +29,8 @@ public class RolesRepair {
 
     public void run(JDA jda, int minutes) {
         for (Guild guild : jda.getGuilds()) {
-            if (JoinRoles.guildIsRelevant(guild)) {
-                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guild.getIdLong())) {
+            try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guild.getIdLong())) {
+                if (JoinRoles.guildIsRelevant(guild, guildEntity)) {
                     MemberCacheController.getInstance().loadMembersFull(guild).join().stream()
                             .filter(member -> userJoinedRecently(member, minutes))
                             .forEach(member -> {

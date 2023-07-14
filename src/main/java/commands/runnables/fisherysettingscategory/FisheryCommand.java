@@ -21,6 +21,7 @@ import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
 import modules.fishery.FisheryStatus;
+import mysql.hibernate.entity.FisheryEntity;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -101,6 +102,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
     @Override
     public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
+        FisheryEntity fishery = getGuildEntity().getFishery();
+
         switch (state) {
             case 0:
                 switch (i) {
@@ -143,23 +146,30 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         return true;
 
                     case 6:
-                        if (guildBean.getFisheryStatus() != FisheryStatus.ACTIVE) {
-                            guildBean.setFisheryStatus(FisheryStatus.ACTIVE);
+                        fishery.beginTransaction();
+                        if (fishery.getFisheryStatus() != FisheryStatus.ACTIVE) {
+                            fishery.setFisheryStatus(FisheryStatus.ACTIVE);
                         } else {
-                            guildBean.setFisheryStatus(FisheryStatus.PAUSED);
+                            fishery.setFisheryStatus(FisheryStatus.PAUSED);
                         }
+                        fishery.commitTransaction();
+
                         setLog(LogStatus.SUCCESS, getString("setstatus"));
                         stopLock = true;
                         return true;
 
                     case 7:
-                        if (guildBean.getFisheryStatus() == FisheryStatus.ACTIVE) {
+                        if (fishery.getFisheryStatus() == FisheryStatus.ACTIVE) {
                             if (stopLock) {
                                 stopLock = false;
                                 setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
                             } else {
                                 GlobalThreadPool.submit(() -> DBFishery.getInstance().invalidateGuildId(event.getGuild().getIdLong()));
-                                DBGuild.getInstance().retrieve(event.getGuild().getIdLong()).setFisheryStatus(FisheryStatus.STOPPED);
+
+                                fishery.beginTransaction();
+                                fishery.setFisheryStatus(FisheryStatus.STOPPED);
+                                fishery.commitTransaction();
+
                                 setLog(LogStatus.SUCCESS, getString("setstatus"));
                                 stopLock = true;
                             }
@@ -189,7 +199,9 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     public EmbedBuilder draw(Member member, int state) {
         switch (state) {
             case 0:
-                String[] options = getString("state0_options_" + guildBean.getFisheryStatus().ordinal()).split("\n");
+                FisheryEntity fishery = getGuildEntity().getFishery();
+
+                String[] options = getString("state0_options_" + fishery.getFisheryStatus().ordinal()).split("\n");
                 Button[] buttons = new Button[options.length];
                 for (int i = 0; i < options.length; i++) {
                     buttons[i] = Button.of(
@@ -202,7 +214,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
                 TextChannel channel = getTextChannel().get();
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[guildBean.getFisheryStatus().ordinal()] + "**\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
+                        .addField(getString("state0_mstatus"), "**" + getString("state0_status").split("\n")[fishery.getFisheryStatus().ordinal()] + "**\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
                         .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(channel, guildBean.isFisheryTreasureChests()).getFormatted()), getString("state0_mtreasurechests_desc"), true)
                         .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, guildBean.isFisheryPowerups()).getFormatted()), getString("state0_mpowerups_desc"), true)
                         .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, guildBean.isFisheryReminders()).getFormatted()), getString("state0_mreminders_desc"), true)

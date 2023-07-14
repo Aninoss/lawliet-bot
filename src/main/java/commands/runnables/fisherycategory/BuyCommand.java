@@ -1,10 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -21,6 +16,7 @@ import core.utils.StringUtil;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
+import mysql.hibernate.entity.FisheryEntity;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -35,6 +31,12 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "buy",
@@ -136,7 +138,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
         long price = slot.getPrice();
         if (slot.getGear() == FisheryGear.ROLE) {
-            price = calculateRolePrice(member.getGuild(), slot);
+            price = calculateRolePrice(slot);
         }
 
         boolean usesCoupon = fisheryMemberData.getCoupons() > 0 && slot.getGear() != FisheryGear.ROLE;
@@ -188,7 +190,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                     if (slot.getGear() != FisheryGear.ROLE) {
                         productDescription = getString("product_des_" + slot.getGear().ordinal(), StringUtil.numToString(slot.getDeltaEffect()));
                     } else if (roles.get(slot.getLevel()) != null) {
-                        price = calculateRolePrice(member.getGuild(), slot);
+                        price = calculateRolePrice(slot);
                         productDescription = getString("product_des_" + slot.getGear().ordinal(), StringUtil.escapeMarkdown(roles.get(slot.getLevel()).getName()));
                     }
 
@@ -260,8 +262,9 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         return true;
     }
 
-    private long calculateRolePrice(Guild guild, FisheryMemberGearData slot) {
-        return Fishery.getFisheryRolePrice(guild, fisheryGuildData.getRoles().size(), slot.getLevel());
+    private long calculateRolePrice(FisheryMemberGearData slot) {
+        FisheryEntity fishery = getGuildEntity().getFishery();
+        return Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), fisheryGuildData.getRoles().size(), slot.getLevel());
     }
 
     private String numToStringWithPowerUpBonus(long value, boolean powerUpBonus) {
