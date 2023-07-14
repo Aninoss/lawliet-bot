@@ -1,11 +1,5 @@
 package core;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import commands.SlashCommandManager;
 import constants.AssetIds;
 import core.utils.StringUtil;
@@ -28,6 +22,13 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import net.dv8tion.jda.internal.utils.IOUtil;
 
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 public class DiscordConnector {
 
     private static boolean started = false;
@@ -49,8 +50,16 @@ public class DiscordConnector {
 
         String activityText = getActivityText();
         if (!activityText.isEmpty()) {
-            jdaBuilder.setActivity(Activity.watching(activityText));
+            jdaBuilder.setActivity(createActivity(activityText));
         }
+    }
+
+    public static Activity createActivity(String activityText) {
+        Activity.ActivityType activityType = System.getenv("ACTIVITY_TYPE") != null
+                ? Activity.ActivityType.valueOf(System.getenv("ACTIVITY_TYPE"))
+                : Activity.ActivityType.WATCHING;
+
+        return Activity.of(activityType, activityText);
     }
 
     public static String getActivityText() {
@@ -125,7 +134,7 @@ public class DiscordConnector {
             firstConnectionCompleted(jda);
         }
         if (ShardManager.isEverythingConnected() && !ShardManager.isReady()) {
-            allConnectionsCompleted(jda);
+            allConnectionsCompleted();
         }
         if (Program.productionMode()) {
             MainRepair.start(jda, 20);
@@ -162,7 +171,7 @@ public class DiscordConnector {
         }
     }
 
-    private synchronized static void allConnectionsCompleted(JDA jda) {
+    private synchronized static void allConnectionsCompleted() {
         new ScheduleEventManager().start();
         if (Program.productionMode() && Program.publicVersion()) {
             BumpReminder.start();

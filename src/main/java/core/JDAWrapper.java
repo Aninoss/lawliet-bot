@@ -53,7 +53,8 @@ public class JDAWrapper {
         if (!activityText.equals(previousActivityText)) {
             previousActivityText = activityText;
             MainLogger.get().info("Updating activity");
-            jda.getPresence().setActivity(Activity.watching(activityText));
+            Activity activity = DiscordConnector.createActivity(activityText);
+            jda.getPresence().setActivity(activity);
         }
     }
 
