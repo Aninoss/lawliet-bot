@@ -1,8 +1,9 @@
 package commands.runnables.nsfwinteractionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "blowjob",
@@ -32,7 +33,9 @@ public class BlowjobCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/834490895260844032/881904551949635604/blowjob.gif",
                 "https://cdn.discordapp.com/attachments/834490895260844032/881904674318471258/blowjob.gif",
                 "https://cdn.discordapp.com/attachments/834490895260844032/881904763275452466/blowjob.gif",
-                "https://cdn.discordapp.com/attachments/834490895260844032/881904859471818862/blowjob.gif"
+                "https://cdn.discordapp.com/attachments/834490895260844032/881904859471818862/blowjob.gif",
+                "https://cdn.discordapp.com/attachments/834490895260844032/1130880678553190550/blowjob.gif",
+                "https://cdn.discordapp.com/attachments/834490895260844032/1130881299943522397/blowjob.gif"
         );
     }
 

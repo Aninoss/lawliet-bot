@@ -1,8 +1,9 @@
 package commands.runnables.nsfwinteractionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "facesit",
@@ -26,7 +27,9 @@ public class FaceSitCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/969970754944909332/969971921791893504/facesit.gif",
                 "https://cdn.discordapp.com/attachments/969970754944909332/969971959108620319/facesit.gif",
                 "https://cdn.discordapp.com/attachments/969970754944909332/969971995544526868/facesit.gif",
-                "https://cdn.discordapp.com/attachments/969970754944909332/969972020102185020/facesit.gif"
+                "https://cdn.discordapp.com/attachments/969970754944909332/969972020102185020/facesit.gif",
+                "https://cdn.discordapp.com/attachments/969970754944909332/1130881488284561530/facesit.gif",
+                "https://cdn.discordapp.com/attachments/969970754944909332/1130882325698314361/facesit.gif"
         );
     }
 

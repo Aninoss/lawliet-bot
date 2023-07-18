@@ -1,8 +1,9 @@
 package commands.runnables.nsfwinteractionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "fuck",
@@ -124,7 +125,8 @@ public class FuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736281485216317442/881903968723275786/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/881904031323287592/fuck.gif",
                 "https://cdn.discordapp.com/attachments/736281485216317442/881904123405021264/fuck.gif",
-                "https://cdn.discordapp.com/attachments/736281485216317442/881904190358704148/fuck.gif"
+                "https://cdn.discordapp.com/attachments/736281485216317442/881904190358704148/fuck.gif",
+                "https://cdn.discordapp.com/attachments/736281485216317442/1130880574412828672/fuck.gif"
         );
     }
 
