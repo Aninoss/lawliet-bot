@@ -1,19 +1,21 @@
 package modules.reddit;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import constants.RegexPatterns;
-import core.MainLogger;
 import core.restclient.RestClient;
 import modules.PostBundle;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.regex.Matcher;
 
 public class RedditDownloader {
 
@@ -22,6 +24,10 @@ public class RedditDownloader {
         if (inputExt != null) {
             return RestClient.WEBCACHE.get("reddit/single/" + guildId + "/" + nsfwAllowed + "/" + inputExt[0] + "/" + inputExt[1])
                     .thenApply(response -> {
+                        if (response.getCode() / 100 == 5) {
+                            throw new CompletionException(new IOException("Reddit retrieval error"));
+                        }
+
                         String content = response.getBody();
                         if (content.startsWith("{")) {
                             try {
@@ -31,8 +37,7 @@ public class RedditDownloader {
                                 RedditPost redditPost = mapper.readValue(content, RedditPost.class);
                                 return Optional.of(redditPost);
                             } catch (JsonProcessingException e) {
-                                MainLogger.get().error("Reddit post parsing error", e);
-                                return Optional.empty();
+                                throw new CompletionException(e);
                             }
                         } else {
                             return Optional.empty();
@@ -48,6 +53,10 @@ public class RedditDownloader {
         if (inputExt != null) {
             return RestClient.WEBCACHE.get("reddit/bulk/" + inputExt[0] + "/" + inputExt[1])
                     .thenApply(response -> {
+                        if (response.getCode() / 100 == 5) {
+                            throw new CompletionException(new IOException("Reddit retrieval error"));
+                        }
+
                         String content = response.getBody();
                         if (content.startsWith("[")) {
                             try {
@@ -62,8 +71,7 @@ public class RedditDownloader {
                                     return Optional.empty();
                                 }
                             } catch (JsonProcessingException e) {
-                                MainLogger.get().error("Reddit post list parsing error", e);
-                                return Optional.empty();
+                                throw new CompletionException(e);
                             }
                         } else {
                             return Optional.empty();

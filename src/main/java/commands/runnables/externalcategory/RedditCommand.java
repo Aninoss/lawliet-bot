@@ -1,11 +1,5 @@
 package commands.runnables.externalcategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import commands.Category;
 import commands.Command;
@@ -29,6 +23,13 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "reddit",
@@ -63,23 +64,29 @@ public class RedditCommand extends Command implements OnAlertListener {
         } else {
             String finalArgs = args;
             event.deferReply();
-            return redditDownloader.retrievePost(event.getGuild().getIdLong(), args, event.getTextChannel().isNSFW()).get()
-                    .map(post -> {
-                        if (post.isNsfw() && !event.getTextChannel().isNSFW()) {
-                            setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
-                            drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
-                            return false;
-                        }
+            try {
+                return redditDownloader.retrievePost(event.getGuild().getIdLong(), args, event.getTextChannel().isNSFW()).get()
+                        .map(post -> {
+                            if (post.isNsfw() && !event.getTextChannel().isNSFW()) {
+                                setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
+                                drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
+                                return false;
+                            }
 
-                        EmbedBuilder eb = getEmbed(post);
-                        EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
-                        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
-                        return true;
-                    }).orElseGet(() -> {
-                        EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, finalArgs);
-                        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
-                        return false;
-                    });
+                            EmbedBuilder eb = getEmbed(post);
+                            EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
+                            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+                            return true;
+                        }).orElseGet(() -> {
+                            EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, finalArgs);
+                            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+                            return false;
+                        });
+            } catch (ExecutionException e) {
+                EmbedBuilder eb = EmbedFactory.getApiDownEmbed(this, "reddit.com");
+                drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+                return false;
+            }
         }
     }
 
@@ -132,8 +139,16 @@ public class RedditCommand extends Command implements OnAlertListener {
             slot.sendMessage(getLocale(), false, eb.build());
             return AlertResponse.STOP_AND_DELETE;
         } else {
-            slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
-            Optional<PostBundle<RedditPost>> postBundleOpt = redditDownloader.retrievePostsBulk(key, slot.getArgs().orElse(null)).get();
+            slot.setNextRequest(Instant.now().plus(120, ChronoUnit.MINUTES));
+
+            Optional<PostBundle<RedditPost>> postBundleOpt;
+            try {
+                postBundleOpt = redditDownloader.retrievePostsBulk(key, slot.getArgs().orElse(null)).get();
+            } catch (ExecutionException e) {
+                slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
+                return AlertResponse.CONTINUE;
+            }
+
             StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
             boolean containsOnlyNsfw = true;
 
