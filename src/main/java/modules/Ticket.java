@@ -44,6 +44,38 @@ import java.util.stream.Collectors;
 
 public class Ticket {
 
+    public static String sendTicketMessage(Locale locale, TextChannel textChannel) {
+        String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, textChannel,
+                Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY
+        );
+        if (channelMissingPerms != null) {
+            return channelMissingPerms;
+        }
+
+        net.dv8tion.jda.api.entities.channel.concrete.Category parent = textChannel.getParentCategory();
+        if (parent != null) {
+            String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, parent, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MANAGE_CHANNEL);
+            if (categoryMissingPerms != null) {
+                return categoryMissingPerms;
+            }
+        }
+
+        String emoji = Command.getCommandProperties(TicketCommand.class).emoji();
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                .setTitle(emoji + " " + Command.getCommandLanguage(TicketCommand.class, locale).getTitle())
+                .setDescription(TextManager.getString(locale, Category.UTILITY, "ticket_message_content"));
+
+        textChannel.sendMessageEmbeds(eb.build())
+                .setComponents(ActionRows.of(Button.of(ButtonStyle.PRIMARY, TicketCommand.BUTTON_ID_CREATE, TextManager.getString(locale, Category.UTILITY, "ticket_button_create"))))
+                .queue(message -> {
+                    DBStaticReactionMessages.getInstance()
+                            .retrieve(message.getGuild().getIdLong())
+                            .put(message.getIdLong(), new StaticReactionMessageData(message, Command.getCommandProperties(TicketCommand.class).trigger()));
+                });
+
+        return null;
+    }
+
     public static void createTicket(TicketData ticketData, GuildEntity guildEntity, TextChannel channel, Member member, String userMessage) {
         Locale locale = guildEntity.getLocale();
         Optional<TextChannel> existingTicketChannelOpt = findTicketChannelOfUser(ticketData, member);

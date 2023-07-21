@@ -16,7 +16,6 @@ import core.TextManager;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
 import core.cache.ServerPatreonBoostCache;
-import core.components.ActionRows;
 import core.interactionresponse.ComponentInteractionResponse;
 import core.utils.*;
 import events.discordevents.modalinteraction.ModalInteractionTicket;
@@ -38,8 +37,6 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -62,8 +59,11 @@ import java.util.concurrent.ExecutionException;
 )
 public class TicketCommand extends NavigationAbstract implements OnStaticReactionAddListener, OnStaticButtonListener {
 
-    private final static int MAX_ROLES = 10;
+    public final static int MAX_STAFF_ROLES = 10;
+    public final static int MAX_GREETING_TEXT_LENGTH = 1000;
+
     public final static UnicodeEmoji TICKET_CLOSE_EMOJI = Emojis.X;
+
     private final static int
             MAIN = 0,
             ANNOUNCEMENT_CHANNEL = 1,
@@ -90,7 +90,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
         staffRoles = AtomicRole.transformIdList(event.getGuild(), ticketData.getStaffRoleIds());
-        staffRoleNavigationHelper = new NavigationHelper<>(this, guildEntity -> staffRoles, AtomicRole.class, MAX_ROLES, false);
+        staffRoleNavigationHelper = new NavigationHelper<>(this, guildEntity -> staffRoles, AtomicRole.class, MAX_STAFF_ROLES, false);
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -151,15 +151,14 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
 
     @ControllerMessage(state = GREETING_TEXT)
     public MessageInputResponse onMessageGreetingText(MessageReceivedEvent event, String input) {
-        int max = 1000;
         if (input.length() > 0) {
-            if (input.length() <= max) {
+            if (input.length() <= MAX_GREETING_TEXT_LENGTH) {
                 ticketData.setCreateMessage(input);
                 setLog(LogStatus.SUCCESS, getString("greetingset"));
                 setState(0);
                 return MessageInputResponse.SUCCESS;
             } else {
-                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", StringUtil.numToString(max)));
+                setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "too_many_characters", StringUtil.numToString(MAX_GREETING_TEXT_LENGTH)));
                 return MessageInputResponse.FAILED;
             }
         }
@@ -306,35 +305,15 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
         } else if (i == 0 && tempPostChannel != null) {
             tempPostChannel = tempPostChannel.getGuild().getTextChannelById(tempPostChannel.getIdLong());
             if (tempPostChannel != null) {
-                String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), tempPostChannel,
-                        Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_HISTORY
-                );
-                if (channelMissingPerms != null) {
-                    setLog(LogStatus.FAILURE, channelMissingPerms);
-                    return true;
+                String error = Ticket.sendTicketMessage(getLocale(), tempPostChannel);
+                if (error == null) {
+                    setLog(LogStatus.SUCCESS, getString("message_sent"));
+                    setState(MAIN);
+                } else {
+                    setLog(LogStatus.FAILURE, error);
                 }
-
-                Category parent = tempPostChannel.getParentCategory();
-                if (parent != null) {
-                    String categoryMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), parent, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MANAGE_CHANNEL);
-                    if (categoryMissingPerms != null) {
-                        setLog(LogStatus.FAILURE, categoryMissingPerms);
-                        return true;
-                    }
-                }
-
-                String emoji = getCommandProperties().emoji();
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("message_content", emoji));
-                eb.setFooter(null);
-
-                tempPostChannel.sendMessageEmbeds(eb.build())
-                        .setComponents(ActionRows.of(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_CREATE, getString("button_create"))))
-                        .queue(this::registerStaticReactionMessage);
-
-                setLog(LogStatus.SUCCESS, getString("message_sent"));
-                setState(MAIN);
+                return true;
             }
-            return true;
         }
         return false;
     }
