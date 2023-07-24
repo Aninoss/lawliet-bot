@@ -1,12 +1,13 @@
 package core.utils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.ExecutionException;
 import com.google.common.io.Files;
 import core.LocalFile;
 import core.MainLogger;
 import net.dv8tion.jda.api.entities.Message;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.ExecutionException;
 
 public class FileUtil {
 
@@ -39,6 +40,10 @@ public class FileUtil {
         if (localFile.exists() && !localFile.delete()) {
             MainLogger.get().error("Could not remove file {}", localFile.getAbsoluteFile());
         }
+    }
+
+    public static String getUriExt(String uri) {
+        return uri.substring(uri.lastIndexOf("."));
     }
 
 }

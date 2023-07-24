@@ -1,11 +1,5 @@
 package core.utils;
 
-import java.math.BigInteger;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.Locale;
 import constants.Emojis;
 import constants.Language;
 import core.ShardManager;
@@ -16,6 +10,13 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
+
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Locale;
 
 public final class StringUtil {
 
@@ -417,7 +418,7 @@ public final class StringUtil {
     }
 
     public static String unescapeHtml(String html) {
-        return StringEscapeUtils.unescapeHtml4(html)
+        return StringEscapeUtils.unescapeHtml4(html.replaceAll("<br ?/>", "\n"))
                 .replaceAll("</?(i|cite)>", "*")
                 .replaceAll("</?b>", "**")
                 .replaceAll("<[^>]*>", "");

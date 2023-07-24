@@ -17,8 +17,9 @@ public interface Settings {
     int FISHERY_POWERUP_TIMEOUT_MINUTES = 5;
 
     String[] NSFW_FILTERS = {
-            "loli", "shota", "lolicon", "shotacon", "cub", "children", "child", "kid", "kids", "teen",
-            "teenager", "young", "younger", "underage", "under_age", "cunny", "flat_chest", "flat_chested", // minors
+            "loli", "shota", "lolicon", "little_girl", "shotacon", "oneshota", "cp", "cub", "children",
+            "child", "kid", "kids", "teen", "teenager", "young", "younger", "underage", "under_age", "cunny",
+            "flat_chest", "flat_chested", // minors
 
             "tagme", // unsafe
 

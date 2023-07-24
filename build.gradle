@@ -45,12 +45,11 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0-RC2'
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.0-RC2'
     implementation 'com.github.Aninoss:lawliet-dashboard-components:648b4649ba'
+
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1'
-
     implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.12.5'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.12.5'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
     implementation 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.12.5'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jaxrs:2.12.5'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.5'

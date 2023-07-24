@@ -9,8 +9,6 @@ import core.restclient.RestClient;
 import modules.PostBundle;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -66,7 +64,8 @@ public class RedditDownloader {
                                 List<RedditPost> redditPosts = mapper.readerForListOf(RedditPost.class)
                                         .readValue(content);
                                 if (redditPosts.size() > 0) {
-                                    return Optional.of(processPostsBulk(redditPosts, args));
+                                    PostBundle<RedditPost> postBundle = PostBundle.create(redditPosts, args, RedditPost::getId);
+                                    return Optional.of(postBundle);
                                 } else {
                                     return Optional.empty();
                                 }
@@ -80,36 +79,6 @@ public class RedditDownloader {
         } else {
             return CompletableFuture.completedFuture(Optional.empty());
         }
-    }
-
-    private PostBundle<RedditPost> processPostsBulk(List<RedditPost> redditPosts, String args) {
-        ArrayList<RedditPost> newRedditPosts = new ArrayList<>();
-        ArrayList<String> usedIdList = new ArrayList<>();
-        if (args != null) {
-            usedIdList.addAll(Arrays.asList(args.split("\\|")));
-        }
-
-        for (RedditPost redditPost : redditPosts) {
-            String id = redditPost.getId();
-            if (!usedIdList.contains(id)) {
-                newRedditPosts.add(redditPost);
-                usedIdList.add(id);
-            }
-        }
-
-        while (usedIdList.size() > 100) {
-            usedIdList.remove(0);
-        }
-
-        StringBuilder newArg = new StringBuilder();
-        for (int i = 0; i < usedIdList.size(); i++) {
-            if (i > 0) {
-                newArg.append("|");
-            }
-            newArg.append(usedIdList.get(i));
-        }
-
-        return new PostBundle<>(newRedditPosts, newArg.toString());
     }
 
     private String[] extractSubredditAndOrderBy(String input) {

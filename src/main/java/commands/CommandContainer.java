@@ -274,6 +274,7 @@ public class CommandContainer {
         commandList.add(SafebooruCommand.class);
         commandList.add(SoftYaoiCommand.class);
         commandList.add(SoftYuriCommand.class);
+        commandList.add(PixivCommand.class);
 
         //NSFW
         commandList.add(Rule34Command.class);

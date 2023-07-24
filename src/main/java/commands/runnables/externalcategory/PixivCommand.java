@@ -1,0 +1,271 @@
+package commands.runnables.externalcategory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import commands.Category;
+import commands.Command;
+import commands.CommandEvent;
+import commands.listeners.CommandProperties;
+import commands.listeners.OnAlertListener;
+import commands.listeners.OnButtonListener;
+import constants.ExternalLinks;
+import constants.Settings;
+import core.EmbedFactory;
+import core.ExceptionLogger;
+import core.TextManager;
+import core.components.ActionRows;
+import core.internet.HttpRequest;
+import core.utils.EmbedUtil;
+import core.utils.FileUtil;
+import core.utils.NSFWUtil;
+import core.utils.StringUtil;
+import modules.PostBundle;
+import modules.pixiv.PixivDownloader;
+import modules.pixiv.PixivImage;
+import modules.schedulers.AlertResponse;
+import mysql.modules.nsfwfilter.DBNSFWFilters;
+import mysql.modules.tracker.TrackerData;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+
+@CommandProperties(
+        trigger = "pixiv",
+        emoji = "🅿️",
+        patreonRequired = true,
+        executableWithoutArgs = false
+)
+public class PixivCommand extends Command implements OnButtonListener, OnAlertListener {
+
+    private static final PixivDownloader pixivDownloader = new PixivDownloader();
+
+    private String args = null;
+
+    public PixivCommand(Locale locale, String prefix) {
+        super(locale, prefix);
+    }
+
+    @Override
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException, JsonProcessingException {
+        if (args.length() == 0) {
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")))
+                    .exceptionally(ExceptionLogger.get());
+            return false;
+        } else {
+            HashSet<String> filterSet = getFilterSet(event.getGuild().getIdLong());
+            if (NSFWUtil.stringContainsBannedTags(args, filterSet)) {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this)
+                        .setTitle(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag"))
+                        .setDescription(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc"));
+                drawMessageNew(eb)
+                        .exceptionally(ExceptionLogger.get());
+                return false;
+            }
+
+            this.args = args;
+            event.deferReply();
+            try {
+                return pixivDownloader.retrieveImage(event.getGuild().getIdLong(), args, event.getTextChannel().isNSFW(), filterSet).get()
+                        .map(image -> {
+                            if (image.isNsfw() && !event.getTextChannel().isNSFW()) {
+                                setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
+                                drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
+                                return false;
+                            }
+
+                            String proxyImageUrl = downloadAndProxyImage(image.getId(), image.getImageUrl());
+                            EmbedBuilder eb = getEmbed(image, proxyImageUrl);
+                            EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
+
+                            Button loadMoreButton = Button.of(ButtonStyle.PRIMARY, "more", TextManager.getString(getLocale(), Category.NSFW, "porn_morebutton"));
+                            Button reportButton = generateReportButton(Collections.singletonList(proxyImageUrl));
+
+                            setComponents(loadMoreButton, reportButton);
+                            drawMessageNew(eb)
+                                    .thenAccept(message -> {
+                                        setDrawMessage(message);
+                                        registerButtonListener(event.getMember(), false);
+                                    })
+                                    .exceptionally(ExceptionLogger.get());
+                            return true;
+                        }).orElseGet(() -> {
+                            EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, args);
+                            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+                            return false;
+                        });
+            } catch (ExecutionException e) {
+                EmbedBuilder eb = EmbedFactory.getApiDownEmbed(this, "pixiv.net");
+                drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+                return false;
+            }
+        }
+    }
+
+    @Override
+    public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
+        String key = slot.getCommandKey();
+        if (key.isEmpty()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
+            EmbedUtil.addTrackerRemoveLog(eb, getLocale());
+            slot.sendMessage(getLocale(), false, eb.build());
+            return AlertResponse.STOP_AND_DELETE;
+        } else {
+            HashSet<String> filterSet = getFilterSet(slot.getGuildId());
+            if (NSFWUtil.stringContainsBannedTags(key, filterSet)) {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this)
+                        .setTitle(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag"))
+                        .setDescription(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc"));
+                EmbedUtil.addTrackerRemoveLog(eb, getLocale());
+                slot.sendMessage(getLocale(), false, eb.build());
+                return AlertResponse.STOP_AND_DELETE;
+            }
+
+            slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
+            Optional<PostBundle<PixivImage>> postBundleOpt;
+            try {
+                postBundleOpt = pixivDownloader.retrieveImagesBulk(slot.getGuildId(), key, slot.getArgs().orElse(null), filterSet).get();
+            } catch (ExecutionException e) {
+                slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
+                return AlertResponse.CONTINUE;
+            }
+
+            StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
+            boolean containsOnlyNsfw = true;
+
+            if (postBundleOpt.isPresent()) {
+                PostBundle<PixivImage> postBundle = postBundleOpt.get();
+                int totalEmbedSize = 0;
+                ArrayList<MessageEmbed> embedList = new ArrayList<>();
+                ArrayList<String> proxyImageUrlList = new ArrayList<>();
+
+                for (int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
+                    PixivImage image = postBundle.getPosts().get(i);
+                    if (!image.isNsfw() || channel.isNSFW()) {
+                        String proxyImageUrl = downloadAndProxyImage(image.getId(), image.getImageUrl());
+                        MessageEmbed messageEmbed = getEmbed(image, proxyImageUrl).build();
+                        embedList.add(0, messageEmbed);
+                        proxyImageUrlList.add(0, proxyImageUrl);
+
+                        totalEmbedSize += messageEmbed.getLength();
+                        containsOnlyNsfw = false;
+                        if (slot.getArgs().isEmpty()) {
+                            break;
+                        }
+                    }
+                }
+
+                if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
+                    EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
+                    EmbedUtil.addTrackerRemoveLog(eb, getLocale());
+                    slot.sendMessage(getLocale(), false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(getLocale())));
+                    return AlertResponse.STOP_AND_DELETE;
+                }
+
+                if (embedList.size() > 0) {
+                    while (totalEmbedSize > MessageEmbed.EMBED_MAX_LENGTH_BOT) {
+                        totalEmbedSize -= embedList.remove(0).getLength();
+                        proxyImageUrlList.remove(0);
+                    }
+                    ActionRow actionRow = ActionRow.of(generateReportButton(proxyImageUrlList));
+                    slot.sendMessage(getLocale(), true, embedList, actionRow);
+                }
+
+                slot.setArgs(postBundle.getNewestPost());
+                return AlertResponse.CONTINUE_AND_SAVE;
+            } else {
+                if (slot.getArgs().isEmpty()) {
+                    EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, key);
+                    EmbedUtil.addTrackerRemoveLog(eb, getLocale());
+                    slot.sendMessage(getLocale(), false, eb.build());
+                    return AlertResponse.STOP_AND_DELETE;
+                } else {
+                    return AlertResponse.CONTINUE;
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean trackerUsesKey() {
+        return true;
+    }
+
+    @Nullable
+    @Override
+    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
+        deregisterListeners();
+        onTrigger(getCommandEvent(), this.args);
+        return false;
+    }
+
+    private EmbedBuilder getEmbed(PixivImage image, String proxyImageUrl) {
+        String desc = StringUtil.shortenString(StringUtil.unescapeHtml(image.getDescription()), 2048);
+        EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, desc)
+                .setTitle(StringUtil.shortenString(image.getTitle(), 256), image.getUrl())
+                .setAuthor(image.getAuthor(), image.getAuthorUrl(), null)
+                .setImage(proxyImageUrl)
+                .setTimestamp(image.getInstant());
+
+        String nsfwString = "";
+        if (image.isNsfw()) {
+            nsfwString = " " + getString("nsfw");
+        }
+
+        EmbedUtil.setFooter(eb, this, getString("footer", StringUtil.numToString(image.getBookmarks()), StringUtil.numToString(image.getViews())) + nsfwString);
+        return eb;
+    }
+
+    private String downloadAndProxyImage(String id, String imageUrl) {
+        if (imageUrl.startsWith("https://api.pixiv.moe")) {
+            return imageUrl;
+        }
+
+        String url = "https://media-cdn.lawlietbot.xyz/pixiv_download/" + URLEncoder.encode(imageUrl, StandardCharsets.UTF_8) + "/" + id + "/" + URLEncoder.encode(System.getenv("MS_PROXY_AUTH"), StandardCharsets.UTF_8);
+        int code = HttpRequest.get(url).join().getCode();
+        if (HttpRequest.get(url).join().getCode() != 200) {
+            throw new RuntimeException(new IOException("Pixiv downloader returned response code " + code));
+        }
+
+        return "https://media-cdn.lawlietbot.xyz/pixiv/" + id + FileUtil.getUriExt(imageUrl);
+    }
+
+    private Button generateReportButton(List<String> imageUrls) {
+        StringBuilder reportArgsBuilder = new StringBuilder();
+        for (String imageUrl : imageUrls) {
+            if (reportArgsBuilder.length() > 0) {
+                reportArgsBuilder.append(",");
+            }
+            reportArgsBuilder.append(imageUrl.replace("https://", ""));
+        }
+        String encodedArgs = Base64.getEncoder().encodeToString(reportArgsBuilder.toString().getBytes());
+        String url = ExternalLinks.REPORT_URL + URLEncoder.encode(encodedArgs, StandardCharsets.UTF_8);
+        return Button.of(ButtonStyle.LINK, url, TextManager.getString(getLocale(), Category.NSFW, "porn_report"));
+    }
+
+    private HashSet<String> getFilterSet(long guildId) {
+        List<String> nsfwFiltersList = DBNSFWFilters.getInstance().retrieve(guildId).getKeywords();
+        HashSet<String> filters = new HashSet<>();
+        nsfwFiltersList.forEach(filter -> filters.add(filter.toLowerCase()));
+        filters.addAll(Arrays.asList(Settings.NSFW_FILTERS));
+        return filters;
+    }
+}

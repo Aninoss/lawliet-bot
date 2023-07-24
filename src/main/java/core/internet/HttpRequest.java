@@ -1,15 +1,16 @@
 package core.internet;
 
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
 import core.MainLogger;
 import core.utils.BotUtil;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+
 public class HttpRequest {
 
-    private static final String USER_AGENT = String.format("Lawliet Discord Bot v%s by Aninoss#7220 (https://lawlietbot.xyz/)", BotUtil.getCurrentVersion());
+    public static final String USER_AGENT = String.format("Lawliet Discord Bot v%s by Aninoss (https://lawlietbot.xyz/)", BotUtil.getCurrentVersion());
 
     public static CompletableFuture<HttpResponse> get(String url, HttpHeader... headers) {
         return request("GET", url, null, null, headers);

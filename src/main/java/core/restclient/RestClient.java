@@ -1,10 +1,11 @@
 package core.restclient;
 
-import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import core.internet.HttpHeader;
 import core.internet.HttpRequest;
 import core.internet.HttpResponse;
+
+import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 
 public class RestClient {
 

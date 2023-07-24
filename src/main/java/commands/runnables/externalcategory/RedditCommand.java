@@ -161,7 +161,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                     if (!post.isNsfw() || channel.isNSFW()) {
                         MessageEmbed messageEmbed = getEmbed(post).build();
                         totalEmbedSize += messageEmbed.getLength();
-                        embedList.add(messageEmbed);
+                        embedList.add(0, messageEmbed);
                         containsOnlyNsfw = false;
                         if (slot.getArgs().isEmpty()) {
                             break;

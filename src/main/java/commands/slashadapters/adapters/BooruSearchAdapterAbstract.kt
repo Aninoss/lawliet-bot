@@ -42,7 +42,7 @@ abstract class BooruSearchAdapterAbstract : SlashAdapter() {
     }
 
     override fun retrieveChoices(event: CommandAutoCompleteInteractionEvent): List<Command.Choice> {
-        if (event.channel!!.asTextChannel().isNSFW) {
+        if (event.channel!!.asTextChannel().isNSFW || (this is SafeBooruAdapter)) {
             val nsfwAdditionalFiltersList: List<String> = DBNSFWFilters.getInstance().retrieve(event.guild!!.idLong).keywords
             val nsfwAdditionalFilters = HashSet<String>()
             nsfwAdditionalFiltersList.forEach { nsfwAdditionalFilters.add(it.lowercase()) }
