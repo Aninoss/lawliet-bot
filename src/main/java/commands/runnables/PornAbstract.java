@@ -294,6 +294,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
+        event.deferEdit().queue();
         deregisterListeners();
         onTrigger(getCommandEvent(), this.newAmount + " " + this.args);
         return false;

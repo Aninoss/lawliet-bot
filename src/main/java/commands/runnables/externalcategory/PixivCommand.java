@@ -230,6 +230,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         switch (event.getComponentId()) {
             case BUTTON_ID_MORE -> {
+                event.deferEdit().queue();
                 deregisterListeners();
                 setDrawMessage(null);
                 onTrigger(getCommandEvent(), this.args);
