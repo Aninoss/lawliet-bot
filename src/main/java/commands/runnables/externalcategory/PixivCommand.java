@@ -51,9 +51,16 @@ import java.util.concurrent.ExecutionException;
 )
 public class PixivCommand extends Command implements OnButtonListener, OnAlertListener {
 
+    private static final String BUTTON_ID_MORE = "more";
+    private static final String BUTTON_ID_PREVIOUS = "previous";
+    private static final String BUTTON_ID_NEXT = "next";
+
     private static final PixivDownloader pixivDownloader = new PixivDownloader();
 
     private String args = null;
+    private PixivImage pixivImage;
+    private int imageIndex;
+    private HashSet<String> processedImageProxyUrls = new HashSet<>();
 
     public PixivCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -87,20 +94,11 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
                                 return false;
                             }
 
-                            String proxyImageUrl = downloadAndProxyImage(image.getId(), image.getImageUrl());
-                            EmbedBuilder eb = getEmbed(image, proxyImageUrl);
-                            EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), eb, getPrefix(), getTrigger());
+                            this.pixivImage = image;
+                            this.imageIndex = 0;
+                            this.processedImageProxyUrls = new HashSet<>();
 
-                            Button loadMoreButton = Button.of(ButtonStyle.PRIMARY, "more", TextManager.getString(getLocale(), Category.NSFW, "porn_morebutton"));
-                            Button reportButton = generateReportButton(Collections.singletonList(proxyImageUrl));
-
-                            setComponents(loadMoreButton, reportButton);
-                            drawMessageNew(eb)
-                                    .thenAccept(message -> {
-                                        setDrawMessage(message);
-                                        registerButtonListener(event.getMember(), false);
-                                    })
-                                    .exceptionally(ExceptionLogger.get());
+                            registerButtonListener(event.getMember());
                             return true;
                         }).orElseGet(() -> {
                             EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, args);
@@ -155,8 +153,8 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
                 for (int i = 0; i < Math.min(5, postBundle.getPosts().size()); i++) {
                     PixivImage image = postBundle.getPosts().get(i);
                     if (!image.isNsfw() || channel.isNSFW()) {
-                        String proxyImageUrl = downloadAndProxyImage(image.getId(), image.getImageUrl());
-                        MessageEmbed messageEmbed = getEmbed(image, proxyImageUrl).build();
+                        String proxyImageUrl = downloadAndProxyImage(image.getId(), image.getImageUrls().get(0), 0);
+                        MessageEmbed messageEmbed = getEmbed(image, proxyImageUrl, true).build();
                         embedList.add(0, messageEmbed);
                         proxyImageUrlList.add(0, proxyImageUrl);
 
@@ -207,45 +205,100 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
     @Nullable
     @Override
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
-        throw new UnsupportedOperationException();
+        String imageUrl = pixivImage.getImageUrls().get(imageIndex);
+
+        String proxyImageUrl = downloadAndProxyImage(pixivImage.getId(), imageUrl, imageIndex);
+        EmbedBuilder eb = getEmbed(pixivImage, proxyImageUrl, false);
+        EmbedUtil.addTrackerNoteLog(getLocale(), member, eb, getPrefix(), getTrigger());
+
+        List<Button> primaryButtonList = new ArrayList<>();
+        primaryButtonList.add(Button.of(ButtonStyle.PRIMARY, BUTTON_ID_MORE, TextManager.getString(getLocale(), Category.NSFW, "porn_morebutton")));
+
+        if (pixivImage.getImageUrls().size() > 1) {
+            primaryButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")));
+            primaryButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next")));
+        }
+
+        setActionRows(
+                ActionRow.of(primaryButtonList),
+                ActionRow.of(generateReportButton(Collections.singletonList(proxyImageUrl)))
+        );
+        return eb;
     }
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
-        deregisterListeners();
-        onTrigger(getCommandEvent(), this.args);
-        return false;
+        switch (event.getComponentId()) {
+            case BUTTON_ID_MORE -> {
+                deregisterListeners();
+                setDrawMessage(null);
+                onTrigger(getCommandEvent(), this.args);
+                return false;
+            }
+            case BUTTON_ID_PREVIOUS -> {
+                imageIndex--;
+                if (imageIndex < 0) {
+                    imageIndex = pixivImage.getImageUrls().size() - 1;
+                }
+                return true;
+            }
+            case BUTTON_ID_NEXT -> {
+                imageIndex++;
+                if (imageIndex >= pixivImage.getImageUrls().size()) {
+                    imageIndex = 0;
+                }
+                return true;
+            }
+            default -> {
+                return false;
+            }
+        }
     }
 
-    private EmbedBuilder getEmbed(PixivImage image, String proxyImageUrl) {
+    private EmbedBuilder getEmbed(PixivImage image, String proxyImageUrl, boolean alert) {
         String desc = StringUtil.shortenString(StringUtil.unescapeHtml(image.getDescription()), 2048);
+        String imageNumberTitleString = "";
+        String imageIndexFooterString = "";
+        String nsfwString = "";
+
+        if (image.getImageUrls().size() > 1) {
+            if (alert) {
+                imageNumberTitleString = "【" + image.getImageUrls().size() + "】";
+            } else {
+                imageIndexFooterString = getString("metaindex", StringUtil.numToString(imageIndex + 1), StringUtil.numToString(image.getImageUrls().size()));
+            }
+        }
+        if (image.isNsfw()) {
+            nsfwString = getString("nsfw");
+        }
+
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, desc)
-                .setTitle(StringUtil.shortenString(image.getTitle(), 256), image.getUrl())
+                .setTitle(StringUtil.shortenString(image.getTitle() + imageNumberTitleString, 256), image.getUrl())
                 .setAuthor(image.getAuthor(), image.getAuthorUrl(), null)
                 .setImage(proxyImageUrl)
                 .setTimestamp(image.getInstant());
-
-        String nsfwString = "";
-        if (image.isNsfw()) {
-            nsfwString = " " + getString("nsfw");
-        }
-
-        EmbedUtil.setFooter(eb, this, getString("footer", StringUtil.numToString(image.getBookmarks()), StringUtil.numToString(image.getViews())) + nsfwString);
+        EmbedUtil.setFooter(eb, this,
+                getString("footer", StringUtil.numToString(image.getBookmarks()), StringUtil.numToString(image.getViews())) + nsfwString + imageIndexFooterString
+        );
         return eb;
     }
 
-    private String downloadAndProxyImage(String id, String imageUrl) {
+    private String downloadAndProxyImage(String id, String imageUrl, int imageIndex) {
         if (imageUrl.startsWith("https://api.pixiv.moe")) {
             return imageUrl;
         }
 
-        String url = "https://media-cdn.lawlietbot.xyz/pixiv_download/" + URLEncoder.encode(imageUrl, StandardCharsets.UTF_8) + "/" + id + "/" + URLEncoder.encode(System.getenv("MS_PROXY_AUTH"), StandardCharsets.UTF_8);
-        int code = HttpRequest.get(url).join().getCode();
-        if (HttpRequest.get(url).join().getCode() != 200) {
-            throw new RuntimeException(new IOException("Pixiv downloader returned response code " + code));
+        String processUrl = "https://media-cdn.lawlietbot.xyz/pixiv_download/" + URLEncoder.encode(imageUrl, StandardCharsets.UTF_8) + "/" + id + "_" + imageIndex + "/" + URLEncoder.encode(System.getenv("MS_PROXY_AUTH"), StandardCharsets.UTF_8);
+        String imageProxyUrl = "https://media-cdn.lawlietbot.xyz/pixiv/" + id + "_" + imageIndex + FileUtil.getUriExt(imageUrl);
+        if (!processedImageProxyUrls.contains(imageProxyUrl)) {
+            int code = HttpRequest.get(processUrl).join().getCode();
+            if (HttpRequest.get(processUrl).join().getCode() != 200) {
+                throw new RuntimeException(new IOException("Pixiv downloader returned response code " + code));
+            }
         }
+        processedImageProxyUrls.add(imageProxyUrl);
 
-        return "https://media-cdn.lawlietbot.xyz/pixiv/" + id + FileUtil.getUriExt(imageUrl);
+        return imageProxyUrl;
     }
 
     private Button generateReportButton(List<String> imageUrls) {

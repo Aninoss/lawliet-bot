@@ -1,6 +1,7 @@
 package modules.pixiv;
 
 import java.time.Instant;
+import java.util.List;
 
 public class PixivImage {
 
@@ -10,7 +11,7 @@ public class PixivImage {
     private String author;
     private String authorUrl;
     private String url;
-    private String imageUrl;
+    private List<String> imageUrls;
     private int views;
     private int bookmarks;
     private boolean nsfw;
@@ -70,12 +71,12 @@ public class PixivImage {
         return this;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public List<String> getImageUrls() {
+        return imageUrls;
     }
 
-    public PixivImage setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public PixivImage setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
         return this;
     }
 
