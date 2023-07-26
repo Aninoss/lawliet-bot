@@ -1,12 +1,5 @@
 package modules.porn;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +8,14 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import core.MainLogger;
 import core.restclient.RestClient;
 import core.utils.NSFWUtil;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class BooruAutoComplete {
 
@@ -35,7 +36,7 @@ public class BooruAutoComplete {
                             ObjectReader reader = mapper.readerForListOf(BooruChoice.class);
                             List<BooruChoice> choices = reader.readValue(content);
                             return choices.stream()
-                                    .filter(ch -> !NSFWUtil.stringContainsBannedTags(ch.getValue(), nsfwAdditionalFilters))
+                                    .filter(ch -> !NSFWUtil.containsFilterTags(ch.getValue(), nsfwAdditionalFilters))
                                     .collect(Collectors.toList());
                         } catch (JsonProcessingException e) {
                             MainLogger.get().error("Booru choices list parsing error", e);

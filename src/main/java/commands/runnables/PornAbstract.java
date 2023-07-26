@@ -320,7 +320,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                 notice = TextManager.getString(getLocale(), Category.NSFW, "porn_novideo", ExternalLinks.PREMIUM_WEBSITE);
             }
 
-            String cacheKey = getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.getNSFWTagRemoveList(nsfwFiltersList) + ":" + premium;
+            String cacheKey = getTrigger() + ":" + slot.getCommandKey().toLowerCase() + ":" + NSFWUtil.generateFilterString(nsfwFiltersList) + ":" + premium;
             pornImages = alertsCache.get(
                     cacheKey,
                     () -> getBooruImages(Program.getClusterId(), nsfwFilters, slot.getCommandKey(), 1, new ArrayList<>(), premium)
@@ -421,7 +421,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
     protected List<BooruImage> downloadPorn(long guildId, Set<String> nsfwFilter, int amount, String domain,
                                             String search, boolean animatedOnly, boolean mustBeExplicit, boolean canBeVideo,
                                             ArrayList<String> usedResults) throws IOException {
-        if (NSFWUtil.stringContainsBannedTags(search, nsfwFilter)) {
+        if (NSFWUtil.containsFilterTags(search, nsfwFilter)) {
             throw new IllegalTagException();
         }
 

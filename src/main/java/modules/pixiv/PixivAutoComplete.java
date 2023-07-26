@@ -36,8 +36,8 @@ public class PixivAutoComplete {
                             ObjectReader reader = mapper.readerForListOf(PixivChoice.class);
                             List<PixivChoice> choices = reader.readValue(content);
                             return choices.stream()
-                                    .filter(ch -> !NSFWUtil.stringContainsBannedTags(ch.getTag(), nsfwAdditionalFilters) &&
-                                            (ch.getTranslatedTag() == null || !NSFWUtil.stringContainsBannedTags(ch.getTranslatedTag(), nsfwAdditionalFilters)))
+                                    .filter(ch -> !NSFWUtil.containsFilterTags(NSFWUtil.expandTags(ch.getTag()), nsfwAdditionalFilters) &&
+                                            (ch.getTranslatedTag() == null || !NSFWUtil.containsFilterTags(NSFWUtil.expandTags(ch.getTranslatedTag()), nsfwAdditionalFilters)))
                                     .collect(Collectors.toList());
                         } catch (JsonProcessingException e) {
                             MainLogger.get().error("Pixiv choices list parsing error", e);

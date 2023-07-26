@@ -74,7 +74,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
             return false;
         } else {
             HashSet<String> filterSet = getFilterSet(event.getGuild().getIdLong());
-            if (NSFWUtil.stringContainsBannedTags(args, filterSet)) {
+            if (NSFWUtil.containsFilterTags(NSFWUtil.expandTags(args), filterSet)) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag"))
                         .setDescription(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc"));
@@ -123,7 +123,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
             return AlertResponse.STOP_AND_DELETE;
         } else {
             HashSet<String> filterSet = getFilterSet(slot.getGuildId());
-            if (NSFWUtil.stringContainsBannedTags(key, filterSet)) {
+            if (NSFWUtil.containsFilterTags(NSFWUtil.expandTags(key), filterSet)) {
                 EmbedBuilder eb = EmbedFactory.getEmbedError(this)
                         .setTitle(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag"))
                         .setDescription(TextManager.getString(getLocale(), Category.NSFW, "porn_illegal_tag_desc"));
@@ -317,9 +317,8 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
 
     private HashSet<String> getFilterSet(long guildId) {
         List<String> nsfwFiltersList = DBNSFWFilters.getInstance().retrieve(guildId).getKeywords();
-        HashSet<String> filters = new HashSet<>();
+        HashSet<String> filters = new HashSet<>(Set.of(Settings.NSFW_FILTERS));
         nsfwFiltersList.forEach(filter -> filters.add(filter.toLowerCase()));
-        filters.addAll(Arrays.asList(Settings.NSFW_FILTERS));
         return filters;
     }
 }
