@@ -48,7 +48,7 @@ public class FisheryProcessors implements ExceptionRunnable {
         for (Guild guild : ShardManager.getLocalGuilds()) {
             try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guild.getIdLong())) {
                 if (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE) {
-                    processVoiceActivity(guild, voiceActivityActions);
+                    processVoiceActivity(guild, guildEntity, voiceActivityActions);
                     processAutoSell(guild, autoSellActions);
                     processAutoWork(guild, subMap, autoWorkActions, reminderGuildMap);
                 }
@@ -62,7 +62,7 @@ public class FisheryProcessors implements ExceptionRunnable {
         autoWorkPostProcessing(reminderGuildMap, subMap);
     }
 
-    private void processVoiceActivity(Guild guild, AtomicInteger actions) {
+    private void processVoiceActivity(Guild guild, GuildEntity guildEntity, AtomicInteger actions) {
         try {
             FisheryGuildData serverBean = DBFishery.getInstance().retrieve(guild.getIdLong());
             for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {
@@ -72,7 +72,7 @@ public class FisheryProcessors implements ExceptionRunnable {
                     if (afkVoice == null || voiceChannel.getIdLong() != afkVoice.getIdLong()) {
                         validMembers.forEach(member -> {
                             try {
-                                serverBean.getMemberData(member.getIdLong()).registerVoice(1);
+                                serverBean.getMemberData(member.getIdLong()).registerVoice(guildEntity, 1);
                                 actions.incrementAndGet();
                             } catch (ExecutionException e) {
                                 MainLogger.get().error("Exception when registering vc", e);

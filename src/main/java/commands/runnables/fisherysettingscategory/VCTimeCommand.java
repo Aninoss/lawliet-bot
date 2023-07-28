@@ -1,6 +1,5 @@
 package commands.runnables.fisherysettingscategory;
 
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -11,8 +10,6 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.StringUtil;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -21,6 +18,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
+import java.util.Optional;
 
 @CommandProperties(
         trigger = "vctime",
@@ -35,7 +35,6 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     private static final String BUTTON_ID_UNLIMITED = "unlimited";
     private static final String BUTTON_ID_CANCEL = "cancel";
 
-    private GuildData guildBean;
     private EmbedBuilder eb;
 
     public VCTimeCommand(Locale locale, String prefix) {
@@ -44,7 +43,6 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
         if (args.length() > 0) {
             drawMessage(mainExecution(args)).exceptionally(ExceptionLogger.get());
         } else {
@@ -52,8 +50,10 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
                     this,
                     getString(
                             "status",
-                            guildBean.getFisheryVcHoursCapEffectively().isPresent(),
-                            guildBean.getFisheryVcHoursCapEffectively().map(StringUtil::numToString).orElse(getString("unlimited"))
+                            getGuildEntity().getFishery().getVoiceHoursLimitEffectively() != null,
+                            Optional.ofNullable(getGuildEntity().getFishery().getVoiceHoursLimitEffectively())
+                                    .map(StringUtil::numToString)
+                                    .orElse(getString("unlimited"))
                     )
             );
 
@@ -81,12 +81,18 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
             return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "23"));
         }
 
-        guildBean.setFisheryVcHoursCap(value);
+        getGuildEntity().beginTransaction();
+        getGuildEntity().getFishery().setVoiceHoursLimit(value);
+        getGuildEntity().commitTransaction();
+
         return EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(value), StringUtil.numToString(value)));
     }
 
     private EmbedBuilder markUnlimited() {
-        guildBean.setFisheryVcHoursCap(0);
+        getGuildEntity().beginTransaction();
+        getGuildEntity().getFishery().setVoiceHoursLimit(null);
+        getGuildEntity().commitTransaction();
+
         return EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(null), getString("unlimited")));
     }
 

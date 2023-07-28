@@ -1,7 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import java.util.ArrayList;
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -19,6 +17,9 @@ import mysql.modules.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+
+import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "give",
@@ -58,7 +59,7 @@ public class GiveCommand extends Command implements FisheryInterface {
         long cap = fisheryUser1.getCoinsGiveReceivedMax() - fisheryUser1.getCoinsGiveReceived();
 
         boolean limitCapped = false;
-        if (fisheryUser0.getGuildData().hasFisheryCoinsGivenLimit() && value >= cap) {
+        if (getGuildEntity().getFishery().getCoinGiftLimit() && value >= cap) {
             if (cap > 0) {
                 value = cap;
                 limitCapped = true;

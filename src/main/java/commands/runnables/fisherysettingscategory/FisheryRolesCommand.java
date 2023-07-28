@@ -11,7 +11,6 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicRole;
-import core.atomicassets.AtomicTextChannel;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
@@ -114,7 +113,10 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 } else {
                     TextChannel channel = channelList.get(0);
                     if (checkWriteEmbedInChannelWithLog(channel)) {
-                        guildBean.setFisheryAnnouncementChannelId(channel.getIdLong());
+                        fishery.beginTransaction();
+                        fishery.setRoleUpgradeChannelId(channel.getIdLong());
+                        fishery.commitTransaction();
+
                         setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
                         setState(0);
                         return MessageInputResponse.SUCCESS;
@@ -231,7 +233,10 @@ public class FisheryRolesCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    guildBean.setFisheryAnnouncementChannelId(null);
+                    fishery.beginTransaction();
+                    fishery.setRoleUpgradeChannelId(null);
+                    fishery.commitTransaction();
+
                     setState(0);
                     setLog(LogStatus.SUCCESS, getString("announcementchannelset"));
                     return true;
@@ -274,7 +279,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description", String.valueOf(MAX_ROLES)))
                         .addField(getString("state0_mroles"), new ListGen<Role>().getList(fisheryGuildBean.getRoles(), getLocale(), this::getRoleString), false)
                         .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), fishery.getSingleRoles())), getString("state0_msinglerole_desc"), false)
-                        .addField(getString("state0_mannouncementchannel"), guildBean.getFisheryAnnouncementChannel().map(c -> new AtomicTextChannel(c).getPrefixedNameInField(getLocale())).orElse(notSet), true)
+                        .addField(getString("state0_mannouncementchannel"), fishery.getRoleUpgradeChannel().getPrefixedNameInFieldOrElse(notSet), true)
                         .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(fishery.getRolePriceMin()), StringUtil.numToString(fishery.getRolePriceMax())), true);
 
             case 1:

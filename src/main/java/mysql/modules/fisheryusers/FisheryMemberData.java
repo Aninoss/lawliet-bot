@@ -460,7 +460,7 @@ public class FisheryMemberData implements MemberAsset {
         });
     }
 
-    public void registerVoice(int minutes) throws ExecutionException {
+    public void registerVoice(GuildEntity guildEntity, int minutes) throws ExecutionException {
         RedisManager.update(jedis -> {
             long hour = TimeUtil.currentHour();
             int newMinutes = minutes;
@@ -480,10 +480,10 @@ public class FisheryMemberData implements MemberAsset {
                 return;
             }
 
-            Optional<Integer> limitOpt = getGuildData().getFisheryVcHoursCapEffectively();
-            if (limitOpt.isPresent()) {
+            Integer limit = guildEntity.getFishery().getVoiceHoursLimitEffectively();
+            if (limit != null) {
                 cleanDailyValues();
-                newMinutes = Math.min(newMinutes, limitOpt.get() * 60 - RedisManager.parseInteger(voiceMinutesResp.get()));
+                newMinutes = Math.min(newMinutes, limit * 60 - RedisManager.parseInteger(voiceMinutesResp.get()));
             }
 
             if (newMinutes > 0) {
@@ -687,7 +687,7 @@ public class FisheryMemberData implements MemberAsset {
         if (isBanned) {
             EmbedUtil.addLog(eb, LogStatus.FAILURE, TextManager.getString(locale, TextManager.GENERAL, "banned"));
         } else {
-            Boolean voiceStatus = getVoiceStatus(member);
+            Boolean voiceStatus = getVoiceStatus(guildEntity, member);
             if (voiceStatus != null) {
                 EmbedUtil.addLog(
                         eb,
@@ -710,7 +710,7 @@ public class FisheryMemberData implements MemberAsset {
         );
     }
 
-    public Boolean getVoiceStatus(Member member) {
+    public Boolean getVoiceStatus(GuildEntity guildEntity, Member member) {
         cleanDailyValues();
         GuildVoiceState guildVoiceState = member.getVoiceState();
         VoiceChannel voiceChannel;
@@ -723,7 +723,7 @@ public class FisheryMemberData implements MemberAsset {
             boolean active = Fishery.getValidVoiceMembers(voiceChannel).contains(member);
             if (active) {
                 int voiceMinutes = RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_VOICE_MINUTES));
-                int voiceLimit = getGuildData().getFisheryVcHoursCapEffectively()
+                int voiceLimit = Optional.ofNullable(guildEntity.getFishery().getVoiceHoursLimitEffectively())
                         .map(value -> value * 60)
                         .orElse(Integer.MAX_VALUE);
                 return voiceMinutes < voiceLimit;

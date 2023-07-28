@@ -139,8 +139,11 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         return true;
 
                     case 3:
-                        guildBean.toggleFisheryCoinsGivenLimit();
-                        setLog(LogStatus.SUCCESS, getString("coinsgivenset", guildBean.hasFisheryCoinsGivenLimit()));
+                        fishery.beginTransaction();
+                        fishery.setCoinGiftLimit(!fishery.getCoinGiftLimit());
+                        fishery.commitTransaction();
+
+                        setLog(LogStatus.SUCCESS, getString("coinsgivenset", fishery.getCoinGiftLimit()));
                         stopLock = true;
                         return true;
 
@@ -227,7 +230,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(channel, fishery.getTreasureChests()).getFormatted()), getString("state0_mtreasurechests_desc"), true)
                         .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, fishery.getPowerUps()).getFormatted()), getString("state0_mpowerups_desc"), true)
                         .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, fishery.getFishReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
-                        .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, guildBean.hasFisheryCoinsGivenLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc"), true)
+                        .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, fishery.getCoinGiftLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc"), true)
                         .addField(getString("state0_mchannels"), new ListGen<AtomicTextChannel>().getList(ignoredChannels, getLocale(), m -> m.getPrefixedNameInField(getLocale())), false);
 
             case 1:

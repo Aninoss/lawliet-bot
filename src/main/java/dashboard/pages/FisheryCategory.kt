@@ -32,6 +32,7 @@ import modules.fishery.Fishery
 import modules.fishery.FisheryGear
 import modules.fishery.FisheryManage
 import modules.fishery.FisheryStatus
+import mysql.hibernate.entity.FisheryEntity
 import mysql.hibernate.entity.GuildEntity
 import mysql.modules.fisheryusers.DBFishery
 import mysql.modules.fisheryusers.FisheryGuildData
@@ -53,6 +54,9 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     var manageRoles = CustomObservableList<Long>(emptyList())
     var managePropertyIndex = 0
     var manageNewValue = "+0"
+
+    val fisheryEntity: FisheryEntity
+        get() = guildEntity.fishery
 
     override fun retrievePageTitle(): String {
         return getString(TextManager.COMMANDS, "fishery_category")
@@ -98,7 +102,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val container = VerticalContainer()
         container.add(DashboardTitle(getString(Category.FISHERY_SETTINGS, "fisherymanage_title")))
 
-        if (guildEntity.fishery.fisheryStatus == FisheryStatus.ACTIVE) {
+        if (fisheryEntity.fisheryStatus == FisheryStatus.ACTIVE) {
             container.add(
                 generateFisheryManageMembersField(premium),
                 DashboardSeparator(),
@@ -253,9 +257,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         val roles = fisheryData.roles
         if (roles.size > 0) {
-            val fishery = guildEntity.fishery
             val rows = roles.mapIndexed { n, role ->
-                val values = arrayOf((n + 1).toString(), role.name, StringUtil.numToString(Fishery.getFisheryRolePrice(fishery.rolePriceMin, fishery.rolePriceMax, roles.size, n)))
+                val values = arrayOf((n + 1).toString(), role.name, StringUtil.numToString(Fishery.getFisheryRolePrice(fisheryEntity.rolePriceMin, fisheryEntity.rolePriceMax, roles.size, n)))
                 GridRow(n.toString(), values)
             }
             val grid = DashboardGrid(
@@ -297,7 +300,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_mannouncementchannel"),
             locale,
             atomicGuild.idLong,
-            guildData.fisheryAnnouncementChannelId.orElse(null),
+            fisheryEntity.roleUpgradeChannelId,
             true
         ) {
             if (!anyCommandsAreAccessible(FisheryRolesCommand::class)) {
@@ -305,7 +308,10 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     .withRedraw()
             }
 
-            guildData.setFisheryAnnouncementChannelId(it.data?.toLong())
+            guildEntity.beginTransaction()
+            fisheryEntity.roleUpgradeChannelId = it.data?.toLong()
+            guildEntity.commitTransaction()
+
             ActionResult()
         }
         container.add(announcementChannelComboBox)
@@ -318,13 +324,13 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             }
 
             guildEntity.beginTransaction()
-            guildEntity.fishery.singleRoles = it.data
+            fisheryEntity.singleRoles = it.data
             guildEntity.commitTransaction()
 
             ActionResult()
         }
         singleRolesSwitch.subtitle = getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_msinglerole_desc").replace("*", "")
-        singleRolesSwitch.isChecked = guildEntity.fishery.singleRoles
+        singleRolesSwitch.isChecked = fisheryEntity.singleRoles
         container.add(DashboardSeparator(), singleRolesSwitch)
         return container;
     }
@@ -342,11 +348,12 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             }
 
             guildEntity.beginTransaction()
-            guildEntity.fishery.rolePriceMin = it.data.toLong()
+            fisheryEntity.rolePriceMin = it.data.toLong()
             guildEntity.commitTransaction()
+
             ActionResult()
         }
-        min.value = guildEntity.fishery.rolePriceMin
+        min.value = fisheryEntity.rolePriceMin
         container.add(min)
 
         val max = DashboardNumberField(getString(Category.FISHERY_SETTINGS, "fisheryroles_last"), 0, Settings.FISHERY_MAX) {
@@ -356,11 +363,12 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             }
 
             guildEntity.beginTransaction()
-            guildEntity.fishery.rolePriceMax = it.data.toLong()
+            fisheryEntity.rolePriceMax = it.data.toLong()
             guildEntity.commitTransaction()
+
             ActionResult()
         }
-        max.value = guildEntity.fishery.rolePriceMax
+        max.value = fisheryEntity.rolePriceMax
         container.add(max)
         return container
     }
@@ -379,14 +387,17 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     .withRedraw()
             }
 
-            guildData.setFisheryVcHoursCap(it.data.toInt() % 24)
+            guildEntity.beginTransaction()
+            fisheryEntity.voiceHoursLimit = if (it.data.toInt() < 24) {
+                it.data.toInt()
+            } else {
+                null
+            }
+            guildEntity.commitTransaction()
+
             ActionResult()
         }
-        guildData.fisheryVcHoursCapEffectively.ifPresentOrElse({
-            limitNumberField.value = it.toLong()
-        }, {
-            limitNumberField.value = 24
-        })
+        limitNumberField.value = fisheryEntity.voiceHoursLimitEffectively?.toLong() ?: 24
         limitNumberField.isEnabled = premium
         horizontalContainer.add(limitNumberField)
 
@@ -396,7 +407,10 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     .withRedraw()
             }
 
-            guildData.setFisheryVcHoursCap(0)
+            guildEntity.beginTransaction()
+            fisheryEntity.voiceHoursLimit = null
+            guildEntity.commitTransaction()
+
             ActionResult()
                 .withRedraw()
         }
@@ -442,13 +456,13 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             }
 
             guildEntity.beginTransaction()
-            guildEntity.fishery.treasureChests = it.data
+            fisheryEntity.treasureChests = it.data
             guildEntity.commitTransaction()
 
             ActionResult()
         }
         switchTreasure.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mtreasurechests_desc")
-        switchTreasure.isChecked = guildEntity.fishery.treasureChests
+        switchTreasure.isChecked = fisheryEntity.treasureChests
         container.add(switchTreasure)
 
         val switchPowerups = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mpowerups_title", "").trim()) {
@@ -458,13 +472,13 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             }
 
             guildEntity.beginTransaction()
-            guildEntity.fishery.powerUps = it.data
+            fisheryEntity.powerUps = it.data
             guildEntity.commitTransaction()
 
             ActionResult()
         }
         switchPowerups.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mpowerups_desc")
-        switchPowerups.isChecked = guildEntity.fishery.powerUps
+        switchPowerups.isChecked = fisheryEntity.powerUps
         container.add(switchPowerups)
 
         val switchReminders = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mreminders_title", "").trim()) {
@@ -474,13 +488,13 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             }
 
             guildEntity.beginTransaction()
-            guildEntity.fishery.fishReminders = it.data
+            fisheryEntity.fishReminders = it.data
             guildEntity.commitTransaction()
 
             ActionResult()
         }
         switchReminders.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mreminders_desc")
-        switchReminders.isChecked = guildEntity.fishery.fishReminders
+        switchReminders.isChecked = fisheryEntity.fishReminders
         container.add(switchReminders)
 
         val switchCoinLimit = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mcoinsgivenlimit_title", "").trim()) {
@@ -489,11 +503,14 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     .withRedraw()
             }
 
-            guildData.toggleFisheryCoinsGivenLimit()
+            guildEntity.beginTransaction()
+            fisheryEntity.coinGiftLimit = it.data
+            guildEntity.commitTransaction()
+
             ActionResult()
         }
         switchCoinLimit.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mcoinsgivenlimit_desc")
-        switchCoinLimit.isChecked = guildData.hasFisheryCoinsGivenLimit()
+        switchCoinLimit.isChecked = fisheryEntity.coinGiftLimit
         container.add(switchCoinLimit)
 
         return container
@@ -502,7 +519,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     private fun generateStateButtons(guildData: GuildData): DashboardComponent {
         val buttonsContainer = HorizontalContainer()
         buttonsContainer.allowWrap = true
-        when (guildEntity.fishery.fisheryStatus) {
+        when (fisheryEntity.fisheryStatus) {
             FisheryStatus.ACTIVE -> {
                 val pauseButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "fishery_state0_button_pause")) {
                     if (!anyCommandsAreAccessible(FisheryCommand::class)) {
@@ -511,7 +528,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     }
 
                     guildEntity.beginTransaction()
-                    guildEntity.fishery.fisheryStatus = FisheryStatus.PAUSED
+                    fisheryEntity.fisheryStatus = FisheryStatus.PAUSED
                     guildEntity.commitTransaction()
 
                     ActionResult()
@@ -529,7 +546,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     GlobalThreadPool.submit { DBFishery.getInstance().invalidateGuildId(guildData.guildId) }
 
                     guildEntity.beginTransaction()
-                    guildEntity.fishery.fisheryStatus = FisheryStatus.STOPPED
+                    fisheryEntity.fisheryStatus = FisheryStatus.STOPPED
                     guildEntity.commitTransaction()
 
                     ActionResult()
@@ -547,7 +564,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     }
 
                     guildEntity.beginTransaction()
-                    guildEntity.fishery.fisheryStatus = FisheryStatus.ACTIVE
+                    fisheryEntity.fisheryStatus = FisheryStatus.ACTIVE
                     guildEntity.commitTransaction()
 
                     ActionResult()
@@ -564,7 +581,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     }
 
                     guildEntity.beginTransaction()
-                    guildEntity.fishery.fisheryStatus = FisheryStatus.ACTIVE
+                    fisheryEntity.fisheryStatus = FisheryStatus.ACTIVE
                     guildEntity.commitTransaction()
 
                     ActionResult()
@@ -584,7 +601,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         val statusContainer = HorizontalContainer()
         val statusTextKey = getString(Category.FISHERY_SETTINGS, "fishery_state0_mstatus")
-        val statusTextValue = getString(Category.FISHERY_SETTINGS, "fishery_state0_status").split("\n")[guildEntity.fishery.fisheryStatus.ordinal].substring(2)
+        val statusTextValue = getString(Category.FISHERY_SETTINGS, "fishery_state0_status").split("\n")[fisheryEntity.fisheryStatus.ordinal].substring(2)
         statusContainer.add(
             DashboardText("$statusTextKey:"),
             DashboardText(statusTextValue)

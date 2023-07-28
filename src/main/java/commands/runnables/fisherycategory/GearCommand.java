@@ -1,8 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import java.awt.*;
-import java.util.List;
-import java.util.Locale;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -21,6 +18,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+
+import java.awt.*;
+import java.util.List;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "gear",
@@ -85,7 +86,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
                 buyableRoles.size() > 0 && roleLvl > 0 && roleLvl <= buyableRoles.size() ? StringUtil.escapeMarkdown(buyableRoles.get(roleLvl - 1).getName()) : "-",
                 StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.SURVEY).getEffect()),
                 StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect()),
-                fisheryMemberData.getGuildData().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberData.getCoinsGiveReceivedMax()) : "∞"
+                getGuildEntity().getFishery().getCoinGiftLimit() ? StringUtil.numToString(fisheryMemberData.getCoinsGiveReceivedMax()) : "∞"
         ), false);
         return eb;
     }

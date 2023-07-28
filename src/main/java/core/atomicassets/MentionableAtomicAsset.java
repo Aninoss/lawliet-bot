@@ -1,10 +1,11 @@
 package core.atomicassets;
 
-import java.util.Locale;
-import java.util.Optional;
 import core.TextManager;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.entities.IMentionable;
+
+import java.util.Locale;
+import java.util.Optional;
 
 public interface MentionableAtomicAsset<T extends IMentionable> {
 
@@ -22,9 +23,18 @@ public interface MentionableAtomicAsset<T extends IMentionable> {
         return "`" + StringUtil.escapeMarkdownInField(getPrefixedName(locale)) + "`";
     }
 
+    default String getPrefixedNameInFieldOrElse(String elseString) {
+        return "`" + StringUtil.escapeMarkdownInField(getPrefixedNameOrElse(elseString)) + "`";
+    }
+
     default String getPrefixedName(Locale locale) {
         return getPrefixedNameRaw()
                 .orElseGet(() -> TextManager.getString(locale, TextManager.GENERAL, "notfound", StringUtil.numToHex(getIdLong())));
+    }
+
+    default String getPrefixedNameOrElse(String elseString) {
+        return getPrefixedNameRaw()
+                .orElse(elseString);
     }
 
     Optional<String> getNameRaw();

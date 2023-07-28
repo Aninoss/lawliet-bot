@@ -35,7 +35,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -167,10 +166,10 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
         if (slot.getGear() == FisheryGear.ROLE) {
             Fishery.synchronizeRoles(member, getGuildEntity());
-            Optional<TextChannel> announcementChannelOpt = guildBean.getFisheryAnnouncementChannel();
-            if (announcementChannelOpt.isPresent() && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), announcementChannelOpt.get(), Permission.MESSAGE_SEND)) {
+            TextChannel roleUpgradeChannel = getGuildEntity().getFishery().getRoleUpgradeChannel().get().orElse(null);
+            if (roleUpgradeChannel != null && PermissionCheckRuntime.botHasPermission(getLocale(), getClass(), roleUpgradeChannel, Permission.MESSAGE_SEND)) {
                 String announcementText = getString("newrole", StringUtil.escapeMarkdown(member.getEffectiveName()), StringUtil.escapeMarkdown(roles.get(slot.getLevel() - 1).getName()), String.valueOf(slot.getLevel()));
-                announcementChannelOpt.get().sendMessage(announcementText).queue();
+                roleUpgradeChannel.sendMessage(announcementText).queue();
             }
         }
     }
@@ -178,6 +177,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     @Override
     public EmbedBuilder draw(Member member, int state) {
         List<Role> roles = fisheryGuildData.getRoles();
+        FisheryEntity fishery = getGuildEntity().getFishery();
 
         switch (state) {
             case 0:
@@ -221,7 +221,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                         roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? StringUtil.escapeMarkdown(roles.get(roleLvl - 1).getName()) : "-",
                         StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.SURVEY).getEffect()),
                         StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect()),
-                        fisheryMemberData.getGuildData().hasFisheryCoinsGivenLimit() ? StringUtil.numToString(fisheryMemberData.getCoinsGiveReceivedMax()) : "∞"
+                        fishery.getCoinGiftLimit() ? StringUtil.numToString(fisheryMemberData.getCoinsGiveReceivedMax()) : "∞"
                 );
 
                 eb.addField(getString("status_title"), StringUtil.shortenStringLine(statusCurrencies + "\n\n" + status, 1024), false);
