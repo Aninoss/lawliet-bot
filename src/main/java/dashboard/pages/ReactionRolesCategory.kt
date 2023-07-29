@@ -40,10 +40,10 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 
 @DashboardProperties(
-    id = "reactionroles",
-    botPermissions = [Permission.MANAGE_ROLES, Permission.MESSAGE_HISTORY],
-    userPermissions = [Permission.MANAGE_ROLES],
-    commandAccessRequirements = [ReactionRolesCommand::class]
+        id = "reactionroles",
+        botPermissions = [Permission.MANAGE_ROLES, Permission.MESSAGE_HISTORY],
+        userPermissions = [Permission.MANAGE_ROLES],
+        commandAccessRequirements = [ReactionRolesCommand::class]
 )
 class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
@@ -88,25 +88,25 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         container.add(DashboardTitle(title))
 
         val rows = reactionMessages
-            .map {
-                val atomicChannel =
-                    AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
-                val values = arrayOf(it.title, atomicChannel.getPrefixedName(locale))
-                GridRow(it.messageId.toString(), values)
-            }
+                .map {
+                    val atomicChannel =
+                            AtomicStandardGuildMessageChannel(guild.idLong, it.standardGuildMessageChannelId)
+                    val values = arrayOf(it.title, atomicChannel.getPrefixedName(locale))
+                    GridRow(it.messageId.toString(), values)
+                }
 
         val headers = getString(Category.UTILITY, "reactionroles_dashboard_active_header").split('\n').toTypedArray()
         val grid = DashboardGrid(headers, rows) {
             val reactionRoleMessage = ReactionRoles.getReactionMessagesInGuild(atomicGuild.idLong)
-                .filter { m -> m.messageId == it.data.toLong() }
-                .firstOrNull() ?: return@DashboardGrid ActionResult()
+                    .filter { m -> m.messageId == it.data.toLong() }
+                    .firstOrNull() ?: return@DashboardGrid ActionResult()
                     .withRedraw()
 
             val channel = reactionRoleMessage.standardGuildMessageChannel.get()
             if (!BotPermissionUtil.canWriteEmbed(channel, Permission.MESSAGE_HISTORY)) {
                 val error = TextManager.getString(locale, TextManager.GENERAL, "permission_channel_history", "#" + channel.name)
                 return@DashboardGrid ActionResult()
-                    .withErrorMessage(error)
+                        .withErrorMessage(error)
             }
 
             try {
@@ -114,16 +114,16 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
             } catch (e: ExecutionException) {
                 // ignore
                 DBStaticReactionMessages.getInstance().retrieve(guild.getIdLong())
-                    .remove(reactionRoleMessage.messageId)
+                        .remove(reactionRoleMessage.messageId)
                 return@DashboardGrid ActionResult()
-                    .withRedraw()
-                    .withErrorMessage(getString(Category.UTILITY, "reactionroles_messagedeleted"))
+                        .withRedraw()
+                        .withErrorMessage(getString(Category.UTILITY, "reactionroles_messagedeleted"))
             }
 
             readValuesFromReactionMessage(guild, reactionRoleMessage)
             switchMode(true)
             ActionResult()
-                .withRedrawScrollToTop()
+                    .withRedrawScrollToTop()
         }
         grid.rowButton = rowButton
         container.add(grid)
@@ -160,10 +160,10 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         channelTitleContainer.add(channelComboBox)
 
         val titleTextfield =
-            DashboardTextField(getString(Category.UTILITY, "reactionroles_state3_mtitle"), 1, ReactionRolesCommand.TITLE_LENGTH_MAX) {
-                this.title = it.data
-                ActionResult()
-            }
+                DashboardTextField(getString(Category.UTILITY, "reactionroles_state3_mtitle"), 1, ReactionRolesCommand.TITLE_LENGTH_MAX) {
+                    this.title = it.data
+                    ActionResult()
+                }
         if (!title.isEmpty()) {
             titleTextfield.value = this.title
         }
@@ -173,10 +173,10 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         container.add(channelTitleContainer)
 
         val descTextfield =
-            DashboardMultiLineTextField(getString(Category.UTILITY, "reactionroles_state3_mdescription"), 0, ReactionRolesCommand.DESC_LENGTH_MAX) {
-                desc = it.data
-                ActionResult()
-            }
+                DashboardMultiLineTextField(getString(Category.UTILITY, "reactionroles_state3_mdescription"), 0, ReactionRolesCommand.DESC_LENGTH_MAX) {
+                    desc = it.data
+                    ActionResult()
+                }
         if (!desc.isEmpty()) {
             descTextfield.value = desc
         }
@@ -209,15 +209,15 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         container.add(roleConnectionsSwitch, DashboardSeparator())
 
         val componentsEntities =
-            ComponentType.values().mapIndexed { i, type -> DiscordEntity(i.toString(), getString(Category.UTILITY, "reactionroles_componenttypes", i)) }
+                ComponentType.values().mapIndexed { i, type -> DiscordEntity(i.toString(), getString(Category.UTILITY, "reactionroles_componenttypes", i)) }
         val newComponentsComboBox =
-            DashboardComboBox(getString(Category.UTILITY, "reactionroles_state3_mnewcomponents"), componentsEntities, false, 1) {
-                newComponents = ComponentType.values()[it.data.toInt()]
-                ActionResult()
-                    .withRedraw()
-            }
+                DashboardComboBox(getString(Category.UTILITY, "reactionroles_state3_mnewcomponents"), componentsEntities, false, 1) {
+                    newComponents = ComponentType.values()[it.data.toInt()]
+                    ActionResult()
+                            .withRedraw()
+                }
         newComponentsComboBox.selectedValues =
-            listOf(DiscordEntity(newComponents.ordinal.toString(), getString(Category.UTILITY, "reactionroles_componenttypes", newComponents.ordinal)))
+                listOf(DiscordEntity(newComponents.ordinal.toString(), getString(Category.UTILITY, "reactionroles_componenttypes", newComponents.ordinal)))
         container.add(newComponentsComboBox, DashboardSeparator())
 
         if (newComponents != ComponentType.REACTIONS) {
@@ -231,36 +231,34 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         }
 
         val rows = slots
-            .mapIndexed { i, slot ->
-                val values = arrayOf(slot.emoji?.formatted ?: "", slot.roleName, slot.customLabel ?: "")
-                GridRow(i.toString(), values)
-            }
+                .mapIndexed { i, slot ->
+                    val values = arrayOf(slot.emoji?.formatted ?: "", slot.roleName, slot.customLabel ?: "")
+                    GridRow(i.toString(), values)
+                }
 
         val headers = getString(Category.UTILITY, "reactionroles_dashboard_slots_header").split('\n').toTypedArray()
         val slotGrid = DashboardGrid(headers, rows) {
             slots.removeAt(it.data.toInt())
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         slotGrid.rowButton = getString(Category.UTILITY, "reactionroles_dashboard_slots_button")
         container.add(DashboardText(getString(Category.UTILITY, "reactionroles_state3_mshortcuts")), slotGrid, generateSlotAddContainer(guild), DashboardSeparator())
 
         val roleRequirementsComboBox = DashboardMultiRolesComboBox(
-            getString(Category.UTILITY, "reactionroles_dashboard_rolerequirements_title"),
-            locale,
-            guild.idLong,
-            atomicMember.idLong,
-            roleRequirements,
-            true,
-            ReactionRolesCommand.MAX_ROLE_REQUIREMENTS,
-            false
+                this,
+                getString(Category.UTILITY, "reactionroles_dashboard_rolerequirements_title"),
+                { roleRequirements },
+                true,
+                ReactionRolesCommand.MAX_ROLE_REQUIREMENTS,
+                false
         )
         container.add(roleRequirementsComboBox, DashboardText(getString(Category.UTILITY, "reactionroles_dashboard_rolerequirements")), DashboardSeparator())
 
         val imageUpload = DashboardImageUpload(getString(Category.UTILITY, "reactionroles_dashboard_includedimage"), "reactionroles") {
             image = it.data
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         container.add(imageUpload)
 
@@ -269,7 +267,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
             val removeImageButton = DashboardButton(getString(Category.UTILITY, "reactionroles_dashboard_removeimage")) {
                 image = null
                 ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
             container.add(HorizontalContainer(removeImageButton, HorizontalPusher()))
         }
@@ -281,34 +279,34 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         val sendButton = DashboardButton(getString(Category.UTILITY, "reactionroles_dashboard_send", editMode)) {
             if (channelId == null) {
                 return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(Category.UTILITY, "reactionroles_dashboard_nochannel"))
+                        .withErrorMessage(getString(Category.UTILITY, "reactionroles_dashboard_nochannel"))
             }
 
             val textChannel = guild.getTextChannelById(channelId!!)
             val convertedSlots = slots
-                .map { ReactionRoleMessageSlot(guild.idLong, it.emoji, it.roleId, it.customLabel) }
+                    .map { ReactionRoleMessageSlot(guild.idLong, it.emoji, it.roleId, it.customLabel) }
 
             val error = ReactionRoles.checkForErrors(locale, textChannel, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, newComponents)
             if (error != null) {
                 return@DashboardButton ActionResult()
-                    .withErrorMessage(error)
+                        .withErrorMessage(error)
             }
 
             ReactionRoles.sendMessage(
-                guildEntity.locale, textChannel, title, desc, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, roleRemovement,
-                multipleRoles, showRoleConnections, newComponents, showRoleNumbers, image, editMode, messageId ?: 0L
+                    guildEntity.locale, textChannel, title, desc, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, roleRemovement,
+                    multipleRoles, showRoleConnections, newComponents, showRoleNumbers, image, editMode, messageId ?: 0L
             ).get(5, TimeUnit.SECONDS)
 
             if (editMode) {
                 switchMode(false)
                 ActionResult()
-                    .withSuccessMessage(getString(Category.UTILITY, "reactionroles_state9_description"))
-                    .withRedrawScrollToTop()
+                        .withSuccessMessage(getString(Category.UTILITY, "reactionroles_state9_description"))
+                        .withRedrawScrollToTop()
             } else {
                 switchMode(false)
                 ActionResult()
-                    .withSuccessMessage(getString(Category.UTILITY, "reactionroles_state9_description"))
-                    .withRedraw()
+                        .withSuccessMessage(getString(Category.UTILITY, "reactionroles_state9_description"))
+                        .withRedraw()
             }
         }
         sendButton.style = DashboardButton.Style.PRIMARY
@@ -318,7 +316,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
             val cancelButton = DashboardButton(getString(TextManager.GENERAL, "process_abort")) {
                 switchMode(false)
                 ActionResult()
-                    .withRedrawScrollToTop()
+                        .withRedrawScrollToTop()
             }
             buttonContainer.add(cancelButton)
         }
@@ -345,10 +343,10 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         slotAddContainer.add(emojiField)
 
         val roleField =
-            DashboardRoleComboBox(getString(Category.UTILITY, "reactionroles_dashboard_slots_role"), locale, atomicGuild.idLong, atomicMember.idLong, newSlotRole?.idLong, false, true) {
-                this.newSlotRole = guild.getRoleById(it.data)
-                ActionResult()
-            }
+                DashboardRoleComboBox(getString(Category.UTILITY, "reactionroles_dashboard_slots_role"), locale, atomicGuild.idLong, atomicMember.idLong, newSlotRole?.idLong, false, true) {
+                    this.newSlotRole = guild.getRoleById(it.data)
+                    ActionResult()
+                }
         slotAddContainer.add(roleField)
 
         val customLabelField = DashboardTextField(getString(Category.UTILITY, "reactionroles_dashboard_slots_customlabel"), 0, ReactionRolesCommand.CUSTOM_LABEL_MAX_LENGTH) {
@@ -371,19 +369,19 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
             }
             if (newSlotEmoji.isNotEmpty() && emoji == null) {
                 return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(Category.UTILITY, "reactionroles_dashboard_noemoji"))
+                        .withErrorMessage(getString(Category.UTILITY, "reactionroles_dashboard_noemoji"))
             }
             if (emoji != null && emoji is CustomEmoji && !ShardManager.customEmojiIsKnown(emoji)) {
                 return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown", emoji.name))
+                        .withErrorMessage(getString(TextManager.GENERAL, "emojiunknown", emoji.name))
             }
             if (slots.size >= ReactionRolesCommand.MAX_SLOTS_TOTAL) {
                 return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(Category.UTILITY, "reactionroles_toomanyshortcuts", ReactionRolesCommand.MAX_SLOTS_TOTAL.toString()))
+                        .withErrorMessage(getString(Category.UTILITY, "reactionroles_toomanyshortcuts", ReactionRolesCommand.MAX_SLOTS_TOTAL.toString()))
             }
             if (newSlotRole == null) {
                 return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(Category.UTILITY, "reactionroles_dashboard_norole"))
+                        .withErrorMessage(getString(Category.UTILITY, "reactionroles_dashboard_norole"))
             }
 
             val customLabel: String? = if (newSlotCustomLabel.isEmpty()) {
@@ -397,7 +395,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
             newSlotRole = null
             newSlotCustomLabel = ""
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         addButton.setCanExpand(false)
         slotAddContainer.add(addButton)
@@ -437,22 +435,22 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         this.image = reactionRoleMessage.image ?: ""
         this.messageId = reactionRoleMessage.messageId
         val newSlots = reactionRoleMessage.slots
-            .map {
-                val roleId = it.roleId
-                val role = guild.getRoleById(roleId)
-                val roleName = if (role != null) {
-                    "@${role.name}"
-                } else {
-                    getString(TextManager.GENERAL, "notfound", StringUtil.numToHex(roleId))
+                .map {
+                    val roleId = it.roleId
+                    val role = guild.getRoleById(roleId)
+                    val roleName = if (role != null) {
+                        "@${role.name}"
+                    } else {
+                        getString(TextManager.GENERAL, "notfound", StringUtil.numToHex(roleId))
+                    }
+                    Slot(
+                            it.emoji,
+                            roleName,
+                            it.roleId,
+                            it.customLabel
+                    )
                 }
-                Slot(
-                    it.emoji,
-                    roleName,
-                    it.roleId,
-                    it.customLabel
-                )
-            }
-            .filter { !it.roleName.isEmpty() }
+                .filter { !it.roleName.isEmpty() }
         this.slots = ArrayList(newSlots)
         this.roleRequirements = ArrayList(reactionRoleMessage.roleRequirements.map { it.idLong })
         this.newSlotRole = null

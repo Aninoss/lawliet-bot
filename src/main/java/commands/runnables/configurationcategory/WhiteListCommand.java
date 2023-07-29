@@ -1,7 +1,5 @@
 package commands.runnables.configurationcategory;
 
-import java.util.List;
-import java.util.Locale;
 import commands.Category;
 import commands.CommandEvent;
 import commands.NavigationHelper;
@@ -24,6 +22,9 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "whitelist",
@@ -48,7 +49,7 @@ public class WhiteListCommand extends NavigationAbstract {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         WhiteListedChannelsData whiteListedChannelsBean = DBWhiteListedChannels.getInstance().retrieve(event.getGuild().getIdLong());
         whiteListedChannels = AtomicTextChannel.transformIdList(event.getGuild(), whiteListedChannelsBean.getChannelIds());
-        channelNavigationHelper = new NavigationHelper<>(this, whiteListedChannels, AtomicTextChannel.class, MAX_CHANNELS);
+        channelNavigationHelper = new NavigationHelper<>(this, guildEntity -> whiteListedChannels, AtomicTextChannel.class, MAX_CHANNELS);
         setLog(LogStatus.WARNING, TextManager.getString(getLocale(), Category.CONFIGURATION, "cperms_obsolete", getPrefix()));
         registerNavigationListener(event.getMember());
         return true;

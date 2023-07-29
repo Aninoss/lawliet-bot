@@ -1,11 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.io.File;
-import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
@@ -46,6 +40,13 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @CommandProperties(
         trigger = "reactionroles",
@@ -90,7 +91,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
     private String description;
     private List<ReactionRoleMessageSlot> slots = new ArrayList<>();
     private List<AtomicRole> roleRequirements = new ArrayList<>();
-    private NavigationHelper<AtomicRole> roleRequirementsNavigationHelper = new NavigationHelper<>(this, roleRequirements, AtomicRole.class, MAX_ROLE_REQUIREMENTS, false);
+    private final NavigationHelper<AtomicRole> roleRequirementsNavigationHelper = new NavigationHelper<>(this, guildEntity -> roleRequirements, AtomicRole.class, MAX_ROLE_REQUIREMENTS, false);
     private Emoji emojiTemp;
     private String banner;
     private AtomicRole roleTemp;
@@ -1074,7 +1075,6 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         this.showRoleNumbers = message.getShowRoleNumbers();
         this.slots = new ArrayList<>(message.getSlots());
         this.roleRequirements = new ArrayList<>(message.getRoleRequirements());
-        this.roleRequirementsNavigationHelper = new NavigationHelper<>(this, roleRequirements, AtomicRole.class, MAX_ROLE_REQUIREMENTS, false);
         this.atomicTextChannel = new AtomicTextChannel(message.getGuildId(), message.getStandardGuildMessageChannelId());
     }
 

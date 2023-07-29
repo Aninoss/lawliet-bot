@@ -31,10 +31,10 @@ import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
-    id = "moderation",
-    userPermissions = [Permission.MANAGE_SERVER, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS],
-    botPermissions = [Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.MODERATE_MEMBERS],
-    commandAccessRequirements = [ModSettingsCommand::class, InviteFilterCommand::class, WordFilterCommand::class]
+        id = "moderation",
+        userPermissions = [Permission.MANAGE_SERVER, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS],
+        botPermissions = [Permission.MESSAGE_MANAGE, Permission.KICK_MEMBERS, Permission.BAN_MEMBERS, Permission.MODERATE_MEMBERS],
+        commandAccessRequirements = [ModSettingsCommand::class, InviteFilterCommand::class, WordFilterCommand::class]
 )
 class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
@@ -52,28 +52,28 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         if (autoModConfigSlot == null) {
             if (anyCommandsAreAccessible(ModSettingsCommand::class)) {
                 mainContainer.add(
-                    generateGeneralConfigurationField(),
-                    generateAutoModField()
+                        generateGeneralConfigurationField(),
+                        generateAutoModField()
                 )
             }
 
             if (anyCommandsAreAccessible(InviteFilterCommand::class)) {
                 mainContainer.add(
-                    generateInviteFilterField()
+                        generateInviteFilterField()
                 )
             }
 
             if (anyCommandsAreAccessible(WordFilterCommand::class)) {
                 mainContainer.add(
-                    generateWordFilterField()
+                        generateWordFilterField()
                 )
             }
         } else {
             mainContainer.add(
-                generateAutoModConfigTitle(),
-                generateAutoModConfigText(),
-                generateAutoModConfigTextField(),
-                generateAutoModConfigButtons()
+                    generateAutoModConfigTitle(),
+                    generateAutoModConfigText(),
+                    generateAutoModConfigTextField(),
+                    generateAutoModConfigButtons()
             )
         }
     }
@@ -81,26 +81,26 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
     fun generateGeneralConfigurationField(): DashboardComponent {
         val container = VerticalContainer()
         container.add(
-            generateNotificationChannelComponent(),
-            DashboardSeparator(),
-            generateConfirmationMessageComponent(),
-            DashboardSeparator(),
-            generateJailRolesComponent()
+                generateNotificationChannelComponent(),
+                DashboardSeparator(),
+                generateConfirmationMessageComponent(),
+                DashboardSeparator(),
+                generateJailRolesComponent()
         )
         return container
     }
 
     fun generateNotificationChannelComponent(): DashboardComponent {
         val channelComboBox = DashboardTextChannelComboBox(
-            getString(Category.MODERATION, "mod_state0_mchannel"),
-            locale,
-            atomicGuild.idLong,
-            DBModeration.getInstance().retrieve(atomicGuild.idLong).announcementChannelId.orElse(null),
-            true
+                getString(Category.MODERATION, "mod_state0_mchannel"),
+                locale,
+                atomicGuild.idLong,
+                DBModeration.getInstance().retrieve(atomicGuild.idLong).announcementChannelId.orElse(null),
+                true
         ) {
             if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                 return@DashboardTextChannelComboBox ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             DBModeration.getInstance().retrieve(atomicGuild.idLong).setAnnouncementChannelId(it.data?.toLong())
@@ -113,7 +113,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         val switch = DashboardSwitch(getString(Category.MODERATION, "mod_state0_mquestion")) {
             if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                 return@DashboardSwitch ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             DBModeration.getInstance().retrieve(atomicGuild.idLong).question = it.data
@@ -125,15 +125,13 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
 
     fun generateJailRolesComponent(): DashboardComponent {
         return DashboardMultiRolesComboBox(
-            getString(Category.MODERATION, "mod_state0_mjailroles"),
-            locale,
-            atomicGuild.idLong,
-            atomicMember.idLong,
-            DBModeration.getInstance().retrieve(atomicGuild.idLong).jailRoleIds,
-            true,
-            ModSettingsCommand.MAX_JAIL_ROLES,
-            true,
-            ModSettingsCommand::class
+                this,
+                getString(Category.MODERATION, "mod_state0_mjailroles"),
+                { DBModeration.getInstance().retrieve(atomicGuild.idLong).jailRoleIds },
+                true,
+                ModSettingsCommand.MAX_JAIL_ROLES,
+                true,
+                ModSettingsCommand::class
         )
     }
 
@@ -141,14 +139,14 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         val modData = DBModeration.getInstance().retrieve(atomicGuild.idLong)
         val container = VerticalContainer()
         container.add(
-            DashboardTitle(getString(Category.MODERATION, "mod_state0_mautomod")),
-            generateAutoModSlotField(modData, AutoModSlots.MUTE),
-            DashboardSeparator(),
-            generateAutoModSlotField(modData, AutoModSlots.JAIL),
-            DashboardSeparator(),
-            generateAutoModSlotField(modData, AutoModSlots.KICK),
-            DashboardSeparator(),
-            generateAutoModSlotField(modData, AutoModSlots.BAN)
+                DashboardTitle(getString(Category.MODERATION, "mod_state0_mautomod")),
+                generateAutoModSlotField(modData, AutoModSlots.MUTE),
+                DashboardSeparator(),
+                generateAutoModSlotField(modData, AutoModSlots.JAIL),
+                DashboardSeparator(),
+                generateAutoModSlotField(modData, AutoModSlots.KICK),
+                DashboardSeparator(),
+                generateAutoModSlotField(modData, AutoModSlots.BAN)
         )
         return container
     }
@@ -175,7 +173,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         val configButton = DashboardButton(getString(Category.MODERATION, "mod_config")) {
             if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                 return@DashboardButton ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             autoModConfigSlot = slot
@@ -184,7 +182,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             autoModConfigTempDays = 1
             autoModConfigTempDuration = 1
             ActionResult()
-                .withRedrawScrollToTop()
+                    .withRedrawScrollToTop()
         }
         configButton.style = DashboardButton.Style.PRIMARY
         buttonContainer.add(configButton)
@@ -193,13 +191,13 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             val turnOffButton = DashboardButton(getString(Category.MODERATION, "mod_state${slot.states[0]}_options")) {
                 if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                     return@DashboardButton ActionResult()
-                        .withRedraw()
+                            .withRedraw()
                 }
 
                 slot.setData(modData, 0, 0, 0)
                 ActionResult()
-                    .withRedraw()
-                    .withSuccessMessage(getString(Category.MODERATION, "mod_auto${slot.id}set"))
+                        .withRedraw()
+                        .withSuccessMessage(getString(Category.MODERATION, "mod_auto${slot.id}set"))
             }
             turnOffButton.style = DashboardButton.Style.DANGER
             buttonContainer.add(turnOffButton)
@@ -218,25 +216,25 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         val activeSwitch = DashboardSwitch(getString(Category.MODERATION, "invitefilter_state0_menabled")) {
             if (!anyCommandsAreAccessible(InviteFilterCommand::class)) {
                 return@DashboardSwitch ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             inviteFilter.isActive = it.data
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         activeSwitch.isChecked = inviteFilter.isActive
         container.add(activeSwitch, DashboardSeparator(), generateInviteFilterExcludedField(inviteFilter), DashboardSeparator())
 
         val logReceivers = DashboardMultiMembersComboBox(
-            getString(Category.MODERATION, "invitefilter_state0_mlogreciever"),
-            locale,
-            atomicGuild.idLong,
-            inviteFilter.logReceiverUserIds,
-            true,
-            InviteFilterCommand.MAX_LOG_RECEIVERS,
-            atomicMember.idLong,
-            InviteFilterCommand::class
+                getString(Category.MODERATION, "invitefilter_state0_mlogreciever"),
+                locale,
+                atomicGuild.idLong,
+                inviteFilter.logReceiverUserIds,
+                true,
+                InviteFilterCommand.MAX_LOG_RECEIVERS,
+                atomicMember.idLong,
+                InviteFilterCommand::class
         )
         container.add(logReceivers, DashboardSeparator())
 
@@ -246,7 +244,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         val action = DashboardComboBox(getString(Category.MODERATION, "invitefilter_state0_maction"), actions, false, 1) {
             if (!anyCommandsAreAccessible(InviteFilterCommand::class)) {
                 return@DashboardComboBox ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             inviteFilter.action = SPBlockData.ActionList.values()[it.data.toInt()]
@@ -263,26 +261,25 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         container.allowWrap = true
 
         val ignoredUsers = DashboardMultiMembersComboBox(
-            getString(Category.MODERATION, "invitefilter_state0_mignoredusers"),
-            locale,
-            atomicGuild.idLong,
-            inviteFilter.ignoredUserIds,
-            true,
-            InviteFilterCommand.MAX_IGNORED_USERS,
-            atomicMember.idLong,
-            InviteFilterCommand::class
+                getString(Category.MODERATION, "invitefilter_state0_mignoredusers"),
+                locale,
+                atomicGuild.idLong,
+                inviteFilter.ignoredUserIds,
+                true,
+                InviteFilterCommand.MAX_IGNORED_USERS,
+                atomicMember.idLong,
+                InviteFilterCommand::class
         )
         container.add(ignoredUsers)
 
         val ignoredChannels = DashboardMultiTextChannelsComboBox(
-            getString(Category.MODERATION, "invitefilter_state0_mignoredchannels"),
-            locale,
-            atomicGuild.idLong,
-            inviteFilter.ignoredChannelIds,
-            true,
-            InviteFilterCommand.MAX_IGNORED_CHANNELS,
-            atomicMember.idLong,
-            InviteFilterCommand::class
+                this,
+                getString(Category.MODERATION, "invitefilter_state0_mignoredchannels"),
+                { inviteFilter.ignoredChannelIds },
+                true,
+                InviteFilterCommand.MAX_IGNORED_CHANNELS,
+                atomicMember.idLong,
+                InviteFilterCommand::class
         )
         container.add(ignoredChannels)
 
@@ -297,37 +294,37 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         val activeSwitch = DashboardSwitch(getString(Category.MODERATION, "wordfilter_state0_menabled")) {
             if (!anyCommandsAreAccessible(WordFilterCommand::class)) {
                 return@DashboardSwitch ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             wordFilter.isActive = it.data
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         activeSwitch.isChecked = wordFilter.isActive
         container.add(activeSwitch, DashboardSeparator())
 
         val ignoredUsers = DashboardMultiMembersComboBox(
-            getString(Category.MODERATION, "wordfilter_state0_mignoredusers"),
-            locale,
-            atomicGuild.idLong,
-            wordFilter.ignoredUserIds,
-            true,
-            WordFilterCommand.MAX_IGNORED_USERS,
-            atomicMember.idLong,
-            WordFilterCommand::class
+                getString(Category.MODERATION, "wordfilter_state0_mignoredusers"),
+                locale,
+                atomicGuild.idLong,
+                wordFilter.ignoredUserIds,
+                true,
+                WordFilterCommand.MAX_IGNORED_USERS,
+                atomicMember.idLong,
+                WordFilterCommand::class
         )
         container.add(ignoredUsers)
 
         val logReceivers = DashboardMultiMembersComboBox(
-            getString(Category.MODERATION, "wordfilter_state0_mlogreciever"),
-            locale,
-            atomicGuild.idLong,
-            wordFilter.logReceiverUserIds,
-            true,
-            WordFilterCommand.MAX_LOG_RECEIVERS,
-            atomicMember.idLong,
-            WordFilterCommand::class
+                getString(Category.MODERATION, "wordfilter_state0_mlogreciever"),
+                locale,
+                atomicGuild.idLong,
+                wordFilter.logReceiverUserIds,
+                true,
+                WordFilterCommand.MAX_LOG_RECEIVERS,
+                atomicMember.idLong,
+                WordFilterCommand::class
         )
         container.add(logReceivers, DashboardSeparator(), generateWordsComboBox(wordFilter))
 
@@ -340,20 +337,20 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         val comboBox = DashboardComboBox(label, emptyList(), true, WordFilterCommand.MAX_WORDS) {
             if (!anyCommandsAreAccessible(WordFilterCommand::class)) {
                 return@DashboardComboBox ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             if (it.type == "add") {
                 WordFilter.translateString(it.data).split(" ")
-                    .filter { it.length > 0 }
-                    .map { it.substring(0, Math.min(WordFilterCommand.MAX_LETTERS, it.length)) }
-                    .filter { !words.contains(it) }
-                    .forEach { words += it }
+                        .filter { it.length > 0 }
+                        .map { it.substring(0, Math.min(WordFilterCommand.MAX_LETTERS, it.length)) }
+                        .filter { !words.contains(it) }
+                        .forEach { words += it }
             } else if (it.type == "remove") {
                 words.remove(it.data)
             }
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         comboBox.allowCustomValues = true
         comboBox.selectedValues = words.map { DiscordEntity(it, it) }
@@ -383,6 +380,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 textField.editButton = false
                 return textField
             }
+
             1 -> {
                 val textField = DashboardNumberField("", 1, Int.MAX_VALUE.toLong()) {
                     autoModConfigTempDays = it.data.toInt()
@@ -392,6 +390,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 textField.editButton = false
                 return textField
             }
+
             2 -> {
                 val textField = DashboardDurationField("") {
                     autoModConfigTempDuration = it.data.toInt()
@@ -401,6 +400,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 textField.editButton = false
                 return textField
             }
+
             else -> {
                 throw RuntimeException()
             }
@@ -418,7 +418,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         val continueButton = DashboardButton(continueButtonText) {
             if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                 return@DashboardButton ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             return@DashboardButton autoModConfigNextStep()
@@ -430,7 +430,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             val countAllButton = DashboardButton(getString(Category.MODERATION, "mod_state4_options")) {
                 if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                     return@DashboardButton ActionResult()
-                        .withRedraw()
+                            .withRedraw()
                 }
 
                 autoModConfigTempDays = 0
@@ -442,7 +442,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             val countAllButton = DashboardButton(getString(Category.MODERATION, "mod_state${autoModConfigSlot!!.states[autoModConfigStep]}_options")) {
                 if (!anyCommandsAreAccessible(ModSettingsCommand::class)) {
                     return@DashboardButton ActionResult()
-                        .withRedraw()
+                            .withRedraw()
                 }
 
                 autoModConfigTempDuration = 0
@@ -455,7 +455,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         val cancelButton = DashboardButton(getString(TextManager.GENERAL, "process_abort")) {
             autoModConfigSlot = null
             ActionResult()
-                .withRedrawScrollToTop()
+                    .withRedrawScrollToTop()
         }
         cancelButton.style = DashboardButton.Style.DEFAULT
         container.add(cancelButton)
@@ -468,15 +468,15 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         if (autoModConfigStep < autoModConfigSlot!!.states.size - 1) {
             autoModConfigStep++
             return ActionResult()
-                .withRedrawScrollToTop()
+                    .withRedrawScrollToTop()
         } else {
             val text = getString(Category.MODERATION, "mod_auto${autoModConfigSlot!!.id}set")
             val modData = DBModeration.getInstance().retrieve(atomicGuild.idLong)
             autoModConfigSlot!!.setData(modData, autoModConfigTempValue, autoModConfigTempDays, autoModConfigTempDuration)
             autoModConfigSlot = null
             return ActionResult()
-                .withRedrawScrollToTop()
-                .withSuccessMessage(text)
+                    .withRedrawScrollToTop()
+                    .withSuccessMessage(text)
         }
     }
 

@@ -18,11 +18,8 @@ import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
 import mysql.hibernate.entity.FisheryEntity;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
 import mysql.modules.fisheryusers.FisheryMemberGearData;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -48,8 +45,6 @@ import java.util.stream.Collectors;
 public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
     private FisheryMemberData fisheryMemberData;
-    private FisheryGuildData fisheryGuildData;
-    private GuildData guildBean;
 
     public BuyCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -57,11 +52,10 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
-        guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-        fisheryMemberData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
-        fisheryGuildData = fisheryMemberData.getFisheryGuildData();
+        fisheryMemberData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
+                .getMemberData(event.getMember().getIdLong());
 
-        checkRolesWithLog(event.getGuild(), fisheryGuildData.getRoles());
+        checkRolesWithLog(event.getGuild(), getGuildEntity().getFishery().getRoles());
         if (args.length() > 0) {
             String letters = StringUtil.filterLettersFromString(args).toLowerCase().replace(" ", "");
             long numbers = StringUtil.filterLongFromString(args);
@@ -117,7 +111,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     }
 
     private synchronized boolean buy(FisheryGear fisheryGear, Member member, boolean transferableSlots) {
-        List<Role> roles = fisheryGuildData.getRoles();
+        List<Role> roles = getGuildEntity().getFishery().getRoles();
         int i = fisheryGear.ordinal();
 
         boolean canUseTreasureChests = slotIsValid(member.getGuild(), roles, fisheryMemberData.getMemberGear(FisheryGear.TREASURE));
@@ -176,8 +170,8 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
     @Override
     public EmbedBuilder draw(Member member, int state) {
-        List<Role> roles = fisheryGuildData.getRoles();
         FisheryEntity fishery = getGuildEntity().getFishery();
+        List<Role> roles = fishery.getRoles();
 
         switch (state) {
             case 0:
@@ -237,7 +231,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
     }
 
     private List<FisheryMemberGearData> getUpgradableGears() {
-        List<Role> roles = fisheryGuildData.getRoles();
+        List<Role> roles = getGuildEntity().getFishery().getRoles();
         Guild guild = roles.stream()
                 .findFirst()
                 .map(Role::getGuild)
@@ -264,7 +258,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
     private long calculateRolePrice(FisheryMemberGearData slot) {
         FisheryEntity fishery = getGuildEntity().getFishery();
-        return Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), fisheryGuildData.getRoles().size(), slot.getLevel());
+        return Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), fishery.getRoles().size(), slot.getLevel());
     }
 
     private String numToStringWithPowerUpBonus(long value, boolean powerUpBonus) {

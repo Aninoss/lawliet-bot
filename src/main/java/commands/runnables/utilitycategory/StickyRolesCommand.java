@@ -1,8 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
@@ -22,6 +19,10 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "stickyroles",
@@ -46,7 +47,7 @@ public class StickyRolesCommand extends NavigationAbstract {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         StickyRolesData stickyRolesData = DBStickyRoles.getInstance().retrieve(event.getGuild().getIdLong());
         roles = AtomicRole.transformIdList(event.getGuild(), stickyRolesData.getRoleIds());
-        roleNavigationHelper = new NavigationHelper<>(this, roles, AtomicRole.class, MAX_ROLES);
+        roleNavigationHelper = new NavigationHelper<>(this, guildEntity -> roles, AtomicRole.class, MAX_ROLES);
         checkRolesWithLog(event.getMember(), roles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
         registerNavigationListener(event.getMember());
         return true;

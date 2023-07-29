@@ -40,7 +40,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
 
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
-        List<Role> buyableRoles = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getRoles();
+        List<Role> buyableRoles = getGuildEntity().getFishery().getRoles();
         FisheryMemberData fisheryMemberData = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong());
         int coupons = fisheryMemberData.getCoupons();
         String desc = getString(

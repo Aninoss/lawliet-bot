@@ -8,24 +8,35 @@ import core.TextManager
 import core.atomicassets.AtomicRole
 import core.utils.BotPermissionUtil
 import dashboard.ActionResult
+import dashboard.DashboardCategory
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
+import mysql.hibernate.entity.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
-import java.util.*
 import kotlin.reflect.KClass
 
-class DashboardMultiRolesComboBox(label: String, locale: Locale, guildId: Long, val memberId: Long, val selectedRoles: MutableList<Long>,
-                                  canBeEmpty: Boolean, max: Int, checkManageable: Boolean, commandAccessRequirement: KClass<out Command>? = null
+class DashboardMultiRolesComboBox(
+        dashboardCategory: DashboardCategory,
+        label: String,
+        val selectedRolesSupplier: (GuildEntity) -> List<Long>,
+        canBeEmpty: Boolean,
+        max: Int,
+        checkManageable: Boolean,
+        commandAccessRequirement: KClass<out Command>? = null
 ) : DashboardComboBox(label, DataType.ROLES, canBeEmpty, max) {
 
     init {
-        selectedValues = selectedRoles.map {
+        val guildId = dashboardCategory.atomicGuild.idLong
+        val memberId = dashboardCategory.atomicMember.idLong
+
+        selectedValues = selectedRolesSupplier(dashboardCategory.guildEntity).map {
             val atomicRole = AtomicRole(guildId, it)
-            DiscordEntity(it.toString(), atomicRole.getName(locale))
+            DiscordEntity(it.toString(), atomicRole.getName(dashboardCategory.locale))
         }
+
         setActionListener { event ->
             val guild: Guild = ShardManager.getLocalGuildById(guildId).orElse(null) ?: return@setActionListener ActionResult()
             val role: Role? = guild.getRoleById(event.data.toLong())
@@ -39,24 +50,31 @@ class DashboardMultiRolesComboBox(label: String, locale: Locale, guildId: Long, 
                         .withRedraw()
                 }
 
+                val guildEntity = dashboardCategory.guildEntity
+                var selectedRoles = selectedRolesSupplier(guildEntity)
+
                 if (event.type == "add") {
                     if (!checkManageable || (BotPermissionUtil.canManage(role) && BotPermissionUtil.can(guild.selfMember, Permission.MANAGE_ROLES))) {
-                        selectedRoles.add(event.data.toLong())
+                        guildEntity.beginTransaction()
+                        selectedRoles += event.data.toLong()
+                        guildEntity.commitTransaction()
                         return@setActionListener ActionResult()
                     } else {
-                        val text = TextManager.getString(locale, TextManager.GENERAL, "permission_role", false, "\"${role!!.name}\"")
+                        val text = TextManager.getString(dashboardCategory.locale, TextManager.GENERAL, "permission_role", false, "\"${role!!.name}\"")
                         return@setActionListener ActionResult()
                             .withRedraw()
                             .withErrorMessage(text)
                     }
                 } else if (event.type == "remove") {
-                    selectedRoles.remove(event.data.toLong())
+                    guildEntity.beginTransaction()
+                    selectedRoles -= event.data.toLong()
+                    guildEntity.commitTransaction()
                     return@setActionListener ActionResult()
                 } else {
                     return@setActionListener ActionResult()
                 }
             } else {
-                val text = TextManager.getString(locale, TextManager.GENERAL, "permission_role_user", false, "\"${role.name}\"")
+                val text = TextManager.getString(dashboardCategory.locale, TextManager.GENERAL, "permission_role_user", false, "\"${role.name}\"")
                 return@setActionListener ActionResult()
                     .withRedraw()
                     .withErrorMessage(text)

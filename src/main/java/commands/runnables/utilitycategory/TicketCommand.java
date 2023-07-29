@@ -1,8 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
@@ -48,6 +45,10 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+
 @CommandProperties(
         trigger = "ticket",
         botChannelPermissions = { Permission.MESSAGE_EXT_EMOJI },
@@ -89,7 +90,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         ticketData = DBTicket.getInstance().retrieve(event.getGuild().getIdLong());
         staffRoles = AtomicRole.transformIdList(event.getGuild(), ticketData.getStaffRoleIds());
-        staffRoleNavigationHelper = new NavigationHelper<>(this, staffRoles, AtomicRole.class, MAX_ROLES, false);
+        staffRoleNavigationHelper = new NavigationHelper<>(this, guildEntity -> staffRoles, AtomicRole.class, MAX_ROLES, false);
         registerNavigationListener(event.getMember());
         return true;
     }

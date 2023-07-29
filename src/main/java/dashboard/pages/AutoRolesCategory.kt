@@ -15,10 +15,10 @@ import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
-    id = "autoroles",
-    userPermissions = [Permission.MANAGE_ROLES],
-    botPermissions = [Permission.MANAGE_ROLES],
-    commandAccessRequirements = [AutoRolesCommand::class]
+        id = "autoroles",
+        userPermissions = [Permission.MANAGE_ROLES],
+        botPermissions = [Permission.MANAGE_ROLES],
+        commandAccessRequirements = [AutoRolesCommand::class]
 )
 class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
@@ -29,14 +29,12 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         val descText = DashboardText(getString(Category.UTILITY, "autoroles_state0_description"))
         val rolesComboBox = DashboardMultiRolesComboBox(
-            Command.getCommandLanguage(AutoRolesCommand::class.java, locale).title,
-            locale,
-            guild.idLong,
-            atomicMember.idLong,
-            DBAutoRoles.getInstance().retrieve(guild.idLong).roleIds,
-            true,
-            AutoRolesCommand.MAX_ROLES,
-            true
+                this,
+                Command.getCommandLanguage(AutoRolesCommand::class.java, locale).title,
+                { DBAutoRoles.getInstance().retrieve(guild.idLong).roleIds },
+                true,
+                AutoRolesCommand.MAX_ROLES,
+                true
         )
 
         mainContainer.add(descText, rolesComboBox)

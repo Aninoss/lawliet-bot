@@ -13,7 +13,6 @@ import modules.fishery.FisheryStatus;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.autoroles.DBAutoRoles;
 import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.jails.DBJails;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
@@ -41,10 +40,9 @@ public class JoinRoles {
     private static final AninossRaidProtection aninossRaidProtection = new AninossRaidProtection();
 
     public static boolean guildIsRelevant(Guild guild, GuildEntity guildEntity) {
-        FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guild.getIdLong());
         ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
         return DBAutoRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds().size() > 0 ||
-                (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE && fisheryGuildData.getRoleIds().size() > 0) ||
+                (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE && guildEntity.getFishery().getRoleIds().size() > 0) ||
                 DBStickyRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds().size() > 0 ||
                 moderationData.getJailRoleIds().size() > 0 ||
                 moderationData.getMuteRoleId().isPresent();
@@ -112,13 +110,12 @@ public class JoinRoles {
 
     public static void getFisheryRoles(Locale locale, Member member, GuildEntity guildEntity, HashSet<Role> rolesToAdd, HashSet<Role> rolesToRemove) {
         Guild guild = member.getGuild();
-        FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(guild.getIdLong());
         if (guildEntity.getFishery().getFisheryStatus() != FisheryStatus.ACTIVE) {
             return;
         }
 
-        List<Role> memberRoles = fisheryGuildBean.getMemberData(member.getIdLong()).getRoles(guildEntity.getFishery());
-        for (Role role : fisheryGuildBean.getRoles()) {
+        List<Role> memberRoles = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberData(member.getIdLong()).getRoles(guildEntity.getFishery());
+        for (Role role : guildEntity.getFishery().getRoles()) {
             boolean give = memberRoles.contains(role);
             if (PermissionCheckRuntime.botCanManageRoles(locale, FisheryCommand.class, role) && give != member.getRoles().contains(role)) {
                 if (give) {

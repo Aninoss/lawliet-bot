@@ -22,22 +22,15 @@ import kotlin.reflect.KClass
 
 abstract class DashboardCategory(private val guildId: Long, private val userId: Long, val locale: Locale, var guildEntity: GuildEntity) {
 
-    val atomicGuild: AtomicGuild
-    val atomicMember: AtomicMember
-    val properties: DashboardProperties
-    val prefix: String
+    val atomicGuild: AtomicGuild = AtomicGuild(guildId)
+    val atomicMember: AtomicMember = AtomicMember(guildId, userId)
+    val properties: DashboardProperties = this.javaClass.getAnnotation(DashboardProperties::class.java)
+    val prefix: String = guildEntity.prefix
     val isPremium
         get() = PatreonCache.getInstance().hasPremium(atomicMember.idLong, true) ||
                 PatreonCache.getInstance().isUnlocked(atomicGuild.idLong)
 
     private var components: DashboardContainer? = null
-
-    init {
-        atomicGuild = AtomicGuild(guildId)
-        atomicMember = AtomicMember(guildId, userId)
-        properties = this.javaClass.getAnnotation(DashboardProperties::class.java)
-        prefix = guildEntity.prefix
-    }
 
     abstract fun retrievePageTitle(): String
 

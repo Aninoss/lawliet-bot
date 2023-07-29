@@ -6,7 +6,6 @@ import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import constants.Settings;
-import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
@@ -15,10 +14,6 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
 import mysql.hibernate.entity.FisheryEntity;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -28,7 +23,6 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -46,19 +40,13 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
     public static final int MAX_ROLES = 50;
 
-    private GuildData guildBean;
-    private FisheryGuildData fisheryGuildBean;
-
     public FisheryRolesCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-        fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
-
-        checkRolesWithLog(event.getGuild(), fisheryGuildBean.getRoles());
+        checkRolesWithLog(event.getGuild(), getRoles());
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -78,7 +66,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         return MessageInputResponse.FAILED;
                     }
 
-                    CustomObservableList<Role> roles = fisheryGuildBean.getRoles();
+                    List<Role> roles = getRoles();
                     int existingRoles = 0;
                     for (Role role : roleList) {
                         if (roles.contains(role)) {
@@ -92,13 +80,14 @@ public class FisheryRolesCommand extends NavigationAbstract {
                     }
 
                     int rolesAdded = 0;
+                    fishery.beginTransaction();
                     for (Role role : roleList) {
                         if (!roles.contains(role)) {
-                            roles.add(role);
+                            fishery.getRoleIds().add(role.getIdLong());
                             rolesAdded++;
-                            roles.sort(Comparator.comparingInt(Role::getPosition));
                         }
                     }
+                    fishery.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("roleadd", (rolesAdded - existingRoles) != 1, String.valueOf(rolesAdded)));
                     setState(0);
@@ -169,7 +158,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         return false;
 
                     case 0:
-                        if (fisheryGuildBean.getRoles().size() < MAX_ROLES) {
+                        if (getRoles().size() < MAX_ROLES) {
                             setState(1);
                             return true;
                         } else {
@@ -178,7 +167,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         }
 
                     case 1:
-                        if (fisheryGuildBean.getRoles().size() > 0) {
+                        if (getRoles().size() > 0) {
                             setState(2);
                             return true;
                         } else {
@@ -216,14 +205,19 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 return false;
 
             case 2:
-                CustomObservableList<Role> roles = fisheryGuildBean.getRoles();
+                List<Role> roles = getRoles();
                 if (i == -1) {
                     setState(0);
                     return true;
                 } else if (i < roles.size()) {
-                    roles.remove(i);
+                    fishery.beginTransaction();
+                    fishery.getRoleIds().remove(roles.get(i).getIdLong());
+                    fishery.commitTransaction();
+
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
-                    if (roles.size() == 0) setState(0);
+                    if (getRoles().isEmpty()) {
+                        setState(0);
+                    }
                     return true;
                 }
                 return false;
@@ -249,21 +243,23 @@ public class FisheryRolesCommand extends NavigationAbstract {
     }
 
     private String getRoleString(Role role) {
-        int n = fisheryGuildBean.getRoles().indexOf(role);
+        List<Role> roles = getRoles();
+        int n = roles.indexOf(role);
         FisheryEntity fishery = getGuildEntity().getFishery();
         return getString(
                 "state0_rolestring",
                 new AtomicRole(role).getPrefixedNameInField(getLocale()),
-                StringUtil.numToString(Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), fisheryGuildBean.getRoles().size(), n))
+                StringUtil.numToString(Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), roles.size(), n))
         );
     }
 
     private String getRoleString2(Role role) {
-        int n = fisheryGuildBean.getRoles().indexOf(role);
+        List<Role> roles = getRoles();
+        int n = roles.indexOf(role);
         FisheryEntity fishery = getGuildEntity().getFishery();
         return getString(
                 "state2_rolestring",
-                role.getName(), StringUtil.numToString(Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), fisheryGuildBean.getRoles().size(), n))
+                role.getName(), StringUtil.numToString(Fishery.getFisheryRolePrice(fishery.getRolePriceMin(), fishery.getRolePriceMax(), roles.size(), n))
         );
     }
 
@@ -277,7 +273,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 setComponents(getString("state0_options").split("\n"));
 
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description", String.valueOf(MAX_ROLES)))
-                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(fisheryGuildBean.getRoles(), getLocale(), this::getRoleString), false)
+                        .addField(getString("state0_mroles"), new ListGen<Role>().getList(getRoles(), getLocale(), this::getRoleString), false)
                         .addField(getString("state0_msinglerole", StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), fishery.getSingleRoles())), getString("state0_msinglerole_desc"), false)
                         .addField(getString("state0_mannouncementchannel"), fishery.getRoleUpgradeChannel().getPrefixedNameInFieldOrElse(notSet), true)
                         .addField(getString("state0_mroleprices"), getString("state0_mroleprices_desc", StringUtil.numToString(fishery.getRolePriceMin()), StringUtil.numToString(fishery.getRolePriceMax())), true);
@@ -286,7 +282,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                 return EmbedFactory.getEmbedDefault(this, getString("state1_description"), getString("state1_title"));
 
             case 2:
-                CustomObservableList<Role> roles = fisheryGuildBean.getRoles();
+                List<Role> roles = getRoles();
                 String[] roleStrings = new String[roles.size()];
                 for (int i = 0; i < roleStrings.length; i++) {
                     roleStrings[i] = getRoleString2(roles.get(i));
@@ -305,6 +301,10 @@ public class FisheryRolesCommand extends NavigationAbstract {
             default:
                 return null;
         }
+    }
+
+    private List<Role> getRoles() {
+        return getGuildEntity().getFishery().getRoles();
     }
 
 }

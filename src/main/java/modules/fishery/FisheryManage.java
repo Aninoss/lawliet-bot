@@ -1,11 +1,11 @@
 package modules.fishery;
 
-import java.util.List;
 import constants.Settings;
 import core.utils.MentionUtil;
 import mysql.hibernate.entity.GuildEntity;
-import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryMemberData;
+
+import java.util.List;
 
 public class FisheryManage {
 
@@ -37,7 +37,7 @@ public class FisheryManage {
                 continue;
             }
 
-            newValue = calculateNewValue(fisheryMemberData.getGuildId(), baseValue, newValue, valueProcedure, type);
+            newValue = calculateNewValue(guildEntity, baseValue, newValue, valueProcedure, type);
             setNewValues(fisheryMemberData, guildEntity, newValue, type);
             success = true;
         }
@@ -66,7 +66,7 @@ public class FisheryManage {
         }
     }
 
-    private static long calculateNewValue(long guildId, long baseValue, long newValue, ValueProcedure valueProcedure, int type) {
+    private static long calculateNewValue(GuildEntity guildEntity, long baseValue, long newValue, ValueProcedure valueProcedure, int type) {
         switch (valueProcedure) {
             case ADD:
                 newValue = baseValue + newValue;
@@ -78,7 +78,7 @@ public class FisheryManage {
 
             default:
         }
-        long maxValue = maxValueOfProperty(guildId, type);
+        long maxValue = maxValueOfProperty(guildEntity, type);
         if (newValue < 0) newValue = 0;
         if (newValue > maxValue) newValue = maxValue;
 
@@ -94,11 +94,11 @@ public class FisheryManage {
         };
     }
 
-    private static long maxValueOfProperty(long guildId, int i) {
+    private static long maxValueOfProperty(GuildEntity guildEntity, int i) {
         if (i <= 2) {
             return Settings.FISHERY_MAX;
         } else if (i == FisheryGear.ROLE.ordinal() + 3) {
-            return DBFishery.getInstance().retrieve(guildId).getRoles().size();
+            return guildEntity.getFishery().getRoles().size();
         } else {
             return Settings.FISHERY_GEAR_MAX;
         }

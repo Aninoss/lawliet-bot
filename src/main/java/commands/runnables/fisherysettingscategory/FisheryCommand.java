@@ -25,8 +25,6 @@ import mysql.hibernate.entity.FisheryEntity;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
 import mysql.modules.fisheryusers.FisheryMemberData;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -67,10 +65,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     public static final String BUTTON_ID_POWERUP = "use";
     public static final String ENTITY_SELECT_MENU_ID_COLLABORATION = "member";
 
-    private GuildData guildBean;
     private boolean stopLock = true;
     private NavigationHelper<AtomicTextChannel> channelNavigationHelper;
-    private CustomObservableList<AtomicTextChannel> ignoredChannels;
 
     public static final String EMOJI_TREASURE = "💰";
     public static final String EMOJI_KEY = "🔑";
@@ -82,10 +78,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws Throwable {
-        guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
-        FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
-        ignoredChannels = AtomicTextChannel.transformIdList(event.getGuild(), fisheryGuildBean.getIgnoredChannelIds());
-        channelNavigationHelper = new NavigationHelper<>(this, ignoredChannels, AtomicTextChannel.class, MAX_CHANNELS);
+        channelNavigationHelper = new NavigationHelper<>(this, guildEntity -> guildEntity.getFishery().getExcludedChannels(), AtomicTextChannel.class, MAX_CHANNELS);
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -231,7 +224,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, fishery.getPowerUps()).getFormatted()), getString("state0_mpowerups_desc"), true)
                         .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, fishery.getFishReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
                         .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, fishery.getCoinGiftLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc"), true)
-                        .addField(getString("state0_mchannels"), new ListGen<AtomicTextChannel>().getList(ignoredChannels, getLocale(), m -> m.getPrefixedNameInField(getLocale())), false);
+                        .addField(getString("state0_mchannels"), new ListGen<AtomicTextChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), false);
 
             case 1:
                 return channelNavigationHelper.drawDataAdd(getString("state1_title"), getString("state1_description"));

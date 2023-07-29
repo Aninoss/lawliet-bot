@@ -1,39 +1,41 @@
 package commands;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.function.Function;
+import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import commands.listeners.MessageInputResponse;
 import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.function.Function;
+
 public class NavigationHelper<T> {
 
-    private enum Type { Unknown, Role, TextChannel, Member }
+    private enum Type {Unknown, Role, TextChannel, Member}
 
     private final NavigationAbstract command;
-    private final List<T> srcList;
+    private final Function<GuildEntity, List<T>> srcListSupplier;
     private final int max;
     private Type type = Type.Unknown;
     private String typeString = "";
     private boolean checkRolesHierarchy = true;
 
-    public NavigationHelper(NavigationAbstract command, List<T> srcList, Class<T> typeClass, int max, boolean checkRolesHierarchy) {
-        this(command, srcList, typeClass, max);
+    public NavigationHelper(NavigationAbstract command, Function<GuildEntity, List<T>> srcListSupplier, Class<T> typeClass, int max, boolean checkRolesHierarchy) {
+        this(command, srcListSupplier, typeClass, max);
         this.checkRolesHierarchy = checkRolesHierarchy;
     }
 
-    public NavigationHelper(NavigationAbstract command, List<T> srcList, Class<T> typeClass, int max) {
+    public NavigationHelper(NavigationAbstract command, Function<GuildEntity, List<T>> srcListSupplier, Class<T> typeClass, int max) {
         this.command = command;
-        this.srcList = srcList;
+        this.srcListSupplier = srcListSupplier;
         this.max = max;
 
         if (typeClass == AtomicRole.class) {
@@ -57,6 +59,9 @@ public class NavigationHelper<T> {
                 return MessageInputResponse.FAILED;
             }
 
+            GuildEntity guildEntity = command.getGuildEntity();
+            List<T> srcList = srcListSupplier.apply(guildEntity);
+
             int existingRoles = 0;
             for (T t : newList) {
                 if (srcList.contains(t)) {
@@ -69,6 +74,7 @@ public class NavigationHelper<T> {
                 return MessageInputResponse.FAILED;
             }
 
+            guildEntity.beginTransaction();
             int n = 0;
             for (T t : newList) {
                 if (!srcList.contains(t)) {
@@ -78,6 +84,7 @@ public class NavigationHelper<T> {
                     }
                 }
             }
+            guildEntity.commitTransaction();
 
             command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_add" + typeString, n != 1, String.valueOf(n)));
             command.setState(stateBack);
@@ -86,13 +93,19 @@ public class NavigationHelper<T> {
     }
 
     public boolean removeData(int i, int stateBack) {
+        List<T> srcList = srcListSupplier.apply(command.getGuildEntity());
         if (i == -1) {
             command.setState(stateBack);
             return true;
         } else if (i >= 0 && i < srcList.size()) {
+            command.getGuildEntity().beginTransaction();
             srcList.remove(i);
+            command.getGuildEntity().commitTransaction();
+
             command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_remove" + typeString));
-            if (srcList.size() == 0) command.setState(stateBack);
+            if (srcList.isEmpty()) {
+                command.setState(stateBack);
+            }
             return true;
         }
 
@@ -141,6 +154,7 @@ public class NavigationHelper<T> {
             nameFunction = obj -> ((MentionableAtomicAsset<?>) obj).getPrefixedName(locale);
         }
 
+        List<T> srcList = srcListSupplier.apply(command.getGuildEntity());
         String[] strings = new String[srcList.size()];
         for (int i = 0; i < strings.length; i++) {
             strings[i] = nameFunction.apply(srcList.get(i));
@@ -150,6 +164,7 @@ public class NavigationHelper<T> {
     }
 
     public void startDataAdd(int stateNext) {
+        List<T> srcList = srcListSupplier.apply(command.getGuildEntity());
         if (srcList.size() < max) {
             command.setState(stateNext);
         } else {
@@ -158,7 +173,8 @@ public class NavigationHelper<T> {
     }
 
     public void startDataRemove(int stateNext) {
-        if (srcList.size() > 0) {
+        List<T> srcList = srcListSupplier.apply(command.getGuildEntity());
+        if (!srcList.isEmpty()) {
             command.setState(stateNext);
         } else {
             command.setLog(LogStatus.FAILURE, TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_start_remove_none" + typeString, String.valueOf(max)));

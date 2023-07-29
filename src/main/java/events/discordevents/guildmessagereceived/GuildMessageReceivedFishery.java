@@ -10,12 +10,9 @@ import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
 import mysql.modules.ticket.DBTicket;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Random;
@@ -26,15 +23,13 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
     @Override
     public boolean onGuildMessageReceived(MessageReceivedEvent event, EntityManagerWrapper entityManager) throws Throwable {
         if (event.getChannel() instanceof TextChannel) {
-            GuildData guildBean = DBGuild.getInstance().retrieve(event.getGuild().getIdLong());
             GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
 
-            //manage message
             boolean messageRegistered = false;
             FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
             if (!event.getMessage().getContentRaw().isEmpty() &&
                     guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE &&
-                    !fisheryGuildBean.getIgnoredChannelIds().contains(event.getChannel().getIdLong())
+                    !guildEntity.getFishery().getExcludedChannelIds().contains(event.getChannel().getIdLong())
             ) {
                 messageRegistered = fisheryGuildBean.getMemberData(event.getMember().getIdLong())
                         .registerMessage(event.getMessage(), guildEntity);
@@ -48,27 +43,15 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
                 return true;
             }
 
-            //manage treasure chests and power-ups
             Random r = new Random();
             if (guildEntity.getFishery().getTreasureChests() && r.nextInt(400) == 0) {
-                if (isNotASpamChannel(event.getGuildChannel())) {
-                    Fishery.spawnTreasureChest(event.getChannel().asTextChannel(), guildEntity);
-                }
+                Fishery.spawnTreasureChest(event.getChannel().asTextChannel(), guildEntity);
             } else if (guildEntity.getFishery().getPowerUps() && r.nextInt(300) == 0) {
-                if (isNotASpamChannel(event.getGuildChannel())) {
-                    Fishery.spawnPowerUp(event.getChannel().asTextChannel(), event.getMember(), guildEntity);
-                }
+                Fishery.spawnPowerUp(event.getChannel().asTextChannel(), event.getMember(), guildEntity);
             }
         }
 
         return true;
-    }
-
-    private boolean isNotASpamChannel(GuildMessageChannelUnion channel) {
-        return DBFishery.getInstance().retrieve(channel.getGuild().getIdLong())
-                .getIgnoredChannelIds()
-                .stream()
-                .noneMatch(channelId -> channelId == channel.getIdLong());
     }
 
 }

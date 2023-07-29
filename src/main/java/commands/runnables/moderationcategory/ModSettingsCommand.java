@@ -1,8 +1,5 @@
 package commands.runnables.moderationcategory;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import commands.Category;
 import commands.CommandEvent;
 import commands.NavigationHelper;
@@ -29,6 +26,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "mod",
@@ -62,7 +63,7 @@ public class ModSettingsCommand extends NavigationAbstract {
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         moderationData = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         jailRoles = AtomicRole.transformIdList(event.getGuild(), moderationData.getJailRoleIds());
-        jailRolesNavigationHelper = new NavigationHelper<>(this, jailRoles, AtomicRole.class, MAX_JAIL_ROLES);
+        jailRolesNavigationHelper = new NavigationHelper<>(this, guildEntity -> jailRoles, AtomicRole.class, MAX_JAIL_ROLES);
         checkRolesWithLog(event.getMember(), jailRoles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
         registerNavigationListener(event.getMember());
         return true;

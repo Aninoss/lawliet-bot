@@ -1,9 +1,5 @@
 package commands.runnables.moderationcategory;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import commands.CommandEvent;
 import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
@@ -26,6 +22,11 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "wordfilter",
@@ -59,7 +60,7 @@ public class WordFilterCommand extends NavigationAbstract {
         bannedWordsBean = DBBannedWords.getInstance().retrieve(event.getGuild().getIdLong());
         ignoredUsers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getIgnoredUserIds());
         logReceivers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getLogReceiverUserIds());
-        wordsNavigationHelper = new NavigationHelper<>(this, bannedWordsBean.getWords(), String.class, MAX_WORDS);
+        wordsNavigationHelper = new NavigationHelper<>(this, guildEntity -> bannedWordsBean.getWords(), String.class, MAX_WORDS);
         registerNavigationListener(event.getMember());
         return true;
     }

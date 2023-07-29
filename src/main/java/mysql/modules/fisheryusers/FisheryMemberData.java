@@ -4,7 +4,6 @@ import constants.AnicordVerificationIds;
 import constants.CodeBlockColor;
 import constants.LogStatus;
 import constants.Settings;
-import core.CustomObservableList;
 import core.EmbedFactory;
 import core.MainLogger;
 import core.TextManager;
@@ -86,7 +85,7 @@ public class FisheryMemberData implements MemberAsset {
     }
 
     public List<Role> getRoles(FisheryEntity fishery) {
-        CustomObservableList<Role> allRoles = fisheryGuildBean.getRoles();
+        List<Role> allRoles = fishery.getRoles();
 
         ArrayList<Role> userRoles = new ArrayList<>();
         int level = getMemberGear(FisheryGear.ROLE).getLevel();

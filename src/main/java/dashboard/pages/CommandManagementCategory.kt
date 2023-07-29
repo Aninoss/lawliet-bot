@@ -27,12 +27,12 @@ import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
-    id = "commandmanagement",
-    userPermissions = [Permission.ADMINISTRATOR],
-    commandAccessRequirements = [CommandManagementCommand::class, WhiteListCommand::class, CommandPermissionsCommand::class]
+        id = "commandmanagement",
+        userPermissions = [Permission.ADMINISTRATOR],
+        commandAccessRequirements = [CommandManagementCommand::class, WhiteListCommand::class, CommandPermissionsCommand::class]
 )
 class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) :
-    DashboardCategory(guildId, userId, locale, guildEntity) {
+        DashboardCategory(guildId, userId, locale, guildEntity) {
 
     override fun retrievePageTitle(): String {
         return getString(TextManager.GENERAL, "dashboard_cman")
@@ -56,14 +56,14 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
         val container = VerticalContainer()
         val commandPermissionsText = Command.getCommandLanguage(CommandPermissionsCommand::class.java, locale).title
         container.add(
-            DashboardTitle(commandPermissionsText),
-            DashboardText(getString(Category.CONFIGURATION, "cperms_message0").replace("**", "") + "\n" + getString(Category.CONFIGURATION, "cperms_message1")),
+                DashboardTitle(commandPermissionsText),
+                DashboardText(getString(Category.CONFIGURATION, "cperms_message0").replace("**", "") + "\n" + getString(Category.CONFIGURATION, "cperms_message1")),
         )
 
         val button = DashboardButton(getString(Category.CONFIGURATION, "cperms_button")) {
             if (!anyCommandsAreAccessible(CommandPermissionsCommand::class)) {
                 return@DashboardButton ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             val actionResult = ActionResult()
@@ -85,8 +85,8 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
         val container = VerticalContainer()
         val whitelistText = Command.getCommandLanguage(WhiteListCommand::class.java, locale).title
         container.add(
-            DashboardTitle(whitelistText),
-            DashboardText(getString(Category.CONFIGURATION, "whitelist_state0_description"))
+                DashboardTitle(whitelistText),
+                DashboardText(getString(Category.CONFIGURATION, "whitelist_state0_description"))
         )
 
         val obsoleteWarning = DashboardText(getString(Category.CONFIGURATION, "cperms_obsolete_dashboard"))
@@ -94,10 +94,15 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
         container.add(obsoleteWarning)
 
         container.add(
-            DashboardMultiTextChannelsComboBox(
-                "", locale, guild.idLong, DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds,
-                true, WhiteListCommand.MAX_CHANNELS, atomicMember.idLong, WhiteListCommand::class
-            )
+                DashboardMultiTextChannelsComboBox(
+                        this,
+                        "",
+                        { DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds },
+                        true,
+                        WhiteListCommand.MAX_CHANNELS,
+                        atomicMember.idLong,
+                        WhiteListCommand::class
+                )
         )
 
         return container
@@ -112,11 +117,11 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
         container.add(generateBlacklistComboBox(commandManagementData, getString(Category.CONFIGURATION, "cman_state0_mcategories"), commandCategoryValues))
 
         val commandValues = CommandContainer.getFullCommandList()
-            .map {
-                val trigger = Command.getCommandProperties(it).trigger
-                DiscordEntity(trigger, trigger)
-            }
-            .sortedBy { it.id }
+                .map {
+                    val trigger = Command.getCommandProperties(it).trigger
+                    DiscordEntity(trigger, trigger)
+                }
+                .sortedBy { it.id }
         container.add(generateBlacklistComboBox(commandManagementData, getString(Category.CONFIGURATION, "cman_state0_mcommands"), commandValues))
         return container
     }
@@ -126,7 +131,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
         val comboBox = DashboardComboBox(label, values, true, Int.MAX_VALUE) {
             if (!anyCommandsAreAccessible(CommandManagementCommand::class)) {
                 return@DashboardComboBox ActionResult()
-                    .withRedraw()
+                        .withRedraw()
             }
 
             if (it.type == "add") {
