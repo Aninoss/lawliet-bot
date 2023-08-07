@@ -1,8 +1,9 @@
 package commands.runnables.interactionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "punch",
@@ -56,7 +57,8 @@ public class PunchCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736270998772383826/834837274155155546/punch.gif",
                 "https://cdn.discordapp.com/attachments/736270998772383826/871035786491985950/punch.gif",
                 "https://cdn.discordapp.com/attachments/736270998772383826/890291777133772840/punch.gif",
-                "https://cdn.discordapp.com/attachments/736270998772383826/925805711265497088/punch.gif"
+                "https://cdn.discordapp.com/attachments/736270998772383826/925805711265497088/punch.gif",
+                "https://cdn.discordapp.com/attachments/736270998772383826/1138103151933788180/punch.gif"
         );
     }
 
