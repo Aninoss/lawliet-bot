@@ -21,7 +21,7 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
     var coinGiftLimit = true
 
     @ElementCollection
-    val excludedChannelIds: List<Long> = ArrayList()
+    var excludedChannelIds: List<Long> = ArrayList()
 
     @ElementCollection
     var roleIds: List<Long> = ArrayList()
