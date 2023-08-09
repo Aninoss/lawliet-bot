@@ -2,6 +2,7 @@ package core;
 
 import commands.SlashCommandManager;
 import constants.AssetIds;
+import constants.Language;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
@@ -10,6 +11,15 @@ import modules.BumpReminder;
 import modules.SupportTemplates;
 import modules.repair.MainRepair;
 import modules.schedulers.*;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.FisheryEntity;
+import mysql.hibernate.entity.GuildEntity;
+import mysql.modules.fisheryusers.DBFishery;
+import mysql.modules.fisheryusers.FisheryGuildData;
+import mysql.modules.guild.DBGuild;
+import mysql.modules.guild.GuildData;
+import mysql.modules.guild.GuildKickedData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -81,6 +91,8 @@ public class DiscordConnector {
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageRequest.setDefaultMentions(EnumSet.complementOf(deny));
         MessageRequest.setDefaultMentionRepliedUser(false);
+
+        transferSqlGuildData();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -184,6 +196,71 @@ public class DiscordConnector {
         JailScheduler.start();
         ShardManager.start();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
+    }
+
+    private static void transferSqlGuildData() {
+        if (!Program.productionMode() || !Program.publicVersion()) {
+            return;
+        }
+
+        MainLogger.get().info("Transferring MySQL data to MongoDB...");
+        List<GuildKickedData> guildKickedDataList;
+        int limit = 100;
+        long guildIdOffset = 0;
+        do {
+            guildKickedDataList = DBGuild.getInstance().retrieveKickedData(guildIdOffset, limit);
+            for (GuildKickedData guildKickedData : guildKickedDataList) {
+                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                    GuildData guildData = DBGuild.getInstance().retrieve(guildKickedData.getGuildId());
+                    FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guildKickedData.getGuildId());
+                    GuildEntity guildEntity = entityManager.find(GuildEntity.class, String.valueOf(guildData.getGuildId()));
+                    if (guildEntity == null) {
+                        guildEntity = new GuildEntity(String.valueOf(guildData.getGuildId()));
+                        guildEntity.setPrefix(guildData.getPrefix());
+                        guildEntity.setLanguage(Language.from(guildData.getLocale()));
+                        guildEntity.setRemoveAuthorMessage(guildData.isCommandAuthorMessageRemove());
+                        guildEntity.setFishery(getFisheryEntity(guildData, fisheryGuildData));
+
+                        entityManager.getTransaction().begin();
+                        entityManager.persist(guildEntity);
+                        entityManager.getTransaction().commit();
+                    } else {
+                        entityManager.getTransaction().begin();
+                        guildEntity.setFishery(getFisheryEntity(guildData, fisheryGuildData));
+                        entityManager.getTransaction().commit();
+                    }
+                }
+            }
+            if (!guildKickedDataList.isEmpty()) {
+                guildIdOffset = guildKickedDataList.get(guildKickedDataList.size() - 1).getGuildId();
+            }
+        } while (guildKickedDataList.size() == limit);
+    }
+
+    private static FisheryEntity getFisheryEntity(GuildData guildData, FisheryGuildData fisheryGuildData) {
+        FisheryEntity fisheryEntity = new FisheryEntity();
+        fisheryEntity.setFisheryStatus(guildData.getFisheryStatus());
+        fisheryEntity.setTreasureChests(guildData.isFisheryTreasureChests());
+        fisheryEntity.setPowerUps(guildData.isFisheryPowerups());
+        fisheryEntity.setFishReminders(guildData.isFisheryReminders());
+        fisheryEntity.setCoinGiftLimit(guildData.hasFisheryCoinsGivenLimit());
+        fisheryEntity.setExcludedChannelIds(fisheryGuildData.getIgnoredChannelIds());
+        fisheryEntity.setRoleIds(fisheryGuildData.getRoleIds());
+        fisheryEntity.setSingleRoles(guildData.isFisherySingleRoles());
+        fisheryEntity.setRoleUpgradeChannelId(guildData.getFisheryAnnouncementChannelId().orElse(null));
+        fisheryEntity.setRolePriceMin(guildData.getFisheryRoleMin());
+        fisheryEntity.setRolePriceMax(guildData.getFisheryRoleMax());
+
+        Integer voiceHoursLimit = guildData.getFisheryVcHoursCap().orElse(null);
+        if (voiceHoursLimit == null) {
+            voiceHoursLimit = 5;
+        }
+        if (voiceHoursLimit == 0) {
+            voiceHoursLimit = null;
+        }
+
+        fisheryEntity.setVoiceHoursLimit(voiceHoursLimit);
+        return fisheryEntity;
     }
 
 }

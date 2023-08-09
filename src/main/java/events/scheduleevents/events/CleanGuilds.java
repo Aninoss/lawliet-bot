@@ -1,15 +1,7 @@
 package events.scheduleevents.events;
 
-import java.time.LocalDate;
-import java.util.List;
 import constants.ExceptionRunnable;
-import core.MainLogger;
-import core.Program;
-import core.ShardManager;
 import events.scheduleevents.ScheduleEventDaily;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildKickedData;
-import net.dv8tion.jda.api.entities.Guild;
 
 @ScheduleEventDaily
 public class CleanGuilds implements ExceptionRunnable {
@@ -20,7 +12,7 @@ public class CleanGuilds implements ExceptionRunnable {
     }
 
     public static void execute() throws InterruptedException {
-        if (!Program.publicVersion()) {
+        /*if (!Program.publicVersion()) {
             for (Guild guild : ShardManager.getLocalGuilds()) {
                 MainLogger.get().info("Guild {} has been set to \"not kicked\"", guild.getIdLong());
                 DBGuild.getInstance().setKicked(guild.getIdLong(), null);
@@ -66,7 +58,7 @@ public class CleanGuilds implements ExceptionRunnable {
                 guildIdOffset = guildKickedDataList.get(guildKickedDataList.size() - 1).getGuildId();
             }
         } while (guildKickedDataList.size() == limit);
-        MainLogger.get().info("Guild cleaner completed");
+        MainLogger.get().info("Guild cleaner completed"); TODO disable temporarily */
     }
 
 }
