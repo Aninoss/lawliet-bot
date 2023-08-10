@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
 class DashboardMultiRolesComboBox(
         dashboardCategory: DashboardCategory,
         label: String,
-        val selectedRolesSupplier: (GuildEntity) -> List<Long>,
+        val selectedRolesSupplier: (GuildEntity) -> MutableList<Long>,
         canBeEmpty: Boolean,
         max: Int,
         checkManageable: Boolean,
@@ -51,7 +51,7 @@ class DashboardMultiRolesComboBox(
                 }
 
                 val guildEntity = dashboardCategory.guildEntity
-                var selectedRoles = selectedRolesSupplier(guildEntity)
+                val selectedRoles = selectedRolesSupplier(guildEntity)
 
                 if (event.type == "add") {
                     if (!checkManageable || (BotPermissionUtil.canManage(role) && BotPermissionUtil.can(guild.selfMember, Permission.MANAGE_ROLES))) {

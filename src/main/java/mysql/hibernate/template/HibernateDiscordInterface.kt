@@ -11,11 +11,11 @@ interface HibernateDiscordInterface : GuildAsset {
         return AtomicTextChannel(guildId, channelId ?: 0L)
     }
 
-    fun getAtomicTextChannelList(channelIdList: List<Long>): List<AtomicTextChannel> {
+    fun getAtomicTextChannelList(channelIdList: List<Long>): MutableList<AtomicTextChannel> {
         return ListAdapter(channelIdList, { AtomicTextChannel(guildId, it) }, { it.idLong })
     }
 
-    fun getAtomicRoleList(roleIdList: List<Long>): List<AtomicRole> {
+    fun getAtomicRoleList(roleIdList: List<Long>): MutableList<AtomicRole> {
         return ListAdapter(roleIdList, { AtomicRole(guildId, it) }, { it.idLong })
     }
 

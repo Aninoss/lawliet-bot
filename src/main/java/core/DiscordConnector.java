@@ -199,7 +199,7 @@ public class DiscordConnector {
     }
 
     private static void transferSqlGuildData() {
-        if (!Program.productionMode() || !Program.publicVersion()) {
+        if (!Program.publicVersion()) {
             return;
         }
 
@@ -224,10 +224,12 @@ public class DiscordConnector {
                         entityManager.getTransaction().begin();
                         entityManager.persist(guildEntity);
                         entityManager.getTransaction().commit();
-                    } else {
+                    } else if (guildEntity.getFishery().getRolePriceMin() == null) {
                         entityManager.getTransaction().begin();
                         guildEntity.setFishery(getFisheryEntity(guildData, fisheryGuildData));
                         entityManager.getTransaction().commit();
+                    } else {
+                        //return;
                     }
                 }
             }

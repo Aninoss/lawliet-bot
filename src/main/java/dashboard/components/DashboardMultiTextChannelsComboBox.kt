@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
 class DashboardMultiTextChannelsComboBox(
         dashboardCategory: DashboardCategory,
         label: String,
-        selectedChannelsSupplier: (GuildEntity) -> List<Long>,
+        selectedChannelsSupplier: (GuildEntity) -> MutableList<Long>,
         canBeEmpty: Boolean,
         max: Int,
         memberId: Long? = null,
@@ -41,7 +41,7 @@ class DashboardMultiTextChannelsComboBox(
             }
 
             val guildEntity = dashboardCategory.guildEntity
-            var selectedChannels = selectedChannelsSupplier(guildEntity)
+            val selectedChannels = selectedChannelsSupplier(guildEntity)
 
             if (it.type == "add") {
                 guildEntity.beginTransaction()

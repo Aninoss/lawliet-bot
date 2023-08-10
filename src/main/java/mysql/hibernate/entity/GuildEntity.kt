@@ -38,7 +38,7 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
 
     @PostLoad
     override fun postLoad() {
-        fishery?.hibernateEntity = this
+        fishery.hibernateEntity = this
     }
 
 }

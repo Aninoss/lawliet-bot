@@ -1,11 +1,13 @@
 package mysql;
 
-import java.time.Duration;
-import java.util.concurrent.ExecutionException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import mysql.modules.guild.DBGuild;
 import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.time.Duration;
+import java.util.concurrent.ExecutionException;
 
 public abstract class DBMapCache<T, U> extends DBCache {
 
@@ -30,6 +32,9 @@ public abstract class DBMapCache<T, U> extends DBCache {
     protected abstract U load(T t) throws Exception;
 
     protected U process(T t) throws Exception {
+        if (!(this instanceof DBGuild) && t instanceof Long) {
+            DBGuild.getInstance().retrieve((Long) t);
+        }
         return DBMapCache.this.load(t);
     }
 

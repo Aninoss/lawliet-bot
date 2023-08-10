@@ -15,24 +15,24 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
     @Enumerated(EnumType.STRING)
     var fisheryStatus = FisheryStatus.STOPPED
 
-    var treasureChests = true
-    var powerUps = true
-    var fishReminders = true
-    var coinGiftLimit = true
+    var treasureChests: Boolean? = true
+    var powerUps: Boolean? = true
+    var fishReminders: Boolean? = true
+    var coinGiftLimit: Boolean? = true
 
     @ElementCollection
-    var excludedChannelIds: List<Long> = ArrayList()
+    var excludedChannelIds: MutableList<Long> = ArrayList()
 
     @ElementCollection
-    var roleIds: List<Long> = ArrayList()
+    var roleIds: MutableList<Long> = ArrayList()
 
-    var singleRoles = false
+    var singleRoles: Boolean? = false
     var roleUpgradeChannelId: Long? = null
-    var rolePriceMin = 50_000L
-    var rolePriceMax = 800_000_000L
+    var rolePriceMin: Long? = 50_000L
+    var rolePriceMax: Long? = 800_000_000L
     var voiceHoursLimit: Int? = 5
 
-    val excludedChannels: List<AtomicTextChannel>
+    val excludedChannels: MutableList<AtomicTextChannel>
         get() = getAtomicTextChannelList(excludedChannelIds)
 
     val roles: List<Role>
