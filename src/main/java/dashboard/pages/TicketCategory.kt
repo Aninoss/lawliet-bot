@@ -113,11 +113,9 @@ class TicketCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
         staffContainer.allowWrap = true
 
         val staffRoles = DashboardMultiRolesComboBox(
+                this,
                 getString(Category.UTILITY, "ticket_state0_mstaffroles"),
-                locale,
-                atomicGuild.idLong,
-                atomicMember.idLong,
-                ticketData.staffRoleIds,
+                { ticketData.staffRoleIds },
                 true,
                 TicketCommand.MAX_STAFF_ROLES,
                 false
