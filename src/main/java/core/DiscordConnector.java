@@ -13,7 +13,6 @@ import modules.repair.MainRepair;
 import modules.schedulers.*;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.FisheryEntity;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.fisheryusers.DBFishery;
 import mysql.modules.fisheryusers.FisheryGuildData;
@@ -91,8 +90,6 @@ public class DiscordConnector {
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageRequest.setDefaultMentions(EnumSet.complementOf(deny));
         MessageRequest.setDefaultMentionRepliedUser(false);
-
-        transferSqlGuildData();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -198,7 +195,7 @@ public class DiscordConnector {
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 
-    private static void transferSqlGuildData() {
+    private static void transferFisherySqlToHibernate() { //TODO: keep method until migration is complete
         if (!Program.publicVersion()) {
             return;
         }
@@ -219,17 +216,15 @@ public class DiscordConnector {
                         guildEntity.setPrefix(guildData.getPrefix());
                         guildEntity.setLanguage(Language.from(guildData.getLocale()));
                         guildEntity.setRemoveAuthorMessage(guildData.isCommandAuthorMessageRemove());
-                        guildEntity.setFishery(getFisheryEntity(guildData, fisheryGuildData));
+                        // set property here
 
                         entityManager.getTransaction().begin();
                         entityManager.persist(guildEntity);
                         entityManager.getTransaction().commit();
                     } else if (guildEntity.getFishery().getRolePriceMin() == null) {
                         entityManager.getTransaction().begin();
-                        guildEntity.setFishery(getFisheryEntity(guildData, fisheryGuildData));
+                        // set property here
                         entityManager.getTransaction().commit();
-                    } else {
-                        //return;
                     }
                 }
             }
@@ -237,32 +232,6 @@ public class DiscordConnector {
                 guildIdOffset = guildKickedDataList.get(guildKickedDataList.size() - 1).getGuildId();
             }
         } while (guildKickedDataList.size() == limit);
-    }
-
-    private static FisheryEntity getFisheryEntity(GuildData guildData, FisheryGuildData fisheryGuildData) {
-        FisheryEntity fisheryEntity = new FisheryEntity();
-        fisheryEntity.setFisheryStatus(guildData.getFisheryStatus());
-        fisheryEntity.setTreasureChests(guildData.isFisheryTreasureChests());
-        fisheryEntity.setPowerUps(guildData.isFisheryPowerups());
-        fisheryEntity.setFishReminders(guildData.isFisheryReminders());
-        fisheryEntity.setCoinGiftLimit(guildData.hasFisheryCoinsGivenLimit());
-        fisheryEntity.setExcludedChannelIds(fisheryGuildData.getIgnoredChannelIds());
-        fisheryEntity.setRoleIds(fisheryGuildData.getRoleIds());
-        fisheryEntity.setSingleRoles(guildData.isFisherySingleRoles());
-        fisheryEntity.setRoleUpgradeChannelId(guildData.getFisheryAnnouncementChannelId().orElse(null));
-        fisheryEntity.setRolePriceMin(guildData.getFisheryRoleMin());
-        fisheryEntity.setRolePriceMax(guildData.getFisheryRoleMax());
-
-        Integer voiceHoursLimit = guildData.getFisheryVcHoursCap().orElse(null);
-        if (voiceHoursLimit == null) {
-            voiceHoursLimit = 5;
-        }
-        if (voiceHoursLimit == 0) {
-            voiceHoursLimit = null;
-        }
-
-        fisheryEntity.setVoiceHoursLimit(voiceHoursLimit);
-        return fisheryEntity;
     }
 
 }
