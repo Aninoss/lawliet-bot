@@ -21,20 +21,12 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
     var coinGiftLimit: Boolean? = true
 
     @ElementCollection
-    var excludedChannelIds: MutableList<Long> = ArrayList()
-
-    @ElementCollection
-    var roleIds: MutableList<Long> = ArrayList()
-
-    var singleRoles: Boolean? = false
-    var roleUpgradeChannelId: Long? = null
-    var rolePriceMin: Long? = 50_000L
-    var rolePriceMax: Long? = 800_000_000L
-    var voiceHoursLimit: Int? = 5
-
+    var excludedChannelIds: MutableList<Long> = mutableListOf()
     val excludedChannels: MutableList<AtomicTextChannel>
         get() = getAtomicTextChannelList(excludedChannelIds)
 
+    @ElementCollection
+    var roleIds: MutableList<Long> = mutableListOf()
     val roles: List<Role>
         get() {
             val deletedRoleIds = mutableListOf<Long>()
@@ -56,15 +48,23 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
             return roles
         }
 
+    var singleRoles: Boolean? = false
+
+    var roleUpgradeChannelId: Long? = null
     val roleUpgradeChannel: AtomicTextChannel
         get() = getAtomicTextChannel(roleUpgradeChannelId)
 
+    var rolePriceMin: Long? = 50_000L
+    var rolePriceMax: Long? = 800_000_000L
+
+    var voiceHoursLimit: Int? = 5
     val voiceHoursLimitEffectively: Int?
         get() = if (ServerPatreonBoostCache.get(guildId)) {
             voiceHoursLimit
         } else {
             null
         }
+
 
     override fun getGuildId(): Long {
         return hibernateEntity.guildId

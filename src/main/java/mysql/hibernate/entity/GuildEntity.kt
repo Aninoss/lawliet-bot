@@ -18,17 +18,19 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
 
     @Enumerated(EnumType.STRING)
     var language: Language = Language.EN
+    val locale: Locale
+        get() = language.locale
 
     var removeAuthorMessage = false
+    val removeAuthorMessageEffectively: Boolean
+        get() = removeAuthorMessage && ServerPatreonBoostCache.get(guildId.toLong())
 
     @Embedded
     var fishery: FisheryEntity = FisheryEntity()
 
-    val locale: Locale
-        get() = language.locale
+    @ElementCollection
+    val customCommands = mutableMapOf<String, CustomCommandEntity>()
 
-    val removeAuthorMessageEffectively: Boolean
-        get() = removeAuthorMessage && ServerPatreonBoostCache.get(guildId.toLong())
 
     constructor() : this("0")
 
@@ -41,7 +43,8 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
         if (fishery.fisheryStatus == null) {
             fishery = FisheryEntity()
         }
-        fishery.hibernateEntity = this
+        fishery.postLoad(this)
+        customCommands.values.forEach { it.postLoad(this) }
     }
 
 }

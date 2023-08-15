@@ -22,7 +22,4 @@ abstract class HibernateEntity : HibernateEntityInterface {
         entityManager.remove(this)
     }
 
-    open fun postLoad() {
-    }
-
 }

@@ -2,9 +2,16 @@ package mysql.hibernate.template
 
 import mysql.hibernate.EntityManagerWrapper
 
-abstract class HibernateEmbeddedEntity<T : HibernateEntity> : HibernateEntityInterface {
+abstract class HibernateEmbeddedEntity<T : HibernateEntity>(hibernateEntity: T? = null) : HibernateEntityInterface {
 
     lateinit var hibernateEntity: T
+        private set
+
+    init {
+        if (hibernateEntity != null) {
+            this.hibernateEntity = hibernateEntity
+        }
+    }
 
     override var entityManager: EntityManagerWrapper
         get() = hibernateEntity.entityManager
@@ -22,6 +29,11 @@ abstract class HibernateEmbeddedEntity<T : HibernateEntity> : HibernateEntityInt
 
     override fun close() {
         hibernateEntity.close()
+    }
+
+    fun postLoad(hibernateEntity: T) {
+        this.hibernateEntity = hibernateEntity
+        postLoad()
     }
 
 }
