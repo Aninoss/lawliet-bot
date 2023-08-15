@@ -38,6 +38,9 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
 
     @PostLoad
     override fun postLoad() {
+        if (fishery.fisheryStatus == null) {
+            fishery = FisheryEntity()
+        }
         fishery.hibernateEntity = this
     }
 

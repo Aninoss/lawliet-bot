@@ -593,7 +593,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         val statusContainer = HorizontalContainer()
         val statusTextKey = getString(Category.FISHERY_SETTINGS, "fishery_state0_mstatus")
-        val statusTextValue = getString(Category.FISHERY_SETTINGS, "fishery_state0_status").split("\n")[fisheryEntity.fisheryStatus.ordinal].substring(2)
+        val statusTextValue = getString(Category.FISHERY_SETTINGS, "fishery_state0_status").split("\n")[fisheryEntity.fisheryStatus!!.ordinal].substring(2)
         statusContainer.add(
                 DashboardText("$statusTextKey:"),
                 DashboardText(statusTextValue)

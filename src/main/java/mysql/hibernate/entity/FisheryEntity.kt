@@ -13,7 +13,7 @@ import javax.persistence.*
 class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordInterface {
 
     @Enumerated(EnumType.STRING)
-    var fisheryStatus = FisheryStatus.STOPPED
+    var fisheryStatus: FisheryStatus? = FisheryStatus.STOPPED
 
     var treasureChests: Boolean? = true
     var powerUps: Boolean? = true
