@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
-import java.util.Optional;
 
 @CommandProperties(
         trigger = "vctime",
@@ -46,14 +45,15 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
         if (args.length() > 0) {
             drawMessage(mainExecution(args)).exceptionally(ExceptionLogger.get());
         } else {
+            int voiceHoursLimitEffectively = getGuildEntity().getFishery().getVoiceHoursLimitEffectively();
             this.eb = EmbedFactory.getEmbedDefault(
                     this,
                     getString(
                             "status",
-                            getGuildEntity().getFishery().getVoiceHoursLimitEffectively() != null,
-                            Optional.ofNullable(getGuildEntity().getFishery().getVoiceHoursLimitEffectively())
-                                    .map(StringUtil::numToString)
-                                    .orElse(getString("unlimited"))
+                            voiceHoursLimitEffectively != 24,
+                            voiceHoursLimitEffectively != 24
+                                    ? StringUtil.numToString(voiceHoursLimitEffectively)
+                                    : getString("unlimited")
                     )
             );
 
@@ -90,7 +90,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
 
     private EmbedBuilder markUnlimited() {
         getGuildEntity().beginTransaction();
-        getGuildEntity().getFishery().setVoiceHoursLimit(null);
+        getGuildEntity().getFishery().setVoiceHoursLimit(24);
         getGuildEntity().commitTransaction();
 
         return EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(null), getString("unlimited")));

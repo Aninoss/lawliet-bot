@@ -479,8 +479,8 @@ public class FisheryMemberData implements MemberAsset {
                 return;
             }
 
-            Integer limit = guildEntity.getFishery().getVoiceHoursLimitEffectively();
-            if (limit != null) {
+            int limit = guildEntity.getFishery().getVoiceHoursLimitEffectively();
+            if (limit != 24) {
                 cleanDailyValues();
                 newMinutes = Math.min(newMinutes, limit * 60 - RedisManager.parseInteger(voiceMinutesResp.get()));
             }
@@ -722,10 +722,8 @@ public class FisheryMemberData implements MemberAsset {
             boolean active = Fishery.getValidVoiceMembers(voiceChannel).contains(member);
             if (active) {
                 int voiceMinutes = RedisManager.getInteger(jedis -> jedis.hget(KEY_ACCOUNT, FIELD_VOICE_MINUTES));
-                int voiceLimit = Optional.ofNullable(guildEntity.getFishery().getVoiceHoursLimitEffectively())
-                        .map(value -> value * 60)
-                        .orElse(Integer.MAX_VALUE);
-                return voiceMinutes < voiceLimit;
+                int voiceLimitMinutes = guildEntity.getFishery().getVoiceHoursLimitEffectively() * 60;
+                return voiceMinutes < voiceLimitMinutes;
             } else {
                 return false;
             }

@@ -7,6 +7,7 @@ import mysql.hibernate.template.HibernateDiscordInterface
 import mysql.hibernate.template.HibernateEmbeddedEntity
 import net.dv8tion.jda.api.entities.Role
 import java.util.*
+import java.util.Objects.requireNonNullElse
 import javax.persistence.*
 
 @Embeddable
@@ -58,11 +59,12 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
     var rolePriceMax: Long? = 800_000_000L
 
     var voiceHoursLimit: Int? = 5
-    val voiceHoursLimitEffectively: Int?
+        get() = requireNonNullElse(field, 24)
+    val voiceHoursLimitEffectively: Int
         get() = if (ServerPatreonBoostCache.get(guildId)) {
-            voiceHoursLimit
+            voiceHoursLimit!!
         } else {
-            null
+            5
         }
 
 

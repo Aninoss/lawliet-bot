@@ -379,16 +379,12 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             }
 
             guildEntity.beginTransaction()
-            fisheryEntity.voiceHoursLimit = if (it.data.toInt() < 24) {
-                it.data.toInt()
-            } else {
-                null
-            }
+            fisheryEntity.voiceHoursLimit = it.data.toInt()
             guildEntity.commitTransaction()
 
             ActionResult()
         }
-        limitNumberField.value = fisheryEntity.voiceHoursLimitEffectively?.toLong() ?: 24
+        limitNumberField.value = fisheryEntity.voiceHoursLimitEffectively.toLong()
         limitNumberField.isEnabled = isPremium
         horizontalContainer.add(limitNumberField)
 
@@ -399,7 +395,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             }
 
             guildEntity.beginTransaction()
-            fisheryEntity.voiceHoursLimit = null
+            fisheryEntity.voiceHoursLimit = 24
             guildEntity.commitTransaction()
 
             ActionResult()
