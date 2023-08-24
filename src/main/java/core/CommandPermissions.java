@@ -1,10 +1,5 @@
 package core;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import commands.Category;
 import commands.Command;
 import commands.CommandContainer;
@@ -17,6 +12,12 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.privileges.IntegrationPrivilege;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 public class CommandPermissions {
 
     public static boolean transferCommandPermissions(Guild guild) {
@@ -24,7 +25,13 @@ public class CommandPermissions {
         HashMap<String, List<SlashPermissionsSlot>> internalMap = new HashMap<>();
 
         for (String commandId : externalMap.keySet()) {
-            String commandName = Objects.requireNonNullElse(SlashAssociations.getNameFromId(Long.parseLong(commandId)), "");
+            String commandName = commandId.equals(guild.getSelfMember().getId())
+                    ? ""
+                    : SlashAssociations.getNameFromId(Long.parseLong(commandId));
+            if (commandName == null) {
+                continue;
+            }
+
             List<SlashPermissionsSlot> internalList = externalMap.get(commandId).stream()
                     .map(e -> new SlashPermissionsSlot(
                             guild.getIdLong(),
