@@ -18,7 +18,7 @@ import java.util.*
 class CustomCommandsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
     override fun retrievePageTitle(): String {
-        return getString(Category.UTILITY, "customconfig_dashboard_title")
+        return getString(Category.CONFIGURATION, "customconfig_dashboard_title")
     }
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
