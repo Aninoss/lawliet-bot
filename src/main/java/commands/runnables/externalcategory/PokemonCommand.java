@@ -1,12 +1,5 @@
 package commands.runnables.externalcategory;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
@@ -20,6 +13,14 @@ import core.internet.HttpResponse;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "pokemon",
@@ -65,15 +66,11 @@ public class PokemonCommand extends Command {
         }
 
         ArrayList<Integer> types = new ArrayList<>();
-        String groupStart = "<td style=\"background:#ffffff; width:40%\"><a href=\"/Typen\" title=\"Typen\">";
-        String groupEnd = "<td style=\"background:#ffffff; width:40%\"><a href=\"/Pok%C3%A9mon-Liste\" title=\"Pokémon-Liste\">National-Dex</a>";
+        String groupStart = "<td><a href=\"/Typen\" title=\"Typen\">";
+        String groupEnd = "<a href=\"/Pok%C3%A9mon-Liste\" title=\"Pokémon-Liste\">National-Dex</a>";
 
         if (content.contains(groupStart) && content.contains(groupEnd)) {
             String groupsBase = StringUtil.extractGroups(content, groupStart, groupEnd)[0];
-            if (groupsBase.contains("<span style=\"font-size:x-small;\">")) {
-                int i = groupsBase.indexOf("<span style=\"font-size:x-small;\">");
-                groupsBase = groupsBase.substring(0, i);
-            }
             String[] lines = groupsBase.split("<br />");
             for (String line : lines) {
                 boolean found = false;

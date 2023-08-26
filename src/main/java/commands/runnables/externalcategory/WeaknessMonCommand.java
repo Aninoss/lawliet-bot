@@ -1,13 +1,14 @@
 package commands.runnables.externalcategory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.TextManager;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "weaknessmon",
