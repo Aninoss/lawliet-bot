@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
         emoji = "📥",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "shop", "upgrade", "invest", "levelup", "b" }
+        aliases = {"shop", "upgrade", "invest", "levelup", "b"}
 )
 public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
@@ -73,13 +73,15 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
             }
 
             if (fisheryGear != null) {
-                for (int j = 0; j < amount; j++) {
-                    if (!buy(fisheryGear, event.getMember(), false)) {
-                        break;
+                synchronized (event.getMember()) {
+                    for (int j = 0; j < amount; j++) {
+                        if (!buy(fisheryGear, event.getMember(), false)) {
+                            break;
+                        }
                     }
-                }
 
-                registerNavigationListener(event.getMember());
+                    registerNavigationListener(event.getMember());
+                }
                 return true;
             }
 
@@ -102,7 +104,9 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                 deregisterListenersWithComponentMessage();
                 return false;
             } else if (i >= 0 && i < FisheryGear.values().length) {
-                buy(FisheryGear.values()[i], event.getMember(), true);
+                synchronized (event.getMember()) {
+                    buy(FisheryGear.values()[i], event.getMember(), true);
+                }
                 return true;
             }
             return false;
@@ -110,7 +114,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         return false;
     }
 
-    private synchronized boolean buy(FisheryGear fisheryGear, Member member, boolean transferableSlots) {
+    private boolean buy(FisheryGear fisheryGear, Member member, boolean transferableSlots) {
         List<Role> roles = getGuildEntity().getFishery().getRoles();
         int i = fisheryGear.ordinal();
 
