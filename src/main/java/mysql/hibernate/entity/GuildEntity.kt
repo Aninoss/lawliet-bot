@@ -4,6 +4,7 @@ import constants.Language
 import core.assets.GuildAsset
 import core.cache.ServerPatreonBoostCache
 import mysql.hibernate.template.HibernateEntity
+import org.hibernate.annotations.SortNatural
 import java.util.*
 import javax.persistence.*
 
@@ -29,8 +30,8 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
     var fishery: FisheryEntity = FisheryEntity()
 
     @ElementCollection
-    val customCommands = mutableMapOf<String, CustomCommandEntity>()
-
+    @SortNatural
+    val customCommands = sortedMapOf<String, CustomCommandEntity>()
 
     constructor() : this("0")
 

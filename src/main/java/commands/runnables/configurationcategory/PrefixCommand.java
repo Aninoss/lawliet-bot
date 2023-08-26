@@ -64,16 +64,14 @@ public class PrefixCommand extends Command implements OnButtonListener {
                 .setMaxLength(MAX_LENGTH)
                 .build();
 
-        Modal modal = ModalMediator.createModal(getString("button"), (e, guildEntity) -> {
+        Modal modal = ModalMediator.createDrawableCommandModal(this, getString("button"), e -> {
                     deregisterListeners();
                     String newPrefix = e.getValues().get(0).getAsString();
                     if (newPrefix.isBlank()) {
                         newPrefix = "L.";
                     }
-                    Prefix.changePrefix(event.getGuild(), getLocale(), newPrefix, guildEntity);
-                    drawMessage(EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(newPrefix))))
-                            .exceptionally(ExceptionLogger.get());
-                    e.deferEdit().queue();
+                    Prefix.changePrefix(event.getGuild(), getLocale(), newPrefix, getGuildEntity());
+                    return EmbedFactory.getEmbedDefault(this, getString("changed", StringUtil.escapeMarkdownInField(newPrefix)));
                 })
                 .addActionRow(textInput)
                 .build();

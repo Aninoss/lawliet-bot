@@ -1,7 +1,5 @@
 package commands.runnables.informationcategory;
 
-import java.time.Instant;
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -11,6 +9,9 @@ import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "ping",

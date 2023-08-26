@@ -78,6 +78,7 @@ public class CommandContainer {
         commandList.add(CommandManagementCommand.class);
         commandList.add(NSFWFilterCommand.class);
         commandList.add(SuggestionConfigCommand.class);
+        commandList.add(CustomConfigCommand.class);
 
         //UTILITY
         commandList.add(AlertsCommand.class);
@@ -96,6 +97,7 @@ public class CommandContainer {
         commandList.add(GiveawayCommand.class);
         commandList.add(SuggestionCommand.class);
         commandList.add(TicketCommand.class);
+        commandList.add(CustomCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);

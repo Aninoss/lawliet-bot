@@ -1,6 +1,5 @@
 package commands.runnables.fisherysettingscategory;
 
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -8,9 +7,9 @@ import commands.listeners.OnButtonListener;
 import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
-import core.modals.ModalMediator;
 import core.TextManager;
 import core.cache.PatreonCache;
+import core.modals.ModalMediator;
 import core.utils.StringUtil;
 import mysql.modules.autosell.DBAutoSell;
 import mysql.modules.fisheryusers.DBFishery;
@@ -24,6 +23,8 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "autosell",
@@ -95,7 +96,7 @@ public class AutoSellCommand extends Command implements OnButtonListener {
                     .setMaxLength(3)
                     .build();
 
-            Modal modal = ModalMediator.createModal(getString("modal_title"), (e, em) -> {
+            Modal modal = ModalMediator.createDrawableCommandModal(this, getString("modal_title"), e -> {
                         deregisterListeners();
                         String newThresholdString = e.getValues().get(0).getAsString();
                         int newThreshold = StringUtil.stringIsInt(newThresholdString)
@@ -104,10 +105,7 @@ public class AutoSellCommand extends Command implements OnButtonListener {
 
                         if (newThreshold < 0) {
                             String invalid = TextManager.getString(getLocale(), TextManager.GENERAL, "invalid", newThresholdString);
-                            drawMessage(EmbedFactory.getEmbedError(this, invalid))
-                                    .exceptionally(ExceptionLogger.get());
-                            e.deferEdit().queue();
-                            return;
+                            return EmbedFactory.getEmbedError(this, invalid);
                         }
 
                         if (setThreshold(event.getMember(), newThreshold)) {
@@ -115,13 +113,7 @@ public class AutoSellCommand extends Command implements OnButtonListener {
                         } else {
                             mode = Mode.ERROR;
                         }
-
-                        try {
-                            drawMessage(draw(event.getMember()));
-                        } catch (Throwable ex) {
-                            throw new RuntimeException(ex);
-                        }
-                        e.deferEdit().queue();
+                        return null;
                     })
                     .addActionRow(textInput)
                     .build();

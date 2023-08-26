@@ -1,7 +1,5 @@
 package core.utils;
 
-import java.util.Locale;
-import java.util.Optional;
 import commands.Command;
 import commands.runnables.utilitycategory.AlertsCommand;
 import constants.Emojis;
@@ -10,6 +8,9 @@ import core.TextManager;
 import mysql.modules.tracker.DBTracker;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+
+import java.util.Locale;
+import java.util.Optional;
 
 public class EmbedUtil {
 

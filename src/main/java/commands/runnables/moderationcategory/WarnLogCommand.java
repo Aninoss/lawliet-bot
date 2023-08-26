@@ -1,17 +1,14 @@
 package commands.runnables.moderationcategory;
 
-import java.time.temporal.ChronoUnit;
-import java.util.*;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
 import commands.runnables.MemberAccountAbstract;
 import core.EmbedFactory;
 import core.ExceptionLogger;
-import core.modals.ModalMediator;
 import core.TextManager;
+import core.modals.ModalMediator;
 import core.utils.EmbedUtil;
-import core.utils.ExceptionUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import mysql.modules.warning.DBServerWarnings;
@@ -30,6 +27,9 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @CommandProperties(
         trigger = "warnlog",
@@ -113,18 +113,12 @@ public class WarnLogCommand extends MemberAccountAbstract implements OnButtonLis
                         .build();
 
                 String title = TextManager.getString(getLocale(), TextManager.GENERAL, "list_goto");
-                Modal modal = ModalMediator.createModal(title, (e, em) -> {
-                            e.deferEdit().queue();
+                Modal modal = ModalMediator.createDrawableCommandModal(this, title, e -> {
                             String pageString = e.getValue(textId).getAsString();
                             if (StringUtil.stringIsInt(pageString)) {
                                 page = Math.min(getPageSize() - 1, Math.max(0, Integer.parseInt(pageString) - 1));
                             }
-                            try {
-                                drawMessage(draw(e.getMember()))
-                                        .exceptionally(ExceptionLogger.get());
-                            } catch (Throwable throwable) {
-                                ExceptionUtil.handleCommandException(throwable, this, getCommandEvent(), em);
-                            }
+                            return null;
                         }).addActionRows(ActionRow.of(message))
                         .build();
 

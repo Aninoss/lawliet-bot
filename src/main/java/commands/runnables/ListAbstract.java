@@ -1,18 +1,14 @@
 package commands.runnables;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import commands.Command;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnSelectMenuListener;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
-import core.modals.ModalMediator;
 import core.TextManager;
+import core.modals.ModalMediator;
 import core.utils.EmbedUtil;
-import core.utils.ExceptionUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -28,6 +24,10 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public abstract class ListAbstract extends Command implements OnButtonListener, OnSelectMenuListener {
 
@@ -122,18 +122,12 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
                         .build();
 
                 String title = TextManager.getString(getLocale(), TextManager.GENERAL, "list_goto");
-                Modal modal = ModalMediator.createModal(title, (e, em) -> {
-                            e.deferEdit().queue();
+                Modal modal = ModalMediator.createDrawableCommandModal(this, title, e -> {
                             String pageString = e.getValue(textId).getAsString();
                             if (StringUtil.stringIsInt(pageString)) {
                                 page = Math.min(getPageSize() - 1, Math.max(0, Integer.parseInt(pageString) - 1));
                             }
-                            try {
-                                drawMessage(draw(e.getMember()))
-                                        .exceptionally(ExceptionLogger.get());
-                            } catch (Throwable throwable) {
-                                ExceptionUtil.handleCommandException(throwable, this, getCommandEvent(), em);
-                            }
+                            return null;
                         }).addActionRows(ActionRow.of(message))
                         .build();
 

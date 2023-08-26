@@ -1,10 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Locale;
-import java.util.Objects;
 import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
@@ -12,7 +7,10 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticButtonListener;
 import constants.Emojis;
 import constants.LogStatus;
-import core.*;
+import core.CustomObservableMap;
+import core.EmbedFactory;
+import core.ExceptionLogger;
+import core.TextManager;
 import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
 import core.mention.MentionValue;
@@ -37,14 +35,20 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
+import java.util.Objects;
+
 @CommandProperties(
         trigger = "reminder",
-        botChannelPermissions = { Permission.MESSAGE_EXT_EMOJI },
+        botChannelPermissions = {Permission.MESSAGE_EXT_EMOJI},
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "⏲️",
         executableWithoutArgs = false,
-        releaseDate = { 2020, 10, 21 },
-        aliases = { "remindme", "remind", "reminders", "schedule", "scheduler", "schedulers" }
+        releaseDate = {2020, 10, 21},
+        aliases = {"remindme", "remind", "reminders", "schedule", "scheduler", "schedulers"}
 )
 public class ReminderCommand extends Command implements OnStaticButtonListener {
 
@@ -104,7 +108,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
                     getLocale(),
                     (GuildChannel) event.getChannel(),
                     event.getMember(),
-                    new Permission[] { Permission.MANAGE_SERVER },
+                    new Permission[]{Permission.MANAGE_SERVER},
                     new Permission[0],
                     new Permission[0],
                     new Permission[0],
@@ -138,7 +142,8 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
                                 .setMaxLength(12)
                                 .build();
 
-                        Modal modal = ModalMediator.createModal(getString("repeatafter"), (e, em) -> {
+                        Modal modal = ModalMediator.createModal(getString("repeatafter"), (e, guildEntity) -> {
+                                    setGuildEntity(guildEntity);
                                     String value = e.getValues().get(0).getAsString();
                                     long minutes = MentionUtil.getTimeMinutes(value).getValue();
 
@@ -211,14 +216,14 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
                 .addField(TextManager.getString(locale, Category.UTILITY, "reminder_repeatafter") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), intervalText, true)
                 .addField(TextManager.getString(locale, Category.UTILITY, "reminder_content"), StringUtil.shortenString(messageText, 1024), false);
 
-        EmbedUtil.addLog(eb, LogStatus.WARNING,TextManager.getString(locale, Category.UTILITY, "reminder_dontremovemessage"));
+        EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.UTILITY, "reminder_dontremovemessage"));
         return eb;
     }
 
     public static Button[] generateButtons(Locale locale) {
         Button repeatButton = Button.of(ButtonStyle.PRIMARY, REPEAT_ID, TextManager.getString(locale, Category.UTILITY, "reminder_repeatafter"));
         Button cancelButton = Button.of(ButtonStyle.SECONDARY, CANCEL_ID, TextManager.getString(locale, TextManager.GENERAL, "process_abort"));
-        return new Button[] { repeatButton, cancelButton };
+        return new Button[]{repeatButton, cancelButton};
     }
 
 }

@@ -1,7 +1,5 @@
 package commands.runnables.informationcategory;
 
-import java.util.Locale;
-import java.util.Optional;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -14,9 +12,12 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+import java.util.Optional;
+
 @CommandProperties(
         trigger = "serverinfo",
-        emoji = "\uD83D\uDC6A",
+        emoji = "👪",
         executableWithoutArgs = true,
         requiresFullMemberCache = true,
         aliases = { "serverinfos", "serverstat", "serverstats", "guild", "server" }

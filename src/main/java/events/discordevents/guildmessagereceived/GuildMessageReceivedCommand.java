@@ -4,6 +4,7 @@ import commands.*;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnMessageInputListener;
 import commands.runnables.informationcategory.HelpCommand;
+import commands.runnables.utilitycategory.CustomCommand;
 import core.AsyncTimer;
 import core.MainLogger;
 import core.ShardManager;
@@ -17,6 +18,7 @@ import events.discordevents.EventPriority;
 import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.MessageQuote;
 import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.CustomCommandEntity;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.autoquote.DBAutoQuote;
 import net.dv8tion.jda.api.entities.Message;
@@ -80,6 +82,15 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                 Locale locale = guildEntity.getLocale();
                 Class<? extends Command> clazz;
                 clazz = CommandContainer.getCommandMap().get(commandTrigger);
+
+                if (clazz == null) {
+                    CustomCommandEntity customCommand = guildEntity.getCustomCommands().get(commandTrigger);
+                    if (customCommand != null) {
+                        clazz = CustomCommand.class;
+                        args = commandTrigger;
+                    }
+                }
+
                 if (clazz != null) {
                     Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
                     if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
