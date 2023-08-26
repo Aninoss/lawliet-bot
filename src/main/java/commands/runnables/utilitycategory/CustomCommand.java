@@ -21,8 +21,7 @@ import java.util.SortedMap;
 @CommandProperties(
         trigger = "custom",
         emoji = "🧩",
-        executableWithoutArgs = false,
-        aliases = {"c"}
+        executableWithoutArgs = false
 )
 public class CustomCommand extends Command {
 

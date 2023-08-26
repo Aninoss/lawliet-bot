@@ -35,7 +35,7 @@ import java.util.Map;
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "🧩",
         executableWithoutArgs = true,
-        aliases = {"customcommands", "cconfig"}
+        aliases = {"customcommands"}
 )
 public class CustomConfigCommand extends NavigationAbstract {
 
