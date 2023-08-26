@@ -1,12 +1,5 @@
 package core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -18,6 +11,14 @@ import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TextManager {
 
@@ -82,7 +83,7 @@ public class TextManager {
                 String[] placeholders = extractGroups(RegexPatterns.TEXT_PLACEHOLDER, text);
                 text = processMultiOptions(text, option);
                 text = processReferences(text, placeholders, category, locale);
-                text = processParams(text, placeholders, args);
+                text = processParams(text, args);
                 text = processEmojis(text, placeholders);
                 text = text.replace("{BOT}", System.getenv("BOT_NAME"));
 
@@ -126,7 +127,7 @@ public class TextManager {
         return text;
     }
 
-    private static String processParams(String text, String[] placeholders, String[] args) {
+    private static String processParams(String text, String[] args) {
         for (int i = 0; i < args.length; i++) {
             text = text.replace("{" + i + "}", args[i]);
         }

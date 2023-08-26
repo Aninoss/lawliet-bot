@@ -178,7 +178,11 @@ public class CustomConfigCommand extends NavigationAbstract {
                 }
                 guildEntity.commitTransaction();
 
-                setLog(LogStatus.SUCCESS, getString(updateMode ? "log_update" : "log_add", oldTrigger));
+                if (updateMode) {
+                    setLog(LogStatus.SUCCESS, getString("log_update", oldTrigger));
+                } else {
+                    setLog(LogStatus.SUCCESS, getString("log_add", trigger));
+                }
                 setState(updateMode ? STATE_EDIT : DEFAULT_STATE);
                 return true;
             }
