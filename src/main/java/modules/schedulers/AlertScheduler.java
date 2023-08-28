@@ -36,7 +36,7 @@ public class AlertScheduler {
 
     public static void start() {
         try {
-            executorService = Executors.newScheduledThreadPool(5, new CountingThreadFactory(() -> "Main", "Alerts", false));
+            executorService = Executors.newSingleThreadScheduledExecutor(new CountingThreadFactory(() -> "Main", "Alerts", false));
             DBTracker.getInstance().retrieveAll().forEach(AlertScheduler::loadAlert);
         } catch (Throwable e) {
             MainLogger.get().error("Could not start alerts", e);
@@ -58,17 +58,24 @@ public class AlertScheduler {
             CustomObservableMap<Integer, TrackerData> map = DBTracker.getInstance().retrieve(guildId);
             if (map.containsKey(hash)) {
                 TrackerData slot = map.get(hash);
-                try (AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMinutes(5))) {
-                    asyncTimer.setTimeOutListener(t -> {
-                        MainLogger.get().error("Alert stuck: {} with key {}", slot.getCommandTrigger(), slot.getCommandKey(), ExceptionUtil.generateForStack(t));
-                    });
+                GlobalThreadPool.submit(() -> {
+                    try (AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMinutes(5))) {
+                        asyncTimer.setTimeOutListener(t -> {
+                            MainLogger.get().error("Alert stuck: {} with key {}", slot.getCommandTrigger(), slot.getCommandKey(), ExceptionUtil.generateForStack(t));
+                        });
 
-                    if (slot.isActive() && manageAlert(slot)) {
+                        if (slot.isActive() && manageAlert(slot)) {
+                            loadAlert(slot);
+                        }
+                    } catch (InterruptedException e) {
+                        MainLogger.get().error("Interrupted", e);
                         loadAlert(slot);
                     }
+                });
+                try {
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {
                     MainLogger.get().error("Interrupted", e);
-                    loadAlert(slot);
                 }
             }
         }, millis, TimeUnit.MILLISECONDS);
