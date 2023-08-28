@@ -1,12 +1,5 @@
 package commands.runnables.gimmickscategory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -22,6 +15,14 @@ import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+
 @CommandProperties(
         trigger = "ship",
         botChannelPermissions = Permission.MESSAGE_ATTACH_FILES,
@@ -34,7 +35,6 @@ public class ShipCommand extends Command {
     private final CustomShipValues[] customShipValues = new CustomShipValues[] {
             new CustomShipValues(272037078919938058L, 368521195940741122L, 100),
             new CustomShipValues(397209883793162240L, 710120672499728426L, 100),
-            new CustomShipValues(444821134936899605L, 547064638597234688L, 777),
             new CustomShipValues(368521195940741122L, 844717861132959809L, 100),
             new CustomShipValues(272037078919938058L, 530085770698948608L, 300)
     };
