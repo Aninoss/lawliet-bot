@@ -2,7 +2,6 @@ package core;
 
 import commands.SlashCommandManager;
 import constants.AssetIds;
-import constants.Language;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
@@ -11,14 +10,6 @@ import modules.BumpReminder;
 import modules.SupportTemplates;
 import modules.repair.MainRepair;
 import modules.schedulers.*;
-import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
-import mysql.modules.guild.DBGuild;
-import mysql.modules.guild.GuildData;
-import mysql.modules.guild.GuildKickedData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -197,7 +188,7 @@ public class DiscordConnector {
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 
-    private static void transferFisherySqlToHibernate() { //TODO: keep method until migration is complete
+    /*private static void transferFisherySqlToHibernate() { TODO: keep method until migration is complete
         if (!Program.publicVersion()) {
             return;
         }
@@ -234,6 +225,6 @@ public class DiscordConnector {
                 guildIdOffset = guildKickedDataList.get(guildKickedDataList.size() - 1).getGuildId();
             }
         } while (guildKickedDataList.size() == limit);
-    }
+    }*/
 
 }

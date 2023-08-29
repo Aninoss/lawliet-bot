@@ -251,7 +251,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val roles = fisheryEntity.roles
         if (roles.isNotEmpty()) {
             val rows = roles.mapIndexed { n, role ->
-                val values = arrayOf((n + 1).toString(), role.name, StringUtil.numToString(Fishery.getFisheryRolePrice(fisheryEntity.rolePriceMin!!, fisheryEntity.rolePriceMax!!, roles.size, n)))
+                val values = arrayOf((n + 1).toString(), role.name, StringUtil.numToString(Fishery.getFisheryRolePrice(fisheryEntity.rolePriceMin, fisheryEntity.rolePriceMax, roles.size, n)))
                 GridRow(n.toString(), values)
             }
             val grid = DashboardGrid(
@@ -321,7 +321,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         singleRolesSwitch.subtitle = getString(Category.FISHERY_SETTINGS, "fisheryroles_state0_msinglerole_desc").replace("*", "")
-        singleRolesSwitch.isChecked = fisheryEntity.singleRoles!!
+        singleRolesSwitch.isChecked = fisheryEntity.singleRoles
         container.add(DashboardSeparator(), singleRolesSwitch)
         return container
     }
@@ -344,7 +344,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             ActionResult()
         }
-        min.value = fisheryEntity.rolePriceMin!!
+        min.value = fisheryEntity.rolePriceMin
         container.add(min)
 
         val max = DashboardNumberField(getString(Category.FISHERY_SETTINGS, "fisheryroles_last"), 0, Settings.FISHERY_MAX) {
@@ -359,7 +359,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             ActionResult()
         }
-        max.value = fisheryEntity.rolePriceMax!!
+        max.value = fisheryEntity.rolePriceMax
         container.add(max)
         return container
     }
@@ -448,7 +448,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         switchTreasure.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mtreasurechests_desc")
-        switchTreasure.isChecked = fisheryEntity.treasureChests!!
+        switchTreasure.isChecked = fisheryEntity.treasureChests
         container.add(switchTreasure)
 
         val switchPowerups = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mpowerups_title", "").trim()) {
@@ -464,7 +464,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         switchPowerups.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mpowerups_desc")
-        switchPowerups.isChecked = fisheryEntity.powerUps!!
+        switchPowerups.isChecked = fisheryEntity.powerUps
         container.add(switchPowerups)
 
         val switchReminders = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mreminders_title", "").trim()) {
@@ -480,7 +480,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         switchReminders.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mreminders_desc")
-        switchReminders.isChecked = fisheryEntity.fishReminders!!
+        switchReminders.isChecked = fisheryEntity.fishReminders
         container.add(switchReminders)
 
         val switchCoinLimit = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "fishery_state0_mcoinsgivenlimit_title", "").trim()) {
@@ -496,7 +496,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         switchCoinLimit.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mcoinsgivenlimit_desc")
-        switchCoinLimit.isChecked = fisheryEntity.coinGiftLimit!!
+        switchCoinLimit.isChecked = fisheryEntity.coinGiftLimit
         container.add(switchCoinLimit)
 
         return container
@@ -589,7 +589,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
         val statusContainer = HorizontalContainer()
         val statusTextKey = getString(Category.FISHERY_SETTINGS, "fishery_state0_mstatus")
-        val statusTextValue = getString(Category.FISHERY_SETTINGS, "fishery_state0_status").split("\n")[fisheryEntity.fisheryStatus!!.ordinal].substring(2)
+        val statusTextValue = getString(Category.FISHERY_SETTINGS, "fishery_state0_status").split("\n")[fisheryEntity.fisheryStatus.ordinal].substring(2)
         statusContainer.add(
                 DashboardText("$statusTextKey:"),
                 DashboardText(statusTextValue)

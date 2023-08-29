@@ -15,23 +15,42 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
     @Id
     private val guildId = key
 
-    var prefix = "L."
+    @Column(name = "prefix")
+    private var _prefix: String? = null
+    var prefix: String
+        get() = _prefix ?: "L."
+        set(value) {
+            _prefix = value
+        }
 
+    @Column(name = "language")
     @Enumerated(EnumType.STRING)
-    var language: Language = Language.EN
+    private var _language: Language? = null
+    var language: Language
+        get() = _language ?: Language.EN
+        set(value) {
+            _language = value
+        }
     val locale: Locale
         get() = language.locale
 
-    var removeAuthorMessage = false
+    @Column(name = "removeAuthorMessage")
+    private var _removeAuthorMessage: Boolean? = null
+    var removeAuthorMessage: Boolean
+        get() = _removeAuthorMessage ?: false
+        set(value) {
+            _removeAuthorMessage = value
+        }
     val removeAuthorMessageEffectively: Boolean
         get() = removeAuthorMessage && ServerPatreonBoostCache.get(guildId.toLong())
 
     @Embedded
-    var fishery: FisheryEntity = FisheryEntity()
+    val fishery: FisheryEntity = FisheryEntity()
 
     @ElementCollection
     @SortNatural
     val customCommands = sortedMapOf<String, CustomCommandEntity>()
+
 
     constructor() : this("0")
 
@@ -41,9 +60,6 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
 
     @PostLoad
     override fun postLoad() {
-        if (fishery.fisheryStatus == null) {
-            fishery = FisheryEntity()
-        }
         fishery.postLoad(this)
         customCommands.values.forEach { it.postLoad(this) }
     }

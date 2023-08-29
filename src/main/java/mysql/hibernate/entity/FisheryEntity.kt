@@ -7,19 +7,53 @@ import mysql.hibernate.template.HibernateDiscordInterface
 import mysql.hibernate.template.HibernateEmbeddedEntity
 import net.dv8tion.jda.api.entities.Role
 import java.util.*
-import java.util.Objects.requireNonNullElse
 import javax.persistence.*
+
+const val FISHERY = "fishery"
 
 @Embeddable
 class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordInterface {
 
+    @Column(name = "$FISHERY.fisheryStatus")
     @Enumerated(EnumType.STRING)
-    var fisheryStatus: FisheryStatus? = FisheryStatus.STOPPED
+    private var _fisheryStatus: FisheryStatus? = null
+    var fisheryStatus: FisheryStatus
+        get() = _fisheryStatus ?: FisheryStatus.STOPPED
+        set(value) {
+            _fisheryStatus = value
+        }
 
-    var treasureChests: Boolean? = true
-    var powerUps: Boolean? = true
-    var fishReminders: Boolean? = true
-    var coinGiftLimit: Boolean? = true
+    @Column(name = "$FISHERY.treasureChests")
+    private var _treasureChests: Boolean? = null
+    var treasureChests: Boolean
+        get() = _treasureChests ?: true
+        set(value) {
+            _treasureChests = value
+        }
+
+    @Column(name = "$FISHERY.powerUps")
+    private var _powerUps: Boolean? = null
+    var powerUps: Boolean
+        get() = _powerUps ?: true
+        set(value) {
+            _powerUps = value
+        }
+
+    @Column(name = "$FISHERY.fishReminders")
+    private var _fishReminders: Boolean? = null
+    var fishReminders: Boolean
+        get() = _fishReminders ?: true
+        set(value) {
+            _fishReminders = value
+        }
+
+    @Column(name = "$FISHERY.coinGiftLimit")
+    private var _coinGiftLimit: Boolean? = null
+    var coinGiftLimit: Boolean
+        get() = _coinGiftLimit ?: true
+        set(value) {
+            _coinGiftLimit = value
+        }
 
     @ElementCollection
     var excludedChannelIds: MutableList<Long> = mutableListOf()
@@ -49,20 +83,44 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
             return roles
         }
 
-    var singleRoles: Boolean? = false
+    @Column(name = "$FISHERY.singleRoles")
+    private var _singleRoles: Boolean? = null
+    var singleRoles: Boolean
+        get() = _singleRoles ?: false
+        set(value) {
+            _singleRoles = value
+        }
 
     var roleUpgradeChannelId: Long? = null
     val roleUpgradeChannel: AtomicTextChannel
         get() = getAtomicTextChannel(roleUpgradeChannelId)
 
-    var rolePriceMin: Long? = 50_000L
-    var rolePriceMax: Long? = 800_000_000L
+    @Column(name = "$FISHERY.rolePriceMin")
+    private var _rolePriceMin: Long? = null
+    var rolePriceMin: Long
+        get() = _rolePriceMin ?: 50_000L
+        set(value) {
+            _rolePriceMin = value
+        }
 
-    var voiceHoursLimit: Int? = 5
-        get() = requireNonNullElse(field, 24)
+    @Column(name = "$FISHERY.rolePriceMax")
+    private var _rolePriceMax: Long? = null
+    var rolePriceMax: Long
+        get() = _rolePriceMax ?: 800_000_000L
+        set(value) {
+            _rolePriceMax = value
+        }
+
+    @Column(name = "$FISHERY.voiceHoursLimit")
+    private var _voiceHoursLimit: Int? = null
+    var voiceHoursLimit: Int
+        get() = _voiceHoursLimit ?: 24
+        set(value) {
+            _voiceHoursLimit = value
+        }
     val voiceHoursLimitEffectively: Int
         get() = if (ServerPatreonBoostCache.get(guildId)) {
-            voiceHoursLimit!!
+            voiceHoursLimit
         } else {
             5
         }
