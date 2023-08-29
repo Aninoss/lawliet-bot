@@ -128,6 +128,8 @@ public class DiscordConnector {
                 if (subId != -1 && !SendEvent.sendSubscriptionActive(subId).get(5, TimeUnit.SECONDS)) {
                     MainLogger.get().warn("Subscription not active anymore, refusing to boot up");
                     return;
+                } else {
+                    MainLogger.get().info("Subscription check passed");
                 }
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 MainLogger.get().error("Subscription retrieval error", e);
