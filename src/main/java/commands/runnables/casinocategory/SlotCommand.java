@@ -182,7 +182,7 @@ public class SlotCommand extends CasinoAbstract {
 
         deregisterListeners();
         if (winLevel == 0) {
-            lose(member);
+            lose(member, true);
             setLog(LogStatus.LOSE, getString("end", 0));
         } else {
             win(member, WIN_POSSIBILITIES[winLevel - 1] / WIN_POSSIBILITIES.length * WIN_AMOUNT_ADJUSTMENT[winLevel - 1] - 1);

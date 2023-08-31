@@ -72,7 +72,7 @@ public class BlackjackCommand extends CasinoAbstract {
                 if (getCardsValue(PlayerType.PLAYER) > 21) {
                     turnForPlayer = false;
                     schedule(Duration.ofMillis(TIME_BEFORE_END), () -> {
-                        lose(event.getMember());
+                        lose(event.getMember(), true);
                         setLog(LogStatus.LOSE, getString("toomany", 0));
                         drawMessage(draw(event.getMember())).exceptionally(ExceptionLogger.get());
                     });
@@ -122,7 +122,7 @@ public class BlackjackCommand extends CasinoAbstract {
                             drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
                             return;
                         } else if (hasBlackJackMap.get(PlayerType.DEALER) && !hasBlackJackMap.get(PlayerType.PLAYER)) {
-                            lose(member);
+                            lose(member, true);
                             setLog(LogStatus.LOSE, getString("blackjack", 1));
                             drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
                             return;
@@ -141,7 +141,7 @@ public class BlackjackCommand extends CasinoAbstract {
                             setLog(LogStatus.WIN, getString("21", 0));
                             drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
                         } else if (points[0] > points[1]) {
-                            lose(member);
+                            lose(member, true);
                             setLog(LogStatus.LOSE, getString("21", 1));
                             drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
                         }

@@ -114,7 +114,7 @@ public class TowerCommand extends CasinoAbstract {
             showMoreText = true;
             falling = true;
         } else {
-            lose(member);
+            lose(member, true);
             setLog(LogStatus.LOSE, getString("lost"));
             towerLevel = 0;
             crashed = true;

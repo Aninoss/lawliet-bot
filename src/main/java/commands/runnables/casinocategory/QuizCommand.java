@@ -165,7 +165,7 @@ public class QuizCommand extends CasinoAbstract {
             win(member, answers.length * (difficulty + 1) / 8.0);
             setLog(LogStatus.WIN, getString("correct"));
         } else {
-            lose(member);
+            lose(member, true);
             setLog(LogStatus.LOSE, selected == -1 ? getString("timeup") : getString("wrong"));
         }
 

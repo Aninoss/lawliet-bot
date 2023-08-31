@@ -120,9 +120,8 @@ public class CoinFlipCommand extends CasinoAbstract {
                 if (selection[0] == selection[1]) {
                     win(member);
                 } else {
-                    lose(member);
+                    lose(member, true);
                 }
-
                 drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
             });
         });

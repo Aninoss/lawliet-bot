@@ -13,6 +13,7 @@ import core.utils.TimeUtil;
 import events.scheduleevents.events.*;
 import javafx.util.Pair;
 import modules.SupportTemplates;
+import modules.casinologs.CasinoLogCache;
 import modules.fishery.Fishery;
 import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
@@ -51,6 +52,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("casino_logs", Console::onCasinoLogs);
         tasks.put("tickets_auto_close", Console::onTicketsAutoClose);
         tasks.put("slash_update", Console::onSlashUpdate);
         tasks.put("update_lawliet_support_commands", Console::onUpdateLawlietSupportCommands);
@@ -98,6 +100,12 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onCasinoLogs(String[] args) {
+        long serverId = Long.parseLong(args[1]);
+        long userId = Long.parseLong(args[2]);
+        CasinoLogCache.get(serverId, userId).forEach(e -> System.out.println(e.toString()));
     }
 
     private static void onTicketsAutoClose(String[] args) {

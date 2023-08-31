@@ -1,7 +1,5 @@
 package commands.runnables.casinocategory;
 
-import java.io.IOException;
-import java.util.*;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -19,6 +17,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.io.IOException;
+import java.util.*;
 
 @CommandProperties(
         trigger = "hangman",
@@ -168,7 +169,7 @@ public class HangmanCommand extends CasinoAbstract {
         if (health > 0) {
             setLog(LogStatus.FAILURE, getString("wrong", input));
         } else {
-            lose(member);
+            lose(member, true);
         }
     }
 
