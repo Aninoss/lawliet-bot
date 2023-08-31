@@ -17,7 +17,6 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 import java.time.Duration;
@@ -169,9 +168,9 @@ public class AlertScheduler {
 
     private static boolean checkNSFW(Locale locale, TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
         if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
-            EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
+            EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale(), command.getPrefix());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            slot.sendMessage(locale, false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(command.getLocale())));
+            slot.sendMessage(locale, false, eb.build());
             slot.delete();
             return true;
         }

@@ -1,11 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import commands.*;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -34,6 +28,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "alerts",
@@ -102,7 +103,7 @@ public class AlertsCommand extends NavigationAbstract {
 
         Command command = commandOpt.get();
         if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description"));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_block_description", getPrefix()).replace("`", "\""));
             return MessageInputResponse.FAILED;
         }
 

@@ -1,11 +1,7 @@
 package core;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Locale;
 import commands.Command;
 import constants.ExternalLinks;
-import constants.Language;
 import constants.Settings;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -14,6 +10,10 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Locale;
 
 public class EmbedFactory {
 
@@ -87,27 +87,16 @@ public class EmbedFactory {
         return eb;
     }
 
-    public static Button getNSFWBlockButton(Locale locale) {
-        String link = switch (Language.from(locale)) {
-            case DE -> "https://support.discord.com/hc/de/articles/115000084051#h_adc93a2c-8fc3-4775-be02-bbdbfcde5010";
-            case ES -> "https://support.discord.com/hc/es/articles/115000084051-Canales-y-contenido-de-NAPW-NSFW-por-sus-siglas-en-ingl%C3%A9s-#h_66a0d66a-562d-4f19-92ec-f16e2ba3cca3";
-            case RU -> "https://support.discord.com/hc/ru/articles/115000084051";
-            default -> "https://support.discord.com/hc/en-us/articles/115000084051#h_adc93a2c-8fc3-4775-be02-bbdbfcde5010";
-        };
-
-        return Button.of(ButtonStyle.LINK, link, TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_button"));
-    }
-
     public static EmbedBuilder getNSFWBlockEmbed(Command command) {
         return getEmbedError(command)
                 .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "nsfw_block_title"))
-                .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "nsfw_block_description"));
+                .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "nsfw_block_description", command.getPrefix()));
     }
 
-    public static EmbedBuilder getNSFWBlockEmbed(Locale locale) {
+    public static EmbedBuilder getNSFWBlockEmbed(Locale locale, String prefix) {
         return getEmbedError()
                 .setTitle(TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_title"))
-                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_description"));
+                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "nsfw_block_description", prefix));
     }
 
     public static Button[] getPatreonBlockButtons(Locale locale) {

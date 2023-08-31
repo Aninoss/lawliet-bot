@@ -153,7 +153,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
             }
             if (command!!.commandProperties.nsfw && !channel.isNSFW) { /* command requires nsfw */
                 return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(TextManager.GENERAL, "nsfw_block_description"))
+                    .withErrorMessage(getString(TextManager.GENERAL, "nsfw_block_description", prefix).replace("`", "\""))
             }
 
             val commandUsesKey = (command as OnAlertListener).trackerUsesKey()

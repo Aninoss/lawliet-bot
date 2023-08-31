@@ -1,12 +1,10 @@
 package modules;
 
-import java.util.Locale;
 import commands.Category;
 import commands.Command;
 import commands.runnables.gimmickscategory.QuoteCommand;
 import core.EmbedFactory;
 import core.TextManager;
-import core.components.ActionRows;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,6 +15,8 @@ import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChanne
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
+import java.util.Locale;
+
 public class MessageQuote {
 
     public static MessageCreateData postQuote(String prefix, Locale locale, GuildMessageChannel channel, Message searchedMessage,
@@ -25,8 +25,7 @@ public class MessageQuote {
                 !JDAUtil.guildMessageChannelIsNsfw(channel)
         ) {
             return new MessageCreateBuilder()
-                    .setEmbeds(EmbedFactory.getNSFWBlockEmbed(locale).build())
-                    .setComponents(ActionRows.of(EmbedFactory.getNSFWBlockButton(locale)))
+                    .setEmbeds(EmbedFactory.getNSFWBlockEmbed(locale, prefix).build())
                     .build();
         }
 

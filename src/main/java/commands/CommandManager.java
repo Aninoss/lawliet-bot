@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 public class CommandManager {
 
-    private final static int SEC_UNTIL_REMOVAL = 20;
+    private final static int SEC_UNTIL_REMOVAL = 60;
     private final static Random random = new Random();
 
     public static void manage(CommandEvent event, Command command, String args, GuildEntity guildEntity, Instant startTime) {
@@ -329,8 +329,8 @@ public class CommandManager {
             return true;
         }
 
-        EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale());
-        sendError(event, guildEntity, eb, true, EmbedFactory.getNSFWBlockButton(command.getLocale()));
+        EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale(), command.getPrefix());
+        sendError(event, guildEntity, eb, true);
         return false;
     }
 

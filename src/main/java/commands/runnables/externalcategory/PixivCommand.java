@@ -12,7 +12,6 @@ import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.components.ActionRows;
 import core.internet.HttpRequest;
 import core.utils.EmbedUtil;
 import core.utils.FileUtil;
@@ -89,7 +88,6 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
                 return pixivDownloader.retrieveImage(event.getGuild().getIdLong(), args, event.getTextChannel().isNSFW(), filterSet).get()
                         .map(image -> {
                             if (image.isNsfw() && !event.getTextChannel().isNSFW()) {
-                                setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
                                 drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
                                 return false;
                             }
@@ -167,9 +165,9 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
                 }
 
                 if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
-                    EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
+                    EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale(), getPrefix());
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    slot.sendMessage(getLocale(), false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(getLocale())));
+                    slot.sendMessage(getLocale(), false, eb.build());
                     return AlertResponse.STOP_AND_DELETE;
                 }
 

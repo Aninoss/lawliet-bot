@@ -1,10 +1,5 @@
 package commands.runnables.externalcategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -12,7 +7,6 @@ import commands.listeners.OnAlertListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.ListGen;
-import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.mandaupdates.MangaUpdatesDownloader;
@@ -21,9 +15,14 @@ import modules.mandaupdates.MangaUpdatesSeries;
 import modules.schedulers.AlertResponse;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "mangaupdates",
@@ -45,7 +44,6 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
         if (!seriesList.isEmpty()) {
             MangaUpdatesSeries series = seriesList.get(0);
             if (series.isNsfw() && !event.getTextChannel().isNSFW()) {
-                setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
                 drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
                 return false;
             } else {
@@ -92,9 +90,9 @@ public class MangaUpdatesCommand extends Command implements OnAlertListener {
         }
 
         if (series.isNsfw() && !slot.getStandardGuildMessageChannel().get().isNSFW()) {
-            EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
+            EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale(), getPrefix());
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-            slot.sendMessage(getLocale(), false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(getLocale())));
+            slot.sendMessage(getLocale(), false, eb.build());
             return AlertResponse.STOP_AND_DELETE;
         }
 

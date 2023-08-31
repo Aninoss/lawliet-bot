@@ -43,7 +43,7 @@ import java.util.Objects;
 
 @CommandProperties(
         trigger = "reminder",
-        botChannelPermissions = {Permission.MESSAGE_EXT_EMOJI},
+        botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "⏲️",
         executableWithoutArgs = false,

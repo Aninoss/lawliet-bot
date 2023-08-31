@@ -9,7 +9,6 @@ import commands.listeners.OnAlertListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import core.components.ActionRows;
 import core.utils.EmbedUtil;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
@@ -21,7 +20,6 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
@@ -68,7 +66,6 @@ public class RedditCommand extends Command implements OnAlertListener {
                 return redditDownloader.retrievePost(event.getGuild().getIdLong(), args, event.getTextChannel().isNSFW()).get()
                         .map(post -> {
                             if (post.isNsfw() && !event.getTextChannel().isNSFW()) {
-                                setActionRows(ActionRows.of(EmbedFactory.getNSFWBlockButton(getLocale())));
                                 drawMessageNew(EmbedFactory.getNSFWBlockEmbed(this)).exceptionally(ExceptionLogger.get());
                                 return false;
                             }
@@ -170,9 +167,9 @@ public class RedditCommand extends Command implements OnAlertListener {
                 }
 
                 if (containsOnlyNsfw && slot.getArgs().isEmpty()) {
-                    EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale());
+                    EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(getLocale(), getPrefix());
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
-                    slot.sendMessage(getLocale(), false, eb.build(), ActionRow.of(EmbedFactory.getNSFWBlockButton(getLocale())));
+                    slot.sendMessage(getLocale(), false, eb.build());
                     return AlertResponse.STOP_AND_DELETE;
                 }
 
