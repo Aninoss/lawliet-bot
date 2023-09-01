@@ -326,7 +326,6 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .setThumbnail("https://cdn.discordapp.com/attachments/1077245845440827562/1077942025460129852/roulette.gif");
 
         event.editMessageEmbeds(eb.build())
-                .setContent(null)
                 .setComponents()
                 .queue();
 
