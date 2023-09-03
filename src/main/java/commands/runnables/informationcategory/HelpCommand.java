@@ -1,13 +1,5 @@
 package commands.runnables.informationcategory;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import commands.*;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -36,6 +28,15 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 @CommandProperties(
         trigger = "help",
@@ -95,7 +96,7 @@ public class HelpCommand extends NavigationAbstract {
         return false;
     }
 
-    @ControllerSelectMenu(state = DEFAULT_STATE)
+    @ControllerStringSelectMenu(state = DEFAULT_STATE)
     public boolean onSelectMenu(StringSelectInteractionEvent event, int i) throws Throwable {
         searchTerm = event.getValues().get(0);
         return true;

@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -35,7 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
-public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener, OnSelectMenuListener {
+public abstract class NavigationAbstract extends Command implements OnTriggerListener, OnMessageInputListener, OnButtonListener, OnStringSelectMenuListener, OnEntitySelectMenuListener {
 
     private static final int MAX_ROWS_PER_PAGE = 4;
     private static final String BUTTON_ID_PREV = "nav:prev";
@@ -55,7 +56,8 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
     protected void registerNavigationListener(Member member) {
         registerButtonListener(member);
-        registerSelectMenuListener(member, false);
+        registerStringSelectMenuListener(member, false);
+        registerEntitySelectMenuListener(member, false);
         registerMessageInputListener(member, false);
         processDraw(member, true).exceptionally(ExceptionLogger.get());
     }
@@ -108,12 +110,23 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Override
-    public boolean onSelectMenu(StringSelectInteractionEvent event) throws Throwable {
+    public boolean onStringSelectMenu(StringSelectInteractionEvent event) throws Throwable {
         int i = -1;
         if (event.getValues().size() > 0 && StringUtil.stringIsInt(event.getValues().get(0))) {
             i = Integer.parseInt(event.getValues().get(0));
         }
-        boolean changed = controllerSelectMenu(event, i, state);
+        boolean changed = controllerStringSelectMenu(event, i, state);
+        if (changed) {
+            processDraw(event.getMember(), true)
+                    .exceptionally(ExceptionLogger.get());
+        }
+
+        return changed;
+    }
+
+    @Override
+    public boolean onEntitySelectMenu(EntitySelectInteractionEvent event) throws Throwable {
+        boolean changed = controllerEntitySelectMenu(event, state);
         if (changed) {
             processDraw(event.getMember(), true)
                     .exceptionally(ExceptionLogger.get());
@@ -174,9 +187,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         return false;
     }
 
-    public boolean controllerSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
+    public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
         for (Method method : getClass().getDeclaredMethods()) {
-            ControllerSelectMenu c = method.getAnnotation(ControllerSelectMenu.class);
+            ControllerStringSelectMenu c = method.getAnnotation(ControllerStringSelectMenu.class);
             if (c != null && c.state() == state) {
                 try {
                     return (boolean) method.invoke(this, event, i);
@@ -187,10 +200,36 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         }
 
         for (Method method : getClass().getDeclaredMethods()) {
-            ControllerSelectMenu c = method.getAnnotation(ControllerSelectMenu.class);
+            ControllerStringSelectMenu c = method.getAnnotation(ControllerStringSelectMenu.class);
             if (c != null && c.state() == -1) {
                 try {
                     return (boolean) method.invoke(this, event, i);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public boolean controllerEntitySelectMenu(EntitySelectInteractionEvent event, int state) throws Throwable {
+        for (Method method : getClass().getDeclaredMethods()) {
+            ControllerEntitySelectMenu c = method.getAnnotation(ControllerEntitySelectMenu.class);
+            if (c != null && c.state() == state) {
+                try {
+                    return (boolean) method.invoke(this, event);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
+            }
+        }
+
+        for (Method method : getClass().getDeclaredMethods()) {
+            ControllerEntitySelectMenu c = method.getAnnotation(ControllerEntitySelectMenu.class);
+            if (c != null && c.state() == -1) {
+                try {
+                    return (boolean) method.invoke(this, event);
                 } catch (InvocationTargetException e) {
                     throw e.getCause();
                 }
@@ -394,7 +433,14 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    protected @interface ControllerSelectMenu {
+    protected @interface ControllerStringSelectMenu {
+
+        int state() default -1;
+
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    protected @interface ControllerEntitySelectMenu {
 
         int state() default -1;
 

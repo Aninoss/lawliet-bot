@@ -1,14 +1,9 @@
 package commands.runnables.casinocategory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import commands.*;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnButtonListener;
-import commands.listeners.OnSelectMenuListener;
+import commands.listeners.OnStringSelectMenuListener;
 import commands.runnables.CasinoAbstract;
 import constants.Emojis;
 import constants.LogStatus;
@@ -30,13 +25,19 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+
 @CommandProperties(
         trigger = "casinostats",
         emoji = "📈",
         usesExtEmotes = true,
         executableWithoutArgs = true
 )
-public class CasinoStatsCommand extends Command implements OnButtonListener, OnSelectMenuListener {
+public class CasinoStatsCommand extends Command implements OnButtonListener, OnStringSelectMenuListener {
 
     public static final String BUTTON_ID_ENABLE = "enable";
     public static final String BUTTON_ID_DISABLE = "disable";
@@ -70,7 +71,7 @@ public class CasinoStatsCommand extends Command implements OnButtonListener, OnS
         }
 
         registerButtonListener(event.getMember(), false);
-        registerSelectMenuListener(event.getMember());
+        registerStringSelectMenuListener(event.getMember());
         return true;
     }
 
@@ -102,7 +103,7 @@ public class CasinoStatsCommand extends Command implements OnButtonListener, OnS
     }
 
     @Override
-    public boolean onSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
+    public boolean onStringSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
         this.selectedGame = event.getValues().get(0);
         return true;
     }

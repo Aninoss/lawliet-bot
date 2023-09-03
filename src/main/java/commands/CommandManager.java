@@ -2,10 +2,7 @@ package commands;
 
 import commands.cooldownchecker.CoolDownManager;
 import commands.cooldownchecker.CoolDownUserData;
-import commands.listeners.OnButtonListener;
-import commands.listeners.OnMessageInputListener;
-import commands.listeners.OnReactionListener;
-import commands.listeners.OnSelectMenuListener;
+import commands.listeners.*;
 import commands.runnables.informationcategory.HelpCommand;
 import commands.runnables.informationcategory.PingCommand;
 import commands.runningchecker.RunningCheckerManager;
@@ -449,7 +446,8 @@ public class CommandManager {
         sendOverwrittenSignals(command, member, OnReactionListener.class);
         sendOverwrittenSignals(command, member, OnMessageInputListener.class);
         sendOverwrittenSignals(command, member, OnButtonListener.class);
-        sendOverwrittenSignals(command, member, OnSelectMenuListener.class);
+        sendOverwrittenSignals(command, member, OnStringSelectMenuListener.class);
+        sendOverwrittenSignals(command, member, OnEntitySelectMenuListener.class);
     }
 
     private static void sendOverwrittenSignals(Command command, Member member, Class<?> clazz) {

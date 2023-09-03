@@ -2,7 +2,7 @@ package commands.runnables;
 
 import commands.Command;
 import commands.listeners.OnButtonListener;
-import commands.listeners.OnSelectMenuListener;
+import commands.listeners.OnStringSelectMenuListener;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public abstract class ListAbstract extends Command implements OnButtonListener, OnSelectMenuListener {
+public abstract class ListAbstract extends Command implements OnButtonListener, OnStringSelectMenuListener {
 
     private static final String BUTTON_ID_PREVIOUS = "prev";
     private static final String BUTTON_ID_GOTO = "goto";
@@ -84,11 +84,11 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
         if (size > entriesPerPage) {
             registerButtonListener(member);
             if (orderOptions.length > 0) {
-                registerSelectMenuListener(member, false);
+                registerStringSelectMenuListener(member, false);
             }
         } else {
             if (orderOptions.length > 0) {
-                registerSelectMenuListener(member);
+                registerStringSelectMenuListener(member);
             } else {
                 drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
             }
@@ -141,7 +141,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
     }
 
     @Override
-    public boolean onSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
+    public boolean onStringSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
         orderBy = Integer.parseInt(event.getValues().get(0));
         size = configure(event.getMember(), orderBy);
         return true;

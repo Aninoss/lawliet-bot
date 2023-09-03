@@ -1,10 +1,5 @@
 package commands.runnables.configurationcategory;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import commands.Category;
 import commands.Command;
 import commands.CommandContainer;
@@ -27,6 +22,12 @@ import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionE
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "cman",
@@ -153,7 +154,7 @@ public class CommandManagementCommand extends NavigationAbstract {
         }
     }
 
-    @ControllerSelectMenu(state = SET_CATEGORIES)
+    @ControllerStringSelectMenu(state = SET_CATEGORIES)
     public boolean onSelectMenu(StringSelectInteractionEvent event, int i) {
         CustomObservableList<String> switchedOffElements = commandManagementData.getSwitchedOffElements();
         for (Category category : Category.independentValues()) {

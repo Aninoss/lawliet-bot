@@ -3,7 +3,7 @@ package commands.runnables.aitoyscategory;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnSelectMenuListener;
+import commands.listeners.OnStringSelectMenuListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MainLogger;
@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
         patreonRequired = true,
         aliases = { "stablediffusion", "diffusion", "imagine" }
 )
-public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
+public class Txt2ImgCommand extends Command implements OnStringSelectMenuListener {
 
     public static int LIMIT_CREATIONS_PER_DAY = 5;
     public static String SELECT_ID_MODEL = "model";
@@ -88,12 +88,12 @@ public class Txt2ImgCommand extends Command implements OnSelectMenuListener {
             prompt = args;
             negativePrompt = DEFAULT_NEGATIVE_PROMPT;
         }
-        registerSelectMenuListener(event.getMember());
+        registerStringSelectMenuListener(event.getMember());
         return true;
     }
 
     @Override
-    public boolean onSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
+    public boolean onStringSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
         if (event.getComponentId().equals(SELECT_ID_MODEL)) {
             if (Txt2ImgCallTracker.getCalls(event.getGuild().getIdLong(), event.getUser().getIdLong()) < LIMIT_CREATIONS_PER_DAY) {
                 Txt2ImgCallTracker.increaseCalls(event.getGuild().getIdLong(), event.getUser().getIdLong());

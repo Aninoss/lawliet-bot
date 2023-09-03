@@ -1,6 +1,6 @@
 package events.discordevents.stringselectmenu;
 
-import commands.listeners.OnSelectMenuListener;
+import commands.listeners.OnStringSelectMenuListener;
 import events.discordevents.DiscordEvent;
 import events.discordevents.InteractionListenerHandler;
 import events.discordevents.eventtypeabstracts.StringSelectMenuAbstract;
@@ -14,8 +14,8 @@ public class StringSelectMenuCommands extends StringSelectMenuAbstract implement
     @Override
     public boolean onStringSelectMenu(StringSelectInteractionEvent event, EntityManagerWrapper entityManager) {
         GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
-        return handleInteraction(event, OnSelectMenuListener.class,
-                listener -> ((OnSelectMenuListener) listener.getCommand()).processSelectMenu(event, guildEntity)
+        return handleInteraction(event, OnStringSelectMenuListener.class,
+                listener -> ((OnStringSelectMenuListener) listener.getCommand()).processStringSelectMenu(event, guildEntity)
         );
     }
 

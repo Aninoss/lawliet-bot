@@ -125,6 +125,28 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
             5
         }
 
+    @Column(name = "$FISHERY.voteRewardsActive")
+    private var _voteRewardsActive: Boolean? = null
+    var voteRewardsActive: Boolean
+        get() = _voteRewardsActive ?: false
+        set(value) {
+            _voteRewardsActive = value
+        }
+
+    var voteRewardsChannelId: Long? = null
+    val voteRewardsChannel: AtomicTextChannel
+        get() = getAtomicTextChannel(voteRewardsChannelId)
+
+    @Column(name = "$FISHERY.voteRewardsDailyPortionInPercent")
+    private var _voteRewardsDailyPortionInPercent: Int? = null
+    var voteRewardsDailyPortionInPercent: Int
+        get() = _voteRewardsDailyPortionInPercent ?: 25
+        set(value) {
+            _voteRewardsDailyPortionInPercent = value
+        }
+
+    var voteRewardsAuthorization: String? = null
+
 
     override fun getGuildId(): Long {
         return hibernateEntity.guildId

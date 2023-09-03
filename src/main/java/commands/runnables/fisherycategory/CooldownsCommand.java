@@ -1,15 +1,9 @@
 package commands.runnables.fisherycategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnSelectMenuListener;
+import commands.listeners.OnStringSelectMenuListener;
 import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
 import constants.LogStatus;
@@ -34,13 +28,20 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+
 @CommandProperties(
         trigger = "cooldowns",
         emoji = "⏲️",
         executableWithoutArgs = true,
         aliases = { "cooldown", "cd" }
 )
-public class CooldownsCommand extends Command implements FisheryInterface, OnSelectMenuListener {
+public class CooldownsCommand extends Command implements FisheryInterface, OnStringSelectMenuListener {
 
     private FisheryMemberData fisheryMemberData;
 
@@ -52,12 +53,12 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnSel
     public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
         this.fisheryMemberData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
-        registerSelectMenuListener(event.getMember());
+        registerStringSelectMenuListener(event.getMember());
         return true;
     }
 
     @Override
-    public boolean onSelectMenu(StringSelectInteractionEvent event) throws Throwable {
+    public boolean onStringSelectMenu(StringSelectInteractionEvent event) throws Throwable {
         DBSubs.Command[] commands = DBSubs.Command.values();
         List<Integer> activeSubs = event.getValues().stream()
                 .map(Integer::parseInt)

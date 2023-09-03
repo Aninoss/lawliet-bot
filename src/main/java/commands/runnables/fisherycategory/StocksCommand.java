@@ -1,10 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -38,6 +33,12 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "stocks",
@@ -169,7 +170,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
         return false;
     }
 
-    @ControllerSelectMenu(state = MAIN)
+    @ControllerStringSelectMenu(state = MAIN)
     public boolean onSelectMenuMain(StringSelectInteractionEvent event, int i) {
         currentStock = Stock.values()[i];
         return true;

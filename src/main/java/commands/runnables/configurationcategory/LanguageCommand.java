@@ -1,12 +1,10 @@
 package commands.runnables.configurationcategory;
 
-import java.util.List;
-import java.util.Locale;
 import commands.Category;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
-import commands.listeners.OnSelectMenuListener;
+import commands.listeners.OnStringSelectMenuListener;
 import constants.ExternalLinks;
 import constants.Language;
 import core.EmbedFactory;
@@ -23,6 +21,9 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "language",
         userGuildPermissions = Permission.MANAGE_SERVER,
@@ -30,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
         executableWithoutArgs = true,
         aliases = { "sprache", "lang" }
 )
-public class LanguageCommand extends Command implements OnSelectMenuListener {
+public class LanguageCommand extends Command implements OnStringSelectMenuListener {
 
     private final Language[] LANGUAGES = new Language[] { Language.EN, Language.DE, Language.ES, Language.RU };
 
@@ -82,13 +83,13 @@ public class LanguageCommand extends Command implements OnSelectMenuListener {
             }
             builder.setDefaultValues(List.of(Language.from(getLocale()).name()));
             setComponents(builder.build());
-            registerSelectMenuListener(event.getMember());
+            registerStringSelectMenuListener(event.getMember());
             return true;
         }
     }
 
     @Override
-    public boolean onSelectMenu(StringSelectInteractionEvent event) {
+    public boolean onStringSelectMenu(StringSelectInteractionEvent event) {
         Language language = Language.valueOf(event.getValues().get(0));
         deregisterListenersWithComponents();
         setLocale(language.getLocale());

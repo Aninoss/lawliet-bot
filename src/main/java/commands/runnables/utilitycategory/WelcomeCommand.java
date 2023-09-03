@@ -1,10 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -37,6 +32,12 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "welcome",
@@ -284,7 +285,7 @@ public class WelcomeCommand extends NavigationAbstract {
     }
 
     @Override
-    public boolean controllerSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
+    public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
         category = Integer.parseInt(event.getValues().get(0));
         return true;
     }
