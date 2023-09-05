@@ -2,17 +2,17 @@ package dashboard.pages
 
 import commands.Category
 import commands.Command
-import commands.runnables.fisherysettingscategory.FisheryCommand
-import commands.runnables.fisherysettingscategory.FisheryManageCommand
-import commands.runnables.fisherysettingscategory.FisheryRolesCommand
-import commands.runnables.fisherysettingscategory.VCTimeCommand
+import commands.runnables.fisherysettingscategory.*
 import constants.Emojis
 import constants.Settings
 import core.CustomObservableList
 import core.GlobalThreadPool
 import core.MemberCacheController
 import core.TextManager
+import core.atomicassets.AtomicTextChannel
+import core.utils.BotPermissionUtil
 import core.utils.EmojiUtil
+import core.utils.RandomUtil
 import core.utils.StringUtil
 import dashboard.ActionResult
 import dashboard.DashboardCategory
@@ -52,6 +52,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
     var manageRoles = CustomObservableList<Long>(emptyList())
     var managePropertyIndex = 0
     var manageNewValue = "+0"
+    var authToken: String? = null
 
     val fisheryEntity: FisheryEntity
         get() = guildEntity.fishery
@@ -74,9 +75,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         }
 
         if (anyCommandsAreAccessible(VCTimeCommand::class)) {
-            mainContainer.add(
-                    generateVoiceLimitField()
-            )
+            mainContainer.add(generateVoiceLimitField())
         }
 
         if (anyCommandsAreAccessible(FisheryRolesCommand::class)) {
@@ -86,11 +85,119 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             )
         }
 
-        if (anyCommandsAreAccessible(FisheryManageCommand::class)) {
-            mainContainer.add(
-                    generateFisheryManageField()
-            )
+        if (anyCommandsAreAccessible(VoteRewardsCommand::class)) {
+            mainContainer.add(generateVoteRewardsField())
         }
+
+        if (anyCommandsAreAccessible(FisheryManageCommand::class)) {
+            mainContainer.add(generateFisheryManageField())
+        }
+    }
+
+    private fun generateVoteRewardsField(): DashboardComponent {
+        val container = VerticalContainer()
+        container.add(DashboardTitle(getString(Category.FISHERY_SETTINGS, "voterewards_title")))
+
+        if (fisheryEntity.fisheryStatus == FisheryStatus.ACTIVE) {
+            val activeSwitch = DashboardSwitch(getString(Category.FISHERY_SETTINGS, "voterewards_main_active")) {
+                fisheryEntity.beginTransaction()
+                fisheryEntity.voteRewardsActive = it.data
+                fisheryEntity.commitTransaction()
+                return@DashboardSwitch ActionResult()
+            }
+            activeSwitch.isChecked = fisheryEntity.voteRewardsActive
+            activeSwitch.isEnabled = isPremium
+            container.add(activeSwitch, DashboardSeparator())
+
+            val desc = getString(Category.FISHERY_SETTINGS, "voterewards_main_desc")
+                    .replace("[", "")
+                    .replace("]", "")
+                    .replace("({0})", "")
+                    .replace("`", "\"")
+            container.add(DashboardText(desc))
+
+            val horizontalContainer = HorizontalContainer()
+            horizontalContainer.allowWrap = true
+
+            val textChannelComboBox = DashboardTextChannelComboBox(
+                    getString(Category.FISHERY_SETTINGS, "voterewards_main_logchannel"),
+                    locale,
+                    atomicGuild.idLong,
+                    fisheryEntity.voteRewardsChannelId,
+                    false
+            ) {
+                val channel = atomicGuild.get().get().getTextChannelById(it.data)
+                if (channel == null) {
+                    return@DashboardTextChannelComboBox ActionResult()
+                            .withRedraw()
+                }
+
+                if (!BotPermissionUtil.canWriteEmbed(channel)) {
+                    val error = getString(TextManager.GENERAL, "permission_channel", AtomicTextChannel(channel).getPrefixedName(locale))
+                    return@DashboardTextChannelComboBox ActionResult()
+                            .withRedraw()
+                            .withErrorMessage(error)
+                }
+
+                fisheryEntity.beginTransaction()
+                fisheryEntity.voteRewardsChannelId = it.data.toLong()
+                fisheryEntity.commitTransaction()
+                return@DashboardTextChannelComboBox ActionResult()
+            }
+            textChannelComboBox.isEnabled = isPremium
+            horizontalContainer.add(textChannelComboBox)
+
+            val portionNumberField = DashboardNumberField(
+                    getString(Category.FISHERY_SETTINGS, "voterewards_main_dailyportion_textinput"),
+                    0,
+                    9999
+            ) {
+                fisheryEntity.beginTransaction()
+                fisheryEntity.voteRewardsDailyPortionInPercent = it.data.toInt()
+                fisheryEntity.commitTransaction()
+                return@DashboardNumberField ActionResult()
+            }
+            portionNumberField.value = fisheryEntity.voteRewardsDailyPortionInPercent.toLong()
+            portionNumberField.isEnabled = isPremium
+            horizontalContainer.add(portionNumberField)
+            container.add(horizontalContainer, DashboardSeparator())
+
+            val buttonContainer = HorizontalContainer()
+            buttonContainer.alignment = HorizontalContainer.Alignment.CENTER
+
+            val authButton = DashboardButton(getString(Category.FISHERY_SETTINGS, "voterewards_dashboard_auth")) {
+                authToken = RandomUtil.generateRandomString(20)
+                fisheryEntity.beginTransaction()
+                fisheryEntity.voteRewardsAuthorization = authToken
+                fisheryEntity.commitTransaction()
+
+                return@DashboardButton ActionResult()
+                        .withRedraw()
+                        .withSuccessMessage(getString(Category.FISHERY_SETTINGS, "voterewards_dashboard_auth_message"))
+            }
+            authButton.style = DashboardButton.Style.PRIMARY
+            authButton.isEnabled = isPremium
+            buttonContainer.add(authButton)
+
+            val webhookSettingsLink = DashboardText(getString(Category.FISHERY_SETTINGS, "voterewards_dashboard_webhooksettings"))
+            webhookSettingsLink.url = "https://top.gg/servers/${atomicGuild.idLong}/webhooks"
+            buttonContainer.add(webhookSettingsLink, HorizontalPusher())
+            container.add(buttonContainer)
+
+            if (authToken != null) {
+                container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "voterewards_dashboard_auth_token", authToken!!)))
+                authToken = null
+            }
+        } else {
+            container.add(DashboardText(getString(Category.FISHERY_SETTINGS, "fisherymanage_notactive")))
+        }
+
+        if (!isPremium) {
+            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
+            text.style = DashboardText.Style.ERROR
+            container.add(text)
+        }
+        return container
     }
 
     private fun generateFisheryManageField(): DashboardComponent {
