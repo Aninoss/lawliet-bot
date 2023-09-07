@@ -374,10 +374,10 @@ public class CommandManager {
                 }
                 if (messageList.size() >= 2) {
                     event.getGuildMessageChannel().deleteMessages(messageList).submit()
-                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
+                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL, ExceptionIds.MISSING_ACCESS));
                 } else if (messageList.size() >= 1) {
                     event.getGuildMessageChannel().deleteMessageById(messageList.get(0).getId()).submit()
-                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
+                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL, ExceptionIds.MISSING_ACCESS));
                 }
             }
         });

@@ -1,10 +1,8 @@
 package mysql.modules.fisheryusers;
 
-import constants.AnicordVerificationIds;
-import constants.CodeBlockColor;
-import constants.LogStatus;
-import constants.Settings;
+import constants.*;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.MainLogger;
 import core.TextManager;
 import core.assets.MemberAsset;
@@ -451,7 +449,10 @@ public class FisheryMemberData implements MemberAsset {
 
                 message.getGuildChannel().sendMessage(member.getAsMention())
                         .setEmbeds(eb.build())
-                        .queue(m -> m.delete().queueAfter(Settings.FISHERY_DESPAWN_MINUTES, TimeUnit.MINUTES));
+                        .queue(m -> m.delete()
+                                .submitAfter(Settings.FISHERY_DESPAWN_MINUTES, TimeUnit.MINUTES)
+                                .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL))
+                        );
             }
 
             pipeline.sync();

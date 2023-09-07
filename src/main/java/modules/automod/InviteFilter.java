@@ -1,10 +1,5 @@
 package modules.automod;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import commands.Category;
 import commands.Command;
 import commands.runnables.moderationcategory.InviteFilterCommand;
@@ -21,11 +16,17 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
 public class InviteFilter extends AutoModAbstract {
 
     private final SPBlockData spBlockBean;
 
-    public InviteFilter(Message message) throws ExecutionException {
+    public InviteFilter(Message message) {
         super(message);
         spBlockBean = DBSPBlock.getInstance().retrieve(message.getGuild().getIdLong());
     }
@@ -33,7 +34,8 @@ public class InviteFilter extends AutoModAbstract {
     @Override
     protected boolean withAutoActions(Message message, Locale locale) {
         if (spBlockBean.getAction() == SPBlockData.ActionList.BAN_USER &&
-                PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.BAN_MEMBERS)
+                PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.BAN_MEMBERS) &&
+                BotPermissionUtil.canInteract(message.getGuild(), message.getAuthor())
         ) {
             message.getGuild()
                     .ban(message.getMember(), 0, TimeUnit.DAYS)
@@ -41,7 +43,8 @@ public class InviteFilter extends AutoModAbstract {
                     .queue();
             return false;
         } else if (spBlockBean.getAction() == SPBlockData.ActionList.KICK_USER &&
-                PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.KICK_MEMBERS)
+                PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.KICK_MEMBERS) &&
+                BotPermissionUtil.canInteract(message.getGuild(), message.getAuthor())
         ) {
             message.getGuild()
                     .kick(message.getMember(), TextManager.getString(locale, Category.MODERATION, "invitefilter_auditlog_sp"))

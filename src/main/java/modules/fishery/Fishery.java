@@ -3,8 +3,10 @@ package modules.fishery;
 import commands.Category;
 import commands.Command;
 import commands.runnables.fisherysettingscategory.FisheryCommand;
+import constants.ExceptionIds;
 import constants.Settings;
 import core.EmbedFactory;
+import core.ExceptionLogger;
 import core.Program;
 import core.TextManager;
 import core.components.ActionRows;
@@ -125,7 +127,7 @@ public class Fishery {
 
                     MainScheduler.schedule(Duration.ofMinutes(Settings.FISHERY_POWERUP_TIMEOUT_MINUTES), () -> {
                         if (unusedPowerUpSet.contains(m.getIdLong())) {
-                            m.delete().queue();
+                            m.delete().submit().exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL));
                             deregisterPowerUp(m.getIdLong());
                         }
                     });
