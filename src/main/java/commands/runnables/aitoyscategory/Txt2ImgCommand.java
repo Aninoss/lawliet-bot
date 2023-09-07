@@ -4,18 +4,19 @@ import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStringSelectMenuListener;
+import constants.Emojis;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MainLogger;
 import core.utils.EmbedUtil;
 import core.utils.ExceptionUtil;
+import core.utils.NSFWUtil;
 import core.utils.StringUtil;
-import modules.txt2img.Model;
-import modules.txt2img.PredictionResult;
-import modules.txt2img.RunPodDownloader;
-import modules.txt2img.Txt2ImgCallTracker;
+import modules.txt2img.*;
+import mysql.hibernate.entity.UserEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -31,7 +33,7 @@ import java.util.regex.Pattern;
         emoji = "🖌️",
         executableWithoutArgs = false,
         patreonRequired = true,
-        aliases = { "stablediffusion", "diffusion", "imagine" }
+        aliases = {"stablediffusion", "diffusion", "imagine"}
 )
 public class Txt2ImgCommand extends Command implements OnStringSelectMenuListener {
 
@@ -39,6 +41,7 @@ public class Txt2ImgCommand extends Command implements OnStringSelectMenuListene
     public static String SELECT_ID_MODEL = "model";
     public static String SELECT_ID_IMAGE = "image";
     public static String DEFAULT_NEGATIVE_PROMPT = "worst quality, low quality, low-res, ugly, extra limbs, missing limb, floating limbs, disconnected limbs, mutated hands, extra legs, extra arms, bad anatomy, bad proportions, weird hands, malformed hands, disproportionate, disfigured, mutation, mutated, deformed, head out of frame, body out of frame, poorly drawn face, poorly drawn hands, poorly drawn feet, disfigured, out of frame, long neck, big ears, tiling, bad hands, bad art, cross-eye, blurry, blurred, watermark";
+    public static String[] NSFW_FILTERS = {"porn", "porno", "pornography", "sex", "intercourse", "fuck", "fucking", "fucked", "rape", "raping", "raped", "blowjob", "anal", "penis", "cock", "dick", "vagina", "pussy", "cum", "sperm"};
 
     private String prompt;
     private String negativePrompt;
@@ -54,6 +57,17 @@ public class Txt2ImgCommand extends Command implements OnStringSelectMenuListene
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
+        Instant bannedUntil = getEntityManager()
+                .findOrDefaultReadOnly(UserEntity.class, event.getUser().getId())
+                .getTxt2ImgBannedUntil();
+
+        if (bannedUntil != null && Instant.now().isBefore(bannedUntil)) {
+            String error = getString("banned", String.valueOf(bannedUntil.getEpochSecond()));
+            drawMessageNew(EmbedFactory.getEmbedError(this, error))
+                    .exceptionally(ExceptionLogger.get());
+            return false;
+        }
+
         if (args.contains("||")) {
             String[] parts = args.split("\\|\\|");
             if (parts.length <= 2) {
@@ -88,6 +102,12 @@ public class Txt2ImgCommand extends Command implements OnStringSelectMenuListene
             prompt = args;
             negativePrompt = DEFAULT_NEGATIVE_PROMPT;
         }
+        prompt = StringUtil.shortenString(prompt, MessageEmbed.DESCRIPTION_MAX_LENGTH - 50);
+        if (NSFWUtil.containsNormalFilterTags(prompt, List.of(NSFW_FILTERS))) {
+            drawMessageNew(EmbedFactory.getEmbedError(this, getString("filterblock")))
+                    .exceptionally(ExceptionLogger.get());
+            return false;
+        }
         registerStringSelectMenuListener(event.getMember());
         return true;
     }
@@ -96,6 +116,7 @@ public class Txt2ImgCommand extends Command implements OnStringSelectMenuListene
     public boolean onStringSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
         if (event.getComponentId().equals(SELECT_ID_MODEL)) {
             if (Txt2ImgCallTracker.getCalls(event.getGuild().getIdLong(), event.getUser().getIdLong()) < LIMIT_CREATIONS_PER_DAY) {
+                Txt2ImgLogger.log(prompt, event.getUser().getIdLong());
                 Txt2ImgCallTracker.increaseCalls(event.getGuild().getIdLong(), event.getUser().getIdLong());
                 model = Model.values()[Integer.parseInt(event.getValues().get(0))];
                 predictionId = RunPodDownloader.createPrediction(model, prompt, negativePrompt).get();
@@ -128,6 +149,7 @@ public class Txt2ImgCommand extends Command implements OnStringSelectMenuListene
             }
             setComponents(menuBuilder.build());
             eb = generateOptionsEmbed(null);
+            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("nsfwwarning"), false);
         } else {
             if (predictionResult == null || predictionResult.getStatus() != PredictionResult.Status.COMPLETED) {
                 try {

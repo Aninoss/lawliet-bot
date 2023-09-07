@@ -6,10 +6,7 @@ import commands.runningchecker.RunningCheckerManager;
 import constants.AssetIds;
 import constants.Language;
 import core.cache.PatreonCache;
-import core.utils.ExceptionUtil;
-import core.utils.InternetUtil;
-import core.utils.JDAUtil;
-import core.utils.TimeUtil;
+import core.utils.*;
 import events.scheduleevents.events.*;
 import javafx.util.Pair;
 import modules.SupportTemplates;
@@ -18,6 +15,9 @@ import modules.fishery.Fishery;
 import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.UserEntity;
 import mysql.modules.bannedusers.BannedUserSlot;
 import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.modules.fisheryusers.DBFishery;
@@ -31,6 +31,7 @@ import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,6 +53,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("txt2img_ban", Console::onTxt2ImgBan);
         tasks.put("casino_logs", Console::onCasinoLogs);
         tasks.put("tickets_auto_close", Console::onTicketsAutoClose);
         tasks.put("slash_update", Console::onSlashUpdate);
@@ -100,6 +102,20 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onTxt2ImgBan(String[] args) {
+        long userId = Long.parseLong(args[1]);
+        long durationMinutes = MentionUtil.getTimeMinutes(args[2]).getValue();
+        if (durationMinutes > 0 && Program.isMainCluster() && Program.publicVersion()) {
+            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                UserEntity user = entityManager.findOrDefault(UserEntity.class, String.valueOf(userId));
+                user.beginTransaction();
+                user.setTxt2ImgBannedUntil(Instant.now().plus(Duration.ofMinutes(durationMinutes)));
+                user.commitTransaction();
+                MainLogger.get().info("{} has been banned from txt2img for {} minutes", userId, durationMinutes);
+            }
+        }
     }
 
     private static void onCasinoLogs(String[] args) {

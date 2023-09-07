@@ -85,6 +85,22 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
         return object;
     }
 
+    public <T> T findOrDefaultReadOnly(Class<T> entityClass, Object primaryKey) {
+        T object = entityManager.find(entityClass, primaryKey);
+        if (object == null) {
+            try {
+                object = entityClass.getConstructor(primaryKey.getClass())
+                        .newInstance(primaryKey);
+                ((HibernateEntity) object).postLoad();
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        ((HibernateEntity) object).setEntityManager(this);
+        return object;
+    }
+
     public GuildEntity findGuildEntity(long guildId) {
         return findOrDefault(GuildEntity.class, String.valueOf(guildId));
     }

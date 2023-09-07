@@ -1,26 +1,18 @@
 package modules.txt2img;
 
+import core.MainLogger;
+import core.internet.HttpHeader;
+import core.internet.HttpRequest;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-import core.LocalFile;
-import core.MainLogger;
-import core.Program;
-import core.internet.HttpHeader;
-import core.internet.HttpRequest;
-import core.utils.InternetUtil;
-import core.utils.RandomUtil;
-import modules.DeepAI;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class RunPodDownloader {
 
@@ -70,26 +62,23 @@ public class RunPodDownloader {
                 error = extractError(responseJson);
             }
 
-            List<CompletableFuture<NSFWCheckResult>> nsfwChecks = Collections.emptyList();
+            ArrayList<String> outputs = new ArrayList<>();
             if (status == PredictionResult.Status.COMPLETED) {
-                nsfwChecks = initiateNSFWChecks(model, responseJson);
-            }
+                JSONArray outputJson = responseJson.getJSONArray("output");
+                for (int i = 0; i < outputJson.length(); i++) {
+                    outputs.add(outputJson.getJSONObject(i).getString("image"));
+                }
 
-            List<String> filteredOutputs = nsfwChecks.stream()
-                    .map(CompletableFuture::join)
-                    .filter(r -> !r.nsfw)
-                    .map(r -> r.imageUrl)
-                    .collect(Collectors.toList());
-
-            if (status == PredictionResult.Status.COMPLETED && filteredOutputs.isEmpty()) {
-                return PredictionResult.failed(PredictionResult.Error.NSFW);
+                if (outputs.isEmpty()) {
+                    return PredictionResult.failed(PredictionResult.Error.NSFW);
+                }
             }
 
             double progress = Math.max(0, 1 - Math.pow(0.8, Duration.between(startTime, Instant.now()).toMillis() * model.getTimeMultiplier() / 1000.0));
             return new PredictionResult(
                     Math.min(0.99, progress),
                     status,
-                    filteredOutputs,
+                    outputs,
                     error
             );
         });
@@ -108,57 +97,6 @@ public class RunPodDownloader {
         }
         MainLogger.get().error("RunPod inference failed: {}", errorString);
         return error;
-    }
-
-    private static List<CompletableFuture<NSFWCheckResult>> initiateNSFWChecks(Model model, JSONObject responseJson) {
-        ArrayList<CompletableFuture<NSFWCheckResult>> deepAiRequests = new ArrayList<>();
-        JSONArray outputJson = responseJson.getJSONArray("output");
-        for (int i = 0; i < outputJson.length(); i++) {
-            String imageUrl = outputJson.getJSONObject(i).getString("image");
-            if (Program.productionMode() && model.getCheckNsfw()) {
-                String tempImageUrl;
-                LocalFile cdnFile = new LocalFile(LocalFile.Directory.CDN, String.format("temp/%s.png", RandomUtil.generateRandomString(30)));
-                try {
-                    InternetUtil.downloadFile(imageUrl, cdnFile);
-                    tempImageUrl = cdnFile.cdnGetUrl();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-
-                CompletableFuture<NSFWCheckResult> request = DeepAI.request("https://api.deepai.org/api/nsfw-detector", tempImageUrl)
-                        .thenApply(deepAiResponse -> {
-                            JSONObject deepAiJson = null;
-                            try {
-                                deepAiJson = new JSONObject(deepAiResponse.getBody());
-                                double nsfwScore = deepAiJson.getJSONObject("output").getDouble("nsfw_score");
-                                if (nsfwScore > 0.5) {
-                                    return new NSFWCheckResult(imageUrl, true);
-                                } else {
-                                    return new NSFWCheckResult(imageUrl, false);
-                                }
-                            } catch (Throwable e) {
-                                throw new CompletionException(new ExecutionException("NSFW detector failed: " + deepAiJson, e));
-                            }
-                        });
-                deepAiRequests.add(request);
-            } else {
-                deepAiRequests.add(CompletableFuture.completedFuture(new NSFWCheckResult(imageUrl, false)));
-            }
-        }
-        return deepAiRequests;
-    }
-
-
-    public static class NSFWCheckResult {
-
-        private final String imageUrl;
-        private final boolean nsfw;
-
-        public NSFWCheckResult(String imageUrl, boolean nsfw) {
-            this.imageUrl = imageUrl;
-            this.nsfw = nsfw;
-        }
-
     }
 
 }

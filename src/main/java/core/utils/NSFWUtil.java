@@ -37,7 +37,7 @@ public final class NSFWUtil {
                 containsStrictFilters(tagString, List.of(Settings.NSFW_STRICT_FILTERS));
     }
 
-    private static boolean containsNormalFilterTags(String tagString, List<String> filterTags) {
+    public static boolean containsNormalFilterTags(String tagString, List<String> filterTags) {
         StringBuilder regexBuilder = new StringBuilder("(?i)(^|.* )(|[^-\\P{Punct}]|[^- ][^ ]*\\p{Punct})(");
         for (int i = 0; i < filterTags.size(); i++) {
             if (i > 0) {
@@ -50,7 +50,7 @@ public final class NSFWUtil {
         return tagString.matches(regexBuilder.toString());
     }
 
-    private static boolean containsStrictFilters(String tagString, List<String> strictFilterTags) {
+    public static boolean containsStrictFilters(String tagString, List<String> strictFilterTags) {
         String newTagString = " " + tagString.toLowerCase() + " ";
         return strictFilterTags.stream()
                 .anyMatch(t -> newTagString.contains(" " + t.toLowerCase() + " "));

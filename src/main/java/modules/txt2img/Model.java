@@ -8,7 +8,6 @@ public enum Model {
             30,
             8,
             "K-LMS",
-            true,
             1
     ),
 
@@ -18,7 +17,6 @@ public enum Model {
             30,
             8,
             "KLMS",
-            false,
             1
     ),
 
@@ -28,7 +26,6 @@ public enum Model {
             30,
             7,
             "K-LMS",
-            true,
             1
     ),
 
@@ -38,7 +35,6 @@ public enum Model {
             25,
             6,
             "K-LMS",
-            true,
             1.25
     );
 
@@ -48,18 +44,14 @@ public enum Model {
     private final int numInferenceSteps;
     private final double guidanceScale;
     private final String scheduler;
-    private final boolean checkNsfw;
     private final double timeMultiplier;
 
-    Model(String modelId, int numOutputs, int numInferenceSteps, double guidanceScale, String scheduler,
-          boolean checkNsfw, double timeMultiplier
-    ) {
+    Model(String modelId, int numOutputs, int numInferenceSteps, double guidanceScale, String scheduler, double timeMultiplier) {
         this.modelId = modelId;
         this.numOutputs = numOutputs;
         this.numInferenceSteps = numInferenceSteps;
         this.guidanceScale = guidanceScale;
         this.scheduler = scheduler;
-        this.checkNsfw = checkNsfw;
         this.timeMultiplier = timeMultiplier;
     }
 
@@ -81,10 +73,6 @@ public enum Model {
 
     public String getScheduler() {
         return scheduler;
-    }
-
-    public boolean getCheckNsfw() {
-        return checkNsfw;
     }
 
     public double getTimeMultiplier() {

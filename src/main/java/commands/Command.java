@@ -14,6 +14,7 @@ import core.schedule.MainScheduler;
 import core.utils.*;
 import kotlin.jvm.JvmClassMappingKt;
 import kotlin.reflect.KClass;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
@@ -559,6 +560,10 @@ public abstract class Command implements OnTriggerListener {
 
     public GuildEntity getGuildEntity() {
         return guildEntity;
+    }
+
+    public EntityManagerWrapper getEntityManager() {
+        return guildEntity.getEntityManager();
     }
 
     public void setGuildEntity(GuildEntity guildEntity) {
