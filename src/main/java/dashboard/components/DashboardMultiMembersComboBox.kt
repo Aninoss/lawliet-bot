@@ -2,25 +2,34 @@ package dashboard.components
 
 import commands.Command
 import commands.CommandManager
-import core.CustomObservableList
 import core.MemberCacheController
 import core.ShardManager
 import core.atomicassets.AtomicMember
 import dashboard.ActionResult
+import dashboard.DashboardCategory
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
-import java.util.*
+import mysql.hibernate.entity.GuildEntity
 import kotlin.reflect.KClass
 
-class DashboardMultiMembersComboBox(label: String, locale: Locale, guildId: Long, val selectedMembers: CustomObservableList<Long>, canBeEmpty: Boolean,
-                                    max: Int, memberId: Long? = null, commandAccessRequirement: KClass<out Command>? = null
+class DashboardMultiMembersComboBox(
+        dashboardCategory: DashboardCategory,
+        label: String,
+        selectedMembersSupplier: (GuildEntity) -> MutableList<Long>,
+        canBeEmpty: Boolean,
+        max: Int,
+        memberId: Long? = null,
+        commandAccessRequirement: KClass<out Command>? = null
 ) : DashboardComboBox(label, DataType.MEMBERS, canBeEmpty, max) {
 
     init {
-        selectedValues = selectedMembers.map {
+        val guildId = dashboardCategory.atomicGuild.idLong
+
+        selectedValues = selectedMembersSupplier(dashboardCategory.guildEntity).map {
             val atomicMember = AtomicMember(guildId, it)
-            DiscordEntity(it.toString(), atomicMember.getTaggedName(locale))
+            DiscordEntity(it.toString(), atomicMember.getTaggedName(dashboardCategory.locale))
         }
+
         setActionListener {
             if (commandAccessRequirement != null && memberId != null) {
                 val guild = ShardManager.getLocalGuildById(guildId).get()
@@ -31,11 +40,19 @@ class DashboardMultiMembersComboBox(label: String, locale: Locale, guildId: Long
                 }
             }
 
+            val guildEntity = dashboardCategory.guildEntity
+            val selectedMembers = selectedMembersSupplier(guildEntity)
+
             if (it.type == "add") {
-                selectedMembers.add(it.data.toLong())
+                guildEntity.beginTransaction()
+                selectedMembers += it.data.toLong()
+                guildEntity.commitTransaction()
             } else if (it.type == "remove") {
-                selectedMembers.remove(it.data.toLong())
+                guildEntity.beginTransaction()
+                selectedMembers -= it.data.toLong()
+                guildEntity.commitTransaction()
             }
+
             ActionResult()
         }
     }

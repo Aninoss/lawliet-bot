@@ -22,15 +22,17 @@ import java.util.Locale;
 public abstract class AutoModAbstract {
 
     private final Message message;
+    private final GuildEntity guildEntity;
 
-    public AutoModAbstract(Message message) {
+    public AutoModAbstract(Message message, GuildEntity guildEntity) {
         this.message = message;
+        this.guildEntity = guildEntity;
     }
 
     /*
      * returns true if the message is fine
      */
-    public boolean check(GuildEntity guildEntity) {
+    public boolean check() {
         boolean isTicketChannel = DBTicket.getInstance().retrieve(message.getGuild().getIdLong()).getTicketChannels()
                 .containsKey(message.getChannel().getIdLong());
 

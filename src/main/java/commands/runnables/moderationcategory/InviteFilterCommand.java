@@ -1,14 +1,10 @@
 package commands.runnables.moderationcategory;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
@@ -16,15 +12,20 @@ import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import mysql.modules.spblock.DBSPBlock;
-import mysql.modules.spblock.SPBlockData;
+import mysql.hibernate.entity.InviteFilterEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "invitefilter",
@@ -42,27 +43,20 @@ public class InviteFilterCommand extends NavigationAbstract {
     public static int MAX_IGNORED_CHANNELS = 100;
     public static int MAX_LOG_RECEIVERS = 10;
 
-    private SPBlockData spBlockBean;
-    private CustomObservableList<AtomicMember> ignoredUsers;
-    private CustomObservableList<AtomicMember> logReceivers;
-    private CustomObservableList<AtomicTextChannel> ignoredChannels;
-
     public InviteFilterCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        spBlockBean = DBSPBlock.getInstance().retrieve(event.getGuild().getIdLong());
-        ignoredUsers = AtomicMember.transformIdList(event.getGuild(), spBlockBean.getIgnoredUserIds());
-        logReceivers = AtomicMember.transformIdList(event.getGuild(), spBlockBean.getLogReceiverUserIds());
-        ignoredChannels = AtomicTextChannel.transformIdList(event.getGuild(), spBlockBean.getIgnoredChannelIds());
         registerNavigationListener(event.getMember());
         return true;
     }
 
     @Override
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
+        InviteFilterEntity inviteFilter = getGuildEntity().getInviteFilter();
+
         switch (state) {
             case 1:
                 List<Member> userIgnoredList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
@@ -73,8 +67,10 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setLog(LogStatus.FAILURE, getString("toomanyignoredusers", StringUtil.numToString(MAX_IGNORED_USERS)));
                     return MessageInputResponse.FAILED;
                 } else {
-                    ignoredUsers.clear();
-                    ignoredUsers.addAll(userIgnoredList.stream().map(AtomicMember::new).collect(Collectors.toList()));
+                    inviteFilter.beginTransaction();
+                    inviteFilter.setExcludedMemberIds(userIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+                    inviteFilter.commitTransaction();
+
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
@@ -89,8 +85,10 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setLog(LogStatus.FAILURE, getString("toomanyignoredchannels", StringUtil.numToString(MAX_IGNORED_CHANNELS)));
                     return MessageInputResponse.FAILED;
                 } else {
-                    ignoredChannels.clear();
-                    ignoredChannels.addAll(channelIgnoredList.stream().map(AtomicTextChannel::new).collect(Collectors.toList()));
+                    inviteFilter.beginTransaction();
+                    inviteFilter.setExcludedChannelIds(channelIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+                    inviteFilter.commitTransaction();
+
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
@@ -105,8 +103,9 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setLog(LogStatus.FAILURE, getString("toomanylogreceivers", StringUtil.numToString(MAX_LOG_RECEIVERS)));
                     return MessageInputResponse.FAILED;
                 } else {
-                    logReceivers.clear();
-                    logReceivers.addAll(logRecieverList.stream().map(AtomicMember::new).collect(Collectors.toList()));
+                    inviteFilter.beginTransaction();
+                    inviteFilter.setLogReceiverUserIds(logRecieverList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+                    inviteFilter.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     setState(0);
@@ -120,6 +119,8 @@ public class InviteFilterCommand extends NavigationAbstract {
 
     @Override
     public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
+        InviteFilterEntity inviteFilter = getGuildEntity().getInviteFilter();
+
         switch (state) {
             case 0:
                 switch (i) {
@@ -128,8 +129,11 @@ public class InviteFilterCommand extends NavigationAbstract {
                         return false;
 
                     case 0:
-                        spBlockBean.toggleActive();
-                        setLog(LogStatus.SUCCESS, getString("onoffset", !spBlockBean.isActive()));
+                        inviteFilter.beginTransaction();
+                        inviteFilter.setActive(!inviteFilter.getActive());
+                        inviteFilter.commitTransaction();
+
+                        setLog(LogStatus.SUCCESS, getString("onoffset", !inviteFilter.getActive()));
                         return true;
 
                     case 1:
@@ -157,7 +161,10 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    ignoredUsers.clear();
+                    inviteFilter.beginTransaction();
+                    inviteFilter.setExcludedMemberIds(Collections.emptyList());
+                    inviteFilter.commitTransaction();
+
                     setState(0);
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     return true;
@@ -169,7 +176,10 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    ignoredChannels.clear();
+                    inviteFilter.beginTransaction();
+                    inviteFilter.setExcludedChannelIds(Collections.emptyList());
+                    inviteFilter.commitTransaction();
+
                     setState(0);
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
                     return true;
@@ -181,7 +191,10 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    logReceivers.clear();
+                    inviteFilter.beginTransaction();
+                    inviteFilter.setLogReceiverUserIds(Collections.emptyList());
+                    inviteFilter.commitTransaction();
+
                     setState(0);
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     return true;
@@ -193,7 +206,10 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i <= 2) {
-                    spBlockBean.setAction(SPBlockData.ActionList.values()[i]);
+                    inviteFilter.beginTransaction();
+                    inviteFilter.setAction(InviteFilterEntity.Action.values()[i]);
+                    inviteFilter.commitTransaction();
+
                     setState(0);
                     setLog(LogStatus.SUCCESS, getString("actionset"));
                     return true;
@@ -207,16 +223,18 @@ public class InviteFilterCommand extends NavigationAbstract {
 
     @Override
     public EmbedBuilder draw(Member member, int state) {
+        InviteFilterEntity inviteFilter = getGuildEntity().getInviteFilter();
+
         switch (state) {
             case 0:
                 Locale locale = getLocale();
                 setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), spBlockBean.isActive()), true)
-                        .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), m -> m.getPrefixedNameInField(locale)), true)
-                        .addField(getString("state0_mignoredchannels"), new ListGen<AtomicTextChannel>().getList(ignoredChannels, getLocale(), m -> m.getPrefixedNameInField(locale)), true)
-                        .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(logReceivers, getLocale(), m -> m.getPrefixedNameInField(locale)), true)
-                        .addField(getString("state0_maction"), getString("state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true);
+                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), inviteFilter.getActive()), true)
+                        .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(inviteFilter.getExcludedMembers(), getLocale(), m -> m.getPrefixedNameInField(locale)), true)
+                        .addField(getString("state0_mignoredchannels"), new ListGen<AtomicTextChannel>().getList(inviteFilter.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(locale)), true)
+                        .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(inviteFilter.getLogReceivers(), getLocale(), m -> m.getPrefixedNameInField(locale)), true)
+                        .addField(getString("state0_maction"), getString("state0_mactionlist").split("\n")[inviteFilter.getAction().ordinal()], true);
 
             case 1:
                 setComponents(getString("empty"));

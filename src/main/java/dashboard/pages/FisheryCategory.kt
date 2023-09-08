@@ -328,10 +328,9 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         val container = VerticalContainer()
 
         val manageMembers = DashboardMultiMembersComboBox(
+                this,
                 getString(Category.FISHERY_SETTINGS, "fisherymanage_members"),
-                locale,
-                atomicGuild.idLong,
-                manageMembers,
+                { manageMembers },
                 true,
                 50
         )

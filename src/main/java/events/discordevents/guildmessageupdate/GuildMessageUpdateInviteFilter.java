@@ -12,9 +12,9 @@ import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 public class GuildMessageUpdateInviteFilter extends GuildMessageUpdateAbstract {
 
     @Override
-    public boolean onGuildMessageUpdate(MessageUpdateEvent event, EntityManagerWrapper entityManager) throws Throwable {
+    public boolean onGuildMessageUpdate(MessageUpdateEvent event, EntityManagerWrapper entityManager) {
         GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
-        return new InviteFilter(event.getMessage()).check(guildEntity);
+        return new InviteFilter(event.getMessage(), guildEntity).check();
     }
 
 }

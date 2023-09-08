@@ -6,7 +6,6 @@ import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
-import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
@@ -14,16 +13,17 @@ import core.atomicassets.AtomicMember;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.automod.WordFilter;
-import mysql.modules.bannedwords.BannedWordsData;
-import mysql.modules.bannedwords.DBBannedWords;
+import mysql.hibernate.entity.WordFilterEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -46,10 +46,7 @@ public class WordFilterCommand extends NavigationAbstract {
     public static final int MAX_WORDS = 40;
     public static final int MAX_LETTERS = 20;
 
-    private BannedWordsData bannedWordsBean;
     private NavigationHelper<String> wordsNavigationHelper;
-    private CustomObservableList<AtomicMember> ignoredUsers;
-    private CustomObservableList<AtomicMember> logReceivers;
 
     public WordFilterCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -57,16 +54,15 @@ public class WordFilterCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        bannedWordsBean = DBBannedWords.getInstance().retrieve(event.getGuild().getIdLong());
-        ignoredUsers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getIgnoredUserIds());
-        logReceivers = AtomicMember.transformIdList(event.getGuild(), bannedWordsBean.getLogReceiverUserIds());
-        wordsNavigationHelper = new NavigationHelper<>(this, guildEntity -> bannedWordsBean.getWords(), String.class, MAX_WORDS);
+        wordsNavigationHelper = new NavigationHelper<>(this, guildEntity -> guildEntity.getWordFilter().getWords(), String.class, MAX_WORDS);
         registerNavigationListener(event.getMember());
         return true;
     }
 
     @Override
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
+        WordFilterEntity wordFilter = getGuildEntity().getWordFilter();
+
         switch (state) {
             case 1:
                 List<Member> memberIgnoredList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
@@ -77,8 +73,10 @@ public class WordFilterCommand extends NavigationAbstract {
                     setLog(LogStatus.FAILURE, getString("toomanyignoredusers", StringUtil.numToString(MAX_IGNORED_USERS)));
                     return MessageInputResponse.FAILED;
                 } else {
-                    ignoredUsers.clear();
-                    ignoredUsers.addAll(memberIgnoredList.stream().map(AtomicMember::new).collect(Collectors.toList()));
+                    wordFilter.beginTransaction();
+                    wordFilter.setExcludedMemberIds(memberIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+                    wordFilter.commitTransaction();
+
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
@@ -93,8 +91,10 @@ public class WordFilterCommand extends NavigationAbstract {
                     setLog(LogStatus.FAILURE, getString("toomanylogreceivers", StringUtil.numToString(MAX_LOG_RECEIVERS)));
                     return MessageInputResponse.FAILED;
                 } else {
-                    logReceivers.clear();
-                    logReceivers.addAll(logRecieverList.stream().map(AtomicMember::new).collect(Collectors.toList()));
+                    wordFilter.beginTransaction();
+                    wordFilter.setLogReceiverUserIds(logRecieverList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+                    wordFilter.commitTransaction();
+
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
@@ -115,6 +115,8 @@ public class WordFilterCommand extends NavigationAbstract {
 
     @Override
     public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
+        WordFilterEntity wordFilter = getGuildEntity().getWordFilter();
+
         switch (state) {
             case 0:
                 switch (i) {
@@ -123,8 +125,11 @@ public class WordFilterCommand extends NavigationAbstract {
                         return false;
 
                     case 0:
-                        bannedWordsBean.toggleActive();
-                        setLog(LogStatus.SUCCESS, getString("onoffset", !bannedWordsBean.isActive()));
+                        wordFilter.beginTransaction();
+                        wordFilter.setActive(!wordFilter.getActive());
+                        wordFilter.commitTransaction();
+
+                        setLog(LogStatus.SUCCESS, getString("onoffset", !wordFilter.getActive()));
                         return true;
 
                     case 1:
@@ -152,7 +157,10 @@ public class WordFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    ignoredUsers.clear();
+                    wordFilter.beginTransaction();
+                    wordFilter.setExcludedMemberIds(Collections.emptyList());
+                    wordFilter.commitTransaction();
+
                     setState(0);
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
                     return true;
@@ -164,7 +172,10 @@ public class WordFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
-                    logReceivers.clear();
+                    wordFilter.beginTransaction();
+                    wordFilter.setLogReceiverUserIds(Collections.emptyList());
+                    wordFilter.commitTransaction();
+
                     setState(0);
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
                     return true;
@@ -188,14 +199,16 @@ public class WordFilterCommand extends NavigationAbstract {
 
     @Override
     public EmbedBuilder draw(Member member, int state) {
+        WordFilterEntity wordFilter = getGuildEntity().getWordFilter();
+
         switch (state) {
             case 0:
                 setComponents(getString("state0_options").split("\n"));
                 return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), bannedWordsBean.isActive()), true)
-                        .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(ignoredUsers, getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
-                        .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(logReceivers, getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
-                        .addField(getString("state0_mwords"), getWordsString(), true);
+                        .addField(getString("state0_menabled"), StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), wordFilter.getActive()), true)
+                        .addField(getString("state0_mignoredusers"), new ListGen<AtomicMember>().getList(wordFilter.getExcludedMembers(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
+                        .addField(getString("state0_mlogreciever"), new ListGen<AtomicMember>().getList(wordFilter.getLogReceivers(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true)
+                        .addField(getString("state0_mwords"), getWordsString(wordFilter.getWords()), true);
 
             case 1:
                 setComponents(getString("empty"));
@@ -215,8 +228,7 @@ public class WordFilterCommand extends NavigationAbstract {
         }
     }
 
-    private String getWordsString() {
-        List<String> words = bannedWordsBean.getWords();
+    private String getWordsString(List<String> words) {
         if (words.size() == 0) {
             return TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         } else {

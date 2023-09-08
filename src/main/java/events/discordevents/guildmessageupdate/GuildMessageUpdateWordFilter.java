@@ -14,7 +14,7 @@ public class GuildMessageUpdateWordFilter extends GuildMessageUpdateAbstract {
     @Override
     public boolean onGuildMessageUpdate(MessageUpdateEvent event, EntityManagerWrapper entityManager) throws Throwable {
         GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
-        return new WordFilter(event.getMessage()).check(guildEntity);
+        return new WordFilter(event.getMessage(), guildEntity).check();
     }
 
 }

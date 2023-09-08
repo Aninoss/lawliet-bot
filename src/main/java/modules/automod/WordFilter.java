@@ -7,23 +7,22 @@ import core.TextManager;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
-import mysql.modules.bannedwords.BannedWordsData;
-import mysql.modules.bannedwords.DBBannedWords;
+import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.WordFilterEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 public class WordFilter extends AutoModAbstract {
 
-    private final BannedWordsData bannedWordsBean;
+    private final WordFilterEntity wordFilterEntity;
 
-    public WordFilter(Message message) throws ExecutionException {
-        super(message);
-        bannedWordsBean = DBBannedWords.getInstance().retrieve(message.getGuild().getIdLong());
+    public WordFilter(Message message, GuildEntity guildEntity) {
+        super(message, guildEntity);
+        wordFilterEntity = guildEntity.getWordFilter();
     }
 
     @Override
@@ -37,7 +36,7 @@ public class WordFilter extends AutoModAbstract {
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_channel"), message.getChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "wordfilter_log_content"), StringUtil.shortenString(message.getContentRaw(), 1024), true);
 
-        for (Long userId : bannedWordsBean.getLogReceiverUserIds()) {
+        for (Long userId : wordFilterEntity.getLogReceiverUserIds()) {
             if (userId != message.getGuild().getSelfMember().getIdLong()) {
                 JDAUtil.openPrivateChannel(message.getJDA(), userId)
                         .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
@@ -53,9 +52,9 @@ public class WordFilter extends AutoModAbstract {
 
     @Override
     protected boolean checkCondition(Message message) {
-        return bannedWordsBean.isActive() &&
-                stringContainsWord(message.getContentRaw(), new ArrayList<>(bannedWordsBean.getWords())) &&
-                !bannedWordsBean.getIgnoredUserIds().contains(message.getAuthor().getIdLong()) &&
+        return wordFilterEntity.getActive() &&
+                stringContainsWord(message.getContentRaw(), new ArrayList<>(wordFilterEntity.getWords())) &&
+                !wordFilterEntity.getExcludedMemberIds().contains(message.getAuthor().getIdLong()) &&
                 !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR);
     }
 

@@ -45,7 +45,16 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
         get() = removeAuthorMessage && ServerPatreonBoostCache.get(guildId.toLong())
 
     @Embedded
-    val fishery: FisheryEntity = FisheryEntity()
+    @Column(name = FISHERY)
+    val fishery = FisheryEntity()
+
+    @Embedded
+    @Column(name = INVITE_FILTER)
+    val inviteFilter = InviteFilterEntity()
+
+    @Embedded
+    @Column(name = WORD_FILTER)
+    val wordFilter = WordFilterEntity()
 
     @ElementCollection
     @SortNatural
@@ -61,6 +70,8 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
     @PostLoad
     override fun postLoad() {
         fishery.postLoad(this)
+        inviteFilter.postLoad(this)
+        wordFilter.postLoad(this)
         customCommands.values.forEach { it.postLoad(this) }
     }
 

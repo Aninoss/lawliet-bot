@@ -20,12 +20,10 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.automod.WordFilter
 import mysql.hibernate.entity.GuildEntity
-import mysql.modules.bannedwords.BannedWordsData
-import mysql.modules.bannedwords.DBBannedWords
+import mysql.hibernate.entity.InviteFilterEntity
+import mysql.hibernate.entity.WordFilterEntity
 import mysql.modules.moderation.DBModeration
 import mysql.modules.moderation.ModerationData
-import mysql.modules.spblock.DBSPBlock
-import mysql.modules.spblock.SPBlockData
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
@@ -43,6 +41,11 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
     var autoModConfigTempValue = 1
     var autoModConfigTempDays = 1
     var autoModConfigTempDuration = 1
+
+    val inviteFilterEntity: InviteFilterEntity
+        get() = guildEntity.inviteFilter
+    val wordFilterEntity: WordFilterEntity
+        get() = guildEntity.wordFilter
 
     override fun retrievePageTitle(): String {
         return getString(TextManager.COMMANDS, "moderation")
@@ -209,7 +212,6 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
     }
 
     private fun generateInviteFilterField(): DashboardComponent {
-        val inviteFilter = DBSPBlock.getInstance().retrieve(atomicGuild.idLong)
         val container = VerticalContainer()
         container.add(DashboardTitle(getString(Category.MODERATION, "invitefilter_title")))
 
@@ -219,18 +221,20 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         .withRedraw()
             }
 
-            inviteFilter.isActive = it.data
+            inviteFilterEntity.beginTransaction()
+            inviteFilterEntity.active = it.data
+            inviteFilterEntity.commitTransaction()
+
             ActionResult()
                     .withRedraw()
         }
-        activeSwitch.isChecked = inviteFilter.isActive
-        container.add(activeSwitch, DashboardSeparator(), generateInviteFilterExcludedField(inviteFilter), DashboardSeparator())
+        activeSwitch.isChecked = inviteFilterEntity.active
+        container.add(activeSwitch, DashboardSeparator(), generateInviteFilterExcludedField(), DashboardSeparator())
 
         val logReceivers = DashboardMultiMembersComboBox(
+                this,
                 getString(Category.MODERATION, "invitefilter_state0_mlogreciever"),
-                locale,
-                atomicGuild.idLong,
-                inviteFilter.logReceiverUserIds,
+                { it.inviteFilter.logReceiverUserIds },
                 true,
                 InviteFilterCommand.MAX_LOG_RECEIVERS,
                 atomicMember.idLong,
@@ -247,24 +251,26 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         .withRedraw()
             }
 
-            inviteFilter.action = SPBlockData.ActionList.values()[it.data.toInt()]
+            inviteFilterEntity.beginTransaction()
+            inviteFilterEntity.action = InviteFilterEntity.Action.values()[it.data.toInt()]
+            inviteFilterEntity.commitTransaction()
+
             ActionResult()
         }
-        action.selectedValues = actions.filter { it.id.toInt() == inviteFilter.action.ordinal }
+        action.selectedValues = actions.filter { it.id.toInt() == inviteFilterEntity.action.ordinal }
         container.add(action)
 
         return container
     }
 
-    private fun generateInviteFilterExcludedField(inviteFilter: SPBlockData): DashboardComponent {
+    private fun generateInviteFilterExcludedField(): DashboardComponent {
         val container = HorizontalContainer()
         container.allowWrap = true
 
         val ignoredUsers = DashboardMultiMembersComboBox(
+                this,
                 getString(Category.MODERATION, "invitefilter_state0_mignoredusers"),
-                locale,
-                atomicGuild.idLong,
-                inviteFilter.ignoredUserIds,
+                { it.inviteFilter.excludedMemberIds },
                 true,
                 InviteFilterCommand.MAX_IGNORED_USERS,
                 atomicMember.idLong,
@@ -275,7 +281,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         val ignoredChannels = DashboardMultiTextChannelsComboBox(
                 this,
                 getString(Category.MODERATION, "invitefilter_state0_mignoredchannels"),
-                { inviteFilter.ignoredChannelIds },
+                { it.inviteFilter.excludedChannelIds },
                 true,
                 InviteFilterCommand.MAX_IGNORED_CHANNELS,
                 atomicMember.idLong,
@@ -287,7 +293,6 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
     }
 
     private fun generateWordFilterField(): DashboardComponent {
-        val wordFilter = DBBannedWords.getInstance().retrieve(atomicGuild.idLong)
         val container = VerticalContainer()
         container.add(DashboardTitle(getString(Category.MODERATION, "wordfilter_title")))
 
@@ -297,18 +302,20 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         .withRedraw()
             }
 
-            wordFilter.isActive = it.data
+            wordFilterEntity.beginTransaction()
+            wordFilterEntity.active = it.data
+            wordFilterEntity.commitTransaction()
+
             ActionResult()
                     .withRedraw()
         }
-        activeSwitch.isChecked = wordFilter.isActive
+        activeSwitch.isChecked = wordFilterEntity.active
         container.add(activeSwitch, DashboardSeparator())
 
         val ignoredUsers = DashboardMultiMembersComboBox(
+                this,
                 getString(Category.MODERATION, "wordfilter_state0_mignoredusers"),
-                locale,
-                atomicGuild.idLong,
-                wordFilter.ignoredUserIds,
+                { it.wordFilter.excludedMemberIds },
                 true,
                 WordFilterCommand.MAX_IGNORED_USERS,
                 atomicMember.idLong,
@@ -317,22 +324,20 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         container.add(ignoredUsers)
 
         val logReceivers = DashboardMultiMembersComboBox(
+                this,
                 getString(Category.MODERATION, "wordfilter_state0_mlogreciever"),
-                locale,
-                atomicGuild.idLong,
-                wordFilter.logReceiverUserIds,
+                { it.wordFilter.logReceiverUserIds },
                 true,
                 WordFilterCommand.MAX_LOG_RECEIVERS,
                 atomicMember.idLong,
                 WordFilterCommand::class
         )
-        container.add(logReceivers, DashboardSeparator(), generateWordsComboBox(wordFilter))
+        container.add(logReceivers, DashboardSeparator(), generateWordsComboBox())
 
         return container
     }
 
-    private fun generateWordsComboBox(wordFilter: BannedWordsData): DashboardComponent {
-        val words = wordFilter.words
+    private fun generateWordsComboBox(): DashboardComponent {
         val label = getString(Category.MODERATION, "wordfilter_state0_mwords")
         val comboBox = DashboardComboBox(label, emptyList(), true, WordFilterCommand.MAX_WORDS) {
             if (!anyCommandsAreAccessible(WordFilterCommand::class)) {
@@ -340,20 +345,23 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         .withRedraw()
             }
 
+            wordFilterEntity.beginTransaction()
             if (it.type == "add") {
                 WordFilter.translateString(it.data).split(" ")
                         .filter { it.length > 0 }
                         .map { it.substring(0, Math.min(WordFilterCommand.MAX_LETTERS, it.length)) }
-                        .filter { !words.contains(it) }
-                        .forEach { words += it }
+                        .filter { !wordFilterEntity.words.contains(it) }
+                        .forEach { wordFilterEntity.words += it }
             } else if (it.type == "remove") {
-                words.remove(it.data)
+                wordFilterEntity.words -= it.data
             }
+            wordFilterEntity.commitTransaction()
+
             ActionResult()
                     .withRedraw()
         }
         comboBox.allowCustomValues = true
-        comboBox.selectedValues = words.map { DiscordEntity(it, it) }
+        comboBox.selectedValues = wordFilterEntity.words.map { DiscordEntity(it, it) }
         return comboBox
     }
 

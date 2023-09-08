@@ -10,8 +10,8 @@ import core.cache.InviteCache;
 import core.utils.BotPermissionUtil;
 import core.utils.JDAUtil;
 import core.utils.StringUtil;
-import mysql.modules.spblock.DBSPBlock;
-import mysql.modules.spblock.SPBlockData;
+import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.InviteFilterEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -24,16 +24,16 @@ import java.util.concurrent.TimeUnit;
 
 public class InviteFilter extends AutoModAbstract {
 
-    private final SPBlockData spBlockBean;
+    private final InviteFilterEntity inviteFilterEntity;
 
-    public InviteFilter(Message message) {
-        super(message);
-        spBlockBean = DBSPBlock.getInstance().retrieve(message.getGuild().getIdLong());
+    public InviteFilter(Message message, GuildEntity guildEntity) {
+        super(message, guildEntity);
+        inviteFilterEntity = guildEntity.getInviteFilter();
     }
 
     @Override
     protected boolean withAutoActions(Message message, Locale locale) {
-        if (spBlockBean.getAction() == SPBlockData.ActionList.BAN_USER &&
+        if (inviteFilterEntity.getAction() == InviteFilterEntity.Action.BAN_USER &&
                 PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.BAN_MEMBERS) &&
                 BotPermissionUtil.canInteract(message.getGuild(), message.getAuthor())
         ) {
@@ -42,7 +42,7 @@ public class InviteFilter extends AutoModAbstract {
                     .reason(TextManager.getString(locale, Category.MODERATION, "invitefilter_auditlog_sp"))
                     .queue();
             return false;
-        } else if (spBlockBean.getAction() == SPBlockData.ActionList.KICK_USER &&
+        } else if (inviteFilterEntity.getAction() == InviteFilterEntity.Action.KICK_USER &&
                 PermissionCheckRuntime.botHasPermission(locale, getCommandClass(), message.getGuildChannel(), Permission.KICK_MEMBERS) &&
                 BotPermissionUtil.canInteract(message.getGuild(), message.getAuthor())
         ) {
@@ -64,11 +64,11 @@ public class InviteFilter extends AutoModAbstract {
         }
 
         eb.setDescription(TextManager.getString(locale, Category.MODERATION, "invitefilter_log", StringUtil.escapeMarkdown(message.getAuthor().getAsTag())))
-                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[spBlockBean.getAction().ordinal()], true)
+                .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_maction"), TextManager.getString(locale, Category.MODERATION, "invitefilter_state0_mactionlist").split("\n")[inviteFilterEntity.getAction().ordinal()], true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_channel"), message.getChannel().getAsMention(), true)
                 .addField(TextManager.getString(locale, Category.MODERATION, "invitefilter_log_content"), StringUtil.shortenString(content, 1024), false);
 
-        for (Long userId : spBlockBean.getLogReceiverUserIds()) {
+        for (Long userId : inviteFilterEntity.getLogReceiverUserIds()) {
             if (userId != message.getGuild().getSelfMember().getIdLong()) {
                 JDAUtil.openPrivateChannel(message.getJDA(), userId)
                         .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
@@ -84,9 +84,9 @@ public class InviteFilter extends AutoModAbstract {
 
     @Override
     protected boolean checkCondition(Message message) {
-        if (spBlockBean.isActive() &&
-                !spBlockBean.getIgnoredUserIds().contains(message.getAuthor().getIdLong()) &&
-                !spBlockBean.getIgnoredChannelIds().contains(message.getChannel().getIdLong()) &&
+        if (inviteFilterEntity.getActive() &&
+                !inviteFilterEntity.getExcludedMemberIds().contains(message.getAuthor().getIdLong()) &&
+                !inviteFilterEntity.getExcludedChannelIds().contains(message.getChannel().getIdLong()) &&
                 !BotPermissionUtil.can(message.getMember(), Permission.ADMINISTRATOR)
         ) {
             List<String> inviteLinks = message.getInvites();
