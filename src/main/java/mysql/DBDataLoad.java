@@ -1,13 +1,17 @@
 package mysql;
 
+import core.MainLogger;
+import mysql.interfaces.SQLConsumer;
+import mysql.interfaces.SQLFunction;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
-import core.MainLogger;
-import mysql.interfaces.SQLConsumer;
-import mysql.interfaces.SQLFunction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DBDataLoad<T> {
 

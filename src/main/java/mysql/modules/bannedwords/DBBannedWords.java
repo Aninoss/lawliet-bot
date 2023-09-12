@@ -1,9 +1,11 @@
 package mysql.modules.bannedwords;
 
-import java.util.List;
 import mysql.DBDataLoad;
+import mysql.DBDataLoadAll;
 import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
+
+import java.util.List;
 
 public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
 
@@ -60,6 +62,11 @@ public class DBBannedWords extends DBObserverMapCache<Long, BannedWordsData> {
             preparedStatement.setLong(1, bannedWordsBean.getGuildId());
             preparedStatement.setBoolean(2, bannedWordsBean.isActive());
         });
+    }
+
+    public List<Long> retrieveAllServerIds(long guildIdOffset, int limit) {
+        return new DBDataLoadAll<Long>("BannedWords", "serverId", " AND serverId > " + guildIdOffset + " ORDER BY serverId LIMIT " + limit)
+                .getList(resultSet -> resultSet.getLong(1));
     }
 
     private List<Long> getIgnoredUsers(long serverId) {

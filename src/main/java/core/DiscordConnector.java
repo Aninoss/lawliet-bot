@@ -10,6 +10,14 @@ import modules.BumpReminder;
 import modules.SupportTemplates;
 import modules.repair.MainRepair;
 import modules.schedulers.*;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.InviteFilterEntity;
+import mysql.hibernate.entity.WordFilterEntity;
+import mysql.modules.bannedwords.BannedWordsData;
+import mysql.modules.bannedwords.DBBannedWords;
+import mysql.modules.spblock.DBSPBlock;
+import mysql.modules.spblock.SPBlockData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -81,6 +89,9 @@ public class DiscordConnector {
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageRequest.setDefaultMentions(EnumSet.complementOf(deny));
         MessageRequest.setDefaultMentionRepliedUser(false);
+
+        transferInviteFilterSqlToHibernate();
+        transferWordFilterSqlToHibernate();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -188,43 +199,71 @@ public class DiscordConnector {
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 
-    /*private static void transferFisherySqlToHibernate() { TODO: keep method until migration is complete
+    private static void transferInviteFilterSqlToHibernate() {
         if (!Program.publicVersion()) {
             return;
         }
 
-        MainLogger.get().info("Transferring MySQL data to MongoDB...");
-        List<GuildKickedData> guildKickedDataList;
+        MainLogger.get().info("Transferring Invite Filter MySQL data to MongoDB...");
+        List<Long> guildIdList;
         int limit = 100;
         long guildIdOffset = 0;
         do {
-            guildKickedDataList = DBGuild.getInstance().retrieveKickedData(guildIdOffset, limit);
-            for (GuildKickedData guildKickedData : guildKickedDataList) {
-                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                    GuildData guildData = DBGuild.getInstance().retrieve(guildKickedData.getGuildId());
-                    FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guildKickedData.getGuildId());
-                    GuildEntity guildEntity = entityManager.find(GuildEntity.class, String.valueOf(guildData.getGuildId()));
-                    if (guildEntity == null) {
-                        guildEntity = new GuildEntity(String.valueOf(guildData.getGuildId()));
-                        guildEntity.setPrefix(guildData.getPrefix());
-                        guildEntity.setLanguage(Language.from(guildData.getLocale()));
-                        guildEntity.setRemoveAuthorMessage(guildData.isCommandAuthorMessageRemove());
-                        // set property here
-
-                        entityManager.getTransaction().begin();
-                        entityManager.persist(guildEntity);
-                        entityManager.getTransaction().commit();
-                    } else if (guildEntity.getFishery().getRolePriceMin() == null) {
-                        entityManager.getTransaction().begin();
-                        // set property here
-                        entityManager.getTransaction().commit();
+            guildIdList = DBSPBlock.getInstance().retrieveAllServerIds(guildIdOffset, limit);
+            for (long guildId : guildIdList) {
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+                    InviteFilterEntity inviteFilter = guildEntity.getInviteFilter();
+                    if (inviteFilter.isUsed()) {
+                        continue;
                     }
+                    SPBlockData spBlockData = DBSPBlock.getInstance().retrieve(guildId);
+
+                    inviteFilter.beginTransaction();
+                    if (inviteFilter.getActive() != spBlockData.isActive()) inviteFilter.setActive(spBlockData.isActive());
+                    if (inviteFilter.getAction().ordinal() != spBlockData.getAction().ordinal()) inviteFilter.setAction(InviteFilterEntity.Action.values()[spBlockData.getAction().ordinal()]);
+                    spBlockData.getIgnoredUserIds().forEach(userId -> inviteFilter.getExcludedMemberIds().add(userId));
+                    spBlockData.getIgnoredChannelIds().forEach(channelId -> inviteFilter.getExcludedChannelIds().add(channelId));
+                    spBlockData.getLogReceiverUserIds().forEach(userId -> inviteFilter.getLogReceiverUserIds().add(userId));
+                    inviteFilter.commitTransaction();
                 }
             }
-            if (!guildKickedDataList.isEmpty()) {
-                guildIdOffset = guildKickedDataList.get(guildKickedDataList.size() - 1).getGuildId();
+            if (!guildIdList.isEmpty()) {
+                guildIdOffset = guildIdList.get(guildIdList.size() - 1);
             }
-        } while (guildKickedDataList.size() == limit);
-    }*/
+        } while (guildIdList.size() == limit);
+    }
+
+    private static void transferWordFilterSqlToHibernate() {
+        if (!Program.publicVersion()) {
+            return;
+        }
+
+        MainLogger.get().info("Transferring Word Filter MySQL data to MongoDB...");
+        List<Long> guildIdList;
+        int limit = 100;
+        long guildIdOffset = 0;
+        do {
+            guildIdList = DBBannedWords.getInstance().retrieveAllServerIds(guildIdOffset, limit);
+            for (long guildId : guildIdList) {
+                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+                    WordFilterEntity wordFilter = guildEntity.getWordFilter();
+                    if (wordFilter.isUsed()) {
+                        continue;
+                    }
+                    BannedWordsData bannedWordsData = DBBannedWords.getInstance().retrieve(guildId);
+
+                    wordFilter.beginTransaction();
+                    if (wordFilter.getActive() != bannedWordsData.isActive()) wordFilter.setActive(bannedWordsData.isActive());
+                    bannedWordsData.getIgnoredUserIds().forEach(userId -> wordFilter.getExcludedMemberIds().add(userId));
+                    bannedWordsData.getLogReceiverUserIds().forEach(userId -> wordFilter.getLogReceiverUserIds().add(userId));
+                    bannedWordsData.getWords().forEach(word -> wordFilter.getWords().add(word));
+                    wordFilter.commitTransaction();
+                }
+            }
+            if (!guildIdList.isEmpty()) {
+                guildIdOffset = guildIdList.get(guildIdList.size() - 1);
+            }
+        } while (guildIdList.size() == limit);
+    }
 
 }

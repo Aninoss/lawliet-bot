@@ -1,9 +1,11 @@
 package mysql.modules.spblock;
 
-import java.util.List;
 import mysql.DBDataLoad;
+import mysql.DBDataLoadAll;
 import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
+
+import java.util.List;
 
 public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
 
@@ -54,6 +56,11 @@ public class DBSPBlock extends DBObserverMapCache<Long, SPBlockData> {
                 .addListAddListener(list -> list.forEach(channelId -> addIgnoredChannels(serverId, channelId)))
                 .addListRemoveListener(list -> list.forEach(channelId -> removeIgnoredChannels(serverId, channelId)));
         return spBlockBean;
+    }
+
+    public List<Long> retrieveAllServerIds(long guildIdOffset, int limit) {
+        return new DBDataLoadAll<Long>("SPBlock", "serverId", " AND serverId > " + guildIdOffset + " ORDER BY serverId LIMIT " + limit)
+                .getList(resultSet -> resultSet.getLong(1));
     }
 
     @Override
