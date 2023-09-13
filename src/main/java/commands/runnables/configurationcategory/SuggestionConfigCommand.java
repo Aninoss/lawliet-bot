@@ -1,7 +1,5 @@
 package commands.runnables.configurationcategory;
 
-import java.util.List;
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -22,6 +20,9 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "suggconfig",
@@ -62,7 +63,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
                     setState(0);
                     return MessageInputResponse.SUCCESS;
                 } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission", StringUtil.escapeMarkdownInField(channel.getName())));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_channel_history", "#" + StringUtil.escapeMarkdownInField(channel.getName())));
                     return MessageInputResponse.FAILED;
                 }
             }
