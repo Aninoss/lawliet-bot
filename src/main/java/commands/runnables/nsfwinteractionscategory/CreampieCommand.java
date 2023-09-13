@@ -36,7 +36,8 @@ public class CreampieCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/955839621902774272/1073603841506955345/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/1073604277651648532/creampie.gif",
                 "https://cdn.discordapp.com/attachments/955839621902774272/1073604357951606784/creampie.gif",
-                "https://cdn.discordapp.com/attachments/955839621902774272/1130880259626111097/creampie.gif"
+                "https://cdn.discordapp.com/attachments/955839621902774272/1130880259626111097/creampie.gif",
+                "https://cdn.discordapp.com/attachments/955839621902774272/1151398338701299783/creampie.gif"
         );
     }
 

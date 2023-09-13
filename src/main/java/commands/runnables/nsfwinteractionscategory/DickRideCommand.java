@@ -1,8 +1,9 @@
 package commands.runnables.nsfwinteractionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "dickride",
@@ -26,7 +27,9 @@ public class DickRideCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/969967119469019136/969967999471743066/dickride.gif",
                 "https://cdn.discordapp.com/attachments/969967119469019136/969968026818580530/dickride.gif",
                 "https://cdn.discordapp.com/attachments/969967119469019136/969968480147357839/dickride.gif",
-                "https://cdn.discordapp.com/attachments/969967119469019136/969968872272830474/dickride.gif"
+                "https://cdn.discordapp.com/attachments/969967119469019136/969968872272830474/dickride.gif",
+                "https://cdn.discordapp.com/attachments/969967119469019136/1151398675667501086/dickride.gif",
+                "https://cdn.discordapp.com/attachments/969967119469019136/1151398874825637908/dickride.gif"
         );
     }
 

@@ -28,7 +28,9 @@ public class AssFuckCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/965979549533872319/965980358581563402/assfuck.gif",
                 "https://cdn.discordapp.com/attachments/965979549533872319/965981047575699476/assfuck.gif",
                 "https://cdn.discordapp.com/attachments/965979549533872319/1130879728748875846/assfuck.gif",
-                "https://cdn.discordapp.com/attachments/965979549533872319/1130880425468895252/assfuck.gif"
+                "https://cdn.discordapp.com/attachments/965979549533872319/1130880425468895252/assfuck.gif",
+                "https://cdn.discordapp.com/attachments/965979549533872319/1151397341316784138/assfuck.gif",
+                "https://cdn.discordapp.com/attachments/965979549533872319/1151398068277760110/assfuck.gif"
         );
     }
 

@@ -1,8 +1,9 @@
 package commands.runnables.nsfwinteractionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "footjob",
@@ -25,7 +26,8 @@ public class FootjobCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/884506240179372112/884507081099608134/footjob.gif",
                 "https://cdn.discordapp.com/attachments/884506240179372112/884507187127410708/footjob.gif",
                 "https://cdn.discordapp.com/attachments/884506240179372112/884507241447837748/footjob.gif",
-                "https://cdn.discordapp.com/attachments/884506240179372112/884507559057317938/footjob.gif"
+                "https://cdn.discordapp.com/attachments/884506240179372112/884507559057317938/footjob.gif",
+                "https://cdn.discordapp.com/attachments/884506240179372112/1151399334278074398/footjob.gif"
         );
     }
 

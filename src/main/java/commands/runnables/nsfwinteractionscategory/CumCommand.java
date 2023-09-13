@@ -1,8 +1,9 @@
 package commands.runnables.nsfwinteractionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "cum",
@@ -32,7 +33,8 @@ public class CumCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/834500528426844160/834501140014956624/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/839471906024849408/cum.gif",
                 "https://cdn.discordapp.com/attachments/834500528426844160/881904994863951873/cum.gif",
-                "https://cdn.discordapp.com/attachments/834500528426844160/881905088447250443/cum.gif"
+                "https://cdn.discordapp.com/attachments/834500528426844160/881905088447250443/cum.gif",
+                "https://cdn.discordapp.com/attachments/834500528426844160/1151397084436627466/cum.gif"
         );
     }
 
