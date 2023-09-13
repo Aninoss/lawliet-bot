@@ -17,7 +17,7 @@ public class CleanGuilds implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        execute();
+        //execute(); TODO: Deactivate temporarily until de-coupling of general guild database table is complete
     }
 
     public static void execute() throws InterruptedException {
