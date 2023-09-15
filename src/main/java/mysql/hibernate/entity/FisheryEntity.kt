@@ -114,7 +114,7 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
     @Column(name = "$FISHERY.voiceHoursLimit")
     private var _voiceHoursLimit: Int? = null
     var voiceHoursLimit: Int
-        get() = _voiceHoursLimit ?: 24
+        get() = _voiceHoursLimit ?: 5
         set(value) {
             _voiceHoursLimit = value
         }
