@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -130,6 +131,8 @@ public class RedditCommand extends Command implements OnAlertListener {
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         String key = forceSubreddit != null ? forceSubreddit : slot.getCommandKey();
+        Instant nextRequestPreviously = slot.getNextRequest();
+
         if (key.isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args"));
             EmbedUtil.addTrackerRemoveLog(eb, getLocale());
@@ -183,7 +186,7 @@ public class RedditCommand extends Command implements OnAlertListener {
                 slot.setArgs(postBundle.getNewestPost());
                 return AlertResponse.CONTINUE_AND_SAVE;
             } else {
-                if (slot.getArgs().isEmpty()) {
+                if (slot.getArgs().isEmpty() || nextRequestPreviously.isBefore(Instant.now().minus(Duration.ofDays(30)))) {
                     EmbedBuilder eb = EmbedFactory.getNoResultsEmbed(this, key);
                     EmbedUtil.addTrackerRemoveLog(eb, getLocale());
                     slot.sendMessage(getLocale(), false, eb.build());
