@@ -41,7 +41,7 @@ public class Txt2ImgCommand extends Command implements OnStringSelectMenuListene
     public static String SELECT_ID_MODEL = "model";
     public static String SELECT_ID_IMAGE = "image";
     public static String DEFAULT_NEGATIVE_PROMPT = "worst quality, low quality, low-res, ugly, extra limbs, missing limb, floating limbs, disconnected limbs, mutated hands, extra legs, extra arms, bad anatomy, bad proportions, weird hands, malformed hands, disproportionate, disfigured, mutation, mutated, deformed, head out of frame, body out of frame, poorly drawn face, poorly drawn hands, poorly drawn feet, disfigured, out of frame, long neck, big ears, tiling, bad hands, bad art, cross-eye, blurry, blurred, watermark";
-    public static String[] NSFW_FILTERS = {"nsfw", "porn", "porno", "pornography", "sex", "intercourse", "coitus", "explicit", "fuck", "fucking", "fucked", "rape", "raping", "raped", "blowjob", "anal", "penis", "cock", "dick", "vagina", "pussy", "cum", "sperm", "scat"};
+    public static String[] NSFW_FILTERS = {"nsfw", "porn", "porno", "pornography", "sex", "intercourse", "coitus", "explicit", "fuck", "fucking", "fucked", "rape", "raping", "raped", "blowjob", "anal", "naked", "penis", "cock", "dick", "vagina", "pussy", "cum", "sperm", "horny", "scat"};
 
     private String prompt;
     private String negativePrompt;
