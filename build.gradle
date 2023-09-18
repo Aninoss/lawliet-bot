@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.0.0-beta.11'
+    implementation 'net.dv8tion:JDA:5.0.0-beta.13'
     implementation 'club.minnced:discord-webhooks:0.5.8'
     implementation 'mysql:mysql-connector-java:8.0.23'
     implementation 'org.hibernate.ogm:hibernate-ogm-mongodb:5.4.1.Final'
