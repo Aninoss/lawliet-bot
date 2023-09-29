@@ -38,11 +38,4 @@ class WordFilterEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscor
         return hibernateEntity.guildId
     }
 
-    fun isUsed(): Boolean { //TODO: Remove after migration
-        return _active != null ||
-                excludedMemberIds.isNotEmpty() ||
-                logReceiverUserIds.isNotEmpty() ||
-                words.isNotEmpty()
-    }
-
 }

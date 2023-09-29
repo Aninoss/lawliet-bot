@@ -50,12 +50,4 @@ class InviteFilterEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDisc
         return hibernateEntity.guildId
     }
 
-    fun isUsed(): Boolean { //TODO: Remove after migration
-        return _active != null ||
-                _action != null ||
-                excludedMemberIds.isNotEmpty() ||
-                excludedChannelIds.isNotEmpty() ||
-                logReceiverUserIds.isNotEmpty()
-    }
-
 }
