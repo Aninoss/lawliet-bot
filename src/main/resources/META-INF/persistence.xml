@@ -10,6 +10,7 @@
 
         <class>mysql.hibernate.entity.GuildEntity</class>
         <class>mysql.hibernate.entity.UserEntity</class>
+        <class>mysql.hibernate.entity.FeatureLoggingEntity</class>
         <properties>
             <property name="hibernate.ogm.datastore.provider" value="mongodb" />
             <property name="hibernate.ogm.datastore.database" value="Lawliet" />

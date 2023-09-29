@@ -1,12 +1,13 @@
 package commands.runnables.fisherysettingscategory;
 
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryMemberAccountInterface;
 import core.EmbedFactory;
 import core.TextManager;
 import core.atomicassets.AtomicTextChannel;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
@@ -16,6 +17,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "powerup",
@@ -34,7 +37,7 @@ public class PowerUpCommand extends FisheryMemberAccountInterface {
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         TextChannel channel = event.getTextChannel();
         MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
-        if (channelMention.getList().size() > 0) {
+        if (!channelMention.getList().isEmpty()) {
             channel = channelMention.getList().get(0);
             args = channelMention.getFilteredArgs().trim();
         }
@@ -45,7 +48,7 @@ public class PowerUpCommand extends FisheryMemberAccountInterface {
         }
 
         int amount = 1;
-        if (args.length() > 0) {
+        if (!args.isEmpty()) {
             if (StringUtil.stringIsInt(args)) {
                 amount = Integer.parseInt(args);
                 if (amount < 1 || amount > 30) {
@@ -62,6 +65,7 @@ public class PowerUpCommand extends FisheryMemberAccountInterface {
             }
         }
 
+        FeatureLogger.inc(PremiumFeature.FISHERY, event.getGuild().getIdLong());
         for (int i = 0; i < amount; i++) {
             Fishery.spawnPowerUp(channel, member, getGuildEntity());
         }

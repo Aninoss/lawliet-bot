@@ -1,10 +1,5 @@
 package events.scheduleevents.events;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 import commands.Category;
 import constants.ExceptionRunnable;
 import constants.ExternalLinks;
@@ -18,13 +13,19 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+
 @ScheduleEventEveryMinute
 public class ReminderUpvote implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
         if (Program.isMainCluster()) {
-            GlobalThreadPool.submit(this::processReminderUpvote);
+            processReminderUpvote();
         }
     }
 

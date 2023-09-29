@@ -1,13 +1,5 @@
 package commands.runnables.moderationcategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -18,6 +10,8 @@ import core.ExceptionLogger;
 import core.TextManager;
 import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.cache.PatreonCache;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
@@ -35,6 +29,15 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @CommandProperties(
         trigger = "clear",
@@ -161,6 +164,7 @@ public class ClearCommand extends Command implements OnButtonListener {
         }
 
         if (count > 0 && patreon) {
+            FeatureLogger.inc(PremiumFeature.CLEAR, channel.getGuild().getIdLong());
             messageHistory = channel.getHistory();
             while (count > 0 && !interrupt) {
                 List<Message> messageList = messageHistory.retrievePast(100).complete();

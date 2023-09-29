@@ -10,6 +10,8 @@ import core.*;
 import core.atomicassets.AtomicUser;
 import core.cache.TicketProtocolCache;
 import core.components.ActionRows;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.lock.Lock;
 import core.lock.LockOccupiedException;
 import core.utils.*;
@@ -257,6 +259,7 @@ public class Ticket {
             return;
         }
 
+        FeatureLogger.inc(PremiumFeature.TICKETS, guildEntity.getGuildId());
         try (Lock lock = new Lock(TicketCommand.class)) {
             MessageHistory messageHistory = channel.getHistory();
             List<Message> messageLoadList;

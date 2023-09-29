@@ -1,11 +1,5 @@
 package events.scheduleevents.events;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.Map;
 import constants.ExceptionRunnable;
 import constants.ExternalLinks;
 import core.*;
@@ -21,27 +15,30 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.Map;
+
 @ScheduleEventDaily
 public class DevelopmentVotesReminder implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
         if (Calendar.getInstance().get(Calendar.DAY_OF_MONTH) == 1 && Program.productionMode()) {
-            GlobalThreadPool.submit(() -> {
-                try {
-                    executeVoteNotification();
-                } catch (InterruptedException e) {
-                    MainLogger.get().error("Interrupted", e);
-                }
-            });
+            try {
+                executeVoteNotification();
+            } catch (InterruptedException e) {
+                MainLogger.get().error("Interrupted", e);
+            }
         } else if (Calendar.getInstance().get(Calendar.DAY_OF_MONTH) == 8 && Program.productionMode()) {
-            GlobalThreadPool.submit(() -> {
-                try {
-                    executeResultsNotification();
-                } catch (InterruptedException e) {
-                    MainLogger.get().error("Interrupted", e);
-                }
-            });
+            try {
+                executeResultsNotification();
+            } catch (InterruptedException e) {
+                MainLogger.get().error("Interrupted", e);
+            }
         }
     }
 

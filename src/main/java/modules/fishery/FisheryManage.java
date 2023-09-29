@@ -1,6 +1,8 @@
 package modules.fishery;
 
 import constants.Settings;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.MentionUtil;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.fisheryusers.FisheryMemberData;
@@ -26,7 +28,7 @@ public class FisheryManage {
             inputString = inputString.substring(1);
         }
 
-        if (inputString.length() == 0 || !Character.isDigit(inputString.charAt(0))) {
+        if (inputString.isEmpty() || !Character.isDigit(inputString.charAt(0))) {
             return false;
         }
 
@@ -37,6 +39,7 @@ public class FisheryManage {
                 continue;
             }
 
+            FeatureLogger.inc(PremiumFeature.FISHERY, guildEntity.getGuildId());
             newValue = calculateNewValue(guildEntity, baseValue, newValue, valueProcedure, type);
             setNewValues(fisheryMemberData, guildEntity, newValue, type);
             success = true;

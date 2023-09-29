@@ -1,10 +1,5 @@
 package commands.runnables.moderationcategory;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -12,6 +7,8 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MemberCacheController;
 import core.TextManager;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;
 import core.mention.MentionValue;
 import core.utils.MentionUtil;
@@ -20,6 +17,12 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "newkick",
@@ -54,6 +57,7 @@ public class NewKickCommand extends WarnCommand {
 
     @Override
     protected MentionList<User> getUserList(CommandEvent event, String args) {
+        FeatureLogger.inc(PremiumFeature.NEW_KICK_BAN, event.getGuild().getIdLong());
         List<User> userList = MemberCacheController.getInstance().loadMembersFull(event.getGuild()).join().stream()
                 .filter(m -> m.hasTimeJoined() && m.getTimeJoined().toInstant().isAfter(Instant.now().minus(Duration.ofMinutes(minutes))))
                 .map(Member::getUser)

@@ -2,6 +2,7 @@ package core;
 
 import commands.SlashCommandManager;
 import constants.AssetIds;
+import core.featurelogger.FeatureLogger;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
@@ -196,6 +197,7 @@ public class DiscordConnector {
         ServerMuteScheduler.start();
         JailScheduler.start();
         ShardManager.start();
+        FeatureLogger.start();
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 

@@ -14,6 +14,8 @@ import constants.Settings;
 import core.*;
 import core.cache.PatreonCache;
 import core.components.ActionRows;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.NSFWUtil;
@@ -86,7 +88,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
         Matcher m = RegexPatterns.BOORU_AMOUNT.matcher(args);
         long amount = 1;
-        boolean patreon = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
+        boolean premium = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
         if (m.find()) {
@@ -95,36 +97,43 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             amount = Long.parseLong(group);
             this.newAmount = (int) Math.min(5, amount);
 
-            if (!patreon && (amount < 1 || amount > 20)) {
-                if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
-                    EmbedBuilder eb = EmbedFactory.getEmbedDefault(
-                            this,
-                            TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, "30")
-                    );
-                    eb.setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_title"))
-                            .setColor(Settings.PREMIUM_COLOR);
-                    drawMessageNew(eb).exceptionally(ExceptionLogger.get());
-                } else {
-                    drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, "30"))
-                            .exceptionally(ExceptionLogger.get());
+            if (premium) {
+                if (amount > 20 && amount <= 30) {
+                    FeatureLogger.inc(PremiumFeature.BOORUS, event.getGuild().getIdLong());
+                } else if (amount < 1 || amount > 30) {
+                    if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
+                        drawMessageNew(EmbedFactory.getEmbedError(
+                                this,
+                                TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")
+                        )).exceptionally(ExceptionLogger.get());
+                    } else {
+                        drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30"))
+                                .exceptionally(ExceptionLogger.get());
+                    }
+                    return false;
                 }
-                return false;
-            } else if (patreon && (amount < 1 || amount > 30)) {
-                if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
-                    drawMessageNew(EmbedFactory.getEmbedError(
-                            this,
-                            TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")
-                    )).exceptionally(ExceptionLogger.get());
-                } else {
-                    drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30"))
-                            .exceptionally(ExceptionLogger.get());
+            } else {
+                if (amount < 1 || amount > 20) {
+                    if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
+                        EmbedBuilder eb = EmbedFactory.getEmbedDefault(
+                                this,
+                                TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, "30")
+                        );
+                        eb.setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_title"))
+                                .setColor(Settings.PREMIUM_COLOR);
+                        drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+                    } else {
+                        drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, "30"))
+                                .exceptionally(ExceptionLogger.get());
+                    }
+                    return false;
                 }
-                return false;
             }
         }
 
         boolean first = true;
-        boolean canBeVideo = patreon || amount == 1;
+        boolean singleRequest = amount == 1;
+        boolean canBeVideo = premium || singleRequest;
         if (!canBeVideo) {
             notice = TextManager.getString(getLocale(), Category.NSFW, "porn_novideo", ExternalLinks.PREMIUM_WEBSITE);
         }
@@ -155,7 +164,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                 return false;
             }
 
-            if (pornImages.size() == 0) {
+            if (pornImages.isEmpty()) {
                 if (first) {
                     String effectiveArgs = args;
                     if (this instanceof PornPredefinedAbstract) {
@@ -173,10 +182,14 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                 }
             }
 
+            if (premium && !singleRequest && pornImages.stream().anyMatch(BooruImage::getVideo)) {
+                FeatureLogger.inc(PremiumFeature.BOORUS, event.getGuild().getIdLong());
+            }
+
             first = false;
             String messageContent = null;
 
-            while (pornImages.size() > 0) {
+            while (!pornImages.isEmpty()) {
                 messageContent = generatePostMessagesText(pornImages, event.getTextChannel(), MAX_FILES_PER_MESSAGE);
                 if (messageContent == null || messageContent.length() < 2000) {
                     break;
@@ -191,12 +204,12 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             if (messageContent != null) {
                 ArrayList<ActionRow> actionRows = new ArrayList<>(ActionRows.of(generateButtons(pornImages)));
                 if (amount <= 0) {
-                    Button loadMoreButton = generateLoadMoreButton(patreon);
+                    Button loadMoreButton = generateLoadMoreButton(premium);
                     actionRows.add(ActionRow.of(loadMoreButton));
                 }
 
                 setActionRows(actionRows);
-                boolean registerButton = amount <= 0 && patreon;
+                boolean registerButton = amount <= 0 && premium;
                 drawMessageNew(messageContent)
                         .thenAccept(message -> {
                             if (registerButton) {
@@ -230,7 +243,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             Button button = Button.of(ButtonStyle.LINK, pornImage.getPageUrl(), TextManager.getString(getLocale(), Category.NSFW, tag, String.valueOf(i + 1)));
             buttons.add(button);
 
-            if (reportArgsBuilder.length() > 0) {
+            if (!reportArgsBuilder.isEmpty()) {
                 reportArgsBuilder.append(",");
             }
             String newUrl = pornImage.getOriginalImageUrl()
@@ -294,6 +307,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
 
     @Override
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
+        FeatureLogger.inc(PremiumFeature.BOORUS, event.getGuild().getIdLong());
         event.deferEdit().queue();
         deregisterListeners();
         onTrigger(getCommandEvent(), this.newAmount + " " + this.args);
@@ -309,13 +323,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
+        boolean premium = PatreonCache.getInstance().isUnlocked(slot.getGuildId());
 
         ArrayList<String> nsfwFiltersList = new ArrayList<>(DBNSFWFilters.getInstance().retrieve(slot.getGuildId()).getKeywords());
         HashSet<String> nsfwFilters = new HashSet<>();
         nsfwFiltersList.forEach(filter -> nsfwFilters.add(filter.toLowerCase()));
         List<BooruImage> pornImages;
         try {
-            boolean premium = PatreonCache.getInstance().isUnlocked(slot.getGuildId());
             if (!premium && slot.getArgs().isEmpty()) {
                 notice = TextManager.getString(getLocale(), Category.NSFW, "porn_novideo", ExternalLinks.PREMIUM_WEBSITE);
             }
@@ -347,7 +361,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             throw e;
         }
 
-        if (pornImages.size() == 0) {
+        if (pornImages.isEmpty()) {
             if (slot.getArgs().isEmpty()) {
                 EmbedBuilder eb = noResultsEmbed(slot.getCommandKey());
                 EmbedUtil.addTrackerRemoveLog(eb, getLocale());
@@ -356,6 +370,10 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             } else {
                 return AlertResponse.CONTINUE;
             }
+        }
+
+        if (premium && pornImages.stream().anyMatch(BooruImage::getVideo)) {
+            FeatureLogger.inc(PremiumFeature.BOORUS, slot.getGuildId());
         }
 
         List<Button> messageButtons = generateButtons(pornImages);

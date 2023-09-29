@@ -1,8 +1,5 @@
 package commands.runnables.fisherysettingscategory;
 
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -14,6 +11,8 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;
 import core.utils.EmojiUtil;
 import core.utils.MentionUtil;
@@ -29,6 +28,10 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "fisherymanage",
@@ -75,7 +78,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
         fisheryMemberGroup = new FisheryMemberGroup(event.getGuild().getIdLong(), list);
 
         args = roleMentions.getFilteredArgs();
-        if (args.length() > 0) {
+        if (!args.isEmpty()) {
             String typeString = args.split(" ")[0];
 
             int type = -1;
@@ -95,6 +98,8 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
             if (type == -1) {
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
             } else if (type == 3 + FisheryGear.values().length) {
+                FeatureLogger.inc(PremiumFeature.FISHERY, event.getGuild().getIdLong());
+
                 fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
                 drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag(getLocale()))))
                         .exceptionally(ExceptionLogger.get());

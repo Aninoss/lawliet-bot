@@ -7,6 +7,8 @@ import commands.runnables.utilitycategory.TriggerDeleteCommand
 import core.MemberCacheController
 import core.PermissionCheckRuntime
 import core.Program
+import core.featurelogger.FeatureLogger
+import core.featurelogger.PremiumFeature
 import core.interactionresponse.InteractionResponse
 import core.interactionresponse.SlashCommandResponse
 import core.schedule.MainScheduler
@@ -68,6 +70,7 @@ interface OnTriggerListener {
         if (guildEntity.removeAuthorMessageEffectively &&
             PermissionCheckRuntime.botHasPermission(guildEntity.locale, TriggerDeleteCommand::class.java, event.guildChannel, Permission.MESSAGE_MANAGE)
         ) {
+            FeatureLogger.inc(PremiumFeature.TRIGGER_DELETE, event.guild.idLong)
             event.message.delete().queue()
         }
     }

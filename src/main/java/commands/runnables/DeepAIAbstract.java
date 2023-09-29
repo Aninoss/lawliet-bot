@@ -1,15 +1,12 @@
 package commands.runnables;
 
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.MentionUtil;
 import modules.DeepAI;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -18,6 +15,12 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+
+import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public abstract class DeepAIAbstract extends Command {
 
@@ -32,17 +35,19 @@ public abstract class DeepAIAbstract extends Command {
                 ? event.getMessageReceivedEvent().getMessage().getAttachments()
                 : Collections.emptyList();
 
-        if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
+        if (!attachmentList.isEmpty() && attachmentList.get(0).isImage()) {
             Message.Attachment messageAttachment = attachmentList.get(0);
             url = messageAttachment.getProxyUrl();
         } else {
             List<URL> imageList = MentionUtil.getImages(args).getList();
-            if (imageList.size() > 0) {
+            if (!imageList.isEmpty()) {
                 url = imageList.get(0).toString();
             }
         }
 
         if (url != null) {
+            FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
+
             String result = processImage(event, url);
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("success", result))
                     .setImage(result);

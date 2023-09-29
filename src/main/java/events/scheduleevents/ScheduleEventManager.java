@@ -1,5 +1,13 @@
 package events.scheduleevents;
 
+import constants.ExceptionRunnable;
+import core.MainLogger;
+import core.Startable;
+import core.schedule.ScheduleAdapter;
+import core.utils.TimeUtil;
+import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
+import org.reflections.Reflections;
+
 import java.lang.annotation.Annotation;
 import java.time.Duration;
 import java.time.Instant;
@@ -9,20 +17,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import core.MainLogger;
-import core.Startable;
-import core.schedule.ScheduleAdapter;
-import constants.ExceptionRunnable;
-import core.utils.TimeUtil;
-import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
-import org.reflections.Reflections;
 
 public class ScheduleEventManager extends Startable {
 
     private final int DELAY = 1000;
 
     private final Reflections reflections = new Reflections("events/scheduleevents");
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(8, new CountingThreadFactory(() -> "Main", "ScheduleEvent", true));
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new CountingThreadFactory(() -> "Main", "ScheduleEvent", true));
 
     public ScheduleEventManager() {
     }

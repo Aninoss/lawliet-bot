@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
         emoji = "🔔",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "tracker", "track", "tracking", "alert", "auto", "automate", "automize", "feed", "feeds" }
+        aliases = {"tracker", "track", "tracking", "alert", "auto", "automate", "automize", "feed", "feeds"}
 )
 public class AlertsCommand extends NavigationAbstract {
 
@@ -454,17 +454,20 @@ public class AlertsCommand extends NavigationAbstract {
 
     private boolean enoughSpaceForNewTrackers(Member member) {
         boolean premium = ServerPatreonBoostCache.get(member.getGuild().getIdLong());
-        if (channelId == 0L || alerts.values().stream().filter(a -> a.getStandardGuildMessageChannelId() == channelId).count() < LIMIT_CHANNEL || premium) {
-            if (alerts.size() < LIMIT_SERVER || premium) {
-                return true;
-            } else {
-                setLog(LogStatus.FAILURE, getString("toomuch_server", String.valueOf(LIMIT_SERVER)));
-                return false;
-            }
-        } else {
+
+        if (alerts.size() >= LIMIT_SERVER && !premium) {
+            setLog(LogStatus.FAILURE, getString("toomuch_server", String.valueOf(LIMIT_SERVER)));
+            return false;
+        }
+
+        if (channelId != 0L &&
+                alerts.values().stream().filter(a -> a.getStandardGuildMessageChannelId() == channelId).count() >= LIMIT_CHANNEL &&
+                !premium) {
             setLog(LogStatus.FAILURE, getString("toomuch_channel", String.valueOf(LIMIT_CHANNEL)));
             return false;
         }
+
+        return true;
     }
 
     private StandardGuildMessageChannel getAlertChannelOrFail(Member member) {

@@ -7,6 +7,8 @@ import core.MainLogger;
 import core.TextManager;
 import core.assets.MemberAsset;
 import core.cache.PatreonCache;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.BotPermissionUtil;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
@@ -481,6 +483,9 @@ public class FisheryMemberData implements MemberAsset {
             }
 
             int limit = guildEntity.getFishery().getVoiceHoursLimitEffectively();
+            if (limit != 5) {
+                FeatureLogger.inc(PremiumFeature.FISHERY, getGuildId());
+            }
             if (limit != 24) {
                 cleanDailyValues();
                 newMinutes = Math.min(newMinutes, limit * 60 - RedisManager.parseInteger(voiceMinutesResp.get()));

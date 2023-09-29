@@ -1,10 +1,5 @@
 package commands.runnables.invitetrackingcategory;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import commands.Category;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -17,6 +12,8 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.atomicassets.AtomicMember;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.invitetracking.InviteMetrics;
@@ -31,6 +28,12 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "invmanage",
@@ -60,7 +63,7 @@ public class InvitesManageCommand extends NavigationAbstract {
         if (DBInviteTracking.getInstance().retrieve(event.getGuild().getIdLong()).isActive()) {
             List<Member> userMentionList = MentionUtil.getMembers(event.getGuild(), args, event.getRepliedMember())
                     .getList();
-            if (userMentionList.size() > 0) {
+            if (!userMentionList.isEmpty()) {
                 atomicMember = new AtomicMember(userMentionList.get(0));
             } else {
                 if (args.toLowerCase().contains("vanity")) {
@@ -87,7 +90,7 @@ public class InvitesManageCommand extends NavigationAbstract {
     @ControllerMessage(state = STATE_ADD)
     public MessageInputResponse onMessageAdd(MessageReceivedEvent event, String input) {
         List<Member> memberList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
-        if (memberList.size() == 0) {
+        if (memberList.isEmpty()) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
             return MessageInputResponse.FAILED;
         } else {
@@ -127,6 +130,7 @@ public class InvitesManageCommand extends NavigationAbstract {
                     resetLog = false;
                     setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
                 } else {
+                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, event.getGuild().getIdLong());
                     DBInviteTracking.getInstance().resetInviteTrackerSlotsOfInviter(event.getGuild().getIdLong(), atomicMember.getIdLong());
                     resetLog = true;
                     setLog(LogStatus.SUCCESS, getString("reset", atomicMember.getIdLong() == 0, StringUtil.escapeMarkdownInField(atomicMember.getName(getLocale()))));
@@ -151,6 +155,7 @@ public class InvitesManageCommand extends NavigationAbstract {
                             fakeInviteAtomicMember.getIdLong(), atomicMember.getIdLong(), LocalDate.now(),
                             LocalDate.now(), true
                     );
+                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, event.getGuild().getIdLong());
                     getInviteTrackingSlots().put(inviteTrackingSlot.getMemberId(), inviteTrackingSlot);
                     setState(DEFAULT_STATE);
                     setLog(LogStatus.SUCCESS, getString("added"));
@@ -168,6 +173,7 @@ public class InvitesManageCommand extends NavigationAbstract {
         } else {
             long userId = Long.parseLong(event.getComponentId());
             CustomObservableMap<Long, InviteTrackingSlot> slots = getInviteTrackingSlots();
+            FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, event.getGuild().getIdLong());
             slots.remove(userId);
             if (slots.isEmpty()) {
                 setState(DEFAULT_STATE);

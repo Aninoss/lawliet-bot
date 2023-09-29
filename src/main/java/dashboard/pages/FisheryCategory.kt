@@ -10,6 +10,8 @@ import core.GlobalThreadPool
 import core.MemberCacheController
 import core.TextManager
 import core.atomicassets.AtomicTextChannel
+import core.featurelogger.FeatureLogger
+import core.featurelogger.PremiumFeature
 import core.utils.BotPermissionUtil
 import core.utils.EmojiUtil
 import core.utils.RandomUtil
@@ -219,6 +221,8 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 }
 
                 if (manageMembers.size > 0 || manageRoles.size > 0) {
+                    FeatureLogger.inc(PremiumFeature.FISHERY, atomicGuild.idLong)
+
                     val fisheryMemberList = collectFisheryMemberList()
                     fisheryMemberList.forEach(FisheryMemberData::remove)
                     ActionResult()

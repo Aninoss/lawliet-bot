@@ -3,6 +3,9 @@ package modules.schedulers;
 import commands.Category;
 import commands.runnables.utilitycategory.ReminderCommand;
 import core.*;
+import core.cache.ServerPatreonBoostCache;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.InternetUtil;
@@ -97,9 +100,8 @@ public class ReminderScheduler {
         }
 
         if (message != null) {
-            if (reminderData.getInterval() == 0) {
-                message.delete().queue();
-            } else {
+            if (reminderData.getInterval() != 0 && ServerPatreonBoostCache.get(channel.getGuild().getIdLong())) {
+                FeatureLogger.inc(PremiumFeature.REMINDERS, channel.getGuild().getIdLong());
                 ReminderData newReminderData = new ReminderData(
                         reminderData.getGuildId(),
                         System.nanoTime(),
@@ -117,6 +119,8 @@ public class ReminderScheduler {
                 EmbedBuilder eb = ReminderCommand.generateEmbed(locale, message.getChannel().asTextChannel(), newReminderData.getTime(), newReminderData.getMessage(), newReminderData.getInterval());
                 message.getGuildChannel().editMessageEmbedsById(message.getId(), eb.build())
                         .queue();
+            } else {
+                message.delete().queue();
             }
         }
     }

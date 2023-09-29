@@ -6,6 +6,7 @@ import commands.runningchecker.RunningCheckerManager;
 import constants.AssetIds;
 import constants.Language;
 import core.cache.PatreonCache;
+import core.featurelogger.FeatureLogger;
 import core.utils.*;
 import events.scheduleevents.events.*;
 import javafx.util.Pair;
@@ -33,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -53,6 +55,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("featurelogging", Console::onFeatureLogging);
         tasks.put("txt2img_ban", Console::onTxt2ImgBan);
         tasks.put("casino_logs", Console::onCasinoLogs);
         tasks.put("tickets_auto_close", Console::onTicketsAutoClose);
@@ -102,6 +105,14 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onFeatureLogging(String[] args) {
+        int daysSubstract = 1;
+        if (args.length > 1) {
+            daysSubstract = Integer.parseInt(args[1]);
+        }
+        FeatureLogger.persist(LocalDate.now().minusDays(daysSubstract));
     }
 
     private static void onTxt2ImgBan(String[] args) {

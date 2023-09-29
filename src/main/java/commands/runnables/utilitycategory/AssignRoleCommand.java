@@ -1,10 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -13,6 +8,8 @@ import constants.Emojis;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.mention.Mention;
 import core.utils.BotPermissionUtil;
 import core.utils.EmojiUtil;
@@ -27,6 +24,12 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "assignroles",
@@ -92,6 +95,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
             return false;
         }
 
+        FeatureLogger.inc(PremiumFeature.ROLE_ASSIGNMENTS, event.getGuild().getIdLong());
         CompletableFuture<Boolean> future = futureOpt.get();
         future.thenAccept(this::onAssignmentFinished);
 

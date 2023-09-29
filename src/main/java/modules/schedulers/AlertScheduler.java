@@ -1,14 +1,19 @@
 package modules.schedulers;
 
+import commands.Category;
 import commands.Command;
 import commands.CommandManager;
 import commands.listeners.OnAlertListener;
 import commands.runnables.utilitycategory.AlertsCommand;
+import constants.ExternalLinks;
 import constants.Settings;
 import core.*;
 import core.cache.ServerPatreonBoostCache;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.EmbedUtil;
 import core.utils.ExceptionUtil;
+import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
@@ -101,8 +106,7 @@ public class AlertScheduler {
     }
 
     private static void processAlert(GuildEntity guildEntity, TrackerData slot) throws Throwable {
-        Locale locale = guildEntity.getLocale();
-        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), locale, guildEntity.getPrefix());
+        Optional<Command> commandOpt = CommandManager.createCommandByTrigger(slot.getCommandTrigger(), guildEntity.getLocale(), guildEntity.getPrefix());
         if (commandOpt.isEmpty()) {
             MainLogger.get().error("Invalid alert for command: {}", slot.getCommandTrigger());
             slot.delete();
@@ -121,10 +125,14 @@ public class AlertScheduler {
                 return;
             }
 
+            boolean premium = ServerPatreonBoostCache.get(channel.getGuild().getIdLong());
+            CustomObservableMap<Integer, TrackerData> alerts = DBTracker.getInstance().retrieve(slot.getGuildId());
             if (!PermissionCheckRuntime.botHasPermission(((Command) alertCommand).getLocale(), AlertsCommand.class, channel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS) ||
-                    checkNSFW(locale, slot, channel, (Command) alertCommand) ||
-                    checkPatreon(locale, slot, channel, (Command) alertCommand) ||
-                    checkReleased(locale, slot, channel, (Command) alertCommand)
+                    checkNSFW(slot, channel, (Command) alertCommand) ||
+                    checkPatreon(slot, (Command) alertCommand, premium) ||
+                    checkReleased(slot, (Command) alertCommand, premium) ||
+                    checkServerLimit(((Command) alertCommand).getLocale(), slot, alerts, premium) ||
+                    checkChannelLimit(((Command) alertCommand).getLocale(), slot, alerts, premium)
             ) {
                 return;
             }
@@ -152,6 +160,7 @@ public class AlertScheduler {
                             minIntervalInstant.isAfter(slot.getNextRequest()) &&
                             ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
                     ) {
+                        FeatureLogger.inc(PremiumFeature.ALERTS, slot.getGuildId());
                         slot.setNextRequest(minIntervalInstant);
                     }
                     slot.save();
@@ -166,44 +175,83 @@ public class AlertScheduler {
         }
     }
 
-    private static boolean checkNSFW(Locale locale, TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
+    private static boolean checkNSFW(TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
         if (command.getCommandProperties().nsfw() && !channel.isNSFW()) {
             EmbedBuilder eb = EmbedFactory.getNSFWBlockEmbed(command.getLocale(), command.getPrefix());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            slot.sendMessage(locale, false, eb.build());
+            slot.sendMessage(command.getLocale(), false, eb.build());
             slot.delete();
             return true;
         }
         return false;
     }
 
-    private static boolean checkPatreon(Locale locale, TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
-        if (command.getCommandProperties().patreonRequired() &&
-                !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
-        ) {
+    private static boolean checkPatreon(TrackerData slot, Command command, boolean premium) throws InterruptedException {
+        if (command.getCommandProperties().patreonRequired() && !premium) {
             EmbedBuilder eb = EmbedFactory.getPatreonBlockEmbed(command.getLocale());
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            slot.sendMessage(locale, false, eb.build());
+            slot.sendMessage(command.getLocale(), false, eb.build());
             slot.delete();
             return true;
         }
         return false;
     }
 
-    private static boolean checkReleased(Locale locale, TrackerData slot, StandardGuildMessageChannel channel, Command command) throws InterruptedException {
+    private static boolean checkReleased(TrackerData slot, Command command, boolean premium) throws InterruptedException {
         LocalDate releaseDate = command.getReleaseDate().orElse(LocalDate.now());
-        if (releaseDate.isAfter(LocalDate.now()) &&
-                !ServerPatreonBoostCache.get(channel.getGuild().getIdLong())
-        ) {
+        if (releaseDate.isAfter(LocalDate.now()) && !premium) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                     .setColor(Settings.PREMIUM_COLOR)
                     .setTitle(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_title"))
                     .setDescription(TextManager.getString(command.getLocale(), TextManager.GENERAL, "patreon_beta_description"));
 
             EmbedUtil.addTrackerRemoveLog(eb, command.getLocale());
-            slot.sendMessage(locale, false, eb.build());
+            slot.sendMessage(command.getLocale(), false, eb.build());
             slot.delete();
             return true;
+        }
+        return false;
+    }
+
+    private static boolean checkServerLimit(Locale locale, TrackerData slot, CustomObservableMap<Integer, TrackerData> alerts, boolean premium) throws InterruptedException {
+        if (alerts.size() > AlertsCommand.LIMIT_SERVER) {
+            if (premium) {
+                FeatureLogger.inc(PremiumFeature.ALERTS, slot.getGuildId());
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError()
+                        .setTitle(TextManager.getString(locale, Category.UTILITY, "alerts_scheduler_toomuch_title"))
+                        .setDescription(TextManager.getString(locale, Category.UTILITY, "alerts_scheduler_toomuch_server",
+                                StringUtil.numToString(AlertsCommand.LIMIT_SERVER),
+                                ExternalLinks.PREMIUM_WEBSITE
+                        ));
+
+                slot.sendMessage(locale, false, eb.build());
+                slot.setNextRequest(Instant.now().plus(Duration.ofHours(1)));
+                slot.save();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean checkChannelLimit(Locale locale, TrackerData slot, CustomObservableMap<Integer, TrackerData> alerts, boolean premium) throws InterruptedException {
+        long channelId = slot.getStandardGuildMessageChannelId();
+        if (alerts.values().stream().filter(a -> a.getStandardGuildMessageChannelId() == channelId).count() > AlertsCommand.LIMIT_CHANNEL) {
+            if (premium) {
+                FeatureLogger.inc(PremiumFeature.ALERTS, slot.getGuildId());
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError()
+                        .setTitle(TextManager.getString(locale, Category.UTILITY, "alerts_scheduler_toomuch_title"))
+                        .setDescription(TextManager.getString(locale, Category.UTILITY, "alerts_scheduler_toomuch_channel",
+                                StringUtil.numToString(AlertsCommand.LIMIT_CHANNEL),
+                                ExternalLinks.PREMIUM_WEBSITE
+                        ));
+
+                slot.sendMessage(locale, false, eb.build());
+                slot.setNextRequest(Instant.now().plus(Duration.ofHours(1)));
+                slot.save();
+                return true;
+            }
         }
         return false;
     }

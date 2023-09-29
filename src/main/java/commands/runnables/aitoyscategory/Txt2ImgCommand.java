@@ -8,6 +8,8 @@ import constants.Emojis;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MainLogger;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.EmbedUtil;
 import core.utils.ExceptionUtil;
 import core.utils.NSFWUtil;
@@ -102,12 +104,14 @@ public class Txt2ImgCommand extends Command implements OnStringSelectMenuListene
             prompt = args;
             negativePrompt = DEFAULT_NEGATIVE_PROMPT;
         }
-        prompt = StringUtil.shortenString(prompt, MessageEmbed.DESCRIPTION_MAX_LENGTH - 50);
+        prompt = StringUtil.shortenString(prompt, MessageEmbed.DESCRIPTION_MAX_LENGTH - 100);
         if (NSFWUtil.containsNormalFilterTags(prompt, List.of(NSFW_FILTERS))) {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("filterblock")))
                     .exceptionally(ExceptionLogger.get());
             return false;
         }
+
+        FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
         registerStringSelectMenuListener(event.getMember());
         return true;
     }
@@ -116,7 +120,6 @@ public class Txt2ImgCommand extends Command implements OnStringSelectMenuListene
     public boolean onStringSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
         if (event.getComponentId().equals(SELECT_ID_MODEL)) {
             if (Txt2ImgCallTracker.getCalls(event.getGuild().getIdLong(), event.getUser().getIdLong()) < LIMIT_CREATIONS_PER_DAY) {
-                Txt2ImgLogger.log(prompt, event.getUser().getIdLong());
                 Txt2ImgCallTracker.increaseCalls(event.getGuild().getIdLong(), event.getUser().getIdLong());
                 model = Model.values()[Integer.parseInt(event.getValues().get(0))];
                 predictionId = RunPodDownloader.createPrediction(model, prompt, negativePrompt).get();
@@ -154,6 +157,9 @@ public class Txt2ImgCommand extends Command implements OnStringSelectMenuListene
             if (predictionResult == null || predictionResult.getStatus() != PredictionResult.Status.COMPLETED) {
                 try {
                     predictionResult = RunPodDownloader.retrievePrediction(model, predictionId, startTime).get();
+                    if (predictionResult.getStatus() == PredictionResult.Status.COMPLETED) {
+                        Txt2ImgLogger.log(prompt, member.getIdLong(), model.name(), predictionResult.getOutputs().get(0));
+                    }
                 } catch (Throwable e) {
                     MainLogger.get().error("Prediction failed", e);
                     predictionResult = PredictionResult.failed(PredictionResult.Error.GENERAL);

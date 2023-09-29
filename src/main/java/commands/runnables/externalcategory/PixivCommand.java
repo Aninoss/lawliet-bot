@@ -12,6 +12,8 @@ import constants.Settings;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.internet.HttpRequest;
 import core.utils.EmbedUtil;
 import core.utils.FileUtil;
@@ -67,7 +69,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException, JsonProcessingException {
-        if (args.length() == 0) {
+        if (args.isEmpty()) {
             drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "no_args")))
                     .exceptionally(ExceptionLogger.get());
             return false;
@@ -83,6 +85,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
             }
 
             this.args = args;
+            FeatureLogger.inc(PremiumFeature.PIXIV, event.getGuild().getIdLong());
             event.deferReply();
             try {
                 return pixivDownloader.retrieveImage(event.getGuild().getIdLong(), args, event.getTextChannel().isNSFW(), filterSet).get()
@@ -131,6 +134,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
             }
 
             slot.setNextRequest(Instant.now().plus(15, ChronoUnit.MINUTES));
+            FeatureLogger.inc(PremiumFeature.PIXIV, slot.getGuildId());
             Optional<PostBundle<PixivImage>> postBundleOpt;
             try {
                 postBundleOpt = pixivDownloader.retrieveImagesBulk(slot.getGuildId(), key, slot.getArgs().orElse(null), filterSet).get();
@@ -171,7 +175,7 @@ public class PixivCommand extends Command implements OnButtonListener, OnAlertLi
                     return AlertResponse.STOP_AND_DELETE;
                 }
 
-                if (embedList.size() > 0) {
+                if (!embedList.isEmpty()) {
                     while (totalEmbedSize > MessageEmbed.EMBED_MAX_LENGTH_BOT) {
                         totalEmbedSize -= embedList.remove(0).getLength();
                         proxyImageUrlList.remove(0);

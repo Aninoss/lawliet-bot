@@ -8,6 +8,8 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.cache.ServerPatreonBoostCache;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.entity.CustomCommandEntity;
@@ -39,10 +41,14 @@ public class CustomCommand extends Command {
             return false;
         }
 
-        if (customCommands.size() > CustomConfigCommand.MAX_COMMANDS_FREE && !ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-            EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("nopro"));
-            drawMessageNew(eb).exceptionally(ExceptionLogger.get());
-            return false;
+        if (customCommands.size() > CustomConfigCommand.MAX_COMMANDS_FREE) {
+            if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                FeatureLogger.inc(PremiumFeature.CUSTOM_COMMANDS, event.getGuild().getIdLong());
+            } else {
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("nopro"));
+                drawMessageNew(eb).exceptionally(ExceptionLogger.get());
+                return false;
+            }
         }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, StringUtil.shortenString(customCommand.getTextResponse(), MessageEmbed.VALUE_MAX_LENGTH))

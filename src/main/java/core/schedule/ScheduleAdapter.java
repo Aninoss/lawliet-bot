@@ -1,6 +1,7 @@
 package core.schedule;
 
 import constants.ExceptionRunnable;
+import core.GlobalThreadPool;
 import core.MainLogger;
 
 public class ScheduleAdapter implements Runnable {
@@ -13,11 +14,13 @@ public class ScheduleAdapter implements Runnable {
 
     @Override
     public void run() {
-        try {
-            scheduleEvent.run();
-        } catch (Throwable throwable) {
-            MainLogger.get().error("Scheduled event failed", throwable);
-        }
+        GlobalThreadPool.submit(() -> {
+            try {
+                scheduleEvent.run();
+            } catch (Throwable throwable) {
+                MainLogger.get().error("Scheduled event failed", throwable);
+            }
+        });
     }
 
 }

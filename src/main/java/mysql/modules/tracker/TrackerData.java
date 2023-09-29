@@ -1,11 +1,5 @@
 package mysql.modules.tracker;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.stream.Collectors;
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.WebhookClientBuilder;
 import club.minnced.discord.webhook.send.AllowedMentions;
@@ -21,6 +15,8 @@ import core.TextManager;
 import core.assets.StandardGuildMessageChannelAsset;
 import core.cache.ServerPatreonBoostCache;
 import core.components.WebhookMessageBuilderAdvanced;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import mysql.DataWithGuild;
@@ -33,6 +29,13 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 public class TrackerData extends DataWithGuild implements StandardGuildMessageChannelAsset {
 
@@ -123,8 +126,12 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
         if (!ServerPatreonBoostCache.get(getGuildId())) {
             return Optional.empty();
         }
-        return getUserMessage()
+        Optional<String> userMessageOpt = getUserMessage()
                 .map(message -> TextManager.getString(locale, Category.UTILITY, "alerts_action", StringUtil.shortenString(message, 1024)));
+        if (userMessageOpt.isPresent()) {
+            FeatureLogger.inc(PremiumFeature.ALERTS, getGuildId());
+        }
+        return userMessageOpt;
     }
 
     public Instant getNextRequest() {

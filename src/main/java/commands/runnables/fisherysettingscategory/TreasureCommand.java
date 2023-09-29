@@ -1,6 +1,5 @@
 package commands.runnables.fisherysettingscategory;
 
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -9,6 +8,8 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.atomicassets.AtomicTextChannel;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
@@ -16,6 +17,8 @@ import core.utils.StringUtil;
 import modules.fishery.Fishery;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "treasure",
@@ -35,7 +38,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
     public boolean onFisheryAccess(CommandEvent event, String args) {
         TextChannel channel = event.getTextChannel();
         MentionList<TextChannel> channelMention = MentionUtil.getTextChannels(event.getGuild(), args);
-        if (channelMention.getList().size() > 0) {
+        if (!channelMention.getList().isEmpty()) {
             channel = channelMention.getList().get(0);
             args = channelMention.getFilteredArgs().trim();
         }
@@ -47,7 +50,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
         }
 
         int amount = 1;
-        if (args.length() > 0) {
+        if (!args.isEmpty()) {
             if (StringUtil.stringIsInt(args)) {
                 amount = Integer.parseInt(args);
                 if (amount < 1 || amount > 30) {
@@ -66,6 +69,7 @@ public class TreasureCommand extends Command implements FisheryInterface {
             }
         }
 
+        FeatureLogger.inc(PremiumFeature.FISHERY, event.getGuild().getIdLong());
         for (int i = 0; i < amount; i++) {
             Fishery.spawnTreasureChest(channel, getGuildEntity());
         }

@@ -1,8 +1,5 @@
 package modules;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import constants.Language;
 import core.EmbedFactory;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -10,6 +7,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SupportTemplates {
 
@@ -53,14 +54,18 @@ public class SupportTemplates {
 
     public static void process(MessageContextInteractionEvent event) {
         Language language = findLanguage(event.getChannel().asTextChannel().getParentCategory());
-        String text = switch (findCommandIndex(event.getName())) {
-            case 0 -> TEXT_WRONG_CHANNEL[language.ordinal()];
-            case 1 -> TEXT_FAQ[language.ordinal()];
-            case 2 -> TEXT_ANNOUNCEMENTS_OR_TECHNICAL_ISSUES[language.ordinal()];
-            case 3 -> TEXT_ENGLISH;
-            case 4 -> TEXT_GIF_REQUEST_INFO;
-            default -> "Unknown error";
-        };
+        String text;
+        switch (findCommandIndex(event.getName())) {
+            case 0 -> text = TEXT_WRONG_CHANNEL[language.ordinal()];
+            case 1 -> text = TEXT_FAQ[language.ordinal()];
+            case 2 -> text = TEXT_ANNOUNCEMENTS_OR_TECHNICAL_ISSUES[language.ordinal()];
+            case 3 -> {
+                text = TEXT_ENGLISH;
+                event.getTarget().delete().queue();
+            }
+            case 4 -> text = TEXT_GIF_REQUEST_INFO;
+            default -> text = "Unknown error";
+        }
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setAuthor("Lawliet Support")

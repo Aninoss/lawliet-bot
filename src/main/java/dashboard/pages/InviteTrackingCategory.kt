@@ -6,6 +6,8 @@ import commands.runnables.invitetrackingcategory.InviteTrackingCommand
 import commands.runnables.invitetrackingcategory.InvitesManageCommand
 import core.TextManager
 import core.atomicassets.AtomicMember
+import core.featurelogger.FeatureLogger
+import core.featurelogger.PremiumFeature
 import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardComponent
@@ -208,6 +210,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                             .withRedraw()
                     }
 
+                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, atomicGuild.idLong)
                     inviteTrackingData.inviteTrackingSlots.remove(it.data.toLong())
                     ActionResult()
                         .withRedraw()
@@ -222,6 +225,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                             .withRedraw()
                     }
 
+                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, atomicGuild.idLong)
                     DBInviteTracking.getInstance().resetInviteTrackerSlotsOfInviter(atomicGuild.idLong, manageMember!!.toLong())
                     ActionResult()
                         .withRedraw()
@@ -259,7 +263,8 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                 if (addInviteMember != null) {
                     val inviteTrackingSlot =
                         InviteTrackingSlot(atomicGuild.idLong, addInviteMember!!, manageMember!!, LocalDate.now(), LocalDate.now(), true)
-                    inviteTrackingData.inviteTrackingSlots.put(inviteTrackingSlot.memberId, inviteTrackingSlot)
+                    FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, atomicGuild.idLong)
+                    inviteTrackingData.inviteTrackingSlots[inviteTrackingSlot.memberId] = inviteTrackingSlot
                     addInviteMember = null
                     ActionResult()
                         .withRedraw()

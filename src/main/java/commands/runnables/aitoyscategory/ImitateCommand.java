@@ -1,17 +1,13 @@
 package commands.runnables.aitoyscategory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;
 import core.utils.*;
 import modules.textai.TextAI;
@@ -23,6 +19,13 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "imitate",
@@ -43,6 +46,8 @@ public class ImitateCommand extends Command {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
+        FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
+
         MentionList<Member> memberMentions = MentionUtil.getMembers(event.getGuild(), args, event.getRepliedMember());
         List<Member> members = memberMentions.getList();
 

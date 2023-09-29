@@ -5,6 +5,8 @@ import commands.Command;
 import commands.runnables.fisherysettingscategory.VoteRewardsCommand;
 import core.*;
 import core.cache.ServerPatreonBoostCache;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.StringUtil;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
@@ -44,6 +46,7 @@ public class OnTopGGVoteRewards implements SyncServerFunction {
                     !auth.equals(fisheryEntity.getVoteRewardsAuthorization())) {
                 return generateJsonObject(false);
             }
+            FeatureLogger.inc(PremiumFeature.FISHERY, guildId);
 
             GuildMessageChannel voteRewardsChannel = fisheryEntity.getVoteRewardsChannel().get().orElse(null);
             if (!type.equals("upvote")) {

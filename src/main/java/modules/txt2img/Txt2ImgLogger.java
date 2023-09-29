@@ -12,10 +12,11 @@ public class Txt2ImgLogger {
 
     private static final WebhookClient client = WebhookClient.withUrl(System.getenv("TXT2IMG_LOG_WEBHOOK"));
 
-    public static void log(String prompt, long userId) throws ExecutionException, InterruptedException {
+    public static void log(String prompt, long userId, String model, String imageUrl) throws ExecutionException, InterruptedException {
         WebhookEmbed webhookEmbed = new WebhookEmbedBuilder()
                 .setColor(new Color(254, 254, 254).getRGB())
-                .setDescription("```" + StringUtil.escapeMarkdownInField(prompt) + "```\n- User ID: " + userId)
+                .setDescription("```" + StringUtil.escapeMarkdownInField(prompt) + "```\n- User ID: " + userId + "\n- Model: " + model)
+                .setImageUrl(imageUrl)
                 .build();
         client.send(webhookEmbed).get();
     }
