@@ -1,5 +1,11 @@
 package core.utils;
 
+import com.google.common.net.UrlEscapers;
+import core.LocalFile;
+import core.MainLogger;
+import core.internet.HttpCache;
+import net.dv8tion.jda.api.EmbedBuilder;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,11 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import com.google.common.net.UrlEscapers;
-import core.LocalFile;
-import core.MainLogger;
-import core.internet.HttpCache;
-import net.dv8tion.jda.api.EmbedBuilder;
 
 public final class InternetUtil {
 
@@ -32,6 +33,10 @@ public final class InternetUtil {
     }
 
     public static boolean uriIsImage(String url) {
+        int index = url.indexOf('?');
+        if (index != -1) {
+            url = url.substring(0, index);
+        }
         return url.endsWith(".jpeg") || url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".bmp") || url.endsWith(".gif");
     }
 

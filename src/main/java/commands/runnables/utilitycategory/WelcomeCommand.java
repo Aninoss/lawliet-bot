@@ -74,7 +74,7 @@ public class WelcomeCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) throws IOException, ExecutionException, InterruptedException {
         switch (state) {
             case 1:
-                if (input.length() > 0) {
+                if (!input.isEmpty()) {
                     if (input.length() <= MAX_WELCOME_TITLE_LENGTH) {
                         welcomeMessageData.setWelcomeTitle(input);
                         setLog(LogStatus.SUCCESS, getString("titleset"));
@@ -88,7 +88,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 return MessageInputResponse.FAILED;
 
             case 2:
-                if (input.length() > 0) {
+                if (!input.isEmpty()) {
                     if (input.length() <= MAX_WELCOME_DESCRIPTION_LENGTH) {
                         welcomeMessageData.setWelcomeText(input);
                         setLog(LogStatus.SUCCESS, getString("textset"));
@@ -103,7 +103,7 @@ public class WelcomeCommand extends NavigationAbstract {
 
             case 3:
                 List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-                if (channelList.size() == 0) {
+                if (channelList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else {
@@ -119,7 +119,7 @@ public class WelcomeCommand extends NavigationAbstract {
 
             case 4:
                 List<Message.Attachment> attachmentList = event.getMessage().getAttachments();
-                if (attachmentList.size() > 0 && attachmentList.get(0).isImage()) {
+                if (!attachmentList.isEmpty() && attachmentList.get(0).isImage()) {
                     LocalFile localFile = new LocalFile(LocalFile.Directory.WELCOME_BACKGROUNDS, String.format("%d.png", event.getGuild().getIdLong()));
                     if (FileUtil.downloadImageAttachment(attachmentList.get(0), localFile)) {
                         setLog(LogStatus.SUCCESS, getString("backgroundset"));
@@ -132,7 +132,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 return MessageInputResponse.FAILED;
 
             case 6:
-                if (input.length() > 0) {
+                if (!input.isEmpty()) {
                     if (input.length() <= MAX_FAREWELL_DESCRIPTION_LENGTH) {
                         welcomeMessageData.setGoodbyeText(input);
                         setLog(LogStatus.SUCCESS, getString("textset"));
@@ -147,7 +147,7 @@ public class WelcomeCommand extends NavigationAbstract {
 
             case 7:
                 channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-                if (channelList.size() == 0) {
+                if (channelList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else {
@@ -162,7 +162,7 @@ public class WelcomeCommand extends NavigationAbstract {
                 }
 
             case 8:
-                if (input.length() > 0) {
+                if (!input.isEmpty()) {
                     if (input.length() <= MAX_DM_DESCRIPTION_LENGTH) {
                         welcomeMessageData.setDmText(input);
                         setLog(LogStatus.SUCCESS, getString("textset"));
