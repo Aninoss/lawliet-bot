@@ -1,13 +1,14 @@
 package mysql.modules.ticket;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import core.CustomObservableList;
 import core.CustomObservableMap;
 import core.cache.ServerPatreonBoostCache;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class TicketData extends DataWithGuild {
 
@@ -157,11 +158,7 @@ public class TicketData extends DataWithGuild {
     }
 
     public Integer getAutoCloseHoursEffectively() {
-        if (ServerPatreonBoostCache.get(getGuildId())) {
-            return getAutoCloseHours();
-        } else {
-            return null;
-        }
+        return ServerPatreonBoostCache.get(getGuildId()) ? getAutoCloseHours() : null;
     }
 
     public void setAutoCloseHours(Integer autoCloseHours) {

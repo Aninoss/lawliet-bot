@@ -54,12 +54,12 @@ import java.util.concurrent.TimeoutException;
 @CommandProperties(
         trigger = "reactionroles",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-        botGuildPermissions = { Permission.MANAGE_ROLES, Permission.MESSAGE_HISTORY },
+        botGuildPermissions = {Permission.MANAGE_ROLES, Permission.MESSAGE_HISTORY},
         userGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "☑️️",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "rmess", "reactionrole", "rroles", "selfrole", "selfroles", "sroles", "srole" }
+        aliases = {"rmess", "reactionrole", "rroles", "selfrole", "selfroles", "sroles", "srole"}
 )
 public class ReactionRolesCommand extends NavigationAbstract implements OnReactionListener, OnStaticReactionAddListener, OnStaticReactionRemoveListener, OnStaticButtonListener, OnStaticStringSelectMenuListener {
 
@@ -731,6 +731,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             return;
         }
 
+        boolean premium = ServerPatreonBoostCache.get(event.getGuild().getIdLong());
         Member member = event.getMember();
         ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(message.getGuildChannel().asStandardGuildMessageChannel(), message.getIdLong());
         if (reactionRoleMessage == null ||
@@ -740,15 +741,17 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             return;
         }
 
-        if (!reactionRoleMessage.getRoleRequirements().isEmpty()) {
-            if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                FeatureLogger.inc(PremiumFeature.REACTION_ROLES, event.getGuild().getIdLong());
-            } else {
-                sendUserErrorDm(event.getMember(), getString("components_result_nopro"));
-                return;
-            }
+        if (usesRoleRequirementsWithoutPremium(reactionRoleMessage, premium)) {
+            sendUserErrorDm(event.getMember(), getString("components_result_nopro"));
+            return;
         }
-        processFeatureLogger(reactionRoleMessage);
+
+        if (usesNewComponentTypesWithoutPremium(reactionRoleMessage, premium)) {
+            sendUserErrorDm(event.getMember(), getString("components_result_nopro_nonreactionsexceeded", StringUtil.numToString(MAX_NEW_COMPONENTS_MESSAGES)));
+            return;
+        }
+
+        checkUsesCustomLabels(reactionRoleMessage, premium);
 
         if (violatesRoleRequirements(reactionRoleMessage, event.getMember())) {
             sendUserErrorDm(event.getMember(), getString("components_result_rolerequirements"));
@@ -790,6 +793,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         if (!(event.getChannel() instanceof TextChannel)) {
             return;
         }
+        boolean premium = ServerPatreonBoostCache.get(event.getGuild().getIdLong());
 
         ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(message.getGuildChannel().asStandardGuildMessageChannel(), message.getIdLong());
         if (reactionRoleMessage == null ||
@@ -803,15 +807,17 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             return;
         }
 
-        if (!reactionRoleMessage.getRoleRequirements().isEmpty()) {
-            if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                FeatureLogger.inc(PremiumFeature.REACTION_ROLES, event.getGuild().getIdLong());
-            } else {
-                sendUserErrorDm(event.getMember(), getString("components_result_nopro"));
-                return;
-            }
+        if (usesRoleRequirementsWithoutPremium(reactionRoleMessage, premium)) {
+            sendUserErrorDm(event.getMember(), getString("components_result_nopro"));
+            return;
         }
-        processFeatureLogger(reactionRoleMessage);
+
+        if (usesNewComponentTypesWithoutPremium(reactionRoleMessage, premium)) {
+            sendUserErrorDm(event.getMember(), getString("components_result_nopro_nonreactionsexceeded", StringUtil.numToString(MAX_NEW_COMPONENTS_MESSAGES)));
+            return;
+        }
+
+        checkUsesCustomLabels(reactionRoleMessage, premium);
 
         if (violatesRoleRequirements(reactionRoleMessage, event.getMember())) {
             sendUserErrorDm(event.getMember(), getString("components_result_rolerequirements"));
@@ -837,6 +843,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         if (!(event.getChannel() instanceof TextChannel)) {
             return;
         }
+        boolean premium = ServerPatreonBoostCache.get(event.getGuild().getIdLong());
 
         Member member = event.getMember();
         ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(event.getGuildChannel().asStandardGuildMessageChannel(), event.getMessageIdLong());
@@ -846,17 +853,21 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             return;
         }
 
-        if (!reactionRoleMessage.getRoleRequirements().isEmpty()) {
-            if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                FeatureLogger.inc(PremiumFeature.REACTION_ROLES, event.getGuild().getIdLong());
-            } else {
-                event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_nopro")).build())
-                        .setEphemeral(true)
-                        .queue();
-                return;
-            }
+        if (usesRoleRequirementsWithoutPremium(reactionRoleMessage, premium)) {
+            event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_nopro")).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
         }
-        processFeatureLogger(reactionRoleMessage);
+
+        if (usesNewComponentTypesWithoutPremium(reactionRoleMessage, premium)) {
+            event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_nopro_nonreactionsexceeded", StringUtil.numToString(MAX_NEW_COMPONENTS_MESSAGES))).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        checkUsesCustomLabels(reactionRoleMessage, premium);
 
         if (violatesRoleRequirements(reactionRoleMessage, member)) {
             event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_rolerequirements")).build())
@@ -961,6 +972,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
         if (!(event.getChannel() instanceof TextChannel)) {
             return;
         }
+        boolean premium = ServerPatreonBoostCache.get(event.getGuild().getIdLong());
 
         Member member = event.getMember();
         ReactionRoleMessage reactionRoleMessage = ReactionRoles.getReactionRoleMessage(event.getGuildChannel().asStandardGuildMessageChannel(), event.getMessageIdLong());
@@ -970,17 +982,21 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             return;
         }
 
-        if (!reactionRoleMessage.getRoleRequirements().isEmpty()) {
-            if (ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                FeatureLogger.inc(PremiumFeature.REACTION_ROLES, event.getGuild().getIdLong());
-            } else {
-                event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_nopro")).build())
-                        .setEphemeral(true)
-                        .queue();
-                return;
-            }
+        if (usesRoleRequirementsWithoutPremium(reactionRoleMessage, premium)) {
+            event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_nopro")).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
         }
-        processFeatureLogger(reactionRoleMessage);
+
+        if (usesNewComponentTypesWithoutPremium(reactionRoleMessage, premium)) {
+            event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_nopro_nonreactionsexceeded", StringUtil.numToString(MAX_NEW_COMPONENTS_MESSAGES))).build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
+        checkUsesCustomLabels(reactionRoleMessage, premium);
 
         if (violatesRoleRequirements(reactionRoleMessage, member)) {
             event.replyEmbeds(EmbedFactory.getEmbedError(this, getString("components_result_rolerequirements")).build())
@@ -1177,22 +1193,39 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 reactionRoleMessage.getRoleRequirements().stream().noneMatch(atomicRole -> member.getRoles().stream().anyMatch(r -> r.getIdLong() == atomicRole.getIdLong()));
     }
 
-    private void processFeatureLogger(ReactionRoleMessage reactionRoleMessage) {
-        if (!ServerPatreonBoostCache.get(reactionRoleMessage.getGuildId())) {
-            return;
-        }
-
-        if (reactionRoleMessage.getSlots().stream().anyMatch(slot -> slot.getCustomLabel() != null)) {
+    private void checkUsesCustomLabels(ReactionRoleMessage reactionRoleMessage, boolean premium) {
+        if (premium && reactionRoleMessage.getSlots().stream().anyMatch(slot -> slot.getCustomLabel() != null)) {
             FeatureLogger.inc(PremiumFeature.REACTION_ROLES, reactionRoleMessage.getGuildId());
-            return;
+        }
+    }
+
+    private boolean usesRoleRequirementsWithoutPremium(ReactionRoleMessage reactionRoleMessage, boolean premium) {
+        if (!reactionRoleMessage.getRoleRequirements().isEmpty()) {
+            if (premium) {
+                FeatureLogger.inc(PremiumFeature.REACTION_ROLES, reactionRoleMessage.getGuildId());
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean usesNewComponentTypesWithoutPremium(ReactionRoleMessage reactionRoleMessage, boolean premium) {
+        if (reactionRoleMessage.getNewComponents() == ReactionRoleMessage.ComponentType.REACTIONS) {
+            return false;
         }
 
         int newComponentTypeMessages = (int) DBReactionRoles.getInstance().retrieve(reactionRoleMessage.getGuildId()).values().stream()
                 .filter(r -> r.getNewComponents() != ReactionRoleMessage.ComponentType.REACTIONS)
                 .count();
         if (newComponentTypeMessages > ReactionRolesCommand.MAX_NEW_COMPONENTS_MESSAGES) {
-            FeatureLogger.inc(PremiumFeature.REACTION_ROLES, reactionRoleMessage.getGuildId());
+            if (premium) {
+                FeatureLogger.inc(PremiumFeature.REACTION_ROLES, reactionRoleMessage.getGuildId());
+            } else {
+                return true;
+            }
         }
+        return false;
     }
 
 }
