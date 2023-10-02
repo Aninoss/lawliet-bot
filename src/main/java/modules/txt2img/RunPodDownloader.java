@@ -24,13 +24,8 @@ public class RunPodDownloader {
         if (!negativePrompt.isBlank()) {
             inputJson.put("negative_prompt", negativePrompt);
         }
-        inputJson.put("width", 768);
-        inputJson.put("height", 768);
-        inputJson.put("guidance_scale", model.getGuidanceScale());
-        inputJson.put("num_inference_steps", model.getNumInferenceSteps());
-        inputJson.put("num_outputs", model.getNumOutputs());
-        inputJson.put("scheduler", model.getScheduler());
         inputJson.put("seed", Math.abs(r.nextLong()));
+        model.getInputMap().forEach(inputJson::put);
 
         JSONObject requestJson = new JSONObject();
         requestJson.put("input", inputJson);
@@ -64,9 +59,17 @@ public class RunPodDownloader {
 
             ArrayList<String> outputs = new ArrayList<>();
             if (status == PredictionResult.Status.COMPLETED) {
-                JSONArray outputJson = responseJson.getJSONArray("output");
-                for (int i = 0; i < outputJson.length(); i++) {
-                    outputs.add(outputJson.getJSONObject(i).getString("image"));
+                Object output = responseJson.get("output");
+                if (output instanceof JSONArray) {
+                    JSONArray outputJson = (JSONArray) output;
+                    for (int i = 0; i < outputJson.length(); i++) {
+                        outputs.add(outputJson.getJSONObject(i).getString("image"));
+                    }
+                } else if (output instanceof JSONObject) {
+                    JSONObject outputJson = (JSONObject) output;
+                    outputs.add(outputJson.getString("image_url"));
+                } else if (output instanceof String) {
+                    outputs.add((String) output);
                 }
 
                 if (outputs.isEmpty()) {
