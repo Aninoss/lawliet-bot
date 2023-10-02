@@ -64,7 +64,7 @@ public class HelpCommand extends NavigationAbstract {
 
     @ControllerMessage(state = DEFAULT_STATE)
     public MessageInputResponse onMessage(MessageReceivedEvent event, String input) {
-        if (input.length() > 0 && buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(input))) {
+        if (!input.isEmpty() && buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(input))) {
             searchTerm = input;
             return MessageInputResponse.SUCCESS;
         }
@@ -114,7 +114,7 @@ public class HelpCommand extends NavigationAbstract {
         if ((eb = checkCommand(member, channel, arg)) == null) {
             if ((eb = checkCategory(member, channel, arg)) == null) {
                 eb = checkMainPage(member, channel);
-                if (arg.length() > 0) {
+                if (!arg.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));
                 }
             }
@@ -207,7 +207,7 @@ public class HelpCommand extends NavigationAbstract {
             arg = arg.substring(4);
         }
 
-        if (arg.length() > 0) {
+        if (!arg.isEmpty()) {
             boolean halfMatchFound = false;
             Category category = null;
             for (Category value : Category.values()) {
@@ -274,7 +274,7 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
-            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && CommandManager.commandIsTurnedOnIgnoreAdmin(command, member, getTextChannel().get())) {
+            if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && CommandManager.commandIsTurnedOnEffectively(command, member, getTextChannel().get())) {
                 buttonMap.put(counter.getAndIncrement(), command.getTrigger());
                 stringBuilder
                         .append("• `")
@@ -287,7 +287,7 @@ public class HelpCommand extends NavigationAbstract {
 
                 i++;
                 if (i >= 10) {
-                    if (stringBuilder.length() > 0) {
+                    if (!stringBuilder.isEmpty()) {
                         eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilder.toString(), true);
                     }
                     stringBuilder = new StringBuilder();
@@ -295,7 +295,7 @@ public class HelpCommand extends NavigationAbstract {
                 }
             }
         }
-        if (stringBuilder.length() > 0) {
+        if (!stringBuilder.isEmpty()) {
             eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), stringBuilder.toString(), true);
         }
     }
@@ -312,7 +312,7 @@ public class HelpCommand extends NavigationAbstract {
                 String commandTrigger = command.getTrigger();
                 if (command.getCommandProperties().patreonRequired() &&
                         !commandTrigger.equals(getTrigger()) &&
-                        CommandManager.commandIsTurnedOnIgnoreAdmin(command, member, getTextChannel().get()) &&
+                        CommandManager.commandIsTurnedOnEffectively(command, member, getTextChannel().get()) &&
                         (!command.getCommandProperties().nsfw() || channel.isNSFW())
                 ) {
                     StringBuilder title = new StringBuilder();
@@ -360,7 +360,7 @@ public class HelpCommand extends NavigationAbstract {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
             String commandTrigger = command.getTrigger();
             if (!commandTrigger.equals(getTrigger()) &&
-                    CommandManager.commandIsTurnedOnIgnoreAdmin(command, member, getTextChannel().get())
+                    CommandManager.commandIsTurnedOnEffectively(command, member, getTextChannel().get())
             ) {
                 StringBuilder title = new StringBuilder();
                 title.append(command.getCommandProperties().emoji())
@@ -406,7 +406,7 @@ public class HelpCommand extends NavigationAbstract {
         for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(Category.NSFW)) {
             Command command = CommandManager.createCommandByClass(clazz, getLocale(), getPrefix());
 
-            if (CommandManager.commandIsTurnedOnIgnoreAdmin(command, member, getTextChannel().get())) {
+            if (CommandManager.commandIsTurnedOnEffectively(command, member, getTextChannel().get())) {
                 buttonMap.put(i++, command.getTrigger());
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
@@ -423,14 +423,14 @@ public class HelpCommand extends NavigationAbstract {
             }
         }
 
-        if (withSearchKey.length() > 0) {
+        if (!withSearchKey.isEmpty()) {
             withSearchKey.append("\n").append(getString("nsfw_searchkey_on_eg")).append("\n").append(Emojis.ZERO_WIDTH_SPACE.getFormatted());
             eb.addField(getString("nsfw_searchkey_on"), withSearchKey.toString(), false);
         }
-        if (withoutSearchKeyHentai.length() > 0) {
+        if (!withoutSearchKeyHentai.isEmpty()) {
             eb.addField(getString("nsfw_searchkey_off_hentai"), withoutSearchKeyHentai.toString(), true);
         }
-        if (withoutSearchKeyRealLife.length() > 0) {
+        if (!withoutSearchKeyRealLife.isEmpty()) {
             eb.addField(getString("nsfw_searchkey_off_rl"), withoutSearchKeyRealLife.toString(), true);
         }
 
@@ -447,7 +447,7 @@ public class HelpCommand extends NavigationAbstract {
             sb.append(CommandIcon.PATREON.get(channel));
         }
 
-        return sb.length() == 0 ? "" : "┊" + sb;
+        return sb.isEmpty() ? "" : "┊" + sb;
     }
 
     private void addIconDescriptions(TextChannel channel, EmbedBuilder eb, boolean includeLocked, boolean includeAlerts, boolean includeNSFW, boolean includePatreon) {
@@ -500,7 +500,7 @@ public class HelpCommand extends NavigationAbstract {
         StringSelectMenu.Builder builder = StringSelectMenu.create("category")
                 .setPlaceholder(getString("category_placeholder"));
         for (Category category : Category.values()) {
-            if (CommandManager.categoryIsTurnedOnIgnoreAdmin(category, member, channel) &&
+            if (CommandManager.categoryIsTurnedOnEffectively(category, member, channel) &&
                     (!category.isNSFW() || channel.isNSFW())
             ) {
                 String label = TextManager.getString(getLocale(), TextManager.COMMANDS, category.getId());
