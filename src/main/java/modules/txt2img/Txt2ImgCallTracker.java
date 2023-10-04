@@ -1,27 +1,33 @@
 package modules.txt2img;
 
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.UserEntity;
+
 import java.time.LocalDate;
-import java.util.HashMap;
 
 public class Txt2ImgCallTracker {
 
-    private static final HashMap<Long, Integer> callMap = new HashMap<>();
-    private static LocalDate lastCallDate = LocalDate.now();
-
-    public static int getCalls(long guildId, long userId) {
-        resetCallMapOnNewDay();
-        return callMap.getOrDefault(guildId + userId, 0);
+    public static int getCalls(EntityManagerWrapper entityManager, long userId) {
+        UserEntity user = entityManager.findOrDefault(UserEntity.class, String.valueOf(userId));
+        resetCallsOnNewDay(user);
+        return user.getTxt2ImgCalls();
     }
 
-    public static void increaseCalls(long guildId, long userId) {
-        int calls = getCalls(guildId, userId);
-        callMap.put(guildId + userId, calls + 1);
+    public static void increaseCalls(EntityManagerWrapper entityManager, long userId) {
+        UserEntity user = entityManager.findOrDefault(UserEntity.class, String.valueOf(userId));
+        resetCallsOnNewDay(user);
+        user.beginTransaction();
+        user.setTxt2ImgCalls(user.getTxt2ImgCalls() + 1);
+        user.setTxt2ImgCallsDate(LocalDate.now());
+        user.commitTransaction();
     }
 
-    private static void resetCallMapOnNewDay() {
-        if (LocalDate.now().isAfter(lastCallDate)) {
-            lastCallDate = LocalDate.now();
-            callMap.clear();
+    private static void resetCallsOnNewDay(UserEntity user) {
+        if (user.getTxt2ImgCallsDate() != null && LocalDate.now().isAfter(user.getTxt2ImgCallsDate())) {
+            user.beginTransaction();
+            user.setTxt2ImgCalls(0);
+            user.setTxt2ImgCallsDate(LocalDate.now());
+            user.commitTransaction();
         }
     }
 

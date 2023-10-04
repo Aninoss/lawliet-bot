@@ -236,7 +236,7 @@ public abstract class Command implements OnTriggerListener {
                         messageAction = JDAUtil.replyMessageEmbeds(message, getGuildEntity(), embeds);
                     }
                     if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
-                        if (fileAttachmentMap.size() > 0) {
+                        if (!fileAttachmentMap.isEmpty()) {
                             for (String fileName : fileAttachmentMap.keySet()) {
                                 messageAction = messageAction.addFiles(FileUpload.fromData(fileAttachmentMap.get(fileName), fileName));
                             }
@@ -253,7 +253,7 @@ public abstract class Command implements OnTriggerListener {
                         messageAction = commandEvent.replyMessageEmbeds(getGuildEntity(), embeds);
                     }
                     if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
-                        if (fileAttachmentMap.size() > 0) {
+                        if (!fileAttachmentMap.isEmpty()) {
                             for (String fileName : fileAttachmentMap.keySet()) {
                                 messageAction = messageAction.addFiles(FileUpload.fromData(fileAttachmentMap.get(fileName), fileName));
                             }

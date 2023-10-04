@@ -12,7 +12,7 @@ public class PredictionResult {
 
     private final double progress;
     private final Status status;
-    private final List<String> outputs;
+    private List<String> outputs;
     private final Error error;
 
     public PredictionResult(double progress, Status status, List<String> outputs, Error error) {
@@ -32,6 +32,10 @@ public class PredictionResult {
 
     public List<String> getOutputs() {
         return outputs;
+    }
+
+    public void setOutputs(List<String> outputs) {
+        this.outputs = outputs;
     }
 
     public Error getError() {

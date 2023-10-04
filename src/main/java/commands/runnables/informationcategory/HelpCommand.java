@@ -5,6 +5,7 @@ import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.listeners.OnAlertListener;
 import commands.runnables.*;
+import commands.runnables.nsfwcategory.Txt2HentaiCommand;
 import constants.Emojis;
 import constants.ExternalLinks;
 import constants.LogStatus;
@@ -155,14 +156,14 @@ public class HelpCommand extends NavigationAbstract {
 
                 StringBuilder usage = new StringBuilder();
                 for (String line : TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_usage").split("\n")) {
-                    usage.append("• ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
+                    usage.append("- ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                 }
 
                 StringBuilder examples = new StringBuilder();
                 int exampleNumber = 0;
                 for (String line : TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_examples").split("\n")) {
                     line = StringUtil.solveVariablesOfCommandText(line, getTextChannel().get(), member, getPrefix());
-                    examples.append("• ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
+                    examples.append("- ").append(getPrefix()).append(commandTrigger).append(" ").append(line).append("\n");
                     exampleNumber++;
                 }
 
@@ -399,6 +400,7 @@ public class HelpCommand extends NavigationAbstract {
         eb.setDescription(getString("nsfw"));
 
         StringBuilder withSearchKey = new StringBuilder();
+        StringBuilder ai = new StringBuilder();
         StringBuilder withoutSearchKeyHentai = new StringBuilder();
         StringBuilder withoutSearchKeyRealLife = new StringBuilder();
 
@@ -419,6 +421,8 @@ public class HelpCommand extends NavigationAbstract {
                     } else {
                         withoutSearchKeyHentai.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
                     }
+                } else if (command instanceof Txt2HentaiCommand) {
+                    ai.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
                 }
             }
         }
@@ -427,11 +431,14 @@ public class HelpCommand extends NavigationAbstract {
             withSearchKey.append("\n").append(getString("nsfw_searchkey_on_eg")).append("\n").append(Emojis.ZERO_WIDTH_SPACE.getFormatted());
             eb.addField(getString("nsfw_searchkey_on"), withSearchKey.toString(), false);
         }
+        if (!ai.isEmpty()) {
+            eb.addField(getString("nsfw_ai"), ai.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), false);
+        }
         if (!withoutSearchKeyHentai.isEmpty()) {
-            eb.addField(getString("nsfw_searchkey_off_hentai"), withoutSearchKeyHentai.toString(), true);
+            eb.addField(getString("nsfw_searchkey_off_hentai"), withoutSearchKeyHentai.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true);
         }
         if (!withoutSearchKeyRealLife.isEmpty()) {
-            eb.addField(getString("nsfw_searchkey_off_rl"), withoutSearchKeyRealLife.toString(), true);
+            eb.addField(getString("nsfw_searchkey_off_rl"), withoutSearchKeyRealLife.append(Emojis.ZERO_WIDTH_SPACE.getFormatted()).toString(), true);
         }
 
         addIconDescriptions(channel, eb, false, false, false, true);
