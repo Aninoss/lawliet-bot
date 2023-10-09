@@ -39,8 +39,6 @@ public abstract class RunPodAbstract extends Command implements OnStringSelectMe
     public static String SELECT_ID_IMAGE = "image";
     public static String DEFAULT_NEGATIVE_PROMPT = "worst quality, low quality, low-res, ugly, extra limbs, missing limb, floating limbs, disconnected limbs, mutated hands, extra legs, extra arms, bad anatomy, bad proportions, weird hands, malformed hands, disproportionate, disfigured, mutation, mutated, deformed, head out of frame, body out of frame, poorly drawn face, poorly drawn hands, poorly drawn feet, disfigured, out of frame, long neck, big ears, tiling, bad hands, bad art, cross-eye, blurry, blurred, watermark";
 
-
-    public String[] filters;
     private String prompt;
     private String negativePrompt;
     private String predictionId = null;
@@ -49,10 +47,11 @@ public abstract class RunPodAbstract extends Command implements OnStringSelectMe
     private int currentImage = 0;
     private Instant startTime;
 
-    public RunPodAbstract(Locale locale, String prefix, String[] filters) {
+    public RunPodAbstract(Locale locale, String prefix) {
         super(locale, prefix);
-        this.filters = filters;
     }
+
+    public abstract List<String> getFilters(@NotNull CommandEvent event);
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
@@ -102,7 +101,7 @@ public abstract class RunPodAbstract extends Command implements OnStringSelectMe
             negativePrompt = DEFAULT_NEGATIVE_PROMPT;
         }
         prompt = StringUtil.shortenString(prompt, MessageEmbed.DESCRIPTION_MAX_LENGTH - 50);
-        if (NSFWUtil.containsNormalFilterTags(prompt, List.of(filters))) {
+        if (NSFWUtil.containsNormalFilterTags(prompt, getFilters(event))) {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("filterblock")))
                     .exceptionally(ExceptionLogger.get());
             return false;

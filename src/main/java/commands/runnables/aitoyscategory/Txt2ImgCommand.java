@@ -1,8 +1,11 @@
 package commands.runnables.aitoyscategory;
 
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.RunPodAbstract;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Locale;
 
 @CommandProperties(
@@ -19,7 +22,12 @@ public class Txt2ImgCommand extends RunPodAbstract {
             "cock", "dick", "vagina", "pussy", "cum", "sperm", "horny", "scat"};
 
     public Txt2ImgCommand(Locale locale, String prefix) {
-        super(locale, prefix, CONTENT_FILTERS);
+        super(locale, prefix);
+    }
+
+    @Override
+    public List<String> getFilters(@NotNull CommandEvent event) {
+        return List.of(CONTENT_FILTERS);
     }
 
 }

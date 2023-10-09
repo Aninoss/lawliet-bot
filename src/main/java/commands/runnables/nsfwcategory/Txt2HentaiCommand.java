@@ -1,10 +1,13 @@
 package commands.runnables.nsfwcategory;
 
+import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.RunPodAbstract;
 import constants.Settings;
+import mysql.modules.nsfwfilter.DBNSFWFilters;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
+import java.util.*;
 
 @CommandProperties(
         trigger = "txt2hentai",
@@ -17,7 +20,15 @@ import java.util.Locale;
 public class Txt2HentaiCommand extends RunPodAbstract {
 
     public Txt2HentaiCommand(Locale locale, String prefix) {
-        super(locale, prefix, Settings.NSFW_FILTERS);
+        super(locale, prefix);
+    }
+
+    @Override
+    public List<String> getFilters(@NotNull CommandEvent event) {
+        List<String> guildFilters = DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords();
+        ArrayList<String> filters = new ArrayList<>(List.of(Settings.NSFW_FILTERS));
+        guildFilters.forEach(filter -> filters.add(filter.toLowerCase()));
+        return filters;
     }
 
 }
