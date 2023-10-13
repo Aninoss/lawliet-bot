@@ -9,6 +9,7 @@ import events.scheduleevents.ScheduleEventManager;
 import events.sync.SendEvent;
 import modules.BumpReminder;
 import modules.SupportTemplates;
+import modules.moduserinteractions.ModUserInteractionManager;
 import modules.repair.MainRepair;
 import modules.schedulers.*;
 import net.dv8tion.jda.api.JDA;
@@ -153,10 +154,11 @@ public class DiscordConnector {
                         MainLogger.get().info("Pushing new slash commands");
                         jda.updateCommands()
                                 .addCommands(commandDataList)
+                                .addCommands(ModUserInteractionManager.generateUserCommands())
                                 .queue(SlashAssociations::registerSlashCommands);
                     } else {
                         MainLogger.get().info("Skipping slash commands because it's not a new version");
-                        jda.retrieveCommands().queue(SlashAssociations::registerSlashCommands);
+                        SlashAssociations.registerSlashCommands(commands);
                     }
                 });
             } else {
@@ -164,6 +166,7 @@ public class DiscordConnector {
                         .updateCommands()
                         .addCommands(commandDataList)
                         .addCommands(SupportTemplates.generateSupportContextCommands())
+                        .addCommands(ModUserInteractionManager.generateUserCommands())
                         .queue(commands -> {
                             SlashAssociations.registerSlashCommands(commands);
                             MainLogger.get().info("Successfully sent {} slash commands", commands.size());

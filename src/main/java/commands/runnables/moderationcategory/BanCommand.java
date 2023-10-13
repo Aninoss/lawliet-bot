@@ -1,9 +1,5 @@
 package commands.runnables.moderationcategory;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.EmbedFactory;
@@ -19,8 +15,13 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.utils.TimeFormat;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 @CommandProperties(
         trigger = "ban",
@@ -36,7 +37,7 @@ public class BanCommand extends WarnCommand {
     private long minutes;
 
     public BanCommand(Locale locale, String prefix) {
-        super(locale, prefix, true, false, true, true);
+        super(locale, prefix, true, false, true, true, true);
     }
 
     @Override
@@ -44,6 +45,12 @@ public class BanCommand extends WarnCommand {
         MentionValue<Long> mention = MentionUtil.getTimeMinutes(args);
         this.minutes = mention.getValue();
         return super.setUserListAndReason(event, mention.getFilteredArgs());
+    }
+
+    @Override
+    public void userActionPrepareExecution(User target, String reason, long durationMinutes, int amount) {
+        super.userActionPrepareExecution(target, reason, durationMinutes, amount);
+        this.minutes = durationMinutes;
     }
 
     @Override
@@ -66,7 +73,7 @@ public class BanCommand extends WarnCommand {
     }
 
     @Override
-    protected EmbedBuilder getActionEmbed(Member executor, TextChannel channel) {
+    protected EmbedBuilder getActionEmbed(Member executor, GuildChannel channel) {
         String remaining = TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(minutes)).toString();
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "action" : "action_temp", mention.isMultiple(), mention.getMentionText(), StringUtil.escapeMarkdown(executor.getUser().getAsTag()), StringUtil.escapeMarkdown(channel.getGuild().getName()), remaining));

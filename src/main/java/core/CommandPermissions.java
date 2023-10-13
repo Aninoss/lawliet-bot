@@ -9,7 +9,7 @@ import mysql.modules.slashpermissions.SlashPermissionsSlot;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.interactions.commands.privileges.IntegrationPrivilege;
 
 import java.util.HashMap;
@@ -49,16 +49,16 @@ public class CommandPermissions {
         return true;
     }
 
-    public static boolean hasAccess(Category category, Member member, TextChannel textChannel, boolean ignoreAdmin) {
+    public static boolean hasAccess(Category category, Member member, Channel channel, boolean ignoreAdmin) {
         if (CommandContainer.getCommandCategoryMap().containsKey(category)) {
             return CommandContainer.getCommandCategoryMap().get(category).stream()
-                    .anyMatch(clazz -> hasAccess(clazz, member, textChannel, ignoreAdmin));
+                    .anyMatch(clazz -> hasAccess(clazz, member, channel, ignoreAdmin));
         } else {
             return true;
         }
     }
 
-    public static boolean hasAccess(Class<? extends Command> clazz, Member member, TextChannel textChannel, boolean ignoreAdmin) {
+    public static boolean hasAccess(Class<? extends Command> clazz, Member member, Channel channel, boolean ignoreAdmin) {
         if (!ignoreAdmin && (BotPermissionUtil.can(member, Permission.ADMINISTRATOR) || member.isOwner())) {
             return true;
         }
@@ -67,17 +67,17 @@ public class CommandPermissions {
                 .getPermissionMap();
         String commandName = SlashAssociations.findName(clazz);
         if (commandName != null && permissionMap.containsKey(commandName)) {
-            return checkCommandAccess(permissionMap.get(commandName), member, textChannel);
+            return checkCommandAccess(permissionMap.get(commandName), member, channel);
         } else if (permissionMap.containsKey("")) {
-            return checkCommandAccess(permissionMap.get(""), member, textChannel);
+            return checkCommandAccess(permissionMap.get(""), member, channel);
         } else {
             return true;
         }
     }
 
-    private static boolean checkCommandAccess(List<SlashPermissionsSlot> commandPermissions, Member member, TextChannel textChannel) {
+    private static boolean checkCommandAccess(List<SlashPermissionsSlot> commandPermissions, Member member, Channel channel) {
         return checkPermissionsRolesAndUsers(commandPermissions, member) &&
-                (textChannel == null || checkPermissionsChannels(commandPermissions, textChannel));
+                (channel == null || checkPermissionsChannels(commandPermissions, channel));
     }
 
     private static boolean checkPermissionsRolesAndUsers(List<SlashPermissionsSlot> commandPermissions, Member member) {
@@ -103,14 +103,14 @@ public class CommandPermissions {
         return Objects.requireNonNullElse(allowed, true);
     }
 
-    private static boolean checkPermissionsChannels(List<SlashPermissionsSlot> commandPermissions, TextChannel textChannel) {
+    private static boolean checkPermissionsChannels(List<SlashPermissionsSlot> commandPermissions, Channel channel) {
         boolean allowed = true;
         for (SlashPermissionsSlot commandPermission : commandPermissions) {
             if (commandPermission.getType() == SlashPermissionsSlot.Type.CHANNEL) {
                 if (commandPermission.isDefaultObject()) {
                     allowed = commandPermission.isAllowed();
                 } else {
-                    if (commandPermission.getStandardGuildMessageChannelId() == textChannel.getIdLong()) {
+                    if (commandPermission.getStandardGuildMessageChannelId() == channel.getIdLong()) {
                         return commandPermission.isAllowed();
                     }
                 }

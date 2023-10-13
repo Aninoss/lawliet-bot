@@ -20,7 +20,7 @@ import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.utils.TimeFormat;
 
 import java.time.Duration;
@@ -49,19 +49,19 @@ public class JailCommand extends WarnCommand {
     }
 
     public JailCommand(Locale locale, String prefix, boolean includeNotInGuild, boolean jail) {
-        super(locale, prefix, false, false, includeNotInGuild, true);
+        super(locale, prefix, false, false, includeNotInGuild, true, jail);
         this.jail = jail;
     }
 
     @Override
     protected boolean setUserListAndReason(CommandEvent event, String args) throws Throwable {
-        ModerationData moderationBean = DBModeration.getInstance().retrieve(event.getGuild().getIdLong());
         Guild guild = event.getGuild();
-        List<Role> notManagableRoles = moderationBean.getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong).stream()
+        ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
+        List<Role> notManagableRoles = moderationData.getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong).stream()
                 .filter(role -> !BotPermissionUtil.canManage(role))
                 .collect(Collectors.toList());
 
-        if (notManagableRoles.size() > 0) {
+        if (!notManagableRoles.isEmpty()) {
             Mention mention = MentionUtil.getMentionedStringOfRoles(getLocale(), notManagableRoles);
             drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", mention.isMultiple(), mention.getMentionText())))
                     .exceptionally(ExceptionLogger.get());
@@ -75,6 +75,27 @@ public class JailCommand extends WarnCommand {
         } else {
             return super.setUserListAndReason(event, args);
         }
+    }
+
+    @Override
+    public void userActionPrepareExecution(User target, String reason, long durationMinutes, int amount) {
+        super.userActionPrepareExecution(target, reason, durationMinutes, amount);
+        this.minutes = durationMinutes;
+    }
+
+    @Override
+    public EmbedBuilder userActionCheckGeneralError(Guild guild) {
+        ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
+        List<Role> notManagableRoles = moderationData.getJailRoleIds().transform(guild::getRoleById, ISnowflake::getIdLong).stream()
+                .filter(role -> !BotPermissionUtil.canManage(role))
+                .collect(Collectors.toList());
+
+        if (!notManagableRoles.isEmpty()) {
+            Mention mention = MentionUtil.getMentionedStringOfRoles(getLocale(), notManagableRoles);
+            return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", mention.isMultiple(), mention.getMentionText()));
+        }
+
+        return null;
     }
 
     @Override
@@ -95,17 +116,17 @@ public class JailCommand extends WarnCommand {
     }
 
     @Override
-    protected boolean canProcessMember(Member executor, User target) {
+    public boolean canProcessMember(Member executor, User target) {
         return BotPermissionUtil.canInteract(executor, target);
     }
 
     @Override
-    protected boolean canProcessBot(Guild guild, User target) {
+    public boolean canProcessBot(Guild guild, User target) {
         return guild.getSelfMember().getIdLong() != target.getIdLong();
     }
 
     @Override
-    protected EmbedBuilder getActionEmbed(Member executor, TextChannel channel) {
+    protected EmbedBuilder getActionEmbed(Member executor, GuildChannel channel) {
         String remaining = TimeFormat.DATE_TIME_SHORT.after(Duration.ofMinutes(minutes)).toString();
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString(minutes == 0 ? "action" : "action_temp", mention.isMultiple(), mention.getMentionText(), StringUtil.escapeMarkdown(executor.getUser().getAsTag()), StringUtil.escapeMarkdown(channel.getGuild().getName()), remaining));

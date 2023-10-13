@@ -1,7 +1,5 @@
 package core.utils;
 
-import java.util.*;
-import java.util.stream.Collectors;
 import core.EmbedFactory;
 import core.MemberCacheController;
 import core.TextManager;
@@ -16,20 +14,32 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.managers.channel.attribute.IPermissionContainerManager;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 public class BotPermissionUtil {
 
     public static EmbedBuilder getUserAndBotPermissionMissingEmbed(Locale locale, GuildChannel channel, Member member,
                                                                    Permission[] userGuildPermissions, Permission[] userChannelPermissions,
-                                                                   Permission[] botGuildPermissions, Permission[] botChannelPermissions,
-                                                                   Permission[] everyoneChannelPermissions
+                                                                   Permission[] botGuildPermissions, Permission[] botChannelPermissions
     ) {
         List<Permission> userPermission = new ArrayList<>(getMissingPermissions(member, userGuildPermissions));
         userPermission.addAll(getMissingPermissions(channel, member, userChannelPermissions));
+
         List<Permission> botPermission = new ArrayList<>(getMissingPermissions(channel.getGuild().getSelfMember(), botGuildPermissions));
         botPermission.addAll(getMissingPermissions(channel, channel.getGuild().getSelfMember(), botChannelPermissions));
-        List<Permission> everyonePermission = getMissingPermissions(channel, channel.getGuild().getPublicRole(), everyoneChannelPermissions);
 
-        return getUserPermissionMissingEmbed(locale, userPermission, botPermission, everyonePermission);
+        return getUserPermissionMissingEmbed(locale, userPermission, botPermission);
+    }
+
+    public static EmbedBuilder getUserAndBotPermissionMissingEmbed(Locale locale, Member member,
+                                                                   Permission[] userGuildPermissions, Permission[] botGuildPermissions
+    ) {
+        return getUserPermissionMissingEmbed(
+                locale,
+                getMissingPermissions(member, userGuildPermissions),
+                getMissingPermissions(member.getGuild().getSelfMember(), botGuildPermissions)
+        );
     }
 
     public static String getBotPermissionsMissingText(Locale locale, GuildChannel channel, Permission... permissions) {
@@ -52,7 +62,7 @@ public class BotPermissionUtil {
     public static EmbedBuilder getBotPermissionMissingEmbed(Locale locale, GuildChannel channel, Permission[] botGuildPermissions, Permission[] botChannelPermissions) {
         List<Permission> botPermission = new ArrayList<>(getMissingPermissions(channel.getGuild().getSelfMember(), botGuildPermissions));
         botPermission.addAll(getMissingPermissions(channel, channel.getGuild().getSelfMember(), botChannelPermissions));
-        return getUserPermissionMissingEmbed(locale, Collections.emptyList(), botPermission, Collections.emptyList());
+        return getUserPermissionMissingEmbed(locale, Collections.emptyList(), botPermission);
     }
 
     public static List<Permission> getMissingPermissions(Member member, Permission... permissions) {
@@ -76,13 +86,13 @@ public class BotPermissionUtil {
                 .collect(Collectors.toList());
     }
 
-    public static EmbedBuilder getUserPermissionMissingEmbed(Locale locale, List<Permission> userPermissions, List<Permission> botPermissions, List<Permission> everyonePermission) {
+    public static EmbedBuilder getUserPermissionMissingEmbed(Locale locale, List<Permission> userPermissions, List<Permission> botPermissions) {
         EmbedBuilder eb = null;
-        if (userPermissions.size() != 0 || botPermissions.size() != 0 || everyonePermission.size() != 0) {
+        if (!userPermissions.isEmpty() || !botPermissions.isEmpty()) {
             eb = EmbedFactory.getEmbedError()
                     .setTitle(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_title"));
 
-            if (userPermissions.size() > 0) {
+            if (!userPermissions.isEmpty()) {
                 StringBuilder desc = new StringBuilder();
                 for (Permission permission : userPermissions) {
                     desc.append("• ");
@@ -92,7 +102,7 @@ public class BotPermissionUtil {
                 eb.addField(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_you"), desc.toString(), false);
             }
 
-            if (botPermissions.size() > 0) {
+            if (!botPermissions.isEmpty()) {
                 StringBuilder desc = new StringBuilder();
                 for (Permission permission : botPermissions) {
                     desc.append("• ");
@@ -100,16 +110,6 @@ public class BotPermissionUtil {
                     desc.append("\n");
                 }
                 eb.addField(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_bot"), desc.toString(), false);
-            }
-
-            if (everyonePermission.size() > 0) {
-                StringBuilder desc = new StringBuilder();
-                for (Permission permission : everyonePermission) {
-                    desc.append("• ");
-                    desc.append(TextManager.getString(locale, TextManager.PERMISSIONS, permission.name()));
-                    desc.append("\n");
-                }
-                eb.addField(TextManager.getString(locale, TextManager.GENERAL, "missing_permissions_everyone"), desc.toString(), false);
             }
         }
 

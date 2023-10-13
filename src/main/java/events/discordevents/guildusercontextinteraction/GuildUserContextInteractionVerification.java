@@ -20,7 +20,11 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 public class GuildUserContextInteractionVerification extends GuildUserContextInteractionAbstract {
 
     @Override
-    public boolean onGuildUserContextInteraction(UserContextInteractionEvent event, EntityManagerWrapper entityManager) throws Throwable {
+    public boolean onGuildUserContextInteraction(UserContextInteractionEvent event, EntityManagerWrapper entityManager) {
+        if (event.isGlobalCommand()) {
+            return true;
+        }
+
         Guild guild = ShardManager.getLocalGuildById(AnicordVerificationIds.GUILD_ID).orElse(null);
         if (guild == null) {
             return true;

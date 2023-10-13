@@ -1,6 +1,5 @@
 package commands.runnables.moderationcategory;
 
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.CustomObservableList;
@@ -16,7 +15,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "warnremove",
@@ -33,7 +34,7 @@ public class WarnRemoveCommand extends WarnCommand {
     private int n = 1;
 
     public WarnRemoveCommand(Locale locale, String prefix) {
-        super(locale, prefix, false, false, true, true);
+        super(locale, prefix, false, false, true, true, false);
     }
 
     @Override
@@ -57,13 +58,19 @@ public class WarnRemoveCommand extends WarnCommand {
     }
 
     @Override
+    public void userActionPrepareExecution(User target, String reason, long durationMinutes, int amount) {
+        super.userActionPrepareExecution(target, reason, durationMinutes, amount);
+        this.n = Math.min(MAX, amount);
+    }
+
+    @Override
     protected void process(Guild guild, User target, String reason) throws Throwable {
         CustomObservableList<ServerWarningSlot> serverWarningsSlots = DBServerWarnings.getInstance().retrieve(new Pair<>(guild.getIdLong(), target.getIdLong())).getWarnings();
         serverWarningsSlots.remove(Math.max(0, serverWarningsSlots.size() - n), serverWarningsSlots.size());
     }
 
     @Override
-    protected EmbedBuilder getActionEmbed(Member executor, TextChannel channel) {
+    protected EmbedBuilder getActionEmbed(Member executor, GuildChannel channel) {
         Mention mention = MentionUtil.getMentionedStringOfDiscriminatedUsers(getLocale(), getUserList());
         return EmbedFactory.getEmbedDefault(this, getString("action", n > 1, StringUtil.escapeMarkdown(executor.getUser().getAsTag()), getAmountString().toLowerCase(), mention.getMentionText()));
     }

@@ -260,8 +260,7 @@ public class CommandManager {
                 command.getAdjustedUserGuildPermissions(),
                 command.getAdjustedUserChannelPermissions(),
                 command.getAdjustedBotGuildPermissions(),
-                command.getAdjustedBotChannelPermissions(),
-                new Permission[0]
+                command.getAdjustedBotChannelPermissions()
         );
         if (errEmbed == null) {
             return true;

@@ -1,11 +1,5 @@
 package core;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import constants.AssetIds;
 import core.cache.PatreonCache;
 import mysql.modules.subs.DBSubs;
@@ -13,12 +7,20 @@ import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
 public class MemberCacheController implements MemberCachePolicy {
 
     public static final int BIG_SERVER_THRESHOLD = 40_000;
     private static final MemberCacheController ourInstance = new MemberCacheController();
 
     private final HashMap<Long, Instant> guildAccessMap = new HashMap<>();
+    private final HashMap<Long, HashSet<Long>> missingMemberIdCacheMap = new HashMap<>();
 
     public static MemberCacheController getInstance() {
         return ourInstance;
@@ -52,13 +54,15 @@ public class MemberCacheController implements MemberCachePolicy {
         cacheGuild(guild);
         CompletableFuture<List<Member>> future = new CompletableFuture<>();
 
-        ArrayList<Long> missingMemberIds = new ArrayList<>();
+        HashSet<Long> missingMemberIds = new HashSet<>();
         ArrayList<Member> presentMembers = new ArrayList<>();
+        HashSet<Long> missingMemberIdCacheSet = missingMemberIdCacheMap.computeIfAbsent(guild.getIdLong(), k -> new HashSet<>());
+
         userIds.forEach(userId -> {
             Member member = guild.getMemberById(userId);
             if (member != null) {
                 presentMembers.add(member);
-            } else {
+            } else if (!missingMemberIdCacheSet.contains(userId)) {
                 missingMemberIds.add(userId);
             }
         });
@@ -70,6 +74,9 @@ public class MemberCacheController implements MemberCachePolicy {
                     .setTimeout(Duration.ofSeconds(20))
                     .onError(future::completeExceptionally)
                     .onSuccess(members -> {
+                        members.forEach(member -> missingMemberIds.remove(member.getIdLong()));
+                        missingMemberIdCacheSet.addAll(missingMemberIds);
+
                         presentMembers.addAll(members);
                         future.complete(presentMembers);
                     });
@@ -135,6 +142,7 @@ public class MemberCacheController implements MemberCachePolicy {
                 try {
                     ShardManager.getLocalGuildById(guildId).ifPresent(guild -> {
                         int n = guild.getMembers().size();
+                        missingMemberIdCacheMap.remove(guildId);
                         guild.pruneMemberCache();
                         membersPruned.addAndGet(n - guild.getMembers().size());
                     });

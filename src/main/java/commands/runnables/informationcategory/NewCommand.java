@@ -1,11 +1,5 @@
 package commands.runnables.informationcategory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -28,6 +22,13 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 @CommandProperties(
         trigger = "new",
         emoji = "\uD83C\uDD95",
@@ -47,7 +48,7 @@ public class NewCommand extends Command implements OnAlertListener {
         versionData = DBVersion.getInstance().retrieve();
 
         // without args
-        if (args.length() == 0) {
+        if (args.isEmpty()) {
             List<VersionSlot> versions = versionData.getCurrentVersions(1);
             drawMessageNew(getEmbedNormal(event.getMember(), versions, true))
                     .exceptionally(ExceptionLogger.get());
@@ -76,7 +77,7 @@ public class NewCommand extends Command implements OnAlertListener {
                 List<String> askVersions = Arrays.stream(args.split(" ")).filter(str -> !str.isEmpty()).collect(Collectors.toList());
                 List<VersionSlot> versions = versionData.getSlots().stream().filter(slot -> askVersions.contains(slot.getVersion())).collect(Collectors.toList());
 
-                if (versions.size() > 0) {
+                if (!versions.isEmpty()) {
                     drawMessageNew(getEmbedNormal(event.getMember(), versions, false))
                             .exceptionally(ExceptionLogger.get());
                     return true;
@@ -113,7 +114,7 @@ public class NewCommand extends Command implements OnAlertListener {
                     .split("\n");
 
             for (String line : lines) {
-                String newLine = "• " + line + "\n";
+                String newLine = "- " + line + "\n";
                 if (stringBuilders[0].length() + newLine.length() < 1024) {
                     stringBuilders[0].append(newLine);
                 } else {

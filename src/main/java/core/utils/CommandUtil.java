@@ -1,11 +1,5 @@
 package core.utils;
 
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import commands.Command;
 import commands.CommandEvent;
 import core.EmbedFactory;
@@ -19,6 +13,13 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
+
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class CommandUtil {
 
@@ -48,8 +49,7 @@ public class CommandUtil {
                 new Permission[0],
                 finalPermissions,
                 new Permission[0],
-                finalPermissions,
-                new Permission[0]
+                finalPermissions
         );
         if (missingPermissionsEmbed != null) {
             command.drawMessageNew(missingPermissionsEmbed)

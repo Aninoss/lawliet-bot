@@ -1,6 +1,5 @@
 package events.discordevents.stringselectmenu;
 
-import java.util.Locale;
 import core.EmbedFactory;
 import core.TextManager;
 import events.discordevents.DiscordEvent;
@@ -9,6 +8,8 @@ import events.discordevents.eventtypeabstracts.StringSelectMenuAbstract;
 import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+
+import java.util.Locale;
 
 @DiscordEvent(priority = EventPriority.LOW)
 public class StringSelectMenuExpired extends StringSelectMenuAbstract {

@@ -1,7 +1,5 @@
 package events.discordevents;
 
-import java.time.Instant;
-import java.util.*;
 import commands.SlashCommandManager;
 import core.*;
 import events.discordevents.eventtypeabstracts.*;
@@ -44,6 +42,9 @@ import net.dv8tion.jda.api.events.user.UserTypingEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
+
+import java.time.Instant;
+import java.util.*;
 
 public class DiscordEventAdapter extends ListenerAdapter {
 
@@ -225,9 +226,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
-        if (event.getChannel() instanceof StandardGuildMessageChannel) {
-            GlobalThreadPool.submit(() -> StringSelectMenuAbstract.onStringSelectMenuStatic(event, getListenerList(StringSelectMenuAbstract.class)));
-        }
+        GlobalThreadPool.submit(() -> StringSelectMenuAbstract.onStringSelectMenuStatic(event, getListenerList(StringSelectMenuAbstract.class)));
     }
 
     @Override
@@ -239,9 +238,7 @@ public class DiscordEventAdapter extends ListenerAdapter {
 
     @Override
     public void onModalInteraction(@NotNull ModalInteractionEvent event) {
-        if (event.getChannel() instanceof StandardGuildMessageChannel) {
-            GlobalThreadPool.submit(() -> ModalInteractionAbstract.onModalInteractionStatic(event, getListenerList(ModalInteractionAbstract.class)));
-        }
+        GlobalThreadPool.submit(() -> ModalInteractionAbstract.onModalInteractionStatic(event, getListenerList(ModalInteractionAbstract.class)));
     }
 
     @Override

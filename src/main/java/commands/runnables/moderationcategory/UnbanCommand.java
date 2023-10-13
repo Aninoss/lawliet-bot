@@ -1,7 +1,5 @@
 package commands.runnables.moderationcategory;
 
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import core.MemberCacheController;
@@ -10,6 +8,9 @@ import core.utils.MentionUtil;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
+
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "unban",
@@ -22,7 +23,7 @@ import net.dv8tion.jda.api.entities.User;
 public class UnbanCommand extends WarnCommand {
 
     public UnbanCommand(Locale locale, String prefix) {
-        super(locale, prefix, false, false, true, true);
+        super(locale, prefix, false, false, true, true, false);
     }
 
     @Override

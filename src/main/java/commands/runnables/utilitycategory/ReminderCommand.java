@@ -111,7 +111,6 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
                     new Permission[]{Permission.MANAGE_SERVER},
                     new Permission[0],
                     new Permission[0],
-                    new Permission[0],
                     new Permission[0]
             );
 

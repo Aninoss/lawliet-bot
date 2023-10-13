@@ -1,10 +1,5 @@
 package commands.runnables.moderationcategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -31,6 +26,12 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.requests.RestAction;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @CommandProperties(
         trigger = "fullclear",
@@ -69,8 +70,7 @@ public class FullClearCommand extends Command implements OnAlertListener, OnButt
                 new Permission[0],
                 new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
                 new Permission[0],
-                new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
-                new Permission[0]
+                new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY }
         );
         if (errEmbed != null) {
             drawMessageNew(errEmbed).exceptionally(ExceptionLogger.get());

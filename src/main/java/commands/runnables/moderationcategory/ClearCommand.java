@@ -64,7 +64,7 @@ public class ClearCommand extends Command implements OnButtonListener {
         MentionList<StandardGuildMessageChannel> channelMention = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), args);
         args = channelMention.getFilteredArgs();
         channel = event.getTextChannel();
-        if (channelMention.getList().size() > 0) {
+        if (!channelMention.getList().isEmpty()) {
             channel = channelMention.getList().get(0);
         }
         EmbedBuilder errEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
@@ -74,8 +74,7 @@ public class ClearCommand extends Command implements OnButtonListener {
                 new Permission[0],
                 new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
                 new Permission[0],
-                new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY },
-                new Permission[0]
+                new Permission[] { Permission.MESSAGE_MANAGE, Permission.MESSAGE_HISTORY }
         );
         if (errEmbed != null) {
             drawMessageNew(errEmbed).exceptionally(ExceptionLogger.get());

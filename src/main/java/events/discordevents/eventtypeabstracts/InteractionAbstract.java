@@ -1,7 +1,5 @@
 package events.discordevents.eventtypeabstracts;
 
-import java.time.Duration;
-import java.util.ArrayList;
 import core.AsyncTimer;
 import core.MainLogger;
 import core.utils.ExceptionUtil;
@@ -9,6 +7,9 @@ import events.discordevents.DiscordEventAbstract;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
+
+import java.time.Duration;
+import java.util.ArrayList;
 
 public class InteractionAbstract extends DiscordEventAbstract {
 
@@ -23,7 +24,7 @@ public class InteractionAbstract extends DiscordEventAbstract {
                         if (event instanceof GenericComponentInteractionCreateEvent) {
                             ((GenericComponentInteractionCreateEvent) event).deferEdit().queue();
                         } else if (event instanceof ModalInteractionEvent) {
-                            ((ModalInteractionEvent) event).deferEdit();
+                            ((ModalInteractionEvent) event).deferEdit().queue();
                         }
                     }
                 });

@@ -1,9 +1,10 @@
 package events.discordevents.eventtypeabstracts;
 
-import java.util.ArrayList;
 import events.discordevents.DiscordEventAbstract;
 import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+
+import java.util.ArrayList;
 
 public abstract class StringSelectMenuAbstract extends DiscordEventAbstract {
 
