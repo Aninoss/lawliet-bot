@@ -24,7 +24,7 @@ public interface Emojis {
     UnicodeEmoji FISH = Emoji.fromUnicode("🐟");
     CustomEmoji COINS = Emoji.fromCustom("coin", 512684910620835841L, true);
     UnicodeEmoji COINS_UNICODE = Emoji.fromUnicode("🪙");
-    CustomEmoji GROWTH = Emoji.fromCustom("growth", 556164492678004741L, false);
+    UnicodeEmoji GROWTH = Emoji.fromUnicode("⚡");
     UnicodeEmoji DAILY_STREAK = Emoji.fromUnicode("🔥");
     UnicodeEmoji COUPONS = Emoji.fromUnicode("🎟️");
 

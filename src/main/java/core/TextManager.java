@@ -109,9 +109,9 @@ public class TextManager {
 
     private static String processEmojis(String text, String[] placeholders) {
         List<Pair<String, String>> emojiPairs = List.of(
-                new Pair<>("CURRENCY", EmojiUtil.getUnicodeEmojiFromOverride(Emojis.FISH, "FISH").getFormatted()),
+                new Pair<>("CURRENCY", EmojiUtil.getEmojiFromOverride(Emojis.FISH, "FISH").getFormatted()),
                 new Pair<>("COINS", Emojis.COINS.getFormatted()),
-                new Pair<>("GROWTH", EmojiUtil.getCustomEmojiFromOverride(Emojis.GROWTH, "GROWTH").getFormatted()),
+                new Pair<>("GROWTH", EmojiUtil.getEmojiFromOverride(Emojis.GROWTH, "GROWTH").getFormatted()),
                 new Pair<>("DAILY_STREAK", Emojis.DAILY_STREAK.getFormatted()),
                 new Pair<>("COUPONS", Emojis.COUPONS.getFormatted())
         );

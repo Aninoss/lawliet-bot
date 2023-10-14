@@ -1,8 +1,5 @@
 package core.utils;
 
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Optional;
 import constants.Emojis;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -11,6 +8,11 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
+
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Objects;
+import java.util.Optional;
 
 public class EmojiUtil {
 
@@ -42,25 +44,28 @@ public class EmojiUtil {
         }
     }
 
-    public static CustomEmoji getCustomEmojiFromOverride(CustomEmoji def, String id) {
-        String emojiOverride = System.getenv("EMOJI_OVERRIDE_" + id);
-        return emojiOverride != null
-                ? Emoji.fromFormatted(emojiOverride).asCustom()
-                : def;
-    }
-
-    public static UnicodeEmoji getUnicodeEmojiFromOverride(UnicodeEmoji def, String id) {
-        String emojiOverride = System.getenv("EMOJI_OVERRIDE_" + id);
-        return emojiOverride != null
-                ? Emoji.fromUnicode(new String(Base64.getUrlDecoder().decode(emojiOverride)))
-                : def;
+    public static Emoji getEmojiFromOverride(Emoji def, String id) {
+        String emojiOverride = getEmojiFromOverrideOrNull(id);
+        return emojiOverride == null
+                ? def
+                : Emoji.fromFormatted(emojiOverride);
     }
 
     public static String getEmojiFromOverride(String def, String id) {
+        return Objects.requireNonNullElse(getEmojiFromOverrideOrNull(id), def);
+    }
+
+    private static String getEmojiFromOverrideOrNull(String id) {
         String emojiOverride = System.getenv("EMOJI_OVERRIDE_" + id);
-        return emojiOverride != null
-                ? new String(Base64.getUrlDecoder().decode(emojiOverride))
-                : def;
+        if (emojiOverride == null) {
+            return null;
+        }
+
+        if (emojiOverride.startsWith("<")) {
+            return emojiOverride;
+        } else {
+            return new String(Base64.getUrlDecoder().decode(emojiOverride));
+        }
     }
 
 }

@@ -260,7 +260,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
         }
         val values = properties.mapIndexed { i, name ->
             val emoji = when (i) {
-                0 -> EmojiUtil.getUnicodeEmojiFromOverride(Emojis.FISH, "FISH").formatted
+                0 -> EmojiUtil.getEmojiFromOverride(Emojis.FISH, "FISH").formatted
                 1 -> Emojis.COINS_UNICODE.formatted
                 2 -> Emojis.DAILY_STREAK.formatted
                 else -> FisheryGear.values()[i - 3].emoji

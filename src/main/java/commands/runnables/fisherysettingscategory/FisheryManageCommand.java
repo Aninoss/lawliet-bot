@@ -222,7 +222,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
 
     private String emojiOfProperty(int i) {
         return switch (i) {
-            case 0 -> EmojiUtil.getUnicodeEmojiFromOverride(Emojis.FISH, "FISH").getFormatted();
+            case 0 -> EmojiUtil.getEmojiFromOverride(Emojis.FISH, "FISH").getFormatted();
             case 1 -> Emojis.COINS.getFormatted();
             case 2 -> Emojis.DAILY_STREAK.getFormatted();
             default -> FisheryGear.values()[i - 3].getEmoji();
