@@ -80,6 +80,11 @@ public class TextManager {
                     }
                 }
 
+                String textOverride = System.getenv("TEXT_OVERRIDE_" + key.toUpperCase());
+                if (textOverride != null) {
+                    text = textOverride;
+                }
+
                 String[] placeholders = extractGroups(RegexPatterns.TEXT_PLACEHOLDER, text);
                 text = processMultiOptions(text, option);
                 text = processReferences(text, placeholders, category, locale);
