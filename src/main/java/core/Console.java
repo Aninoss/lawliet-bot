@@ -13,6 +13,7 @@ import javafx.util.Pair;
 import modules.SupportTemplates;
 import modules.casinologs.CasinoLogCache;
 import modules.fishery.Fishery;
+import modules.moduserinteractions.ModUserInteractionManager;
 import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
@@ -67,7 +68,6 @@ public class Console {
         tasks.put("mute_refresh", Console::onMuteRefresh);
         tasks.put("clean_guilds", Console::onCleanGuilds);
         tasks.put("alerts_reset", Console::onAlertsReset);
-        tasks.put("commands_update", Console::onCommandsUpdate);
         tasks.put("reminder_daily", Console::onReminderDaily);
         tasks.put("actions_servers", Console::onActionsServers);
         tasks.put("actions", Console::onActions);
@@ -143,6 +143,7 @@ public class Console {
         MainLogger.get().info("Pushing new slash commands");
         ShardManager.getAnyJDA().get().updateCommands()
                 .addCommands(SlashCommandManager.initialize())
+                .addCommands(ModUserInteractionManager.generateUserCommands())
                 .queue(SlashAssociations::registerSlashCommands);
     }
 
@@ -198,17 +199,6 @@ public class Console {
     private static void onAlertsReset(String[] args) {
         AlertScheduler.reset();
         MainLogger.get().info("Alerts reset completed");
-    }
-
-    private static void onCommandsUpdate(String[] args) {
-        if (Program.isMainCluster()) {
-            MainLogger.get().info("Updating all slash commands");
-            ShardManager.getAnyJDA().get()
-                    .updateCommands()
-                    .addCommands(SlashCommandManager.initialize())
-                    .complete();
-            MainLogger.get().info("Completed");
-        }
     }
 
     private static void onReminderDaily(String[] args) {
