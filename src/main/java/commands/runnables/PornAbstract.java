@@ -91,6 +91,9 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
         boolean premium = PatreonCache.getInstance().hasPremium(event.getMember().getIdLong(), true) ||
                 PatreonCache.getInstance().isUnlocked(event.getGuild().getIdLong());
 
+        String maxAmountString = System.getenv("BOORU_MAX_AMOUNT");
+        int maxAmount = maxAmountString == null ? 30 : Integer.parseInt(maxAmountString);
+
         if (m.find()) {
             String group = m.group();
             args = args.replaceFirst(group, "").replace("  ", " ").trim();
@@ -98,16 +101,16 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             this.newAmount = (int) Math.min(5, amount);
 
             if (premium) {
-                if (amount > 20 && amount <= 30) {
+                if (amount > 20 && amount <= maxAmount) {
                     FeatureLogger.inc(PremiumFeature.BOORUS, event.getGuild().getIdLong());
-                } else if (amount < 1 || amount > 30) {
+                } else if (amount < 1 || amount > maxAmount) {
                     if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                         drawMessageNew(EmbedFactory.getEmbedError(
                                 this,
-                                TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30")
+                                TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", StringUtil.numToString(maxAmount))
                         )).exceptionally(ExceptionLogger.get());
                     } else {
-                        drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "30"))
+                        drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", StringUtil.numToString(maxAmount)))
                                 .exceptionally(ExceptionLogger.get());
                     }
                     return false;
@@ -117,13 +120,13 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
                     if (BotPermissionUtil.canWriteEmbed(event.getTextChannel())) {
                         EmbedBuilder eb = EmbedFactory.getEmbedDefault(
                                 this,
-                                TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, "30")
+                                TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, StringUtil.numToString(maxAmount))
                         );
                         eb.setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_title"))
                                 .setColor(Settings.PREMIUM_COLOR);
                         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
                     } else {
-                        drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, "30"))
+                        drawMessageNew("❌ " + TextManager.getString(getLocale(), TextManager.GENERAL, "nsfw_notinrange", "1", "20", ExternalLinks.PREMIUM_WEBSITE, StringUtil.numToString(maxAmount)))
                                 .exceptionally(ExceptionLogger.get());
                     }
                     return false;
