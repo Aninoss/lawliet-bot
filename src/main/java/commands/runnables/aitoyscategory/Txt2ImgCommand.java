@@ -19,8 +19,8 @@ public class Txt2ImgCommand extends RunPodAbstract {
 
     private static final String[] CONTENT_FILTERS = {"nsfw", "porn", "porno", "pornography", "sex", "sexual",
             "intercourse", "coitus", "explicit", "fuck", "fucking", "fucked", "rape", "raping", "raped", "blowjob",
-            "anal", "nude", "naked", "penis", "cock", "dick", "vagina", "pussy", "cum", "sperm", "horny", "scat",
-            "lewd"};
+            "anal", "ass", "nude", "naked", "penis", "cock", "dick", "vagina", "pussy", "cum", "sperm", "horny", "scat",
+            "lewd", "nipple", "nipples", "dildo", "nigga", "nigger", "niggas", "niggers"};
 
     public Txt2ImgCommand(Locale locale, String prefix) {
         super(locale, prefix);
