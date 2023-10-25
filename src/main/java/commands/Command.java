@@ -137,7 +137,7 @@ public abstract class Command implements OnTriggerListener {
         if (options != null) {
             for (int i = 0; i < options.length; i++) {
                 buttonList.add(
-                        Button.of(ButtonStyle.PRIMARY, String.valueOf(i), StringUtil.shortenString(options[i], 80))
+                        Button.of(ButtonStyle.PRIMARY, String.valueOf(i), StringUtil.shortenString(options[i], Button.LABEL_MAX_LENGTH))
                 );
             }
         }

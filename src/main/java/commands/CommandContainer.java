@@ -99,6 +99,7 @@ public class CommandContainer {
         commandList.add(TicketCommand.class);
         commandList.add(CustomCommand.class);
         commandList.add(SetNSFWCommand.class);
+        commandList.add(CommandChannelShortcutsCommand.class);
 
         //MODERATION
         commandList.add(ModSettingsCommand.class);

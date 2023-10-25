@@ -4,10 +4,15 @@ import commands.Category
 import commands.CommandContainer
 import commands.CommandManager
 import commands.runnables.configurationcategory.*
-import commands.runnables.fisherysettingscategory.*
-import commands.runnables.informationcategory.*
-import commands.runnables.invitetrackingcategory.*
-import commands.runnables.moderationcategory.*
+import commands.runnables.fisherysettingscategory.FisheryCommand
+import commands.runnables.fisherysettingscategory.FisheryRolesCommand
+import commands.runnables.fisherysettingscategory.VCTimeCommand
+import commands.runnables.fisherysettingscategory.VoteRewardsCommand
+import commands.runnables.informationcategory.HelpCommand
+import commands.runnables.invitetrackingcategory.InviteTrackingCommand
+import commands.runnables.moderationcategory.InviteFilterCommand
+import commands.runnables.moderationcategory.ModSettingsCommand
+import commands.runnables.moderationcategory.WordFilterCommand
 import commands.runnables.utilitycategory.*
 import commands.slashadapters.Slash
 import commands.slashadapters.SlashAdapter
@@ -34,7 +39,7 @@ import java.util.*
             AutoRolesCommand::class, StickyRolesCommand::class, AutoChannelCommand::class, AutoQuoteCommand::class, MemberCountDisplayCommand::class,
             TriggerDeleteCommand::class, GiveawayCommand::class, TicketCommand::class, ModSettingsCommand::class, InviteFilterCommand::class,
             WordFilterCommand::class, FisheryCommand::class, FisheryRolesCommand::class, VCTimeCommand::class, InviteTrackingCommand::class,
-            CustomConfigCommand::class, VoteRewardsCommand::class
+            CustomConfigCommand::class, VoteRewardsCommand::class, CommandChannelShortcutsCommand::class
         ]
 )
 class ConfigAdapter : SlashAdapter() {

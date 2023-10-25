@@ -8,6 +8,7 @@ import commands.runnables.utilitycategory.CustomCommand;
 import core.AsyncTimer;
 import core.MainLogger;
 import core.ShardManager;
+import core.cache.ServerPatreonBoostCache;
 import core.mention.MentionList;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
@@ -59,62 +60,69 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
             }
         }
 
-        if (prefixFound > -1) {
-            if (prefixFound > 0 && manageMessageInput(event, guildEntity)) {
-                return true;
-            }
-
-            String newContent = content.substring(prefixes[prefixFound].length()).trim();
-            if (newContent.contains("  ")) newContent = newContent.replace("  ", " ");
-            String commandTrigger = newContent.split(" ")[0].toLowerCase();
-            if (newContent.contains("<") && newContent.split("<")[0].length() < commandTrigger.length()) {
-                commandTrigger = newContent.split("<")[0].toLowerCase();
-            }
-
-            String args;
-            try {
-                args = newContent.substring(commandTrigger.length()).trim();
-            } catch (StringIndexOutOfBoundsException e) {
-                args = "";
-            }
-
-            if (commandTrigger.length() > 0) {
-                Locale locale = guildEntity.getLocale();
-                Class<? extends Command> clazz;
-                clazz = CommandContainer.getCommandMap().get(commandTrigger);
-
-                if (clazz == null) {
-                    CustomCommandEntity customCommand = guildEntity.getCustomCommands().get(commandTrigger);
-                    if (customCommand != null) {
-                        clazz = CustomCommand.class;
-                        args = commandTrigger;
-                    }
-                }
-
-                if (clazz != null) {
-                    Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
-                    if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
-                        Command helpCommand = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
-                        if (CommandManager.commandIsTurnedOnEffectively(helpCommand, event.getMember(), event.getChannel().asTextChannel())) {
-                            args = command.getTrigger();
-                            command = helpCommand;
-                            command.getAttachments().put("noargs", true);
-                        }
-                    }
-
-                    CommandEvent commandEvent = new CommandEvent(event);
-                    try {
-                        CommandManager.manage(commandEvent, command, args, guildEntity, getStartTime());
-                    } catch (Throwable e) {
-                        ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity);
-                    }
-                }
-            }
-        } else {
+        if (prefixFound == -1) {
             if (manageMessageInput(event, guildEntity)) {
                 return true;
             }
-            checkAutoQuote(event, guildEntity);
+            String commandShortcutTrigger = guildEntity.getCommandChannelShortcuts().get(event.getChannel().getIdLong());
+            if (commandShortcutTrigger != null && ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                prefixFound = 0;
+                content = prefix + commandShortcutTrigger + " " + event.getMessage().getContentRaw();
+            } else {
+                checkAutoQuote(event, guildEntity);
+                return true;
+            }
+        }
+
+        if (prefixFound > 0 && manageMessageInput(event, guildEntity)) {
+            return true;
+        }
+
+        String newContent = content.substring(prefixes[prefixFound].length()).trim();
+        if (newContent.contains("  ")) newContent = newContent.replace("  ", " ");
+        String commandTrigger = newContent.split(" ")[0].toLowerCase();
+        if (newContent.contains("<") && newContent.split("<")[0].length() < commandTrigger.length()) {
+            commandTrigger = newContent.split("<")[0].toLowerCase();
+        }
+
+        String args;
+        try {
+            args = newContent.substring(commandTrigger.length()).trim();
+        } catch (StringIndexOutOfBoundsException e) {
+            args = "";
+        }
+
+        if (!commandTrigger.isEmpty()) {
+            Locale locale = guildEntity.getLocale();
+            Class<? extends Command> clazz;
+            clazz = CommandContainer.getCommandMap().get(commandTrigger);
+
+            if (clazz == null) {
+                CustomCommandEntity customCommand = guildEntity.getCustomCommands().get(commandTrigger);
+                if (customCommand != null) {
+                    clazz = CustomCommand.class;
+                    args = commandTrigger;
+                }
+            }
+
+            if (clazz != null) {
+                Command command = CommandManager.createCommandByClass(clazz, locale, prefix);
+                if (!command.getCommandProperties().executableWithoutArgs() && args.isEmpty()) {
+                    Command helpCommand = CommandManager.createCommandByClass(HelpCommand.class, locale, prefix);
+                    if (CommandManager.commandIsTurnedOnEffectively(helpCommand, event.getMember(), event.getChannel().asTextChannel())) {
+                        args = command.getTrigger();
+                        command = helpCommand;
+                        command.getAttachments().put("noargs", true);
+                    }
+                }
+
+                CommandEvent commandEvent = new CommandEvent(event);
+                try {
+                    CommandManager.manage(commandEvent, command, args, guildEntity, getStartTime());
+                } catch (Throwable e) {
+                    ExceptionUtil.handleCommandException(e, command, commandEvent, guildEntity);
+                }
+            }
         }
 
         return true;
@@ -153,7 +161,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                     .sorted((l1, l2) -> l2.getCreationTime().compareTo(l1.getCreationTime()))
                     .collect(Collectors.toList());
 
-            if (listeners.size() > 0) {
+            if (!listeners.isEmpty()) {
                 try (AsyncTimer timeOutTimer = new AsyncTimer(Duration.ofSeconds(30))) {
                     timeOutTimer.setTimeOutListener(t -> {
                         MainLogger.get().error("Message input \"{}\" of guild {} stuck", event.getMessage().getContentRaw(), event.getGuild().getIdLong(), ExceptionUtil.generateForStack(t));
@@ -165,7 +173,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                             return true;
                         }
                     }
-                    return true;
+                    return false;
                 } catch (InterruptedException e) {
                     MainLogger.get().error("Interrupted exception", e);
                 }

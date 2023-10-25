@@ -35,7 +35,8 @@ object DashboardManager {
                 SuggestionsCategory::class,
                 AutoChannelCategory::class,
                 MemberCountDisplaysCategory::class,
-                CustomCommandsCategory::class
+                CustomCommandsCategory::class,
+                CommandChannelShortcutsCategory::class
         )
     }
 

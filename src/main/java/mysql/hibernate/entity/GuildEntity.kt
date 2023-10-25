@@ -60,6 +60,9 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
     @SortNatural
     val customCommands = sortedMapOf<String, CustomCommandEntity>()
 
+    @ElementCollection
+    val commandChannelShortcuts = mutableMapOf<Long, String>()
+
 
     constructor() : this("0")
 
