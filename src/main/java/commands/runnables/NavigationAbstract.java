@@ -281,7 +281,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
 
         ArrayList<Button> controlButtonList = new ArrayList<>();
         if (CommandContainer.getListener(OnButtonListener.class, this).isPresent()) {
-            controlButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_BACK, TextManager.getString(getLocale(), TextManager.GENERAL, "list_back")));
+            String key = state == DEFAULT_STATE ? "list_close": "list_back";
+            Button backButton = Button.of(ButtonStyle.SECONDARY, BUTTON_ID_BACK, TextManager.getString(getLocale(), TextManager.GENERAL, key));
+            controlButtonList.add(backButton);
         }
         if (loadComponents) {
             List<ActionRow> tempActionRows = getActionRows();

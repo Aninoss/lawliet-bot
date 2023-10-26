@@ -48,6 +48,8 @@ import java.util.function.Function;
 )
 public class HelpCommand extends NavigationAbstract {
 
+    private static final int STATE_NOT_DEFAULT = 1;
+
     private final HashMap<Integer, String> buttonMap = new HashMap<>();
     private String searchTerm;
     private Category currentCategory = null;
@@ -63,8 +65,8 @@ public class HelpCommand extends NavigationAbstract {
         return true;
     }
 
-    @ControllerMessage(state = DEFAULT_STATE)
-    public MessageInputResponse onMessage(MessageReceivedEvent event, String input) {
+    @Override
+    public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (!input.isEmpty() && buttonMap.values().stream().anyMatch(str -> str.equalsIgnoreCase(input))) {
             searchTerm = input;
             return MessageInputResponse.SUCCESS;
@@ -72,8 +74,8 @@ public class HelpCommand extends NavigationAbstract {
         return null;
     }
 
-    @ControllerButton(state = DEFAULT_STATE)
-    public boolean onButton(ButtonInteractionEvent event, int i) {
+    @Override
+    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
         String key = buttonMap.get(i);
         if (key != null) {
             searchTerm = key;
@@ -97,23 +99,25 @@ public class HelpCommand extends NavigationAbstract {
         return false;
     }
 
-    @ControllerStringSelectMenu(state = DEFAULT_STATE)
-    public boolean onSelectMenu(StringSelectInteractionEvent event, int i) throws Throwable {
+    @Override
+    public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
         searchTerm = event.getValues().get(0);
         return true;
     }
 
-    @Draw(state = DEFAULT_STATE)
-    public EmbedBuilder onDraw(Member member) {
+    @Override
+    public EmbedBuilder draw(Member member, int state) {
         String arg = searchTerm.trim();
         if (arg.startsWith("<") && arg.endsWith(">")) arg = arg.substring(1, arg.length() - 1);
 
         TextChannel channel = getTextChannel().get();
         setActionRows();
 
+        setState(STATE_NOT_DEFAULT);
         EmbedBuilder eb;
         if ((eb = checkCommand(member, channel, arg)) == null) {
             if ((eb = checkCategory(member, channel, arg)) == null) {
+                setState(DEFAULT_STATE);
                 eb = checkMainPage(member, channel);
                 if (!arg.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), arg));
