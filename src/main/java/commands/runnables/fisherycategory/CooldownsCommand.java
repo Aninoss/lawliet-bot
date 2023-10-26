@@ -11,8 +11,8 @@ import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.utils.TimeUtil;
 import javafx.util.Pair;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.subs.DBSubs;
 import mysql.modules.subs.SubSlot;
 import mysql.modules.survey.DBSurvey;
@@ -51,7 +51,7 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnStr
 
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
-        this.fisheryMemberData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
+        this.fisheryMemberData = FisheryUserManager.getGuildData(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
         registerStringSelectMenuListener(event.getMember());
         return true;

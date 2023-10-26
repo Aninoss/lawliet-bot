@@ -1,4 +1,4 @@
-package mysql.modules.fisheryusers;
+package mysql.redis.fisheryusers;
 
 public class FisheryMemberDataCache extends FisheryRecentFishGainsData {
 

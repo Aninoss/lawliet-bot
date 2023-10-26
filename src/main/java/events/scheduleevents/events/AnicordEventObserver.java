@@ -1,7 +1,5 @@
 package events.scheduleevents.events;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -11,11 +9,14 @@ import core.MainLogger;
 import core.ShardManager;
 import core.utils.StringUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
-import mysql.modules.fisheryusers.DBFishery;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 @ScheduleEventFixedRate(rateValue = 1, rateUnit = ChronoUnit.MINUTES)
 public class AnicordEventObserver implements ExceptionRunnable {
@@ -40,7 +41,7 @@ public class AnicordEventObserver implements ExceptionRunnable {
                     int newMinutes = eventVoiceMinutesCache.get(member.getIdLong()) + 1;
                     eventVoiceMinutesCache.put(member.getIdLong(), newMinutes);
                     if (newMinutes == 60) {
-                        DBFishery.getInstance().retrieve(guild.getIdLong())
+                        FisheryUserManager.getGuildData(guild.getIdLong())
                                 .getMemberData(member.getIdLong())
                                 .increaseDiamonds();
                         guild.getTextChannelById(623630982641352724L)

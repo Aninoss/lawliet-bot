@@ -1,10 +1,10 @@
-package mysql.modules.fisheryusers;
+package mysql.redis.fisheryusers;
 
 import modules.fishery.FisheryGear;
 import constants.Settings;
 import core.assets.MemberAsset;
 import core.utils.NumberUtil;
-import mysql.RedisManager;
+import mysql.redis.RedisManager;
 
 public class FisheryMemberGearData implements MemberAsset {
 

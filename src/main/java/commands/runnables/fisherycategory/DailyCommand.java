@@ -16,8 +16,8 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.fishery.FisheryGear;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -48,7 +48,7 @@ public class DailyCommand extends Command implements FisheryInterface {
 
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
-        FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
+        FisheryMemberData userBean = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         if (!userBean.getDailyReceived().equals(LocalDate.now())) {
             long fish = userBean.getMemberGear(FisheryGear.DAILY).getEffect();
             boolean breakStreak = userBean.getDailyStreak() != 0 && !userBean.getDailyReceived().plus(1, ChronoUnit.DAYS).equals(LocalDate.now());

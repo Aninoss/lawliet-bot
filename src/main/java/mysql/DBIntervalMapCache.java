@@ -1,15 +1,16 @@
 package mysql;
 
+import core.GlobalThreadPool;
+import core.IntervalBlock;
+import core.MainLogger;
+import core.Program;
+
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
-import core.GlobalThreadPool;
-import core.IntervalBlock;
-import core.MainLogger;
-import core.Program;
 
 public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObserverMapCache<T, U> implements Observer {
 
@@ -46,7 +47,7 @@ public abstract class DBIntervalMapCache<T, U extends Observable> extends DBObse
 
         AtomicInteger saved = new AtomicInteger(0);
         tempList.stream()
-                .filter(value -> !(value instanceof DataWithGuild) || ((DataWithGuild) value).getGuildData().isSaved())
+                .filter(value -> !(value instanceof DataWithGuild))
                 .forEach(value -> {
                     try {
                         save(value);

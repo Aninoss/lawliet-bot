@@ -14,7 +14,7 @@ import core.schedule.MainScheduler;
 import modules.JoinRoles;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.bannedusers.DBBannedUsers;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;

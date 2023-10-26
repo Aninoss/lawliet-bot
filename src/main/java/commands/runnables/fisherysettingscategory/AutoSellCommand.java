@@ -12,7 +12,7 @@ import core.cache.PatreonCache;
 import core.modals.ModalMediator;
 import core.utils.StringUtil;
 import mysql.modules.autosell.DBAutoSell;
-import mysql.modules.fisheryusers.DBFishery;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -152,7 +152,7 @@ public class AutoSellCommand extends Command implements OnButtonListener {
         if (threshold == null || PatreonCache.getInstance().hasPremium(member.getIdLong(), false)) {
             DBAutoSell.getInstance().retrieve().setThreshold(member.getIdLong(), threshold);
             if (threshold != null) {
-                DBFishery.getInstance().retrieve(member.getGuild().getIdLong())
+                FisheryUserManager.getGuildData(member.getGuild().getIdLong())
                         .getMemberData(member.getIdLong())
                         .processAutoSell();
             }

@@ -20,8 +20,8 @@ import modules.fishery.FisheryPowerUp;
 import modules.fishery.FisheryStatus;
 import mysql.modules.casinostats.DBCasinoStats;
 import mysql.modules.casinotracking.DBCasinoTracking;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.gamestatistics.DBGameStatistics;
 import mysql.modules.gamestatistics.GameStatisticsData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -101,7 +101,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 return true;
             }
 
-            FisheryMemberData memberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
+            FisheryMemberData memberBean = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
             long coins = memberBean.getCoins();
             long value = Math.min(MentionUtil.getAmountExt(args, coins), coins);
             if (value == -1) {
@@ -145,7 +145,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
     }
 
     protected void endGame(Member member, boolean requestRetry) {
-        DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get()).addCoinsHidden(-coinsInput);
+        FisheryUserManager.getGuildData(getGuildId().get()).getMemberData(getMemberId().get()).addCoinsHidden(-coinsInput);
         if (requestRetry) {
             registerButtonListener(member, false);
             setComponents(BUTTON_RETRY);
@@ -178,7 +178,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
 
         long coinsLost = coinsInput;
         if (coinsInput > 0) {
-            FisheryMemberData fisheryMemberData = DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get());
+            FisheryMemberData fisheryMemberData = FisheryUserManager.getGuildData(getGuildId().get()).getMemberData(getMemberId().get());
             EmbedBuilder eb;
             if (fisheryMemberData.getActivePowerUps().contains(FisheryPowerUp.SHIELD)) {
                 casinoLogEntry.addEvent("Shield Protection");
@@ -235,7 +235,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
         }
 
         long valueWon = (long) Math.ceil(coinsWon * multiplicator * BONUS_MULTIPLICATOR);
-        EmbedBuilder eb = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
+        EmbedBuilder eb = FisheryUserManager.getGuildData(member.getGuild().getIdLong()).getMemberData(getMemberId().get())
                 .changeValuesEmbed(member, 0, valueWon, getGuildEntity());
         if (coinsInput > 0) {
             setAdditionalEmbeds(eb.build());
@@ -298,7 +298,7 @@ public abstract class CasinoAbstract extends Command implements OnButtonListener
                 }
             }, () -> {
                 if (!hasCancelButton) {
-                    FisheryMemberData memberData = DBFishery.getInstance().retrieve(getGuildId().get()).getMemberData(getMemberId().get());
+                    FisheryMemberData memberData = FisheryUserManager.getGuildData(getGuildId().get()).getMemberData(getMemberId().get());
                     memberData.addCoinsHidden(-coinsInput);
                     memberData.changeValues(0, -coinsInput);
 

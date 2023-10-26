@@ -18,9 +18,9 @@ import modules.fishery.FisheryPowerUp;
 import modules.fishery.FisheryStatus;
 import mysql.modules.casinostats.DBCasinoStats;
 import mysql.modules.casinotracking.DBCasinoTracking;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryGuildData;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -77,8 +77,8 @@ public abstract class CasinoMultiplayerAbstract extends Command implements OnBut
             return true;
         }
 
-        fisheryGuildData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
-        FisheryMemberData memberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
+        fisheryGuildData = FisheryUserManager.getGuildData(event.getGuild().getIdLong());
+        FisheryMemberData memberBean = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         long coins = memberBean.getCoins();
         long value = Math.min(MentionUtil.getAmountExt(args, coins), coins);
         if (value == -1) {

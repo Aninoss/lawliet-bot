@@ -3,7 +3,7 @@ package commands.runnables.fisherycategory;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.FisheryMemberAccountInterface;
-import mysql.modules.fisheryusers.DBFishery;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -27,7 +27,7 @@ public class AccountCommand extends FisheryMemberAccountInterface {
 
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
-        return DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong())
+        return FisheryUserManager.getGuildData(member.getGuild().getIdLong()).getMemberData(member.getIdLong())
                 .getAccountEmbed(member, getGuildEntity());
     }
 

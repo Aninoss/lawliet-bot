@@ -6,9 +6,9 @@ import constants.AnicordVerificationIds;
 import constants.ExceptionRunnable;
 import core.ShardManager;
 import events.scheduleevents.ScheduleEventFixedRate;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryGuildData;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -23,7 +23,7 @@ public class AnicordVerifications implements ExceptionRunnable {
         if (guild != null) {
             Role verificationRole = guild.getRoleById(AnicordVerificationIds.ROLE_ID);
             TextChannel verificationChannel = guild.getTextChannelById(AnicordVerificationIds.CHANNEL_ID);
-            FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guild.getIdLong());
+            FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guild.getIdLong());
             guild.getMembers().stream()
                     .filter(m -> !m.getRoles().contains(verificationRole))
                     .forEach(m -> checkMember(verificationRole, verificationChannel, m, fisheryGuildData.getMemberData(m.getIdLong())));

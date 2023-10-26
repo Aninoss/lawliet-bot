@@ -17,9 +17,9 @@ import mysql.modules.autosell.AutoSellData;
 import mysql.modules.autosell.DBAutoSell;
 import mysql.modules.autowork.AutoWorkData;
 import mysql.modules.autowork.DBAutoWork;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryGuildData;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.subs.DBSubs;
 import mysql.modules.subs.SubSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -64,7 +64,7 @@ public class FisheryProcessors implements ExceptionRunnable {
 
     private void processVoiceActivity(Guild guild, GuildEntity guildEntity, AtomicInteger actions) {
         try {
-            FisheryGuildData serverBean = DBFishery.getInstance().retrieve(guild.getIdLong());
+            FisheryGuildData serverBean = FisheryUserManager.getGuildData(guild.getIdLong());
             for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {
                 try {
                     List<Member> validMembers = Fishery.getValidVoiceMembers(voiceChannel);
@@ -90,7 +90,7 @@ public class FisheryProcessors implements ExceptionRunnable {
 
     private void processAutoSell(Guild guild, AtomicInteger actions) {
         try {
-            FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guild.getIdLong());
+            FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guild.getIdLong());
             AutoSellData autoSellData = DBAutoSell.getInstance().retrieve();
 
             guild.getMembers().stream()
@@ -107,7 +107,7 @@ public class FisheryProcessors implements ExceptionRunnable {
 
     private void processAutoWork(Guild guild, Map<Long, SubSlot> subMap, AtomicInteger autoWorkActions, HashMap<Long, HashSet<Guild>> reminderGuildMap) {
         try {
-            FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guild.getIdLong());
+            FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guild.getIdLong());
             AutoWorkData autoWorkData = DBAutoWork.getInstance().retrieve();
             for (Member member : guild.getMembers()) {
                 FisheryMemberData fisheryMemberData = fisheryGuildData.getMemberData(member.getIdLong());

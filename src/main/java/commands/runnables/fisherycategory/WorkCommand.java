@@ -17,8 +17,8 @@ import core.utils.RandomUtil;
 import core.utils.StringUtil;
 import modules.fishery.FisheryGear;
 import mysql.modules.autowork.DBAutoWork;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -51,7 +51,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
             Emojis.FULL_SPACE_UNICODE.getFormatted() + Emojis.FULL_SPACE_UNICODE.getFormatted()
     };
 
-    private FisheryMemberData fisheryMemberBean;
+    private FisheryMemberData fisheryMemberData;
     private String[][] area;
     private int fishFocus;
     private int fishCounter;
@@ -63,8 +63,8 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
 
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) {
-        fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
-        Optional<Instant> nextWork = fisheryMemberBean.checkNextWork();
+        fisheryMemberData = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
+        Optional<Instant> nextWork = fisheryMemberData.checkNextWork();
         if (nextWork.isEmpty()) {
             setArea();
             registerButtonListener(event.getMember());
@@ -93,9 +93,9 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
                 if (number == fishCounter) {
                     deregisterListenersWithComponents();
                     active = false;
-                    long coins = fisheryMemberBean.getMemberGear(FisheryGear.WORK).getEffect();
-                    setAdditionalEmbeds(fisheryMemberBean.changeValuesEmbed(event.getMember(), 0, coins, getGuildEntity()).build());
-                    fisheryMemberBean.completeWork();
+                    long coins = fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect();
+                    setAdditionalEmbeds(fisheryMemberData.changeValuesEmbed(event.getMember(), 0, coins, getGuildEntity()).build());
+                    fisheryMemberData.completeWork();
                     setLog(LogStatus.SUCCESS, getString("right"));
                     return MessageInputResponse.SUCCESS;
                 } else {
@@ -113,7 +113,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         deregisterListenersWithComponents();
         active = false;
-        fisheryMemberBean.removeWork();
+        fisheryMemberData.removeWork();
         setLog(null, getString("canceled"));
         return true;
     }
@@ -142,7 +142,7 @@ public class WorkCommand extends Command implements FisheryInterface, OnButtonLi
     @Override
     protected void onListenerTimeOut() {
         active = false;
-        fisheryMemberBean.removeWork();
+        fisheryMemberData.removeWork();
     }
 
     private void setArea() {

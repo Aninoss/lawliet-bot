@@ -1,9 +1,9 @@
-package mysql.modules.fisheryusers;
+package mysql.redis.fisheryusers;
 
 import constants.Settings;
 import modules.fishery.Stock;
 import modules.fishery.StockMarket;
-import mysql.RedisManager;
+import mysql.redis.RedisManager;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 

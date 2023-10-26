@@ -19,7 +19,7 @@ import core.utils.MentionUtil;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryManage;
 import modules.fishery.FisheryMemberGroup;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;

@@ -17,9 +17,9 @@ import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
 import mysql.hibernate.entity.FisheryEntity;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
-import mysql.modules.fisheryusers.FisheryMemberGearData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryMemberGearData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -52,11 +52,11 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
-        fisheryMemberData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
+        fisheryMemberData = FisheryUserManager.getGuildData(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
 
         checkRolesWithLog(event.getGuild(), getGuildEntity().getFishery().getRoles());
-        if (args.length() > 0) {
+        if (!args.isEmpty()) {
             String letters = StringUtil.filterLettersFromString(args).toLowerCase().replace(" ", "");
             long numbers = StringUtil.filterLongFromString(args);
             FisheryGear fisheryGear = FisheryGear.parse(letters);

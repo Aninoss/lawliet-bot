@@ -1,4 +1,4 @@
-package mysql.modules.fisheryusers;
+package mysql.redis.fisheryusers;
 
 import constants.*;
 import core.EmbedFactory;
@@ -14,7 +14,7 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import modules.fishery.*;
-import mysql.RedisManager;
+import mysql.redis.RedisManager;
 import mysql.hibernate.entity.FisheryEntity;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.autosell.DBAutoSell;

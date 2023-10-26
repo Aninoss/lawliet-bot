@@ -8,8 +8,8 @@ import modules.fishery.Fishery;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.GuildEntity;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.modules.ticket.DBTicket;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -26,12 +26,12 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
             GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
 
             boolean messageRegistered = false;
-            FisheryGuildData fisheryGuildBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
+            FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(event.getGuild().getIdLong());
             if (!event.getMessage().getContentRaw().isEmpty() &&
                     guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE &&
                     !guildEntity.getFishery().getExcludedChannelIds().contains(event.getChannel().getIdLong())
             ) {
-                messageRegistered = fisheryGuildBean.getMemberData(event.getMember().getIdLong())
+                messageRegistered = fisheryGuildData.getMemberData(event.getMember().getIdLong())
                         .registerMessage(event.getMessage(), guildEntity);
             }
 

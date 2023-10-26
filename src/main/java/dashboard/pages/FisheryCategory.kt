@@ -36,8 +36,8 @@ import modules.fishery.FisheryManage
 import modules.fishery.FisheryStatus
 import mysql.hibernate.entity.FisheryEntity
 import mysql.hibernate.entity.GuildEntity
-import mysql.modules.fisheryusers.DBFishery
-import mysql.modules.fisheryusers.FisheryMemberData
+import mysql.redis.fisheryusers.FisheryUserManager
+import mysql.redis.fisheryusers.FisheryMemberData
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
@@ -325,7 +325,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             }
         }
 
-        return memberSet.map { DBFishery.getInstance().retrieve(atomicGuild.idLong).getMemberData(it) }
+        return memberSet.map { FisheryUserManager.getGuildData(atomicGuild.idLong).getMemberData(it) }
     }
 
     private fun generateFisheryManageMembersField(premium: Boolean): DashboardComponent {
@@ -639,7 +639,7 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                                 .withRedraw()
                     }
 
-                    GlobalThreadPool.submit { DBFishery.getInstance().invalidateGuildId(atomicGuild.idLong) }
+                    GlobalThreadPool.submit { FisheryUserManager.deleteGuildData(atomicGuild.idLong) }
 
                     guildEntity.beginTransaction()
                     fisheryEntity.fisheryStatus = FisheryStatus.STOPPED

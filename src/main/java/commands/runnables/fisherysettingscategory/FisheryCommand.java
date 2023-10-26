@@ -22,9 +22,9 @@ import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.entity.FisheryEntity;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryGuildData;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -169,7 +169,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                                 stopLock = false;
                                 setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
                             } else {
-                                GlobalThreadPool.submit(() -> DBFishery.getInstance().invalidateGuildId(event.getGuild().getIdLong()));
+                                GlobalThreadPool.submit(() -> FisheryUserManager.deleteGuildData(event.getGuild().getIdLong()));
 
                                 fishery.beginTransaction();
                                 fishery.setFisheryStatus(FisheryStatus.STOPPED);
@@ -275,7 +275,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
 
     private void processTreasureChestReveal(ButtonInteractionEvent event) {
         InteractionHook hook = event.getHook();
-        FisheryMemberData memberData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
+        FisheryMemberData memberData = FisheryUserManager.getGuildData(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
 
         Random r = new Random();
@@ -335,7 +335,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     private void processPowerUpReveal(ButtonInteractionEvent event) {
         Random r = new Random();
         InteractionHook hook = event.getHook();
-        FisheryMemberData memberData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
+        FisheryMemberData memberData = FisheryUserManager.getGuildData(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
 
         ArrayList<FisheryPowerUp> possiblePowerUps = new ArrayList<>(List.of(FisheryPowerUp.values()));
@@ -433,7 +433,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         Member member0 = event.getMember();
         Member member1 = event.getMentions().getMembers().get(0);
 
-        FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong());
+        FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(event.getGuild().getIdLong());
         FisheryMemberData memberData0 = fisheryGuildData.getMemberData(member0.getIdLong());
         FisheryMemberData memberData1 = fisheryGuildData.getMemberData(member1.getIdLong());
 

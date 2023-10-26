@@ -11,9 +11,9 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
-import mysql.modules.fisheryusers.FisheryMemberGearData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryMemberGearData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -41,7 +41,7 @@ public class GearCommand extends FisheryMemberAccountInterface {
     @Override
     protected EmbedBuilder processMember(CommandEvent event, Member member, boolean memberIsAuthor, String args) throws Throwable {
         List<Role> buyableRoles = getGuildEntity().getFishery().getRoles();
-        FisheryMemberData fisheryMemberData = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong());
+        FisheryMemberData fisheryMemberData = FisheryUserManager.getGuildData(member.getGuild().getIdLong()).getMemberData(member.getIdLong());
         int coupons = fisheryMemberData.getCoupons();
         String desc = getString(
                 coupons > 0 ? "desc_ext" : "desc",

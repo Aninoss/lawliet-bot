@@ -1,21 +1,19 @@
-package mysql.modules.fisheryusers;
+package mysql.redis.fisheryusers;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import constants.Settings;
+import core.assets.GuildAsset;
+import core.utils.TimeUtil;
+import javafx.util.Pair;
+import mysql.redis.RedisManager;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Response;
+import redis.clients.jedis.Tuple;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Function;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import constants.Settings;
-import core.CustomObservableList;
-import core.assets.GuildAsset;
-import core.utils.TimeUtil;
-import javafx.util.Pair;
-import mysql.RedisManager;
-import net.dv8tion.jda.api.entities.ISnowflake;
-import net.dv8tion.jda.api.entities.Role;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.Response;
-import redis.clients.jedis.Tuple;
 
 public class FisheryGuildData implements GuildAsset {
 
@@ -25,17 +23,13 @@ public class FisheryGuildData implements GuildAsset {
     private final long guildId;
     private long recentFishGainsRefreshHour = 0;
     private final HashMap<Long, Long> coinsHiddenMap = new HashMap<>();
-    private final CustomObservableList<Long> ignoredChannelIds;
-    private final CustomObservableList<Long> roleIds;
 
     private final Cache<Long, Pair<Integer, Integer>> messageActivityCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(5))
             .build();
 
-    public FisheryGuildData(long guildId, List<Long> ignoredChannelIds, List<Long> roleIds) {
+    public FisheryGuildData(long guildId) {
         this.guildId = guildId;
-        this.ignoredChannelIds = new CustomObservableList<>(ignoredChannelIds);
-        this.roleIds = new CustomObservableList<>(roleIds);
 
         this.KEY_RECENT_FISH_GAINS_RAW = "recent_fish_gains_raw:" + guildId;
         this.KEY_RECENT_FISH_GAINS_PROCESSED = "recent_fish_gains_processed:" + guildId;
@@ -44,22 +38,6 @@ public class FisheryGuildData implements GuildAsset {
     @Override
     public long getGuildId() {
         return guildId;
-    }
-
-    public CustomObservableList<Long> getIgnoredChannelIds() {
-        return ignoredChannelIds;
-    }
-
-    public CustomObservableList<Long> getRoleIds() {
-        return roleIds;
-    }
-
-    public CustomObservableList<Role> getRoles() {
-        return getGuild().map(guild -> {
-            CustomObservableList<Role> roles = roleIds.transform(guild::getRoleById, ISnowflake::getIdLong, true);
-            roles.sort(Comparator.comparingInt(Role::getPosition));
-            return roles;
-        }).orElse(new CustomObservableList<>(new ArrayList<>()));
     }
 
     public FisheryMemberData getMemberData(long memberId) {

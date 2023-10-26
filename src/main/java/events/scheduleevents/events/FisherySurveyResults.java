@@ -8,8 +8,8 @@ import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.subs.DBSubs;
 import mysql.modules.subs.SubSlot;
 import mysql.modules.survey.DBSurvey;
@@ -106,7 +106,7 @@ public class FisherySurveyResults implements ExceptionRunnable {
     private static void processSurveyUser(List<SurveySecondVote> secondVotes, long userId, byte won) {
         for (SurveySecondVote secondVote : secondVotes) {
             if (won == 2 || secondVote.getVote() == won) {
-                FisheryMemberData memberData = DBFishery.getInstance().retrieve(secondVote.getGuildId())
+                FisheryMemberData memberData = FisheryUserManager.getGuildData(secondVote.getGuildId())
                         .getMemberData(userId);
                 long prize = memberData.getMemberGear(FisheryGear.SURVEY).getEffect();
                 MainLogger.get().info("Survey: Giving {} coins to {} on guild {} ({} coins)", prize, userId, secondVote.getGuildId(), memberData.getCoins());

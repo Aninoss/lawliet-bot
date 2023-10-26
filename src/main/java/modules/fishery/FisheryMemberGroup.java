@@ -8,8 +8,8 @@ import core.TextManager;
 import core.assets.GuildAsset;
 import core.atomicassets.AtomicMember;
 import core.utils.StringUtil;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.entities.Member;
 
 public class FisheryMemberGroup implements GuildAsset {
@@ -35,7 +35,7 @@ public class FisheryMemberGroup implements GuildAsset {
 
     public List<FisheryMemberData> getFisheryMemberList() {
         return members.stream()
-                .map(m -> DBFishery.getInstance().retrieve(guildId).getMemberData(m.getIdLong()))
+                .map(m -> FisheryUserManager.getGuildData(guildId).getMemberData(m.getIdLong()))
                 .collect(Collectors.toList());
     }
 

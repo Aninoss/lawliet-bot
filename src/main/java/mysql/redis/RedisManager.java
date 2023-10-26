@@ -1,4 +1,6 @@
-package mysql;
+package mysql.redis;
+
+import redis.clients.jedis.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -7,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import redis.clients.jedis.*;
 
 public class RedisManager {
 

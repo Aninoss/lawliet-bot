@@ -19,9 +19,9 @@ import core.utils.TimeUtil;
 import modules.fishery.Stock;
 import modules.fishery.StockMarket;
 import modules.graphics.StockMarketGraphics;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
-import mysql.modules.fisheryusers.FisheryMemberStocksData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryMemberStocksData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -56,7 +56,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
             SELL = 2;
 
     private Stock currentStock;
-    private FisheryMemberData fisheryMemberBean;
+    private FisheryMemberData fisheryMemberData;
     private int sharesNum = 0;
 
     public StocksCommand(Locale locale, String prefix) {
@@ -66,20 +66,20 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) throws Throwable {
         currentStock = Stock.values()[0];
-        fisheryMemberBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
+        fisheryMemberData = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         registerNavigationListener(event.getMember());
         return true;
     }
 
     @ControllerMessage(state = BUY)
     public MessageInputResponse onMessageBuy(MessageReceivedEvent event, String input) {
-        long maxValue = (long) Math.floor((double) fisheryMemberBean.getCoins() / StockMarket.getValue(currentStock) / (1 + Settings.FISHERY_SHARES_FEES / 100.0));
+        long maxValue = (long) Math.floor((double) fisheryMemberData.getCoins() / StockMarket.getValue(currentStock) / (1 + Settings.FISHERY_SHARES_FEES / 100.0));
         return onMessageBuySell(input, Math.min(maxValue, Settings.FISHERY_SHARES_MAX));
     }
 
     @ControllerMessage(state = SELL)
     public MessageInputResponse onMessageSell(MessageReceivedEvent event, String input) {
-        long maxValue = fisheryMemberBean.getStocks(currentStock).getShareSize();
+        long maxValue = fisheryMemberData.getStocks(currentStock).getShareSize();
         return onMessageBuySell(input, maxValue);
     }
 
@@ -102,7 +102,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                 return false;
             }
             case 0 -> {
-                if (fisheryMemberBean.getStocks(currentStock).getShareSize() < Settings.FISHERY_SHARES_MAX) {
+                if (fisheryMemberData.getStocks(currentStock).getShareSize() < Settings.FISHERY_SHARES_MAX) {
                     sharesNum = 0;
                     setState(BUY);
                 } else {
@@ -111,7 +111,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
                 return true;
             }
             case 1 -> {
-                if (fisheryMemberBean.getStocks(currentStock).getShareSize() > 0) {
+                if (fisheryMemberData.getStocks(currentStock).getShareSize() > 0) {
                     sharesNum = 0;
                     setState(SELL);
                 } else {
@@ -131,11 +131,11 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
             setState(MAIN);
             return true;
         } else if (i == 0 && sharesNum > 0) {
-            FisheryMemberStocksData stocksData = fisheryMemberBean.getStocks(currentStock);
+            FisheryMemberStocksData stocksData = fisheryMemberData.getStocks(currentStock);
             long totalPrice = Math.round(sharesNum * StockMarket.getValue(currentStock) * (1 + Settings.FISHERY_SHARES_FEES / 100.0));
-            if (fisheryMemberBean.getCoins() >= totalPrice) {
+            if (fisheryMemberData.getCoins() >= totalPrice) {
                 if (sharesNum <= Settings.FISHERY_SHARES_MAX - stocksData.getShareSize()) {
-                    fisheryMemberBean.addCoinsRaw(-totalPrice);
+                    fisheryMemberData.addCoinsRaw(-totalPrice);
                     stocksData.add(sharesNum);
                     setLog(LogStatus.SUCCESS, getString("buy_success", sharesNum != 1, StringUtil.numToString(sharesNum), currentStock.getName()));
                     setState(MAIN);
@@ -156,9 +156,9 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
             setState(MAIN);
             return true;
         } else if (i == 0 && sharesNum > 0) {
-            FisheryMemberStocksData stocksData = fisheryMemberBean.getStocks(currentStock);
+            FisheryMemberStocksData stocksData = fisheryMemberData.getStocks(currentStock);
             if (sharesNum <= stocksData.getShareSize()) {
-                fisheryMemberBean.addCoinsRaw(sharesNum * StockMarket.getValue(currentStock));
+                fisheryMemberData.addCoinsRaw(sharesNum * StockMarket.getValue(currentStock));
                 stocksData.add(-sharesNum);
                 setLog(LogStatus.SUCCESS, getString("sell_success", sharesNum != 1, StringUtil.numToString(sharesNum), currentStock.getName()));
                 setState(MAIN);
@@ -178,10 +178,10 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
 
     @Draw(state = MAIN)
     public EmbedBuilder onDrawMain(Member member) throws IOException, ExecutionException, InterruptedException {
-        long coins = fisheryMemberBean.getCoins();
-        long totalShares = fisheryMemberBean.getStocksTotalShares();
-        long totalInvestmentBefore = fisheryMemberBean.getStocksTotalInvestmentBefore();
-        long totalInvestmentAfter = fisheryMemberBean.getStocksTotalInvestmentAfter();
+        long coins = fisheryMemberData.getCoins();
+        long totalShares = fisheryMemberData.getStocksTotalShares();
+        long totalInvestmentBefore = fisheryMemberData.getStocksTotalInvestmentBefore();
+        long totalInvestmentAfter = fisheryMemberData.getStocksTotalInvestmentAfter();
         String desc = getString(
                 "values",
                 StringUtil.numToString(coins),
@@ -221,7 +221,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
 
     @Draw(state = BUY)
     public EmbedBuilder onDrawBuy(Member member) {
-        long coins = fisheryMemberBean.getCoins();
+        long coins = fisheryMemberData.getCoins();
         long price = StockMarket.getValue(currentStock);
         long pricePrevious = StockMarket.getValue(currentStock, -1);
         String desc = getString("buy", StringUtil.numToString(coins));
@@ -244,7 +244,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
 
     @Draw(state = SELL)
     public EmbedBuilder onDrawSell(Member member) {
-        long shares = fisheryMemberBean.getStocks(currentStock).getShareSize();
+        long shares = fisheryMemberData.getStocks(currentStock).getShareSize();
         long price = StockMarket.getValue(currentStock);
         long pricePrevious = StockMarket.getValue(currentStock, -1);
         String desc = getString(
@@ -270,7 +270,7 @@ public class StocksCommand extends NavigationAbstract implements FisheryInterfac
     }
 
     private String generateStockDescription() {
-        FisheryMemberStocksData stocksData = fisheryMemberBean.getStocks(currentStock);
+        FisheryMemberStocksData stocksData = fisheryMemberData.getStocks(currentStock);
         long price = StockMarket.getValue(currentStock);
         long pricePrevious = StockMarket.getValue(currentStock, -1);
         long shares = stocksData.getShareSize();

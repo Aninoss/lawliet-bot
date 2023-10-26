@@ -10,8 +10,8 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.EmbedUtil;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -47,7 +47,7 @@ public class DiamondsCommand extends Command implements OnButtonListener {
 
     @Override
     public synchronized boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
-        FisheryMemberData fisheryMemberData = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
+        FisheryMemberData fisheryMemberData = FisheryUserManager.getGuildData(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
         if (fisheryMemberData.getDiamonds() >= 3) {
             fisheryMemberData.removeThreeDiamonds();
@@ -67,7 +67,7 @@ public class DiamondsCommand extends Command implements OnButtonListener {
 
     @Override
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
-        FisheryMemberData fisheryMemberData = DBFishery.getInstance().retrieve(member.getGuild().getIdLong()).getMemberData(member.getIdLong());
+        FisheryMemberData fisheryMemberData = FisheryUserManager.getGuildData(member.getGuild().getIdLong()).getMemberData(member.getIdLong());
         if (accountChangeEmbed != null) {
             setAdditionalEmbeds(accountChangeEmbed.build());
         } else {

@@ -9,10 +9,10 @@ import core.TextManager;
 import core.utils.EmojiUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
-import mysql.modules.fisheryusers.FisheryMemberDataCache;
-import mysql.modules.fisheryusers.FisheryRecentFishGainsData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryGuildData;
+import mysql.redis.fisheryusers.FisheryMemberDataCache;
+import mysql.redis.fisheryusers.FisheryRecentFishGainsData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -47,7 +47,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
     @Override
     protected int configure(Member member, int orderBy) throws Throwable {
         rankingSlots = new ArrayList<>();
-        FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(member.getGuild().getIdLong());
+        FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(member.getGuild().getIdLong());
         Map<Long, Long> recentFishGainsMap = fisheryGuildData.getAllRecentFishGains();
         Map<Long, Long> fishMap = Collections.emptyMap();
         Map<Long, Long> coinsMap = Collections.emptyMap();

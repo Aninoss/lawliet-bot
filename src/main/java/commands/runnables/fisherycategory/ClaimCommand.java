@@ -13,8 +13,8 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
 import mysql.modules.autoclaim.DBAutoClaim;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.upvotes.DBUpvotes;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -44,7 +44,7 @@ public class ClaimCommand extends Command implements FisheryInterface {
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) {
         Instant nextUpvote = DBUpvotes.getUpvoteSlot(event.getMember().getIdLong()).getLastUpvote().plus(12, ChronoUnit.HOURS);
-        FisheryMemberData userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
+        FisheryMemberData userBean = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(event.getMember().getIdLong());
         int upvotesUnclaimed = userBean.getUpvoteStack();
         userBean.clearUpvoteStack();
 

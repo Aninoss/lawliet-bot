@@ -14,8 +14,8 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.ExchangeRate;
 import modules.fishery.Fishery;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -49,7 +49,7 @@ public class SellCommand extends Command implements FisheryInterface, OnButtonLi
 
     @Override
     public boolean onFisheryAccess(CommandEvent event, String args) {
-        userBean = DBFishery.getInstance().retrieve(event.getGuild().getIdLong())
+        userBean = FisheryUserManager.getGuildData(event.getGuild().getIdLong())
                 .getMemberData(event.getMember().getIdLong());
         if (args.length() > 0) {
             boolean success = process(event.getMember(), args);

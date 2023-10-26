@@ -22,7 +22,7 @@ import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.UserEntity;
 import mysql.modules.bannedusers.BannedUserSlot;
 import mysql.modules.bannedusers.DBBannedUsers;
-import mysql.modules.fisheryusers.DBFishery;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
@@ -397,7 +397,7 @@ public class Console {
         long userId = Long.parseLong(args[2]);
 
         ShardManager.getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().retrieve(serverId).getMemberData(userId).remove();
+            FisheryUserManager.getGuildData(serverId).getMemberData(userId).remove();
             MainLogger.get().info("Fishery user {} from server {} removed", userId, serverId);
         });
     }
@@ -408,7 +408,7 @@ public class Console {
         long value = Long.parseLong(args[3]);
 
         ShardManager.getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().retrieve(serverId).getMemberData(userId).setDailyStreak(value);
+            FisheryUserManager.getGuildData(serverId).getMemberData(userId).setDailyStreak(value);
             MainLogger.get().info("Changed daily streak value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }
@@ -419,7 +419,7 @@ public class Console {
         long value = Long.parseLong(args[3]);
 
         ShardManager.getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().retrieve(serverId).getMemberData(userId).setCoinsRaw(value);
+            FisheryUserManager.getGuildData(serverId).getMemberData(userId).setCoinsRaw(value);
             MainLogger.get().info("Changed coin value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }
@@ -430,7 +430,7 @@ public class Console {
         long value = Long.parseLong(args[3]);
 
         ShardManager.getLocalGuildById(serverId).ifPresent(server -> {
-            DBFishery.getInstance().retrieve(serverId).getMemberData(userId).setFish(value);
+            FisheryUserManager.getGuildData(serverId).getMemberData(userId).setFish(value);
             MainLogger.get().info("Changed fish value (server: {}; user: {}) to {}", serverId, userId, value);
         });
     }

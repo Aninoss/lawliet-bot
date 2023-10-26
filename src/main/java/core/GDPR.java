@@ -1,18 +1,19 @@
 package core;
 
+import mysql.MySQLManager;
+import mysql.redis.RedisManager;
+import mysql.redis.fisheryusers.FisheryGuildData;
+import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import mysql.MySQLManager;
-import mysql.RedisManager;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryGuildData;
-import mysql.modules.fisheryusers.FisheryMemberData;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class GDPR {
 
@@ -42,8 +43,8 @@ public class GDPR {
 
         JSONObject jsonObject = new JSONObject();
         RedisManager.update(jedis -> {
-            for (long guildId : DBFishery.getInstance().getGuildIdsForFisheryUser(userId)) {
-                FisheryGuildData fisheryGuildData = DBFishery.getInstance().retrieve(guildId);
+            for (long guildId : FisheryUserManager.getGuildIdsForFisheryUser(userId)) {
+                FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guildId);
                 FisheryMemberData fisheryMemberData = fisheryGuildData.getMemberData(userId);
 
                 JSONObject guildMemberJsonObject = new JSONObject();

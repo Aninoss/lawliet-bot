@@ -12,8 +12,8 @@ import core.mention.MentionList;
 import core.utils.EmbedUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -53,8 +53,8 @@ public class GiveCommand extends Command implements FisheryInterface {
         Member user0 = event.getMember();
         Member user1 = list.get(0);
 
-        FisheryMemberData fisheryUser0 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(user0.getIdLong());
-        FisheryMemberData fisheryUser1 = DBFishery.getInstance().retrieve(event.getGuild().getIdLong()).getMemberData(user1.getIdLong());
+        FisheryMemberData fisheryUser0 = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(user0.getIdLong());
+        FisheryMemberData fisheryUser1 = FisheryUserManager.getGuildData(event.getGuild().getIdLong()).getMemberData(user1.getIdLong());
         long value = Math.min(MentionUtil.getAmountExt(args, fisheryUser0.getCoins()), fisheryUser0.getCoins());
         long cap = fisheryUser1.getCoinsGiveReceivedMax() - fisheryUser1.getCoinsGiveReceived();
 

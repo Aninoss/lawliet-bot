@@ -12,7 +12,7 @@ import core.utils.TimeUtil;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.autoroles.DBAutoRoles;
-import mysql.modules.fisheryusers.DBFishery;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import mysql.modules.jails.DBJails;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
@@ -114,7 +114,7 @@ public class JoinRoles {
             return;
         }
 
-        List<Role> memberRoles = DBFishery.getInstance().retrieve(guild.getIdLong()).getMemberData(member.getIdLong()).getRoles(guildEntity.getFishery());
+        List<Role> memberRoles = FisheryUserManager.getGuildData(guild.getIdLong()).getMemberData(member.getIdLong()).getRoles(guildEntity.getFishery());
         for (Role role : guildEntity.getFishery().getRoles()) {
             boolean give = memberRoles.contains(role);
             if (PermissionCheckRuntime.botCanManageRoles(locale, FisheryCommand.class, role) && give != member.getRoles().contains(role)) {

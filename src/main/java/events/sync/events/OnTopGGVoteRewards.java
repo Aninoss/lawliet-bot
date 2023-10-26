@@ -15,8 +15,8 @@ import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.FisheryEntity;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.bannedusers.DBBannedUsers;
-import mysql.modules.fisheryusers.DBFishery;
-import mysql.modules.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -65,7 +65,7 @@ public class OnTopGGVoteRewards implements SyncServerFunction {
                     return;
                 }
 
-                FisheryMemberData fisheryMemberData = DBFishery.getInstance().retrieve(guildId).getMemberData(userId);
+                FisheryMemberData fisheryMemberData = FisheryUserManager.getGuildData(guildId).getMemberData(userId);
                 long add = Math.round(fisheryMemberData.getMemberGear(FisheryGear.DAILY).getEffect() * fisheryEntity.getVoteRewardsDailyPortionInPercent() / 100.0);
 
                 if (voteRewardsChannel != null && PermissionCheckRuntime.botHasPermission(guildEntity.getLocale(), VoteRewardsCommand.class, voteRewardsChannel, Permission.MESSAGE_SEND, Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_EXT_EMOJI)) {
