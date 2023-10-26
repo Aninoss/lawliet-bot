@@ -123,6 +123,7 @@ public class Console {
                 UserEntity user = entityManager.findOrDefault(UserEntity.class, String.valueOf(userId));
                 user.beginTransaction();
                 user.setTxt2ImgBannedUntil(Instant.now().plus(Duration.ofMinutes(durationMinutes)));
+                user.setTxt2ImgBannedNumber(user.getTxt2ImgBannedNumber() + 1);
                 user.commitTransaction();
                 MainLogger.get().info("{} has been banned from txt2img for {} minutes", userId, durationMinutes);
             }

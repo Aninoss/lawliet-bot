@@ -17,6 +17,14 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     @Convert(converter = InstantConverter::class)
     var txt2ImgBannedUntil: Instant? = null
 
+    @Column(name = "txt2ImgBannedNumber")
+    private var _txt2ImgBannedNumber: Int? = null
+    var txt2ImgBannedNumber: Int
+        get() = _txt2ImgBannedNumber ?: 0
+        set(value) {
+            _txt2ImgBannedNumber = value
+        }
+
     @Column(name = "txt2ImgCalls")
     private var _txt2ImgCalls: Int? = null
     var txt2ImgCalls: Int
