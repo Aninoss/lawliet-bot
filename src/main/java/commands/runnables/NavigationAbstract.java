@@ -112,7 +112,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     @Override
     public boolean onStringSelectMenu(StringSelectInteractionEvent event) throws Throwable {
         int i = -1;
-        if (event.getValues().size() > 0 && StringUtil.stringIsInt(event.getValues().get(0))) {
+        if (!event.getValues().isEmpty() && StringUtil.stringIsInt(event.getValues().get(0))) {
             i = Integer.parseInt(event.getValues().get(0));
         }
         boolean changed = controllerStringSelectMenu(event, i, state);

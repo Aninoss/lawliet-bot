@@ -1,10 +1,9 @@
 package commands.runnables;
 
 import commands.Category;
-import commands.Command;
 import commands.CommandEvent;
-import commands.listeners.OnStringSelectMenuListener;
 import constants.Emojis;
+import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MainLogger;
@@ -15,12 +14,13 @@ import core.utils.*;
 import modules.txt2img.*;
 import mysql.hibernate.entity.UserEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,22 +30,18 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
-public abstract class RunPodAbstract extends Command implements OnStringSelectMenuListener {
+public abstract class RunPodAbstract extends NavigationAbstract {
 
-    public static int LIMIT_CREATIONS_PER_DAY = 5;
+    public static int LIMIT_CREATIONS_PER_DAY = 10;
     public static String SELECT_ID_MODEL = "model";
-    public static String SELECT_ID_IMAGE = "image";
     public static String DEFAULT_NEGATIVE_PROMPT = "worst quality, low quality, low-res, ugly, extra limbs, missing limb, floating limbs, disconnected limbs, mutated hands, extra legs, extra arms, bad anatomy, bad proportions, weird hands, malformed hands, disproportionate, disfigured, mutation, mutated, deformed, head out of frame, body out of frame, poorly drawn face, poorly drawn hands, poorly drawn feet, disfigured, out of frame, long neck, big ears, tiling, bad hands, bad art, cross-eye, blurry, blurred, watermark";
 
     private String prompt;
     private String negativePrompt;
-    private String predictionId = null;
-    private Model model = null;
-    private PredictionResult predictionResult = null;
-    private int currentImage = 0;
-    private Instant startTime;
 
     public RunPodAbstract(Locale locale, String prefix) {
         super(locale, prefix);
@@ -108,116 +104,87 @@ public abstract class RunPodAbstract extends Command implements OnStringSelectMe
         }
 
         FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
-        registerStringSelectMenuListener(event.getMember());
+        registerNavigationListener(event.getMember());
         return true;
     }
 
     @Override
-    public boolean onStringSelectMenu(@NotNull StringSelectInteractionEvent event) throws Throwable {
-        if (event.getComponentId().equals(SELECT_ID_MODEL)) {
-            if (Txt2ImgCallTracker.getCalls(getEntityManager(), event.getUser().getIdLong()) < LIMIT_CREATIONS_PER_DAY) {
-                Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong());
-                model = Model.values()[Integer.parseInt(event.getValues().get(0))];
-                predictionId = RunPodDownloader.createPrediction(model, prompt, negativePrompt).get();
-                startTime = Instant.now();
-            }
-        } else if (event.getComponentId().equals(SELECT_ID_IMAGE) && predictionResult != null && predictionResult.getOutputs().size() > 1) {
-            currentImage = Integer.parseInt(event.getValues().get(0));
+    public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
+        if (i == -1) {
+            deregisterListenersWithComponentMessage();
+            return false;
         }
         return true;
     }
 
-    @Nullable
     @Override
-    public EmbedBuilder draw(@NotNull Member member) throws Throwable {
-        EmbedBuilder eb;
-        if (predictionId == null) {
-            if (Txt2ImgCallTracker.getCalls(getEntityManager(), member.getIdLong()) >= LIMIT_CREATIONS_PER_DAY) {
-                return EmbedFactory.getEmbedError(
-                        this,
-                        TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_nocalls"),
-                        TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_nocalls_title")
-                );
-            }
+    public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
+        if (Txt2ImgCallTracker.getCalls(getEntityManager(), event.getUser().getIdLong()) < LIMIT_CREATIONS_PER_DAY) {
+            Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong());
 
-            StringSelectMenu.Builder menuBuilder = StringSelectMenu.create(SELECT_ID_MODEL)
-                    .setMinValues(1)
-                    .setMaxValues(1)
-                    .setPlaceholder(TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_selectmodel"));
+            String localPrompt = prompt;
+            String localNegativePrompt = negativePrompt;
 
-            for (int i = 0; i < Model.values().length; i++) {
-                Model model = Model.values()[i];
-                if (!model.getClasses().contains(getClass())) {
-                    continue;
+            Model model = Model.values()[Integer.parseInt(event.getValues().get(0))];
+            String predictionId = RunPodDownloader.createPrediction(model, localPrompt, localNegativePrompt).get();
+            AtomicReference<PredictionResult> predictionResult = new AtomicReference<>(null);
+            Instant startTime = Instant.now();
+            AtomicLong messageId = new AtomicLong(0);
+            AtomicReference<Throwable> error = new AtomicReference<>();
+
+            String modelName = getString("model_" + model.name());
+            setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_go", modelName));
+
+            poll(Duration.ofSeconds(2), () -> {
+                if (!BotPermissionUtil.canWriteEmbed(event.getGuildChannel(), Permission.MESSAGE_HISTORY)) {
+                    return false;
                 }
-                menuBuilder.addOption(
-                        TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_run", getString("model_" + model.name())),
-                        String.valueOf(i)
+                if (error.get() != null) {
+                    ExceptionUtil.handleCommandException(error.get(), this, getCommandEvent(), getGuildEntity());
+                    return false;
+                }
+                if (messageId.get() == -1) {
+                    return true;
+                }
+
+                List<MessageEmbed> messageEmbeds = generateLoadingEmbeds(event.getMember(), localPrompt,
+                        localNegativePrompt, model, predictionId, predictionResult, startTime
                 );
-            }
-            setComponents(menuBuilder.build());
-            eb = generateOptionsEmbed();
-            eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("contentwarning"), false);
+                if (messageId.get() == 0) {
+                    messageId.set(-1);
+                    event.getHook().sendMessageEmbeds(messageEmbeds).queue(message -> messageId.set(message.getIdLong()), error::set);
+                } else {
+                    event.getHook().editMessageEmbedsById(messageId.get(), messageEmbeds).queue();
+                }
+
+                return predictionResult.get() == null || List.of(PredictionResult.Status.IN_QUEUE, PredictionResult.Status.IN_PROGRESS).contains(predictionResult.get().getStatus());
+            });
         } else {
-            if (predictionResult == null || predictionResult.getStatus() != PredictionResult.Status.COMPLETED) {
-                try {
-                    predictionResult = RunPodDownloader.retrievePrediction(model, predictionId, startTime).get();
-                    if (predictionResult.getStatus() == PredictionResult.Status.COMPLETED) {
-                        if (model.getCustomModel()) {
-                            List<String> newOutputs = convertBase64ToTempFileUrls(predictionResult.getOutputs());
-                            predictionResult.setOutputs(newOutputs);
-                        }
-                        Txt2ImgLogger.log(prompt, member.getUser(), model.name(), predictionResult.getOutputs());
-                    }
-                } catch (Throwable e) {
-                    MainLogger.get().error("Prediction failed", e);
-                    predictionResult = PredictionResult.failed(PredictionResult.Error.GENERAL);
-                }
-            }
-
-            switch (predictionResult.getStatus()) {
-                case COMPLETED -> {
-                    if (predictionResult.getOutputs().size() > 1) {
-                        StringSelectMenu.Builder menuBuilder = StringSelectMenu.create(SELECT_ID_IMAGE)
-                                .setMinValues(1)
-                                .setMaxValues(1);
-                        for (int i = 0; i < predictionResult.getOutputs().size(); i++) {
-                            menuBuilder.addOption(
-                                    TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_image", String.valueOf(i + 1)),
-                                    String.valueOf(i)
-                            );
-                        }
-                        menuBuilder = menuBuilder.setDefaultValues(String.valueOf(currentImage));
-                        setComponents(menuBuilder.build());
-                    }
-
-                    eb = generateOptionsEmbed(currentImage);
-                }
-                case FAILED -> {
-                    String error;
-                    if (predictionResult.getError() == PredictionResult.Error.NSFW) {
-                        error = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_nsfw");
-                    } else {
-                        error = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_error");
-                    }
-                    eb = EmbedFactory.getEmbedError(this, error);
-                }
-                default -> {
-                    String processingString = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_processing",
-                            StringUtil.getBar(predictionResult.getProgress(), 12),
-                            String.valueOf((int) (predictionResult.getProgress() * 100))
-                    );
-                    schedule(Duration.ofSeconds(1), () -> {
-                        try {
-                            drawMessage(draw(member));
-                        } catch (Throwable e) {
-                            ExceptionUtil.handleCommandException(e, this, getCommandEvent(), getGuildEntity());
-                        }
-                    });
-                    eb = EmbedFactory.getEmbedDefault(this, processingString);
-                }
-            }
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_nocalls"));
         }
+        return true;
+    }
+
+    @Override
+    public EmbedBuilder draw(Member member, int state) throws Throwable {
+        StringSelectMenu.Builder menuBuilder = StringSelectMenu.create(SELECT_ID_MODEL)
+                .setMinValues(1)
+                .setMaxValues(1)
+                .setPlaceholder(TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_selectmodel"));
+
+        for (int i = 0; i < Model.values().length; i++) {
+            Model model = Model.values()[i];
+            if (!model.getClasses().contains(getClass())) {
+                continue;
+            }
+            menuBuilder.addOption(
+                    TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_run", getString("model_" + model.name())),
+                    String.valueOf(i)
+            );
+        }
+        setComponents(menuBuilder.build());
+        EmbedBuilder eb = generateOptionsEmbed(prompt, negativePrompt, null);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("contentwarning"), false);
 
         String footer = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_footer",
                 String.valueOf(LIMIT_CREATIONS_PER_DAY - Txt2ImgCallTracker.getCalls(getEntityManager(), member.getIdLong())),
@@ -226,11 +193,7 @@ public abstract class RunPodAbstract extends Command implements OnStringSelectMe
         return EmbedUtil.setFooter(eb, this, footer);
     }
 
-    private EmbedBuilder generateOptionsEmbed() {
-        return generateOptionsEmbed(-1);
-    }
-
-    private EmbedBuilder generateOptionsEmbed(int imageIndex) {
+    private EmbedBuilder generateOptionsEmbed(String prompt, String negativePrompt, Model model) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .addField(
                         TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_textprompt_title"),
@@ -246,17 +209,71 @@ public abstract class RunPodAbstract extends Command implements OnStringSelectMe
             );
         }
 
-        if (imageIndex != -1 && predictionResult.getStatus() == PredictionResult.Status.COMPLETED) {
+        if (model != null) {
             String modelName = getString("model_" + model.name());
             eb.addField(
                     TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_options_title"),
                     TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_options", modelName),
                     false
             );
-            eb.setImage(predictionResult.getOutputs().get(imageIndex));
         }
 
         return eb;
+    }
+
+    private List<MessageEmbed> generateLoadingEmbeds(Member member, String prompt, String negativePrompt, Model model,
+                                                     String predictionId, AtomicReference<PredictionResult> predictionResult,
+                                                     Instant startTime
+    ) {
+        ArrayList<MessageEmbed> embeds = new ArrayList<>();
+
+        if (predictionResult.get() == null || predictionResult.get().getStatus() != PredictionResult.Status.COMPLETED) {
+            try {
+                predictionResult.set(RunPodDownloader.retrievePrediction(model, predictionId, startTime).get());
+                if (predictionResult.get().getStatus() == PredictionResult.Status.COMPLETED) {
+                    if (model.getCustomModel()) {
+                        List<String> newOutputs = convertBase64ToTempFileUrls(predictionResult.get().getOutputs());
+                        predictionResult.get().setOutputs(newOutputs);
+                    }
+                    Txt2ImgLogger.log(prompt, member.getUser(), model.name(), predictionResult.get().getOutputs());
+                }
+            } catch (Throwable e) {
+                MainLogger.get().error("Prediction failed", e);
+                predictionResult.set(PredictionResult.failed(PredictionResult.Error.GENERAL));
+            }
+        }
+
+        switch (predictionResult.get().getStatus()) {
+            case COMPLETED -> {
+                boolean first = true;
+                for (String output : predictionResult.get().getOutputs()) {
+                    EmbedBuilder eb = (first ? generateOptionsEmbed(prompt, negativePrompt, model) : EmbedFactory.getEmbedDefault(this))
+                            .setImage(output);
+                    first = false;
+                    embeds.add(eb.build());
+                }
+            }
+            case FAILED -> {
+                String error;
+                if (predictionResult.get().getError() == PredictionResult.Error.NSFW) {
+                    error = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_nsfw");
+                } else {
+                    error = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_error");
+                }
+                EmbedBuilder eb = EmbedFactory.getEmbedError(this, error);
+                embeds.add(eb.build());
+            }
+            default -> {
+                String processingString = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_processing",
+                        StringUtil.getBar(predictionResult.get().getProgress(), 12),
+                        String.valueOf((int) (predictionResult.get().getProgress() * 100))
+                );
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, processingString);
+                embeds.add(eb.build());
+            }
+        }
+
+        return embeds;
     }
 
     private List<String> convertBase64ToTempFileUrls(List<String> base64Strings) {
