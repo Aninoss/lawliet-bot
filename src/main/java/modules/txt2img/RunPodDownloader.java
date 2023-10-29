@@ -24,7 +24,6 @@ public class RunPodDownloader {
         if (!negativePrompt.isBlank()) {
             inputJson.put("negative_prompt", negativePrompt);
         }
-        inputJson.put("seed", Math.abs(r.nextLong()));
         model.getInputMap().forEach(inputJson::put);
 
         JSONObject requestJson = new JSONObject();
@@ -67,7 +66,14 @@ public class RunPodDownloader {
                     }
                 } else if (output instanceof JSONObject) {
                     JSONObject outputJson = (JSONObject) output;
-                    outputs.add(outputJson.getString("image_url"));
+                    if (outputJson.has("image_url")) {
+                        outputs.add(outputJson.getString("image_url"));
+                    } else if (outputJson.has("images")) {
+                        JSONArray imagesJson = outputJson.getJSONArray("images");
+                        for (int i = 0; i < imagesJson.length(); i++) {
+                            outputs.add(imagesJson.getString(i));
+                        }
+                    }
                 } else if (output instanceof String) {
                     outputs.add((String) output);
                 }
@@ -77,7 +83,12 @@ public class RunPodDownloader {
                 }
             }
 
-            double progress = Math.max(0, 1 - Math.pow(0.8, Duration.between(startTime, Instant.now()).toMillis() * model.getTimeMultiplier() / 1000.0));
+            int delayTime = responseJson.has("delayTime") ? responseJson.getInt("delayTime") : 0;
+            double progress = switch (status) {
+                case IN_QUEUE -> 0.0;
+                case IN_PROGRESS -> Math.max(0, 1 - Math.pow(0.7, Duration.between(startTime.plusMillis(delayTime), Instant.now()).toMillis() * model.getTimeMultiplier() / 1000.0));
+                case COMPLETED, FAILED -> 1.0;
+            };
             return new PredictionResult(
                     Math.min(0.99, progress),
                     status,

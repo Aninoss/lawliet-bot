@@ -3,6 +3,7 @@ package modules.txt2img;
 import commands.runnables.RunPodAbstract;
 import commands.runnables.aitoyscategory.Txt2ImgCommand;
 import commands.runnables.nsfwcategory.Txt2HentaiCommand;
+import org.json.JSONObject;
 
 import java.util.Map;
 import java.util.Set;
@@ -80,30 +81,33 @@ public enum Model {
     ),
 
     MEINA_HENTAI(
-            "7x0f7het69525n",
-            0.75,
-            true,
-            Set.of(Txt2HentaiCommand.class),
-            Map.of(
-                    "width", 768,
-                    "height", 768,
-                    "guidance_scale", 6,
-                    "num_inference_steps", 75,
-                    "num_outputs", 1
-            )
-    ),
-
-    BB95_FURRY_MIX(
-            "i094k7b7ps3z9p",
+            "92mzor4a45vkc1",
             0.5,
             true,
             Set.of(Txt2HentaiCommand.class),
             Map.of(
                     "width", 768,
                     "height", 768,
-                    "guidance_scale", 10,
-                    "num_inference_steps", 75,
-                    "num_outputs", 1
+                    "cfg_scale", 7,
+                    "steps", 30,
+                    "batch_size", 1,
+                    "sampler_name", "DPM++ SDE Karras",
+                    "override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2)
+            )
+    ),
+
+    BB95_FURRY_MIX(
+            "7lh2avgf34pryg",
+            0.5,
+            true,
+            Set.of(Txt2HentaiCommand.class),
+            Map.of(
+                    "width", 768,
+                    "height", 768,
+                    "cfg_scale", 10,
+                    "steps", 50,
+                    "batch_size", 1,
+                    "sampler_name", "Euler a"
             )
     );
 

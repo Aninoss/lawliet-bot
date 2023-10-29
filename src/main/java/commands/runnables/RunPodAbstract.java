@@ -135,34 +135,39 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             String modelName = getString("model_" + model.name());
             setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_go", modelName));
 
-            poll(Duration.ofSeconds(2), () -> {
-                if (!BotPermissionUtil.canWriteEmbed(event.getGuildChannel(), Permission.MESSAGE_HISTORY)) {
-                    return false;
-                }
-                if (error.get() != null) {
-                    ExceptionUtil.handleCommandException(error.get(), this, getCommandEvent(), getGuildEntity());
-                    return false;
-                }
-                if (messageId.get() == -1) {
-                    return true;
-                }
-
-                List<MessageEmbed> messageEmbeds = generateLoadingEmbeds(event.getMember(), localPrompt,
-                        localNegativePrompt, model, predictionId, predictionResult, startTime
-                );
-                if (messageId.get() == 0) {
-                    messageId.set(-1);
-                    event.getHook().sendMessageEmbeds(messageEmbeds).queue(message -> messageId.set(message.getIdLong()), error::set);
-                } else {
-                    event.getHook().editMessageEmbedsById(messageId.get(), messageEmbeds).queue();
-                }
-
-                return predictionResult.get() == null || List.of(PredictionResult.Status.IN_QUEUE, PredictionResult.Status.IN_PROGRESS).contains(predictionResult.get().getStatus());
-            });
+            if (requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, predictionId, predictionResult, startTime)) {
+                poll(Duration.ofSeconds(2), () -> requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, predictionId, predictionResult, startTime));
+            }
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_nocalls"));
         }
         return true;
+    }
+
+    @NotNull
+    private Boolean requestProgress(StringSelectInteractionEvent event, AtomicReference<Throwable> error, AtomicLong messageId, String localPrompt, String localNegativePrompt, Model model, String predictionId, AtomicReference<PredictionResult> predictionResult, Instant startTime) {
+        if (!BotPermissionUtil.canWriteEmbed(event.getGuildChannel(), Permission.MESSAGE_HISTORY)) {
+            return false;
+        }
+        if (error.get() != null) {
+            ExceptionUtil.handleCommandException(error.get(), this, getCommandEvent(), getGuildEntity());
+            return false;
+        }
+        if (messageId.get() == -1) {
+            return true;
+        }
+
+        List<MessageEmbed> messageEmbeds = generateLoadingEmbeds(event.getMember(), localPrompt,
+                localNegativePrompt, model, predictionId, predictionResult, startTime
+        );
+        if (messageId.get() == 0) {
+            messageId.set(-1);
+            event.getHook().sendMessageEmbeds(messageEmbeds).queue(message -> messageId.set(message.getIdLong()), error::set);
+        } else {
+            event.getHook().editMessageEmbedsById(messageId.get(), messageEmbeds).queue();
+        }
+
+        return predictionResult.get() == null || List.of(PredictionResult.Status.IN_QUEUE, PredictionResult.Status.IN_PROGRESS).contains(predictionResult.get().getStatus());
     }
 
     @Override
