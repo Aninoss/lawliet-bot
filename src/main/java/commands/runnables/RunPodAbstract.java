@@ -39,6 +39,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
     public static int LIMIT_CREATIONS_PER_DAY = 10;
     public static String SELECT_ID_MODEL = "model";
     public static String DEFAULT_NEGATIVE_PROMPT = "worst quality, low quality, low-res, ugly, extra limbs, missing limb, floating limbs, disconnected limbs, mutated hands, extra legs, extra arms, bad anatomy, bad proportions, weird hands, malformed hands, disproportionate, disfigured, mutation, mutated, deformed, head out of frame, body out of frame, poorly drawn face, poorly drawn hands, poorly drawn feet, disfigured, out of frame, long neck, big ears, tiling, bad hands, bad art, cross-eye, blurry, blurred, watermark";
+    private static final String[] INAPPROPRIATE_CONTENT_FILTERS = {"nigga", "nigger", "niggas", "niggers", "rape", "raping", "raped"};
 
     private String prompt;
     private String negativePrompt;
@@ -97,6 +98,12 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             negativePrompt = DEFAULT_NEGATIVE_PROMPT;
         }
         prompt = StringUtil.shortenString(prompt, MessageEmbed.DESCRIPTION_MAX_LENGTH - 50);
+
+        if (NSFWUtil.containsNormalFilterTags(prompt, List.of(INAPPROPRIATE_CONTENT_FILTERS))) {
+            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_generalfilterblock")))
+                    .exceptionally(ExceptionLogger.get());
+            return false;
+        }
         if (NSFWUtil.containsNormalFilterTags(prompt, getFilters(event))) {
             drawMessageNew(EmbedFactory.getEmbedError(this, getString("filterblock")))
                     .exceptionally(ExceptionLogger.get());
@@ -119,7 +126,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     @Override
     public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
-        if (Txt2ImgCallTracker.getCalls(getEntityManager(), event.getUser().getIdLong()) < LIMIT_CREATIONS_PER_DAY) {
+        int calls = Txt2ImgCallTracker.getCalls(getEntityManager(), event.getUser().getIdLong());
+        if (calls < LIMIT_CREATIONS_PER_DAY) {
             Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong());
 
             String localPrompt = prompt;
@@ -135,8 +143,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             String modelName = getString("model_" + model.name());
             setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_go", modelName));
 
-            if (requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, predictionId, predictionResult, startTime)) {
-                poll(Duration.ofSeconds(2), () -> requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, predictionId, predictionResult, startTime));
+            if (requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, predictionId, predictionResult, startTime, calls == 0)) {
+                poll(Duration.ofSeconds(2), () -> requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, predictionId, predictionResult, startTime, calls == 0));
             }
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_nocalls"));
@@ -145,7 +153,11 @@ public abstract class RunPodAbstract extends NavigationAbstract {
     }
 
     @NotNull
-    private Boolean requestProgress(StringSelectInteractionEvent event, AtomicReference<Throwable> error, AtomicLong messageId, String localPrompt, String localNegativePrompt, Model model, String predictionId, AtomicReference<PredictionResult> predictionResult, Instant startTime) {
+    private Boolean requestProgress(StringSelectInteractionEvent event, AtomicReference<Throwable> error, AtomicLong messageId,
+                                    String localPrompt, String localNegativePrompt, Model model, String predictionId,
+                                    AtomicReference<PredictionResult> predictionResult, Instant startTime,
+                                    boolean includePromptHelp
+    ) {
         if (!BotPermissionUtil.canWriteEmbed(event.getGuildChannel(), Permission.MESSAGE_HISTORY)) {
             return false;
         }
@@ -157,8 +169,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             return true;
         }
 
-        List<MessageEmbed> messageEmbeds = generateLoadingEmbeds(event.getMember(), localPrompt,
-                localNegativePrompt, model, predictionId, predictionResult, startTime
+        List<MessageEmbed> messageEmbeds = generateLoadingEmbeds(event.getMember(), localPrompt, localNegativePrompt,
+                model, predictionId, predictionResult, startTime, includePromptHelp
         );
         if (messageId.get() == 0) {
             messageId.set(-1);
@@ -228,7 +240,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     private List<MessageEmbed> generateLoadingEmbeds(Member member, String prompt, String negativePrompt, Model model,
                                                      String predictionId, AtomicReference<PredictionResult> predictionResult,
-                                                     Instant startTime
+                                                     Instant startTime, boolean includePromptHelp
     ) {
         ArrayList<MessageEmbed> embeds = new ArrayList<>();
 
@@ -254,6 +266,13 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 for (String output : predictionResult.get().getOutputs()) {
                     EmbedBuilder eb = (first ? generateOptionsEmbed(prompt, negativePrompt, model) : EmbedFactory.getEmbedDefault(this))
                             .setImage(output);
+                    if (first && includePromptHelp) {
+                        eb.addField(
+                                Emojis.ZERO_WIDTH_SPACE.getFormatted(),
+                                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_prompthelp"),
+                                false
+                        );
+                    }
                     first = false;
                     embeds.add(eb.build());
                 }
