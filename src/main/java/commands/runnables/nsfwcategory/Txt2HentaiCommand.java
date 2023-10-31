@@ -24,8 +24,8 @@ public class Txt2HentaiCommand extends RunPodAbstract {
     }
 
     @Override
-    public List<String> getFilters(@NotNull CommandEvent event) {
-        List<String> guildFilters = DBNSFWFilters.getInstance().retrieve(event.getGuild().getIdLong()).getKeywords();
+    public List<String> getFilters(long guildId) {
+        List<String> guildFilters = DBNSFWFilters.getInstance().retrieve(guildId).getKeywords();
         ArrayList<String> filters = new ArrayList<>(List.of(Settings.NSFW_FILTERS));
         guildFilters.forEach(filter -> filters.add(filter.toLowerCase()));
         return filters;

@@ -43,7 +43,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     private static final String BUTTON_ID_NEXT = "nav:next";
     private static final String BUTTON_ID_BACK = "nav:back";
 
-    protected final int DEFAULT_STATE = 0;
+    protected static final int DEFAULT_STATE = 0;
 
     private int state = DEFAULT_STATE;
     private int page = 0;
@@ -136,20 +136,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) throws Throwable {
-        for (Method method : getClass().getDeclaredMethods()) {
+        for (Method method : getClass().getMethods()) {
             ControllerMessage c = method.getAnnotation(ControllerMessage.class);
             if (c != null && c.state() == state) {
-                try {
-                    return (MessageInputResponse) method.invoke(this, event, input);
-                } catch (InvocationTargetException e) {
-                    throw e.getCause();
-                }
-            }
-        }
-
-        for (Method method : getClass().getDeclaredMethods()) {
-            ControllerMessage c = method.getAnnotation(ControllerMessage.class);
-            if (c != null && c.state() == -1) {
                 try {
                     return (MessageInputResponse) method.invoke(this, event, input);
                 } catch (InvocationTargetException e) {
@@ -162,20 +151,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public boolean controllerButton(ButtonInteractionEvent event, int i, int state) throws Throwable {
-        for (Method method : getClass().getDeclaredMethods()) {
+        for (Method method : getClass().getMethods()) {
             ControllerButton c = method.getAnnotation(ControllerButton.class);
             if (c != null && c.state() == state) {
-                try {
-                    return (boolean) method.invoke(this, event, i);
-                } catch (InvocationTargetException e) {
-                    throw e.getCause();
-                }
-            }
-        }
-
-        for (Method method : getClass().getDeclaredMethods()) {
-            ControllerButton c = method.getAnnotation(ControllerButton.class);
-            if (c != null && c.state() == -1) {
                 try {
                     return (boolean) method.invoke(this, event, i);
                 } catch (InvocationTargetException e) {
@@ -188,20 +166,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
-        for (Method method : getClass().getDeclaredMethods()) {
+        for (Method method : getClass().getMethods()) {
             ControllerStringSelectMenu c = method.getAnnotation(ControllerStringSelectMenu.class);
             if (c != null && c.state() == state) {
-                try {
-                    return (boolean) method.invoke(this, event, i);
-                } catch (InvocationTargetException e) {
-                    throw e.getCause();
-                }
-            }
-        }
-
-        for (Method method : getClass().getDeclaredMethods()) {
-            ControllerStringSelectMenu c = method.getAnnotation(ControllerStringSelectMenu.class);
-            if (c != null && c.state() == -1) {
                 try {
                     return (boolean) method.invoke(this, event, i);
                 } catch (InvocationTargetException e) {
@@ -214,20 +181,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public boolean controllerEntitySelectMenu(EntitySelectInteractionEvent event, int state) throws Throwable {
-        for (Method method : getClass().getDeclaredMethods()) {
+        for (Method method : getClass().getMethods()) {
             ControllerEntitySelectMenu c = method.getAnnotation(ControllerEntitySelectMenu.class);
             if (c != null && c.state() == state) {
-                try {
-                    return (boolean) method.invoke(this, event);
-                } catch (InvocationTargetException e) {
-                    throw e.getCause();
-                }
-            }
-        }
-
-        for (Method method : getClass().getDeclaredMethods()) {
-            ControllerEntitySelectMenu c = method.getAnnotation(ControllerEntitySelectMenu.class);
-            if (c != null && c.state() == -1) {
                 try {
                     return (boolean) method.invoke(this, event);
                 } catch (InvocationTargetException e) {
@@ -245,20 +201,9 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public EmbedBuilder draw(Member member, int state) throws Throwable {
-        for (Method method : getClass().getDeclaredMethods()) {
+        for (Method method : getClass().getMethods()) {
             Draw c = method.getAnnotation(Draw.class);
             if (c != null && c.state() == state) {
-                try {
-                    return ((EmbedBuilder) method.invoke(this, member));
-                } catch (InvocationTargetException | IllegalAccessException e) {
-                    MainLogger.get().error("Navigation draw exception", e);
-                }
-            }
-        }
-
-        for (Method method : getClass().getDeclaredMethods()) {
-            Draw c = method.getAnnotation(Draw.class);
-            if (c != null && c.state() == -1) {
                 try {
                     return ((EmbedBuilder) method.invoke(this, member));
                 } catch (InvocationTargetException | IllegalAccessException e) {
@@ -288,7 +233,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         if (loadComponents) {
             List<ActionRow> tempActionRows = getActionRows();
             if (tempActionRows != null &&
-                    tempActionRows.size() > 0 &&
+                    !tempActionRows.isEmpty() &&
                     tempActionRows.get(tempActionRows.size() - 1).getActionComponents().stream().anyMatch(component -> BUTTON_ID_BACK.equals(component.getId()))
             ) {
                 actionRows = tempActionRows.subList(0, tempActionRows.size() - 1);
@@ -296,7 +241,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                 actionRows = tempActionRows;
             }
         }
-        if (actionRows != null && actionRows.size() > 0) {
+        if (actionRows != null && !actionRows.isEmpty()) {
             pageMax = Math.max(0, actionRows.size() - 1) / MAX_ROWS_PER_PAGE;
             page = Math.min(page, pageMax);
             ArrayList<ActionRow> displayActionRowList = new ArrayList<>();
@@ -310,14 +255,14 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                 controlButtonList.add(Button.of(ButtonStyle.SECONDARY, BUTTON_ID_NEXT, TextManager.getString(getLocale(), TextManager.GENERAL, "list_next")));
             }
 
-            if (controlButtonList.size() > 0) {
+            if (!controlButtonList.isEmpty()) {
                 displayActionRowList.add(ActionRow.of(controlButtonList));
                 setActionRows(displayActionRowList);
             } else {
                 setActionRows();
             }
         } else {
-            if (controlButtonList.size() > 0) {
+            if (!controlButtonList.isEmpty()) {
                 setActionRows(ActionRow.of(controlButtonList));
             } else {
                 setActionRows();

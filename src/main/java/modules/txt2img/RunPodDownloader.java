@@ -1,6 +1,7 @@
 package modules.txt2img;
 
 import core.MainLogger;
+import core.Program;
 import core.internet.HttpHeader;
 import core.internet.HttpRequest;
 import org.json.JSONArray;
@@ -10,21 +11,25 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 public class RunPodDownloader {
 
-    private static final Random r = new Random();
+    public static final String PLACEHOLDER_IMAGES = "{IMAGES}";
 
-    public static CompletableFuture<String> createPrediction(Model model, String prompt, String negativePrompt) {
+    public static CompletableFuture<String> createPrediction(Model model, String prompt, String negativePrompt, int images) {
         JSONObject inputJson = new JSONObject();
         inputJson.put("prompt", prompt);
         if (!negativePrompt.isBlank()) {
             inputJson.put("negative_prompt", negativePrompt);
         }
-        model.getInputMap().forEach(inputJson::put);
+        model.getInputMap().forEach((key, value) -> {
+            if (value.equals(PLACEHOLDER_IMAGES)) {
+                value = images;
+            }
+            inputJson.put(key, value);
+        });
 
         JSONObject requestJson = new JSONObject();
         requestJson.put("input", inputJson);
@@ -43,7 +48,7 @@ public class RunPodDownloader {
         });
     }
 
-    public static CompletableFuture<PredictionResult> retrievePrediction(Model model, String requestId, Instant startTime) {
+    public static CompletableFuture<PredictionResult> retrievePrediction(Model model, String requestId, Instant startTime, int images) {
         return HttpRequest.get(
                 "https://api.runpod.ai/v2/" + model.getModelId() + "/status/" + requestId,
                 new HttpHeader("Authorization", "Bearer " + System.getenv("RUNPOD_TOKEN"))
@@ -84,9 +89,12 @@ public class RunPodDownloader {
             }
 
             int delayTime = responseJson.has("delayTime") ? responseJson.getInt("delayTime") : 0;
+            if (!Program.productionMode() && status == PredictionResult.Status.COMPLETED) {
+                MainLogger.get().info("Runpod took {} ms", Duration.between(startTime.plusMillis(delayTime), Instant.now()).toMillis());
+            }
             double progress = switch (status) {
                 case IN_QUEUE -> 0.0;
-                case IN_PROGRESS -> Math.max(0, 1 - Math.pow(0.7, Duration.between(startTime.plusMillis(delayTime), Instant.now()).toMillis() * model.getTimeMultiplier() / 1000.0));
+                case IN_PROGRESS -> Math.max(0, 1 - Math.pow(0.7, Duration.between(startTime.plusMillis(delayTime), Instant.now()).toMillis() * model.getTimeMultiplier() / Math.pow(images, 0.9)));
                 case COMPLETED, FAILED -> 1.0;
             };
             return new PredictionResult(

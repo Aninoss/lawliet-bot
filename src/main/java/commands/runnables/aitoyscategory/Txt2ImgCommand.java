@@ -1,9 +1,7 @@
 package commands.runnables.aitoyscategory;
 
-import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.RunPodAbstract;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Locale;
@@ -27,7 +25,7 @@ public class Txt2ImgCommand extends RunPodAbstract {
     }
 
     @Override
-    public List<String> getFilters(@NotNull CommandEvent event) {
+    public List<String> getFilters(long guildId) {
         return List.of(NSFW_CONTENT_FILTERS);
     }
 

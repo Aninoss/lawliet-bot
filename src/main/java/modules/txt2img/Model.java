@@ -12,7 +12,7 @@ public enum Model {
 
     STABLE_DIFFUSION_V1(
             "stable-diffusion-v1",
-            1,
+            5500,
             false,
             Set.of(Txt2ImgCommand.class),
             Map.of(
@@ -20,13 +20,13 @@ public enum Model {
                     "height", 768,
                     "guidance_scale", 8,
                     "num_inference_steps", 30,
-                    "num_outputs", 1
+                    "num_outputs", RunPodDownloader.PLACEHOLDER_IMAGES
             )
     ),
 
     STABLE_DIFFUSION_V2(
             "stable-diffusion-v2",
-            1,
+            5500,
             false,
             Set.of(Txt2ImgCommand.class),
             Map.of(
@@ -34,13 +34,13 @@ public enum Model {
                     "height", 768,
                     "guidance_scale", 8,
                     "num_inference_steps", 30,
-                    "num_outputs", 1
+                    "num_outputs", RunPodDownloader.PLACEHOLDER_IMAGES
             )
     ),
 
     OPENJOURNEY(
             "sd-openjourney",
-            1,
+            5500,
             false,
             Set.of(Txt2ImgCommand.class),
             Map.of(
@@ -48,13 +48,13 @@ public enum Model {
                     "height", 768,
                     "guidance_scale", 7,
                     "num_inference_steps", 30,
-                    "num_outputs", 1
+                    "num_outputs", RunPodDownloader.PLACEHOLDER_IMAGES
             )
     ),
 
     KANDINSKY(
             "kandinsky-v2",
-            1,
+            5500,
             false,
             Set.of(Txt2ImgCommand.class),
             Map.of(
@@ -62,13 +62,13 @@ public enum Model {
                     "guidance_scale", 4,
                     "h", 768,
                     "w", 768,
-                    "num_images", 1
+                    "num_images", RunPodDownloader.PLACEHOLDER_IMAGES
             )
     ),
 
     ANYTHING_V3(
             "sd-anything-v3",
-            1,
+            5600,
             false,
             Set.of(Txt2ImgCommand.class),
             Map.of(
@@ -76,13 +76,13 @@ public enum Model {
                     "height", 768,
                     "guidance_scale", 6,
                     "num_inference_steps", 25,
-                    "num_outputs", 1
+                    "num_outputs", RunPodDownloader.PLACEHOLDER_IMAGES
             )
     ),
 
     MEINA_HENTAI(
             "92mzor4a45vkc1",
-            0.5,
+            9000,
             true,
             Set.of(Txt2HentaiCommand.class),
             Map.of(
@@ -90,7 +90,7 @@ public enum Model {
                     "height", 768,
                     "cfg_scale", 7,
                     "steps", 30,
-                    "batch_size", 1,
+                    "batch_size", RunPodDownloader.PLACEHOLDER_IMAGES,
                     "sampler_name", "DPM++ SDE Karras",
                     "override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2)
             )
@@ -98,7 +98,7 @@ public enum Model {
 
     BB95_FURRY_MIX(
             "7lh2avgf34pryg",
-            0.5,
+            9000,
             true,
             Set.of(Txt2HentaiCommand.class),
             Map.of(
@@ -106,23 +106,22 @@ public enum Model {
                     "height", 768,
                     "cfg_scale", 10,
                     "steps", 50,
-                    "batch_size", 1,
+                    "batch_size", RunPodDownloader.PLACEHOLDER_IMAGES,
                     "sampler_name", "Euler a"
             )
     );
 
-
     private final String modelId;
-    private final double timeMultiplier;
+    private final int expectedTimeMs;
     private final boolean customModel;
     private final Set<Class<? extends RunPodAbstract>> classes;
     private final Map<String, Object> inputMap;
 
-    Model(String modelId, double timeMultiplier, boolean customModel, Set<Class<? extends RunPodAbstract>> classes,
+    Model(String modelId, int expectedTimeMs, boolean customModel, Set<Class<? extends RunPodAbstract>> classes,
           Map<String, Object> inputMap
     ) {
         this.modelId = modelId;
-        this.timeMultiplier = timeMultiplier;
+        this.expectedTimeMs = expectedTimeMs;
         this.customModel = customModel;
         this.classes = classes;
         this.inputMap = inputMap;
@@ -133,7 +132,7 @@ public enum Model {
     }
 
     public double getTimeMultiplier() {
-        return timeMultiplier;
+        return 5.5 / expectedTimeMs;
     }
 
     public boolean getCustomModel() {

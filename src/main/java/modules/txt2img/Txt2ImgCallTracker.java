@@ -13,11 +13,11 @@ public class Txt2ImgCallTracker {
         return user.getTxt2ImgCalls();
     }
 
-    public static void increaseCalls(EntityManagerWrapper entityManager, long userId) {
+    public static void increaseCalls(EntityManagerWrapper entityManager, long userId, int images) {
         UserEntity user = entityManager.findOrDefault(UserEntity.class, String.valueOf(userId));
         resetCallsOnNewDay(user);
         user.beginTransaction();
-        user.setTxt2ImgCalls(user.getTxt2ImgCalls() + 1);
+        user.setTxt2ImgCalls(user.getTxt2ImgCalls() + images);
         user.setTxt2ImgCallsDate(LocalDate.now());
         user.commitTransaction();
     }
