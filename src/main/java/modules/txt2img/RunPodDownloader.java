@@ -16,20 +16,12 @@ import java.util.concurrent.CompletionException;
 
 public class RunPodDownloader {
 
-    public static final String PLACEHOLDER_IMAGES = "{IMAGES}";
-
     public static CompletableFuture<String> createPrediction(Model model, String prompt, String negativePrompt, int images) {
-        JSONObject inputJson = new JSONObject();
+        JSONObject inputJson = model.getInput(images);
         inputJson.put("prompt", prompt);
         if (!negativePrompt.isBlank()) {
             inputJson.put("negative_prompt", negativePrompt);
         }
-        model.getInputMap().forEach((key, value) -> {
-            if (value.equals(PLACEHOLDER_IMAGES)) {
-                value = images;
-            }
-            inputJson.put(key, value);
-        });
 
         JSONObject requestJson = new JSONObject();
         requestJson.put("input", inputJson);

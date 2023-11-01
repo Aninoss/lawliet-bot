@@ -5,126 +5,155 @@ import commands.runnables.aitoyscategory.Txt2ImgCommand;
 import commands.runnables.nsfwcategory.Txt2HentaiCommand;
 import org.json.JSONObject;
 
-import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 public enum Model {
 
-    STABLE_DIFFUSION_V1(
-            "stable-diffusion-v1",
-            5500,
-            false,
+    REALISTIC_VISION(
+            "f3xzap2iaijkd2",
+            9200,
+            true,
             Set.of(Txt2ImgCommand.class),
-            Map.of(
-                    "width", 768,
-                    "height", 768,
-                    "guidance_scale", 8,
-                    "num_inference_steps", 30,
-                    "num_outputs", RunPodDownloader.PLACEHOLDER_IMAGES
-            )
+            images -> new JSONObject()
+                    .put("width", 512)
+                    .put("height", 512)
+                    .put("cfg_scale", 4)
+                    .put("steps", 30)
+                    .put("batch_size", images)
+                    .put("sampler_name", "Euler a")
+                    .put("enable_hr", true)
+                    .put("hr_scale", 1.5)
+                    .put("hr_upscaler", "4x-UltraSharp")
+                    .put("denoising_strength", "0.3")
     ),
 
-    STABLE_DIFFUSION_V2(
-            "stable-diffusion-v2",
-            5500,
-            false,
+    DREAMSHAPER(
+            "0osgqg6v71hsmk",
+            5800,
+            true,
             Set.of(Txt2ImgCommand.class),
-            Map.of(
-                    "width", 768,
-                    "height", 768,
-                    "guidance_scale", 8,
-                    "num_inference_steps", 30,
-                    "num_outputs", RunPodDownloader.PLACEHOLDER_IMAGES
-            )
+            images -> new JSONObject()
+                    .put("width", 512)
+                    .put("height", 512)
+                    .put("cfg_scale", 5)
+                    .put("steps", 30)
+                    .put("batch_size", images)
+                    .put("sampler_name", "Euler a")
+                    .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
+                    .put("enable_hr", true)
+                    .put("hr_scale", 1.5)
+                    .put("hr_upscaler", "R-ESRGAN 4x+ Anime6B")
+                    .put("hr_second_pass_steps", 10)
+                    .put("denoising_strength", "0.3")
     ),
 
-    OPENJOURNEY(
-            "sd-openjourney",
-            5500,
-            false,
+    MEINAMIX(
+            "yj8156feamkasn",
+            9000,
+            true,
             Set.of(Txt2ImgCommand.class),
-            Map.of(
-                    "width", 768,
-                    "height", 768,
-                    "guidance_scale", 7,
-                    "num_inference_steps", 30,
-                    "num_outputs", RunPodDownloader.PLACEHOLDER_IMAGES
-            )
+            images -> new JSONObject()
+                    .put("width", 512)
+                    .put("height", 512)
+                    .put("cfg_scale", 7)
+                    .put("steps", 30)
+                    .put("batch_size", images)
+                    .put("sampler_name", "DPM++ SDE Karras")
+                    .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
+                    .put("enable_hr", true)
+                    .put("hr_scale", 1.5)
+                    .put("hr_upscaler", "R-ESRGAN 4x+ Anime6B")
+                    .put("hr_second_pass_steps", 10)
+                    .put("denoising_strength", "0.3")
     ),
 
     KANDINSKY(
             "kandinsky-v2",
-            5500,
-            false,
-            Set.of(Txt2ImgCommand.class),
-            Map.of(
-                    "num_steps", 30,
-                    "guidance_scale", 4,
-                    "h", 768,
-                    "w", 768,
-                    "num_images", RunPodDownloader.PLACEHOLDER_IMAGES
-            )
-    ),
-
-    ANYTHING_V3(
-            "sd-anything-v3",
             5600,
             false,
             Set.of(Txt2ImgCommand.class),
-            Map.of(
-                    "width", 768,
-                    "height", 768,
-                    "guidance_scale", 6,
-                    "num_inference_steps", 25,
-                    "num_outputs", RunPodDownloader.PLACEHOLDER_IMAGES
-            )
+            images -> new JSONObject()
+                    .put("num_steps", 30)
+                    .put("guidance_scale", 4)
+                    .put("h", 768)
+                    .put("w", 768)
+                    .put("num_images", images)
     ),
 
-    MEINA_HENTAI(
+    PERFECT_WORLD(
+            "idpk0o19b3n6ex",
+            4800,
+            true,
+            Set.of(Txt2HentaiCommand.class),
+            images -> new JSONObject()
+                    .put("width", 512)
+                    .put("height", 512)
+                    .put("cfg_scale", 5)
+                    .put("steps", 30)
+                    .put("batch_size", images)
+                    .put("sampler_name", "Euler a")
+                    .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
+                    .put("enable_hr", true)
+                    .put("hr_scale", 1.5)
+                    .put("hr_upscaler", "R-ESRGAN 4x+ Anime6B")
+                    .put("hr_second_pass_steps", 10)
+                    .put("denoising_strength", "0.3")
+    ),
+
+    MEINAHENTAI(
             "92mzor4a45vkc1",
             9000,
             true,
             Set.of(Txt2HentaiCommand.class),
-            Map.of(
-                    "width", 768,
-                    "height", 768,
-                    "cfg_scale", 7,
-                    "steps", 30,
-                    "batch_size", RunPodDownloader.PLACEHOLDER_IMAGES,
-                    "sampler_name", "DPM++ SDE Karras",
-                    "override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2)
-            )
+            images -> new JSONObject()
+                    .put("width", 512)
+                    .put("height", 512)
+                    .put("cfg_scale", 7)
+                    .put("steps", 30)
+                    .put("batch_size", images)
+                    .put("sampler_name", "DPM++ SDE Karras")
+                    .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
+                    .put("enable_hr", true)
+                    .put("hr_scale", 1.5)
+                    .put("hr_upscaler", "R-ESRGAN 4x+ Anime6B")
+                    .put("hr_second_pass_steps", 10)
+                    .put("denoising_strength", "0.3")
     ),
 
     BB95_FURRY_MIX(
             "7lh2avgf34pryg",
-            9000,
+            6900,
             true,
             Set.of(Txt2HentaiCommand.class),
-            Map.of(
-                    "width", 768,
-                    "height", 768,
-                    "cfg_scale", 10,
-                    "steps", 50,
-                    "batch_size", RunPodDownloader.PLACEHOLDER_IMAGES,
-                    "sampler_name", "Euler a"
-            )
+            images -> new JSONObject()
+                    .put("width", 512)
+                    .put("height", 512)
+                    .put("cfg_scale", 10)
+                    .put("steps", 50)
+                    .put("batch_size", images)
+                    .put("sampler_name", "Euler a")
+                    .put("enable_hr", true)
+                    .put("hr_scale", 1.5)
+                    .put("hr_upscaler", "Latent (nearest)")
+                    .put("hr_second_pass_steps", 10)
+                    .put("denoising_strength", "0.5")
     );
 
     private final String modelId;
     private final int expectedTimeMs;
     private final boolean customModel;
     private final Set<Class<? extends RunPodAbstract>> classes;
-    private final Map<String, Object> inputMap;
+    private final Function<Integer, JSONObject> inputFunction;
 
     Model(String modelId, int expectedTimeMs, boolean customModel, Set<Class<? extends RunPodAbstract>> classes,
-          Map<String, Object> inputMap
+          Function<Integer, JSONObject> inputFunction
     ) {
         this.modelId = modelId;
         this.expectedTimeMs = expectedTimeMs;
         this.customModel = customModel;
         this.classes = classes;
-        this.inputMap = inputMap;
+        this.inputFunction = inputFunction;
     }
 
     public String getModelId() {
@@ -143,8 +172,8 @@ public enum Model {
         return classes;
     }
 
-    public Map<String, Object> getInputMap() {
-        return inputMap;
+    public JSONObject getInput(int images) {
+        return inputFunction.apply(images);
     }
 
 }
