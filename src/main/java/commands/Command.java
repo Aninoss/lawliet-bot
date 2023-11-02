@@ -66,7 +66,7 @@ public abstract class Command implements OnTriggerListener {
     private boolean canHaveTimeOut = true;
     private List<ActionRow> actionRows = Collections.emptyList();
     private List<MessageEmbed> additionalEmbeds = Collections.emptyList();
-    private final Map<String, InputStream> fileAttachmentMap = new HashMap<>();
+    private Map<String, InputStream> fileAttachmentMap = new HashMap<>();
     private Collection<Message.MentionType> allowedMentions = MessageRequest.getDefaultMentions();
     private String memberEffectiveName;
     private String memberMention;
@@ -181,120 +181,163 @@ public abstract class Command implements OnTriggerListener {
     }
 
     private synchronized CompletableFuture<Message> drawMessage(TextChannel channel, String content, EmbedBuilder eb, boolean newMessage) {
+        List<MessageEmbed> additionalEmbeds = this.additionalEmbeds;
+        List<ActionRow> actionRows = this.actionRows;
+        Map<String, InputStream> fileAttachmentMap = this.fileAttachmentMap;
+        Collection<Message.MentionType> allowedMentions = this.allowedMentions;
+        resetDrawState();
+
+        CompletableFuture<Message> future = new CompletableFuture<>();
+        ArrayList<MessageEmbed> embeds = new ArrayList<>();
         try {
-            CompletableFuture<Message> future = new CompletableFuture<>();
-            ArrayList<MessageEmbed> embeds = new ArrayList<>();
-            try {
-                if (eb != null) {
-                    embeds.add(eb.build());
-                }
-                if (BotPermissionUtil.canWriteEmbed(channel)) {
-                    embeds.addAll(additionalEmbeds);
-                }
-            } catch (Throwable e) {
-                StringBuilder sb = new StringBuilder("Embed exception with fields:");
-                if (eb != null) {
-                    eb.getFields().forEach(field -> sb
-                            .append("\nKey: \"")
-                            .append(field.getName())
-                            .append("\"; Value: \"")
-                            .append(field.getValue())
-                            .append("\"")
-                    );
-                }
-                MainLogger.get().error(sb.toString(), e);
-                throw e;
+            if (eb != null) {
+                embeds.add(eb.build());
             }
-
-            if (actionRows == null) {
-                actionRows = Collections.emptyList();
+            if (BotPermissionUtil.canWriteEmbed(channel)) {
+                embeds.addAll(additionalEmbeds);
             }
+        } catch (Throwable e) {
+            StringBuilder sb = new StringBuilder("Embed exception with fields:");
+            if (eb != null) {
+                eb.getFields().forEach(field -> sb
+                        .append("\nKey: \"")
+                        .append(field.getName())
+                        .append("\"; Value: \"")
+                        .append(field.getValue())
+                        .append("\"")
+                );
+            }
+            MainLogger.get().error(sb.toString(), e);
+            throw e;
+        }
 
-            HashSet<String> usedIds = new HashSet<>();
-            for (ActionRow actionRow : actionRows) {
-                for (ActionComponent component : actionRow.getActionComponents()) {
-                    String id = component.getId();
-                    if (id != null) {
-                        if (usedIds.contains(id)) {
-                            future.completeExceptionally(new Exception("Duplicate custom id \"" + id + "\""));
-                            return future;
-                        }
-                        usedIds.add(id);
+        if (actionRows == null) {
+            actionRows = Collections.emptyList();
+        }
+
+        HashSet<String> usedIds = new HashSet<>();
+        for (ActionRow actionRow : actionRows) {
+            for (ActionComponent component : actionRow.getActionComponents()) {
+                String id = component.getId();
+                if (id != null) {
+                    if (usedIds.contains(id)) {
+                        future.completeExceptionally(new Exception("Duplicate custom id \"" + id + "\""));
+                        return future;
                     }
+                    usedIds.add(id);
                 }
             }
+        }
 
-            RestAction<Message> action;
-            if (drawMessage == null || newMessage) {
-                if (commandEvent.isMessageReceivedEvent()) {
-                    MessageCreateAction messageAction;
-                    Message message = commandEvent.getMessageReceivedEvent().getMessage();
-                    if (content != null) {
-                        messageAction = JDAUtil.replyMessage(message, getGuildEntity(), content)
-                                .setEmbeds(embeds);
-                    } else {
-                        messageAction = JDAUtil.replyMessageEmbeds(message, getGuildEntity(), embeds);
-                    }
-                    if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
-                        if (!fileAttachmentMap.isEmpty()) {
-                            for (String fileName : fileAttachmentMap.keySet()) {
-                                messageAction = messageAction.addFiles(FileUpload.fromData(fileAttachmentMap.get(fileName), fileName));
-                            }
-                        }
-                    }
-                    messageAction = messageAction.setAllowedMentions(allowedMentions);
-                    action = messageAction.setComponents(actionRows);
+        RestAction<Message> action;
+        if (drawMessage == null || newMessage) {
+            action = drawMessageProcessNew(channel, content, embeds, actionRows, fileAttachmentMap, allowedMentions, false);
+        } else {
+            action = drawMessageProcessEdit(channel, content, embeds, actionRows, allowedMentions);
+        }
+        processAction(channel, content, embeds, actionRows, fileAttachmentMap, allowedMentions, newMessage, action,
+                future, true);
+        return future;
+    }
+
+    private RestAction<Message> drawMessageProcessNew(TextChannel channel, String content, ArrayList<MessageEmbed> embeds,
+                                                      List<ActionRow> actionRows, Map<String, InputStream> fileAttachmentMap,
+                                                      Collection<Message.MentionType> allowedMentions, boolean forceTextMessage
+    ) {
+        MessageCreateAction messageAction;
+        if (commandEvent.isMessageReceivedEvent() || forceTextMessage) {
+            if (commandEvent.isMessageReceivedEvent()) {
+                Message message = commandEvent.getMessageReceivedEvent().getMessage();
+                if (content != null) {
+                    messageAction = JDAUtil.replyMessage(message, getGuildEntity(), content)
+                            .setEmbeds(embeds);
                 } else {
-                    MessageCreateAction messageAction;
-                    if (content != null) {
-                        messageAction = commandEvent.replyMessage(getGuildEntity(), content)
-                                .setEmbeds(embeds);
-                    } else {
-                        messageAction = commandEvent.replyMessageEmbeds(getGuildEntity(), embeds);
-                    }
-                    if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
-                        if (!fileAttachmentMap.isEmpty()) {
-                            for (String fileName : fileAttachmentMap.keySet()) {
-                                messageAction = messageAction.addFiles(FileUpload.fromData(fileAttachmentMap.get(fileName), fileName));
-                            }
-                        }
-                    }
-                    messageAction = messageAction.setAllowedMentions(allowedMentions);
-                    action = messageAction.setComponents(actionRows);
+                    messageAction = JDAUtil.replyMessageEmbeds(message, getGuildEntity(), embeds);
                 }
             } else {
-                if (interactionResponse != null &&
-                        interactionResponse.isValid()
-                ) {
-                    action = interactionResponse.editMessageEmbeds(embeds, actionRows);
+                if (content != null) {
+                    messageAction = commandEvent.getTextChannel().sendMessage(content)
+                            .setEmbeds(embeds);
                 } else {
-                    if (content != null) {
-                        action = channel.editMessageById(drawMessage.getIdLong(), content)
-                                .setEmbeds(embeds)
-                                .setComponents(actionRows)
-                                .setAllowedMentions(allowedMentions);
-                    } else {
-                        action = channel.editMessageEmbedsById(drawMessage.getIdLong(), embeds)
-                                .setAllowedMentions(allowedMentions)
-                                .setComponents(actionRows);
-                    }
+                    messageAction = commandEvent.getTextChannel().sendMessageEmbeds(embeds);
                 }
             }
-            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-            action.queue(message -> {
-                if (!newMessage) {
-                    drawMessage = message;
-                }
-                future.complete(message);
-            }, e -> {
-                MainLogger.get().error("Draw exception for \"{}\"", getTrigger(), ExceptionUtil.generateForStack(stackTrace, e.getLocalizedMessage()));
-                future.completeExceptionally(e);
-            });
-
-            return future;
-        } finally {
-            resetDrawState();
+        } else {
+            if (content != null) {
+                messageAction = commandEvent.replyMessage(getGuildEntity(), content)
+                        .setEmbeds(embeds);
+            } else {
+                messageAction = commandEvent.replyMessageEmbeds(getGuildEntity(), embeds);
+            }
         }
+
+        if (BotPermissionUtil.canWrite(channel, Permission.MESSAGE_ATTACH_FILES)) {
+            if (!fileAttachmentMap.isEmpty()) {
+                for (String fileName : fileAttachmentMap.keySet()) {
+                    messageAction = messageAction.addFiles(FileUpload.fromData(fileAttachmentMap.get(fileName), fileName));
+                }
+            }
+        }
+        messageAction = messageAction.setAllowedMentions(allowedMentions);
+        return messageAction.setComponents(actionRows);
+    }
+
+    private RestAction<Message> drawMessageProcessEdit(TextChannel channel, String content, ArrayList<MessageEmbed> embeds,
+                                                       List<ActionRow> actionRows, Collection<Message.MentionType> allowedMentions
+    ) {
+        if (interactionResponse != null &&
+                interactionResponse.isValid()
+        ) {
+            return interactionResponse.editMessageEmbeds(embeds, actionRows);
+        } else {
+            if (content != null) {
+                return channel.editMessageById(drawMessage.getIdLong(), content)
+                        .setEmbeds(embeds)
+                        .setComponents(actionRows)
+                        .setAllowedMentions(allowedMentions);
+            } else {
+                return channel.editMessageEmbedsById(drawMessage.getIdLong(), embeds)
+                        .setAllowedMentions(allowedMentions)
+                        .setComponents(actionRows);
+            }
+        }
+    }
+
+    private void processAction(TextChannel channel, String content, ArrayList<MessageEmbed> embeds, List<ActionRow> actionRows,
+                               Map<String, InputStream> fileAttachmentMap, Collection<Message.MentionType> allowedMentions,
+                               boolean newMessage, RestAction<Message> action, CompletableFuture<Message> future,
+                               boolean handleUnknownInteractionExceptions
+    ) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        action.queue(message -> {
+            if (!newMessage) {
+                this.drawMessage = message;
+            }
+            future.complete(message);
+        }, e -> {
+            if (handleUnknownInteractionExceptions && e.getLocalizedMessage().contains("10062")) { // Unknown interaction
+                try {
+                    MainLogger.get().warn("Unknown interaction for command {}", getTrigger());
+
+                    RestAction<Message> newAction;
+                    if (this.drawMessage == null || newMessage) {
+                        newAction = drawMessageProcessNew(channel, content, embeds, actionRows, fileAttachmentMap, allowedMentions, true);
+                    } else {
+                        this.interactionResponse = null;
+                        newAction = drawMessageProcessEdit(channel, content, embeds, actionRows, allowedMentions);
+                    }
+
+                    processAction(channel, content, embeds, actionRows, fileAttachmentMap, allowedMentions, newMessage,
+                            newAction, future, false);
+                    return;
+                } catch (Throwable newException) {
+                    MainLogger.get().error("Exception on unknown interaction exception handler", newException);
+                }
+            }
+
+            MainLogger.get().error("Draw exception for \"{}\"", getTrigger(), ExceptionUtil.generateForStack(stackTrace, e.getLocalizedMessage()));
+            future.completeExceptionally(e);
+        });
     }
 
     public void resetDrawMessage() {
@@ -331,7 +374,7 @@ public abstract class Command implements OnTriggerListener {
         this.logStatus = null;
         this.actionRows = Collections.emptyList();
         this.additionalEmbeds = Collections.emptyList();
-        this.fileAttachmentMap.clear();
+        this.fileAttachmentMap = new HashMap<>();
         this.allowedMentions = MessageRequest.getDefaultMentions();
     }
 

@@ -22,9 +22,11 @@ public class AsyncTimer implements AutoCloseable {
         thread = Thread.currentThread();
         executorService.schedule(() -> {
             if (pending) {
-                if (consumer != null) {
-                    consumer.accept(thread);
-                }
+                GlobalThreadPool.submit(() -> {
+                    if (consumer != null) {
+                        consumer.accept(thread);
+                    }
+                });
             }
         }, duration.toMillis(), TimeUnit.MILLISECONDS);
     }

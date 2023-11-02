@@ -7,6 +7,7 @@ import commands.SlashCommandManager;
 import commands.slashadapters.SlashMeta;
 import core.EmbedFactory;
 import core.TextManager;
+import core.schedule.MainScheduler;
 import core.utils.ExceptionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.SlashCommandAbstract;
@@ -16,16 +17,13 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Locale;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @DiscordEvent
 public class SlashCommandCommand extends SlashCommandAbstract {
-
-    private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     public boolean onSlashCommand(SlashCommandInteractionEvent event, EntityManagerWrapper entityManager) {
@@ -55,7 +53,7 @@ public class SlashCommandCommand extends SlashCommandAbstract {
             command.getAttachments().put("error", errorFunction.apply(locale));
         }
 
-        deferAfterOneSecond(event);
+        deferIfNotAcknowledged(event);
         CommandEvent commandEvent = new CommandEvent(event);
         try {
             CommandManager.manage(new CommandEvent(event), command, args, guildEntity, getStartTime());
@@ -66,12 +64,13 @@ public class SlashCommandCommand extends SlashCommandAbstract {
         return true;
     }
 
-    private void deferAfterOneSecond(SlashCommandInteractionEvent event) {
-        scheduler.schedule(() -> {
+    private void deferIfNotAcknowledged(SlashCommandInteractionEvent event) {
+        int eventAgeMillis = (int) Duration.between(event.getTimeCreated().toInstant(), Instant.now()).toMillis();
+        MainScheduler.schedule(Duration.ofMillis(1500 - eventAgeMillis), () -> {
             if (!event.isAcknowledged()) {
                 event.deferReply().queue();
             }
-        }, 1, TimeUnit.SECONDS);
+        });
     }
 
 }

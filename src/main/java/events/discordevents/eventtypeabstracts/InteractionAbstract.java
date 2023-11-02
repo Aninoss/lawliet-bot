@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 
 public class InteractionAbstract extends DiscordEventAbstract {
@@ -18,7 +19,8 @@ public class InteractionAbstract extends DiscordEventAbstract {
                                            DiscordEventAbstract.EventExecution function
     ) {
         if (event.isFromGuild()) {
-            try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofSeconds(1)))  {
+            int eventAgeMillis = (int) Duration.between(event.getTimeCreated().toInstant(), Instant.now()).toMillis();
+            try(AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMillis(1500 - eventAgeMillis)))  {
                 asyncTimer.setTimeOutListener(t -> {
                     if (!event.isAcknowledged()) {
                         if (event instanceof GenericComponentInteractionCreateEvent) {
