@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 
 public abstract class RunPodAbstract extends NavigationAbstract {
 
-    public static int LIMIT_CREATIONS_PER_DAY = 10;
+    public static int LIMIT_CREATIONS_PER_WEEK = 50;
     public static int PROMPT_MAX_LENGTH = 2000;
     public static String DEFAULT_NEGATIVE_PROMPT = "worst quality, low quality, low-res, ugly, extra limbs, missing limb, floating limbs, disconnected limbs, mutated hands, extra legs, extra arms, bad anatomy, bad proportions, weird hands, malformed hands, disproportionate, disfigured, mutation, mutated, deformed, head out of frame, body out of frame, poorly drawn face, poorly drawn hands, poorly drawn feet, disfigured, out of frame, long neck, big ears, tiling, bad hands, bad art, cross-eye, blurry, blurred, watermark";
     private static final String[] INAPPROPRIATE_CONTENT_FILTERS = {"nigga", "nigger", "niggas", "niggers", "rape", "raping", "raped"};
@@ -188,7 +188,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
     @Override
     public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
         int calls = Txt2ImgCallTracker.getCalls(getEntityManager(), event.getUser().getIdLong());
-        if (calls + images <= LIMIT_CREATIONS_PER_DAY) {
+        if (calls + images <= LIMIT_CREATIONS_PER_WEEK) {
             Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), images);
 
             String localPrompt = prompt;
@@ -250,8 +250,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("contentwarning"), false);
 
         String footer = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_footer",
-                String.valueOf(LIMIT_CREATIONS_PER_DAY - Txt2ImgCallTracker.getCalls(getEntityManager(), member.getIdLong())),
-                String.valueOf(LIMIT_CREATIONS_PER_DAY)
+                String.valueOf(LIMIT_CREATIONS_PER_WEEK - Txt2ImgCallTracker.getCalls(getEntityManager(), member.getIdLong())),
+                String.valueOf(LIMIT_CREATIONS_PER_WEEK)
         );
         return EmbedUtil.setFooter(eb, this, footer);
     }
