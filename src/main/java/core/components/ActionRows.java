@@ -1,14 +1,15 @@
 package core.components;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.ItemComponent;
 import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ActionRows {
 
@@ -25,7 +26,7 @@ public class ActionRows {
         ArrayList<ItemComponent> componentRemovable = new ArrayList<>(components);
         int rowIndex = 0;
 
-        while(componentRemovable.size() > 0) {
+        while(!componentRemovable.isEmpty()) {
             DataObject row;
             if (rowIndex >= rows.size()) {
                 row = DataObject.empty()

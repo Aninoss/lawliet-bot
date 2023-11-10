@@ -1,6 +1,5 @@
 package core;
 
-import java.io.IOException;
 import constants.RegexPatterns;
 import core.internet.HttpResponse;
 import core.restclient.RestClient;
@@ -8,6 +7,8 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
 
 public class CustomInterceptor implements Interceptor {
 

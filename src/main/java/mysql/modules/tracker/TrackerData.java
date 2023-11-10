@@ -1,48 +1,30 @@
 package mysql.modules.tracker;
 
-import club.minnced.discord.webhook.WebhookClient;
-import club.minnced.discord.webhook.WebhookClientBuilder;
-import club.minnced.discord.webhook.send.AllowedMentions;
-import club.minnced.discord.webhook.send.WebhookEmbed;
-import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
-import club.minnced.discord.webhook.send.WebhookMessageBuilder;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import commands.Category;
 import core.MainLogger;
 import core.ShardManager;
 import core.TextManager;
 import core.assets.StandardGuildMessageChannelAsset;
 import core.cache.ServerPatreonBoostCache;
-import core.components.WebhookMessageBuilderAdvanced;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import mysql.DataWithGuild;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.requests.restaction.MessageEditAction;
-import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 public class TrackerData extends DataWithGuild implements StandardGuildMessageChannelAsset {
-
-    private static final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2, new CountingThreadFactory(() -> "JDA", "WebHook", false));
-    private static final Cache<Long, WebhookClient> webhookClientMap = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofHours(1))
-            .build();
 
     private final long channelId;
     private Long messageId;
@@ -244,43 +226,44 @@ public class TrackerData extends DataWithGuild implements StandardGuildMessageCh
         Optional<StandardGuildMessageChannel> channelOpt = getStandardGuildMessageChannel();
         if (channelOpt.isPresent()) {
             try {
-                WebhookClient webhookClient = webhookClientMap.get(channelId, () -> {
-                    return new WebhookClientBuilder(webhookUrl.replace("https://discord.com", "https://" + System.getenv("DISCORD_DOMAIN")))
-                            .setWait(true)
-                            .setExecutorService(executor)
-                            .setAllowedMentions(AllowedMentions.all())
-                            .build();
-                });
+                StandardGuildMessageChannel channel = channelOpt.get();
+                IncomingWebhookClient webhookClient = WebhookClient.createClient(
+                        channel.getJDA(),
+                        webhookUrl.replace("https://discord.com", "https://" + System.getenv("DISCORD_DOMAIN"))
+                );
 
-                List<WebhookEmbed> webhookEmbeds = embeds.stream()
+                List<MessageEmbed> webhookEmbeds = embeds.stream()
                         .limit(10)
-                        .map(eb -> WebhookEmbedBuilder.fromJDA(eb).build())
                         .collect(Collectors.toList());
 
-                WebhookMessageBuilder wmb = new WebhookMessageBuilderAdvanced()
-                        .setActionRows(actionRows)
-                        .setAvatarUrl(channelOpt.get().getGuild().getSelfMember().getUser().getEffectiveAvatarUrl());
+                MessageCreateBuilder messageCreateBuilder = new MessageCreateBuilder()
+                        .setComponents(actionRows);
 
-                if (embeds.size() > 0) {
-                    wmb.addEmbeds(webhookEmbeds);
+                if (!embeds.isEmpty()) {
+                    messageCreateBuilder.setEmbeds(webhookEmbeds);
                     if (acceptUserMessage && getEffectiveUserMessage(locale).isPresent()) {
-                        wmb.setContent(getEffectiveUserMessage(locale).get());
+                        messageCreateBuilder.setContent(getEffectiveUserMessage(locale).get());
                     }
                 } else {
-                    wmb = wmb.setContent(content);
+                    messageCreateBuilder.setContent(content);
                 }
 
                 if (newMessage) {
-                    return Optional.of(webhookClient.send(wmb.build()).get().getId());
+                    Message message = webhookClient.sendMessage(messageCreateBuilder.build())
+                            .setAvatarUrl(channel.getGuild().getSelfMember().getUser().getEffectiveAvatarUrl())
+                            .setAllowedMentions(null)
+                            .complete();
+                    return Optional.of(message.getIdLong());
                 } else {
-                    return Optional.of(webhookClient.edit(messageId, wmb.build()).get().getId());
+                    MessageEditData messageEditData = MessageEditData.fromCreateData(messageCreateBuilder.build());
+                    webhookClient.editMessageById(messageId, messageEditData)
+                            .setAllowedMentions(null)
+                            .complete();
+                    return Optional.of(messageId);
                 }
-            } catch (InterruptedException e) {
-                throw e;
             } catch (Throwable e) {
                 Optional<Long> messageIdOpt = Optional.empty();
                 if (e.toString().contains("10015")) { /* Unknown Webhook */
-                    webhookClientMap.invalidate(channelId);
                     this.webhookUrl = null;
                     messageIdOpt = processMessageViaRest(locale, true, acceptUserMessage, content, embeds, actionRows);
                 } else if (e.toString().contains("10008") || e.toString().contains("50005")) { /* Unknown Message || Another User */

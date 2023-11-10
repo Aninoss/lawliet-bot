@@ -59,7 +59,7 @@ public class DiscordConnector {
     public static Activity createActivity(String activityText) {
         Activity.ActivityType activityType = System.getenv("ACTIVITY_TYPE") != null
                 ? Activity.ActivityType.valueOf(System.getenv("ACTIVITY_TYPE"))
-                : Activity.ActivityType.WATCHING;
+                : Activity.ActivityType.CUSTOM_STATUS;
 
         return Activity.of(activityType, activityText);
     }
@@ -67,8 +67,8 @@ public class DiscordConnector {
     public static String getActivityText() {
         if (Program.publicVersion()) {
             return ShardManager.getGlobalGuildSize()
-                    .map(globalGuildSize -> "L.help | " + StringUtil.numToStringShort(globalGuildSize, Locale.US) + " | www.lawlietbot.xyz")
-                    .orElse("L.help | www.lawlietbot.xyz");
+                    .map(globalGuildSize -> "L.help｜" + StringUtil.numToStringShort(globalGuildSize, Locale.US) + "｜www.lawlietbot.xyz")
+                    .orElse("L.help｜www.lawlietbot.xyz");
         } else {
             return System.getenv("ACTIVITY");
         }

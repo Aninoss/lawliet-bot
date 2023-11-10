@@ -1,10 +1,5 @@
 package commands.runnables.externalcategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -21,8 +16,13 @@ import modules.twitch.TwitchStream;
 import modules.twitch.TwitchUser;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "twitch",
@@ -84,7 +84,6 @@ public class TwitchCommand extends Command implements OnAlertListener {
     @Override
     public @NotNull AlertResponse onTrackerRequest(@NotNull TrackerData slot) throws Throwable {
         slot.setNextRequest(Instant.now().plus(5, ChronoUnit.MINUTES));
-        StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
 
         Optional<TwitchStream> streamOpt;
         streamOpt = twitchDownloader.retrieveStream(slot.getCommandKey()).get();
