@@ -23,9 +23,9 @@ import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
-    id = "ccshortcuts",
-    userPermissions = [Permission.MANAGE_SERVER],
-    commandAccessRequirements = [CommandChannelShortcutsCommand::class]
+        id = "ccshortcuts",
+        userPermissions = [Permission.MANAGE_SERVER],
+        commandAccessRequirements = [CommandChannelShortcutsCommand::class]
 )
 class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
@@ -41,19 +41,19 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
 
     override fun generateComponents(guild: Guild, mainContainer: VerticalContainer) {
         mainContainer.add(
-            DashboardText(getString(Category.UTILITY, "ccshortcuts_default_desc")),
-            generateShortcutGrid(guild),
-            generateNewShortcutField(guild)
+                DashboardText(getString(Category.UTILITY, "ccshortcuts_default_desc")),
+                generateShortcutGrid(guild),
+                generateNewShortcutField(guild)
         )
     }
 
     fun generateShortcutGrid(guild: Guild): DashboardComponent {
         val rows = commandChannelShortcuts.entries
-            .map {
-                val atomicChannel = AtomicStandardGuildMessageChannel(guild.idLong, it.key)
-                val values = arrayOf(atomicChannel.getPrefixedName(locale), it.value)
-                GridRow(it.key.toString(), values)
-            }
+                .map {
+                    val atomicChannel = AtomicStandardGuildMessageChannel(guild.idLong, it.key)
+                    val values = arrayOf(atomicChannel.getPrefixedName(locale), it.value)
+                    GridRow(it.key.toString(), values)
+                }
 
         val headers = arrayOf(getString(Category.UTILITY, "ccshortcuts_add_channel"), getString(Category.UTILITY, "ccshortcuts_add_command"))
         val grid = DashboardGrid(headers, rows) {
@@ -62,7 +62,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
             guildEntity.commitTransaction()
 
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         grid.isEnabled = isPremium
         grid.rowButton = getString(Category.UTILITY, "ccshortcuts_dashboard_remove")
@@ -74,7 +74,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
     fun generateNewShortcutField(guild: Guild): DashboardComponent {
         val container = VerticalContainer()
         container.add(
-            DashboardTitle(getString(Category.UTILITY, "ccshortcuts_add_title")),
+                DashboardTitle(getString(Category.UTILITY, "ccshortcuts_add_title")),
         )
 
         val horizontalContainerer = HorizontalContainer()
@@ -125,7 +125,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
             }
             if (!BotPermissionUtil.canWrite(channel)) { /* no permissions in channel */
                 return@DashboardButton ActionResult()
-                    .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_send", "#${channel.getName()}"))
+                        .withErrorMessage(getString(TextManager.GENERAL, "permission_channel_send", "#${channel.getName()}"))
             }
             if (commandChannelShortcuts.containsKey(channelId)) {
                 return@DashboardButton ActionResult()
@@ -140,7 +140,7 @@ class CommandChannelShortcutsCategory(guildId: Long, userId: Long, locale: Local
             trigger = null
 
             ActionResult()
-                .withRedraw()
+                    .withRedraw()
         }
         addButton.isEnabled = isPremium && trigger != null && channelId != null
         addButton.style = DashboardButton.Style.PRIMARY

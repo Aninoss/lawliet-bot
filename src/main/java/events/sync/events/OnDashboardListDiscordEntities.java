@@ -87,7 +87,7 @@ public class OnDashboardListDiscordEntities implements SyncServerFunction {
                             .forEach(c -> {
                                 JSONObject json = new JSONObject();
                                 json.put("id", c.getId());
-                                json.put("name", c.getName());
+                                json.put("name", "🔊" + c.getName());
                                 entitiesJson.put(json);
                             });
                 }

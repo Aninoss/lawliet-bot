@@ -1,14 +1,15 @@
 package core.atomicassets;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AtomicVoiceChannel implements MentionableAtomicAsset<VoiceChannel> {
 
@@ -38,7 +39,7 @@ public class AtomicVoiceChannel implements MentionableAtomicAsset<VoiceChannel> 
 
     @Override
     public Optional<String> getPrefixedNameRaw() {
-        return get().map(v -> "@" + v.getName());
+        return get().map(v -> "🔊" + v.getName());
     }
 
     @Override

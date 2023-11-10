@@ -52,7 +52,7 @@ public class SuggestionConfigCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-            if (channelList.size() == 0) {
+            if (channelList.isEmpty()) {
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                 return MessageInputResponse.FAILED;
             } else {

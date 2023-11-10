@@ -1,7 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.util.List;
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -26,6 +24,9 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "autochannel",
         botGuildPermissions = { Permission.VIEW_CHANNEL, Permission.VOICE_CONNECT, Permission.MANAGE_CHANNEL },
@@ -36,6 +37,8 @@ import org.jetbrains.annotations.NotNull;
         aliases = { "tempchannel" }
 )
 public class AutoChannelCommand extends NavigationAbstract {
+
+    public static final int MAX_CHANNEL_NAME_LENGTH = 50;
 
     private AutoChannelData autoChannelBean;
 
@@ -55,7 +58,7 @@ public class AutoChannelCommand extends NavigationAbstract {
         switch (state) {
             case 1:
                 List<VoiceChannel> channelList = MentionUtil.getVoiceChannels(event.getMessage(), input).getList();
-                if (channelList.size() == 0) {
+                if (channelList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else {
@@ -82,13 +85,13 @@ public class AutoChannelCommand extends NavigationAbstract {
                 }
 
             case 2:
-                if (input.length() > 0 && input.length() < 50) {
+                if (!input.isEmpty() && input.length() < MAX_CHANNEL_NAME_LENGTH) {
                     autoChannelBean.setNameMask(input);
                     setLog(LogStatus.SUCCESS, getString("channelnameset"));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
                 } else {
-                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", "50"));
+                    setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "args_too_long", StringUtil.numToString(MAX_CHANNEL_NAME_LENGTH)));
                     return MessageInputResponse.FAILED;
                 }
 

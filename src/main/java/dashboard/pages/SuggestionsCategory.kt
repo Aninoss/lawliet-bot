@@ -1,6 +1,7 @@
 package dashboard.pages
 
 import commands.Category
+import commands.runnables.configurationcategory.SuggestionConfigCommand
 import core.TextManager
 import core.utils.BotPermissionUtil
 import dashboard.ActionResult
@@ -17,7 +18,9 @@ import net.dv8tion.jda.api.entities.Guild
 import java.util.*
 
 @DashboardProperties(
-    id = "suggestions"
+        id = "suggestions",
+        userPermissions = [Permission.MANAGE_SERVER],
+        commandAccessRequirements = [SuggestionConfigCommand::class]
 )
 class SuggestionsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: GuildEntity) : DashboardCategory(guildId, userId, locale, guildEntity) {
 
