@@ -315,7 +315,10 @@ public abstract class Command implements OnTriggerListener {
             }
             future.complete(message);
         }, e -> {
-            if (handleUnknownInteractionExceptions && e.getLocalizedMessage().contains("10062")) { // Unknown interaction
+            String message = e.getLocalizedMessage();
+            if (handleUnknownInteractionExceptions &&
+                    (message.contains("10062") || message.contains("interaction callback failure") || message.contains("Timed out"))
+            ) {
                 try {
                     MainLogger.get().warn("Unknown interaction for command {}", getTrigger());
 
