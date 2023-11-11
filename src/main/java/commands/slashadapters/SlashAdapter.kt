@@ -212,7 +212,11 @@ abstract class SlashAdapter {
             for (option in event.options) {
                 if (Arrays.stream(exceptions).noneMatch { exception: String -> option.name == exception }) {
                     when (option.type) {
-                        OptionType.BOOLEAN -> argsBuilder.append(option.name).append(" ")
+                        OptionType.BOOLEAN -> {
+                            if (option.asBoolean) {
+                                argsBuilder.append(option.name).append(" ")
+                            }
+                        }
                         OptionType.ATTACHMENT -> argsBuilder.append(option.asAttachment.url).append(" ")
                         else -> argsBuilder.append(option.asString).append(" ")
                     }
