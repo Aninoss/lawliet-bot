@@ -21,7 +21,7 @@ public class Txt2ImgCommand extends RunPodAbstract {
             "lewd", "nipple", "nipples", "dildo", "vore"};
 
     public Txt2ImgCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, "nipples, ");
     }
 
     @Override

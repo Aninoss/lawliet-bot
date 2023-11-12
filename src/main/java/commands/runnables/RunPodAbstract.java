@@ -50,12 +50,14 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     private static final int STATE_ADJUST_IMAGES = 1;
 
+    private final String additionalNegativePrompt;
     private String prompt;
     private String negativePrompt;
     private int images = 1;
 
-    public RunPodAbstract(Locale locale, String prefix) {
+    public RunPodAbstract(Locale locale, String prefix, String additionalNegativePrompt) {
         super(locale, prefix);
+        this.additionalNegativePrompt = additionalNegativePrompt;
     }
 
     public abstract List<String> getFilters(long guildId);
@@ -196,7 +198,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             int localImages = images;
 
             Model model = Model.values()[Integer.parseInt(event.getValues().get(0))];
-            String predictionId = RunPodDownloader.createPrediction(model, localPrompt, localNegativePrompt, localImages).get();
+            String predictionId = RunPodDownloader.createPrediction(model, localPrompt, additionalNegativePrompt + localNegativePrompt, localImages).get();
             AtomicReference<PredictionResult> predictionResult = new AtomicReference<>(null);
             Instant startTime = Instant.now();
             AtomicLong messageId = new AtomicLong(0);

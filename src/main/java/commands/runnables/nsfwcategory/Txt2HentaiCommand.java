@@ -1,13 +1,13 @@
 package commands.runnables.nsfwcategory;
 
-import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.RunPodAbstract;
 import constants.Settings;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "txt2hentai",
@@ -20,7 +20,7 @@ import java.util.*;
 public class Txt2HentaiCommand extends RunPodAbstract {
 
     public Txt2HentaiCommand(Locale locale, String prefix) {
-        super(locale, prefix);
+        super(locale, prefix, "");
     }
 
     @Override
