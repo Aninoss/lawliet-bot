@@ -9,6 +9,8 @@ import core.AsyncTimer;
 import core.MainLogger;
 import core.ShardManager;
 import core.cache.ServerPatreonBoostCache;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.mention.MentionList;
 import core.utils.BotPermissionUtil;
 import core.utils.ExceptionUtil;
@@ -68,6 +70,7 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
             if (commandShortcutTrigger != null && ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
                 prefixFound = 0;
                 content = prefix + commandShortcutTrigger + " " + event.getMessage().getContentRaw();
+                FeatureLogger.inc(PremiumFeature.COMMAND_CHANNEL_SHORTCUTS, event.getGuild().getIdLong());
             } else {
                 checkAutoQuote(event, guildEntity);
                 return true;
