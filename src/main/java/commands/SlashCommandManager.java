@@ -1,18 +1,28 @@
 package commands;
 
-import java.util.*;
 import commands.slashadapters.Slash;
 import commands.slashadapters.SlashAdapter;
 import commands.slashadapters.SlashMeta;
+import constants.AssetIds;
 import core.MainLogger;
 import core.Program;
+import core.ShardManager;
+import core.SlashAssociations;
+import modules.moduserinteractions.ModUserInteractionManager;
 import mysql.hibernate.entity.GuildEntity;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.*;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.reflections.Reflections;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SlashCommandManager {
 
@@ -36,14 +46,34 @@ public class SlashCommandManager {
                 .forEach(SlashCommandManager::insert);
     }
 
-    public static List<CommandData> initialize() {
-        ArrayList<CommandData> commandDataList = new ArrayList<>();
-        for (SlashAdapter slashAdapter : slashAdapterMap.values()) {
-            if (!slashAdapter.onlyPublicVersion() || Program.publicVersion()) {
-                commandDataList.add(slashAdapter.generateCommandData());
+    public static void sendCommandUpdate(JDA jda, boolean forceUpdate) {
+        try {
+            ArrayList<CommandData> commandDataList = initialize();
+
+            RestAction<List<Command>> retrieveCommandsAction;
+            CommandListUpdateAction commandListUpdateAction;
+            if (Program.productionMode()) {
+                retrieveCommandsAction = jda.retrieveCommands();
+                commandListUpdateAction = jda.updateCommands();
+            } else {
+                Guild guild = ShardManager.getLocalGuildById(AssetIds.BETA_SERVER_ID).get();
+                retrieveCommandsAction = guild.retrieveCommands();
+                commandListUpdateAction = guild.updateCommands();
             }
+
+            retrieveCommandsAction.queue(commands -> {
+                if (forceUpdate || commandsHaveChanged(commands, commandDataList)) {
+                    MainLogger.get().info("Pushing new slash commands ({})", commandDataList.size());
+                    commandListUpdateAction.addCommands(commandDataList)
+                            .queue(SlashAssociations::registerSlashCommands);
+                } else {
+                    MainLogger.get().info("No new slash commands found");
+                    SlashAssociations.registerSlashCommands(commands);
+                }
+            });
+        } catch (Throwable e) {
+            MainLogger.get().error("Exception on slash commands load", e);
         }
-        return commandDataList;
     }
 
     public static SlashMeta process(SlashCommandInteractionEvent event, GuildEntity guildEntity) {
@@ -77,6 +107,92 @@ public class SlashCommandManager {
 
     private static void insert(SlashAdapter adapter) {
         slashAdapterMap.put(adapter.name(), adapter);
+    }
+
+    private static boolean commandsHaveChanged(List<Command> previousCommands, List<CommandData> newCommands) {
+        HashSet<Integer> previousCommandHashesSet = previousCommands.stream()
+                .map(command -> commandDataHashCode(CommandData.fromCommand(command)))
+                .collect(Collectors.toCollection(HashSet::new));
+        HashSet<Integer> newCommandHashesSet = newCommands.stream()
+                .map(SlashCommandManager::commandDataHashCode)
+                .collect(Collectors.toCollection(HashSet::new));
+
+        return newCommandHashesSet.stream().anyMatch(commandData -> !previousCommandHashesSet.contains(commandData)) ||
+                previousCommandHashesSet.stream().anyMatch(commandData -> !newCommandHashesSet.contains(commandData));
+    }
+
+    private static ArrayList<CommandData> initialize() {
+        ArrayList<CommandData> commandDataList = new ArrayList<>();
+        for (SlashAdapter slashAdapter : slashAdapterMap.values()) {
+            if (!slashAdapter.onlyPublicVersion() || Program.publicVersion()) {
+                commandDataList.add(slashAdapter.generateCommandData());
+            }
+        }
+        commandDataList.addAll(ModUserInteractionManager.generateUserCommands());
+        return commandDataList;
+    }
+
+    private static int commandDataHashCode(CommandData commandData) {
+        if (commandData instanceof SlashCommandData) {
+            SlashCommandData slashCommandData = (SlashCommandData) commandData;
+            return Objects.hash(
+                    slashCommandData.getName(),
+                    slashCommandData.getDescription(),
+                    slashCommandData.getDefaultPermissions().getPermissionsRaw(),
+                    slashCommandData.isNSFW(),
+                    optionDataListHashCode(slashCommandData.getOptions()),
+                    subcommandGroupDataListHashCode(slashCommandData.getSubcommandGroups()),
+                    subcommandDataListHashCode(slashCommandData.getSubcommands())
+            );
+        } else {
+            return Objects.hash(
+                    commandData.getName(),
+                    commandData.getDefaultPermissions().getPermissionsRaw(),
+                    commandData.getType(),
+                    commandData.isNSFW()
+            );
+        }
+    }
+
+    private static int optionDataListHashCode(List<OptionData> options) {
+        return options.stream()
+                .map(optionData -> Objects.hash(
+                        optionData.getName(),
+                        optionData.getType(),
+                        optionData.getDescription(),
+                        optionData.getChannelTypes(),
+                        optionData.getMaxLength(),
+                        optionData.getMaxValue(),
+                        optionData.getMinLength(),
+                        optionData.getMinValue(),
+                        optionData.getChoices(),
+                        optionData.isRequired(),
+                        optionData.isAutoComplete()
+                ))
+                .collect(Collectors.toList())
+                .hashCode();
+    }
+    
+    private static int subcommandGroupDataListHashCode(List<SubcommandGroupData> subcommandGroups) {
+        return subcommandGroups.stream()
+                .map(group -> Objects.hash(
+                        group.getName(),
+                        group.getDescription(),
+                        subcommandDataListHashCode(group.getSubcommands())
+                ))
+                .collect(Collectors.toList())
+                .hashCode();
+    }
+
+    private static int subcommandDataListHashCode(List<SubcommandData> subcommands) {
+        return subcommands.stream()
+                .map(subcommand -> Objects.hash(
+                        subcommand.getName(),
+                        subcommand.getDescription(),
+                        optionDataListHashCode(subcommand.getOptions())
+                        ))
+                .collect(Collectors.toList())
+                .hashCode();
     }
 
 }

@@ -13,7 +13,6 @@ import javafx.util.Pair;
 import modules.SupportTemplates;
 import modules.casinologs.CasinoLogCache;
 import modules.fishery.Fishery;
-import modules.moduserinteractions.ModUserInteractionManager;
 import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
@@ -142,10 +141,8 @@ public class Console {
 
     private static void onSlashUpdate(String[] args) {
         MainLogger.get().info("Pushing new slash commands");
-        ShardManager.getAnyJDA().get().updateCommands()
-                .addCommands(SlashCommandManager.initialize())
-                .addCommands(ModUserInteractionManager.generateUserCommands())
-                .queue(SlashAssociations::registerSlashCommands);
+        JDA jda = ShardManager.getAnyJDA().get();
+        SlashCommandManager.sendCommandUpdate(jda, true);
     }
 
     private static void onUpdateLawlietSupportCommands(String[] args) {

@@ -1,15 +1,12 @@
 package core;
 
 import commands.SlashCommandManager;
-import constants.AssetIds;
 import core.featurelogger.FeatureLogger;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
 import events.sync.SendEvent;
 import modules.BumpReminder;
-import modules.SupportTemplates;
-import modules.moduserinteractions.ModUserInteractionManager;
 import modules.repair.MainRepair;
 import modules.schedulers.*;
 import net.dv8tion.jda.api.JDA;
@@ -17,7 +14,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.ConcurrentSessionController;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -25,7 +21,6 @@ import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import net.dv8tion.jda.internal.utils.IOUtil;
 
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -135,45 +130,13 @@ public class DiscordConnector {
         MainLogger.get().info("Shard {} connection established", jda.getShardInfo().getShardId());
 
         if (firstConnection) {
-            firstConnectionCompleted(jda);
+            SlashCommandManager.sendCommandUpdate(jda, false);
         }
         if (ShardManager.isEverythingConnected() && !ShardManager.isReady()) {
             allConnectionsCompleted();
         }
         if (Program.productionMode()) {
             MainRepair.start(jda, 20);
-        }
-    }
-
-    private static void firstConnectionCompleted(JDA jda) {
-        try {
-            List<CommandData> commandDataList = SlashCommandManager.initialize();
-            if (Program.productionMode()) {
-                jda.retrieveCommands().queue(commands -> {
-                    if (commands.isEmpty() || Program.isNewVersion()) {
-                        MainLogger.get().info("Pushing new slash commands");
-                        jda.updateCommands()
-                                .addCommands(commandDataList)
-                                .addCommands(ModUserInteractionManager.generateUserCommands())
-                                .queue(SlashAssociations::registerSlashCommands);
-                    } else {
-                        MainLogger.get().info("Skipping slash commands because it's not a new version");
-                        SlashAssociations.registerSlashCommands(commands);
-                    }
-                });
-            } else {
-                ShardManager.getLocalGuildById(AssetIds.BETA_SERVER_ID).get()
-                        .updateCommands()
-                        .addCommands(commandDataList)
-                        .addCommands(SupportTemplates.generateSupportContextCommands())
-                        .addCommands(ModUserInteractionManager.generateUserCommands())
-                        .queue(commands -> {
-                            SlashAssociations.registerSlashCommands(commands);
-                            MainLogger.get().info("Successfully sent {} slash commands", commands.size());
-                        });
-            }
-        } catch (Throwable e) {
-            MainLogger.get().error("Exception on slash commands load", e);
         }
     }
 
