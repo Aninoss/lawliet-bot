@@ -55,6 +55,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("fishery_copy", Console::onFisheryCopy);
         tasks.put("featurelogging", Console::onFeatureLogging);
         tasks.put("txt2img_ban", Console::onTxt2ImgBan);
         tasks.put("casino_logs", Console::onCasinoLogs);
@@ -104,6 +105,14 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onFisheryCopy(String[] args) {
+        long oldGuildId = Long.parseLong(args[1]);
+        long newGuildId = Long.parseLong(args[2]);
+        MainLogger.get().info("Copying fishery data from {} to {}...", oldGuildId, newGuildId);
+        FisheryUserManager.copyGuildData(oldGuildId, newGuildId);
+        MainLogger.get().info("Copy process completed!");
     }
 
     private static void onFeatureLogging(String[] args) {
