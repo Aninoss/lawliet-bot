@@ -351,7 +351,11 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         .filter { it.length > 0 }
                         .map { it.substring(0, Math.min(WordFilterCommand.MAX_LETTERS, it.length)) }
                         .filter { !wordFilterEntity.words.contains(it) }
-                        .forEach { wordFilterEntity.words += it }
+                        .forEach {
+                            if (wordFilterEntity.words.size < WordFilterCommand.MAX_WORDS) {
+                                wordFilterEntity.words += it
+                            }
+                        }
             } else if (it.type == "remove") {
                 wordFilterEntity.words -= it.data
             }
