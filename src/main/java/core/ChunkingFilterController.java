@@ -1,8 +1,10 @@
 package core;
 
 import constants.AssetIds;
-import mysql.modules.stickyroles.DBStickyRoles;
+import mysql.hibernate.entity.GuildEntity;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
+
+import java.util.HashSet;
 
 public class ChunkingFilterController implements ChunkingFilter {
 
@@ -12,6 +14,8 @@ public class ChunkingFilterController implements ChunkingFilter {
         return ourInstance;
     }
 
+    private final HashSet<Long> hasStickyRolesSet = new HashSet<>();
+
     private ChunkingFilterController() {
     }
 
@@ -20,10 +24,22 @@ public class ChunkingFilterController implements ChunkingFilter {
         return !Program.publicVersion() ||
                 guildId == AssetIds.SUPPORT_SERVER_ID ||
                 guildId == AssetIds.ANICORD_SERVER_ID ||
-                (!DBStickyRoles.getInstance().retrieve(guildId).getRoleIds().isEmpty() && allowChunking(guildId));
+                (hasStickyRoles(guildId) && allowChunking(guildId));
     }
 
-    public boolean allowChunking(long guildId) {
+    public void updateStickyRolesCache(GuildEntity guildEntity) {
+        if (guildEntity.getStickyRoles().getRoleIds().isEmpty()) {
+            hasStickyRolesSet.remove(guildEntity.getGuildId());
+        } else {
+            hasStickyRolesSet.add(guildEntity.getGuildId());
+        }
+    }
+
+    private boolean hasStickyRoles(long guildId) {
+        return hasStickyRolesSet.contains(guildId);
+    }
+
+    private boolean allowChunking(long guildId) {
         return ShardManager.getLocalGuildById(guildId)
                 .map(guild -> guild.getMemberCount() < MemberCacheController.BIG_SERVER_THRESHOLD)
                 .orElse(false);

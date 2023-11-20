@@ -1,5 +1,6 @@
 package mysql.hibernate;
 
+import core.ChunkingFilterController;
 import core.MainLogger;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.hibernate.template.HibernateEntity;
@@ -102,7 +103,9 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     }
 
     public GuildEntity findGuildEntity(long guildId) {
-        return findOrDefault(GuildEntity.class, String.valueOf(guildId));
+        GuildEntity guildEntity = findOrDefault(GuildEntity.class, String.valueOf(guildId));
+        ChunkingFilterController.getInstance().updateStickyRolesCache(guildEntity);
+        return guildEntity;
     }
 
     @Override

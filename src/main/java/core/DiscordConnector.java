@@ -9,6 +9,13 @@ import events.sync.SendEvent;
 import modules.BumpReminder;
 import modules.repair.MainRepair;
 import modules.schedulers.*;
+import mysql.DBDataLoadAll;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.StickyRolesActiveRoleEntity;
+import mysql.hibernate.template.HibernateEntityInterface;
+import mysql.modules.stickyroles.DBStickyRoles;
+import mysql.modules.stickyroles.StickyRolesData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -21,10 +28,15 @@ import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import net.dv8tion.jda.internal.utils.IOUtil;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class DiscordConnector {
 
@@ -78,6 +90,8 @@ public class DiscordConnector {
         EnumSet<Message.MentionType> deny = EnumSet.of(Message.MentionType.EVERYONE, Message.MentionType.HERE, Message.MentionType.ROLE);
         MessageRequest.setDefaultMentions(EnumSet.complementOf(deny));
         MessageRequest.setDefaultMentionRepliedUser(false);
+
+        transferSqlToHibernate();
 
         new Thread(() -> {
             for (int i = shardMin; i <= shardMax; i++) {
@@ -156,38 +170,57 @@ public class DiscordConnector {
         MainLogger.get().info("### ALL SHARDS CONNECTED SUCCESSFULLY! ###");
     }
 
-    /*private static void transferInviteFilterSqlToHibernate() { TODO: reuse later for migration of other properties
+    private static <T extends HibernateEntityInterface> void transferSqlToHibernate() {
+        transferSqlToHibernate(
+                "StickyRolesRoles",
+                GuildEntity::getStickyRoles,
+                stickyRolesEntity -> !stickyRolesEntity.getRoleIds().isEmpty() || !stickyRolesEntity.getActiveRoles().isEmpty(),
+                stickyRolesEntity -> {
+                    StickyRolesData stickyRolesSql = DBStickyRoles.getInstance().retrieve(stickyRolesEntity.getGuildId());
+                    Set<StickyRolesActiveRoleEntity> activeRoles = stickyRolesSql.getActions().stream()
+                            .map(action -> new StickyRolesActiveRoleEntity(action.getMemberId(), action.getRoleId()))
+                            .collect(Collectors.toSet());
+
+                    stickyRolesEntity.setRoleIds(stickyRolesSql.getRoleIds());
+                    stickyRolesEntity.setActiveRoles(activeRoles);
+                }
+        );
+    }
+
+    private static <T extends HibernateEntityInterface> void transferSqlToHibernate(
+            String sqlTableName,
+            Function<GuildEntity, T> entityFunction,
+            Function<T, Boolean> isUsedFunction,
+            Consumer<T> updateEntityValuesConsumer
+    ) {
         if (!Program.publicVersion()) {
             return;
         }
 
-        MainLogger.get().info("Transferring Invite Filter MySQL data to MongoDB...");
+        MainLogger.get().info("Transferring {} MySQL data to MongoDB...", sqlTableName);
         List<Long> guildIdList;
         int limit = 100;
         long guildIdOffset = 0;
         do {
-            guildIdList = DBSPBlock.getInstance().retrieveAllServerIds(guildIdOffset, limit);
+            guildIdList = new DBDataLoadAll<Long>(sqlTableName, "serverId", " AND serverId > " + guildIdOffset + " ORDER BY serverId LIMIT " + limit)
+                    .getList(resultSet -> resultSet.getLong(1));
+
             for (long guildId : guildIdList) {
                 try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
-                    InviteFilterEntity inviteFilter = guildEntity.getInviteFilter();
-                    if (inviteFilter.isUsed()) {
+                    T entity = entityFunction.apply(guildEntity);
+                    if (isUsedFunction.apply(entity)) {
                         continue;
                     }
-                    SPBlockData spBlockData = DBSPBlock.getInstance().retrieve(guildId);
 
-                    inviteFilter.beginTransaction();
-                    if (inviteFilter.getActive() != spBlockData.isActive()) inviteFilter.setActive(spBlockData.isActive());
-                    if (inviteFilter.getAction().ordinal() != spBlockData.getAction().ordinal()) inviteFilter.setAction(InviteFilterEntity.Action.values()[spBlockData.getAction().ordinal()]);
-                    spBlockData.getIgnoredUserIds().forEach(userId -> inviteFilter.getExcludedMemberIds().add(userId));
-                    spBlockData.getIgnoredChannelIds().forEach(channelId -> inviteFilter.getExcludedChannelIds().add(channelId));
-                    spBlockData.getLogReceiverUserIds().forEach(userId -> inviteFilter.getLogReceiverUserIds().add(userId));
-                    inviteFilter.commitTransaction();
+                    entity.beginTransaction();
+                    updateEntityValuesConsumer.accept(entity);
+                    entity.commitTransaction();
                 }
             }
             if (!guildIdList.isEmpty()) {
                 guildIdOffset = guildIdList.get(guildIdList.size() - 1);
             }
         } while (guildIdList.size() == limit);
-    }*/
+    }
 
 }

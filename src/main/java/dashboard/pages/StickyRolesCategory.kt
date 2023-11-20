@@ -9,7 +9,6 @@ import dashboard.component.DashboardText
 import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.VerticalContainer
 import mysql.hibernate.entity.GuildEntity
-import mysql.modules.stickyroles.DBStickyRoles
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
@@ -31,7 +30,7 @@ class StickyRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
         val rolesComboBox = DashboardMultiRolesComboBox(
                 this,
                 Command.getCommandLanguage(StickyRolesCommand::class.java, locale).title,
-                { DBStickyRoles.getInstance().retrieve(guild.idLong).roleIds },
+                { it.stickyRoles.roleIds },
                 true,
                 StickyRolesCommand.MAX_ROLES,
                 true

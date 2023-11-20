@@ -1,45 +1,43 @@
 package modules;
 
-import java.util.HashSet;
-import java.util.stream.Collectors;
-import mysql.modules.stickyroles.DBStickyRoles;
-import mysql.modules.stickyroles.StickyRolesActionData;
-import mysql.modules.stickyroles.StickyRolesData;
+import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.StickyRolesEntity;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class StickyRoles {
 
-    public static void updateFromMemberRoles(Member member, boolean canAdd, boolean canRemove) {
+    public static void updateFromMemberRoles(GuildEntity guildEntity, Member member) {
         if (!member.isPending()) {
             synchronized (member) {
-                StickyRolesData stickyRolesData = DBStickyRoles.getInstance().retrieve(member.getGuild().getIdLong());
-                HashSet<Long> currentActionRoleIds = stickyRolesData.getActions().stream()
-                        .filter(actionData -> actionData != null && actionData.getMemberId() == member.getIdLong())
-                        .map(StickyRolesActionData::getRoleId)
-                        .collect(Collectors.toCollection(HashSet::new));
-                HashSet<Long> currentMemberRoleIds = member.getRoles().stream()
+                StickyRolesEntity stickyRolesEntity = guildEntity.getStickyRoles();
+
+                Set<Long> activeRoleIds = stickyRolesEntity.getActiveRoleIdsForMember(member.getIdLong());
+                Set<Long> currentMemberRoleIds = member.getRoles().stream()
                         .map(ISnowflake::getIdLong)
-                        .collect(Collectors.toCollection(HashSet::new));
+                        .collect(Collectors.toSet());
 
                 /* add */
-                if (canAdd) {
-                    stickyRolesData.getRoleIds().stream()
-                            .filter(stickyRoleId -> !currentActionRoleIds.contains(stickyRoleId) && currentMemberRoleIds.contains(stickyRoleId))
-                            .forEach(stickyRoleId -> {
-                                stickyRolesData.getActions().add(new StickyRolesActionData(
-                                        member.getGuild().getIdLong(),
-                                        member.getIdLong(),
-                                        stickyRoleId
-                                ));
-                            });
-                }
+                Set<Long> addActiveRoleIds = stickyRolesEntity.getRoleIds().stream()
+                        .filter(currentMemberRoleIds::contains)
+                        .collect(Collectors.toSet());
 
                 /* remove */
-                if (canRemove) {
-                    stickyRolesData.getActions()
-                            .removeIf(actionData -> member.getIdLong() == actionData.getMemberId() && !currentMemberRoleIds.contains(actionData.getRoleId()));
+                Set<Long> removeActiveRoleIds = activeRoleIds.stream()
+                        .filter(activeRoleId -> !currentMemberRoleIds.contains(activeRoleId))
+                        .collect(Collectors.toSet());
+
+                if (addActiveRoleIds.isEmpty() && removeActiveRoleIds.isEmpty()) {
+                    return;
                 }
+
+                stickyRolesEntity.beginTransaction();
+                stickyRolesEntity.addActiveRoleIdsForMember(member.getIdLong(), addActiveRoleIds);
+                stickyRolesEntity.removeActiveRoleIdsForMember(member.getIdLong(), removeActiveRoleIds);
+                stickyRolesEntity.commitTransaction();
             }
         }
     }

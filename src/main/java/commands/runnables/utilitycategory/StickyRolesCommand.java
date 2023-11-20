@@ -5,13 +5,10 @@ import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
-import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.atomicassets.AtomicRole;
 import core.utils.MentionUtil;
-import mysql.modules.stickyroles.DBStickyRoles;
-import mysql.modules.stickyroles.StickyRolesData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -37,7 +34,6 @@ public class StickyRolesCommand extends NavigationAbstract {
     public static final int MAX_ROLES = 12;
 
     private NavigationHelper<AtomicRole> roleNavigationHelper;
-    private CustomObservableList<AtomicRole> roles;
 
     public StickyRolesCommand(Locale locale, String prefix) {
         super(locale, prefix);
@@ -45,10 +41,8 @@ public class StickyRolesCommand extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        StickyRolesData stickyRolesData = DBStickyRoles.getInstance().retrieve(event.getGuild().getIdLong());
-        roles = AtomicRole.transformIdList(event.getGuild(), stickyRolesData.getRoleIds());
-        roleNavigationHelper = new NavigationHelper<>(this, guildEntity -> roles, AtomicRole.class, MAX_ROLES);
-        checkRolesWithLog(event.getMember(), roles.stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
+        roleNavigationHelper = new NavigationHelper<>(this, guildEntity -> guildEntity.getStickyRoles().getRoles(), AtomicRole.class, MAX_ROLES);
+        checkRolesWithLog(event.getMember(), getGuildEntity().getStickyRoles().getRoles().stream().map(r -> r.get().orElse(null)).collect(Collectors.toList()));
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -101,21 +95,16 @@ public class StickyRolesCommand extends NavigationAbstract {
 
     @Override
     public EmbedBuilder draw(Member member, int state) {
-        switch (state) {
-            case 0:
+        return switch (state) {
+            case 0 -> {
                 setComponents(getString("state0_options").split("\n"));
-                return EmbedFactory.getEmbedDefault(this, getString("state0_description"))
-                        .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(roles, getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
-
-            case 1:
-                return roleNavigationHelper.drawDataAdd();
-
-            case 2:
-                return roleNavigationHelper.drawDataRemove(getLocale());
-
-            default:
-                return null;
-        }
+                yield EmbedFactory.getEmbedDefault(this, getString("state0_description"))
+                        .addField(getString("state0_mroles"), new ListGen<AtomicRole>().getList(getGuildEntity().getStickyRoles().getRoles(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), true);
+            }
+            case 1 -> roleNavigationHelper.drawDataAdd();
+            case 2 -> roleNavigationHelper.drawDataRemove(getLocale());
+            default -> null;
+        };
     }
 
 }

@@ -11,16 +11,14 @@ import core.utils.BotPermissionUtil;
 import core.utils.TimeUtil;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.StickyRolesEntity;
 import mysql.modules.autoroles.DBAutoRoles;
-import mysql.redis.fisheryusers.FisheryUserManager;
 import mysql.modules.jails.DBJails;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
 import mysql.modules.servermute.DBServerMute;
 import mysql.modules.servermute.ServerMuteData;
-import mysql.modules.stickyroles.DBStickyRoles;
-import mysql.modules.stickyroles.StickyRolesActionData;
-import mysql.modules.stickyroles.StickyRolesData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
@@ -41,10 +39,10 @@ public class JoinRoles {
 
     public static boolean guildIsRelevant(Guild guild, GuildEntity guildEntity) {
         ModerationData moderationData = DBModeration.getInstance().retrieve(guild.getIdLong());
-        return DBAutoRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds().size() > 0 ||
-                (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE && guildEntity.getFishery().getRoleIds().size() > 0) ||
-                DBStickyRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds().size() > 0 ||
-                moderationData.getJailRoleIds().size() > 0 ||
+        return !DBAutoRoles.getInstance().retrieve(guild.getIdLong()).getRoleIds().isEmpty() ||
+                (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE && !guildEntity.getFishery().getRoleIds().isEmpty()) ||
+                !guildEntity.getStickyRoles().getRoleIds().isEmpty() ||
+                !moderationData.getJailRoleIds().isEmpty() ||
                 moderationData.getMuteRoleId().isPresent();
     }
 
@@ -58,13 +56,13 @@ public class JoinRoles {
                 getJailRoles(locale, member, rolesToAdd);
             } else {
                 getAutoRoles(locale, member, rolesToAdd);
-                getStickyRoles(locale, member, rolesToAdd);
+                getStickyRoles(locale, member, guildEntity, rolesToAdd);
                 getFisheryRoles(locale, member, guildEntity, rolesToAdd, new HashSet<>());
             }
             getMuteRole(locale, member, rolesToAdd);
 
             rolesToAdd.removeIf(role -> member.getRoles().contains(role));
-            if (rolesToAdd.size() > 0) {
+            if (!rolesToAdd.isEmpty()) {
                 if (bulk) {
                     member.getGuild().modifyMemberRoles(member, rolesToAdd, Collections.emptySet())
                             .queue(v -> future.complete(null), future::completeExceptionally);
@@ -101,7 +99,7 @@ public class JoinRoles {
                         (aninossRaidProtection.check(member, role) &&
                                 member.getUser().getTimeCreated().toInstant().plus(1, ChronoUnit.HOURS).isBefore(Instant.now()) &&
                                 currentHour >= 6 && currentHour < 23)
-                        ) {
+                ) {
                     rolesToAdd.add(role);
                 }
             }
@@ -150,20 +148,21 @@ public class JoinRoles {
         }
     }
 
-    public static void getStickyRoles(Locale locale, Member member, HashSet<Role> rolesToAdd) {
-        Guild guild = member.getGuild();
-        StickyRolesData stickyRolesData =  DBStickyRoles.getInstance().retrieve(guild.getIdLong());
-        for (StickyRolesActionData actionData : stickyRolesData.getActions()) {
-            if (actionData != null &&
-                    actionData.getMemberId() == member.getIdLong() &&
-                    stickyRolesData.getRoleIds().contains(actionData.getRoleId())
-            ) {
-                actionData.getRole().ifPresent(role -> {
-                    if (PermissionCheckRuntime.botCanManageRoles(locale, StickyRolesCommand.class, role)) {
-                        rolesToAdd.add(role);
-                    }
-                });
+    public static void getStickyRoles(Locale locale, Member member, GuildEntity guildEntity, HashSet<Role> rolesToAdd) {
+        StickyRolesEntity stickyRoles = guildEntity.getStickyRoles();
+        for (long activeRoleId : stickyRoles.getActiveRoleIdsForMember(member.getIdLong())) {
+            if (!stickyRoles.getRoleIds().contains(activeRoleId)) {
+                continue;
             }
+
+            Role role = member.getGuild().getRoleById(activeRoleId);
+            if (role == null ||
+                    !PermissionCheckRuntime.botCanManageRoles(locale, StickyRolesCommand.class, role)
+            ) {
+                continue;
+            }
+
+            rolesToAdd.add(role);
         }
     }
 

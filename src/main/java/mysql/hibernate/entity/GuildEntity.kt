@@ -56,6 +56,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
     @Column(name = WORD_FILTER)
     val wordFilter = WordFilterEntity()
 
+    @Embedded
+    @Column(name = STICKY_ROLES)
+    val stickyRoles = StickyRolesEntity()
+
     @ElementCollection
     @SortNatural
     val customCommands = sortedMapOf<String, CustomCommandEntity>()
@@ -75,6 +79,7 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
         fishery.postLoad(this)
         inviteFilter.postLoad(this)
         wordFilter.postLoad(this)
+        stickyRoles.postLoad(this)
         customCommands.values.forEach { it.postLoad(this) }
     }
 

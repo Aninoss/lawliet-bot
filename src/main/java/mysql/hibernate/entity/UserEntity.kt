@@ -5,7 +5,10 @@ import mysql.hibernate.InstantConverter
 import mysql.hibernate.template.HibernateEntity
 import java.time.Instant
 import java.time.LocalDate
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Convert
+import javax.persistence.Entity
+import javax.persistence.Id
 
 
 @Entity(name = "User")
@@ -40,10 +43,6 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
 
     override fun getUserId(): Long {
         return userId.toLong()
-    }
-
-    @PostLoad
-    override fun postLoad() {
     }
 
 }
