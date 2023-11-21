@@ -19,8 +19,6 @@ import mysql.MySQLManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.UserEntity;
-import mysql.modules.bannedusers.BannedUserSlot;
-import mysql.modules.bannedusers.DBBannedUsers;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -127,8 +125,7 @@ public class Console {
         long userId = Long.parseLong(args[1]);
         long durationMinutes = MentionUtil.getTimeMinutes(args[2]).getValue();
         if (durationMinutes > 0 && Program.isMainCluster() && Program.publicVersion()) {
-            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                UserEntity user = entityManager.findOrDefault(UserEntity.class, String.valueOf(userId));
+            try (UserEntity user = HibernateManager.findUserEntity(userId)) {
                 user.beginTransaction();
                 user.setTxt2ImgBannedUntil(Instant.now().plus(Duration.ofMinutes(durationMinutes)));
                 user.setTxt2ImgBannedNumber(user.getTxt2ImgBannedNumber() + 1);
@@ -371,13 +368,15 @@ public class Console {
     private static void onFisheryVC(String[] args) {
         long serverId = Long.parseLong(args[1]);
         ShardManager.getLocalGuildById(serverId).ifPresent(guild -> {
-            HashSet<Member> members = new HashSet<>();
-            guild.getVoiceChannels().forEach(vc -> members.addAll(Fishery.getValidVoiceMembers(vc)));
+            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                HashSet<Member> members = new HashSet<>();
+                guild.getVoiceChannels().forEach(vc -> members.addAll(Fishery.getValidVoiceMembers(entityManager, vc)));
 
-            String title = String.format("### VALID VC MEMBERS OF %s ###", guild.getName());
-            System.out.println(title);
-            members.forEach(member -> System.out.println(member.getUser().getAsTag()));
-            System.out.println("-".repeat(title.length()));
+                String title = String.format("### VALID VC MEMBERS OF %s ###", guild.getName());
+                System.out.println(title);
+                members.forEach(member -> System.out.println(member.getUser().getAsTag()));
+                System.out.println("-".repeat(title.length()));
+            }
         });
     }
 
@@ -444,7 +443,12 @@ public class Console {
 
     private static void onUnban(String[] args) {
         long userId = Long.parseLong(args[1]);
-        DBBannedUsers.getInstance().retrieve().getSlotsMap().remove(userId);
+        try (UserEntity userEntity = HibernateManager.findUserEntity(userId)) {
+            userEntity.beginTransaction();
+            userEntity.setBanReason(null);
+            userEntity.commitTransaction();
+        }
+
         MainLogger.get().info("User {} unbanned", userId);
     }
 
@@ -452,8 +456,11 @@ public class Console {
         long userId = Long.parseLong(args[1]);
         String reason = collectArgs(args, 2).replace("\\n", "\n");
 
-        DBBannedUsers.getInstance().retrieve().getSlotsMap()
-                .put(userId, new BannedUserSlot(userId, reason));
+        try (UserEntity userEntity = HibernateManager.findUserEntity(userId)) {
+            userEntity.beginTransaction();
+            userEntity.setBanReason(reason);
+            userEntity.commitTransaction();
+        }
 
         if (Program.isMainCluster()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()

@@ -6,6 +6,7 @@ import core.*;
 import events.scheduleevents.ScheduleEventDaily;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.redis.fisheryusers.FisheryUserManager;
@@ -69,11 +70,13 @@ public class FisherySurveyResults implements ExceptionRunnable {
         /* sending reminders */
         if (Program.isMainCluster()) {
             CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.SURVEY);
-            for (SubSlot sub : new ArrayList<>(subMap.values())) {
-                try {
-                    sendSurveyResult(sub.getLocale(), lastSurvey.getSurveyQuestionAndAnswers(sub.getLocale()), sub, won, percent);
-                } catch (IOException e) {
-                    MainLogger.get().error("Survey error", e);
+            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                for (SubSlot sub : new ArrayList<>(subMap.values())) {
+                    try {
+                        sendSurveyResult(entityManager, sub.getLocale(), lastSurvey.getSurveyQuestionAndAnswers(sub.getLocale()), sub, won, percent);
+                    } catch (IOException e) {
+                        MainLogger.get().error("Survey error", e);
+                    }
                 }
             }
         }
@@ -116,7 +119,7 @@ public class FisherySurveyResults implements ExceptionRunnable {
         }
     }
 
-    private static void sendSurveyResult(Locale locale, SurveyQuestion surveyQuestion, SubSlot sub, byte won, int percent) {
+    private static void sendSurveyResult(EntityManagerWrapper entityManager, Locale locale, SurveyQuestion surveyQuestion, SubSlot sub, byte won, int percent) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(TextManager.getString(locale, Category.FISHERY, "survey_results_message_title"))
                 .setDescription(TextManager.getString(locale, Category.FISHERY, "survey_results_message_template", won == 2,
@@ -126,7 +129,8 @@ public class FisherySurveyResults implements ExceptionRunnable {
                         surveyQuestion.getAnswers()[Math.min(1, won)],
                         String.valueOf(percent)
                 ));
-        sub.sendEmbed(locale, eb);
+
+        sub.sendEmbed(entityManager, locale, eb);
     }
 
 }

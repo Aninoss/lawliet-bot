@@ -4,7 +4,6 @@ import core.MainLogger;
 import core.ShardManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
-import mysql.modules.bannedusers.DBBannedUsers;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.ArrayList;
@@ -45,9 +44,9 @@ public abstract class DiscordEventAbstract {
             return;
         }
 
-        boolean banned = user != null && userIsBanned(user.getIdLong());
-        boolean bot = user != null && user.isBot();
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            boolean banned = user != null && userIsBanned(entityManager, user.getIdLong());
+            boolean bot = user != null && user.isBot();
             for (EventPriority priority : EventPriority.values()) {
                 if (!runListenerPriority(listenerList, function, priority, entityManager, banned, bot)) {
                     return;
@@ -73,8 +72,8 @@ public abstract class DiscordEventAbstract {
         return true;
     }
 
-    private static boolean userIsBanned(long userId) {
-        return DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(userId);
+    private static boolean userIsBanned(EntityManagerWrapper entityManager, long userId) {
+        return entityManager.findUserEntityReadOnly(userId).getBanReason() != null;
     }
 
     private static boolean run(EventExecution function, DiscordEventAbstract listener, EntityManagerWrapper entityManager) {

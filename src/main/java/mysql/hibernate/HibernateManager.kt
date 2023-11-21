@@ -2,6 +2,7 @@ package mysql.hibernate
 
 import core.MainLogger
 import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.UserEntity
 import java.io.IOException
 import java.util.*
 import javax.persistence.EntityManagerFactory
@@ -30,6 +31,16 @@ object HibernateManager {
     @JvmStatic
     fun findGuildEntity(guildId: Long): GuildEntity {
         return createEntityManager().findGuildEntity(guildId)
+    }
+
+    @JvmStatic
+    fun findUserEntity(userId: Long): UserEntity {
+        return createEntityManager().findUserEntity(userId)
+    }
+
+    @JvmStatic
+    fun findUserEntityReadOnly(userId: Long): UserEntity {
+        return createEntityManager().findUserEntityReadOnly(userId)
     }
 
 }

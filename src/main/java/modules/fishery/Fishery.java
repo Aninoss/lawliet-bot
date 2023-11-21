@@ -12,11 +12,11 @@ import core.TextManager;
 import core.components.ActionRows;
 import core.schedule.MainScheduler;
 import modules.JoinRoles;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.GuildEntity;
-import mysql.modules.bannedusers.DBBannedUsers;
-import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
+import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -66,7 +66,7 @@ public class Fishery {
         return Math.round(price * ((double) rolePriceMax / priceMax));
     }
 
-    public static List<Member> getValidVoiceMembers(VoiceChannel voiceChannel) {
+    public static List<Member> getValidVoiceMembers(EntityManagerWrapper entityManager, VoiceChannel voiceChannel) {
         ArrayList<Member> validMembers = new ArrayList<>();
         for (Member member : voiceChannel.getMembers()) {
             GuildVoiceState voice = member.getVoiceState();
@@ -75,7 +75,7 @@ public class Fishery {
                     !voice.isMuted() &&
                     !voice.isDeafened() &&
                     !voice.isSuppressed() &&
-                    !DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(member.getIdLong())
+                    entityManager.findUserEntityReadOnly(member.getIdLong()).getBanReason() == null
             ) {
                 validMembers.add(member);
             }

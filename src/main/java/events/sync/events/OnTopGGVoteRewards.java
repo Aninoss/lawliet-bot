@@ -11,12 +11,13 @@ import core.utils.StringUtil;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import modules.fishery.FisheryGear;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.FisheryEntity;
 import mysql.hibernate.entity.GuildEntity;
-import mysql.modules.bannedusers.DBBannedUsers;
-import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.hibernate.entity.UserEntity;
 import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -34,13 +35,17 @@ public class OnTopGGVoteRewards implements SyncServerFunction {
         String auth = jsonObject.getString("auth");
         Guild guild = ShardManager.getLocalGuildById(guildId).orElse(null);
 
-        if (guild == null ||
-                DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(userId) ||
-                !ServerPatreonBoostCache.get(guildId)) {
-            return generateJsonObject(false);
-        }
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            GuildEntity guildEntity = entityManager.findGuildEntity(guildId);
+            UserEntity userEntity = entityManager.findUserEntityReadOnly(userId);
 
-        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+            if (guild == null ||
+                    userEntity.getBanReason() != null ||
+                    !ServerPatreonBoostCache.get(guildId)
+            ) {
+                return generateJsonObject(false);
+            }
+
             FisheryEntity fisheryEntity = guildEntity.getFishery();
             if (!fisheryEntity.getVoteRewardsActive() ||
                     !auth.equals(fisheryEntity.getVoteRewardsAuthorization())) {

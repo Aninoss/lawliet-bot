@@ -17,6 +17,8 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     @Id
     private val userId = key
 
+    var banReason: String? = null
+
     @Convert(converter = InstantConverter::class)
     var txt2ImgBannedUntil: Instant? = null
 

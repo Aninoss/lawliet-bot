@@ -13,7 +13,6 @@ import core.featurelogger.PremiumFeature;
 import core.modals.ModalMediator;
 import core.utils.*;
 import modules.txt2img.*;
-import mysql.hibernate.entity.UserEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -65,7 +64,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         Instant bannedUntil = getEntityManager()
-                .findOrDefaultReadOnly(UserEntity.class, event.getUser().getId())
+                .findUserEntityReadOnly(event.getUser().getIdLong())
                 .getTxt2ImgBannedUntil();
 
         if (bannedUntil != null && Instant.now().isBefore(bannedUntil)) {

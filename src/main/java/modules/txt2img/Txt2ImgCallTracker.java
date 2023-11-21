@@ -9,13 +9,13 @@ import java.time.LocalDate;
 public class Txt2ImgCallTracker {
 
     public static int getCalls(EntityManagerWrapper entityManager, long userId) {
-        UserEntity user = entityManager.findOrDefault(UserEntity.class, String.valueOf(userId));
+        UserEntity user = entityManager.findUserEntity(userId);
         resetCallsOnNewWeek(user);
         return user.getTxt2ImgCalls();
     }
 
     public static void increaseCalls(EntityManagerWrapper entityManager, long userId, int images) {
-        UserEntity user = entityManager.findOrDefault(UserEntity.class, String.valueOf(userId));
+        UserEntity user = entityManager.findUserEntity(userId);
         resetCallsOnNewWeek(user);
         user.beginTransaction();
         user.setTxt2ImgCalls(user.getTxt2ImgCalls() + images);

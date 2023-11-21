@@ -10,8 +10,8 @@ import events.sync.SyncServerEvent;
 import modules.fishery.Fishery;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
-import mysql.redis.fisheryusers.FisheryUserManager;
 import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 

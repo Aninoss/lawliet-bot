@@ -11,6 +11,7 @@ import events.scheduleevents.ScheduleEventFixedRate;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.modules.autosell.AutoSellData;
@@ -67,7 +68,7 @@ public class FisheryProcessors implements ExceptionRunnable {
             FisheryGuildData serverBean = FisheryUserManager.getGuildData(guild.getIdLong());
             for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {
                 try {
-                    List<Member> validMembers = Fishery.getValidVoiceMembers(voiceChannel);
+                    List<Member> validMembers = Fishery.getValidVoiceMembers(guildEntity.getEntityManager(), voiceChannel);
                     VoiceChannel afkVoice = guild.getAfkChannel();
                     if (afkVoice == null || voiceChannel.getIdLong() != afkVoice.getIdLong()) {
                         validMembers.forEach(member -> {
@@ -136,7 +137,7 @@ public class FisheryProcessors implements ExceptionRunnable {
     }
 
     private static void autoWorkPostProcessing(HashMap<Long, HashSet<Guild>> reminderGuildMap, Map<Long, SubSlot> subMap) {
-        try {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
             for (Map.Entry<Long, HashSet<Guild>> slot : reminderGuildMap.entrySet()) {
                 long userId = slot.getKey();
                 HashSet<Guild> guilds = slot.getValue();
@@ -147,7 +148,8 @@ public class FisheryProcessors implements ExceptionRunnable {
                     EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                             .setTitle(TextManager.getString(locale, Category.FISHERY, "work_message_title"))
                             .setDescription(TextManager.getString(locale, Category.FISHERY, "work_message_desc", guildsMention));
-                    sub.sendEmbed(locale, eb);
+
+                    sub.sendEmbed(entityManager, locale, eb);
                 }
             }
         } catch (Throwable e) {

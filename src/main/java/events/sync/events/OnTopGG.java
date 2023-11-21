@@ -8,12 +8,12 @@ import modules.fishery.Fishery;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.UserEntity;
 import mysql.modules.autoclaim.DBAutoClaim;
-import mysql.modules.bannedusers.DBBannedUsers;
-import mysql.redis.fisheryusers.FisheryUserManager;
-import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.upvotes.DBUpvotes;
 import mysql.modules.upvotes.UpvoteSlot;
+import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import org.json.JSONObject;
 
 import java.time.Instant;
@@ -25,25 +25,26 @@ public class OnTopGG implements SyncServerFunction {
 
     @Override
     public JSONObject apply(JSONObject jsonObject) {
-        long userId = jsonObject.getLong("user");
-        if (DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(userId)) {
-            return null;
-        }
-
         String type = jsonObject.getString("type");
         boolean isWeekend = jsonObject.has("isWeekend") && jsonObject.getBoolean("isWeekend");
 
-        if (type.equals("upvote")) {
-            GlobalThreadPool.submit(() -> {
-                try {
-                    processUpvote(userId, isWeekend);
-                } catch (ExecutionException | InterruptedException e) {
-                    MainLogger.get().error("Exception", e);
-                }
-            });
-        } else {
+        if (!type.equals("upvote")) {
             MainLogger.get().error("Wrong type: " + type);
+            return null;
         }
+
+        GlobalThreadPool.submit(() -> {
+            long userId = jsonObject.getLong("user");
+            try (UserEntity userEntity = HibernateManager.findUserEntityReadOnly(userId)) {
+                if (userEntity.getBanReason() != null) {
+                    return;
+                }
+
+                processUpvote(userId, isWeekend);
+            } catch (ExecutionException | InterruptedException e) {
+                MainLogger.get().error("Exception", e);
+            }
+        });
         return null;
     }
 

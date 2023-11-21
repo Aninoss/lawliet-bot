@@ -1,7 +1,5 @@
 package mysql.modules.subs;
 
-import java.util.Locale;
-import java.util.Observable;
 import commands.Category;
 import constants.AssetIds;
 import core.Program;
@@ -10,9 +8,12 @@ import core.TextManager;
 import core.assets.UserAsset;
 import core.components.ActionRows;
 import core.utils.JDAUtil;
-import mysql.modules.bannedusers.DBBannedUsers;
+import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+
+import java.util.Locale;
+import java.util.Observable;
 
 public class SubSlot extends Observable implements UserAsset {
 
@@ -45,29 +46,31 @@ public class SubSlot extends Observable implements UserAsset {
         return errors;
     }
 
-    public void sendEmbed(Locale locale, EmbedBuilder eb, Button... buttons) {
-        if (!DBBannedUsers.getInstance().retrieve().getSlotsMap().containsKey(userId) &&
-                (Program.publicVersion() || userId != AssetIds.OWNER_USER_ID)
+    public void sendEmbed(EntityManagerWrapper entityManager, Locale locale, EmbedBuilder eb, Button... buttons) {
+        if ((!Program.publicVersion() && userId == AssetIds.OWNER_USER_ID) ||
+                entityManager.findUserEntityReadOnly(userId).getBanReason() != null
         ) {
-            eb.setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
-            JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
-                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()).setComponents(ActionRows.of(buttons)))
-                    .queue(v -> {
-                        if (errors > 0) {
-                            errors = 0;
-                            setChanged();
-                            notifyObservers();
-                        }
-                    }, e -> {
-                        if (++errors >= 4) {
-                            DBSubs.getInstance().retrieve(command)
-                                    .remove(userId);
-                        } else {
-                            setChanged();
-                            notifyObservers();
-                        }
-                    });
+            return;
         }
+
+        eb.setFooter(TextManager.getString(locale, Category.FISHERY, "cooldowns_footer"));
+        JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
+                .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()).setComponents(ActionRows.of(buttons)))
+                .queue(v -> {
+                    if (errors > 0) {
+                        errors = 0;
+                        setChanged();
+                        notifyObservers();
+                    }
+                }, e -> {
+                    if (++errors >= 4) {
+                        DBSubs.getInstance().retrieve(command)
+                                .remove(userId);
+                    } else {
+                        setChanged();
+                        notifyObservers();
+                    }
+                });
     }
 
 }
