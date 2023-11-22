@@ -32,7 +32,7 @@ abstract class SlashAdapter {
         val slash = javaClass.getAnnotation(Slash::class.java)
         var name = slash.name
         if (name.isEmpty()) {
-            name = Command.getCommandProperties(slash.command).trigger
+            name = Command.getCommandProperties(slash.command.java).trigger
         }
         return name
     }
@@ -86,7 +86,7 @@ abstract class SlashAdapter {
         val slash = javaClass.getAnnotation(Slash::class.java)
         permissions += slash.permissions
         if (slash.command != Command::class) {
-            val commandProperties = Command.getCommandProperties(slash.command)
+            val commandProperties = Command.getCommandProperties(slash.command.java)
             permissions += commandProperties.userGuildPermissions
             permissions += commandProperties.userChannelPermissions
         }
@@ -113,11 +113,11 @@ abstract class SlashAdapter {
 
         val commandClass = commandClass()
         if (!commandClass.jvmName.equals(Command::class.jvmName)) {
-            val trigger = Command.getCommandProperties(commandClass).trigger
+            val trigger = Command.getCommandProperties(commandClass.java).trigger
             list += trigger
         }
         list += commandAssociations()
-            .map { Command.getCommandProperties(it).trigger }
+            .map { Command.getCommandProperties(it.java).trigger }
         list += commandAssociationCategories()
             .map { it.id }
 
@@ -127,7 +127,7 @@ abstract class SlashAdapter {
     fun nsfw(): Boolean {
         val slash = javaClass.getAnnotation(Slash::class.java)
         if (slash.command != Command::class) {
-            return Command.getCommandProperties(slash.command).nsfw
+            return Command.getCommandProperties(slash.command.java).nsfw
         }
         return slash.nsfw
     }
@@ -135,7 +135,7 @@ abstract class SlashAdapter {
     fun onlyPublicVersion(): Boolean {
         val slash = javaClass.getAnnotation(Slash::class.java)
         if (slash.command != Command::class) {
-            return Command.getCommandProperties(slash.command).onlyPublicVersion
+            return Command.getCommandProperties(slash.command.java).onlyPublicVersion
         }
         return slash.onlyPublicVersion
     }

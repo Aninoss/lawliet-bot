@@ -73,7 +73,7 @@ class ConfigAdapter : SlashAdapter() {
             }
 
             val category = commands.Command.getCategory(clazz)
-            val commandProperties = commands.Command.getCommandProperties(clazz)
+            val commandProperties = commands.Command.getCommandProperties(clazz.java)
             val trigger = commandProperties.trigger
 
             val triggerList = mutableListOf(trigger)

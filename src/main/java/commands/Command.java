@@ -685,19 +685,6 @@ public abstract class Command implements OnTriggerListener {
         return clazz.getAnnotation(CommandProperties.class);
     }
 
-    public static CommandProperties getCommandProperties(KClass<? extends Command> clazz) {
-        for (Annotation annotation : clazz.getAnnotations()) {
-            if (annotation instanceof CommandProperties) {
-                return (CommandProperties) annotation;
-            }
-        }
-        throw new NoSuchElementException("No such annotation");
-    }
-
-    public static CommandLanguage getCommandLanguage(KClass<? extends Command> clazz, Locale locale) {
-        return getCommandLanguage(JvmClassMappingKt.getJavaClass(clazz), locale);
-    }
-
     public static CommandLanguage getCommandLanguage(Class<? extends Command> clazz, Locale locale) {
         String trigger = getCommandProperties(clazz).trigger();
         Category category = getCategory(clazz);

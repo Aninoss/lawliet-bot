@@ -3,7 +3,7 @@ plugins {
     id 'java'
     id 'org.openjfx.javafxplugin' version '0.0.9'
     id 'com.google.cloud.tools.jib' version '2.7.1'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.0-RC2'
+    id 'org.jetbrains.kotlin.jvm' version '1.7.22'
 }
 
 ext {
@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.0.0-beta.17'
+    implementation 'net.dv8tion:JDA:5.0.0-beta.18'
     implementation 'mysql:mysql-connector-java:8.0.23'
     implementation 'org.hibernate.ogm:hibernate-ogm-mongodb:5.4.1.Final'
     implementation 'org.jboss.jbossts:jbossjta:4.16.6.Final'
