@@ -201,6 +201,7 @@ public class DiscordConnector {
         List<Long> guildIdList;
         int limit = 100;
         long guildIdOffset = 0;
+        int updates = 0;
         do {
             guildIdList = new DBDataLoadAll<Long>(sqlTableName, "serverId", " AND serverId > " + guildIdOffset + " ORDER BY serverId LIMIT " + limit)
                     .getList(resultSet -> resultSet.getLong(1));
@@ -215,12 +216,15 @@ public class DiscordConnector {
                     entity.beginTransaction();
                     updateEntityValuesConsumer.accept(entity);
                     entity.commitTransaction();
+                    updates++;
                 }
             }
             if (!guildIdList.isEmpty()) {
                 guildIdOffset = guildIdList.get(guildIdList.size() - 1);
             }
         } while (guildIdList.size() == limit);
+
+        MainLogger.get().info("Completed with {} updates!", updates);
     }
 
 }

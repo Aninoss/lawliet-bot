@@ -36,8 +36,8 @@ import modules.fishery.FisheryManage
 import modules.fishery.FisheryStatus
 import mysql.hibernate.entity.FisheryEntity
 import mysql.hibernate.entity.GuildEntity
-import mysql.redis.fisheryusers.FisheryUserManager
 import mysql.redis.fisheryusers.FisheryMemberData
+import mysql.redis.fisheryusers.FisheryUserManager
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*
@@ -605,9 +605,41 @@ class FisheryCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
 
             ActionResult()
         }
-        switchCoinLimit.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mcoinsgivenlimit_desc")
+        switchCoinLimit.subtitle = getString(Category.FISHERY_SETTINGS, "fishery_state0_mcoinsgivenlimit_desc").replace("`", "\"")
         switchCoinLimit.isChecked = fisheryEntity.coinGiftLimit
-        container.add(switchCoinLimit)
+        container.add(switchCoinLimit, DashboardSeparator())
+
+        val probabilitiesContainer = HorizontalContainer()
+        probabilitiesContainer.allowWrap = true
+
+        val treasureChestProbability = DashboardFloatingNumberField(getString(Category.FISHERY_SETTINGS, "fishery_probabilities_treasure"), 0, 100) {
+            fisheryEntity.beginTransaction()
+            fisheryEntity.treasureChestProbabilityInPercent = it.data
+            fisheryEntity.commitTransaction()
+
+            return@DashboardFloatingNumberField ActionResult()
+        }
+        treasureChestProbability.value = fisheryEntity.treasureChestProbabilityInPercentEffectively
+        treasureChestProbability.isEnabled = isPremium
+        probabilitiesContainer.add(treasureChestProbability)
+
+        val powerUpProbability = DashboardFloatingNumberField(getString(Category.FISHERY_SETTINGS, "fishery_probabilities_powerups"), 0, 100) {
+            fisheryEntity.beginTransaction()
+            fisheryEntity.powerUpProbabilityInPercent = it.data
+            fisheryEntity.commitTransaction()
+
+            return@DashboardFloatingNumberField ActionResult()
+        }
+        powerUpProbability.value = fisheryEntity.powerUpProbabilityInPercentEffectively
+        powerUpProbability.isEnabled = isPremium
+        probabilitiesContainer.add(powerUpProbability)
+        container.add(probabilitiesContainer)
+
+        if (!isPremium) {
+            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
+            text.style = DashboardText.Style.ERROR
+            container.add(text)
+        }
 
         return container
     }

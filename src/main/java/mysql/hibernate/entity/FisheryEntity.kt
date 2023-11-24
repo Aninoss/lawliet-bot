@@ -6,7 +6,6 @@ import modules.fishery.FisheryStatus
 import mysql.hibernate.template.HibernateDiscordInterface
 import mysql.hibernate.template.HibernateEmbeddedEntity
 import net.dv8tion.jda.api.entities.Role
-import java.util.*
 import javax.persistence.*
 
 const val FISHERY = "fishery"
@@ -53,6 +52,34 @@ class FisheryEntity : HibernateEmbeddedEntity<GuildEntity>(), HibernateDiscordIn
         get() = _coinGiftLimit ?: true
         set(value) {
             _coinGiftLimit = value
+        }
+
+    @Column(name = "$FISHERY.treasureChestProbabilityInPercent")
+    private var _treasureChestProbabilityInPercent: Double? = null
+    var treasureChestProbabilityInPercent: Double
+        get() = _treasureChestProbabilityInPercent ?: 0.25
+        set(value) {
+            _treasureChestProbabilityInPercent = value
+        }
+    val treasureChestProbabilityInPercentEffectively: Double
+        get() = if (ServerPatreonBoostCache.get(guildId)) {
+            treasureChestProbabilityInPercent
+        } else {
+            0.25
+        }
+
+    @Column(name = "$FISHERY.powerUpProbabilityInPercent")
+    private var _powerUpProbabilityInPercent: Double? = null
+    var powerUpProbabilityInPercent: Double
+        get() = _powerUpProbabilityInPercent ?: 0.35
+        set(value) {
+            _powerUpProbabilityInPercent = value
+        }
+    val powerUpProbabilityInPercentEffectively: Double
+        get() = if (ServerPatreonBoostCache.get(guildId)) {
+            powerUpProbabilityInPercent
+        } else {
+            0.35
         }
 
     @ElementCollection

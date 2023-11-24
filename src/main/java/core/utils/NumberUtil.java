@@ -23,4 +23,9 @@ public class NumberUtil {
         return digits;
     }
 
+    public static double trimDecimalPositions(double value, int decimalPositions) {
+        double factor = Math.pow(10, decimalPositions);
+        return Math.round(value * factor) / factor;
+    }
+
 }

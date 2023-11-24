@@ -14,18 +14,21 @@ import constants.LogStatus;
 import constants.Settings;
 import core.*;
 import core.atomicassets.AtomicTextChannel;
+import core.cache.ServerPatreonBoostCache;
+import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
+import core.utils.NumberUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.entity.FisheryEntity;
-import mysql.redis.fisheryusers.FisheryUserManager;
+import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.redis.fisheryusers.FisheryMemberData;
-import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -35,9 +38,13 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.EntitySelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,7 +62,7 @@ import java.util.Random;
         emoji = "️⚙️️",
         executableWithoutArgs = true,
         usesExtEmotes = true,
-        aliases = { "fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings" }
+        aliases = {"fishingsetup", "fisherysetup", "levels", "levelsystem", "fisherysettings"}
 )
 public class FisheryCommand extends NavigationAbstract implements OnStaticButtonListener, OnStaticEntitySelectMenuListener {
 
@@ -141,16 +148,75 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         return true;
 
                     case 4:
+                        if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                            return true;
+                        }
+
+                        String treasureChestsId = "treasure_chests";
+                        TextInput textTreasureChests = TextInput.create(treasureChestsId, getString("probabilities_treasure"), TextInputStyle.SHORT)
+                                .setValue(StringUtil.doubleToString(fishery.getTreasureChestProbabilityInPercentEffectively(), 2, getLocale()))
+                                .setMinLength(1)
+                                .setMaxLength(5)
+                                .build();
+
+                        String powerUpsId = "power_ups";
+                        TextInput textPowerUps = TextInput.create(powerUpsId, getString("probabilities_powerups"), TextInputStyle.SHORT)
+                                .setValue(StringUtil.doubleToString(fishery.getPowerUpProbabilityInPercentEffectively(), 2, getLocale()))
+                                .setMinLength(1)
+                                .setMaxLength(5)
+                                .build();
+
+                        Modal modal = ModalMediator.createDrawableCommandModal(this, getString("probabilities_title"), e -> {
+                                    String treasureChestsProbabilityStr = e.getValue(treasureChestsId).getAsString().replace(",", ".");
+                                    if (!StringUtil.stringIsDouble(treasureChestsProbabilityStr)) {
+                                        setLog(LogStatus.FAILURE, getString("probabilities_invalid_treasure", StringUtil.escapeMarkdown(treasureChestsProbabilityStr)));
+                                        return null;
+                                    }
+
+                                    String powerUpsProbabilityStr = e.getValue(powerUpsId).getAsString().replace(",", ".");
+                                    if (!StringUtil.stringIsDouble(powerUpsProbabilityStr)) {
+                                        setLog(LogStatus.FAILURE, getString("probabilities_invalid_powerups", StringUtil.escapeMarkdown(powerUpsProbabilityStr)));
+                                        return null;
+                                    }
+
+                                    double treasureChestsProbability = Double.parseDouble(treasureChestsProbabilityStr);
+                                    if (treasureChestsProbability < 0 || treasureChestsProbability > 100) {
+                                        setLog(LogStatus.FAILURE, getString("probabilities_outofrange_treasure"));
+                                        return null;
+                                    }
+
+                                    double powerUpsProbability = Double.parseDouble(powerUpsProbabilityStr);
+                                    if (powerUpsProbability < 0 || powerUpsProbability > 100) {
+                                        setLog(LogStatus.FAILURE, getString("probabilities_outofrange_powerup"));
+                                        return null;
+                                    }
+
+                                    FisheryEntity newFishery = getGuildEntity().getFishery();
+                                    newFishery.beginTransaction();
+                                    newFishery.setTreasureChestProbabilityInPercent(NumberUtil.trimDecimalPositions(treasureChestsProbability, 2));
+                                    newFishery.setPowerUpProbabilityInPercent(NumberUtil.trimDecimalPositions(powerUpsProbability, 2));
+                                    newFishery.commitTransaction();
+
+                                    setLog(LogStatus.SUCCESS, getString("probabilitiesset"));
+                                    return null;
+                                }).addActionRows(ActionRow.of(textTreasureChests), ActionRow.of(textPowerUps))
+                                .build();
+
+                        event.replyModal(modal).queue();
+                        return false;
+
+                    case 5:
                         channelNavigationHelper.startDataAdd(1);
                         stopLock = true;
                         return true;
 
-                    case 5:
+                    case 6:
                         channelNavigationHelper.startDataRemove(2);
                         stopLock = true;
                         return true;
 
-                    case 6:
+                    case 7:
                         fishery.beginTransaction();
                         if (fishery.getFisheryStatus() != FisheryStatus.ACTIVE) {
                             fishery.setFisheryStatus(FisheryStatus.ACTIVE);
@@ -163,7 +229,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         stopLock = true;
                         return true;
 
-                    case 7:
+                    case 8:
                         if (fishery.getFisheryStatus() == FisheryStatus.ACTIVE) {
                             if (stopLock) {
                                 stopLock = false;
@@ -223,7 +289,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         .addField(getString("state0_mtreasurechests_title", StringUtil.getEmojiForBoolean(channel, fishery.getTreasureChests()).getFormatted()), getString("state0_mtreasurechests_desc"), true)
                         .addField(getString("state0_mpowerups_title", StringUtil.getEmojiForBoolean(channel, fishery.getPowerUps()).getFormatted()), getString("state0_mpowerups_desc"), true)
                         .addField(getString("state0_mreminders_title", StringUtil.getEmojiForBoolean(channel, fishery.getFishReminders()).getFormatted()), getString("state0_mreminders_desc"), true)
-                        .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, fishery.getCoinGiftLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc"), true)
+                        .addField(getString("state0_mcoinsgivenlimit_title", StringUtil.getEmojiForBoolean(channel, fishery.getCoinGiftLimit()).getFormatted()), getString("state0_mcoinsgivenlimit_desc") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), true)
+                        .addField(getString("state0_mprobs", Emojis.COMMAND_ICON_PREMIUM.getFormatted()), generateProbabilitiesTextValue(fishery) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(), false)
                         .addField(getString("state0_mchannels"), new ListGen<AtomicTextChannel>().getList(fishery.getExcludedChannels(), getLocale(), m -> m.getPrefixedNameInField(getLocale())), false);
 
             case 1:
@@ -279,7 +346,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 .getMemberData(event.getMember().getIdLong());
 
         Random r = new Random();
-        String[] winLose = new String[] { "win", "lose" };
+        String[] winLose = new String[]{"win", "lose"};
         int resultInt = r.nextInt(2);
         String result = winLose[resultInt];
 
@@ -449,6 +516,13 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
         event.editMessageEmbeds(eb.build(), changeEmbed0.build(), changeEmbed1.build())
                 .setComponents()
                 .queue();
+    }
+
+    private String generateProbabilitiesTextValue(FisheryEntity fishery) {
+        return getString("state0_probs",
+                StringUtil.doubleToString(fishery.getTreasureChestProbabilityInPercentEffectively(), 2, getLocale()),
+                StringUtil.doubleToString(fishery.getPowerUpProbabilityInPercentEffectively(), 2, getLocale())
+        );
     }
 
 }

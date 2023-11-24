@@ -7,6 +7,7 @@ import events.discordevents.eventtypeabstracts.GuildMessageReceivedAbstract;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.FisheryEntity;
 import mysql.hibernate.entity.GuildEntity;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import mysql.redis.fisheryusers.FisheryGuildData;
@@ -44,9 +45,11 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
             }
 
             Random r = new Random();
-            if (guildEntity.getFishery().getTreasureChests() && r.nextInt(400) == 0) {
+            FisheryEntity fisheryEntity = guildEntity.getFishery();
+
+            if (fisheryEntity.getTreasureChests() && r.nextDouble() * 100 < fisheryEntity.getTreasureChestProbabilityInPercentEffectively()) {
                 Fishery.spawnTreasureChest(event.getChannel().asTextChannel(), guildEntity);
-            } else if (guildEntity.getFishery().getPowerUps() && r.nextInt(300) == 0) {
+            } else if (fisheryEntity.getPowerUps() && r.nextDouble() * 100 < fisheryEntity.getPowerUpProbabilityInPercentEffectively()) {
                 Fishery.spawnPowerUp(event.getChannel().asTextChannel(), event.getMember(), guildEntity);
             }
         }
