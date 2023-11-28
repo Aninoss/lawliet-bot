@@ -15,12 +15,14 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import static java.util.Objects.requireNonNullElse;
+
 public class EmbedFactory {
 
     public static final Color DEFAULT_EMBED_COLOR = new Color(
-            Integer.parseInt(System.getenv("EMBED_R")),
-            Integer.parseInt(System.getenv("EMBED_G")),
-            Integer.parseInt(System.getenv("EMBED_B"))
+            Integer.parseInt(requireNonNullElse(System.getenv("EMBED_R"), "254")),
+            Integer.parseInt(requireNonNullElse(System.getenv("EMBED_G"), "254")),
+            Integer.parseInt(requireNonNullElse(System.getenv("EMBED_B"), "254"))
     );
     public static final Color FAILED_EMBED_COLOR = Color.RED;
 

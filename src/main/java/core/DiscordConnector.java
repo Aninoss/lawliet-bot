@@ -38,6 +38,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.requireNonNullElse;
+
 public class DiscordConnector {
 
     private static boolean started = false;
@@ -77,7 +79,7 @@ public class DiscordConnector {
                     .map(globalGuildSize -> "L.help｜" + StringUtil.numToStringShort(globalGuildSize, Locale.US) + "｜www.lawlietbot.xyz")
                     .orElse("L.help｜www.lawlietbot.xyz");
         } else {
-            return System.getenv("ACTIVITY");
+            return requireNonNullElse(System.getenv("ACTIVITY"), "");
         }
     }
 

@@ -19,6 +19,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.requireNonNullElse;
+
 public class ShardManager {
 
     static {
@@ -27,7 +29,7 @@ public class ShardManager {
         }
     }
 
-    private static final int GLOBAL_SHARD_ERROR_THRESHOLD = Integer.parseInt(System.getenv("GLOBAL_SHARD_ERROR_THRESHOLD"));
+    private static final int GLOBAL_SHARD_ERROR_THRESHOLD = Integer.parseInt(requireNonNullElse(System.getenv("GLOBAL_SHARD_ERROR_THRESHOLD"), "6"));
 
     private static final JDABlocker jdaBlocker = new JDABlocker();
     private static final HashMap<Integer, JDAWrapper> jdaMap = new HashMap<>();

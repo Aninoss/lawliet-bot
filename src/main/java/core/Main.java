@@ -26,6 +26,7 @@ public class Main {
             EmojiTable.load();
             if (Program.productionMode()) {
                 PatreonCache.getInstance().fetch();
+                //HeartbeatReceiver.start(); TODO: uncomment after first deployment
             }
             if (Program.publicVersion()) {
                 initializeUpdate();
