@@ -63,13 +63,9 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        Instant bannedUntil = getEntityManager()
-                .findUserEntityReadOnly(event.getUser().getIdLong())
-                .getTxt2ImgBannedUntil();
-
-        if (bannedUntil != null && Instant.now().isBefore(bannedUntil)) {
-            String error = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_banned", String.valueOf(bannedUntil.getEpochSecond()));
-            drawMessageNew(EmbedFactory.getEmbedError(this, error))
+        EmbedBuilder errorEmbedIfBanned = getErrorEmbedIfBanned(event.getUser().getIdLong());
+        if (errorEmbedIfBanned != null) {
+            drawMessageNew(errorEmbedIfBanned)
                     .exceptionally(ExceptionLogger.get());
             return false;
         }
@@ -188,6 +184,14 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     @Override
     public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
+        EmbedBuilder errorEmbedIfBanned = getErrorEmbedIfBanned(event.getUser().getIdLong());
+        if (errorEmbedIfBanned != null) {
+            deregisterListeners();
+            drawMessage(errorEmbedIfBanned)
+                    .exceptionally(ExceptionLogger.get());
+            return false;
+        }
+
         int calls = Txt2ImgCallTracker.getCalls(getEntityManager(), event.getUser().getIdLong());
         if (calls + images <= LIMIT_CREATIONS_PER_WEEK) {
             Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), images);
@@ -264,6 +268,19 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_images_desc"),
                 TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_images_title")
         );
+    }
+
+    private EmbedBuilder getErrorEmbedIfBanned(long userId) {
+        Instant bannedUntil = getEntityManager()
+                .findUserEntityReadOnly(userId)
+                .getTxt2ImgBannedUntil();
+
+        if (bannedUntil != null && Instant.now().isBefore(bannedUntil)) {
+            String error = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_banned", String.valueOf(bannedUntil.getEpochSecond()));
+            return EmbedFactory.getEmbedError(this, error);
+        }
+
+        return null;
     }
 
     private String checkFilterWords(String prompt, long guildId) {
