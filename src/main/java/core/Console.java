@@ -124,14 +124,26 @@ public class Console {
     private static void onTxt2ImgBan(String[] args) {
         long userId = Long.parseLong(args[1]);
         long durationMinutes = MentionUtil.getTimeMinutes(args[2]).getValue();
+        String reason = collectArgs(args, 3).replace("\\n", "\n");
+
         if (durationMinutes > 0 && Program.isMainCluster() && Program.publicVersion()) {
+            Instant bannedUntil = Instant.now().plus(Duration.ofMinutes(durationMinutes));
             try (UserEntity user = HibernateManager.findUserEntity(userId)) {
                 user.beginTransaction();
-                user.setTxt2ImgBannedUntil(Instant.now().plus(Duration.ofMinutes(durationMinutes)));
+                user.setTxt2ImgBannedUntil(bannedUntil);
                 user.setTxt2ImgBannedNumber(user.getTxt2ImgBannedNumber() + 1);
+                user.setTxt2imgBanReason(reason);
                 user.commitTransaction();
-                MainLogger.get().info("{} has been banned from txt2img for {} minutes", userId, durationMinutes);
             }
+
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setDescription("⚠\uFE0F Due to rule violations, you have been banned from the txt2img commands until <t:" + bannedUntil.getEpochSecond() + ":f>!")
+                    .addField("Reason", reason.isEmpty() ? "Unspecified" : reason, false);
+            JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
+                    .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
+                    .queue();
+
+            MainLogger.get().info("{} has been banned from txt2img for {} minutes for the reason: {}", userId, durationMinutes, reason);
         }
     }
 
@@ -464,8 +476,8 @@ public class Console {
 
         if (Program.isMainCluster()) {
             EmbedBuilder eb = EmbedFactory.getEmbedError()
-                    .setDescription("⚠ You have been permanently banned from interaction with Lawliet!")
-                    .addField("Reason", reason, false);
+                    .setDescription("⚠\uFE0F You have been permanently banned from interacting with Lawliet!")
+                    .addField("Reason", reason.isEmpty() ? "Unspecified" : reason, false);
             JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), userId)
                     .flatMap(messageChannel -> messageChannel.sendMessageEmbeds(eb.build()))
                     .queue();

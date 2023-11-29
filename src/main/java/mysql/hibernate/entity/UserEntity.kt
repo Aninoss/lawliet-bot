@@ -30,6 +30,8 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
             _txt2ImgBannedNumber = value
         }
 
+    var txt2imgBanReason: String? = null
+
     @Column(name = "txt2ImgCalls")
     private var _txt2ImgCalls: Int? = null
     var txt2ImgCalls: Int
