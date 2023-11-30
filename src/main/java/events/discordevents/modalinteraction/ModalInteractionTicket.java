@@ -6,7 +6,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.ModalInteractionAbstract;
 import modules.Ticket;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketData;
 import net.dv8tion.jda.api.EmbedBuilder;

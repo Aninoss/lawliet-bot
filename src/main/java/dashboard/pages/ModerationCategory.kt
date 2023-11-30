@@ -19,9 +19,9 @@ import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.automod.WordFilter
-import mysql.hibernate.entity.GuildEntity
-import mysql.hibernate.entity.InviteFilterEntity
-import mysql.hibernate.entity.WordFilterEntity
+import mysql.hibernate.entity.guild.GuildEntity
+import mysql.hibernate.entity.guild.InviteFilterEntity
+import mysql.hibernate.entity.guild.WordFilterEntity
 import mysql.modules.moderation.DBModeration
 import mysql.modules.moderation.ModerationData
 import net.dv8tion.jda.api.Permission

@@ -9,7 +9,7 @@ import core.*;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayData;
 import net.dv8tion.jda.api.EmbedBuilder;

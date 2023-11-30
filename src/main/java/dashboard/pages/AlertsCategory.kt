@@ -22,7 +22,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.schedulers.AlertScheduler
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.tracker.DBTracker
 import mysql.modules.tracker.TrackerData
 import net.dv8tion.jda.api.Permission

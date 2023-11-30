@@ -3,7 +3,7 @@ package modules.repair;
 import core.MemberCacheController;
 import modules.JoinRoles;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

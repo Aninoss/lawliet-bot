@@ -15,7 +15,7 @@ import core.featurelogger.PremiumFeature;
 import core.lock.Lock;
 import core.lock.LockOccupiedException;
 import core.utils.*;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.modules.ticket.TicketChannel;

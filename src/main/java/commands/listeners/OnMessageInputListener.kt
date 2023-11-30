@@ -9,7 +9,7 @@ import core.MainLogger
 import core.MemberCacheController
 import core.utils.BotPermissionUtil
 import core.utils.ExceptionUtil
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent

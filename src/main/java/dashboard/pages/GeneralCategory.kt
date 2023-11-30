@@ -20,7 +20,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.Prefix
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.autoquote.DBAutoQuote
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild

@@ -1,8 +1,8 @@
 package mysql.hibernate
 
 import core.MainLogger
-import mysql.hibernate.entity.GuildEntity
-import mysql.hibernate.entity.UserEntity
+import mysql.hibernate.entity.guild.GuildEntity
+import mysql.hibernate.entity.user.UserEntity
 import java.io.IOException
 import java.util.*
 import javax.persistence.EntityManagerFactory

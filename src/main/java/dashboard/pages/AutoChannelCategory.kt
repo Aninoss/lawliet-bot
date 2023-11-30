@@ -13,7 +13,7 @@ import dashboard.component.DashboardText
 import dashboard.component.DashboardTextField
 import dashboard.components.DashboardVoiceChannelComboBox
 import dashboard.container.VerticalContainer
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.autochannel.DBAutoChannel
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild

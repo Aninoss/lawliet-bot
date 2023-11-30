@@ -7,7 +7,7 @@ import dashboard.DashboardManager;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.Permission;
 import org.json.JSONObject;
 

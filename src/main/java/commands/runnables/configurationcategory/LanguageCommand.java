@@ -10,7 +10,7 @@ import constants.Language;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;

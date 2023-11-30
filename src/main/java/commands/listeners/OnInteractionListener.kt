@@ -13,7 +13,7 @@ import core.interactionresponse.ComponentInteractionResponse
 import core.interactionresponse.InteractionResponse
 import core.utils.BotPermissionUtil
 import core.utils.ExceptionUtil
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel

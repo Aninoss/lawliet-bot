@@ -9,7 +9,7 @@ import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import modules.Mod;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.tempban.DBTempBan;
 import mysql.modules.tempban.TempBanData;
 import net.dv8tion.jda.api.EmbedBuilder;

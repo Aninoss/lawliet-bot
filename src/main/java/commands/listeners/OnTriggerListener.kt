@@ -13,7 +13,7 @@ import core.interactionresponse.InteractionResponse
 import core.interactionresponse.SlashCommandResponse
 import core.schedule.MainScheduler
 import core.utils.ExceptionUtil
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.commandusages.DBCommandUsages
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent

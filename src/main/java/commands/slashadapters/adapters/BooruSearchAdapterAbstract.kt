@@ -8,7 +8,7 @@ import commands.slashadapters.SlashMeta
 import constants.Language
 import core.utils.StringUtil
 import modules.porn.BooruAutoComplete
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.nsfwfilter.DBNSFWFilters
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent

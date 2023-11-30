@@ -10,7 +10,7 @@ import core.utils.StringUtil;
 import modules.Jail;
 import modules.Mod;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.jails.DBJails;
 import mysql.modules.jails.JailData;
 import net.dv8tion.jda.api.EmbedBuilder;

@@ -16,7 +16,7 @@ import core.cache.ServerPatreonBoostCache;
 import core.components.ActionRows;
 import core.schedule.MainScheduler;
 import core.utils.*;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
 import net.dv8tion.jda.api.EmbedBuilder;

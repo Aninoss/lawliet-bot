@@ -1,7 +1,7 @@
 package modules.txt2img;
 
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.entity.UserEntity;
+import mysql.hibernate.entity.user.Txt2ImgEntity;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -9,26 +9,27 @@ import java.time.LocalDate;
 public class Txt2ImgCallTracker {
 
     public static int getCalls(EntityManagerWrapper entityManager, long userId) {
-        UserEntity user = entityManager.findUserEntity(userId);
-        resetCallsOnNewWeek(user);
-        return user.getTxt2ImgCalls();
+        Txt2ImgEntity txt2img = entityManager.findUserEntity(userId).getTxt2img();
+        resetCallsOnNewWeek(txt2img);
+        return txt2img.getCalls();
     }
 
     public static void increaseCalls(EntityManagerWrapper entityManager, long userId, int images) {
-        UserEntity user = entityManager.findUserEntity(userId);
-        resetCallsOnNewWeek(user);
-        user.beginTransaction();
-        user.setTxt2ImgCalls(user.getTxt2ImgCalls() + images);
-        user.setTxt2ImgCallsDate(LocalDate.now());
-        user.commitTransaction();
+        Txt2ImgEntity txt2img = entityManager.findUserEntity(userId).getTxt2img();
+
+        resetCallsOnNewWeek(txt2img);
+        txt2img.beginTransaction();
+        txt2img.setCalls(txt2img.getCalls() + images);
+        txt2img.setCallsDate(LocalDate.now());
+        txt2img.commitTransaction();
     }
 
-    private static void resetCallsOnNewWeek(UserEntity user) {
-        if (user.getTxt2ImgCallsDate() != null && LocalDate.now().with(DayOfWeek.MONDAY).isAfter(user.getTxt2ImgCallsDate())) {
-            user.beginTransaction();
-            user.setTxt2ImgCalls(0);
-            user.setTxt2ImgCallsDate(LocalDate.now());
-            user.commitTransaction();
+    private static void resetCallsOnNewWeek(Txt2ImgEntity txt2img) {
+        if (txt2img.getCallsDate() != null && LocalDate.now().with(DayOfWeek.MONDAY).isAfter(txt2img.getCallsDate())) {
+            txt2img.beginTransaction();
+            txt2img.setCalls(0);
+            txt2img.setCallsDate(LocalDate.now());
+            txt2img.commitTransaction();
         }
     }
 

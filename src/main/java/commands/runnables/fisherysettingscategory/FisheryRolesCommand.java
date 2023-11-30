@@ -13,7 +13,7 @@ import core.atomicassets.AtomicRole;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
-import mysql.hibernate.entity.FisheryEntity;
+import mysql.hibernate.entity.guild.FisheryEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;

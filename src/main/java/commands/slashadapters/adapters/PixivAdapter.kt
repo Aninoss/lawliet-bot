@@ -7,7 +7,7 @@ import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import core.utils.StringUtil
 import modules.pixiv.PixivAutoComplete
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.nsfwfilter.DBNSFWFilters
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent

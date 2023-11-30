@@ -17,7 +17,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import modules.graphics.WelcomeGraphics
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.welcomemessage.DBWelcomeMessage
 import mysql.modules.welcomemessage.WelcomeMessageData
 import net.dv8tion.jda.api.Permission

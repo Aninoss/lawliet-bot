@@ -16,7 +16,7 @@ import kotlin.jvm.JvmClassMappingKt;
 import kotlin.reflect.KClass;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -38,7 +38,6 @@ import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import org.json.JSONObject;
 
 import java.io.InputStream;
-import java.lang.annotation.Annotation;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;

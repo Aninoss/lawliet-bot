@@ -8,7 +8,7 @@ import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.subs.DBSubs;

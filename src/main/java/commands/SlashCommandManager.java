@@ -9,7 +9,7 @@ import core.Program;
 import core.ShardManager;
 import core.SlashAssociations;
 import modules.moduserinteractions.ModUserInteractionManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;

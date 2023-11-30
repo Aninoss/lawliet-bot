@@ -5,7 +5,7 @@ import java.util.Optional;
 import javax.annotation.CheckReturnValue;
 import core.MemberCacheController;
 import core.ShardManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.userprivatechannels.DBUserPrivateChannels;
 import mysql.modules.userprivatechannels.PrivateChannelData;
 import net.dv8tion.jda.api.JDA;

@@ -5,7 +5,7 @@ import core.TextManager;
 import mysql.DBObserverMapCache;
 import mysql.MySQLManager;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 
 import java.util.Locale;
 

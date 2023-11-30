@@ -9,7 +9,7 @@ import core.ExceptionLogger;
 import core.MainLogger;
 import core.PermissionCheckRuntime;
 import modules.Mod;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.ticket.DBTicket;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;

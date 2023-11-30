@@ -11,7 +11,7 @@ import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member

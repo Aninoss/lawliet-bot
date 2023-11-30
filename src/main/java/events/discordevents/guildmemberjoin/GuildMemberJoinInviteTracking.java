@@ -15,7 +15,7 @@ import events.discordevents.eventtypeabstracts.GuildMemberJoinAbstract;
 import modules.invitetracking.InviteMetrics;
 import modules.invitetracking.InviteTracking;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.InviteTrackingData;
 import net.dv8tion.jda.api.EmbedBuilder;

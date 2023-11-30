@@ -13,7 +13,7 @@ import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.autosell.AutoSellData;
 import mysql.modules.autosell.DBAutoSell;
 import mysql.modules.autowork.AutoWorkData;

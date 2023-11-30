@@ -8,7 +8,7 @@ import core.featurelogger.PremiumFeature;
 import events.scheduleevents.ScheduleEventHourly;
 import modules.Ticket;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.ticket.DBTicket;
 import mysql.modules.ticket.TicketChannel;
 import net.dv8tion.jda.api.entities.Message;

@@ -1,4 +1,4 @@
-package mysql.hibernate.entity
+package mysql.hibernate.entity.guild
 
 import constants.Language
 import core.assets.GuildAsset

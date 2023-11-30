@@ -2,8 +2,8 @@ package mysql.hibernate;
 
 import core.ChunkingFilterController;
 import core.MainLogger;
-import mysql.hibernate.entity.GuildEntity;
-import mysql.hibernate.entity.UserEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.user.UserEntity;
 import mysql.hibernate.template.HibernateEntity;
 
 import javax.persistence.*;

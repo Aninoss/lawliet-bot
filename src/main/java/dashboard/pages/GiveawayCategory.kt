@@ -18,7 +18,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.GridRow
 import modules.Giveaway
 import modules.schedulers.GiveawayScheduler
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.giveaway.DBGiveaway
 import mysql.modules.giveaway.GiveawayData
 import net.dv8tion.jda.api.Permission

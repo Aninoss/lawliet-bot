@@ -16,7 +16,7 @@ import core.utils.ExceptionUtil;
 import core.utils.StringUtil;
 import core.utils.TimeUtil;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;

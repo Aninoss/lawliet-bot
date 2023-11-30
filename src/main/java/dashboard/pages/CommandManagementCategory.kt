@@ -18,7 +18,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.commandmanagement.CommandManagementData
 import mysql.modules.commandmanagement.DBCommandManagement
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels

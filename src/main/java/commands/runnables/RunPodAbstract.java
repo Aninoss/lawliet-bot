@@ -273,7 +273,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
     private EmbedBuilder getErrorEmbedIfBanned(long userId) {
         Instant bannedUntil = getEntityManager()
                 .findUserEntityReadOnly(userId)
-                .getTxt2ImgBannedUntil();
+                .getTxt2img()
+                .getBannedUntil();
 
         if (bannedUntil != null && Instant.now().isBefore(bannedUntil)) {
             String error = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_banned", String.valueOf(bannedUntil.getEpochSecond()));

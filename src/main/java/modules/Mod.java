@@ -11,7 +11,7 @@ import core.utils.JDAUtil;
 import core.utils.StringUtil;
 import javafx.util.Pair;
 import modules.schedulers.TempBanScheduler;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
 import mysql.modules.tempban.DBTempBan;

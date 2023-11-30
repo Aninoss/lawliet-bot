@@ -20,7 +20,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.invitetracking.InviteTracking
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.invitetracking.DBInviteTracking
 import mysql.modules.invitetracking.InviteTrackingData
 import mysql.modules.invitetracking.InviteTrackingSlot

@@ -4,7 +4,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildVoiceUpdateAbstract;
 import modules.AutoChannel;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 

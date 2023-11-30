@@ -25,7 +25,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.ReactionRoles
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.reactionroles.ReactionRoleMessage
 import mysql.modules.reactionroles.ReactionRoleMessage.ComponentType
 import mysql.modules.reactionroles.ReactionRoleMessageSlot

@@ -4,7 +4,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildMemberRemoveAbstract;
 import modules.StickyRoles;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 

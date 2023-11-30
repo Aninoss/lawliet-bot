@@ -13,7 +13,7 @@ import core.atomicassets.AtomicMember;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.automod.WordFilter;
-import mysql.hibernate.entity.WordFilterEntity;
+import mysql.hibernate.entity.guild.WordFilterEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ISnowflake;

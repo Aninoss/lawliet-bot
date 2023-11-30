@@ -13,7 +13,7 @@ import events.discordevents.InteractionListenerHandler;
 import events.discordevents.eventtypeabstracts.StringSelectMenuAbstract;
 import modules.moduserinteractions.ModUserInteractionManager;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.moderation.DBModeration;
 import mysql.modules.moderation.ModerationData;
 import net.dv8tion.jda.api.EmbedBuilder;

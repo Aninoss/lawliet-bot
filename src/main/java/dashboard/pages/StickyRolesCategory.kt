@@ -8,7 +8,7 @@ import dashboard.DashboardProperties
 import dashboard.component.DashboardText
 import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.VerticalContainer
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import java.util.*

@@ -11,8 +11,7 @@ import dashboard.component.DashboardComboBox
 import dashboard.component.DashboardText
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
-import mysql.hibernate.EntityManagerWrapper
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.nsfwfilter.DBNSFWFilters
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild

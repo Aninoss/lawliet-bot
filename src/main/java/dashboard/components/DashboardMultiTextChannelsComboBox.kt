@@ -9,7 +9,7 @@ import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import kotlin.reflect.KClass
 
 class DashboardMultiTextChannelsComboBox(

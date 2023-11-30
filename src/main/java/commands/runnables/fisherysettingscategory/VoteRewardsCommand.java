@@ -11,7 +11,7 @@ import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
-import mysql.hibernate.entity.FisheryEntity;
+import mysql.hibernate.entity.guild.FisheryEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;

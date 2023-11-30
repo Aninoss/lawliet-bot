@@ -3,7 +3,7 @@ package commands
 import core.slashmessageaction.SlashAckSendMessageAction
 import core.slashmessageaction.SlashHookSendMessageAction
 import core.utils.JDAUtil
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User

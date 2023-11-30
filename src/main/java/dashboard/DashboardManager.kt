@@ -2,7 +2,7 @@ package dashboard
 
 import com.google.common.cache.CacheBuilder
 import dashboard.pages.*
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import java.time.Duration
 import java.util.*
 import kotlin.reflect.KClass

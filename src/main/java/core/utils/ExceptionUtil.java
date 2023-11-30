@@ -9,7 +9,7 @@ import commands.runnables.NavigationAbstract;
 import core.EmbedFactory;
 import core.MainLogger;
 import core.TextManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 public class ExceptionUtil {

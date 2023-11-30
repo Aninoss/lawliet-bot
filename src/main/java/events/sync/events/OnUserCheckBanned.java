@@ -3,7 +3,7 @@ package events.sync.events;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.UserEntity;
+import mysql.hibernate.entity.user.UserEntity;
 import org.json.JSONObject;
 
 @SyncServerEvent(event = "USER_CHECK_BANNED")

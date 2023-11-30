@@ -11,7 +11,7 @@ import events.discordevents.DiscordEvent;
 import events.discordevents.eventtypeabstracts.GuildUserContextInteractionAbstract;
 import modules.moduserinteractions.ModUserInteractionManager;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;

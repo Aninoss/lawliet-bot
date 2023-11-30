@@ -11,7 +11,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.reminders.DBReminders;
 import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.EmbedBuilder;

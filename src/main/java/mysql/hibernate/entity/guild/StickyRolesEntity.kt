@@ -1,4 +1,4 @@
-package mysql.hibernate.entity
+package mysql.hibernate.entity.guild
 
 import core.atomicassets.AtomicRole
 import mysql.hibernate.template.HibernateDiscordInterface

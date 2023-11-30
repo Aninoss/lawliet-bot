@@ -16,7 +16,7 @@ import core.utils.StringUtil;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
-import mysql.hibernate.entity.FisheryEntity;
+import mysql.hibernate.entity.guild.FisheryEntity;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryMemberGearData;

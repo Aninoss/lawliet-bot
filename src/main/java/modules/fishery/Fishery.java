@@ -13,7 +13,7 @@ import core.components.ActionRows;
 import core.schedule.MainScheduler;
 import modules.JoinRoles;
 import mysql.hibernate.EntityManagerWrapper;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import mysql.redis.fisheryusers.FisheryMemberData;

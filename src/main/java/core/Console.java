@@ -18,7 +18,8 @@ import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.UserEntity;
+import mysql.hibernate.entity.user.Txt2ImgEntity;
+import mysql.hibernate.entity.user.UserEntity;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -129,11 +130,13 @@ public class Console {
         if (durationMinutes > 0 && Program.isMainCluster() && Program.publicVersion()) {
             Instant bannedUntil = Instant.now().plus(Duration.ofMinutes(durationMinutes));
             try (UserEntity user = HibernateManager.findUserEntity(userId)) {
-                user.beginTransaction();
-                user.setTxt2ImgBannedUntil(bannedUntil);
-                user.setTxt2ImgBannedNumber(user.getTxt2ImgBannedNumber() + 1);
-                user.setTxt2imgBanReason(reason);
-                user.commitTransaction();
+                Txt2ImgEntity txt2img = user.getTxt2img();
+
+                txt2img.beginTransaction();
+                txt2img.setBannedUntil(bannedUntil);
+                txt2img.setBannedNumber(txt2img.getBannedNumber() + 1);
+                txt2img.setBanReason(reason);
+                txt2img.commitTransaction();
             }
 
             EmbedBuilder eb = EmbedFactory.getEmbedError()

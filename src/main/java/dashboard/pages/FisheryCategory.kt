@@ -34,8 +34,8 @@ import modules.fishery.Fishery
 import modules.fishery.FisheryGear
 import modules.fishery.FisheryManage
 import modules.fishery.FisheryStatus
-import mysql.hibernate.entity.FisheryEntity
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.FisheryEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import mysql.redis.fisheryusers.FisheryMemberData
 import mysql.redis.fisheryusers.FisheryUserManager
 import net.dv8tion.jda.api.Permission

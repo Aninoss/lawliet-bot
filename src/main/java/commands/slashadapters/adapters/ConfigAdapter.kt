@@ -19,7 +19,7 @@ import commands.slashadapters.SlashAdapter
 import commands.slashadapters.SlashMeta
 import constants.Language
 import core.TextManager
-import mysql.hibernate.entity.GuildEntity
+import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent

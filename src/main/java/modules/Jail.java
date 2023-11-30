@@ -11,7 +11,7 @@ import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import core.utils.BotPermissionUtil;
 import modules.schedulers.JailScheduler;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.jails.DBJails;
 import mysql.modules.jails.JailData;
 import mysql.modules.moderation.DBModeration;

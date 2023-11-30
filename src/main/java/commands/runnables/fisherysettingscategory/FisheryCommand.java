@@ -24,7 +24,7 @@ import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
 import modules.fishery.FisheryStatus;
-import mysql.hibernate.entity.FisheryEntity;
+import mysql.hibernate.entity.guild.FisheryEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.redis.fisheryusers.FisheryMemberData;

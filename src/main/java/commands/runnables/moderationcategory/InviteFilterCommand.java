@@ -12,7 +12,7 @@ import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
-import mysql.hibernate.entity.InviteFilterEntity;
+import mysql.hibernate.entity.guild.InviteFilterEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ISnowflake;

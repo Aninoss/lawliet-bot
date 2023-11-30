@@ -4,7 +4,7 @@ import constants.Settings;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.utils.MentionUtil;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.redis.fisheryusers.FisheryMemberData;
 
 import java.util.List;

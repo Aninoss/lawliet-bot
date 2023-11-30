@@ -12,7 +12,7 @@ import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.utils.EmbedUtil;
 import core.utils.StringUtil;
-import mysql.hibernate.entity.CustomCommandEntity;
+import mysql.hibernate.entity.guild.CustomCommandEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;

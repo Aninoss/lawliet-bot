@@ -1,7 +1,7 @@
 package core;
 
 import constants.AssetIds;
-import mysql.hibernate.entity.GuildEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 
 import java.util.HashSet;

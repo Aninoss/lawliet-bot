@@ -1,7 +1,7 @@
 package modules;
 
-import mysql.hibernate.entity.GuildEntity;
-import mysql.hibernate.entity.StickyRolesEntity;
+import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.guild.StickyRolesEntity;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
 

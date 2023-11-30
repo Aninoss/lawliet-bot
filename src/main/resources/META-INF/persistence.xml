@@ -8,8 +8,8 @@
     <persistence-unit name="lawliet" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.ogm.jpa.HibernateOgmPersistence</provider>
 
-        <class>mysql.hibernate.entity.GuildEntity</class>
-        <class>mysql.hibernate.entity.UserEntity</class>
+        <class>mysql.hibernate.entity.guild.GuildEntity</class>
+        <class>mysql.hibernate.entity.user.UserEntity</class>
         <class>mysql.hibernate.entity.FeatureLoggingEntity</class>
         <properties>
             <property name="hibernate.ogm.datastore.provider" value="mongodb" />
