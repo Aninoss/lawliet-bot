@@ -95,7 +95,7 @@ public class BotPermissionUtil {
             if (!userPermissions.isEmpty()) {
                 StringBuilder desc = new StringBuilder();
                 for (Permission permission : userPermissions) {
-                    desc.append("• ");
+                    desc.append("- ");
                     desc.append(TextManager.getString(locale, TextManager.PERMISSIONS, permission.name()));
                     desc.append("\n");
                 }
@@ -105,7 +105,7 @@ public class BotPermissionUtil {
             if (!botPermissions.isEmpty()) {
                 StringBuilder desc = new StringBuilder();
                 for (Permission permission : botPermissions) {
-                    desc.append("• ");
+                    desc.append("- ");
                     desc.append(TextManager.getString(locale, TextManager.PERMISSIONS, permission.name()));
                     desc.append("\n");
                 }

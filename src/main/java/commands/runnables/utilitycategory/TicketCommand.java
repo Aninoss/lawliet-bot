@@ -377,7 +377,7 @@ public class TicketCommand extends NavigationAbstract implements OnStaticReactio
     private String generateOptionsString(List<Pair<String, Boolean>> attributesList) {
         StringBuilder sb = new StringBuilder();
         for (Pair<String, Boolean> attribute : attributesList) {
-            sb.append("• ")
+            sb.append("- ")
                     .append(attribute.getFirst())
                     .append(": ")
                     .append(StringUtil.getOnOffForBoolean(getTextChannel().get(), getLocale(), attribute.getSecond()))

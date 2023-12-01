@@ -282,7 +282,7 @@ public class HelpCommand extends NavigationAbstract {
             if (rolePlayAbstractFilter.apply((RolePlayAbstract) command) && CommandManager.commandIsTurnedOnEffectively(command, member, getTextChannel().get())) {
                 buttonMap.put(counter.getAndIncrement(), command.getTrigger());
                 stringBuilder
-                        .append("• `")
+                        .append("- `")
                         .append(command.getCommandProperties().emoji())
                         .append("⠀")
                         .append(getPrefix())

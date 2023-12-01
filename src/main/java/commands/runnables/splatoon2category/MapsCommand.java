@@ -107,7 +107,7 @@ public class MapsCommand extends Command implements OnAlertListener {
                             languageData.getJSONObject("stages").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("stage_a").getString("id")).getString("name"),
                             languageData.getJSONObject("stages").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("stage_b").getString("id")).getString("name") };
                     String ruleName;
-                    fieldContent.append("• ").append(timeNames[j]).append(": **").append(stageNames[0]).append("**, **").append(stageNames[1]).append("**");
+                    fieldContent.append("- ").append(timeNames[j]).append(": **").append(stageNames[0]).append("**, **").append(stageNames[1]).append("**");
                     if (showRules[i]) {
                         ruleName = languageData.getJSONObject("rules").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("rule").getString("key")).getString("name");
                         fieldContent.append(" (").append(ruleName).append(")");
@@ -130,7 +130,7 @@ public class MapsCommand extends Command implements OnAlertListener {
                         languageData.getJSONObject("stages").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("stage_a").getString("id")).getString("name"),
                         languageData.getJSONObject("stages").getJSONObject(mapData.getJSONArray(id).getJSONObject(index + j).getJSONObject("stage_b").getString("id")).getString("name"),
                         festMapName };
-                fieldContent.append("• ").append(timeNames[j]).append(": **").append(stageNames[0]).append("**, **").append(stageNames[1]).append("**, **").append(stageNames[2]).append("**\n");
+                fieldContent.append("- ").append(timeNames[j]).append(": **").append(stageNames[0]).append("**, **").append(stageNames[1]).append("**, **").append(stageNames[2]).append("**\n");
             }
             eb.addField(fieldTitle, fieldContent.toString(), false);
         }

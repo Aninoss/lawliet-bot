@@ -1,10 +1,5 @@
 package commands.runnables.fisherycategory;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Locale;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -35,6 +30,12 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "survey",
@@ -87,13 +88,13 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
         SurveyQuestion surveyQuestion = surveyData.getSurveyQuestionAndAnswers(getLocale());
         String[] voteStrings = new String[2];
 
-        voteStrings[0] = "• " + surveyQuestion.getAnswers()[surveyData.getFirstVotes().get(member.getIdLong()).getVote()];
+        voteStrings[0] = "- " + surveyQuestion.getAnswers()[surveyData.getFirstVotes().get(member.getIdLong()).getVote()];
 
         SurveySecondVote surveySecondVote = surveyData.getSecondVotes().get(new Pair<>(member.getGuild().getIdLong(), member.getIdLong()));
         if (surveySecondVote == null) {
             voteStrings[1] = TextManager.getString(getLocale(), TextManager.GENERAL, "notset");
         } else {
-            voteStrings[1] = "• " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getGuildName(surveySecondVote.getGuildId()).orElse(String.valueOf(surveySecondVote.getGuildId()))) + ")\n";
+            voteStrings[1] = "- " + surveyQuestion.getAnswers()[surveySecondVote.getVote()] + " (" + StringUtil.escapeMarkdown(ShardManager.getGuildName(surveySecondVote.getGuildId()).orElse(String.valueOf(surveySecondVote.getGuildId()))) + ")\n";
         }
 
         return EmbedFactory.getEmbedDefault(this, getString("vote_description") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted())

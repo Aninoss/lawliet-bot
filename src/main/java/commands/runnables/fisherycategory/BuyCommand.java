@@ -180,7 +180,7 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
         switch (state) {
             case 0:
                 ArrayList<String> options = new ArrayList<>();
-                EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString("beginning") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted());
+                EmbedBuilder catalogEmbed = EmbedFactory.getEmbedDefault(this, getString("beginning") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted());
                 boolean hasCoupons = fisheryMemberData.getCoupons() > 0;
                 for (FisheryMemberGearData slot : getUpgradableGears()) {
                     String productDescription = "???";
@@ -194,9 +194,9 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
 
                     String title = getString("product_" + slot.getGear().ordinal() + "_0");
                     options.add(title);
-                    eb.addField(
+                    catalogEmbed.addField(
                             getString("product_title", hasCoupons && slot.getGear() != FisheryGear.ROLE, slot.getGear().getEmoji(), title, StringUtil.numToString(slot.getLevel()), StringUtil.numToString(price)),
-                            productDescription + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(),
+                            "> " + productDescription + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(),
                             false
                     );
                 }
@@ -216,15 +216,17 @@ public class BuyCommand extends NavigationAbstract implements FisheryInterface {
                         StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.DAILY).getEffect()),
                         numToStringWithPowerUpBonus(fisheryMemberData.getMemberGear(FisheryGear.VOICE).getEffect(), powerUpBonus),
                         StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.TREASURE).getEffect()),
-                        roles.size() > 0 && roleLvl > 0 && roleLvl <= roles.size() ? StringUtil.escapeMarkdown(roles.get(roleLvl - 1).getName()) : "-",
+                        !roles.isEmpty() && roleLvl > 0 && roleLvl <= roles.size() ? StringUtil.escapeMarkdown(roles.get(roleLvl - 1).getName()) : "-",
                         StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.SURVEY).getEffect()),
                         StringUtil.numToString(fisheryMemberData.getMemberGear(FisheryGear.WORK).getEffect()),
                         fishery.getCoinGiftLimit() ? StringUtil.numToString(fisheryMemberData.getCoinsGiveReceivedMax()) : "∞"
                 );
 
-                eb.addField(getString("status_title"), StringUtil.shortenStringLine(statusCurrencies + "\n\n" + status, 1024), false);
+                EmbedBuilder statusEmbed = EmbedFactory.getEmbedDefault(this, StringUtil.shortenStringLine(statusCurrencies + "\n\n" + status, 1024))
+                        .setTitle(getString("status_title"));
+                setAdditionalEmbeds(statusEmbed.build());
                 setComponents(options.toArray(new String[0]));
-                return eb;
+                return catalogEmbed;
 
             case 1:
                 return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_description").replace("{PREFIX}", getPrefix()), TextManager.getString(getLocale(), TextManager.GENERAL, "fishing_notactive_title"));

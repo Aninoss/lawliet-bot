@@ -1,9 +1,10 @@
 package core;
 
+import core.utils.StringUtil;
+
 import java.util.Collection;
 import java.util.Locale;
 import java.util.function.Function;
-import core.utils.StringUtil;
 
 public class ListGen<T> {
 
@@ -40,8 +41,8 @@ public class ListGen<T> {
             try {
                 String value = getNames.apply(obj);
                 switch (slotType) {
-                    case SLOT_TYPE_BULLET -> sb.append("• ");
-                    case SLOT_TYPE_NUMBERED -> sb.append(i).append(") ");
+                    case SLOT_TYPE_BULLET -> sb.append("- ");
+                    case SLOT_TYPE_NUMBERED -> sb.append(i).append(". ");
                 }
                 sb.append(value);
                 sb.append("\n");
