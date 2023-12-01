@@ -12,6 +12,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class Txt2ImgLogger {
 
@@ -29,7 +30,10 @@ public class Txt2ImgLogger {
                     .build();
             embeds.add(webhookEmbed);
         }
-        webhookClient.sendMessageEmbeds(embeds).queue();
+        webhookClient.sendMessageEmbeds(embeds).queue(m -> {
+            m.delete().queueAfter(1, TimeUnit.SECONDS);
+            webhookClient.sendMessageEmbeds(embeds).queueAfter(1, TimeUnit.SECONDS); // weird Discord bug workaround
+        });
     }
 
 }
