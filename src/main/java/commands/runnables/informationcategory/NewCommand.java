@@ -114,7 +114,9 @@ public class NewCommand extends Command implements OnAlertListener {
                     .split("\n");
 
             for (String line : lines) {
-                String newLine = "- " + line + "\n";
+                String newLine = line.replace(" ", "").startsWith("-")
+                        ? line + "\n"
+                        : "- " + line + "\n";
                 if (stringBuilders[0].length() + newLine.length() < 1024) {
                     stringBuilders[0].append(newLine);
                 } else {
