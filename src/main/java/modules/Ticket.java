@@ -448,7 +448,11 @@ public class Ticket {
     private static ChannelAction<TextChannel> addPermissions(TicketData ticketData, TextChannel parentChannel, ChannelAction<TextChannel> channelAction, List<Role> staffRoles, Member member) {
         channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, member.getGuild().getPublicRole(), false, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND);
         for (PermissionOverride permissionOverride : parentChannel.getPermissionOverrides()) {
-            channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, permissionOverride, false, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND);
+            if (permissionOverride.isRoleOverride()) {
+                channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, permissionOverride, false, Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND);
+            } else {
+                channelAction = BotPermissionUtil.addPermission(parentChannel, channelAction, permissionOverride, false);
+            }
         }
 
         Permission[] staffRolePermissions = ticketData.getTicketAssignmentMode() != TicketData.TicketAssignmentMode.MANUAL
