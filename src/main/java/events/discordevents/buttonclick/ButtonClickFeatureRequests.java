@@ -20,7 +20,7 @@ public class ButtonClickFeatureRequests extends ButtonClickAbstract {
 
             if (Boolean.parseBoolean(event.getComponentId())) {
                 SendEvent.sendFeatureRequestAction(id, true, "").join();
-                event.getMessage().delete().queue();
+                event.getChannel().deleteMessageById(event.getMessageId()).queue();
             } else {
                 TextInput textInput = TextInput.create("text", "Reason", TextInputStyle.PARAGRAPH)
                         .build();
