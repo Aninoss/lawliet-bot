@@ -7,6 +7,7 @@ import core.utils.EmbedUtil;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -158,6 +159,11 @@ public class EmbedFactory {
     public static EmbedBuilder getWrittenByServerStaffEmbed(Guild guild, Locale locale) {
         return new EmbedBuilder()
                 .setDescription(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text_server", StringUtil.escapeMarkdown(guild.getName())));
+    }
+
+    public static EmbedBuilder getWrittenByUserEmbed(User user, Locale locale) {
+        return new EmbedBuilder()
+                .setDescription(TextManager.getString(locale, TextManager.GENERAL, "user_text", StringUtil.escapeMarkdown(user.getAsTag())));
     }
 
 }

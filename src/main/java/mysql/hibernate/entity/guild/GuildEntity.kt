@@ -3,6 +3,7 @@ package mysql.hibernate.entity.guild
 import constants.Language
 import core.assets.GuildAsset
 import core.cache.ServerPatreonBoostCache
+import mysql.hibernate.entity.ReminderEntity
 import mysql.hibernate.template.HibernateEntity
 import org.hibernate.annotations.SortNatural
 import java.util.*
@@ -67,6 +68,9 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
     @ElementCollection
     val commandChannelShortcuts = mutableMapOf<Long, String>()
 
+    val reminders: List<ReminderEntity>
+        get() = entityManager.findAllWithValue(ReminderEntity::class.java, "targetId", guildId.toLong())
+
 
     constructor() : this("0")
 
@@ -81,6 +85,10 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
         wordFilter.postLoad(this)
         stickyRoles.postLoad(this)
         customCommands.values.forEach { it.postLoad(this) }
+    }
+
+    override fun postRemove() {
+        entityManager.deleteAllWithValue(ReminderEntity::class.java, "targetId", guildId.toLong())
     }
 
 }

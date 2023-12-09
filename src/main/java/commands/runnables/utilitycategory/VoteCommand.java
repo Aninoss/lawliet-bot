@@ -1,10 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -28,6 +23,12 @@ import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "vote",
@@ -53,7 +54,7 @@ public class VoteCommand extends Command implements OnStaticReactionAddListener,
         }
 
         StandardGuildMessageChannel channel;
-        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY);
+        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, event.getTextChannel(), args, Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_HISTORY);
         if (response != null) {
             args = response.getArgs();
             channel = response.getChannel();

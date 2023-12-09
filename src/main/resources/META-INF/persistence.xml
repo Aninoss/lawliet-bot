@@ -11,6 +11,7 @@
         <class>mysql.hibernate.entity.guild.GuildEntity</class>
         <class>mysql.hibernate.entity.user.UserEntity</class>
         <class>mysql.hibernate.entity.FeatureLoggingEntity</class>
+        <class>mysql.hibernate.entity.ReminderEntity</class>
         <properties>
             <property name="hibernate.ogm.datastore.provider" value="mongodb" />
             <property name="hibernate.ogm.datastore.database" value="Lawliet" />

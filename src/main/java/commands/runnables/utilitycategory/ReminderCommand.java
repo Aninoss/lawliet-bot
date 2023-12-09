@@ -6,32 +6,23 @@ import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnStaticButtonListener;
 import constants.Emojis;
-import constants.LogStatus;
-import core.CustomObservableMap;
+import constants.Language;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.atomicassets.AtomicStandardGuildMessageChannel;
-import core.cache.ServerPatreonBoostCache;
 import core.mention.MentionValue;
-import core.modals.ModalMediator;
 import core.utils.*;
 import modules.schedulers.ReminderScheduler;
-import mysql.modules.reminders.DBReminders;
-import mysql.modules.reminders.ReminderData;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.entity.ReminderEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.TimeFormat;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,12 +30,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
-import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "reminder",
         botChannelPermissions = Permission.MESSAGE_EXT_EMOJI,
-        userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "⏲️",
         executableWithoutArgs = false,
         releaseDate = {2020, 10, 21},
@@ -52,17 +42,14 @@ import java.util.Objects;
 )
 public class ReminderCommand extends Command implements OnStaticButtonListener {
 
-    public static final String CANCEL_ID = "cancel";
-    public static final String REPEAT_ID = "repeat";
-
     public ReminderCommand(Locale locale, String prefix) {
         super(locale, prefix);
     }
 
     @Override
-    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        StandardGuildMessageChannel channel;
-        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args);
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
+        StandardGuildMessageChannel channel = null;
+        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, channel, args);
         if (response != null) {
             args = response.getArgs();
             channel = response.getChannel();
@@ -70,10 +57,24 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
             return false;
         }
 
-        if (!BotPermissionUtil.memberCanMentionRoles(channel, event.getMember(), args)) {
-            drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention")))
-                    .exceptionally(ExceptionLogger.get());
-            return false;
+        if (channel != null) {
+            EmbedBuilder missingPermissionsEmbed = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
+                    getLocale(),
+                    event.getMember(),
+                    new Permission[]{Permission.MANAGE_SERVER},
+                    new Permission[0]
+            );
+            if (missingPermissionsEmbed != null) {
+                drawMessageNew(missingPermissionsEmbed)
+                        .exceptionally(ExceptionLogger.get());
+                return false;
+            }
+
+            if (!BotPermissionUtil.memberCanMentionRoles(channel, event.getMember(), args)) {
+                drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "user_nomention")))
+                        .exceptionally(ExceptionLogger.get());
+                return false;
+            }
         }
 
         MentionValue<Long> timeMention = MentionUtil.getTimeMinutes(args);
@@ -93,136 +94,71 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         }
 
         Instant time = Instant.now().plus(minutes, ChronoUnit.MINUTES);
-        setComponents(generateButtons(getLocale()));
-        drawMessageNew(generateEmbed(getLocale(), channel, time, messageText, 0))
-                .thenAccept(message -> insertReminderBean(event.getTextChannel(), channel, time, messageText, message))
-                .exceptionally(ExceptionLogger.get());
+
+        Message confirmationMessage = drawMessageNew(generateEmbed(getLocale(), getPrefix(), channel, time, messageText, 0)).get();
+        insertReminder(channel, event.getMember(), time, messageText, confirmationMessage);
 
         return true;
     }
 
     @Override
     public void onStaticButton(ButtonInteractionEvent event, String secondaryId) {
-        if (event.getChannel() instanceof TextChannel) {
-            EmbedBuilder eb = BotPermissionUtil.getUserAndBotPermissionMissingEmbed(
-                    getLocale(),
-                    (GuildChannel) event.getChannel(),
-                    event.getMember(),
-                    new Permission[]{Permission.MANAGE_SERVER},
-                    new Permission[0],
-                    new Permission[0],
-                    new Permission[0]
+        EmbedBuilder eb = EmbedFactory.getEmbedError(this, getString("buttonsnotsupported"));
+        event.replyEmbeds(eb.build())
+                .setEphemeral(true)
+                .queue();
+    }
+
+    private void insertReminder(GuildMessageChannel targetChannel, Member member, Instant time, String messageText, Message confirmationMessage) {
+        ReminderEntity reminderEntity;
+        if (targetChannel != null) {
+            reminderEntity = ReminderEntity.createGuildReminder(
+                    targetChannel.getGuild().getIdLong(),
+                    targetChannel.getIdLong(),
+                    time,
+                    messageText,
+                    confirmationMessage
             );
-
-            if (eb == null) {
-                CustomObservableMap<Long, ReminderData> remindersMap = DBReminders.getInstance()
-                        .retrieve(event.getGuild().getIdLong());
-                ReminderData reminderData = remindersMap.values().stream()
-                        .filter(reminder -> reminder.getMessageId() == event.getMessageIdLong())
-                        .findFirst()
-                        .orElse(null);
-
-                switch (Objects.requireNonNull(event.getComponent().getId())) {
-                    case CANCEL_ID -> {
-                        event.getMessage().delete().queue();
-                        remindersMap.remove(reminderData.getId());
-                    }
-                    case REPEAT_ID -> {
-                        if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
-                            event.replyEmbeds(EmbedFactory.getPatreonBlockEmbed(getLocale()).build())
-                                    .addActionRow(EmbedFactory.getPatreonBlockButtons(getLocale()))
-                                    .setEphemeral(true)
-                                    .queue();
-                            return;
-                        }
-
-                        TextInput textInput = TextInput.create("interval", getString("interval"), TextInputStyle.SHORT)
-                                .setMinLength(0)
-                                .setMaxLength(12)
-                                .build();
-
-                        Modal modal = ModalMediator.createModal(getString("repeatafter"), (e, guildEntity) -> {
-                                    setGuildEntity(guildEntity);
-                                    String value = e.getValues().get(0).getAsString();
-                                    long minutes = MentionUtil.getTimeMinutes(value).getValue();
-
-                                    ReminderData newReminderData = new ReminderData(
-                                            reminderData.getGuildId(),
-                                            reminderData.getId(),
-                                            reminderData.getSourceChannelId(),
-                                            reminderData.getTargetChannelId(),
-                                            reminderData.getMessageId(),
-                                            reminderData.getTime(),
-                                            reminderData.getMessage(),
-                                            (int) minutes
-                                    );
-                                    remindersMap.put(newReminderData.getId(), newReminderData);
-
-                                    EmbedBuilder newEmbed = generateEmbed(
-                                            getLocale(),
-                                            (StandardGuildMessageChannel) event.getChannel(),
-                                            newReminderData.getTime(),
-                                            newReminderData.getMessage(),
-                                            newReminderData.getInterval()
-                                    );
-                                    e.editMessageEmbeds(newEmbed.build())
-                                            .queue();
-                                })
-                                .addActionRow(textInput)
-                                .build();
-
-                        event.replyModal(modal).queue();
-                    }
-                }
-            } else {
-                event.replyEmbeds(eb.build())
-                        .setEphemeral(true)
-                        .queue();
-            }
+        } else {
+            reminderEntity = ReminderEntity.createDmReminder(
+                    member.getIdLong(),
+                    time,
+                    messageText,
+                    Language.from(getLocale()),
+                    confirmationMessage
+            );
         }
+
+        EntityManagerWrapper entityManager = getEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.persist(reminderEntity);
+        entityManager.getTransaction().commit();
+
+        ReminderScheduler.loadReminder(reminderEntity);
     }
 
-    private void insertReminderBean(TextChannel sourceChannel, GuildMessageChannel targetChannel, Instant time, String messageText, Message message) {
-        CustomObservableMap<Long, ReminderData> remindersMap = DBReminders.getInstance()
-                .retrieve(targetChannel.getGuild().getIdLong());
-
-        ReminderData remindersData = new ReminderData(
-                targetChannel.getGuild().getIdLong(),
-                System.nanoTime(),
-                sourceChannel.getIdLong(),
-                targetChannel.getIdLong(),
-                message.getIdLong(),
-                time,
-                messageText,
-                0
-        );
-
-        remindersMap.put(remindersData.getId(), remindersData);
-        ReminderScheduler.loadReminderData(remindersData);
-        registerStaticReactionMessage(message);
-    }
-
-    public static EmbedBuilder generateEmbed(Locale locale, StandardGuildMessageChannel channel, Instant time, String messageText, int interval) {
+    public static EmbedBuilder generateEmbed(Locale locale, String prefix, StandardGuildMessageChannel channel, Instant time, String messageText, int interval) {
         String intervalText = TextManager.getString(locale, Category.UTILITY, "reminder_norep");
         if (interval > 0) {
             intervalText = TimeUtil.getRemainingTimeString(locale, Duration.ofMinutes(interval).toMillis(), false);
         }
 
+        String channelStr = channel != null
+                ? new AtomicStandardGuildMessageChannel(channel).getPrefixedNameInField(locale)
+                : TextManager.getString(locale, Category.UTILITY, "reminder_channel_dms");
+
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setDescription(TextManager.getString(locale, Category.UTILITY, "reminder_template", Emojis.X.getFormatted()))
-                .addField(TextManager.getString(locale, Category.UTILITY, "reminder_channel"), new AtomicStandardGuildMessageChannel(channel).getPrefixedNameInField(locale), true)
-                .addField(TextManager.getString(locale, Category.UTILITY, "reminder_timespan"), TimeFormat.RELATIVE.atInstant(time).toString(), true)
-                .addField(TextManager.getString(locale, Category.UTILITY, "reminder_repeatafter") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), intervalText, true)
-                .addField(TextManager.getString(locale, Category.UTILITY, "reminder_content"), StringUtil.shortenString(messageText, 1024), false);
+                .addField(TextManager.getString(locale, Category.UTILITY, "reminder_channel"), channelStr, true)
+                .addField(TextManager.getString(locale, Category.UTILITY, "reminder_timespan"), TimeFormat.RELATIVE.atInstant(time).toString(), true);
 
-        EmbedUtil.addLog(eb, LogStatus.WARNING, TextManager.getString(locale, Category.UTILITY, "reminder_dontremovemessage"));
+        if (channel != null) {
+            eb.addField(TextManager.getString(locale, Category.UTILITY, "reminder_repeatafter") + " " + Emojis.COMMAND_ICON_PREMIUM.getFormatted(), intervalText, true);
+        }
+        eb.addField(TextManager.getString(locale, Category.UTILITY, "reminder_content"), StringUtil.shortenString(messageText, 1024), false);
+
+        EmbedUtil.addLog(eb, TextManager.getString(locale, Category.UTILITY, "reminder_footer").replace("{PREFIX}", prefix));
         return eb;
-    }
-
-    public static Button[] generateButtons(Locale locale) {
-        Button repeatButton = Button.of(ButtonStyle.PRIMARY, REPEAT_ID, TextManager.getString(locale, Category.UTILITY, "reminder_repeatafter"));
-        Button cancelButton = Button.of(ButtonStyle.SECONDARY, CANCEL_ID, TextManager.getString(locale, TextManager.GENERAL, "process_abort"));
-        return new Button[]{repeatButton, cancelButton};
     }
 
 }

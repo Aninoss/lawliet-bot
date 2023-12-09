@@ -2,91 +2,103 @@ package modules.schedulers;
 
 import commands.Category;
 import commands.runnables.utilitycategory.ReminderCommand;
+import constants.ExceptionIds;
 import core.*;
-import core.cache.ServerPatreonBoostCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.schedule.MainScheduler;
 import core.utils.BotPermissionUtil;
 import core.utils.InternetUtil;
+import core.utils.JDAUtil;
 import core.utils.StringUtil;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.ReminderEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.modules.reminders.DBReminders;
-import mysql.modules.reminders.ReminderData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 public class ReminderScheduler {
 
     public static void start() {
-        try {
-            DBReminders.getInstance().retrieveAll()
-                    .forEach(ReminderScheduler::loadReminderData);
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            entityManager.findAllForResponsibleIds(ReminderEntity.class, "targetId")
+                    .forEachRemaining(ReminderScheduler::loadReminder);
         } catch (Throwable e) {
-            MainLogger.get().error("Could not start reminder", e);
+            MainLogger.get().error("Could not start reminders", e);
         }
     }
 
-    public static void loadReminderData(ReminderData remindersBean) {
-        loadReminderData(remindersBean.getGuildId(), remindersBean.getId(), remindersBean.getTime());
+    public static void loadReminder(ReminderEntity reminderEntity) {
+        loadReminder(reminderEntity.getId(), reminderEntity.getTriggerTime());
     }
 
-    public static void loadReminderData(long guildId, long reminderId, Instant due) {
-        MainScheduler.schedule(due, () -> {
-            CustomObservableMap<Long, ReminderData> map = DBReminders.getInstance().retrieve(guildId);
-            if (map.containsKey(reminderId) &&
-                    ShardManager.guildIsManaged(guildId) &&
-                    ShardManager.getLocalGuildById(guildId).isPresent()
-            ) {
-                onReminderDue(map.get(reminderId));
+    public static void loadReminder(UUID id, Instant triggerTime) {
+        MainScheduler.schedule(triggerTime, () -> {
+            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                ReminderEntity reminderEntity = entityManager.find(ReminderEntity.class, id);
+                if (reminderEntity != null && reminderEntity.getValid()) {
+                    onReminderDue(entityManager, reminderEntity);
+                }
             }
         });
     }
 
-    private static void onReminderDue(ReminderData reminderData) {
-        DBReminders.getInstance().retrieve(reminderData.getGuildId())
-                .remove(reminderData.getId());
+    private static void onReminderDue(EntityManagerWrapper entityManager, ReminderEntity reminderEntity) {
+        entityManager.getTransaction().begin();
+        entityManager.remove(reminderEntity);
+        entityManager.getTransaction().commit();
 
-        reminderData.getGuild()
-                .map(guild -> guild.getChannelById(StandardGuildMessageChannel.class, reminderData.getTargetChannelId()))
-                .ifPresent(targetChannel -> {
-                    if (reminderData.getMessageId() != 0) {
-                        StandardGuildMessageChannel sourceChannel = targetChannel.getGuild().getChannelById(StandardGuildMessageChannel.class, reminderData.getSourceChannelId());
-                        if (sourceChannel != null) {
-                            sourceChannel.retrieveMessageById(reminderData.getMessageId())
-                                    .queue(message -> {
-                                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(reminderData.getGuildId())) {
-                                            sendReminder(message, reminderData, guildEntity, targetChannel);
-                                        }
-                                    });
-                        }
-                    } else {
-                        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(reminderData.getGuildId())) {
-                            sendReminder(null, reminderData, guildEntity, targetChannel);
-                        }
-                    }
-                });
+        if (reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER) {
+            GuildEntity guildEntity = entityManager.findGuildEntity(reminderEntity.getTargetId());
+            ShardManager.getLocalGuildById(reminderEntity.getTargetId())
+                    .map(guild -> guild.getChannelById(GuildMessageChannel.class, reminderEntity.getGuildChannelId()))
+                    .ifPresent(channel -> sendReminder(guildEntity.getLocale(), guildEntity.getPrefix(), entityManager, reminderEntity, channel));
+        } else {
+            Locale locale = reminderEntity.getLanguage().getLocale();
+            JDAUtil.openPrivateChannel(ShardManager.getAnyJDA().get(), reminderEntity.getTargetId())
+                    .queue(channel -> sendReminder(locale, null, entityManager, reminderEntity, channel));
+        }
     }
 
-    private static void sendReminder(Message message, ReminderData reminderData, GuildEntity guildEntity, StandardGuildMessageChannel channel) {
-        Locale locale = guildEntity.getLocale();
-
-        if (PermissionCheckRuntime.botHasPermission(
+    private static void sendReminder(Locale locale, String prefix, EntityManagerWrapper entityManager, ReminderEntity reminderEntity, MessageChannel channel) {
+        if ((channel instanceof PrivateChannel) || PermissionCheckRuntime.botHasPermission(
                 locale,
                 ReminderCommand.class,
-                channel,
+                (GuildMessageChannel) channel,
                 Permission.MESSAGE_SEND
         )) {
-            String userMessage = StringUtil.shortenString(reminderData.getMessage(), 1800);
-            if (BotPermissionUtil.canWriteEmbed(channel) && !InternetUtil.stringHasURL(userMessage)) {
-                EmbedBuilder eb = EmbedFactory.getWrittenByServerStaffEmbed(locale);
+            String userMessage = StringUtil.shortenString(reminderEntity.getMessage(), 1800);
+            if (channel instanceof PrivateChannel ||
+                    (BotPermissionUtil.canWriteEmbed((GuildMessageChannel) channel) && !InternetUtil.stringHasURL(userMessage))
+            ) {
+                EmbedBuilder eb;
+                if (channel instanceof PrivateChannel) {
+                    try {
+                        User user = ShardManager.fetchUserById(reminderEntity.getTargetId()).get();
+                        eb = EmbedFactory.getWrittenByUserEmbed(user, locale);
+                    } catch (InterruptedException | ExecutionException e) {
+                        MainLogger.get().error("Was not able to fetch user with id {}", reminderEntity.getTargetId(), e);
+                        return;
+                    }
+                } else {
+                    eb = EmbedFactory.getWrittenByServerStaffEmbed(locale);
+                }
+
                 channel.sendMessage(userMessage)
                         .setEmbeds(eb.build())
                         .setAllowedMentions(null)
@@ -99,29 +111,50 @@ public class ReminderScheduler {
             }
         }
 
-        if (message != null) {
-            if (reminderData.getInterval() != 0 && ServerPatreonBoostCache.get(channel.getGuild().getIdLong())) {
-                FeatureLogger.inc(PremiumFeature.REMINDERS, channel.getGuild().getIdLong());
-                ReminderData newReminderData = new ReminderData(
-                        reminderData.getGuildId(),
-                        System.nanoTime(),
-                        reminderData.getSourceChannelId(),
-                        reminderData.getTargetChannelId(),
-                        reminderData.getMessageId(),
-                        reminderData.getTime().plus(Duration.ofMinutes(reminderData.getInterval())),
-                        reminderData.getMessage(),
-                        reminderData.getInterval()
-                );
-                DBReminders.getInstance().retrieve(reminderData.getGuildId())
-                        .put(newReminderData.getId(), newReminderData);
-                ReminderScheduler.loadReminderData(newReminderData);
+        Optional<TextChannel> confirmationMessageChannelOpt = Optional.ofNullable(reminderEntity.getConfirmationMessageGuildId())
+                .flatMap(ShardManager::getLocalGuildById)
+                .map(guild -> guild.getTextChannelById(reminderEntity.getConfirmationMessageChannelId()));
 
-                EmbedBuilder eb = ReminderCommand.generateEmbed(locale, message.getChannel().asTextChannel(), newReminderData.getTime(), newReminderData.getMessage(), newReminderData.getInterval());
-                message.getGuildChannel().editMessageEmbedsById(message.getId(), eb.build())
-                        .queue();
-            } else {
-                message.delete().queue();
+        if (reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER && reminderEntity.getIntervalMinutesEffectively() != null) {
+            Message confirmationMessage = confirmationMessageChannelOpt
+                    .map(ch -> ch.retrieveMessageById(reminderEntity.getConfirmationMessageMessageId()).complete())
+                    .orElse(null);
+
+            FeatureLogger.inc(PremiumFeature.REMINDERS, reminderEntity.getTargetId());
+            ReminderEntity newReminderEntity = ReminderEntity.createGuildReminder(
+                    reminderEntity.getTargetId(),
+                    reminderEntity.getGuildChannelId(),
+                    reminderEntity.getTriggerTime().plus(Duration.ofMinutes(reminderEntity.getIntervalMinutesEffectively())),
+                    reminderEntity.getMessage(),
+                    confirmationMessage,
+                    reminderEntity.getIntervalMinutes()
+            );
+
+            entityManager.getTransaction().begin();
+            entityManager.persist(newReminderEntity);
+            entityManager.getTransaction().commit();
+
+            ReminderScheduler.loadReminder(newReminderEntity);
+
+            if (confirmationMessage != null) {
+                EmbedBuilder eb = ReminderCommand.generateEmbed(
+                        locale,
+                        prefix,
+                        (StandardGuildMessageChannel) channel,
+                        newReminderEntity.getTriggerTime(),
+                        newReminderEntity.getMessage(),
+                        reminderEntity.getIntervalMinutesEffectively()
+                );
+                confirmationMessage.editMessageEmbeds(eb.build())
+                        .submit()
+                        .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
             }
+        } else {
+            confirmationMessageChannelOpt
+                    .ifPresent(ch -> ch.deleteMessageById(reminderEntity.getConfirmationMessageMessageId())
+                            .submit()
+                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE))
+                    );
         }
     }
 

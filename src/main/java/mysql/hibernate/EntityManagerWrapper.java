@@ -2,9 +2,13 @@ package mysql.hibernate;
 
 import core.ChunkingFilterController;
 import core.MainLogger;
+import core.Program;
+import core.ShardManager;
+import mysql.hibernate.entity.QueryIterator;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.user.UserEntity;
 import mysql.hibernate.template.HibernateEntity;
+import net.dv8tion.jda.api.entities.Guild;
 
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -13,8 +17,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
@@ -37,30 +44,47 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     @Override
     public void remove(Object entity) {
         entityManager.remove(entity);
+        ((HibernateEntity) entity).postRemove();
     }
 
     @Override
     public <T> T find(Class<T> entityClass, Object primaryKey) {
-        return entityManager.find(entityClass, primaryKey);
+        T object = entityManager.find(entityClass, primaryKey);
+        if (object != null) {
+            ((HibernateEntity) object).setEntityManager(this);
+        }
+        return object;
     }
 
     @Override
     public <T> T find(Class<T> entityClass, Object primaryKey, Map<String, Object> properties) {
-        return entityManager.find(entityClass, primaryKey, properties);
+        T object = entityManager.find(entityClass, primaryKey, properties);
+        if (object != null) {
+            ((HibernateEntity) object).setEntityManager(this);
+        }
+        return object;
     }
 
     @Override
     public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode) {
-        return entityManager.find(entityClass, primaryKey, lockMode);
+        T object = entityManager.find(entityClass, primaryKey, lockMode);
+        if (object != null) {
+            ((HibernateEntity) object).setEntityManager(this);
+        }
+        return object;
     }
 
     @Override
     public <T> T find(Class<T> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
-        return entityManager.find(entityClass, primaryKey, lockMode, properties);
+        T object = entityManager.find(entityClass, primaryKey, lockMode, properties);
+        if (object != null) {
+            ((HibernateEntity) object).setEntityManager(this);
+        }
+        return object;
     }
 
     public <T> T findOrDefault(Class<T> entityClass, Object primaryKey) {
-        T object = entityManager.find(entityClass, primaryKey);
+        T object = find(entityClass, primaryKey);
         if (object == null) {
             try {
                 object = entityClass.getConstructor(primaryKey.getClass())
@@ -82,24 +106,24 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
                     throw e;
                 }
             }
+            ((HibernateEntity) object).setEntityManager(this);
         }
-        ((HibernateEntity) object).setEntityManager(this);
         return object;
     }
 
     public <T> T findOrDefaultReadOnly(Class<T> entityClass, Object primaryKey) {
-        T object = entityManager.find(entityClass, primaryKey);
+        T object = find(entityClass, primaryKey);
         if (object == null) {
             try {
                 object = entityClass.getConstructor(primaryKey.getClass())
                         .newInstance(primaryKey);
                 ((HibernateEntity) object).postLoad();
+                ((HibernateEntity) object).setEntityManager(this);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                      NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
         }
-        ((HibernateEntity) object).setEntityManager(this);
         return object;
     }
 
@@ -115,6 +139,70 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
     public UserEntity findUserEntityReadOnly(long userId) {
         return findOrDefaultReadOnly(UserEntity.class, String.valueOf(userId));
+    }
+
+    public <T extends HibernateEntity> List<T> findAllWithValue(Class<T> entityClass, String fieldName, Object fieldValue) {
+        return createQuery("FROM " + entityClass.getName() + " WHERE " + fieldName + " = :value", entityClass)
+                .setParameter("value", fieldValue)
+                .getResultList()
+                .stream()
+                .peek(h -> h.setEntityManager(this))
+                .collect(Collectors.toList());
+    }
+
+    public <T extends HibernateEntity> void deleteAllWithValue(Class<T> entityClass, String fieldName, Object fieldValue) {
+        String query = """
+                db.:collection.deleteMany( { ":fieldName" : :fieldValue } )
+                """.replace(":collection", entityClass.getAnnotation(Entity.class).name())
+                .replace(":fieldName", fieldName)
+                .replace(":fieldValue", fieldValue.toString());
+
+        createNativeQuery(query, entityClass)
+                .executeUpdate();
+    }
+
+    public <T extends HibernateEntity> Iterator<T> findAllForResponsibleGuildIds(Class<T> entityClass) {
+        return findAllForResponsibleIds(entityClass, "guildId");
+    }
+
+    public <T extends HibernateEntity> Iterator<T> findAllForResponsibleIds(Class<T> entityClass, String fieldName) {
+        if (Program.publicVersion()) {
+            String queryString = """
+                    {
+                      $and: [
+                        { $expr: { $gte: [{ $mod: [{ $floor: { $divide: [{ $toLong: "$:fieldName"}, :divisor] }}, :totalShards] }, :shardIntervalMin] } },
+                        { $expr: { $lte: [{ $mod: [{ $floor: { $divide: [{ $toLong: "$:fieldName"}, :divisor] }}, :totalShards] }, :shardIntervalMax] } }
+                      ]
+                    }
+                    """.replace(":fieldName", fieldName)
+                    .replace(":divisor", String.valueOf((long) Math.pow(2, 22)))
+                    .replace(":totalShards", String.valueOf(ShardManager.getTotalShards()))
+                    .replace(":shardIntervalMin", String.valueOf(ShardManager.getShardIntervalMin()))
+                    .replace(":shardIntervalMax", String.valueOf(ShardManager.getShardIntervalMax()));
+
+            return new QueryIterator<>(this, 1000, () -> createNativeQuery(queryString, entityClass));
+        } else {
+            List<Guild> guilds = ShardManager.getLocalGuilds();
+            if (guilds.isEmpty()) {
+                return Collections.emptyIterator();
+            }
+
+            StringBuilder whereStringBuilder = new StringBuilder(fieldName)
+                    .append(" IN (");
+            for (int i = 0; i < guilds.size(); i++) {
+                if (i > 0) {
+                    whereStringBuilder.append(",");
+                }
+                whereStringBuilder.append(guilds.get(i).getId());
+            }
+            whereStringBuilder.append(")");
+
+            return createQuery("FROM " + entityClass.getName() + " WHERE " + whereStringBuilder, entityClass)
+                    .getResultList()
+                    .stream()
+                    .peek(h -> h.setEntityManager(this))
+                    .iterator();
+        }
     }
 
     @Override

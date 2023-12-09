@@ -1,8 +1,5 @@
 package commands.runnables.gimmickscategory;
 
-import java.io.InputStream;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -15,6 +12,10 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @CommandProperties(
         trigger = "say",
@@ -31,7 +32,7 @@ public class SayCommand extends Command {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         StandardGuildMessageChannel channel;
-        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, args, Permission.MESSAGE_ATTACH_FILES);
+        CommandUtil.ChannelResponse response = CommandUtil.differentChannelExtract(this, event, event.getTextChannel(), args, Permission.MESSAGE_ATTACH_FILES);
         if (response != null) {
             args = response.getArgs();
             channel = response.getChannel();

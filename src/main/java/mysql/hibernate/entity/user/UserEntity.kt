@@ -1,6 +1,7 @@
 package mysql.hibernate.entity.user
 
 import core.assets.UserAsset
+import mysql.hibernate.entity.ReminderEntity
 import mysql.hibernate.template.HibernateEntity
 import javax.persistence.*
 
@@ -16,6 +17,9 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     @Embedded
     @Column(name = TXT2IMG)
     val txt2img = Txt2ImgEntity()
+
+    val reminders: List<ReminderEntity>
+        get() = entityManager.findAllWithValue(ReminderEntity::class.java, "targetId", userId.toLong())
 
 
     constructor() : this("0")

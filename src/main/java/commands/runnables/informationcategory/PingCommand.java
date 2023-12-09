@@ -27,15 +27,15 @@ public class PingCommand extends Command {
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws InterruptedException {
         Instant startTime = (Instant) getAttachments().get("starting_time");
-        long milisInternal = TimeUtil.getMillisBetweenInstants(startTime, Instant.now());
-        long milisGateway = event.getJDA().getGatewayPing();
-        long milisRest = event.getJDA().getRestPing().complete();
+        long millisInternal = TimeUtil.getMillisBetweenInstants(startTime, Instant.now());
+        long millisGateway = event.getJDA().getGatewayPing();
+        long millisRest = event.getJDA().getRestPing().complete();
 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, getString(
                 "pong",
-                StringUtil.numToString(milisInternal),
-                StringUtil.numToString(milisGateway),
-                StringUtil.numToString(milisRest)
+                StringUtil.numToString(millisInternal),
+                StringUtil.numToString(millisGateway),
+                StringUtil.numToString(millisRest)
         ));
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());
 

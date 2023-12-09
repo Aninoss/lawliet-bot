@@ -10,10 +10,14 @@ import modules.BumpReminder;
 import modules.repair.MainRepair;
 import modules.schedulers.*;
 import mysql.DBDataLoadAll;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.ReminderEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.guild.StickyRolesActiveRoleEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
+import mysql.modules.reminders.DBReminders;
+import mysql.modules.reminders.ReminderData;
 import mysql.modules.stickyroles.DBStickyRoles;
 import mysql.modules.stickyroles.StickyRolesData;
 import net.dv8tion.jda.api.JDA;
@@ -187,6 +191,31 @@ public class DiscordConnector {
                     stickyRolesEntity.setActiveRoles(activeRoles);
                 }
         );
+
+        transferSqlToHibernate(
+                "Reminders",
+                guildEntity -> guildEntity,
+                guildEntity -> !guildEntity.getReminders().isEmpty(),
+                guildEntity -> {
+                    CustomObservableMap<Long, ReminderData> remindersSql = DBReminders.getInstance().retrieve(guildEntity.getGuildId());
+
+                    for (ReminderData reminderData : remindersSql.values()) {
+                        ReminderEntity reminderEntity = ReminderEntity.createGuildReminder(
+                                reminderData.getGuildId(),
+                                reminderData.getTargetChannelId(),
+                                reminderData.getTime(),
+                                reminderData.getMessage(),
+                                reminderData.getGuildId(),
+                                reminderData.getSourceChannelId(),
+                                reminderData.getMessageId(),
+                                reminderData.getInterval()
+                        );
+                        guildEntity.getEntityManager().persist(reminderEntity);
+                    }
+
+                    remindersSql.clear();
+                }
+        );
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate(
@@ -209,7 +238,12 @@ public class DiscordConnector {
                     .getList(resultSet -> resultSet.getLong(1));
 
             for (long guildId : guildIdList) {
-                try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
+                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                    GuildEntity guildEntity = entityManager.find(GuildEntity.class, String.valueOf(guildId));
+                    if (guildEntity == null) {
+                        continue;
+                    }
+
                     T entity = entityFunction.apply(guildEntity);
                     if (isUsedFunction.apply(entity)) {
                         continue;
