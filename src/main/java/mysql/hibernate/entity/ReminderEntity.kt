@@ -12,7 +12,7 @@ import javax.persistence.*
 
 
 @Entity(name = "Reminder")
-class ReminderEntity(@Id val id: UUID? = null) : HibernateEntity() {
+class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity() {
 
     enum class Type { GUILD_REMINDER, DM_REMINDER }
 

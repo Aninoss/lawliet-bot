@@ -95,7 +95,7 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
 
         Instant time = Instant.now().plus(minutes, ChronoUnit.MINUTES);
 
-        Message confirmationMessage = drawMessageNew(generateEmbed(getLocale(), getPrefix(), channel, time, messageText, 0)).get();
+        Message confirmationMessage = drawMessageNew(generateEmbed(getLocale(), getPrefix(), channel, time, messageText, null)).get();
         insertReminder(channel, event.getMember(), time, messageText, confirmationMessage);
 
         return true;
@@ -137,9 +137,9 @@ public class ReminderCommand extends Command implements OnStaticButtonListener {
         ReminderScheduler.loadReminder(reminderEntity);
     }
 
-    public static EmbedBuilder generateEmbed(Locale locale, String prefix, StandardGuildMessageChannel channel, Instant time, String messageText, int interval) {
+    public static EmbedBuilder generateEmbed(Locale locale, String prefix, StandardGuildMessageChannel channel, Instant time, String messageText, Integer interval) {
         String intervalText = TextManager.getString(locale, Category.UTILITY, "reminder_norep");
-        if (interval > 0) {
+        if (interval != null && interval > 0) {
             intervalText = TimeUtil.getRemainingTimeString(locale, Duration.ofMinutes(interval).toMillis(), false);
         }
 

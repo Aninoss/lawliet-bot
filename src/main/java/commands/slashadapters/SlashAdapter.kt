@@ -82,7 +82,7 @@ abstract class SlashAdapter {
     }
 
     fun requiredPermissions(): Collection<Permission> {
-        val permissions = ArrayList<Permission>()
+        val permissions = HashSet<Permission>()
         val slash = javaClass.getAnnotation(Slash::class.java)
         permissions += slash.permissions
         if (slash.command != Command::class) {
@@ -90,7 +90,7 @@ abstract class SlashAdapter {
             permissions += commandProperties.userGuildPermissions
             permissions += commandProperties.userChannelPermissions
         }
-        return permissions.distinct()
+        return permissions
     }
 
     fun commandClass(): KClass<out Command> {

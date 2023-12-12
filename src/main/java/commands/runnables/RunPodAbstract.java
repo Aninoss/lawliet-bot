@@ -63,7 +63,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        EmbedBuilder errorEmbedIfBanned = getErrorEmbedIfBanned(event.getUser().getIdLong());
+        EmbedBuilder errorEmbedIfBanned = getErrorEmbedIfBanned();
         if (errorEmbedIfBanned != null) {
             drawMessageNew(errorEmbedIfBanned)
                     .exceptionally(ExceptionLogger.get());
@@ -184,7 +184,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     @Override
     public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
-        EmbedBuilder errorEmbedIfBanned = getErrorEmbedIfBanned(event.getUser().getIdLong());
+        EmbedBuilder errorEmbedIfBanned = getErrorEmbedIfBanned();
         if (errorEmbedIfBanned != null) {
             deregisterListeners();
             drawMessage(errorEmbedIfBanned)
@@ -270,9 +270,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         );
     }
 
-    private EmbedBuilder getErrorEmbedIfBanned(long userId) {
-        Instant bannedUntil = getEntityManager()
-                .findUserEntityReadOnly(userId)
+    private EmbedBuilder getErrorEmbedIfBanned() {
+        Instant bannedUntil = getUserEntity()
                 .getTxt2img()
                 .getBannedUntil();
 

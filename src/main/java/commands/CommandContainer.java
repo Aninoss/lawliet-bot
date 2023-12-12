@@ -79,6 +79,7 @@ public class CommandContainer {
         commandList.add(NSFWFilterCommand.class);
         commandList.add(SuggestionConfigCommand.class);
         commandList.add(CustomConfigCommand.class);
+        commandList.add(ReminderManageCommand.class);
 
         //UTILITY
         commandList.add(AlertsCommand.class);

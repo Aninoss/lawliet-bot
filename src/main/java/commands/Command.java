@@ -17,6 +17,7 @@ import kotlin.reflect.KClass;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.user.UserEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -605,6 +606,10 @@ public abstract class Command implements OnTriggerListener {
 
     public GuildEntity getGuildEntity() {
         return guildEntity;
+    }
+
+    public UserEntity getUserEntity() {
+        return guildEntity.getEntityManager().findUserEntity(atomicMember.getIdLong());
     }
 
     public EntityManagerWrapper getEntityManager() {

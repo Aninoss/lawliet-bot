@@ -1,18 +1,24 @@
 package core.atomicassets;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.ShardManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 public class AtomicStandardGuildMessageChannel implements MentionableAtomicAsset<StandardGuildMessageChannel> {
 
     private final long guildId;
     private final long channelId;
+
+    public AtomicStandardGuildMessageChannel(Guild guild, long channelId) {
+        this.guildId = guild.getIdLong();
+        this.channelId = channelId;
+    }
 
     public AtomicStandardGuildMessageChannel(long guildId, long channelId) {
         this.guildId = guildId;

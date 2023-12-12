@@ -17,7 +17,6 @@ import mysql.hibernate.entity.ReminderEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -51,7 +50,7 @@ public class ReminderScheduler {
         MainScheduler.schedule(triggerTime, () -> {
             try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
                 ReminderEntity reminderEntity = entityManager.find(ReminderEntity.class, id);
-                if (reminderEntity != null && reminderEntity.getValid()) {
+                if (reminderEntity != null && reminderEntity.getValid() && Instant.now().isAfter(reminderEntity.getTriggerTime())) {
                     onReminderDue(entityManager, reminderEntity);
                 }
             }
@@ -116,19 +115,18 @@ public class ReminderScheduler {
                 .map(guild -> guild.getTextChannelById(reminderEntity.getConfirmationMessageChannelId()));
 
         if (reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER && reminderEntity.getIntervalMinutesEffectively() != null) {
-            Message confirmationMessage = confirmationMessageChannelOpt
-                    .map(ch -> ch.retrieveMessageById(reminderEntity.getConfirmationMessageMessageId()).complete())
-                    .orElse(null);
-
             FeatureLogger.inc(PremiumFeature.REMINDERS, reminderEntity.getTargetId());
             ReminderEntity newReminderEntity = ReminderEntity.createGuildReminder(
                     reminderEntity.getTargetId(),
                     reminderEntity.getGuildChannelId(),
                     reminderEntity.getTriggerTime().plus(Duration.ofMinutes(reminderEntity.getIntervalMinutesEffectively())),
                     reminderEntity.getMessage(),
-                    confirmationMessage,
+                    reminderEntity.getConfirmationMessageGuildId(),
+                    reminderEntity.getConfirmationMessageChannelId(),
+                    reminderEntity.getConfirmationMessageMessageId(),
                     reminderEntity.getIntervalMinutes()
             );
+            newReminderEntity.setId(reminderEntity.getId());
 
             entityManager.getTransaction().begin();
             entityManager.persist(newReminderEntity);
@@ -136,19 +134,19 @@ public class ReminderScheduler {
 
             ReminderScheduler.loadReminder(newReminderEntity);
 
-            if (confirmationMessage != null) {
-                EmbedBuilder eb = ReminderCommand.generateEmbed(
-                        locale,
-                        prefix,
-                        (StandardGuildMessageChannel) channel,
-                        newReminderEntity.getTriggerTime(),
-                        newReminderEntity.getMessage(),
-                        reminderEntity.getIntervalMinutesEffectively()
-                );
-                confirmationMessage.editMessageEmbeds(eb.build())
-                        .submit()
-                        .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE));
-            }
+            EmbedBuilder eb = ReminderCommand.generateEmbed(
+                    locale,
+                    prefix,
+                    (StandardGuildMessageChannel) channel,
+                    newReminderEntity.getTriggerTime(),
+                    newReminderEntity.getMessage(),
+                    reminderEntity.getIntervalMinutesEffectively()
+            );
+            confirmationMessageChannelOpt
+                    .ifPresent(ch -> ch.editMessageEmbedsById(reminderEntity.getConfirmationMessageMessageId(), eb.build())
+                            .submit()
+                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE))
+                    );
         } else {
             confirmationMessageChannelOpt
                     .ifPresent(ch -> ch.deleteMessageById(reminderEntity.getConfirmationMessageMessageId())
