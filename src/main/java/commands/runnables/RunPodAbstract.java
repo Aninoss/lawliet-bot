@@ -252,7 +252,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         setActionRows(actionRows);
 
         EmbedBuilder eb = generateOptionsEmbed(prompt, negativePrompt, null, images);
-        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), getString("contentwarning"), false);
+        eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), "> " + getString("contentwarning"), false);
 
         String footer = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_footer",
                 String.valueOf(LIMIT_CREATIONS_PER_WEEK - Txt2ImgCallTracker.getCalls(getEntityManager(), member.getIdLong())),

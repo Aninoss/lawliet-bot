@@ -28,6 +28,7 @@ public class Txt2HentaiCommand extends RunPodAbstract {
         List<String> guildFilters = DBNSFWFilters.getInstance().retrieve(guildId).getKeywords();
         ArrayList<String> filters = new ArrayList<>(List.of(Settings.NSFW_FILTERS));
         guildFilters.forEach(filter -> filters.add(filter.toLowerCase()));
+        guildFilters.add("pokimane");
         return filters;
     }
 
