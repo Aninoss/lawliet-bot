@@ -1,13 +1,15 @@
 package core.emoji;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -21,12 +23,8 @@ public class EmojiUnicodePointAndValueMaker {
     // 100 MB limit
     static final int maxBodySize = 1024 * 1024 * 100;
 
-    public List<UnicodePointEntry> build(String unicodeListingUrl) throws IOException {
-        final Document document = Jsoup.connect(unicodeListingUrl)
-                .timeout(timeout)
-                .maxBodySize(maxBodySize)
-                .userAgent("Mozilla/5.0 (Windows NT 6.1; rv:19.0) Gecko/20100101 Firefox/19.0")
-                .get();
+    public List<UnicodePointEntry> build(File htmFile) throws IOException {
+        final Document document = Jsoup.parse(htmFile, "UTF-8");
 
         // Document must be valid
         assert(document != null);

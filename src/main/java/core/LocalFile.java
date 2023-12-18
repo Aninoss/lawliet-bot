@@ -1,7 +1,8 @@
 package core;
 
-import java.io.File;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 
 public class LocalFile extends File {
 
@@ -30,6 +31,7 @@ public class LocalFile extends File {
 
         CDN("/data/cdn"),
         WELCOME_BACKGROUNDS("/data/welcome_backgrounds"),
+        EMOJIS("/data/emojis"),
         RESOURCES("/data/resources"),
         TEMP("temp");
 
