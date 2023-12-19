@@ -1,5 +1,8 @@
 package events.discordevents.guildmessagereceived;
 
+import core.cache.ServerPatreonBoostCache;
+import core.featurelogger.FeatureLogger;
+import core.featurelogger.PremiumFeature;
 import core.utils.BotPermissionUtil;
 import events.discordevents.DiscordEvent;
 import events.discordevents.EventPriority;
@@ -9,9 +12,9 @@ import modules.fishery.FisheryStatus;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.redis.fisheryusers.FisheryUserManager;
-import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.modules.ticket.DBTicket;
+import mysql.redis.fisheryusers.FisheryGuildData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -51,6 +54,10 @@ public class GuildMessageReceivedFishery extends GuildMessageReceivedAbstract {
                 Fishery.spawnTreasureChest(event.getChannel().asTextChannel(), guildEntity);
             } else if (fisheryEntity.getPowerUps() && r.nextDouble() * 100 < fisheryEntity.getPowerUpProbabilityInPercentEffectively()) {
                 Fishery.spawnPowerUp(event.getChannel().asTextChannel(), event.getMember(), guildEntity);
+            }
+
+            if (ServerPatreonBoostCache.get(event.getGuild().getIdLong()) && (fisheryEntity.getTreasureChestProbabilityInPercentEffectively() != 0.25 || fisheryEntity.getPowerUpProbabilityInPercentEffectively() != 0.35)) {
+                FeatureLogger.inc(PremiumFeature.FISHERY, event.getGuild().getIdLong());
             }
         }
 
