@@ -12,14 +12,8 @@ import modules.schedulers.*;
 import mysql.DBDataLoadAll;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
-import mysql.hibernate.entity.ReminderEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.hibernate.entity.guild.StickyRolesActiveRoleEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
-import mysql.modules.reminders.DBReminders;
-import mysql.modules.reminders.ReminderData;
-import mysql.modules.stickyroles.DBStickyRoles;
-import mysql.modules.stickyroles.StickyRolesData;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -34,13 +28,11 @@ import net.dv8tion.jda.internal.utils.IOUtil;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNullElse;
 
@@ -177,45 +169,7 @@ public class DiscordConnector {
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate() {
-        transferSqlToHibernate(
-                "StickyRolesRoles",
-                GuildEntity::getStickyRoles,
-                stickyRolesEntity -> !stickyRolesEntity.getRoleIds().isEmpty() || !stickyRolesEntity.getActiveRoles().isEmpty(),
-                stickyRolesEntity -> {
-                    StickyRolesData stickyRolesSql = DBStickyRoles.getInstance().retrieve(stickyRolesEntity.getGuildId());
-                    Set<StickyRolesActiveRoleEntity> activeRoles = stickyRolesSql.getActions().stream()
-                            .map(action -> new StickyRolesActiveRoleEntity(action.getMemberId(), action.getRoleId()))
-                            .collect(Collectors.toSet());
-
-                    stickyRolesEntity.setRoleIds(stickyRolesSql.getRoleIds());
-                    stickyRolesEntity.setActiveRoles(activeRoles);
-                }
-        );
-
-        transferSqlToHibernate(
-                "Reminders",
-                guildEntity -> guildEntity,
-                guildEntity -> !guildEntity.getReminders().isEmpty(),
-                guildEntity -> {
-                    CustomObservableMap<Long, ReminderData> remindersSql = DBReminders.getInstance().retrieve(guildEntity.getGuildId());
-
-                    for (ReminderData reminderData : remindersSql.values()) {
-                        ReminderEntity reminderEntity = ReminderEntity.createGuildReminder(
-                                reminderData.getGuildId(),
-                                reminderData.getTargetChannelId(),
-                                reminderData.getTime(),
-                                reminderData.getMessage(),
-                                reminderData.getGuildId(),
-                                reminderData.getSourceChannelId(),
-                                reminderData.getMessageId(),
-                                reminderData.getInterval()
-                        );
-                        guildEntity.getEntityManager().persist(reminderEntity);
-                    }
-
-                    remindersSql.clear();
-                }
-        );
+        //TODO: Migrate other tables
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate(
