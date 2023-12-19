@@ -6,10 +6,8 @@ import commands.listeners.CommandProperties;
 import commands.runnables.NavigationAbstract;
 import commands.runnables.utilitycategory.ReminderCommand;
 import constants.Emojis;
-import constants.ExceptionIds;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.ExceptionLogger;
 import core.TextManager;
 import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.cache.ServerPatreonBoostCache;
@@ -40,7 +38,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -253,12 +254,7 @@ public class ReminderManageCommand extends NavigationAbstract {
                         reminderEntity.getMessage(),
                         reminderEntity.getIntervalMinutesEffectively()
                 );
-                Optional.of(event.getGuild())
-                        .map(guild -> guild.getTextChannelById(reminderEntity.getConfirmationMessageChannelId()))
-                        .ifPresent(ch -> ch.editMessageEmbedsById(reminderEntity.getConfirmationMessageMessageId(), eb.build())
-                                .submit()
-                                .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE))
-                        );
+                reminderEntity.editConfirmationMessage(event.getJDA(), eb.build());
 
                 setLog(LogStatus.SUCCESS, getString("set"));
                 setStateReminders();
@@ -273,12 +269,7 @@ public class ReminderManageCommand extends NavigationAbstract {
                     entityManager.remove(reminderEntity);
                     entityManager.getTransaction().commit();
 
-                    Optional.of(event.getGuild())
-                            .map(guild -> guild.getTextChannelById(reminderEntity.getConfirmationMessageChannelId()))
-                            .ifPresent(ch -> ch.deleteMessageById(reminderEntity.getConfirmationMessageMessageId())
-                                    .submit()
-                                    .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE))
-                            );
+                    reminderEntity.deleteConfirmationMessage(event.getJDA());
                 }
 
                 setLog(LogStatus.SUCCESS, getString("set_remove"));

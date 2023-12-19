@@ -2,7 +2,6 @@ package modules.schedulers;
 
 import commands.Category;
 import commands.runnables.utilitycategory.ReminderCommand;
-import constants.ExceptionIds;
 import core.*;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
@@ -19,7 +18,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
@@ -27,7 +25,6 @@ import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChanne
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -35,7 +32,7 @@ public class ReminderScheduler {
 
     public static void start() {
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-            entityManager.findAllForResponsibleIds(ReminderEntity.class, "targetId")
+            entityManager.findAllForResponsibleIds(ReminderEntity.class, "confirmationMessageGuildId")
                     .forEachRemaining(ReminderScheduler::loadReminder);
         } catch (Throwable e) {
             MainLogger.get().error("Could not start reminders", e);
@@ -110,10 +107,6 @@ public class ReminderScheduler {
             }
         }
 
-        Optional<TextChannel> confirmationMessageChannelOpt = Optional.ofNullable(reminderEntity.getConfirmationMessageGuildId())
-                .flatMap(ShardManager::getLocalGuildById)
-                .map(guild -> guild.getTextChannelById(reminderEntity.getConfirmationMessageChannelId()));
-
         if (reminderEntity.getType() == ReminderEntity.Type.GUILD_REMINDER && reminderEntity.getIntervalMinutesEffectively() != null) {
             FeatureLogger.inc(PremiumFeature.REMINDERS, reminderEntity.getTargetId());
             ReminderEntity newReminderEntity = ReminderEntity.createGuildReminder(
@@ -142,17 +135,9 @@ public class ReminderScheduler {
                     newReminderEntity.getMessage(),
                     reminderEntity.getIntervalMinutesEffectively()
             );
-            confirmationMessageChannelOpt
-                    .ifPresent(ch -> ch.editMessageEmbedsById(reminderEntity.getConfirmationMessageMessageId(), eb.build())
-                            .submit()
-                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE))
-                    );
+            reminderEntity.editConfirmationMessage(channel.getJDA(), eb.build());
         } else {
-            confirmationMessageChannelOpt
-                    .ifPresent(ch -> ch.deleteMessageById(reminderEntity.getConfirmationMessageMessageId())
-                            .submit()
-                            .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE))
-                    );
+            reminderEntity.deleteConfirmationMessage(channel.getJDA());
         }
     }
 

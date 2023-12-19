@@ -1,11 +1,18 @@
 package mysql.hibernate.entity
 
+import constants.ExceptionIds
 import constants.Language
+import core.ExceptionLogger
 import core.ShardManager
 import core.cache.ServerPatreonBoostCache
 import mysql.hibernate.InstantConverter
 import mysql.hibernate.template.HibernateEntity
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.requests.Route
+import net.dv8tion.jda.internal.requests.restaction.AuditableRestActionImpl
+import net.dv8tion.jda.internal.requests.restaction.MessageEditActionImpl
 import java.time.Instant
 import java.util.*
 import javax.persistence.*
@@ -43,11 +50,11 @@ class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity() {
             _language = value
         }
 
-    var confirmationMessageGuildId: Long? = null
+    var confirmationMessageGuildId: Long = 0L
 
-    var confirmationMessageChannelId: Long? = null
+    var confirmationMessageChannelId: Long = 0L
 
-    var confirmationMessageMessageId: Long? = null
+    var confirmationMessageMessageId: Long = 0L
 
     val type: Type
         get() = if (guildChannelId != null) {
@@ -63,12 +70,26 @@ class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity() {
 
     constructor() : this(null)
 
+    fun editConfirmationMessage(jda: JDA, embed: MessageEmbed) {
+        MessageEditActionImpl(jda, null, confirmationMessageChannelId.toString(), confirmationMessageMessageId.toString())
+                .setEmbeds(embed)
+                .submit()
+                .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL, ExceptionIds.MISSING_ACCESS, ExceptionIds.MISSING_PERMISSIONS))
+    }
+
+    fun deleteConfirmationMessage(jda: JDA) {
+        val route = Route.Messages.DELETE_MESSAGE.compile(confirmationMessageChannelId.toString(), confirmationMessageMessageId.toString())
+        AuditableRestActionImpl<Void>(jda, route)
+                .submit()
+                .exceptionally(ExceptionLogger.get(ExceptionIds.UNKNOWN_MESSAGE, ExceptionIds.UNKNOWN_CHANNEL, ExceptionIds.MISSING_ACCESS, ExceptionIds.MISSING_PERMISSIONS))
+    }
+
     companion object {
         @JvmStatic
         @JvmOverloads
-        fun createGuildReminder(guildId: Long, channelId: Long, triggerTime: Instant, message: String, confirmationMessage: Message?, intervalMinutes: Int? = null): ReminderEntity {
-            return createGuildReminder(guildId, channelId, triggerTime, message, confirmationMessage?.guildIdLong,
-                    confirmationMessage?.channelIdLong, confirmationMessage?.idLong, intervalMinutes)
+        fun createGuildReminder(guildId: Long, channelId: Long, triggerTime: Instant, message: String, confirmationMessage: Message, intervalMinutes: Int? = null): ReminderEntity {
+            return createGuildReminder(guildId, channelId, triggerTime, message, confirmationMessage.guildIdLong,
+                    confirmationMessage.channelIdLong, confirmationMessage.idLong, intervalMinutes)
         }
 
         @JvmStatic
@@ -77,9 +98,9 @@ class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity() {
                                 channelId: Long,
                                 triggerTime: Instant,
                                 message: String,
-                                confirmationMessageGuildId: Long?,
-                                confirmationMessageChannelId: Long?,
-                                confirmationMessageMessageId: Long?,
+                                confirmationMessageGuildId: Long,
+                                confirmationMessageChannelId: Long,
+                                confirmationMessageMessageId: Long,
                                 intervalMinutes: Int? = null
         ): ReminderEntity {
             val reminderEntity = ReminderEntity(UUID.randomUUID())
@@ -97,15 +118,15 @@ class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity() {
         }
 
         @JvmStatic
-        fun createDmReminder(userId: Long, triggerTime: Instant, message: String, language: Language, confirmationMessage: Message?): ReminderEntity {
+        fun createDmReminder(userId: Long, triggerTime: Instant, message: String, language: Language, confirmationMessage: Message): ReminderEntity {
             val reminderEntity = ReminderEntity(UUID.randomUUID())
             reminderEntity.targetId = userId
             reminderEntity.triggerTime = triggerTime
             reminderEntity.message = message
             reminderEntity.language = language
-            reminderEntity.confirmationMessageGuildId = confirmationMessage?.guildIdLong
-            reminderEntity.confirmationMessageChannelId = confirmationMessage?.channelIdLong
-            reminderEntity.confirmationMessageMessageId = confirmationMessage?.idLong
+            reminderEntity.confirmationMessageGuildId = confirmationMessage.guildIdLong
+            reminderEntity.confirmationMessageChannelId = confirmationMessage.channelIdLong
+            reminderEntity.confirmationMessageMessageId = confirmationMessage.idLong
             return reminderEntity
         }
     }
