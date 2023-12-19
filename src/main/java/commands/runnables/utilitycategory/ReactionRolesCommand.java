@@ -386,7 +386,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 return true;
 
             case 4:
-                if (slots.size() > 0) {
+                if (!slots.isEmpty()) {
                     setState(REMOVE_SLOT);
                 } else {
                     setLog(LogStatus.FAILURE, getString("noshortcuts"));
@@ -514,6 +514,15 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             setState(CONFIGURE_MESSAGE);
             return true;
         }
+    }
+
+    @ControllerButton(state = EXAMPLE)
+    public boolean onButtonExample(ButtonInteractionEvent event, int i) {
+        if (i == -1) {
+            setState(CONFIGURE_MESSAGE);
+            return true;
+        }
+        return false;
     }
 
     @Override
