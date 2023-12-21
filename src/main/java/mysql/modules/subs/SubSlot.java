@@ -6,9 +6,9 @@ import core.Program;
 import core.ShardManager;
 import core.TextManager;
 import core.assets.UserAsset;
+import core.cache.UserBannedCache;
 import core.components.ActionRows;
 import core.utils.JDAUtil;
-import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
@@ -46,9 +46,9 @@ public class SubSlot extends Observable implements UserAsset {
         return errors;
     }
 
-    public void sendEmbed(EntityManagerWrapper entityManager, Locale locale, EmbedBuilder eb, Button... buttons) {
+    public void sendEmbed(Locale locale, EmbedBuilder eb, Button... buttons) {
         if ((!Program.publicVersion() && userId == AssetIds.OWNER_USER_ID) ||
-                entityManager.findUserEntityReadOnly(userId).getBanReason() != null
+                UserBannedCache.getInstance().isBanned(userId)
         ) {
             return;
         }

@@ -9,10 +9,10 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.Program;
 import core.TextManager;
+import core.cache.UserBannedCache;
 import core.components.ActionRows;
 import core.schedule.MainScheduler;
 import modules.JoinRoles;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.modules.staticreactionmessages.StaticReactionMessageData;
@@ -66,7 +66,7 @@ public class Fishery {
         return Math.round(price * ((double) rolePriceMax / priceMax));
     }
 
-    public static List<Member> getValidVoiceMembers(EntityManagerWrapper entityManager, VoiceChannel voiceChannel) {
+    public static List<Member> getValidVoiceMembers(VoiceChannel voiceChannel) {
         ArrayList<Member> validMembers = new ArrayList<>();
         for (Member member : voiceChannel.getMembers()) {
             GuildVoiceState voice = member.getVoiceState();
@@ -75,7 +75,7 @@ public class Fishery {
                     !voice.isMuted() &&
                     !voice.isDeafened() &&
                     !voice.isSuppressed() &&
-                    entityManager.findUserEntityReadOnly(member.getIdLong()).getBanReason() == null
+                    !UserBannedCache.getInstance().isBanned(member.getIdLong())
             ) {
                 validMembers.add(member);
             }

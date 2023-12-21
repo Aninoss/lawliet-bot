@@ -6,17 +6,16 @@ import core.*;
 import events.scheduleevents.ScheduleEventDaily;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.redis.fisheryusers.FisheryUserManager;
-import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.subs.DBSubs;
 import mysql.modules.subs.SubSlot;
 import mysql.modules.survey.DBSurvey;
 import mysql.modules.survey.SurveyData;
 import mysql.modules.survey.SurveyQuestion;
 import mysql.modules.survey.SurveySecondVote;
+import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.io.IOException;
@@ -70,13 +69,11 @@ public class FisherySurveyResults implements ExceptionRunnable {
         /* sending reminders */
         if (Program.isMainCluster()) {
             CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.SURVEY);
-            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                for (SubSlot sub : new ArrayList<>(subMap.values())) {
-                    try {
-                        sendSurveyResult(entityManager, sub.getLocale(), lastSurvey.getSurveyQuestionAndAnswers(sub.getLocale()), sub, won, percent);
-                    } catch (IOException e) {
-                        MainLogger.get().error("Survey error", e);
-                    }
+            for (SubSlot sub : new ArrayList<>(subMap.values())) {
+                try {
+                    sendSurveyResult(sub.getLocale(), lastSurvey.getSurveyQuestionAndAnswers(sub.getLocale()), sub, won, percent);
+                } catch (IOException e) {
+                    MainLogger.get().error("Survey error", e);
                 }
             }
         }
@@ -119,7 +116,7 @@ public class FisherySurveyResults implements ExceptionRunnable {
         }
     }
 
-    private static void sendSurveyResult(EntityManagerWrapper entityManager, Locale locale, SurveyQuestion surveyQuestion, SubSlot sub, byte won, int percent) {
+    private static void sendSurveyResult(Locale locale, SurveyQuestion surveyQuestion, SubSlot sub, byte won, int percent) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                 .setTitle(TextManager.getString(locale, Category.FISHERY, "survey_results_message_title"))
                 .setDescription(TextManager.getString(locale, Category.FISHERY, "survey_results_message_template", won == 2,
@@ -130,7 +127,7 @@ public class FisherySurveyResults implements ExceptionRunnable {
                         String.valueOf(percent)
                 ));
 
-        sub.sendEmbed(entityManager, locale, eb);
+        sub.sendEmbed(locale, eb);
     }
 
 }

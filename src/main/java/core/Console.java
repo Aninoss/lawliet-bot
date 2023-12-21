@@ -16,7 +16,6 @@ import modules.fishery.Fishery;
 import modules.repair.MainRepair;
 import modules.schedulers.AlertScheduler;
 import mysql.MySQLManager;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.user.Txt2ImgEntity;
 import mysql.hibernate.entity.user.UserEntity;
@@ -383,15 +382,13 @@ public class Console {
     private static void onFisheryVC(String[] args) {
         long serverId = Long.parseLong(args[1]);
         ShardManager.getLocalGuildById(serverId).ifPresent(guild -> {
-            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-                HashSet<Member> members = new HashSet<>();
-                guild.getVoiceChannels().forEach(vc -> members.addAll(Fishery.getValidVoiceMembers(entityManager, vc)));
+            HashSet<Member> members = new HashSet<>();
+            guild.getVoiceChannels().forEach(vc -> members.addAll(Fishery.getValidVoiceMembers(vc)));
 
-                String title = String.format("### VALID VC MEMBERS OF %s ###", guild.getName());
-                System.out.println(title);
-                members.forEach(member -> System.out.println(member.getUser().getAsTag()));
-                System.out.println("-".repeat(title.length()));
-            }
+            String title = String.format("### VALID VC MEMBERS OF %s ###", guild.getName());
+            System.out.println(title);
+            members.forEach(member -> System.out.println(member.getUser().getAsTag()));
+            System.out.println("-".repeat(title.length()));
         });
     }
 

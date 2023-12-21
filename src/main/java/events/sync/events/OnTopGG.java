@@ -2,13 +2,13 @@ package events.sync.events;
 
 import core.GlobalThreadPool;
 import core.MainLogger;
+import core.cache.UserBannedCache;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryStatus;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.hibernate.entity.user.UserEntity;
 import mysql.modules.autoclaim.DBAutoClaim;
 import mysql.modules.upvotes.DBUpvotes;
 import mysql.modules.upvotes.UpvoteSlot;
@@ -35,11 +35,11 @@ public class OnTopGG implements SyncServerFunction {
 
         GlobalThreadPool.submit(() -> {
             long userId = jsonObject.getLong("user");
-            try (UserEntity userEntity = HibernateManager.findUserEntityReadOnly(userId)) {
-                if (userEntity.getBanReason() != null) {
-                    return;
-                }
+            if (UserBannedCache.getInstance().isBanned(userId)) {
+                return;
+            }
 
+            try {
                 processUpvote(userId, isWeekend);
             } catch (ExecutionException | InterruptedException e) {
                 MainLogger.get().error("Exception", e);

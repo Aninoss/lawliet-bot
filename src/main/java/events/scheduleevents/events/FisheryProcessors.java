@@ -11,18 +11,17 @@ import events.scheduleevents.ScheduleEventFixedRate;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.autosell.AutoSellData;
 import mysql.modules.autosell.DBAutoSell;
 import mysql.modules.autowork.AutoWorkData;
 import mysql.modules.autowork.DBAutoWork;
-import mysql.redis.fisheryusers.FisheryUserManager;
-import mysql.redis.fisheryusers.FisheryGuildData;
-import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.modules.subs.DBSubs;
 import mysql.modules.subs.SubSlot;
+import mysql.redis.fisheryusers.FisheryGuildData;
+import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -68,7 +67,7 @@ public class FisheryProcessors implements ExceptionRunnable {
             FisheryGuildData serverBean = FisheryUserManager.getGuildData(guild.getIdLong());
             for (VoiceChannel voiceChannel : guild.getVoiceChannels()) {
                 try {
-                    List<Member> validMembers = Fishery.getValidVoiceMembers(guildEntity.getEntityManager(), voiceChannel);
+                    List<Member> validMembers = Fishery.getValidVoiceMembers(voiceChannel);
                     VoiceChannel afkVoice = guild.getAfkChannel();
                     if (afkVoice == null || voiceChannel.getIdLong() != afkVoice.getIdLong()) {
                         validMembers.forEach(member -> {
@@ -137,7 +136,7 @@ public class FisheryProcessors implements ExceptionRunnable {
     }
 
     private static void autoWorkPostProcessing(HashMap<Long, HashSet<Guild>> reminderGuildMap, Map<Long, SubSlot> subMap) {
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+        try {
             for (Map.Entry<Long, HashSet<Guild>> slot : reminderGuildMap.entrySet()) {
                 long userId = slot.getKey();
                 HashSet<Guild> guilds = slot.getValue();
@@ -149,7 +148,7 @@ public class FisheryProcessors implements ExceptionRunnable {
                             .setTitle(TextManager.getString(locale, Category.FISHERY, "work_message_title"))
                             .setDescription(TextManager.getString(locale, Category.FISHERY, "work_message_desc", guildsMention));
 
-                    sub.sendEmbed(entityManager, locale, eb);
+                    sub.sendEmbed(locale, eb);
                 }
             }
         } catch (Throwable e) {

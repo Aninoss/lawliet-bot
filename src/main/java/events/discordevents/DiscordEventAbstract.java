@@ -2,6 +2,7 @@ package events.discordevents;
 
 import core.MainLogger;
 import core.ShardManager;
+import core.cache.UserBannedCache;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import net.dv8tion.jda.api.entities.User;
@@ -45,7 +46,7 @@ public abstract class DiscordEventAbstract {
         }
 
         try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-            boolean banned = user != null && userIsBanned(entityManager, user.getIdLong());
+            boolean banned = user != null && UserBannedCache.getInstance().isBanned(user.getIdLong());
             boolean bot = user != null && user.isBot();
             for (EventPriority priority : EventPriority.values()) {
                 if (!runListenerPriority(listenerList, function, priority, entityManager, banned, bot)) {
@@ -70,10 +71,6 @@ public abstract class DiscordEventAbstract {
         }
 
         return true;
-    }
-
-    private static boolean userIsBanned(EntityManagerWrapper entityManager, long userId) {
-        return entityManager.findUserEntityReadOnly(userId).getBanReason() != null;
     }
 
     private static boolean run(EventExecution function, DiscordEventAbstract listener, EntityManagerWrapper entityManager) {

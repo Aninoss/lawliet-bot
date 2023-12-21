@@ -5,17 +5,16 @@ import commands.Command;
 import commands.runnables.fisherysettingscategory.VoteRewardsCommand;
 import core.*;
 import core.cache.ServerPatreonBoostCache;
+import core.cache.UserBannedCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.utils.StringUtil;
 import events.sync.SyncServerEvent;
 import events.sync.SyncServerFunction;
 import modules.fishery.FisheryGear;
-import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
-import mysql.hibernate.entity.user.UserEntity;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -35,12 +34,9 @@ public class OnTopGGVoteRewards implements SyncServerFunction {
         String auth = jsonObject.getString("auth");
         Guild guild = ShardManager.getLocalGuildById(guildId).orElse(null);
 
-        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
-            GuildEntity guildEntity = entityManager.findGuildEntity(guildId);
-            UserEntity userEntity = entityManager.findUserEntityReadOnly(userId);
-
+        try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guildId)) {
             if (guild == null ||
-                    userEntity.getBanReason() != null ||
+                    UserBannedCache.getInstance().isBanned(userId) ||
                     !ServerPatreonBoostCache.get(guildId)
             ) {
                 return generateJsonObject(false);
