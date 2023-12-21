@@ -1,9 +1,7 @@
 package mysql.hibernate;
 
-import core.ChunkingFilterController;
-import core.MainLogger;
-import core.Program;
-import core.ShardManager;
+import core.*;
+import core.utils.ExceptionUtil;
 import mysql.hibernate.entity.QueryIterator;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.hibernate.entity.user.UserEntity;
@@ -17,6 +15,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -26,9 +25,14 @@ import java.util.stream.Collectors;
 public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
     private final EntityManager entityManager;
+    private final AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMinutes(1));
 
     public EntityManagerWrapper(EntityManager entityManager) {
         this.entityManager = entityManager;
+        this.asyncTimer.setTimeOutListener(thread -> {
+            MainLogger.get().warn("EntityManager is still open after 1 minute!", ExceptionUtil.generateForStack(thread));
+            close();
+        });
     }
 
     @Override
@@ -378,6 +382,7 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     @Override
     public void close() {
         entityManager.close();
+        asyncTimer.close();
     }
 
     @Override

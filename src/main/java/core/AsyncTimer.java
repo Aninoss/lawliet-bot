@@ -1,6 +1,5 @@
 package core;
 
-import core.schedule.MainScheduler;
 import net.dv8tion.jda.internal.utils.concurrent.CountingThreadFactory;
 
 import java.time.Duration;
@@ -35,21 +34,8 @@ public class AsyncTimer implements AutoCloseable {
         this.consumer = consumer;
     }
 
-    public void interrupt() {
-        if (pending) {
-            thread.interrupt();
-            MainScheduler.poll(Duration.ofMillis(100), () -> {
-                if (pending) {
-                    thread.interrupt();
-                    return true;
-                }
-                return false;
-            });
-        }
-    }
-
     @Override
-    public void close() throws InterruptedException {
+    public void close() {
         pending = false;
     }
 

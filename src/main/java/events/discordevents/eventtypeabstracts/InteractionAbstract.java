@@ -38,8 +38,6 @@ public class InteractionAbstract extends DiscordEventAbstract {
 
                     execute(listenerList, event.getUser(), event.getGuild().getIdLong(), function);
                 }
-            } catch (InterruptedException e) {
-                MainLogger.get().error("Interrupted", e);
             }
         }
     }

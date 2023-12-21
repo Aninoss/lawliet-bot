@@ -178,8 +178,6 @@ public class GuildMessageReceivedCommand extends GuildMessageReceivedAbstract {
                         }
                     }
                     return false;
-                } catch (InterruptedException e) {
-                    MainLogger.get().error("Interrupted exception", e);
                 }
             } else {
                 return false;

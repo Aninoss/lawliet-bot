@@ -1,13 +1,14 @@
 package events.discordevents.eventtypeabstracts;
 
-import java.time.Duration;
-import java.util.ArrayList;
 import core.AsyncTimer;
 import core.MainLogger;
 import core.utils.ExceptionUtil;
 import events.discordevents.DiscordEventAbstract;
 import mysql.hibernate.EntityManagerWrapper;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+
+import java.time.Duration;
+import java.util.ArrayList;
 
 public abstract class GuildMessageReactionAddAbstract extends DiscordEventAbstract {
 
@@ -22,8 +23,6 @@ public abstract class GuildMessageReactionAddAbstract extends DiscordEventAbstra
             execute(listenerList, event.getUser(), event.getGuild().getIdLong(),
                     (listener, entityManager) -> ((GuildMessageReactionAddAbstract) listener).onGuildMessageReactionAdd(event, entityManager)
             );
-        } catch (InterruptedException e) {
-            MainLogger.get().error("Interrupted exception", e);
         }
     }
 
