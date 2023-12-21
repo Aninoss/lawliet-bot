@@ -285,6 +285,7 @@ public class CommandContainer {
         //NSFW
         commandList.add(Txt2HentaiCommand.class);
         commandList.add(Rule34Command.class);
+        commandList.add(Rule34PahealCommand.class);
         commandList.add(RealbooruCommand.class);
         commandList.add(E621Command.class);
         commandList.add(DanbooruCommand.class);

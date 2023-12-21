@@ -252,6 +252,7 @@ public abstract class PornAbstract extends Command implements OnAlertListener, O
             String newUrl = pornImage.getOriginalImageUrl()
                     .replace("https://", "")
                     .replace("/images/", "#")
+                    .replace("/_images/", "<")
                     .replace("/data/", "|")
                     .replace("/original/", "\\");
             reportArgsBuilder.append(newUrl);
