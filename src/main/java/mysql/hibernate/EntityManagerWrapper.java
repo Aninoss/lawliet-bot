@@ -25,14 +25,12 @@ import java.util.stream.Collectors;
 public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
     private final EntityManager entityManager;
-    private final AsyncTimer asyncTimer = new AsyncTimer(Duration.ofMinutes(1));
+    private final AsyncTimer asyncTimer;
 
     public EntityManagerWrapper(EntityManager entityManager) {
         this.entityManager = entityManager;
-        this.asyncTimer.setTimeOutListener(thread -> {
-            MainLogger.get().warn("EntityManager is still open after 1 minute!", ExceptionUtil.generateForStack(thread));
-            close();
-        });
+        asyncTimer = new AsyncTimer(Duration.ofMinutes(1));
+        asyncTimer.setTimeOutListener(thread -> MainLogger.get().warn("EntityManager is still open after 1 minute!", ExceptionUtil.generateForStack(thread)));
     }
 
     @Override
