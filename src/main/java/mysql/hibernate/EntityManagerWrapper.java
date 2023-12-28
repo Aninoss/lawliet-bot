@@ -379,6 +379,11 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
 
     @Override
     public void close() {
+        EntityTransaction transaction = entityManager.getTransaction();
+        if (transaction.isActive()) {
+            transaction.commit();
+        }
+
         entityManager.close();
         asyncTimer.close();
     }
