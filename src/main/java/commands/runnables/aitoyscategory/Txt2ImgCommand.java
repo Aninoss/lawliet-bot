@@ -10,7 +10,6 @@ import java.util.Locale;
         trigger = "txt2img",
         emoji = "🖌️",
         executableWithoutArgs = false,
-        patreonRequired = true,
         aliases = {"stablediffusion", "diffusion", "imagine"}
 )
 public class Txt2ImgCommand extends RunPodAbstract {

@@ -13,7 +13,6 @@ import java.util.Locale;
         trigger = "txt2hentai",
         emoji = "🖌️",
         executableWithoutArgs = false,
-        patreonRequired = true,
         nsfw = true,
         aliases = {"nsfwimagine", "imaginensfw"}
 )

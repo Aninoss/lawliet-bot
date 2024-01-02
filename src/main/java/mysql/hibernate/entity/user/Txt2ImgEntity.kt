@@ -37,6 +37,14 @@ class Txt2ImgEntity : HibernateEmbeddedEntity<UserEntity>(), UserAsset {
 
     var callsDate: LocalDate? = null
 
+    @Column(name = "$TXT2IMG.boughtImages")
+    private var _boughtImages: Int? = null
+    var boughtImages: Int
+        get() = _boughtImages ?: 0
+        set(value) {
+            _boughtImages = value
+        }
+
 
     override fun getUserId(): Long {
         return hibernateEntity.userId

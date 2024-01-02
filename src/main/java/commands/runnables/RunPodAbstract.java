@@ -3,11 +3,13 @@ package commands.runnables;
 import commands.Category;
 import commands.CommandEvent;
 import constants.Emojis;
+import constants.ExternalLinks;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.MainLogger;
 import core.TextManager;
+import core.cache.PatreonCache;
 import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.modals.ModalMediator;
@@ -32,6 +34,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -114,7 +117,6 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             return false;
         }
 
-        FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
         registerNavigationListener(event.getMember());
         return true;
     }
@@ -192,9 +194,15 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             return false;
         }
 
-        int calls = Txt2ImgCallTracker.getCalls(getEntityManager(), event.getUser().getIdLong());
-        if (calls + images <= LIMIT_CREATIONS_PER_WEEK) {
-            Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), images);
+        boolean premium = isPremium(event.getGuild().getIdLong(), event.getMember().getIdLong());
+        boolean isFirstToday = !LocalDate.now().equals(getUserEntity().getTxt2img().getCallsDate());
+        int remainingCalls = Txt2ImgCallTracker.getRemainingCalls(getEntityManager(), event.getMember().getIdLong(), premium);
+        if (remainingCalls > 0) {
+            images = Math.min(images, remainingCalls);
+            if (premium) {
+                FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
+            }
+            Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), premium, images);
 
             String localPrompt = prompt;
             String localNegativePrompt = negativePrompt;
@@ -211,13 +219,13 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_go", modelName));
 
             if (requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, localImages,
-                    predictionId, predictionResult, startTime, calls == 0)
+                    predictionId, predictionResult, startTime, isFirstToday)
             ) {
                 poll(Duration.ofSeconds(2), () -> requestProgress(event, error, messageId, localPrompt, localNegativePrompt,
-                        model, images, predictionId, predictionResult, startTime, calls == 0));
+                        model, images, predictionId, predictionResult, startTime, isFirstToday));
             }
         } else {
-            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_nocalls"));
+            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.AI_TOYS, premium ? "txt2img_nocalls" : "txt2img_nocalls_nopremium"));
         }
         return true;
     }
@@ -229,7 +237,11 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         ArrayList<Button> buttons = new ArrayList<>();
         String[] buttonLabels = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_default_options").split("\n");
         for (int i = 0; i < buttonLabels.length; i++) {
-            buttons.add(Button.of(ButtonStyle.PRIMARY, String.valueOf(i), buttonLabels[i]));
+            if (i == 2) {
+                buttons.add(Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE + "?tab=1", buttonLabels[i]));
+            } else {
+                buttons.add(Button.of(ButtonStyle.PRIMARY, String.valueOf(i), buttonLabels[i]));
+            }
         }
         actionRows.add(ActionRow.of(buttons));
 
@@ -254,10 +266,18 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         EmbedBuilder eb = generateOptionsEmbed(prompt, negativePrompt, null, images);
         eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), "> " + getString("contentwarning"), false);
 
-        String footer = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_footer",
-                String.valueOf(LIMIT_CREATIONS_PER_WEEK - Txt2ImgCallTracker.getCalls(getEntityManager(), member.getIdLong())),
-                String.valueOf(LIMIT_CREATIONS_PER_WEEK)
-        );
+        String footer;
+        if (isPremium(member.getGuild().getIdLong(), member.getIdLong())) {
+            footer = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_footer_premium",
+                    StringUtil.numToString(getUserEntity().getTxt2img().getBoughtImages()),
+                    StringUtil.numToString(LIMIT_CREATIONS_PER_WEEK - Txt2ImgCallTracker.getPremiumCalls(getEntityManager(), member.getIdLong())),
+                    StringUtil.numToString(LIMIT_CREATIONS_PER_WEEK)
+            );
+        } else {
+            footer = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_footer",
+                    StringUtil.numToString(getUserEntity().getTxt2img().getBoughtImages())
+            );
+        }
         return EmbedUtil.setFooter(eb, this, footer);
     }
 
@@ -403,11 +423,15 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 embeds.add(eb.build());
             }
             default -> {
+                String progress = predictionResult.get().getProgress() > 0.0
+                        ? TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_processing_percent", String.valueOf((int) (predictionResult.get().getProgress() * 100)))
+                        : TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_processing_inqueue");
                 String processingString = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_processing",
                         StringUtil.getBar(predictionResult.get().getProgress(), 12),
-                        String.valueOf((int) (predictionResult.get().getProgress() * 100))
+                        progress
                 );
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault(this, processingString);
+                eb.setTimestamp(Instant.now());
                 embeds.add(eb.build());
             }
         }
@@ -428,6 +452,11 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         }
 
         return imageUrls;
+    }
+
+    private boolean isPremium(long guildId, long userId) {
+        return PatreonCache.getInstance().hasPremium(userId, true) ||
+                PatreonCache.getInstance().isUnlocked(guildId);
     }
 
 }
