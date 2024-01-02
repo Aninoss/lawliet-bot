@@ -14,10 +14,12 @@ import java.util.Locale;
 )
 public class Txt2ImgCommand extends RunPodAbstract {
 
-    private static final String[] NSFW_CONTENT_FILTERS = {"nsfw", "porn", "porno", "pornography", "sex", "sexual",
-            "intercourse", "coitus", "explicit", "fuck", "fucking", "fucked", "blowjob",
-            "anal", "ass", "nude", "naked", "penis", "cock", "dick", "vagina", "pussy", "cum", "sperm", "horny", "scat",
-            "lewd", "nipple", "nipples", "dildo", "vore"};
+    private static final String[] NSFW_CONTENT_FILTERS = {
+            "nsfw", "porn", "porno", "pornography", "sex", "sexual", "intercourse", "coitus", "dicked", "masturbate",
+            "masturbating", "masturbation", "explicit", "fuck", "fucking", "fucked", "blowjob", "hentai", "bdsm", "anal",
+            "ass", "nude", "naked", "penis", "cock", "dick", "vagina", "pussy", "cum", "sperm", "horny", "scat", "lewd",
+            "nipple", "nipples", "dildo", "vore"
+    };
 
     public Txt2ImgCommand(Locale locale, String prefix) {
         super(locale, prefix, "nipples, ");
