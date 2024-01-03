@@ -178,7 +178,7 @@ public class ShardManager {
     }
 
     public static boolean isNothingConnected() {
-        return jdaMap.size() == 0;
+        return jdaMap.isEmpty();
     }
 
     public static boolean isEverythingConnected() {

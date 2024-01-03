@@ -2,6 +2,7 @@ package core;
 
 import commands.SlashCommandManager;
 import core.featurelogger.FeatureLogger;
+import core.schedule.MainScheduler;
 import core.utils.StringUtil;
 import events.discordevents.DiscordEventAdapter;
 import events.scheduleevents.ScheduleEventManager;
@@ -25,6 +26,7 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import net.dv8tion.jda.internal.utils.IOUtil;
 
+import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -117,24 +119,8 @@ public class DiscordConnector {
     }
 
     public static void onJDAJoin(JDA jda) {
-        if (!Program.publicVersion()) {
-            if (jda.getGuilds().size() - 2 > Integer.parseInt(System.getenv("MAX_SERVERS"))) {
-                MainLogger.get().warn("Total server limit reached, refusing to boot up");
-                return;
-            }
-
-            long subId = Long.parseLong(System.getenv("SUB_ID"));
-            try {
-                if (subId != -1 && !SendEvent.sendSubscriptionActive(subId).get(5, TimeUnit.SECONDS)) {
-                    MainLogger.get().warn("Subscription not active anymore, refusing to boot up");
-                    return;
-                } else {
-                    MainLogger.get().info("Subscription check passed");
-                }
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                MainLogger.get().error("Subscription retrieval error", e);
-                return;
-            }
+        if (!checkCustomBotParameters(jda)) {
+            return;
         }
 
         boolean firstConnection = ShardManager.isNothingConnected();
@@ -150,6 +136,43 @@ public class DiscordConnector {
         if (Program.productionMode()) {
             MainRepair.start(jda, 20);
         }
+    }
+
+    private static boolean checkCustomBotParameters(JDA jda) {
+        if (Program.publicVersion()) {
+            return true;
+        }
+
+        if (jda.getGuilds().size() - 2 > Integer.parseInt(System.getenv("MAX_SERVERS"))) {
+            MainLogger.get().warn("Total server limit reached, refusing to boot up");
+            blockBootUp();
+            return false;
+        }
+
+        long subId = Long.parseLong(System.getenv("SUB_ID"));
+        try {
+            if (subId != -1 && !SendEvent.sendSubscriptionActive(subId).get(5, TimeUnit.SECONDS)) {
+                MainLogger.get().warn("Subscription not active anymore, refusing to boot up");
+                blockBootUp();
+                return false;
+            } else {
+                MainLogger.get().info("Subscription check passed");
+            }
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            MainLogger.get().error("Subscription retrieval error", e);
+            blockBootUp();
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void blockBootUp() {
+        ShardManager.blockBootUpCheck();
+        MainScheduler.schedule(Duration.ofHours(1), () -> {
+            MainLogger.get().info("EXIT - Custom instance not valid anymore");
+            System.exit(10);
+        });
     }
 
     private synchronized static void allConnectionsCompleted() {
