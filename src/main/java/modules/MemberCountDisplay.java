@@ -2,16 +2,25 @@ package modules;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import commands.Category;
 import commands.runnables.utilitycategory.MemberCountDisplayCommand;
 import core.MemberCacheController;
 import core.PermissionCheckRuntime;
 import core.RatelimitUpdater;
+import core.TextManager;
+import core.utils.BotPermissionUtil;
 import core.utils.StringUtil;
 import mysql.modules.membercountdisplays.DBMemberCountDisplays;
 import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.PermissionOverride;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+import net.dv8tion.jda.api.managers.channel.concrete.VoiceChannelManager;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.time.Duration;
@@ -26,6 +35,68 @@ public class MemberCountDisplay {
     private static final Cache<Long, String> voiceNameCache = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(20))
             .build();
+
+    public static String initialize(Locale locale, VoiceChannel voiceChannel) {
+        String err;
+        if ((err = checkChannel(locale, voiceChannel)) != null) {
+            return err;
+        }
+
+        MemberCacheController.getInstance().loadMembersFull(voiceChannel.getGuild()).join();
+        VoiceChannelManager manager = voiceChannel.getManager();
+        try {
+            for (PermissionOverride permissionOverride : voiceChannel.getPermissionOverrides()) {
+                manager = manager.putPermissionOverride(
+                        permissionOverride.getPermissionHolder(),
+                        permissionOverride.getAllowedRaw() & ~Permission.VOICE_CONNECT.getRawValue(),
+                        permissionOverride.getDeniedRaw() | Permission.VOICE_CONNECT.getRawValue()
+                );
+            }
+        } catch (InsufficientPermissionException | ErrorResponseException e) {
+            //Ignore
+            return TextManager.getString(locale, Category.UTILITY, "mcdisplays_nopermissions");
+        }
+
+        Role publicRole = voiceChannel.getGuild().getPublicRole();
+        PermissionOverride permissionOverride = voiceChannel.getPermissionOverride(publicRole);
+        if (permissionOverride == null) {
+            manager = manager.putPermissionOverride(
+                    publicRole,
+                    0,
+                    Permission.VOICE_CONNECT.getRawValue()
+            );
+        }
+
+        Member self = voiceChannel.getGuild().getSelfMember();
+        long permissionBotOverride = Permission.MANAGE_CHANNEL.getRawValue() | Permission.VOICE_CONNECT.getRawValue();
+        PermissionOverride permissionBot = voiceChannel.getPermissionOverride(self);
+        manager = manager.putPermissionOverride(
+                self,
+                (permissionBot != null ? permissionBot.getAllowedRaw() : 0) | permissionBotOverride,
+                permissionBot != null ? permissionBot.getDeniedRaw() & ~permissionBotOverride : 0
+        );
+
+        try {
+            manager.complete();
+        } catch (ErrorResponseException e) {
+            //Ignore
+            return TextManager.getString(locale, Category.UTILITY, "mcdisplays_nopermissions");
+        }
+
+        return null;
+    }
+
+    public static String checkChannel(Locale locale, VoiceChannel channel) {
+        String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(locale, channel, Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS, Permission.VOICE_CONNECT);
+        if (channelMissingPerms != null) {
+            return channelMissingPerms;
+        }
+        if (DBMemberCountDisplays.getInstance().retrieve(channel.getGuild().getIdLong()).getMemberCountBeanSlots().containsKey(channel.getIdLong())) {
+            return TextManager.getString(locale, Category.UTILITY, "mcdisplays_alreadyexists");
+        }
+
+        return null;
+    }
 
     public static void manage(Locale locale, Guild guild) {
         ArrayList<MemberCountDisplaySlot> displays = new ArrayList<>(DBMemberCountDisplays.getInstance().retrieve(guild.getIdLong()).getMemberCountBeanSlots().values());

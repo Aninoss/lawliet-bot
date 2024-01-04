@@ -67,7 +67,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         descriptionField.value = welcomeData.welcomeText
-        container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables")), DashboardSeparator())
+        container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables").replace("-", "•")), DashboardSeparator())
 
         val embedSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_state0_membed")) {
             welcomeData.welcomeEmbed = it.data
@@ -182,7 +182,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         descriptionField.value = welcomeData.dmText
-        container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables")), DashboardSeparator())
+        container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables").replace("-", "•")), DashboardSeparator())
 
         val embedSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_state0_membed")) {
             welcomeData.dmEmbed = it.data
@@ -213,7 +213,7 @@ class WelcomeCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             ActionResult()
         }
         descriptionField.value = welcomeData.goodbyeText
-        container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables")), DashboardSeparator())
+        container.add(descriptionField, DashboardText(getString(Category.UTILITY, "welcome_variables").replace("-", "•")), DashboardSeparator())
 
         val embedSwitch = DashboardSwitch(getString(Category.UTILITY, "welcome_state0_membed")) {
             welcomeData.goodbyeEmbed = it.data

@@ -1,9 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -11,10 +7,8 @@ import commands.runnables.NavigationAbstract;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ListGen;
-import core.MemberCacheController;
 import core.TextManager;
 import core.atomicassets.AtomicVoiceChannel;
-import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.MemberCountDisplay;
@@ -24,15 +18,15 @@ import mysql.modules.membercountdisplays.MemberCountDisplaySlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.PermissionOverride;
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.exceptions.ErrorResponseException;
-import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
-import net.dv8tion.jda.api.managers.channel.concrete.VoiceChannelManager;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 @CommandProperties(
         trigger = "mcdisplays",
@@ -43,6 +37,8 @@ import org.jetbrains.annotations.NotNull;
         aliases = { "membercountdisplays", "memberscountdisplays", "memberdisplays", "mdisplays", "countdisplays", "displays", "mcdisplay" }
 )
 public class MemberCountDisplayCommand extends NavigationAbstract {
+
+    public static int MAX_NAME_MASK_LENGTH = 50;
 
     private MemberCountData memberCountBean;
     private AtomicVoiceChannel currentVC = null;
@@ -63,15 +59,15 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             List<VoiceChannel> vcList = MentionUtil.getVoiceChannels(event.getMessage(), input).getList();
-            if (vcList.size() == 0) {
+            if (vcList.isEmpty()) {
                 String checkString = input.toLowerCase();
                 if (!modules.MemberCountDisplay.replaceVariables(checkString, "", "", "", "").equals(checkString)) {
-                    if (input.length() <= 50) {
+                    if (input.length() <= MAX_NAME_MASK_LENGTH) {
                         currentName = input;
                         setLog(LogStatus.SUCCESS, getString("nameset"));
                         return MessageInputResponse.SUCCESS;
                     } else {
-                        setLog(LogStatus.FAILURE, getString("nametoolarge", "50"));
+                        setLog(LogStatus.FAILURE, getString("nametoolarge", StringUtil.numToString(MAX_NAME_MASK_LENGTH)));
                         return MessageInputResponse.FAILED;
                     }
                 }
@@ -79,10 +75,14 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
             } else {
                 VoiceChannel channel = vcList.get(0);
-                if (checkChannel(channel)) {
+                String err = MemberCountDisplay.checkChannel(getLocale(), channel);
+                if (err == null) {
                     currentVC = new AtomicVoiceChannel(channel);
                     setLog(LogStatus.SUCCESS, getString("vcset"));
                     return MessageInputResponse.SUCCESS;
+                } else {
+                    setLog(LogStatus.FAILURE, err);
+                    return MessageInputResponse.FAILED;
                 }
             }
             return MessageInputResponse.FAILED;
@@ -112,7 +112,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                         }
 
                     case 1:
-                        if (memberCountBean.getMemberCountBeanSlots().size() > 0) {
+                        if (!memberCountBean.getMemberCountBeanSlots().isEmpty()) {
                             setState(2);
                             return true;
                         } else {
@@ -134,50 +134,9 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                     Optional<VoiceChannel> vcOpt = currentVC.get();
                     if (vcOpt.isPresent()) {
                         VoiceChannel voiceChannel = vcOpt.get();
-                        if (!checkChannel(voiceChannel)) {
-                            return true;
-                        }
-
-                        MemberCacheController.getInstance().loadMembersFull(event.getGuild()).join();
-                        VoiceChannelManager manager = voiceChannel.getManager();
-                        try {
-                            for (PermissionOverride permissionOverride : voiceChannel.getPermissionOverrides()) {
-                                manager = manager.putPermissionOverride(
-                                        permissionOverride.getPermissionHolder(),
-                                        permissionOverride.getAllowedRaw() & ~Permission.VOICE_CONNECT.getRawValue(),
-                                        permissionOverride.getDeniedRaw() | Permission.VOICE_CONNECT.getRawValue()
-                                );
-                            }
-                        } catch (InsufficientPermissionException | ErrorResponseException e) {
-                            //Ignore
-                            setLog(LogStatus.FAILURE, getString("nopermissions"));
-                            return true;
-                        }
-
-                        Role publicRole = event.getGuild().getPublicRole();
-                        PermissionOverride permissionOverride = voiceChannel.getPermissionOverride(publicRole);
-                        if (permissionOverride == null) {
-                            manager = manager.putPermissionOverride(
-                                    publicRole,
-                                    0,
-                                    Permission.VOICE_CONNECT.getRawValue()
-                            );
-                        }
-
-                        Member self = event.getGuild().getSelfMember();
-                        long permissionBotOverride = Permission.MANAGE_CHANNEL.getRawValue() | Permission.VOICE_CONNECT.getRawValue();
-                        PermissionOverride permissionBot = voiceChannel.getPermissionOverride(self);
-                        manager = manager.putPermissionOverride(
-                                self,
-                                (permissionBot != null ? permissionBot.getAllowedRaw() : 0) | permissionBotOverride,
-                                permissionBot != null ? permissionBot.getDeniedRaw() & ~permissionBotOverride : 0
-                        );
-
-                        try {
-                            manager.complete();
-                        } catch (ErrorResponseException e) {
-                            //Ignore
-                            setLog(LogStatus.FAILURE, getString("nopermissions"));
+                        String err = MemberCountDisplay.initialize(getLocale(), voiceChannel);
+                        if (err != null) {
+                            setLog(LogStatus.FAILURE, err);
                             return true;
                         }
 
@@ -201,7 +160,7 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                 } else if (i < memberCountBean.getMemberCountBeanSlots().size()) {
                     memberCountBean.getMemberCountBeanSlots().remove(new ArrayList<>(memberCountBean.getMemberCountBeanSlots().keySet()).get(i));
                     setLog(LogStatus.SUCCESS, getString("displayremove"));
-                    if (memberCountBean.getMemberCountBeanSlots().size() == 0) {
+                    if (memberCountBean.getMemberCountBeanSlots().isEmpty()) {
                         setState(0);
                     }
                     return true;
@@ -250,20 +209,6 @@ public class MemberCountDisplayCommand extends NavigationAbstract {
                 return null;
             }
         }
-    }
-
-    private boolean checkChannel(VoiceChannel channel) {
-        String channelMissingPerms = BotPermissionUtil.getBotPermissionsMissingText(getLocale(), channel, Permission.MANAGE_CHANNEL, Permission.MANAGE_PERMISSIONS, Permission.VOICE_CONNECT);
-        if (channelMissingPerms != null) {
-            setLog(LogStatus.FAILURE, channelMissingPerms);
-            return false;
-        }
-        if (memberCountBean.getMemberCountBeanSlots().containsKey(channel.getIdLong())) {
-            setLog(LogStatus.FAILURE, getString("alreadyexists"));
-            return false;
-        }
-
-        return true;
     }
 
     private String highlightVariables(String str) {
