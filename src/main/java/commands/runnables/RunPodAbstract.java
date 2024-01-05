@@ -15,6 +15,7 @@ import core.featurelogger.PremiumFeature;
 import core.modals.ModalMediator;
 import core.utils.*;
 import modules.txt2img.*;
+import mysql.hibernate.entity.user.Txt2ImgEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -35,10 +36,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
@@ -47,15 +45,15 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     public static int LIMIT_CREATIONS_PER_WEEK = 50;
     public static int PROMPT_MAX_LENGTH = 2000;
-    public static String DEFAULT_NEGATIVE_PROMPT = "worst quality, low quality, low-res, ugly, extra limbs, missing limb, floating limbs, disconnected limbs, mutated hands, extra legs, extra arms, bad anatomy, bad proportions, weird hands, malformed hands, disproportionate, disfigured, mutation, mutated, deformed, head out of frame, body out of frame, poorly drawn face, poorly drawn hands, poorly drawn feet, disfigured, out of frame, long neck, big ears, tiling, bad hands, bad art, cross-eye, blurry, blurred, watermark";
+    public static String DEFAULT_NEGATIVE_PROMPT = "worst quality, low quality, low-res, ugly, extra limbs, missing limb, floating limbs, disconnected limbs, mutated hands, extra legs, extra arms, bad anatomy, bad proportions, weird hands, malformed hands, disproportionate, disfigured, mutation, mutated, deformed, head out of frame, body out of frame, poorly drawn face, poorly drawn hands, poorly drawn feet, disfigured, out of frame, long neck, big ears, tiling, bad hands, bad art, cross-eye, blurry, blurred, watermark, duplicates";
     private static final String[] INAPPROPRIATE_CONTENT_FILTERS = {"nigga", "nigger", "niggas", "niggers", "rape", "raping", "raped"};
 
-    private static final int STATE_ADJUST_IMAGES = 1;
+    private static final int STATE_ADJUST_IMAGES = 1,
+            STATE_ADJUST_RATIO = 2;
 
     private final String additionalNegativePrompt;
     private String prompt;
     private String negativePrompt;
-    private int images = 1;
 
     public RunPodAbstract(Locale locale, String prefix, String additionalNegativePrompt) {
         super(locale, prefix);
@@ -165,6 +163,10 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                 setState(STATE_ADJUST_IMAGES);
                 return true;
             }
+            case 2 -> {
+                setState(STATE_ADJUST_RATIO);
+                return true;
+            }
             default -> {
                 return true;
             }
@@ -178,8 +180,32 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             return true;
         }
 
-        images = i + 1;
-        setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_images_set", StringUtil.numToString(images)));
+        Txt2ImgEntity txt2img = getUserEntity().getTxt2img();
+        txt2img.beginTransaction();
+        txt2img.setConfigImages(i + 1);
+        txt2img.commitTransaction();
+
+        setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_images_set", StringUtil.numToString(i + 1)));
+        setState(DEFAULT_STATE);
+        return true;
+    }
+
+    @ControllerButton(state = STATE_ADJUST_RATIO)
+    public boolean onButtonAdjustRatio(ButtonInteractionEvent event, int i) {
+        if (i == -1) {
+            setState(DEFAULT_STATE);
+            return true;
+        }
+        AspectRatio aspectRatio = AspectRatio.values()[i];
+
+        Txt2ImgEntity txt2img = getUserEntity().getTxt2img();
+        txt2img.beginTransaction();
+        txt2img.setConfigAspectRatio(aspectRatio);
+        txt2img.commitTransaction();
+
+        setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_set",
+                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + aspectRatio.name())
+        ));
         setState(DEFAULT_STATE);
         return true;
     }
@@ -198,18 +224,20 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         boolean isFirstToday = !LocalDate.now().equals(getUserEntity().getTxt2img().getCallsDate());
         int remainingCalls = Txt2ImgCallTracker.getRemainingCalls(getEntityManager(), event.getMember().getIdLong(), premium);
         if (remainingCalls > 0) {
-            images = Math.min(images, remainingCalls);
-            if (premium) {
-                FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
-            }
-            Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), premium, images);
+            Txt2ImgEntity txt2img = getUserEntity().getTxt2img();
 
             String localPrompt = prompt;
             String localNegativePrompt = negativePrompt;
-            int localImages = images;
+            int localImages = Math.min(txt2img.getConfigImages(), remainingCalls);
+            AspectRatio localAspectRatio = txt2img.getConfigAspectRatio();
+
+            if (premium) {
+                FeatureLogger.inc(PremiumFeature.AI, event.getGuild().getIdLong());
+            }
+            Txt2ImgCallTracker.increaseCalls(getEntityManager(), event.getUser().getIdLong(), premium, localImages);
 
             Model model = Model.values()[Integer.parseInt(event.getValues().get(0))];
-            String predictionId = RunPodDownloader.createPrediction(model, localPrompt, additionalNegativePrompt + localNegativePrompt, localImages).get();
+            String predictionId = RunPodDownloader.createPrediction(model, localPrompt, additionalNegativePrompt + localNegativePrompt, localImages, localAspectRatio).get();
             AtomicReference<PredictionResult> predictionResult = new AtomicReference<>(null);
             Instant startTime = Instant.now();
             AtomicLong messageId = new AtomicLong(0);
@@ -219,10 +247,11 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             setLog(LogStatus.SUCCESS, TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_go", modelName));
 
             if (requestProgress(event, error, messageId, localPrompt, localNegativePrompt, model, localImages,
-                    predictionId, predictionResult, startTime, isFirstToday)
+                    localAspectRatio, predictionId, predictionResult, startTime, isFirstToday)
             ) {
-                poll(Duration.ofSeconds(2), () -> requestProgress(event, error, messageId, localPrompt, localNegativePrompt,
-                        model, images, predictionId, predictionResult, startTime, isFirstToday));
+                poll(Duration.ofSeconds(2), () -> requestProgress(event, error, messageId, localPrompt,
+                        localNegativePrompt, model, localImages, localAspectRatio, predictionId, predictionResult, startTime,
+                        isFirstToday));
             }
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), Category.AI_TOYS, premium ? "txt2img_nocalls" : "txt2img_nocalls_nopremium"));
@@ -237,7 +266,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         ArrayList<Button> buttons = new ArrayList<>();
         String[] buttonLabels = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_default_options").split("\n");
         for (int i = 0; i < buttonLabels.length; i++) {
-            if (i == 2) {
+            if (i == buttonLabels.length - 1) {
                 buttons.add(Button.of(ButtonStyle.LINK, ExternalLinks.PREMIUM_WEBSITE + "?tab=1", buttonLabels[i]));
             } else {
                 buttons.add(Button.of(ButtonStyle.PRIMARY, String.valueOf(i), buttonLabels[i]));
@@ -263,7 +292,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         actionRows.add(ActionRow.of(menuBuilder.build()));
         setActionRows(actionRows);
 
-        EmbedBuilder eb = generateOptionsEmbed(prompt, negativePrompt, null, images);
+        Txt2ImgEntity txt2img = getUserEntity().getTxt2img();
+        EmbedBuilder eb = generateOptionsEmbed(prompt, negativePrompt, null, txt2img.getConfigImages(), txt2img.getConfigAspectRatio());
         eb.addField(Emojis.ZERO_WIDTH_SPACE.getFormatted(), "> " + getString("contentwarning"), false);
 
         String footer;
@@ -290,6 +320,19 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         );
     }
 
+    @Draw(state = STATE_ADJUST_RATIO)
+    public EmbedBuilder drawAdjustRatio(Member member) {
+        String[] options = Arrays.stream(AspectRatio.values())
+                .map(ratio -> TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + ratio.name()))
+                .toArray(String[]::new);
+
+        setComponents(options);
+        return EmbedFactory.getEmbedDefault(this,
+                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_desc"),
+                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_title")
+        );
+    }
+
     private EmbedBuilder getErrorEmbedIfBanned() {
         Instant bannedUntil = getUserEntity()
                 .getTxt2img()
@@ -313,8 +356,9 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         return null;
     }
 
-    private Boolean requestProgress(StringSelectInteractionEvent event, AtomicReference<Throwable> error, AtomicLong messageId,
-                                    String localPrompt, String localNegativePrompt, Model model, int images, String predictionId,
+    private Boolean requestProgress(StringSelectInteractionEvent event, AtomicReference<Throwable> error,
+                                    AtomicLong messageId, String localPrompt, String localNegativePrompt, Model model,
+                                    int images, AspectRatio aspectRatio, String predictionId,
                                     AtomicReference<PredictionResult> predictionResult, Instant startTime,
                                     boolean includePromptHelp
     ) {
@@ -330,7 +374,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         }
 
         List<MessageEmbed> messageEmbeds = generateLoadingEmbeds(event.getMember(), localPrompt, localNegativePrompt,
-                model, images, predictionId, predictionResult, startTime, includePromptHelp
+                model, images, aspectRatio, predictionId, predictionResult, startTime, includePromptHelp
         );
         if (messageId.get() == 0) {
             messageId.set(-1);
@@ -342,7 +386,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         return predictionResult.get() == null || List.of(PredictionResult.Status.IN_QUEUE, PredictionResult.Status.IN_PROGRESS).contains(predictionResult.get().getStatus());
     }
 
-    private EmbedBuilder generateOptionsEmbed(String prompt, String negativePrompt, Model model, int images) {
+    private EmbedBuilder generateOptionsEmbed(String prompt, String negativePrompt, Model model, int images, AspectRatio aspectRatio) {
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                 .addField(
                         TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_textprompt_title"),
@@ -359,7 +403,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         }
 
         String options = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_options",
-                StringUtil.numToString(images)
+                StringUtil.numToString(images),
+                TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_ratio_" + aspectRatio.name())
         );
         if (model != null) {
             String modelName = getString("model_" + model.name());
@@ -374,7 +419,8 @@ public abstract class RunPodAbstract extends NavigationAbstract {
     }
 
     private List<MessageEmbed> generateLoadingEmbeds(Member member, String prompt, String negativePrompt, Model model,
-                                                     int images, String predictionId, AtomicReference<PredictionResult> predictionResult,
+                                                     int images, AspectRatio aspectRatio, String predictionId,
+                                                     AtomicReference<PredictionResult> predictionResult,
                                                      Instant startTime, boolean includePromptHelp
     ) {
         ArrayList<MessageEmbed> embeds = new ArrayList<>();
@@ -399,7 +445,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
             case COMPLETED -> {
                 boolean first = true;
                 for (String output : predictionResult.get().getOutputs()) {
-                    EmbedBuilder eb = (first ? generateOptionsEmbed(prompt, negativePrompt, model, images) : EmbedFactory.getEmbedDefault(this))
+                    EmbedBuilder eb = (first ? generateOptionsEmbed(prompt, negativePrompt, model, images, aspectRatio) : EmbedFactory.getEmbedDefault(this))
                             .setImage(output);
                     if (first && includePromptHelp) {
                         eb.addField(

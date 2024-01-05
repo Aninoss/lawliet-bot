@@ -1,18 +1,34 @@
 package mysql.hibernate.entity.user
 
 import core.assets.UserAsset
+import modules.txt2img.AspectRatio
 import mysql.hibernate.InstantConverter
 import mysql.hibernate.template.HibernateEmbeddedEntity
 import java.time.Instant
 import java.time.LocalDate
-import javax.persistence.Column
-import javax.persistence.Convert
-import javax.persistence.Embeddable
+import javax.persistence.*
 
 const val TXT2IMG = "txt2img"
 
 @Embeddable
 class Txt2ImgEntity : HibernateEmbeddedEntity<UserEntity>(), UserAsset {
+
+    @Column(name = "$TXT2IMG.configImages")
+    var _configImages : Int? = null
+    var configImages: Int
+        get() = _configImages ?: 1
+        set(value) {
+            _configImages = value
+        }
+
+    @Column(name = "$TXT2IMG.configAspectRatio")
+    @Enumerated(EnumType.STRING)
+    var _configAspectRatio : AspectRatio? = null
+    var configAspectRatio: AspectRatio
+        get() = _configAspectRatio ?: AspectRatio.SQUARE
+        set(value) {
+            _configAspectRatio = value
+        }
 
     @Convert(converter = InstantConverter::class)
     var bannedUntil: Instant? = null

@@ -16,8 +16,8 @@ import java.util.concurrent.CompletionException;
 
 public class RunPodDownloader {
 
-    public static CompletableFuture<String> createPrediction(Model model, String prompt, String negativePrompt, int images) {
-        JSONObject inputJson = model.getInput(images);
+    public static CompletableFuture<String> createPrediction(Model model, String prompt, String negativePrompt, int images, AspectRatio aspectRatio) {
+        JSONObject inputJson = model.getInput(images, aspectRatio);
         inputJson.put("prompt", prompt);
         if (!negativePrompt.isBlank()) {
             inputJson.put("negative_prompt", negativePrompt);
