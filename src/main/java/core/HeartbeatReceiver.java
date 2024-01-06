@@ -23,7 +23,7 @@ public class HeartbeatReceiver {
 
         MainScheduler.poll(Duration.ofMinutes(1), () -> {
             try {
-                if (Instant.now().isAfter(lastBeat.plus(Duration.ofMinutes(0)))) {
+                if (Instant.now().isAfter(lastBeat.plus(Duration.ofMinutes(1)))) {
                     MainLogger.get().warn("Heartbeat not received for over {} minutes", Duration.between(lastBeat, Instant.now()).toMinutes());
                 }
 
