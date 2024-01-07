@@ -62,6 +62,17 @@ public abstract class RunPodAbstract extends NavigationAbstract {
 
     public abstract List<String> getFilters(long guildId);
 
+    public List<String> getAndExtractFilters(long guildId) {
+        ArrayList<String> extractedFilters = new ArrayList<>();
+        for (String filter : getFilters(guildId)) {
+            extractedFilters.add(filter);
+            if (filter.contains("_")) {
+                extractedFilters.add(filter.replace("_", " "));
+            }
+        }
+        return extractedFilters;
+    }
+
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
         EmbedBuilder errorEmbedIfBanned = getErrorEmbedIfBanned();
@@ -350,7 +361,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
         if (NSFWUtil.containsNormalFilterTags(prompt, List.of(INAPPROPRIATE_CONTENT_FILTERS))) {
             return TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_generalfilterblock");
         }
-        if (NSFWUtil.containsNormalFilterTags(prompt, getFilters(guildId))) {
+        if (NSFWUtil.containsNormalFilterTags(prompt, getAndExtractFilters(guildId))) {
             return getString("filterblock");
         }
         return null;

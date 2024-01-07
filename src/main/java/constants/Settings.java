@@ -19,7 +19,7 @@ public interface Settings {
     String[] NSFW_FILTERS = {
             "loli", "shota", "lolicon", "little_girl", "shotacon", "oneshota", "cp", "cub", "children",
             "child", "kid", "kids", "teen", "teenager", "young", "younger", "underage", "under_age", "cunny",
-            "flat_chest", "flat_chested", "petite", // minors
+            "flat_chest", "flat_chested", "petite", "small_girl", "small_boy", // minors
 
             "tagme", // unsafe
 
@@ -29,7 +29,7 @@ public interface Settings {
             "raping", "gangrape", "gross", "bruise", "bruised", "bruises", "asphyxiation", "strangling", "strangled", "torture",
             "tortured", "corpse", "scat", "suicide", "deceased", // violence
 
-            "celebrity", "celeb" // non-consensual publications
+            "celebrity", "celeb", "pokimane" // non-consensual publications
     };
 
     String[] NSFW_STRICT_FILTERS = { "death" };
