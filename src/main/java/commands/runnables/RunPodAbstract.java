@@ -433,7 +433,7 @@ public abstract class RunPodAbstract extends NavigationAbstract {
                         List<String> newOutputs = convertBase64ToTempFileUrls(predictionResult.get().getOutputs());
                         predictionResult.get().setOutputs(newOutputs);
                     }
-                    Txt2ImgLogger.log(prompt, member.getUser(), model.name(), predictionResult.get().getOutputs());
+                    Txt2ImgLogger.log(prompt, member, model.name(), predictionResult.get().getOutputs());
                 }
             } catch (Throwable e) {
                 MainLogger.get().error("Prediction failed", e);
