@@ -491,6 +491,16 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
             return;
         }
 
+        if (event.getMentions().getMembers().isEmpty()) {
+            EmbedBuilder eb = EmbedFactory.getEmbedError()
+                    .setTitle(TextManager.getString(getLocale(), TextManager.GENERAL, "rejected"))
+                    .setDescription(getString("powerup_collab_notpresent"));
+            event.replyEmbeds(eb.build())
+                    .setEphemeral(true)
+                    .queue();
+            return;
+        }
+
         DBStaticReactionMessages.getInstance().retrieve(event.getGuild().getIdLong())
                 .remove(event.getMessage().getIdLong());
         processCollaboration(event);
