@@ -1,6 +1,8 @@
 package events.discordevents.guildjoin;
 
 import java.util.Locale;
+
+import constants.ExceptionIds;
 import constants.ExternalLinks;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -48,7 +50,7 @@ public class GuildJoinPostWelcomeMessage extends GuildJoinAbstract {
             channel.sendMessageEmbeds(eb.build())
                     .addComponents(ActionRow.of(dashboardButton, commandsButton, faqButton, supportServerButton))
                     .submit()
-                    .exceptionally(ExceptionLogger.get("50013"));
+                    .exceptionally(ExceptionLogger.get(ExceptionIds.MISSING_PERMISSIONS));
         }
     }
 

@@ -7,6 +7,7 @@ import commands.listeners.OnAlertListener;
 import commands.listeners.OnStaticButtonListener;
 import commands.runnables.FisheryInterface;
 import constants.Emojis;
+import constants.ExceptionIds;
 import constants.LogStatus;
 import core.EmbedFactory;
 import core.ExceptionLogger;
@@ -242,7 +243,7 @@ public class SurveyCommand extends Command implements FisheryInterface, OnStatic
 
         StandardGuildMessageChannel channel = slot.getStandardGuildMessageChannel().get();
         if (BotPermissionUtil.canReadHistory(channel)) {
-            slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).queue());
+            slot.getMessageId().ifPresent(messageId -> channel.deleteMessageById(messageId).submit().exceptionally(ExceptionLogger.get(ExceptionIds.MISSING_PERMISSIONS)));
         }
 
         SurveyEmbeds surveyEmbeds = generateSurveyEmbeds(null);
