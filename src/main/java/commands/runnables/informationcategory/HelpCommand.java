@@ -310,6 +310,7 @@ public class HelpCommand extends NavigationAbstract {
         boolean includeAlerts = false;
         boolean includeNSFW = false;
 
+        StringBuilder predefinedNsfwBooruCommands = new StringBuilder();
         int i = 0;
         for (Category category : Category.independentValues()) {
             for (Class<? extends Command> clazz : CommandContainer.getCommandCategoryMap().get(category)) {
@@ -341,13 +342,22 @@ public class HelpCommand extends NavigationAbstract {
 
                     buttonMap.put(i, command.getTrigger());
                     i++;
-                    eb.addField(
-                            title.toString(),
-                            TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(),
-                            true
-                    );
+
+                    if (command instanceof PornPredefinedAbstract) {
+                        String extras = generateCommandIcons(channel, command, false, true, false);
+                        predefinedNsfwBooruCommands.append(getString("nsfw_slot", command.getTrigger(), extras, command.getCommandLanguage().getTitle())).append("\n");
+                    } else {
+                        eb.addField(
+                                title.toString(),
+                                TextManager.getString(getLocale(), command.getCategory(), commandTrigger + "_description") + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted(),
+                                true
+                        );
+                    }
                 }
             }
+        }
+        if (!predefinedNsfwBooruCommands.isEmpty()) {
+            eb.addField(getString("nsfw_premium"), predefinedNsfwBooruCommands.toString(), false);
         }
 
         eb.setDescription(getString("premium", ExternalLinks.PREMIUM_WEBSITE) + "\n" + Emojis.ZERO_WIDTH_SPACE.getFormatted());
@@ -416,17 +426,17 @@ public class HelpCommand extends NavigationAbstract {
                 buttonMap.put(i++, command.getTrigger());
                 String title = TextManager.getString(getLocale(), command.getCategory(), command.getTrigger() + "_title");
 
-                StringBuilder extras = new StringBuilder(generateCommandIcons(channel, command, false, false, true));
+                String extras = generateCommandIcons(channel, command, false, false, true);
                 if (command instanceof PornSearchAbstract) {
-                    withSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
+                    withSearchKey.append(getString("nsfw_slot", command.getTrigger(), extras, title)).append("\n");
                 } else if (command instanceof PornPredefinedAbstract) {
                     if (command instanceof RealbooruAbstract) {
-                        withoutSearchKeyRealLife.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
+                        withoutSearchKeyRealLife.append(getString("nsfw_slot", command.getTrigger(), extras, title)).append("\n");
                     } else {
-                        withoutSearchKeyHentai.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
+                        withoutSearchKeyHentai.append(getString("nsfw_slot", command.getTrigger(), extras, title)).append("\n");
                     }
                 } else if (command instanceof Txt2HentaiCommand) {
-                    ai.append(getString("nsfw_slot", command.getTrigger(), extras.toString(), title)).append("\n");
+                    ai.append(getString("nsfw_slot", command.getTrigger(), extras, title)).append("\n");
                 }
             }
         }
