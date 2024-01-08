@@ -45,6 +45,14 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
     val removeAuthorMessageEffectively: Boolean
         get() = removeAuthorMessage && ServerPatreonBoostCache.get(guildId.toLong())
 
+    @Column(name = "txt2imgBanned")
+    private var _txt2imgBanned: Boolean? = null
+    var txt2imgBanned: Boolean
+        get() = _txt2imgBanned ?: false
+        set(value) {
+            _txt2imgBanned = value
+        }
+
     @Embedded
     @Column(name = FISHERY)
     val fishery = FisheryEntity()

@@ -345,6 +345,11 @@ public abstract class RunPodAbstract extends NavigationAbstract {
     }
 
     private EmbedBuilder getErrorEmbedIfBanned() {
+        if (getGuildEntity().getTxt2imgBanned()) {
+            String error = TextManager.getString(getLocale(), Category.AI_TOYS, "txt2img_banned_guild", ExternalLinks.SERVER_INVITE_URL);
+            return EmbedFactory.getEmbedError(this, error);
+        }
+
         Instant bannedUntil = getUserEntity()
                 .getTxt2img()
                 .getBannedUntil();
