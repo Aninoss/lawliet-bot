@@ -488,7 +488,7 @@ public class HelpCommand extends NavigationAbstract {
     }
 
     private EmbedBuilder checkMainPage(Member member, TextChannel channel) {
-        String banner = Program.publicVersion()
+        String banner = Program.publicInstance()
                 ? "https://cdn.discordapp.com/attachments/499629904380297226/850825690399899658/help_banner.png"
                 : "https://cdn.discordapp.com/attachments/499629904380297226/1106609492256370779/help_banner_custom.png";
 
@@ -501,9 +501,9 @@ public class HelpCommand extends NavigationAbstract {
         buttonMap.clear();
         buttonMap.put(-1, "quit");
 
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             eb.addField(getString("links_title"), getString(
-                    Program.publicVersion() ? "links_content" : "help_links_content_notpublic",
+                    Program.publicInstance() ? "links_content" : "help_links_content_notpublic",
                     ExternalLinks.LAWLIET_WEBSITE,
                     ExternalLinks.SERVER_INVITE_URL,
                     ExternalLinks.BOT_INVITE_URL,

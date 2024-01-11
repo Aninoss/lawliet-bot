@@ -35,7 +35,7 @@ interface OnTriggerListener {
         val isProcessing = AtomicBoolean(true)
         command.setAtomicAssets(event.textChannel, event.member)
         command.commandEvent = event
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             DBCommandUsages.getInstance().retrieve(command.trigger).increase()
         }
         if (event.isMessageReceivedEvent()) {

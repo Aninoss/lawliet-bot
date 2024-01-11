@@ -92,7 +92,7 @@ public class CommandManager {
                 sendOverwrittenSignals(command, event.getMember());
 
                 boolean success = command.processTrigger(event, args, guildEntity, freshCommand);
-                if (success && Program.publicVersion()) {
+                if (success && Program.publicInstance()) {
                     maybeSendBotInvite(event, command.getLocale());
                 }
             } catch (Throwable e) {
@@ -104,7 +104,7 @@ public class CommandManager {
     }
 
     private static void maybeSendBotInvite(CommandEvent event, Locale locale) {
-        if (Program.publicVersion() &&
+        if (Program.publicInstance() &&
                 random.nextInt(180) == 0 &&
                 !BotPermissionUtil.can(event.getMember(), Permission.MANAGE_SERVER, Permission.MESSAGE_MANAGE) &&
                 BotPermissionUtil.canWriteEmbed(event.getTextChannel())

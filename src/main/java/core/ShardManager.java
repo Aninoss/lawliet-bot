@@ -24,7 +24,7 @@ import static java.util.Objects.requireNonNullElse;
 public class ShardManager {
 
     static {
-        if (Program.productionMode() && Program.publicVersion()) {
+        if (Program.productionMode() && Program.publicInstance()) {
             startJDAPoller();
         }
     }
@@ -259,7 +259,7 @@ public class ShardManager {
         if (localGuildSizeOpt.isEmpty()) {
             return Optional.empty();
         }
-        if (!Program.productionMode() || !Program.publicVersion()) {
+        if (!Program.productionMode() || !Program.publicInstance()) {
             return localGuildSizeOpt;
         }
 
@@ -291,7 +291,7 @@ public class ShardManager {
 
     public static Optional<String> getGuildName(long guildId) {
         Optional<String> guildNameOpt = getLocalGuildById(guildId).map(Guild::getName);
-        if (!Program.publicVersion()) {
+        if (!Program.publicInstance()) {
             return guildNameOpt;
         }
 
@@ -373,7 +373,7 @@ public class ShardManager {
 
     public static Optional<String> getEmoteById(long emojiId) {
         Optional<String> emojiOptional = getLocalCustomEmojiById(emojiId).map(CustomEmoji::getAsMention);
-        if (!Program.publicVersion() || !Program.productionMode()) {
+        if (!Program.publicInstance() || !Program.productionMode()) {
             return emojiOptional;
         }
 

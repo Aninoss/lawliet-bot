@@ -16,7 +16,7 @@ public class CheckSubscriptionActive implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             return;
         }
 

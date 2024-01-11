@@ -126,7 +126,7 @@ public class Console {
         long durationMinutes = MentionUtil.getTimeMinutes(args[2]).getValue();
         String reason = collectArgs(args, 3).replace("\\n", "\n");
 
-        if (durationMinutes > 0 && Program.isMainCluster() && Program.publicVersion()) {
+        if (durationMinutes > 0 && Program.isMainCluster() && Program.publicInstance()) {
             Instant bannedUntil = Instant.now().plus(Duration.ofMinutes(durationMinutes));
             try (UserEntity user = HibernateManager.findUserEntity(userId)) {
                 Txt2ImgEntity txt2img = user.getTxt2img();
@@ -174,7 +174,7 @@ public class Console {
     }
 
     private static void onGdpr(String[] args) throws SQLException, InterruptedException {
-        if (Program.isMainCluster() && Program.publicVersion()) {
+        if (Program.isMainCluster() && Program.publicInstance()) {
             long userId = Long.parseLong(args[1]);
             String userTag = args[2];
 

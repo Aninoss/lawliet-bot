@@ -1,6 +1,8 @@
 package core;
 
 import commands.SlashCommandManager;
+import constants.Language;
+import core.cache.UserWithWorkFisheryDmReminderCache;
 import core.featurelogger.FeatureLogger;
 import core.schedule.MainScheduler;
 import core.utils.StringUtil;
@@ -14,7 +16,11 @@ import mysql.DBDataLoadAll;
 import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.user.FisheryDmReminderEntity;
+import mysql.hibernate.entity.user.UserEntity;
 import mysql.hibernate.template.HibernateEntityInterface;
+import mysql.modules.subs.DBSubs;
+import mysql.modules.subs.SubSlot;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -27,9 +33,7 @@ import net.dv8tion.jda.api.utils.messages.MessageRequest;
 import net.dv8tion.jda.internal.utils.IOUtil;
 
 import java.time.Duration;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -72,7 +76,7 @@ public class DiscordConnector {
     }
 
     public static String getActivityText() {
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             return ShardManager.getGlobalGuildSize()
                     .map(globalGuildSize -> "L.help｜" + StringUtil.numToStringShort(globalGuildSize, Locale.US) + "｜www.lawlietbot.xyz")
                     .orElse("L.help｜www.lawlietbot.xyz");
@@ -139,7 +143,7 @@ public class DiscordConnector {
     }
 
     private static boolean checkCustomBotParameters(JDA jda) {
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             return true;
         }
 
@@ -177,7 +181,7 @@ public class DiscordConnector {
 
     private static void allConnectionsCompleted() {
         new ScheduleEventManager().start();
-        if (Program.productionMode() && Program.publicVersion()) {
+        if (Program.productionMode() && Program.publicInstance()) {
             BumpReminder.start();
         }
         AlertScheduler.start();
@@ -192,7 +196,41 @@ public class DiscordConnector {
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate() {
-        //TODO: Migrate other tables
+        if (!Program.publicInstance() ||
+                !Program.isMainCluster() ||
+                !UserWithWorkFisheryDmReminderCache.getInstance().getAsync().isEmpty()) {
+            return;
+        }
+
+        MainLogger.get().info("Transferring {} MySQL data to MongoDB...", "Subs");
+        int updates = 0;
+
+        ArrayList<SubSlot> subs = new ArrayList<>();
+        subs.addAll(DBSubs.getInstance().retrieve(DBSubs.Command.DAILY).values());
+        subs.addAll(DBSubs.getInstance().retrieve(DBSubs.Command.WORK).values());
+        subs.addAll(DBSubs.getInstance().retrieve(DBSubs.Command.CLAIM).values());
+        subs.addAll(DBSubs.getInstance().retrieve(DBSubs.Command.SURVEY).values());
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            for (SubSlot sub : subs) {
+                UserEntity userEntity = entityManager.findUserEntity(sub.getUserId());
+                Map<FisheryDmReminderEntity.Type, FisheryDmReminderEntity> fisheryDmReminders = userEntity.getFisheryDmReminders();
+
+                FisheryDmReminderEntity fisheryDmReminderEntity = new FisheryDmReminderEntity(
+                        FisheryDmReminderEntity.Type.valueOf(sub.getCommand().name()),
+                        Language.from(sub.getLocale())
+                );
+                fisheryDmReminderEntity.setErrors(sub.getErrors());
+
+                userEntity.beginTransaction();
+                fisheryDmReminders.put(fisheryDmReminderEntity.getType(), fisheryDmReminderEntity);
+                userEntity.commitTransaction();
+                entityManager.clear();
+
+                updates++;
+            }
+        }
+
+        MainLogger.get().info("Completed with {} updates!", updates);
     }
 
     private static <T extends HibernateEntityInterface> void transferSqlToHibernate(
@@ -201,7 +239,7 @@ public class DiscordConnector {
             Function<T, Boolean> isUsedFunction,
             Consumer<T> updateEntityValuesConsumer
     ) {
-        if (!Program.publicVersion()) {
+        if (!Program.publicInstance()) {
             return;
         }
 
@@ -214,8 +252,8 @@ public class DiscordConnector {
             guildIdList = new DBDataLoadAll<Long>(sqlTableName, "serverId", " AND serverId > " + guildIdOffset + " ORDER BY serverId LIMIT " + limit)
                     .getList(resultSet -> resultSet.getLong(1));
 
-            for (long guildId : guildIdList) {
-                try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+                for (long guildId : guildIdList) {
                     GuildEntity guildEntity = entityManager.find(GuildEntity.class, String.valueOf(guildId));
                     if (guildEntity == null) {
                         continue;
@@ -230,6 +268,8 @@ public class DiscordConnector {
                     updateEntityValuesConsumer.accept(entity);
                     entity.commitTransaction();
                     updates++;
+
+                    entityManager.clear();
                 }
             }
             if (!guildIdList.isEmpty()) {

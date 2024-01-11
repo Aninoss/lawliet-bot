@@ -124,7 +124,7 @@ public class SlashCommandManager {
     private static ArrayList<CommandData> initialize() {
         ArrayList<CommandData> commandDataList = new ArrayList<>();
         for (SlashAdapter slashAdapter : slashAdapterMap.values()) {
-            if (!slashAdapter.onlyPublicVersion() || Program.publicVersion()) {
+            if (!slashAdapter.onlyPublicVersion() || Program.publicInstance()) {
                 commandDataList.add(slashAdapter.generateCommandData());
             }
         }

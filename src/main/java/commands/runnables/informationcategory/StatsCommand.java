@@ -69,11 +69,11 @@ public class StatsCommand extends Command {
                         ShardManager.getGlobalGuildSize().map(StringUtil::numToString).orElse("-"),
                         owner,
                         StringUtil.numToString(event.getJDA().getShardInfo().getShardId()),
-                        StringUtil.numToString(Program.publicVersion() ? Program.getClusterId() : 1)
+                        StringUtil.numToString(Program.publicInstance() ? Program.getClusterId() : 1)
                 ) + "\n\n" + getString("translator", dephordName, neverCookFirstName, laleName)
         );
 
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             setComponents(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, getString("invite")));
         }
         drawMessageNew(eb).exceptionally(ExceptionLogger.get());

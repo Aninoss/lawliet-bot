@@ -21,7 +21,7 @@ public class ChunkingFilterController implements ChunkingFilter {
 
     @Override
     public boolean filter(long guildId) {
-        return !Program.publicVersion() ||
+        return !Program.publicInstance() ||
                 guildId == AssetIds.SUPPORT_SERVER_ID ||
                 guildId == AssetIds.ANICORD_SERVER_ID ||
                 (hasStickyRoles(guildId) && allowChunking(guildId));

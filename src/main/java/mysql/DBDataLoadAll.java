@@ -13,7 +13,7 @@ public class DBDataLoadAll<T> extends DBDataLoad<T> {
     }
 
     public DBDataLoadAll(String table, String requiredAttributes, String add) {
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             init(table, requiredAttributes, "(serverId >> 22) % ? >= ? AND (serverId >> 22) % ? <= ?" + add,
                     preparedStatement -> {
                         preparedStatement.setInt(1, ShardManager.getTotalShards());

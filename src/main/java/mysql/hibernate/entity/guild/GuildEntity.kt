@@ -4,14 +4,14 @@ import constants.Language
 import core.assets.GuildAsset
 import core.cache.ServerPatreonBoostCache
 import mysql.hibernate.entity.ReminderEntity
+import mysql.hibernate.entity.assets.LanguageAsset
 import mysql.hibernate.template.HibernateEntity
 import org.hibernate.annotations.SortNatural
-import java.util.*
 import javax.persistence.*
 
 
 @Entity(name = "Guild")
-class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
+class GuildEntity(key: String) : HibernateEntity(), GuildAsset, LanguageAsset {
 
     @Id
     private val guildId = key
@@ -27,13 +27,11 @@ class GuildEntity(key: String) : HibernateEntity(), GuildAsset {
     @Column(name = "language")
     @Enumerated(EnumType.STRING)
     private var _language: Language? = null
-    var language: Language
+    override var language: Language
         get() = _language ?: Language.EN
         set(value) {
             _language = value
         }
-    val locale: Locale
-        get() = language.locale
 
     @Column(name = "removeAuthorMessage")
     private var _removeAuthorMessage: Boolean? = null

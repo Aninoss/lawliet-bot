@@ -14,7 +14,7 @@ public class GuildJoinCheckNonPublicLimit extends GuildJoinAbstract {
 
     @Override
     public boolean onGuildJoin(GuildJoinEvent event, EntityManagerWrapper entityManager) {
-        if (Program.publicVersion() ||
+        if (Program.publicInstance() ||
                 ShardManager.getLocalGuilds().size() - 2 <= Integer.parseInt(System.getenv("MAX_SERVERS"))
         ) {
             return true;

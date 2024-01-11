@@ -145,7 +145,7 @@ public class EmbedFactory {
         EmbedBuilder eb = EmbedFactory.getEmbedError()
                 .setTitle(TextManager.getString(locale, TextManager.GENERAL, "wrongchanneltype_title"))
                 .setDescription(TextManager.getString(locale, TextManager.GENERAL, "wrongchanneltype_desc"));
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             actionRowList.add(ActionRow.of(Button.of(ButtonStyle.LINK, ExternalLinks.BOT_INVITE_URL, TextManager.getString(locale, TextManager.GENERAL, "invite_button"))));
         }
         return eb;

@@ -1,7 +1,8 @@
 package core;
 
-import java.time.Instant;
 import core.utils.BotUtil;
+
+import java.time.Instant;
 
 public class Program {
 
@@ -12,7 +13,7 @@ public class Program {
     public static void init() {
         System.out.println("-------------------------------------");
         System.out.println("Production Mode: " + productionMode());
-        System.out.println("Public Version: " + publicVersion());
+        System.out.println("Public Version: " + publicInstance());
         System.out.println("Cluster ID: " + getClusterId());
         System.out.println("Version: " + BotUtil.getCurrentVersion());
         System.out.println("-------------------------------------");
@@ -32,7 +33,7 @@ public class Program {
         return !stopped;
     }
 
-    public static boolean publicVersion() {
+    public static boolean publicInstance() {
         return System.getenv("PUBLIC").equals("true");
     }
 
@@ -41,7 +42,7 @@ public class Program {
     }
 
     public static boolean isMainCluster() {
-        return getClusterId() == 1 || !publicVersion();
+        return getClusterId() == 1 || !publicInstance();
     }
 
     public static Instant getStartTime() {

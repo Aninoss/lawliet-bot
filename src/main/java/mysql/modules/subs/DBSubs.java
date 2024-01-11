@@ -1,9 +1,5 @@
 package mysql.modules.subs;
 
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 import com.google.common.cache.CacheBuilder;
 import core.CustomObservableMap;
 import core.Program;
@@ -11,6 +7,11 @@ import core.ShardManager;
 import mysql.DBDataLoad;
 import mysql.DBMapCache;
 import mysql.MySQLManager;
+
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class DBSubs extends DBMapCache<DBSubs.Command, CustomObservableMap<Long, SubSlot>> {
 
@@ -48,7 +49,7 @@ public class DBSubs extends DBMapCache<DBSubs.Command, CustomObservableMap<Long,
         );
 
         HashMap<Long, SubSlot> subHashMap;
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             subHashMap = new HashMap<>(subMap);
         } else {
             subHashMap = new HashMap<>();

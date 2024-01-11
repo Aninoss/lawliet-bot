@@ -13,7 +13,7 @@ public class OnTxt2ImgBoughtImages implements SyncServerFunction {
     public JSONObject apply(JSONObject jsonObject) {
         long userId = jsonObject.getLong("user_id");
 
-        try (UserEntity userEntity = HibernateManager.findUserEntity(userId)) {
+        try (UserEntity userEntity = HibernateManager.findUserEntityReadOnly(userId)) {
             JSONObject responseJson = new JSONObject();
             responseJson.put("remaining", userEntity.getTxt2img().getBoughtImages());
             return responseJson;

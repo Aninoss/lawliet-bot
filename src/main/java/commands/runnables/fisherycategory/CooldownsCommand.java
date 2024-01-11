@@ -6,18 +6,19 @@ import commands.listeners.CommandProperties;
 import commands.listeners.OnStringSelectMenuListener;
 import commands.runnables.FisheryInterface;
 import constants.ExternalLinks;
+import constants.Language;
 import constants.LogStatus;
-import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.utils.TimeUtil;
 import javafx.util.Pair;
-import mysql.redis.fisheryusers.FisheryUserManager;
-import mysql.redis.fisheryusers.FisheryMemberData;
-import mysql.modules.subs.DBSubs;
-import mysql.modules.subs.SubSlot;
+import kotlin.enums.EnumEntries;
+import mysql.hibernate.entity.user.FisheryDmReminderEntity;
+import mysql.hibernate.entity.user.UserEntity;
 import mysql.modules.survey.DBSurvey;
 import mysql.modules.survey.SurveyData;
 import mysql.modules.upvotes.DBUpvotes;
+import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -33,6 +34,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -59,21 +61,28 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnStr
 
     @Override
     public boolean onStringSelectMenu(StringSelectInteractionEvent event) throws Throwable {
-        DBSubs.Command[] commands = DBSubs.Command.values();
-        List<Integer> activeSubs = event.getValues().stream()
+        EnumEntries<FisheryDmReminderEntity.Type> types = FisheryDmReminderEntity.Type.getEntries();
+        List<Integer> activeTypes = event.getValues().stream()
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
-        for (int i = 0; i < commands.length; i++) {
-            DBSubs.Command command = commands[i];
-            CustomObservableMap<Long, SubSlot> slotMap = DBSubs.getInstance().retrieve(command);
-            boolean newActive = activeSubs.contains(i);
-            boolean isActive = slotMap.containsKey(event.getMember().getIdLong());
-            if (newActive && !isActive) {
-                SubSlot subSlot = new SubSlot(command, event.getMember().getIdLong(), getLocale(), 0);
-                slotMap.put(subSlot.getUserId(), subSlot);
-            } else if (!newActive && isActive) {
-                slotMap.remove(event.getMember().getIdLong());
+
+        for (int i = 0; i < types.size(); i++) {
+            FisheryDmReminderEntity.Type type = types.get(i);
+            UserEntity userEntity = getUserEntity();
+            Map<FisheryDmReminderEntity.Type, FisheryDmReminderEntity> fisheryDmReminders = userEntity.getFisheryDmReminders();
+
+            boolean newActive = activeTypes.contains(i);
+            boolean currentlyActive = fisheryDmReminders.containsKey(type);
+
+            userEntity.beginTransaction();
+            if (newActive && !currentlyActive) {
+                FisheryDmReminderEntity fisheryDmReminderEntity = new FisheryDmReminderEntity(type, Language.from(getLocale()));
+                fisheryDmReminders.put(type, fisheryDmReminderEntity);
+            } else if (!newActive && currentlyActive) {
+                fisheryDmReminders.remove(type);
             }
+            userEntity.commitTransaction();
+
             setLog(LogStatus.SUCCESS, getString("subset"));
         }
         return true;
@@ -81,16 +90,16 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnStr
 
     @Override
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
-        DBSubs.Command[] commands = DBSubs.Command.values();
+        EnumEntries<FisheryDmReminderEntity.Type> types = FisheryDmReminderEntity.Type.getEntries();
 
         StringSelectMenu.Builder builder = StringSelectMenu.create("reminders");
         ArrayList<String> defaultValues = new ArrayList<>();
-        for (int i = 0; i < commands.length; i++) {
-            DBSubs.Command command = commands[i];
-            String property = getString("property_" + commands[i].name().toLowerCase());
+        for (int i = 0; i < types.size(); i++) {
+            FisheryDmReminderEntity.Type type = types.get(i);
+            String property = getString("property_" + type.name().toLowerCase());
 
             builder.addOption(property, String.valueOf(i));
-            if (DBSubs.getInstance().retrieve(command).containsKey(member.getIdLong())) {
+            if (getUserEntity().getFisheryDmReminders().containsKey(type)) {
                 defaultValues.add(String.valueOf(i));
             }
         }

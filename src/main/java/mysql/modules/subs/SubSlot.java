@@ -47,7 +47,7 @@ public class SubSlot extends Observable implements UserAsset {
     }
 
     public void sendEmbed(Locale locale, EmbedBuilder eb, Button... buttons) {
-        if ((!Program.publicVersion() && userId == AssetIds.OWNER_USER_ID) ||
+        if ((!Program.publicInstance() && userId == AssetIds.OWNER_USER_ID) ||
                 UserBannedCache.getInstance().isBanned(userId)
         ) {
             return;

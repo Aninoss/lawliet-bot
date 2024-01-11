@@ -34,7 +34,7 @@ public class EventManager {
     private static void heartbeat() {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(() -> {
-            if (Program.publicVersion()) {
+            if (Program.publicInstance()) {
                 SendEvent.sendHeartbeat(
                         System.getenv("SYNC_OWN_IP"),
                         ShardManager.isEverythingConnected(),

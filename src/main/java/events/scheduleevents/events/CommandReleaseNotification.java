@@ -23,7 +23,7 @@ public class CommandReleaseNotification implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             AtomicBoolean newRelease = new AtomicBoolean(false);
             ShardManager.getLocalGuildById(AssetIds.SUPPORT_SERVER_ID)
                     .map(guild -> guild.getChannelById(StandardGuildMessageChannel.class, 557960859792441357L))

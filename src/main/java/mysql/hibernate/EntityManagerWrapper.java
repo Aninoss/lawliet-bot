@@ -168,7 +168,7 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     }
 
     public <T extends HibernateEntity> Iterator<T> findAllForResponsibleIds(Class<T> entityClass, String fieldName) {
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             String queryString = """
                     {
                       $and: [

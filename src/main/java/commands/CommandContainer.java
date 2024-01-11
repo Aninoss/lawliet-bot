@@ -340,7 +340,7 @@ public class CommandContainer {
 
         for (Class<? extends Command> clazz : commandList) {
             Command command = CommandManager.createCommandByClass(clazz, Locale.US, "L.");
-            if (command.getCommandProperties().onlyPublicVersion() && !Program.publicVersion()) {
+            if (command.getCommandProperties().onlyPublicVersion() && !Program.publicInstance()) {
                 continue;
             }
 

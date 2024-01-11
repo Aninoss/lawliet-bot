@@ -6,19 +6,20 @@ import core.EmbedFactory;
 import core.MainLogger;
 import core.ShardManager;
 import core.TextManager;
+import core.cache.UserWithWorkFisheryDmReminderCache;
 import core.utils.MentionUtil;
 import events.scheduleevents.ScheduleEventFixedRate;
 import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryStatus;
+import mysql.hibernate.EntityManagerWrapper;
 import mysql.hibernate.HibernateManager;
 import mysql.hibernate.entity.guild.GuildEntity;
+import mysql.hibernate.entity.user.FisheryDmReminderEntity;
 import mysql.modules.autosell.AutoSellData;
 import mysql.modules.autosell.DBAutoSell;
 import mysql.modules.autowork.AutoWorkData;
 import mysql.modules.autowork.DBAutoWork;
-import mysql.modules.subs.DBSubs;
-import mysql.modules.subs.SubSlot;
 import mysql.redis.fisheryusers.FisheryGuildData;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import mysql.redis.fisheryusers.FisheryUserManager;
@@ -43,23 +44,24 @@ public class FisheryProcessors implements ExceptionRunnable {
         AtomicInteger autoWorkActions = new AtomicInteger(0);
 
         HashMap<Long, HashSet<Guild>> reminderGuildMap = new HashMap<>();
-        Map<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.WORK);
 
-        for (Guild guild : ShardManager.getLocalGuilds()) {
-            try (GuildEntity guildEntity = HibernateManager.findGuildEntity(guild.getIdLong())) {
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            for (Guild guild : ShardManager.getLocalGuilds()) {
+                GuildEntity guildEntity = entityManager.findGuildEntity(guild.getIdLong());
                 if (guildEntity.getFishery().getFisheryStatus() == FisheryStatus.ACTIVE) {
                     processVoiceActivity(guild, guildEntity, voiceActivityActions);
                     processAutoSell(guild, autoSellActions);
-                    processAutoWork(guild, subMap, autoWorkActions, reminderGuildMap);
+                    processAutoWork(guild, autoWorkActions, reminderGuildMap);
                 }
+                entityManager.clear();
             }
+
+            MainLogger.get().info("Voice Channel - {} Actions", voiceActivityActions.get());
+            MainLogger.get().info("Auto Sell - {} Actions", autoSellActions.get());
+            MainLogger.get().info("Auto Work - {} Actions", autoWorkActions.get());
+
+            autoWorkPostProcessing(entityManager, reminderGuildMap);
         }
-
-        MainLogger.get().info("Voice Channel - {} Actions", voiceActivityActions.get());
-        MainLogger.get().info("Auto Sell - {} Actions", autoSellActions.get());
-        MainLogger.get().info("Auto Work - {} Actions", autoWorkActions.get());
-
-        autoWorkPostProcessing(reminderGuildMap, subMap);
     }
 
     private void processVoiceActivity(Guild guild, GuildEntity guildEntity, AtomicInteger actions) {
@@ -105,7 +107,7 @@ public class FisheryProcessors implements ExceptionRunnable {
         }
     }
 
-    private void processAutoWork(Guild guild, Map<Long, SubSlot> subMap, AtomicInteger autoWorkActions, HashMap<Long, HashSet<Guild>> reminderGuildMap) {
+    private void processAutoWork(Guild guild, AtomicInteger autoWorkActions, HashMap<Long, HashSet<Guild>> reminderGuildMap) {
         try {
             FisheryGuildData fisheryGuildData = FisheryUserManager.getGuildData(guild.getIdLong());
             AutoWorkData autoWorkData = DBAutoWork.getInstance().retrieve();
@@ -113,8 +115,7 @@ public class FisheryProcessors implements ExceptionRunnable {
                 FisheryMemberData fisheryMemberData = fisheryGuildData.getMemberData(member.getIdLong());
 
                 /* reminder */
-                SubSlot sub = subMap.get(member.getIdLong());
-                if (sub != null) {
+                if (UserWithWorkFisheryDmReminderCache.getInstance().hasWorkFisheryDmReminder(member.getIdLong())) {
                     Optional<Instant> nextWork = fisheryMemberData.getNextWork();
                     if (nextWork.isPresent() && Instant.now().isAfter(nextWork.get())) {
                         fisheryMemberData.removeWork();
@@ -135,21 +136,29 @@ public class FisheryProcessors implements ExceptionRunnable {
         }
     }
 
-    private static void autoWorkPostProcessing(HashMap<Long, HashSet<Guild>> reminderGuildMap, Map<Long, SubSlot> subMap) {
+    private static void autoWorkPostProcessing(EntityManagerWrapper entityManager, HashMap<Long, HashSet<Guild>> reminderGuildMap) {
         try {
             for (Map.Entry<Long, HashSet<Guild>> slot : reminderGuildMap.entrySet()) {
                 long userId = slot.getKey();
                 HashSet<Guild> guilds = slot.getValue();
-                SubSlot sub = subMap.get(userId);
-                if (sub != null) {
-                    Locale locale = sub.getLocale();
-                    String guildsMention = MentionUtil.getMentionedStringOfGuilds(locale, new ArrayList<>(guilds)).getMentionText();
-                    EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                            .setTitle(TextManager.getString(locale, Category.FISHERY, "work_message_title"))
-                            .setDescription(TextManager.getString(locale, Category.FISHERY, "work_message_desc", guildsMention));
 
-                    sub.sendEmbed(locale, eb);
+                if (!UserWithWorkFisheryDmReminderCache.getInstance().hasWorkFisheryDmReminder(userId)) {
+                    continue;
                 }
+
+                FisheryDmReminderEntity fisheryDmReminderEntity = entityManager.findUserEntity(userId).getFisheryDmReminders().get(FisheryDmReminderEntity.Type.WORK);
+                if (fisheryDmReminderEntity == null) {
+                    continue;
+                }
+
+                Locale locale = fisheryDmReminderEntity.getLocale();
+                String guildsMention = MentionUtil.getMentionedStringOfGuilds(locale, new ArrayList<>(guilds)).getMentionText();
+                EmbedBuilder eb = EmbedFactory.getEmbedDefault()
+                        .setTitle(TextManager.getString(locale, Category.FISHERY, "work_message_title"))
+                        .setDescription(TextManager.getString(locale, Category.FISHERY, "work_message_desc", guildsMention));
+                fisheryDmReminderEntity.sendEmbed(eb);
+
+                entityManager.clear();
             }
         } catch (Throwable e) {
             MainLogger.get().error("Auto work post processing errors", e);

@@ -6,6 +6,7 @@ import core.ExceptionLogger
 import core.ShardManager
 import core.cache.ServerPatreonBoostCache
 import mysql.hibernate.InstantConverter
+import mysql.hibernate.entity.assets.LanguageAsset
 import mysql.hibernate.template.HibernateEntity
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Message
@@ -19,7 +20,7 @@ import javax.persistence.*
 
 
 @Entity(name = "Reminder")
-class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity() {
+class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity(), LanguageAsset {
 
     enum class Type { GUILD_REMINDER, DM_REMINDER }
 
@@ -44,7 +45,7 @@ class ReminderEntity(@Id var id: UUID? = null) : HibernateEntity() {
     @Column(name = "language")
     @Enumerated(EnumType.STRING)
     private var _language: Language? = null
-    var language: Language
+    override var language: Language
         get() = _language ?: Language.EN
         set(value) {
             _language = value

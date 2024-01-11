@@ -16,7 +16,7 @@ public class AnicordKickOldUnverifiedMembers implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        if (Program.productionMode() && Program.publicVersion()) {
+        if (Program.productionMode() && Program.publicInstance()) {
             ShardManager.getLocalGuildById(AssetIds.ANICORD_SERVER_ID).ifPresent(guild -> {
                 Role memberRole = guild.getRoleById(462410205288726531L);
                 AtomicInteger counter = new AtomicInteger(0);

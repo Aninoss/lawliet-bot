@@ -28,12 +28,12 @@ public class Main {
                 PatreonCache.getInstance().fetch();
                 HeartbeatReceiver.start();
             }
-            if (Program.publicVersion()) {
+            if (Program.publicInstance()) {
                 initializeUpdate();
             }
 
             EventManager.register();
-            if (!Program.productionMode() || !Program.publicVersion()) {
+            if (!Program.productionMode() || !Program.publicInstance()) {
                 DiscordConnector.connect(0, 0, 1);
             }
             if (Program.productionMode()) {

@@ -2,16 +2,17 @@ package events.scheduleevents.events;
 
 import commands.Category;
 import constants.ExceptionRunnable;
-import core.CustomObservableMap;
 import core.EmbedFactory;
 import core.Program;
 import core.TextManager;
 import events.scheduleevents.ScheduleEventDaily;
-import mysql.modules.subs.DBSubs;
-import mysql.modules.subs.SubSlot;
+import mysql.hibernate.EntityManagerWrapper;
+import mysql.hibernate.HibernateManager;
+import mysql.hibernate.entity.user.FisheryDmReminderEntity;
+import mysql.hibernate.entity.user.UserEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 @ScheduleEventDaily
@@ -23,15 +24,20 @@ public class ReminderDaily implements ExceptionRunnable {
     }
 
     public static void execute() {
-        if (Program.isMainCluster()) {
-            CustomObservableMap<Long, SubSlot> subMap = DBSubs.getInstance().retrieve(DBSubs.Command.DAILY);
-            for (SubSlot sub : new ArrayList<>(subMap.values())) {
-                Locale locale = sub.getLocale();
+        if (!Program.isMainCluster()) {
+            return;
+        }
+
+        try (EntityManagerWrapper entityManager = HibernateManager.createEntityManager()) {
+            List<UserEntity> userEntities = FisheryDmReminderEntity.findAllUserEntitiesWithType(entityManager, FisheryDmReminderEntity.Type.DAILY);
+            for (UserEntity userEntity : userEntities) {
+                FisheryDmReminderEntity fisheryDmReminder = userEntity.getFisheryDmReminders().get(FisheryDmReminderEntity.Type.DAILY);
+                Locale locale = fisheryDmReminder.getLocale();
+
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setTitle(TextManager.getString(locale, Category.FISHERY, "daily_message_title"))
                         .setDescription(TextManager.getString(locale, Category.FISHERY, "daily_message_desc"));
-
-                sub.sendEmbed(locale, eb);
+                fisheryDmReminder.sendEmbed(eb);
             }
         }
     }

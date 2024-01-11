@@ -19,7 +19,7 @@ public class GuildJoinRegisterSchedulers extends GuildJoinAbstract {
 
     @Override
     public boolean onGuildJoin(GuildJoinEvent event, EntityManagerWrapper entityManager) {
-        if (!Program.publicVersion()) {
+        if (!Program.publicInstance()) {
             GuildEntity guildEntity = entityManager.findGuildEntity(event.getGuild().getIdLong());
 
             DBGiveaway.getInstance().retrieve(event.getGuild().getIdLong()).values().stream()

@@ -21,6 +21,10 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     val reminders: List<ReminderEntity>
         get() = entityManager.findAllWithValue(ReminderEntity::class.java, "targetId", userId.toLong())
 
+    @ElementCollection
+    @MapKeyEnumerated(EnumType.STRING)
+    val fisheryDmReminders = mutableMapOf<FisheryDmReminderEntity.Type, FisheryDmReminderEntity>()
+
 
     constructor() : this("0")
 
@@ -31,6 +35,7 @@ class UserEntity(key: String) : HibernateEntity(), UserAsset {
     @PostLoad
     override fun postLoad() {
         txt2img.postLoad(this)
+        fisheryDmReminders.values.forEach { it.postLoad(this) }
     }
 
 }

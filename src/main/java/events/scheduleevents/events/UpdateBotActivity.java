@@ -12,7 +12,7 @@ public class UpdateBotActivity implements ExceptionRunnable {
 
     @Override
     public void run() throws Throwable {
-        if (Program.publicVersion()) {
+        if (Program.publicInstance()) {
             ShardManager.getConnectedLocalJDAWrappers()
                     .forEach(JDAWrapper::updateActivity);
         }

@@ -2,7 +2,7 @@ package core;
 
 import constants.AssetIds;
 import core.cache.PatreonCache;
-import mysql.modules.subs.DBSubs;
+import core.cache.UserWithWorkFisheryDmReminderCache;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.jetbrains.annotations.NotNull;
@@ -114,7 +114,7 @@ public class MemberCacheController implements MemberCachePolicy {
                 member.getIdLong() == AssetIds.OWNER_USER_ID ||
                 guildIsCached(guild) ||
                 (Program.productionMode() && PatreonCache.getInstance().hasPremium(member.getIdLong(), false)) ||
-                DBSubs.getInstance().retrieve(DBSubs.Command.WORK).containsKey(member.getIdLong());
+                UserWithWorkFisheryDmReminderCache.getInstance().hasWorkFisheryDmReminder(member.getIdLong());
     }
 
     public void cacheGuild(Guild guild) {

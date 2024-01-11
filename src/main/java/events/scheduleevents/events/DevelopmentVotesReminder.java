@@ -43,7 +43,7 @@ public class DevelopmentVotesReminder implements ExceptionRunnable {
     }
 
     public static void executeVoteNotification() throws InterruptedException {
-        if (Program.isMainCluster() && Program.publicVersion()) {
+        if (Program.isMainCluster() && Program.publicInstance()) {
             Map<Long, DevVotesSlot> devVotesSlotMap = DBDevVotes.getInstance().retrieve();
             for (long userId : new ArrayList<>(PatreonCache.getInstance().getAsync().getUserTierMap().keySet())) {
                 DevVotesSlot slot = devVotesSlotMap.getOrDefault(userId, new DevVotesSlot(userId));
@@ -72,7 +72,7 @@ public class DevelopmentVotesReminder implements ExceptionRunnable {
     }
 
     public static void executeResultsNotification() throws InterruptedException {
-        if (Program.isMainCluster() && Program.publicVersion()) {
+        if (Program.isMainCluster() && Program.publicInstance()) {
             Map<Long, DevVotesSlot> devVotesSlotMap = DBDevVotes.getInstance().retrieve();
             for (long userId : new ArrayList<>(PatreonCache.getInstance().getAsync().getUserTierMap().keySet())) {
                 DevVotesSlot slot = devVotesSlotMap.getOrDefault(userId, new DevVotesSlot(userId));
