@@ -1,9 +1,10 @@
 package core.cache;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import core.GlobalThreadPool;
 import core.MainLogger;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 public abstract class SingleCache<T> {
 
@@ -11,7 +12,7 @@ public abstract class SingleCache<T> {
     private T value = null;
     private boolean fetchAccess = true;
 
-    public T get() {
+    public synchronized T get() {
         if (value == null || nextReset == null || Instant.now().isAfter(nextReset)) {
             return fetch();
         }
@@ -19,7 +20,7 @@ public abstract class SingleCache<T> {
         return value;
     }
 
-    public T getAsync() {
+    public synchronized T getAsync() {
         if (value == null) {
             return get();
         }
