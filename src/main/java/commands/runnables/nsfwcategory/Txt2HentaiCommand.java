@@ -19,7 +19,7 @@ import java.util.Locale;
 public class Txt2HentaiCommand extends RunPodAbstract {
 
     public Txt2HentaiCommand(Locale locale, String prefix) {
-        super(locale, prefix, "");
+        super(locale, prefix, "looks underage, child, ");
     }
 
     @Override
