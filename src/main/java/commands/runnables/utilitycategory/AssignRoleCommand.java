@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 public class AssignRoleCommand extends Command implements OnButtonListener {
 
     private static final Emoji CANCEL_EMOJI = Emojis.X;
-    private static final RoleAssigner roleAssigner = new RoleAssigner();
 
     private Mention rolesMention;
 
@@ -67,7 +66,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
         List<Role> rolesMissingPermissions = roles.stream()
                 .filter(r -> !BotPermissionUtil.canManage(r))
                 .collect(Collectors.toList());
-        if (rolesMissingPermissions.size() > 0) {
+        if (!rolesMissingPermissions.isEmpty()) {
             Mention mention = MentionUtil.getMentionedStringOfRoles(getLocale(), rolesMissingPermissions);
             drawMessageNew( EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role", mention.isMultiple(), mention.getMentionText())))
                     .exceptionally(ExceptionLogger.get());
@@ -78,7 +77,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
         rolesMissingPermissions = roles.stream()
                 .filter(r -> !BotPermissionUtil.canManage(r))
                 .collect(Collectors.toList());
-        if (rolesMissingPermissions.size() > 0) {
+        if (!rolesMissingPermissions.isEmpty()) {
             Mention mention = MentionUtil.getMentionedStringOfRoles(getLocale(), rolesMissingPermissions);
             drawMessageNew(EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", mention.isMultiple(), mention.getMentionText())))
                     .exceptionally(ExceptionLogger.get());
@@ -86,7 +85,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
         }
 
         rolesMention = MentionUtil.getMentionedStringOfRoles(getLocale(), roles);
-        Optional<CompletableFuture<Boolean>> futureOpt = roleAssigner.assignRoles(event.getGuild(), roles, addRole(), getLocale());
+        Optional<CompletableFuture<Boolean>> futureOpt = RoleAssigner.assignRoles(event.getGuild(), roles, addRole(), getLocale(), getClass());
 
         /* check for busy */
         if (futureOpt.isEmpty()) {
@@ -123,7 +122,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         event.deferEdit().queue();
         deregisterListenersWithComponents();
-        roleAssigner.cancel(event.getGuild().getIdLong());
+        RoleAssigner.cancel(event.getGuild().getIdLong());
         return false;
     }
 

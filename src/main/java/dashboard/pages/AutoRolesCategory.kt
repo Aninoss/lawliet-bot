@@ -3,15 +3,23 @@ package dashboard.pages
 import commands.Category
 import commands.Command
 import commands.runnables.utilitycategory.AutoRolesCommand
+import core.TextManager
+import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.DashboardProperties
+import dashboard.component.DashboardButton
+import dashboard.component.DashboardSeparator
 import dashboard.component.DashboardText
 import dashboard.components.DashboardMultiRolesComboBox
+import dashboard.container.HorizontalContainer
+import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
+import modules.RoleAssigner
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.autoroles.DBAutoRoles
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.Role
 import java.util.*
 
 @DashboardProperties(
@@ -36,8 +44,30 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
                 AutoRolesCommand.MAX_ROLES,
                 true
         )
+        mainContainer.add(descText, rolesComboBox, DashboardSeparator())
 
-        mainContainer.add(descText, rolesComboBox)
+        val buttonContainer = HorizontalContainer()
+        val syncButton = DashboardButton(getString(Category.UTILITY, "autoroles_dashboard_syncbutton")) {
+            val roleList: List<Role> = DBAutoRoles.getInstance().retrieve(guild.idLong).roleIds.mapNotNull { guild.getRoleById(it) }
+            val future = RoleAssigner.assignRoles(guild, roleList, true, locale, AutoRolesCommand::class.java)
+
+            if (future.isEmpty) {
+                return@DashboardButton ActionResult()
+                        .withErrorMessage(getString(Category.UTILITY, "autoroles_syncactive"))
+            }
+            return@DashboardButton ActionResult()
+                    .withSuccessMessage(getString(Category.UTILITY, "autoroles_syncstart"))
+        }
+        syncButton.isEnabled = isPremium
+        syncButton.style = DashboardButton.Style.PRIMARY
+        buttonContainer.add(syncButton, HorizontalPusher())
+        mainContainer.add(buttonContainer)
+
+        if (!isPremium) {
+            val text = DashboardText(getString(TextManager.GENERAL, "patreon_description_noembed"))
+            text.style = DashboardText.Style.ERROR
+            mainContainer.add(text)
+        }
     }
 
 }

@@ -5,11 +5,15 @@ import commands.NavigationHelper;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
 import commands.runnables.NavigationAbstract;
+import constants.LogStatus;
 import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
+import core.TextManager;
 import core.atomicassets.AtomicRole;
+import core.cache.ServerPatreonBoostCache;
 import core.utils.MentionUtil;
+import modules.RoleAssigner;
 import mysql.modules.autoroles.AutoRolesData;
 import mysql.modules.autoroles.DBAutoRoles;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -22,6 +26,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -30,7 +37,7 @@ import java.util.stream.Collectors;
         userGuildPermissions = Permission.MANAGE_ROLES,
         emoji = "👪",
         executableWithoutArgs = true,
-        aliases = { "basicroles", "autorole", "aroles", "joinroles", "jroles" }
+        aliases = {"basicroles", "autorole", "aroles", "joinroles", "jroles"}
 )
 public class AutoRolesCommand extends NavigationAbstract {
 
@@ -67,22 +74,39 @@ public class AutoRolesCommand extends NavigationAbstract {
     public boolean controllerButton(ButtonInteractionEvent event, int i, int state) {
         switch (state) {
             case 0:
-                switch (i) {
-                    case -1:
+                return switch (i) {
+                    case -1 -> {
                         deregisterListenersWithComponentMessage();
-                        return false;
-
-                    case 0:
+                        yield false;
+                    }
+                    case 0 -> {
                         roleNavigationHelper.startDataAdd(1);
-                        return true;
-
-                    case 1:
+                        yield true;
+                    }
+                    case 1 -> {
                         roleNavigationHelper.startDataRemove(2);
-                        return true;
+                        yield true;
+                    }
+                    case 2 -> {
+                        if (!ServerPatreonBoostCache.get(event.getGuild().getIdLong())) {
+                            setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
+                            yield true;
+                        }
 
-                    default:
-                        return false;
-                }
+                        List<Role> roleList = roles.stream().map(atomicRole -> atomicRole.get().orElse(null))
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+                        Optional<CompletableFuture<Boolean>> future = RoleAssigner.assignRoles(event.getGuild(), roleList, true, getLocale(), getClass());
+                        if (future.isEmpty()) {
+                            setLog(LogStatus.FAILURE, getString("syncactive"));
+                            yield true;
+                        }
+
+                        setLog(LogStatus.SUCCESS, getString("syncstart"));
+                        yield true;
+                    }
+                    default -> false;
+                };
 
             case 1:
                 if (i == -1) {

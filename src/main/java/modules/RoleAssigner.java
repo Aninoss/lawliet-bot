@@ -1,14 +1,8 @@
 package modules;
 
-import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
-import commands.runnables.utilitycategory.AssignRoleCommand;
-import commands.runnables.utilitycategory.RevokeRoleCommand;
 import core.MainLogger;
 import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
@@ -19,13 +13,18 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class RoleAssigner {
 
-    private final Cache<Long, AtomicBoolean> busyServers = CacheBuilder.newBuilder()
+    private static final Cache<Long, AtomicBoolean> busyServers = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofHours(1))
             .build();
 
-    public Optional<CompletableFuture<Boolean>> assignRoles(Guild guild, List<Role> roles, boolean add, Locale locale) {
+    public static Optional<CompletableFuture<Boolean>> assignRoles(Guild guild, List<Role> roles, boolean add, Locale locale, Class<? extends Command> commandClass) {
         synchronized (guild) {
             if (busyServers.asMap().containsKey(guild.getIdLong())) {
                 return Optional.empty();
@@ -46,14 +45,8 @@ public class RoleAssigner {
                             );
 
                             if (guild.getMembers().contains(member) && canInteract) {
-                                AuditableRestAction<Void> restAction;
-                                if (add) {
-                                    restAction = guild.modifyMemberRoles(member, roles, Collections.emptyList())
-                                            .reason(Command.getCommandLanguage(AssignRoleCommand.class, locale).getTitle());
-                                } else {
-                                    restAction = guild.modifyMemberRoles(member, Collections.emptyList(), roles)
-                                            .reason(Command.getCommandLanguage(RevokeRoleCommand.class, locale).getTitle());
-                                }
+                                AuditableRestAction<Void> restAction = guild.modifyMemberRoles(member, add ? roles : Collections.emptyList(), add ? Collections.emptyList() : roles)
+                                        .reason(Command.getCommandLanguage(commandClass, locale).getTitle());
                                 restAction.complete();
                             }
                         } else {
@@ -71,7 +64,7 @@ public class RoleAssigner {
         }
     }
 
-    public void cancel(long guildId) {
+    public static void cancel(long guildId) {
         AtomicBoolean atomicBoolean = busyServers.getIfPresent(guildId);
         if (atomicBoolean != null) {
             atomicBoolean.set(false);
