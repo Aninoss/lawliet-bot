@@ -68,6 +68,26 @@ public enum Model {
                     .put("denoising_strength", "0.3")
     ),
 
+    GHOSTMIX(
+            "fbj6it4t2lv86m",
+            10000,
+            true,
+            Set.of(Txt2ImgCommand.class),
+            params -> new JSONObject()
+                    .put("width", params.aspectRatio.getWidth())
+                    .put("height", params.aspectRatio.getHeight())
+                    .put("cfg_scale", 7)
+                    .put("steps", 30)
+                    .put("batch_size", params.images)
+                    .put("sampler_name", "DPM++ SDE Karras")
+                    .put("override_settings", new JSONObject().put("CLIP_stop_at_last_layers", 2))
+                    .put("enable_hr", true)
+                    .put("hr_scale", params.aspectRatio.getScaling())
+                    .put("hr_upscaler", "R-ESRGAN 4x+ Anime6B")
+                    .put("hr_second_pass_steps", 10)
+                    .put("denoising_strength", "0.3")
+    ),
+
     KANDINSKY(
             "kandinsky-v2",
             5600,
