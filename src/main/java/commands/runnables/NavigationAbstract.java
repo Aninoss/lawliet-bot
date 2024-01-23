@@ -147,7 +147,10 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             }
         }
 
-        return null;
+        if (state == -1) {
+            return null;
+        }
+        return controllerMessage(event, input, -1);
     }
 
     public boolean controllerButton(ButtonInteractionEvent event, int i, int state) throws Throwable {
@@ -162,7 +165,10 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             }
         }
 
-        return false;
+        if (state == -1) {
+            return false;
+        }
+        return controllerButton(event, i, -1);
     }
 
     public boolean controllerStringSelectMenu(StringSelectInteractionEvent event, int i, int state) throws Throwable {
@@ -177,7 +183,10 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             }
         }
 
-        return false;
+        if (state == -1) {
+            return false;
+        }
+        return controllerStringSelectMenu(event, i, -1);
     }
 
     public boolean controllerEntitySelectMenu(EntitySelectInteractionEvent event, int state) throws Throwable {
@@ -192,7 +201,10 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             }
         }
 
-        return false;
+        if (state == -1) {
+            return false;
+        }
+        return controllerEntitySelectMenu(event, -1);
     }
 
     @Override
@@ -212,7 +224,10 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
             }
         }
 
-        return null;
+        if (state == -1) {
+            return null;
+        }
+        return draw(member, -1);
     }
 
     public CompletableFuture<Long> processDraw(Member member, boolean loadComponents) {
@@ -315,7 +330,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
     }
 
     public boolean checkRolesWithLog(Member member, List<Role> roles, boolean checkRolesHierarchy) {
-        if (roles.size() == 0) {
+        if (roles.isEmpty()) {
             return true;
         }
 
@@ -327,7 +342,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
         }
 
         /* if the bot is able to manage all the roles */
-        if (unmanageableRoles.size() == 0) {
+        if (unmanageableRoles.isEmpty()) {
             if (member == null) {
                 return true;
             }
@@ -339,7 +354,7 @@ public abstract class NavigationAbstract extends Command implements OnTriggerLis
                 }
             }
 
-            if (forbiddenRoles.size() == 0) {
+            if (forbiddenRoles.isEmpty()) {
                 return true;
             } else {
                 setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "permission_role_user", forbiddenRoles.size() != 1, MentionUtil.getMentionedStringOfRoles(getLocale(), forbiddenRoles).getMentionText().replace("**", "\"")));
