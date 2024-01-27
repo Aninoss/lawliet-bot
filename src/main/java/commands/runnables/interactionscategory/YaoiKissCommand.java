@@ -1,8 +1,9 @@
 package commands.runnables.interactionscategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.RolePlayAbstract;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "yaoikiss",
@@ -56,7 +57,8 @@ public class YaoiKissCommand extends RolePlayAbstract {
                 "https://cdn.discordapp.com/attachments/736280745601007737/845981040148348998/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/912100600999723018/yaoikiss.gif",
                 "https://cdn.discordapp.com/attachments/736280745601007737/991345678464856094/yaoikiss.gif",
-                "https://cdn.discordapp.com/attachments/736280745601007737/1091393370502467664/yaoikiss.gif"
+                "https://cdn.discordapp.com/attachments/736280745601007737/1091393370502467664/yaoikiss.gif",
+                "https://cdn.discordapp.com/attachments/736280745601007737/1200732629784338442/yaoikiss.gif"
         );
     }
 
