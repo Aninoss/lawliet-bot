@@ -118,7 +118,7 @@ public class DiscordConnector {
         }
     }
 
-    public static void onJDAJoin(JDA jda) {
+    public synchronized static void onJDAJoin(JDA jda) {
         if (!checkCustomBotParameters(jda)) {
             return;
         }
@@ -175,7 +175,7 @@ public class DiscordConnector {
         });
     }
 
-    private synchronized static void allConnectionsCompleted() {
+    private static void allConnectionsCompleted() {
         new ScheduleEventManager().start();
         if (Program.productionMode() && Program.publicVersion()) {
             BumpReminder.start();
