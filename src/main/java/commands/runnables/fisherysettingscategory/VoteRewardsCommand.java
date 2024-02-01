@@ -11,6 +11,7 @@ import core.modals.ModalMediator;
 import core.utils.BotPermissionUtil;
 import core.utils.RandomUtil;
 import core.utils.StringUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -66,6 +67,7 @@ public class VoteRewardsCommand extends NavigationAbstract {
                 fisheryEntity.beginTransaction();
                 fisheryEntity.setVoteRewardsActive(!fisheryEntity.getVoteRewardsActive());
                 fisheryEntity.commitTransaction();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_VOTE_REWARDS_ACTIVE, event.getMember(), null, fisheryEntity.getVoteRewardsActive());
                 setLog(LogStatus.SUCCESS, getString("log_active", fisheryEntity.getVoteRewardsActive()));
                 return true;
             }
@@ -87,10 +89,12 @@ public class VoteRewardsCommand extends NavigationAbstract {
                                 setLog(LogStatus.FAILURE, getString("error_dailyportion_invalid"));
                                 return null;
                             }
+                            int newRewardsDailyPortion = Integer.parseInt(newDailyPortion.replace("%", ""));
 
                             FisheryEntity fisheryEntity = getGuildEntity().getFishery();
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_VOTE_REWARDS_PORTION_OF_DAILY, event.getMember(), fisheryEntity.getVoteRewardsDailyPortionInPercent(), newRewardsDailyPortion);
                             fisheryEntity.beginTransaction();
-                            fisheryEntity.setVoteRewardsDailyPortionInPercent(Integer.parseInt(newDailyPortion.replace("%", "")));
+                            fisheryEntity.setVoteRewardsDailyPortionInPercent(newRewardsDailyPortion);
                             fisheryEntity.commitTransaction();
 
                             setLog(LogStatus.SUCCESS, getString("log_dailyportion"));
@@ -107,6 +111,7 @@ public class VoteRewardsCommand extends NavigationAbstract {
                 fisheryEntity.beginTransaction();
                 fisheryEntity.setVoteRewardsAuthorization(auth);
                 fisheryEntity.commitTransaction();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_VOTE_REWARDS_GENERATE_AUTH, event.getMember());
 
                 EmbedBuilder eb = EmbedFactory.getEmbedDefault()
                         .setDescription(getString("main_auth", auth));
@@ -139,6 +144,7 @@ public class VoteRewardsCommand extends NavigationAbstract {
         }
 
         FisheryEntity fishery = getGuildEntity().getFishery();
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_VOTE_REWARDS_LOG_CHANNEL, event.getMember(), fishery.getVoteRewardsChannelId(), channel.getIdLong());
         fishery.beginTransaction();
         fishery.setVoteRewardsChannelId(channel.getIdLong());
         fishery.commitTransaction();

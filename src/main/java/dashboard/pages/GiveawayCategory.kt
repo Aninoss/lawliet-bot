@@ -18,6 +18,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.GridRow
 import modules.Giveaway
 import modules.schedulers.GiveawayScheduler
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.giveaway.DBGiveaway
 import mysql.modules.giveaway.GiveawayData
@@ -42,6 +43,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
     enum class Mode { OVERVIEW, EDIT, REROLL }
 
     var channelId: Long? = null
+    var previousArticle: String? = null
     var article: String? = null
     var desc: String = ""
     var duration: Long = Duration.ofDays(7).toMinutes()
@@ -265,6 +267,11 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         val sendButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_send", mode.ordinal)) {
             if (mode != Mode.REROLL) {
+                if (mode == Mode.OVERVIEW) {
+                    BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_ADD, atomicMember, article)
+                } else {
+                    BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_EDIT, atomicMember, previousArticle)
+                }
                 return@DashboardButton confirm(guild, false)
             } else {
                 val giveawayMap = DBGiveaway.getInstance().retrieve(guild.getIdLong())
@@ -277,6 +284,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
                 val messageExists = GiveawayScheduler.processGiveawayUsers(giveawayData, winners.toInt(), true).get()
                 if (messageExists) {
+                    BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_REROLL, atomicMember, article)
                     switchMode(Mode.OVERVIEW)
                     return@DashboardButton ActionResult()
                         .withRedrawScrollToTop()
@@ -293,6 +301,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         if (mode == Mode.EDIT) {
             val endPrematurelyButton = DashboardButton(getString(Category.UTILITY, "giveaway_dashboard_endpre")) {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_END, atomicMember, previousArticle)
                 return@DashboardButton confirm(guild, true)
             }
             endPrematurelyButton.style = DashboardButton.Style.PRIMARY
@@ -301,6 +310,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
 
         if (mode == Mode.REROLL) {
             val removeButton = DashboardButton(getString(Category.UTILITY, "giveaway_state13_delete")) {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.GIVEAWAYS_REMOVE, atomicMember, article)
                 DBGiveaway.getInstance().retrieve(guild.getIdLong()).remove(messageId)
                 switchMode(Mode.OVERVIEW)
                 ActionResult()
@@ -412,6 +422,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
         if (mode == Mode.OVERVIEW) {
             channelId = null
             article = null
+            previousArticle = null
             desc = ""
             duration = Duration.ofDays(7).toMinutes()
             winners = 1
@@ -425,6 +436,7 @@ class GiveawayCategory(guildId: Long, userId: Long, locale: Locale, guildEntity:
     private fun readValuesFromGiveawayData(giveawayData: GiveawayData) {
         channelId = giveawayData.standardGuildMessageChannelId
         article = giveawayData.title
+        previousArticle = article
         desc = giveawayData.description
         duration = giveawayData.durationMinutes
         winners = giveawayData.winners.toLong()

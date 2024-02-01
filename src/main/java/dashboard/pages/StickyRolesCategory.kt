@@ -8,6 +8,7 @@ import dashboard.DashboardProperties
 import dashboard.component.DashboardText
 import dashboard.components.DashboardMultiRolesComboBox
 import dashboard.container.VerticalContainer
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
@@ -33,7 +34,9 @@ class StickyRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEnti
                 { it.stickyRoles.roleIds },
                 true,
                 StickyRolesCommand.MAX_ROLES,
-                true
+                true,
+                null,
+                BotLogEntity.Event.STICKY_ROLES
         )
 
         mainContainer.add(descText, rolesComboBox)

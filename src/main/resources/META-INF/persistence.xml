@@ -12,6 +12,7 @@
         <class>mysql.hibernate.entity.user.UserEntity</class>
         <class>mysql.hibernate.entity.FeatureLoggingEntity</class>
         <class>mysql.hibernate.entity.ReminderEntity</class>
+        <class>mysql.hibernate.entity.BotLogEntity</class>
         <properties>
             <property name="hibernate.ogm.datastore.provider" value="mongodb" />
             <property name="hibernate.ogm.datastore.database" value="Lawliet" />

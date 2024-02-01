@@ -16,10 +16,12 @@ import dashboard.component.*
 import dashboard.components.DashboardMemberComboBox
 import dashboard.components.DashboardTextChannelComboBox
 import dashboard.container.HorizontalContainer
+import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.invitetracking.InviteTracking
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.invitetracking.DBInviteTracking
 import mysql.modules.invitetracking.InviteTrackingData
@@ -70,6 +72,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
 
             clearAttributes()
             inviteTrackingData.isActive = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_ACTIVE, atomicMember, null, it.data)
             if (inviteTrackingData.isActive) {
                 InviteTracking.synchronizeGuildInvites(atomicGuild.get().orElseThrow(), locale)
             }
@@ -99,6 +102,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     .withRedraw()
             }
 
+            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_LOG_CHANNEL, atomicMember, inviteTrackingData.textChannelId.orElse(null), it.data)
             inviteTrackingData.setChannelId(it.data?.toLong())
             ActionResult()
         }
@@ -111,6 +115,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
             }
 
             inviteTrackingData.ping = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_PING_MEMBERS, atomicMember, null, it.data)
             ActionResult()
         }
         pingMembersSwitch.isChecked = inviteTrackingData.ping
@@ -123,10 +128,22 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
             }
 
             inviteTrackingData.isAdvanced = it.data
+            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_ADVANCED_STATISTICS, atomicMember, null, it.data)
             ActionResult()
         }
         advancedSwitch.isChecked = inviteTrackingData.isAdvanced
-        container.add(advancedSwitch)
+        container.add(advancedSwitch, DashboardSeparator())
+
+        val resetButton = DashboardButton(getString(Category.INVITE_TRACKING, "invitetracking_dashboard_reset")) {
+            DBInviteTracking.getInstance().resetInviteTrackerSlots(atomicGuild.idLong)
+            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_RESET, atomicMember)
+
+            ActionResult()
+                    .withRedraw()
+        }
+        resetButton.enableConfirmationMessage(getString(Category.INVITE_TRACKING, "invitetracking_dashboard_danger"))
+        resetButton.style = DashboardButton.Style.DANGER
+        container.add(HorizontalContainer(resetButton, HorizontalPusher()))
 
         return container
     }
@@ -211,6 +228,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     }
 
                     FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, atomicGuild.idLong)
+                    BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, null, it.data, listOf(manageMember!!))
                     inviteTrackingData.inviteTrackingSlots.remove(it.data.toLong())
                     ActionResult()
                         .withRedraw()
@@ -226,6 +244,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     }
 
                     FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, atomicGuild.idLong)
+                    BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES_RESET, atomicMember, null, null, listOf(manageMember!!))
                     DBInviteTracking.getInstance().resetInviteTrackerSlotsOfInviter(atomicGuild.idLong, manageMember!!.toLong())
                     ActionResult()
                         .withRedraw()
@@ -264,6 +283,7 @@ class InviteTrackingCategory(guildId: Long, userId: Long, locale: Locale, guildE
                     val inviteTrackingSlot =
                         InviteTrackingSlot(atomicGuild.idLong, addInviteMember!!, manageMember!!, LocalDate.now(), LocalDate.now(), true)
                     FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, atomicGuild.idLong)
+                    BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, atomicMember, addInviteMember!!, null, listOf(manageMember!!))
                     inviteTrackingData.inviteTrackingSlots[inviteTrackingSlot.memberId] = inviteTrackingSlot
                     addInviteMember = null
                     ActionResult()

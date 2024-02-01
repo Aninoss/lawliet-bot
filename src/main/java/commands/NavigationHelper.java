@@ -9,13 +9,18 @@ import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicRole;
 import core.atomicassets.AtomicTextChannel;
 import core.atomicassets.MentionableAtomicAsset;
+import core.utils.JDAUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class NavigationHelper<T> {
 
@@ -51,11 +56,15 @@ public class NavigationHelper<T> {
     }
 
     public MessageInputResponse addData(List<T> newList, String inputString, Member author, int stateBack) {
-        if (newList.size() == 0) {
+        return addData(newList, inputString, author, stateBack, null);
+    }
+
+    public MessageInputResponse addData(List<T> newList, String inputString, Member member, int stateBack, BotLogEntity.Event logEvent) {
+        if (newList.isEmpty()) {
             command.setLog(LogStatus.FAILURE, TextManager.getNoResultsString(command.getLocale(), inputString));
             return MessageInputResponse.FAILED;
         } else {
-            if (type == Type.Role && !command.checkRolesWithLog(author, AtomicRole.to((List<AtomicRole>) newList), checkRolesHierarchy)) {
+            if (type == Type.Role && !command.checkRolesWithLog(member, AtomicRole.to((List<AtomicRole>) newList), checkRolesHierarchy)) {
                 return MessageInputResponse.FAILED;
             }
 
@@ -75,16 +84,30 @@ public class NavigationHelper<T> {
             }
 
             guildEntity.beginTransaction();
+            ArrayList<T> added = new ArrayList<>();
             int n = 0;
             for (T t : newList) {
                 if (!srcList.contains(t)) {
                     if (srcList.size() < max) {
                         srcList.add(t);
+                        added.add(t);
                         n++;
                     }
                 }
             }
             guildEntity.commitTransaction();
+
+            if (logEvent != null && !added.isEmpty()) {
+                List<String> addedStrings = Collections.emptyList();
+                if (added.get(0) instanceof MentionableAtomicAsset<?>) {
+                    addedStrings = JDAUtil.toIdList((List<MentionableAtomicAsset<?>>) added);
+                } else {
+                    addedStrings = added.stream()
+                            .map(Object::toString)
+                            .collect(Collectors.toList());
+                }
+                BotLogEntity.log(command.getEntityManager(), logEvent, member, addedStrings, null);
+            }
 
             command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_add" + typeString, n != 1, String.valueOf(n)));
             command.setState(stateBack);
@@ -93,14 +116,28 @@ public class NavigationHelper<T> {
     }
 
     public boolean removeData(int i, int stateBack) {
+        return removeData(i, null, stateBack, null);
+    }
+
+    public boolean removeData(int i, Member member, int stateBack, BotLogEntity.Event logEvent) {
         List<T> srcList = srcListSupplier.apply(command.getGuildEntity());
         if (i == -1) {
             command.setState(stateBack);
             return true;
         } else if (i >= 0 && i < srcList.size()) {
             command.getGuildEntity().beginTransaction();
-            srcList.remove(i);
+            T removed = srcList.remove(i);
             command.getGuildEntity().commitTransaction();
+
+            if (logEvent != null) {
+                String removedString = null;
+                if (removed instanceof MentionableAtomicAsset<?>) {
+                    removedString = ((MentionableAtomicAsset<?>) removed).getId();
+                } else {
+                    removedString = removed.toString();
+                }
+                BotLogEntity.log(command.getEntityManager(), logEvent, member, null, removedString);
+            }
 
             command.setLog(LogStatus.SUCCESS, TextManager.getString(command.getLocale(), TextManager.GENERAL, "element_remove" + typeString));
             if (srcList.isEmpty()) {

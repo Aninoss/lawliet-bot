@@ -10,6 +10,7 @@ import constants.Language;
 import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.GuildEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -43,7 +44,7 @@ public class LanguageCommand extends Command implements OnStringSelectMenuListen
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        if (args.length() > 0) {
+        if (!args.isEmpty()) {
             Language language = null;
             for (Language l : LANGUAGES) {
                 String str = l.getLocale().getDisplayName().split("_")[0];
@@ -61,6 +62,7 @@ public class LanguageCommand extends Command implements OnStringSelectMenuListen
                 setLocale(language.getLocale());
 
                 GuildEntity guildEntity = getGuildEntity();
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.LANGUAGE, event.getMember(), guildEntity.getLanguage(), language);
                 guildEntity.beginTransaction();
                 guildEntity.setLanguage(language);
                 guildEntity.commitTransaction();
@@ -95,6 +97,7 @@ public class LanguageCommand extends Command implements OnStringSelectMenuListen
         setLocale(language.getLocale());
 
         GuildEntity guildEntity = getGuildEntity();
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.LANGUAGE, event.getMember(), guildEntity.getLanguage(), language);
         guildEntity.beginTransaction();
         guildEntity.setLanguage(language);
         guildEntity.commitTransaction();

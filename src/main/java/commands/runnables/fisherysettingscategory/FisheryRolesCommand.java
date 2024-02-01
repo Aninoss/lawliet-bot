@@ -13,6 +13,7 @@ import core.atomicassets.AtomicRole;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.fishery.Fishery;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -23,6 +24,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -58,7 +60,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
         switch (state) {
             case 1:
                 List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
-                if (roleList.size() == 0) {
+                if (roleList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else {
@@ -79,16 +81,18 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         return MessageInputResponse.FAILED;
                     }
 
-                    int rolesAdded = 0;
+                    ArrayList<String> roleIds = new ArrayList<>();
                     fishery.beginTransaction();
                     for (Role role : roleList) {
                         if (!roles.contains(role)) {
                             fishery.getRoleIds().add(role.getIdLong());
-                            rolesAdded++;
+                            roleIds.add(role.getId());
                         }
                     }
                     fishery.commitTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES, event.getMember(), roleIds, null);
 
+                    int rolesAdded = roleIds.size();
                     setLog(LogStatus.SUCCESS, getString("roleadd", (rolesAdded - existingRoles) != 1, String.valueOf(rolesAdded)));
                     setState(0);
                     return MessageInputResponse.SUCCESS;
@@ -96,12 +100,13 @@ public class FisheryRolesCommand extends NavigationAbstract {
 
             case 3:
                 List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-                if (channelList.size() == 0) {
+                if (channelList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else {
                     TextChannel channel = channelList.get(0);
                     if (checkWriteEmbedInChannelWithLog(channel)) {
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL, event.getMember(), fishery.getRoleUpgradeChannelId(), channel.getIdLong());
                         fishery.beginTransaction();
                         fishery.setRoleUpgradeChannelId(channel.getIdLong());
                         fishery.commitTransaction();
@@ -124,6 +129,8 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         if (priceMin == -1) priceMin = fishery.getRolePriceMin();
                         if (priceMax == -1) priceMax = fishery.getRolePriceMax();
 
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_PRICE_MIN, event.getMember(), fishery.getRolePriceMin(), priceMin);
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_PRICE_MAX, event.getMember(), fishery.getRolePriceMax(), priceMax);
                         fishery.beginTransaction();
                         fishery.setRolePriceMin(priceMin);
                         fishery.setRolePriceMax(priceMax);
@@ -167,7 +174,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         }
 
                     case 1:
-                        if (getRoles().size() > 0) {
+                        if (!getRoles().isEmpty()) {
                             setState(2);
                             return true;
                         } else {
@@ -179,6 +186,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                         fishery.beginTransaction();
                         fishery.setSingleRoles(!fishery.getSingleRoles());
                         fishery.commitTransaction();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_SINGLE_ROLES, event.getMember(), null, fishery.getSingleRoles());
 
                         setLog(LogStatus.SUCCESS, getString("singleroleset", fishery.getSingleRoles()));
                         return true;
@@ -213,6 +221,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                     fishery.beginTransaction();
                     fishery.getRoleIds().remove(roles.get(i).getIdLong());
                     fishery.commitTransaction();
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES, event.getMember(), null, roles.get(i).getId());
 
                     setLog(LogStatus.SUCCESS, getString("roleremove"));
                     if (getRoles().isEmpty()) {
@@ -227,6 +236,7 @@ public class FisheryRolesCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_ROLES_UPGRADE_CHANNEL, event.getMember(), fishery.getRoleUpgradeChannelId(), null);
                     fishery.beginTransaction();
                     fishery.setRoleUpgradeChannelId(null);
                     fishery.commitTransaction();

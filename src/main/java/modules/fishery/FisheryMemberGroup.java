@@ -1,27 +1,44 @@
 package modules.fishery;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.function.ToLongFunction;
-import java.util.stream.Collectors;
 import core.TextManager;
 import core.assets.GuildAsset;
 import core.atomicassets.AtomicMember;
 import core.utils.StringUtil;
-import mysql.redis.fisheryusers.FisheryUserManager;
 import mysql.redis.fisheryusers.FisheryMemberData;
+import mysql.redis.fisheryusers.FisheryUserManager;
 import net.dv8tion.jda.api.entities.Member;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.function.ToLongFunction;
+import java.util.stream.Collectors;
 
 public class FisheryMemberGroup implements GuildAsset {
 
     private final long guildId;
     private final List<AtomicMember> members;
 
-    public FisheryMemberGroup(long guildId, List<Member> members) {
+    public FisheryMemberGroup(long guildId, List<?> members) {
         this.guildId = guildId;
-        this.members = members.stream()
-                .map(AtomicMember::new)
-                .collect(Collectors.toList());
+        if (members.isEmpty()) {
+            this.members = Collections.emptyList();
+        } else if (members.get(0) instanceof Member) {
+            this.members = members.stream()
+                    .map(m -> new AtomicMember((Member) m))
+                    .collect(Collectors.toList());
+        } else if (members.get(0) instanceof FisheryMemberData) {
+            this.members = members.stream()
+                    .map(m -> {
+                        FisheryMemberData fm = (FisheryMemberData) m;
+                        return new AtomicMember(fm.getGuildId(), fm.getMemberId());
+                    })
+                    .collect(Collectors.toList());
+        } else if (members.get(0) instanceof AtomicMember) {
+            this.members = (List<AtomicMember>) members;
+        } else {
+            this.members = Collections.emptyList();
+        }
     }
 
     public String getAsTag(Locale locale) {

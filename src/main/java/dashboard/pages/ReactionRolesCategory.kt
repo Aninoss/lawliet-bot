@@ -2,6 +2,7 @@ package dashboard.pages
 
 import commands.Category
 import commands.Command
+import commands.Command.getCommandLanguage
 import commands.runnables.utilitycategory.ReactionRolesCommand
 import core.ShardManager
 import core.TextManager
@@ -25,6 +26,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.ReactionRoles
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.reactionroles.ReactionRoleMessage
 import mysql.modules.reactionroles.ReactionRoleMessage.ComponentType
@@ -49,6 +51,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
 
     var channelId: Long? = null
     var title = ""
+    var previousTitle = ""
     var desc = ""
     var roleRemovement = true
     var multipleRoles = true
@@ -292,17 +295,20 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
                         .withErrorMessage(error)
             }
 
+            val newTitle = if (title.isEmpty()) { getCommandLanguage(ReactionRolesCommand::class.java, locale).title } else { title }
             ReactionRoles.sendMessage(
-                    guildEntity.locale, textChannel, title, desc, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, roleRemovement,
+                    guildEntity.locale, textChannel, newTitle, desc, convertedSlots, roleRequirements.map { AtomicRole(guild.idLong, it) }, roleRemovement,
                     multipleRoles, showRoleConnections, newComponents, showRoleNumbers, image, editMode, messageId ?: 0L
             ).get(5, TimeUnit.SECONDS)
 
             if (editMode) {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.REACTION_ROLES_EDIT, atomicMember, previousTitle)
                 switchMode(false)
                 ActionResult()
                         .withSuccessMessage(getString(Category.UTILITY, "reactionroles_state9_description"))
                         .withRedrawScrollToTop()
             } else {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.REACTION_ROLES_ADD, atomicMember, newTitle)
                 switchMode(false)
                 ActionResult()
                         .withSuccessMessage(getString(Category.UTILITY, "reactionroles_state9_description"))
@@ -407,6 +413,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
         if (!editMode) {
             channelId = null
             title = Command.getCommandLanguage(ReactionRolesCommand::class.java, guildEntity.locale).title
+            previousTitle = title
             desc = ""
             roleRemovement = true
             multipleRoles = true
@@ -426,6 +433,7 @@ class ReactionRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEn
     private fun readValuesFromReactionMessage(guild: Guild, reactionRoleMessage: ReactionRoleMessage) {
         this.channelId = reactionRoleMessage.standardGuildMessageChannelId
         this.title = reactionRoleMessage.title
+        this.previousTitle = title
         this.desc = reactionRoleMessage.desc ?: ""
         this.roleRemovement = reactionRoleMessage.roleRemoval
         this.multipleRoles = reactionRoleMessage.multipleRoles

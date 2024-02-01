@@ -19,6 +19,7 @@ import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.automod.WordFilter
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.hibernate.entity.guild.InviteFilterEntity
 import mysql.hibernate.entity.guild.WordFilterEntity
@@ -61,15 +62,11 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             }
 
             if (anyCommandsAreAccessible(InviteFilterCommand::class)) {
-                mainContainer.add(
-                        generateInviteFilterField()
-                )
+                mainContainer.add(generateInviteFilterField())
             }
 
             if (anyCommandsAreAccessible(WordFilterCommand::class)) {
-                mainContainer.add(
-                        generateWordFilterField()
-                )
+                mainContainer.add(generateWordFilterField())
             }
         } else {
             mainContainer.add(
@@ -198,6 +195,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 }
 
                 slot.setData(modData, 0, 0, 0)
+                BotLogEntity.log(entityManager, slot.eventDisable, atomicMember)
                 ActionResult()
                         .withRedraw()
                         .withSuccessMessage(getString(Category.MODERATION, "mod_auto${slot.id}set"))
@@ -224,12 +222,13 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             inviteFilterEntity.beginTransaction()
             inviteFilterEntity.active = it.data
             inviteFilterEntity.commitTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_FILTER_ACTIVE, atomicMember, null, it.data)
 
             ActionResult()
                     .withRedraw()
         }
         activeSwitch.isChecked = inviteFilterEntity.active
-        container.add(activeSwitch, DashboardSeparator(), generateInviteFilterExcludedField(), DashboardSeparator())
+        container.add(activeSwitch, DashboardSeparator(), generateInviteFilterExcludedField())
 
         val logReceivers = DashboardMultiMembersComboBox(
                 this,
@@ -237,8 +236,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 { it.inviteFilter.logReceiverUserIds },
                 true,
                 InviteFilterCommand.MAX_LOG_RECEIVERS,
-                atomicMember.idLong,
-                InviteFilterCommand::class
+                InviteFilterCommand::class,
+                BotLogEntity.Event.INVITE_FILTER_LOG_RECEIVERS
         )
         container.add(logReceivers, DashboardSeparator())
 
@@ -251,8 +250,10 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         .withRedraw()
             }
 
+            val newAction = InviteFilterEntity.Action.values()[it.data.toInt()]
+            BotLogEntity.log(entityManager, BotLogEntity.Event.INVITE_FILTER_ACTION, atomicMember, inviteFilterEntity.action, newAction)
             inviteFilterEntity.beginTransaction()
-            inviteFilterEntity.action = InviteFilterEntity.Action.values()[it.data.toInt()]
+            inviteFilterEntity.action = newAction
             inviteFilterEntity.commitTransaction()
 
             ActionResult()
@@ -273,8 +274,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 { it.inviteFilter.excludedMemberIds },
                 true,
                 InviteFilterCommand.MAX_IGNORED_USERS,
-                atomicMember.idLong,
-                InviteFilterCommand::class
+                InviteFilterCommand::class,
+                BotLogEntity.Event.INVITE_FILTER_EXCLUDED_MEMBERS
         )
         container.add(ignoredUsers)
 
@@ -284,8 +285,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 { it.inviteFilter.excludedChannelIds },
                 true,
                 InviteFilterCommand.MAX_IGNORED_CHANNELS,
-                atomicMember.idLong,
-                InviteFilterCommand::class
+                InviteFilterCommand::class,
+                BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS
         )
         container.add(ignoredChannels)
 
@@ -305,6 +306,7 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             wordFilterEntity.beginTransaction()
             wordFilterEntity.active = it.data
             wordFilterEntity.commitTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.WORD_FILTER_ACTIVE, atomicMember, null, it.data)
 
             ActionResult()
                     .withRedraw()
@@ -318,8 +320,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 { it.wordFilter.excludedMemberIds },
                 true,
                 WordFilterCommand.MAX_IGNORED_USERS,
-                atomicMember.idLong,
-                WordFilterCommand::class
+                WordFilterCommand::class,
+                BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS
         )
         container.add(ignoredUsers)
 
@@ -329,8 +331,8 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                 { it.wordFilter.logReceiverUserIds },
                 true,
                 WordFilterCommand.MAX_LOG_RECEIVERS,
-                atomicMember.idLong,
-                WordFilterCommand::class
+                WordFilterCommand::class,
+                BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS
         )
         container.add(logReceivers, DashboardSeparator(), generateWordsComboBox())
 
@@ -345,21 +347,26 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
                         .withRedraw()
             }
 
-            wordFilterEntity.beginTransaction()
             if (it.type == "add") {
-                WordFilter.translateString(it.data).split(" ")
+                val newWordsList = WordFilter.translateString(it.data).split(" ")
                         .filter { it.length > 0 }
                         .map { it.substring(0, Math.min(WordFilterCommand.MAX_LETTERS, it.length)) }
                         .filter { !wordFilterEntity.words.contains(it) }
-                        .forEach {
-                            if (wordFilterEntity.words.size < WordFilterCommand.MAX_WORDS) {
-                                wordFilterEntity.words += it
-                            }
-                        }
+
+                wordFilterEntity.beginTransaction()
+                newWordsList.forEach {
+                    if (wordFilterEntity.words.size < WordFilterCommand.MAX_WORDS) {
+                        wordFilterEntity.words += it
+                    }
+                }
+                wordFilterEntity.commitTransaction()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.WORD_FILTER_WORDS, atomicMember, newWordsList, null)
             } else if (it.type == "remove") {
+                wordFilterEntity.beginTransaction()
                 wordFilterEntity.words -= it.data
+                wordFilterEntity.commitTransaction()
+                BotLogEntity.log(entityManager, BotLogEntity.Event.WORD_FILTER_WORDS, atomicMember, null, it.data)
             }
-            wordFilterEntity.commitTransaction()
 
             ActionResult()
                     .withRedraw()
@@ -484,6 +491,11 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         } else {
             val text = getString(Category.MODERATION, "mod_auto${autoModConfigSlot!!.id}set")
             val modData = DBModeration.getInstance().retrieve(atomicGuild.idLong)
+            logAutoMod(autoModConfigSlot!!.eventWarns, autoModConfigSlot!!.getValue(modData), autoModConfigTempValue)
+            logAutoMod(autoModConfigSlot!!.eventWarnDays, autoModConfigSlot!!.getDays(modData), autoModConfigTempDays)
+            if (autoModConfigStep == 2) {
+                logAutoMod(autoModConfigSlot!!.eventDuration!!, autoModConfigSlot!!.getDuration(modData), autoModConfigTempDuration)
+            }
             autoModConfigSlot!!.setData(modData, autoModConfigTempValue, autoModConfigTempDays, autoModConfigTempDuration)
             autoModConfigSlot = null
             return ActionResult()
@@ -492,30 +504,46 @@ class ModerationCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
         }
     }
 
-    enum class AutoModSlots(val id: String, vararg val states: Int?) {
+    private fun logAutoMod(event: BotLogEntity.Event, value0: Int, value1: Int) {
+        BotLogEntity.log(entityManager, event, atomicMember, if (value0 != 0) value0 else null, if (value1 != 0) value1 else null)
+    }
 
-        MUTE("mute", 8, 9, 10) {
+    enum class AutoModSlots(val id: String,
+                            val eventDisable: BotLogEntity.Event, val eventWarns: BotLogEntity.Event,
+                            val eventWarnDays: BotLogEntity.Event, val eventDuration: BotLogEntity.Event?,
+                            vararg val states: Int?
+    ) {
+
+        MUTE("mute", BotLogEntity.Event.MOD_AUTO_MUTE_DISABLE, BotLogEntity.Event.MOD_AUTO_MUTE_WARNS,
+                BotLogEntity.Event.MOD_AUTO_MUTE_WARN_DAYS, BotLogEntity.Event.MOD_AUTO_MUTE_DURATION, 8, 9, 10
+        ) {
             override fun getValue(modData: ModerationData): Int = modData.autoMute
             override fun getDays(modData: ModerationData): Int = modData.autoMuteDays
             override fun getDuration(modData: ModerationData): Int = modData.autoMuteDuration
             override fun setData(modData: ModerationData, value: Int, days: Int, duration: Int) = modData.setAutoMute(value, days, duration)
         },
 
-        JAIL("jail", 13, 14, 15) {
+        JAIL("jail", BotLogEntity.Event.MOD_AUTO_JAIL_DISABLE, BotLogEntity.Event.MOD_AUTO_JAIL_WARNS,
+                BotLogEntity.Event.MOD_AUTO_JAIL_WARN_DAYS, BotLogEntity.Event.MOD_AUTO_JAIL_DURATION, 13, 14, 15
+        ) {
             override fun getValue(modData: ModerationData): Int = modData.autoJail
             override fun getDays(modData: ModerationData): Int = modData.autoJailDays
             override fun getDuration(modData: ModerationData): Int = modData.autoJailDuration
             override fun setData(modData: ModerationData, value: Int, days: Int, duration: Int) = modData.setAutoJail(value, days, duration)
         },
 
-        KICK("kick", 2, 4) {
+        KICK("kick", BotLogEntity.Event.MOD_AUTO_KICK_DISABLE, BotLogEntity.Event.MOD_AUTO_KICK_WARNS,
+                BotLogEntity.Event.MOD_AUTO_KICK_WARN_DAYS, null, 2, 4
+        ) {
             override fun getValue(modData: ModerationData): Int = modData.autoKick
             override fun getDays(modData: ModerationData): Int = modData.autoKickDays
             override fun getDuration(modData: ModerationData): Int = 0
             override fun setData(modData: ModerationData, value: Int, days: Int, duration: Int) = modData.setAutoKick(value, days)
         },
 
-        BAN("ban", 3, 5, 7) {
+        BAN("ban", BotLogEntity.Event.MOD_AUTO_BAN_DISABLE, BotLogEntity.Event.MOD_AUTO_BAN_WARNS,
+                BotLogEntity.Event.MOD_AUTO_BAN_WARN_DAYS, BotLogEntity.Event.MOD_AUTO_BAN_DURATION, 3, 5, 7
+        ) {
             override fun getValue(modData: ModerationData): Int = modData.autoBan
             override fun getDays(modData: ModerationData): Int = modData.autoBanDays
             override fun getDuration(modData: ModerationData): Int = modData.autoBanDuration

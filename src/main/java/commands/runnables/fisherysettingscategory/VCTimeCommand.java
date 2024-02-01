@@ -10,6 +10,8 @@ import core.EmbedFactory;
 import core.ExceptionLogger;
 import core.TextManager;
 import core.utils.StringUtil;
+import mysql.hibernate.entity.BotLogEntity;
+import mysql.hibernate.entity.guild.FisheryEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -42,8 +44,8 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
 
     @Override
     public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
-        if (args.length() > 0) {
-            drawMessage(mainExecution(args)).exceptionally(ExceptionLogger.get());
+        if (!args.isEmpty()) {
+            drawMessage(mainExecution(args, event.getMember())).exceptionally(ExceptionLogger.get());
         } else {
             int voiceHoursLimitEffectively = getGuildEntity().getFishery().getVoiceHoursLimitEffectively();
             this.eb = EmbedFactory.getEmbedDefault(
@@ -67,9 +69,9 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
         return true;
     }
 
-    private EmbedBuilder mainExecution(String args) {
+    private EmbedBuilder mainExecution(String args, Member member) {
         if (args.equalsIgnoreCase("unlimited")) {
-            return markUnlimited();
+            return markUnlimited(member);
         }
 
         if (!StringUtil.stringIsInt(args)) {
@@ -81,17 +83,21 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
             return EmbedFactory.getEmbedError(this, TextManager.getString(getLocale(), TextManager.GENERAL, "number", "1", "23"));
         }
 
-        getGuildEntity().beginTransaction();
-        getGuildEntity().getFishery().setVoiceHoursLimit(value);
-        getGuildEntity().commitTransaction();
+        FisheryEntity fishery = getGuildEntity().getFishery();
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_VOICE_HOURS_LIMIT, member, fishery.getVoiceHoursLimit(), value);
+        fishery.beginTransaction();
+        fishery.setVoiceHoursLimit(value);
+        fishery.commitTransaction();
 
         return EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(value), StringUtil.numToString(value)));
     }
 
-    private EmbedBuilder markUnlimited() {
-        getGuildEntity().beginTransaction();
-        getGuildEntity().getFishery().setVoiceHoursLimit(24);
-        getGuildEntity().commitTransaction();
+    private EmbedBuilder markUnlimited(Member member) {
+        FisheryEntity fishery = getGuildEntity().getFishery();
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_VOICE_HOURS_LIMIT, member, fishery.getVoiceHoursLimit(), 24);
+        fishery.beginTransaction();
+        fishery.setVoiceHoursLimit(24);
+        fishery.commitTransaction();
 
         return EmbedFactory.getEmbedDefault(this, getString("success", getNumberSlot(null), getString("unlimited")));
     }
@@ -106,7 +112,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     @Override
     public MessageInputResponse onMessageInput(@NotNull MessageReceivedEvent event, @NotNull String input) throws Throwable {
         deregisterListenersWithComponents();
-        this.eb = mainExecution(input);
+        this.eb = mainExecution(input, event.getMember());
         return MessageInputResponse.SUCCESS;
     }
 
@@ -114,7 +120,7 @@ public class VCTimeCommand extends Command implements OnButtonListener, OnMessag
     public boolean onButton(@NotNull ButtonInteractionEvent event) throws Throwable {
         if (event.getComponentId().equals(BUTTON_ID_UNLIMITED)) {
             deregisterListenersWithComponents();
-            this.eb = markUnlimited();
+            this.eb = markUnlimited(event.getMember());
             return true;
         } else if (event.getComponentId().equals(BUTTON_ID_CANCEL)) {
             deregisterListenersWithComponentMessage();

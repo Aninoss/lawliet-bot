@@ -20,7 +20,7 @@ import javax.persistence.Enumerated
 
 @Embeddable
 class FisheryDmReminderEntity(
-        @Enumerated(EnumType.STRING) var type: Type = Type.entries[0],
+        @Enumerated(EnumType.STRING) var type: Type = Type.values()[0],
         @Enumerated(EnumType.STRING) override var language: Language = Language.EN
 ) : HibernateEmbeddedEntity<UserEntity>(), UserAsset, LanguageAsset {
 

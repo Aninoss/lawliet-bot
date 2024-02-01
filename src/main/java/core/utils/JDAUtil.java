@@ -1,10 +1,8 @@
 package core.utils;
 
-import java.util.Collection;
-import java.util.Optional;
-import javax.annotation.CheckReturnValue;
 import core.MemberCacheController;
 import core.ShardManager;
+import core.atomicassets.MentionableAtomicAsset;
 import mysql.hibernate.entity.guild.GuildEntity;
 import mysql.modules.userprivatechannels.DBUserPrivateChannels;
 import mysql.modules.userprivatechannels.PrivateChannelData;
@@ -26,6 +24,12 @@ import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.internal.requests.CompletedRestAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.CheckReturnValue;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class JDAUtil {
 
@@ -199,6 +203,12 @@ public class JDAUtil {
             }
         }
         return false;
+    }
+
+    public static List<String> toIdList(Collection<? extends MentionableAtomicAsset<?>> collection) {
+        return collection.stream()
+                .map(MentionableAtomicAsset::getId)
+                .collect(Collectors.toList());
     }
 
 }

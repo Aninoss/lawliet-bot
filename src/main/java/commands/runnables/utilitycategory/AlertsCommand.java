@@ -17,6 +17,7 @@ import core.utils.BotPermissionUtil;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.schedulers.AlertScheduler;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.tracker.DBTracker;
 import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -79,7 +80,7 @@ public class AlertsCommand extends NavigationAbstract {
     @ControllerMessage(state = STATE_ADD)
     public MessageInputResponse onMessageAdd(MessageReceivedEvent event, String input) {
         List<StandardGuildMessageChannel> channelList = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), input).getList();
-        if (channelList.size() > 0) {
+        if (!channelList.isEmpty()) {
             StandardGuildMessageChannel channel = channelList.get(0);
             channelId = channel.getIdLong();
             return MessageInputResponse.SUCCESS;
@@ -187,7 +188,7 @@ public class AlertsCommand extends NavigationAbstract {
                 return MessageInputResponse.FAILED;
             }
 
-            addTracker(event.getGuild().getIdLong(), minutes);
+            addTracker(event.getMember(), minutes);
             return MessageInputResponse.SUCCESS;
         } else {
             setLog(LogStatus.FAILURE, TextManager.getString(getLocale(), TextManager.GENERAL, "patreon_unlock"));
@@ -253,9 +254,10 @@ public class AlertsCommand extends NavigationAbstract {
         } else {
             TrackerData slotRemove = alerts.get(Integer.parseInt(event.getComponentId()));
             if (slotRemove != null) {
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.ALERTS, event.getMember(), null, slotRemove.getCommandTrigger());
                 slotRemove.delete();
                 setLog(LogStatus.SUCCESS, getString("state2_removed", slotRemove.getCommandTrigger()));
-                if (alerts.size() == 0) {
+                if (alerts.isEmpty()) {
                     setState(DEFAULT_STATE);
                 }
             }
@@ -317,7 +319,7 @@ public class AlertsCommand extends NavigationAbstract {
             setState(STATE_USERMESSAGE);
             return true;
         } else if (i == 0) {
-            addTracker(event.getGuild().getIdLong(), 0);
+            addTracker(event.getMember(), 0);
             return true;
         }
         return false;
@@ -417,9 +419,9 @@ public class AlertsCommand extends NavigationAbstract {
         );
     }
 
-    private void addTracker(long guildId, int minInterval) {
+    private void addTracker(Member member, int minInterval) {
         TrackerData slot = new TrackerData(
-                guildId,
+                member.getGuild().getIdLong(),
                 channelId,
                 commandCache.getTrigger(),
                 null,
@@ -432,6 +434,7 @@ public class AlertsCommand extends NavigationAbstract {
                 minInterval
         );
 
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.ALERTS, member, commandCache.getTrigger(), null);
         alerts.put(slot.hashCode(), slot);
         AlertScheduler.loadAlert(slot);
         setState(STATE_COMMAND);

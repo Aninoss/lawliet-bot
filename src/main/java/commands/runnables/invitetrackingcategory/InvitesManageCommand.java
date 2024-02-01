@@ -18,6 +18,7 @@ import core.utils.MentionUtil;
 import core.utils.StringUtil;
 import modules.invitetracking.InviteMetrics;
 import modules.invitetracking.InviteTracking;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.invitetracking.DBInviteTracking;
 import mysql.modules.invitetracking.InviteTrackingSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -131,6 +132,7 @@ public class InvitesManageCommand extends NavigationAbstract {
                     setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
                 } else {
                     FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, event.getGuild().getIdLong());
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES_RESET, event.getMember(), null, null, List.of(atomicMember.getIdLong()));
                     DBInviteTracking.getInstance().resetInviteTrackerSlotsOfInviter(event.getGuild().getIdLong(), atomicMember.getIdLong());
                     resetLog = true;
                     setLog(LogStatus.SUCCESS, getString("reset", atomicMember.getIdLong() == 0, StringUtil.escapeMarkdownInField(atomicMember.getName(getLocale()))));
@@ -156,6 +158,7 @@ public class InvitesManageCommand extends NavigationAbstract {
                             LocalDate.now(), true
                     );
                     FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, event.getGuild().getIdLong());
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, event.getMember(), inviteTrackingSlot.getMemberId(), null, List.of(atomicMember.getIdLong()));
                     getInviteTrackingSlots().put(inviteTrackingSlot.getMemberId(), inviteTrackingSlot);
                     setState(DEFAULT_STATE);
                     setLog(LogStatus.SUCCESS, getString("added"));
@@ -174,6 +177,7 @@ public class InvitesManageCommand extends NavigationAbstract {
             long userId = Long.parseLong(event.getComponentId());
             CustomObservableMap<Long, InviteTrackingSlot> slots = getInviteTrackingSlots();
             FeatureLogger.inc(PremiumFeature.INVITE_TRACKING, event.getGuild().getIdLong());
+            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_TRACKING_FAKE_INVITES, event.getMember(), null, userId, List.of(atomicMember.getIdLong()));
             slots.remove(userId);
             if (slots.isEmpty()) {
                 setState(DEFAULT_STATE);

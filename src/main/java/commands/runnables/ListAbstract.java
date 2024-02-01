@@ -3,9 +3,9 @@ package commands.runnables;
 import commands.Command;
 import commands.listeners.OnButtonListener;
 import commands.listeners.OnStringSelectMenuListener;
+import constants.Emojis;
 import constants.LogStatus;
 import core.EmbedFactory;
-import core.ExceptionLogger;
 import core.TextManager;
 import core.modals.ModalMediator;
 import core.utils.EmbedUtil;
@@ -13,6 +13,7 @@ import core.utils.StringUtil;
 import javafx.util.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -26,6 +27,7 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -34,12 +36,14 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
     private static final String BUTTON_ID_PREVIOUS = "prev";
     private static final String BUTTON_ID_GOTO = "goto";
     private static final String BUTTON_ID_NEXT = "next";
+    private static final String SELECT_MENU_ID_ORDER_BY = "order_by";
 
     private int page = 0;
     private final int entriesPerPage;
     private int size;
     private int orderBy = 0;
     private String[] orderOptions;
+    private final ArrayList<MessageEmbed.Field> additionalFields = new ArrayList<>();
 
     public ListAbstract(Locale locale, String prefix, int entriesPerPage) {
         super(locale, prefix);
@@ -52,7 +56,7 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
 
     protected abstract int configure(Member member, int orderBy) throws Throwable;
 
-    protected abstract Pair<String, String> getEntry(int i, int orderBy) throws Throwable;
+    protected abstract Pair<String, String> getEntry(Member member, int i, int orderBy) throws Throwable;
 
     protected void registerList(Member member, String args, String... orderOptions) throws Throwable {
         boolean argsFound = false;
@@ -77,21 +81,15 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
             }
         }
 
-        if (!argsFound && args.length() > 0) {
+        if (!argsFound && !args.isEmpty()) {
             setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
         }
 
         if (size > entriesPerPage) {
             registerButtonListener(member);
-            if (orderOptions.length > 0) {
-                registerStringSelectMenuListener(member, false);
-            }
+            registerStringSelectMenuListener(member, false);
         } else {
-            if (orderOptions.length > 0) {
-                registerStringSelectMenuListener(member);
-            } else {
-                drawMessage(draw(member)).exceptionally(ExceptionLogger.get());
-            }
+            registerStringSelectMenuListener(member);
         }
     }
 
@@ -152,12 +150,19 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
         EmbedBuilder eb = EmbedFactory.getEmbedDefault(this);
         EmbedUtil.setFooter(eb, this, TextManager.getString(getLocale(), TextManager.GENERAL, "list_footer", String.valueOf(page + 1), String.valueOf(getPageSize())));
 
-        for (int i = page * entriesPerPage; i < size && eb.getFields().size() < entriesPerPage; i++) {
-            Pair<String, String> entry = getEntry(i, orderBy);
+        int fields = 0;
+        for (int i = page * entriesPerPage; i < size && fields < entriesPerPage; i++) {
+            additionalFields.clear();
+            Pair<String, String> entry = getEntry(member, i, orderBy);
             eb.addField(entry.getKey(), entry.getValue(), false);
+            additionalFields.forEach(eb::addField);
+            fields++;
+        }
+        if (size == 0) {
+            eb.addField(TextManager.getString(getLocale(), TextManager.GENERAL, "empty"), Emojis.ZERO_WIDTH_SPACE.getFormatted(), false);
         }
 
-        ArrayList<ActionRow> actionRows = new ArrayList<>();
+        ArrayList<ActionRow> actionRows = new ArrayList<>(postProcessAddActionRows());
         if (size > entriesPerPage) {
             actionRows.add(ActionRow.of(
                     Button.of(ButtonStyle.PRIMARY, BUTTON_ID_PREVIOUS, TextManager.getString(getLocale(), TextManager.GENERAL, "list_previous")),
@@ -170,23 +175,30 @@ public abstract class ListAbstract extends Command implements OnButtonListener, 
             for (int i = 0; i < orderOptions.length; i++) {
                 selectOptions[i] = SelectOption.of(orderOptions[i], String.valueOf(i));
             }
-            StringSelectMenu selectMenu = StringSelectMenu.create("order_by")
+            StringSelectMenu selectMenu = StringSelectMenu.create(SELECT_MENU_ID_ORDER_BY)
                     .addOptions(selectOptions)
                     .setDefaultOptions(List.of(selectOptions[orderBy]))
                     .setRequiredRange(1, 1)
                     .build();
             actionRows.add(ActionRow.of(selectMenu));
         }
-        if (actionRows.size() > 0) {
+        if (!actionRows.isEmpty()) {
             setActionRows(actionRows);
         }
 
-        eb = postProcessEmbed(eb, orderBy);
+        postProcessEmbed(eb, orderBy);
         return eb;
     }
 
-    protected EmbedBuilder postProcessEmbed(EmbedBuilder eb, int orderBy) {
-        return eb;
+    protected void addEmbedField(String name, String value, boolean inline) {
+        additionalFields.add(new MessageEmbed.Field(name, value, inline));
+    }
+
+    protected List<ActionRow> postProcessAddActionRows() {
+        return Collections.emptyList();
+    }
+
+    protected void postProcessEmbed(EmbedBuilder eb, int orderBy) {
     }
 
     private int getPageSize() {

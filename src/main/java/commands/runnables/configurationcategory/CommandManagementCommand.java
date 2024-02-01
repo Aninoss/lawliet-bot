@@ -12,6 +12,7 @@ import core.CustomObservableList;
 import core.EmbedFactory;
 import core.TextManager;
 import core.utils.StringUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.commandmanagement.CommandManagementData;
 import mysql.modules.commandmanagement.DBCommandManagement;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,10 +24,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -85,6 +83,7 @@ public class CommandManagementCommand extends NavigationAbstract {
         }
 
         commandManagementData.getSwitchedOffElements().addAll(newCommands);
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), newCommands, null);
         setLog(LogStatus.SUCCESS, getString("addcommands_set", newCommands.size() != 1, StringUtil.numToString(newCommands.size())));
         setState(MAIN);
         return MessageInputResponse.SUCCESS;
@@ -106,7 +105,7 @@ public class CommandManagementCommand extends NavigationAbstract {
                 return true;
             }
             case 2 -> {
-                if (commandManagementData.getSwitchedOffCommands().size() > 0) {
+                if (!commandManagementData.getSwitchedOffCommands().isEmpty()) {
                     setState(REMOVE_COMMANDS);
                     return true;
                 } else {
@@ -144,8 +143,13 @@ public class CommandManagementCommand extends NavigationAbstract {
             setState(MAIN);
             return true;
         } else {
+            CustomObservableList<String> switchedOffElements = commandManagementData.getSwitchedOffElements();
             String trigger = event.getButton().getLabel();
-            commandManagementData.getSwitchedOffElements().remove(trigger);
+            if (switchedOffElements.contains(trigger)) {
+                switchedOffElements.remove(trigger);
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), null, trigger);
+            }
+
             setLog(LogStatus.SUCCESS, getString("commandremoved", trigger));
             if (commandManagementData.getSwitchedOffCommands().isEmpty()) {
                 setState(MAIN);
@@ -157,10 +161,23 @@ public class CommandManagementCommand extends NavigationAbstract {
     @ControllerStringSelectMenu(state = SET_CATEGORIES)
     public boolean onSelectMenu(StringSelectInteractionEvent event, int i) {
         CustomObservableList<String> switchedOffElements = commandManagementData.getSwitchedOffElements();
-        for (Category category : Category.independentValues()) {
-            switchedOffElements.remove(category.getId());
+
+        ArrayList<String> added = new ArrayList<>();
+        for (String value : event.getValues()) {
+            if (!switchedOffElements.contains(value)) {
+                switchedOffElements.add(value);
+                added.add(value);
+            }
         }
-        switchedOffElements.addAll(event.getValues());
+        ArrayList<String> removed = new ArrayList<>();
+        for (Category category : Category.independentValues()) {
+            if (switchedOffElements.contains(category.getId()) && !event.getValues().contains(category.getId())) {
+                switchedOffElements.remove(category.getId());
+                removed.add(category.getId());
+            }
+        }
+
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.COMMAND_MANAGEMENT, event.getMember(), added, removed);
         setLog(LogStatus.SUCCESS, getString("categoryset_set"));
         setState(MAIN);
         return true;
@@ -207,12 +224,12 @@ public class CommandManagementCommand extends NavigationAbstract {
     private String generateList(List<String> elements) {
         StringBuilder sb = new StringBuilder();
         for (String element : elements) {
-            if (sb.length() > 0) {
+            if (!sb.isEmpty()) {
                 sb.append(' ');
             }
             sb.append('`').append(element).append('`');
         }
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
             return sb.toString();
         } else {
             return TextManager.getString(getLocale(), TextManager.GENERAL, "notset");

@@ -53,6 +53,7 @@ public class Console {
     private static void registerTasks() {
         tasks.put("help", Console::onHelp);
 
+        tasks.put("bot_logs_cleanup", Console::onBotLogsCleanUp);
         tasks.put("fishery_copy", Console::onFisheryCopy);
         tasks.put("featurelogging", Console::onFeatureLogging);
         tasks.put("txt2img_ban", Console::onTxt2ImgBan);
@@ -103,6 +104,10 @@ public class Console {
         tasks.put("internet", Console::onInternetConnection);
         tasks.put("send_user", Console::onSendUser);
         tasks.put("send_channel", Console::onSendChannel);
+    }
+
+    private static void onBotLogsCleanUp(String[] args) {
+        BotLogsCleanUp.execute();
     }
 
     private static void onFisheryCopy(String[] args) {

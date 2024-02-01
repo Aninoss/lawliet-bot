@@ -1,7 +1,5 @@
 package commands.runnables.informationcategory;
 
-import java.util.ArrayList;
-import java.util.Locale;
 import commands.Command;
 import commands.CommandContainer;
 import commands.CommandEvent;
@@ -15,6 +13,9 @@ import mysql.modules.commandusages.DBCommandUsages;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "commandusages",
@@ -50,7 +51,7 @@ public class CommandUsagesCommand extends ListAbstract {
     }
 
     @Override
-    protected Pair<String, String> getEntry(int i, int orderBy) throws Throwable {
+    protected Pair<String, String> getEntry(Member member, int i, int orderBy) throws Throwable {
         Pair<CommandUsagesData, String> commandUsagesPair = commandUsages.get(i);
         return new Pair<>(
                 getString("slot_title", commandUsagesPair.getKey().getCommand(), commandUsagesPair.getValue()),

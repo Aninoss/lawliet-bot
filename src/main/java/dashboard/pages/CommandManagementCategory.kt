@@ -18,6 +18,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.commandmanagement.CommandManagementData
 import mysql.modules.commandmanagement.DBCommandManagement
@@ -66,6 +67,7 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
                         .withRedraw()
             }
 
+            BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_PERMISSIONS_TRANSFER, atomicMember)
             val actionResult = ActionResult()
             if (CommandPermissions.transferCommandPermissions(guild)) {
                 actionResult.withSuccessMessage(getString(Category.CONFIGURATION, "cperms_success"))
@@ -100,8 +102,8 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
                         { DBWhiteListedChannels.getInstance().retrieve(guild.idLong).channelIds },
                         true,
                         WhiteListCommand.MAX_CHANNELS,
-                        atomicMember.idLong,
-                        WhiteListCommand::class
+                        WhiteListCommand::class,
+                        BotLogEntity.Event.CHANNEL_WHITELIST
                 )
         )
 
@@ -136,8 +138,10 @@ class CommandManagementCategory(guildId: Long, userId: Long, locale: Locale, gui
 
             if (it.type == "add") {
                 commandManagementData.switchedOffElements += it.data
+                BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_MANAGEMENT, atomicMember, it.data, null)
             } else if (it.type == "remove") {
                 commandManagementData.switchedOffElements -= it.data
+                BotLogEntity.log(entityManager, BotLogEntity.Event.COMMAND_MANAGEMENT, atomicMember, null, it.data)
             }
             ActionResult()
         }

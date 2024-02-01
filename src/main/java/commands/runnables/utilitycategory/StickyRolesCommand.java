@@ -9,6 +9,7 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.atomicassets.AtomicRole;
 import core.utils.MentionUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -51,7 +52,7 @@ public class StickyRolesCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
-            return roleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), 0);
+            return roleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), 0, BotLogEntity.Event.STICKY_ROLES);
         }
 
         return null;
@@ -86,7 +87,7 @@ public class StickyRolesCommand extends NavigationAbstract {
                 return false;
 
             case 2:
-                return roleNavigationHelper.removeData(i, 0);
+                return roleNavigationHelper.removeData(i, event.getMember(), 0, BotLogEntity.Event.STICKY_ROLES);
 
             default:
                 return false;

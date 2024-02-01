@@ -1,7 +1,5 @@
 package commands.runnables.informationcategory;
 
-import java.util.ArrayList;
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.ListAbstract;
@@ -9,6 +7,9 @@ import core.TextManager;
 import javafx.util.Pair;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "faq",
@@ -40,7 +41,8 @@ public class FAQCommand extends ListAbstract {
         return slots.size();
     }
 
-    protected Pair<String, String> getEntry(int i, int orderBy) {
+    @Override
+    protected Pair<String, String> getEntry(Member member, int i, int orderBy) {
         Pair<String, String> slot = slots.get(i);
         return new Pair<>(getString("question", slot.getKey()), slot.getValue());
     }

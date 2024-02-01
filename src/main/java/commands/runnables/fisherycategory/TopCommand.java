@@ -85,7 +85,7 @@ public class TopCommand extends ListAbstract implements FisheryInterface {
     }
 
     @Override
-    protected Pair<String, String> getEntry(int i, int orderBy) {
+    protected Pair<String, String> getEntry(Member member, int i, int orderBy) {
         FisheryMemberDataCache fisheryMemberDataCache = rankingSlots.get(i);
         Optional<Member> memberOpt = fisheryMemberDataCache.getMember();
         String userString = memberOpt

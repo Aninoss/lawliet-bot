@@ -11,6 +11,7 @@ import dashboard.component.DashboardComboBox
 import dashboard.component.DashboardText
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.nsfwfilter.DBNSFWFilters
 import net.dv8tion.jda.api.Permission
@@ -42,10 +43,12 @@ class NSFWFilterCategory(guildId: Long, userId: Long, locale: Locale, guildEntit
             if (it.type == "add") {
                 it.data.split(" ").forEach { data ->
                     if (data.length <= NSFWFilterCommand.MAX_LENGTH && !nsfwKeywords.contains(data) && data.length > 0) {
+                        BotLogEntity.log(entityManager, BotLogEntity.Event.NSFW_FILTER, atomicMember, data.lowercase(), null)
                         nsfwKeywords.add(data.lowercase())
                     }
                 }
             } else if (it.type == "remove") {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.NSFW_FILTER, atomicMember, null, it.data)
                 nsfwKeywords.remove(it.data)
             }
             ActionResult()

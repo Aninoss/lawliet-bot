@@ -153,9 +153,8 @@ public class EntityManagerWrapper implements EntityManager, AutoCloseable {
     }
 
     public <T extends HibernateEntity> void deleteAllWithValue(Class<T> entityClass, String fieldName, Object fieldValue) {
-        String query = """
-                db.:collection.deleteMany( { ":fieldName" : :fieldValue } )
-                """.replace(":collection", entityClass.getAnnotation(Entity.class).name())
+        String query = "db.:collection.deleteMany( { \":fieldName\" : :fieldValue } )"
+                .replace(":collection", entityClass.getAnnotation(Entity.class).name())
                 .replace(":fieldName", fieldName)
                 .replace(":fieldValue", fieldValue.toString());
 

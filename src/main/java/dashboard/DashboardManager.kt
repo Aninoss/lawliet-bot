@@ -36,7 +36,8 @@ object DashboardManager {
                 AutoChannelCategory::class,
                 MemberCountDisplaysCategory::class,
                 CustomCommandsCategory::class,
-                CommandChannelShortcutsCategory::class
+                CommandChannelShortcutsCategory::class,
+                BotLogsCategory::class
         )
     }
 

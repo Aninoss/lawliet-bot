@@ -11,7 +11,6 @@ import constants.LogStatus;
 import core.EmbedFactory;
 import core.utils.TimeUtil;
 import javafx.util.Pair;
-import kotlin.enums.EnumEntries;
 import mysql.hibernate.entity.user.FisheryDmReminderEntity;
 import mysql.hibernate.entity.user.UserEntity;
 import mysql.modules.survey.DBSurvey;
@@ -61,13 +60,13 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnStr
 
     @Override
     public boolean onStringSelectMenu(StringSelectInteractionEvent event) throws Throwable {
-        EnumEntries<FisheryDmReminderEntity.Type> types = FisheryDmReminderEntity.Type.getEntries();
+        FisheryDmReminderEntity.Type[] types = FisheryDmReminderEntity.Type.values();
         List<Integer> activeTypes = event.getValues().stream()
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
 
-        for (int i = 0; i < types.size(); i++) {
-            FisheryDmReminderEntity.Type type = types.get(i);
+        for (int i = 0; i < types.length; i++) {
+            FisheryDmReminderEntity.Type type = types[i];
             UserEntity userEntity = getUserEntity();
             Map<FisheryDmReminderEntity.Type, FisheryDmReminderEntity> fisheryDmReminders = userEntity.getFisheryDmReminders();
 
@@ -90,12 +89,12 @@ public class CooldownsCommand extends Command implements FisheryInterface, OnStr
 
     @Override
     public EmbedBuilder draw(@NotNull Member member) throws Throwable {
-        EnumEntries<FisheryDmReminderEntity.Type> types = FisheryDmReminderEntity.Type.getEntries();
+        FisheryDmReminderEntity.Type[] types = FisheryDmReminderEntity.Type.values();
 
         StringSelectMenu.Builder builder = StringSelectMenu.create("reminders");
         ArrayList<String> defaultValues = new ArrayList<>();
-        for (int i = 0; i < types.size(); i++) {
-            FisheryDmReminderEntity.Type type = types.get(i);
+        for (int i = 0; i < types.length; i++) {
+            FisheryDmReminderEntity.Type type = types[i];
             String property = getString("property_" + type.name().toLowerCase());
 
             builder.addOption(property, String.valueOf(i));

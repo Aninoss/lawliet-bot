@@ -12,7 +12,9 @@ import core.EmbedFactory;
 import core.ListGen;
 import core.TextManager;
 import core.atomicassets.AtomicTextChannel;
+import core.utils.JDAUtil;
 import core.utils.MentionUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.whitelistedchannels.DBWhiteListedChannels;
 import mysql.modules.whitelistedchannels.WhiteListedChannelsData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -59,7 +61,7 @@ public class WhiteListCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-            return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMessage().getMember(), 0);
+            return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMember(), 0, BotLogEntity.Event.CHANNEL_WHITELIST);
         }
 
         return null;
@@ -83,7 +85,8 @@ public class WhiteListCommand extends NavigationAbstract {
                         return true;
                     }
                     case 2 -> {
-                        if (whiteListedChannels.size() > 0) {
+                        if (!whiteListedChannels.isEmpty()) {
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.CHANNEL_WHITELIST, event.getMember(), null, JDAUtil.toIdList(whiteListedChannels));
                             whiteListedChannels.clear();
                             setLog(LogStatus.SUCCESS, getString("channelcleared"));
                         } else {
@@ -102,7 +105,7 @@ public class WhiteListCommand extends NavigationAbstract {
                 break;
 
             case 2:
-                return channelNavigationHelper.removeData(i, 0);
+                return channelNavigationHelper.removeData(i, event.getMember(), 0, BotLogEntity.Event.CHANNEL_WHITELIST);
         }
         return false;
     }

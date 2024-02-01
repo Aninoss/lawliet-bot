@@ -45,7 +45,7 @@ dependencies {
     implementation 'redis.clients:jedis:3.6.0'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0-RC2'
     implementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.0-RC2'
-    implementation 'com.github.Aninoss:lawliet-dashboard-components:9b0fe92002'
+    implementation 'com.github.Aninoss:lawliet-dashboard-components:6c25830616'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1'

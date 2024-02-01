@@ -1,10 +1,12 @@
 package commands.runnables.utilitycategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.CommandOnOffSwitchAbstract;
+import mysql.hibernate.entity.BotLogEntity;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "triggerdelete",
@@ -32,6 +34,7 @@ public class TriggerDeleteCommand extends CommandOnOffSwitchAbstract {
         getGuildEntity().beginTransaction();
         getGuildEntity().setRemoveAuthorMessage(active);
         getGuildEntity().commitTransaction();
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.REMOVE_AUTHOR_MESSAGE, member, null, active);
         return true;
     }
 

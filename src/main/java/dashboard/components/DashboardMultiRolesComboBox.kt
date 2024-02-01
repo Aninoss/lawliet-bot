@@ -11,6 +11,7 @@ import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
@@ -25,7 +26,8 @@ class DashboardMultiRolesComboBox(
         canBeEmpty: Boolean,
         max: Int,
         checkManageable: Boolean,
-        commandAccessRequirement: KClass<out Command>? = null
+        commandAccessRequirement: KClass<out Command>? = null,
+        botLogEvent: BotLogEntity.Event? = null
 ) : DashboardComboBox(label, DataType.ROLES, canBeEmpty, max) {
 
     init {
@@ -58,6 +60,9 @@ class DashboardMultiRolesComboBox(
                         guildEntity.beginTransaction()
                         selectedRoles += event.data.toLong()
                         guildEntity.commitTransaction()
+                        if (botLogEvent != null) {
+                            BotLogEntity.log(dashboardCategory.entityManager, botLogEvent, guildId, memberId, event.data, null)
+                        }
                         return@setActionListener ActionResult()
                     } else {
                         val text = TextManager.getString(dashboardCategory.locale, TextManager.GENERAL, "permission_role", false, "\"${role!!.name}\"")
@@ -69,6 +74,9 @@ class DashboardMultiRolesComboBox(
                     guildEntity.beginTransaction()
                     selectedRoles -= event.data.toLong()
                     guildEntity.commitTransaction()
+                    if (botLogEvent != null) {
+                        BotLogEntity.log(dashboardCategory.entityManager, botLogEvent, guildId, memberId, null, event.data)
+                    }
                     return@setActionListener ActionResult()
                 } else {
                     return@setActionListener ActionResult()

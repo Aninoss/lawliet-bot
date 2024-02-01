@@ -9,6 +9,7 @@ import dashboard.ActionResult
 import dashboard.DashboardCategory
 import dashboard.component.DashboardComboBox
 import dashboard.data.DiscordEntity
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import kotlin.reflect.KClass
 
@@ -18,12 +19,13 @@ class DashboardMultiTextChannelsComboBox(
         selectedChannelsSupplier: (GuildEntity) -> MutableList<Long>,
         canBeEmpty: Boolean,
         max: Int,
-        memberId: Long? = null,
-        commandAccessRequirement: KClass<out Command>? = null
+        commandAccessRequirement: KClass<out Command>? = null,
+        botLogEvent: BotLogEntity.Event? = null
 ) : DashboardComboBox(label, DataType.TEXT_CHANNELS, canBeEmpty, max) {
 
     init {
         val guildId = dashboardCategory.atomicGuild.idLong
+        val memberId = dashboardCategory.atomicMember.idLong
 
         selectedValues = selectedChannelsSupplier(dashboardCategory.guildEntity).map {
             val atomicChannel = AtomicTextChannel(guildId, it)
@@ -31,7 +33,7 @@ class DashboardMultiTextChannelsComboBox(
         }
 
         setActionListener {
-            if (commandAccessRequirement != null && memberId != null) {
+            if (commandAccessRequirement != null) {
                 val guild = ShardManager.getLocalGuildById(guildId).get()
                 val member = MemberCacheController.getInstance().loadMember(guild, memberId).get()
                 if (!CommandManager.commandIsTurnedOnEffectively(commandAccessRequirement.java, member, null)) {
@@ -47,10 +49,16 @@ class DashboardMultiTextChannelsComboBox(
                 guildEntity.beginTransaction()
                 selectedChannels += it.data.toLong()
                 guildEntity.commitTransaction()
+                if (botLogEvent != null) {
+                    BotLogEntity.log(dashboardCategory.entityManager, botLogEvent, guildId, memberId, it.data, null)
+                }
             } else if (it.type == "remove") {
                 guildEntity.beginTransaction()
                 selectedChannels -= it.data.toLong()
                 guildEntity.commitTransaction()
+                if (botLogEvent != null) {
+                    BotLogEntity.log(dashboardCategory.entityManager, botLogEvent, guildId, memberId, null, it.data)
+                }
             }
 
             ActionResult()

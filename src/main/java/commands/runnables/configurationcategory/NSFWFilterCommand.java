@@ -1,6 +1,5 @@
 package commands.runnables.configurationcategory;
 
-import java.util.Locale;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -10,6 +9,7 @@ import core.CustomObservableList;
 import core.EmbedFactory;
 import core.ListGen;
 import core.utils.StringUtil;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.nsfwfilter.DBNSFWFilters;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -18,12 +18,14 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 @CommandProperties(
         trigger = "nsfwfilter",
         userGuildPermissions = Permission.MANAGE_SERVER,
         emoji = "🔞",
         executableWithoutArgs = true,
-        aliases = { "nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters" }
+        aliases = {"nsfwfilters", "boorufilter", "pornfilter", "adultfilter", "boorufilters", "pornfilters", "adultfilters"}
 )
 public class NSFWFilterCommand extends NavigationAbstract {
 
@@ -45,45 +47,46 @@ public class NSFWFilterCommand extends NavigationAbstract {
 
     @Override
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) throws Throwable {
-        if (state == 1) {
-            if (!input.isEmpty()) {
-                String[] mentionedKeywords = input.toLowerCase().split(" ");
+        if (state != 1) {
+            return null;
+        }
+        if (input.isEmpty()) {
+            return null;
+        }
 
-                int existingKeywords = 0;
-                for (String str : mentionedKeywords) {
-                    if (keywords.contains(str)) existingKeywords++;
-                }
-                if (existingKeywords >= mentionedKeywords.length) {
-                    setLog(LogStatus.FAILURE, getString("keywordexists", mentionedKeywords.length != 1));
-                    return MessageInputResponse.FAILED;
-                }
+        String[] mentionedKeywords = input.toLowerCase().split(" ");
+        int existingKeywords = 0;
+        for (String str : mentionedKeywords) {
+            if (keywords.contains(str)) {
+                existingKeywords++;
+            }
+        }
+        if (existingKeywords >= mentionedKeywords.length) {
+            setLog(LogStatus.FAILURE, getString("keywordexists", mentionedKeywords.length != 1));
+            return MessageInputResponse.FAILED;
+        }
 
-                int tooLongKeywords = 0;
-                for (String str : mentionedKeywords) {
-                    if (str.length() > MAX_LENGTH) tooLongKeywords++;
-                }
-                if (tooLongKeywords >= mentionedKeywords.length) {
-                    setLog(LogStatus.FAILURE, getString("keywordtoolong", String.valueOf(MAX_LENGTH)));
-                    return MessageInputResponse.FAILED;
-                }
+        int tooLongKeywords = 0;
+        for (String str : mentionedKeywords) {
+            if (str.length() > MAX_LENGTH) tooLongKeywords++;
+        }
+        if (tooLongKeywords >= mentionedKeywords.length) {
+            setLog(LogStatus.FAILURE, getString("keywordtoolong", String.valueOf(MAX_LENGTH)));
+            return MessageInputResponse.FAILED;
+        }
 
-                int n = 0;
-                for (String str : mentionedKeywords) {
-                    if (!keywords.contains(str)) {
-                        if (keywords.size() < MAX_FILTERS && !str.isEmpty() && str.length() <= MAX_LENGTH) {
-                            keywords.add(str);
-                            n++;
-                        }
-                    }
-                }
-
-                setLog(LogStatus.SUCCESS, getString("keywordadd", n != 1, String.valueOf(n)));
-                setState(0);
-                return MessageInputResponse.SUCCESS;
+        int n = 0;
+        for (String str : mentionedKeywords) {
+            if (!keywords.contains(str) && keywords.size() < MAX_FILTERS && !str.isEmpty() && str.length() <= MAX_LENGTH) {
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.NSFW_FILTER, event.getMember(), str, null);
+                keywords.add(str);
+                n++;
             }
         }
 
-        return null;
+        setLog(LogStatus.SUCCESS, getString("keywordadd", n != 1, String.valueOf(n)));
+        setState(0);
+        return MessageInputResponse.SUCCESS;
     }
 
     @Override
@@ -104,7 +107,7 @@ public class NSFWFilterCommand extends NavigationAbstract {
                         return true;
                     }
                     case 1 -> {
-                        if (keywords.size() > 0) {
+                        if (!keywords.isEmpty()) {
                             setState(2);
                         } else {
                             setLog(LogStatus.FAILURE, getString("nokeywordset"));
@@ -125,9 +128,10 @@ public class NSFWFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i >= 0 && i < keywords.size()) {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.NSFW_FILTER, event.getMember(), null, keywords.get(i));
                     keywords.remove(i);
                     setLog(LogStatus.SUCCESS, getString("keywordremove"));
-                    if (keywords.size() == 0) setState(0);
+                    if (keywords.isEmpty()) setState(0);
                     return true;
                 }
         }

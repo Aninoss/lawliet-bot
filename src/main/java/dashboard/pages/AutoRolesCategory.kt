@@ -15,6 +15,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.HorizontalPusher
 import dashboard.container.VerticalContainer
 import modules.RoleAssigner
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.autoroles.DBAutoRoles
 import net.dv8tion.jda.api.Permission
@@ -42,7 +43,9 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
                 { DBAutoRoles.getInstance().retrieve(guild.idLong).roleIds },
                 true,
                 AutoRolesCommand.MAX_ROLES,
-                true
+                true,
+                null,
+                BotLogEntity.Event.AUTO_ROLES
         )
         mainContainer.add(descText, rolesComboBox, DashboardSeparator())
 
@@ -55,6 +58,8 @@ class AutoRolesCategory(guildId: Long, userId: Long, locale: Locale, guildEntity
                 return@DashboardButton ActionResult()
                         .withErrorMessage(getString(Category.UTILITY, "autoroles_syncactive"))
             }
+
+            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_ROLES_SYNC, atomicMember)
             return@DashboardButton ActionResult()
                     .withSuccessMessage(getString(Category.UTILITY, "autoroles_syncstart"))
         }

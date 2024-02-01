@@ -12,7 +12,9 @@ import core.TextManager;
 import core.atomicassets.AtomicMember;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import kotlin.Pair;
 import modules.automod.WordFilter;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.WordFilterEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -66,15 +68,19 @@ public class WordFilterCommand extends NavigationAbstract {
         switch (state) {
             case 1:
                 List<Member> memberIgnoredList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
-                if (memberIgnoredList.size() == 0) {
+                if (memberIgnoredList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else if (memberIgnoredList.size() > MAX_IGNORED_USERS) {
                     setLog(LogStatus.FAILURE, getString("toomanyignoredusers", StringUtil.numToString(MAX_IGNORED_USERS)));
                     return MessageInputResponse.FAILED;
                 } else {
+                    List<Long> newMemberIds = memberIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
+                    Pair<List<String>, List<String>> addRemoveLists = BotLogEntity.oldNewToAddRemove(wordFilter.getExcludedMemberIds(), newMemberIds);
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
+
                     wordFilter.beginTransaction();
-                    wordFilter.setExcludedMemberIds(memberIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+                    wordFilter.setExcludedMemberIds(newMemberIds);
                     wordFilter.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
@@ -84,15 +90,19 @@ public class WordFilterCommand extends NavigationAbstract {
 
             case 2:
                 List<Member> logRecieverList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
-                if (logRecieverList.size() == 0) {
+                if (logRecieverList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else if (logRecieverList.size() > MAX_LOG_RECEIVERS) {
                     setLog(LogStatus.FAILURE, getString("toomanylogreceivers", StringUtil.numToString(MAX_LOG_RECEIVERS)));
                     return MessageInputResponse.FAILED;
                 } else {
+                    List<Long> newMemberIds = logRecieverList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
+                    Pair<List<String>, List<String>> addRemoveLists = BotLogEntity.oldNewToAddRemove(wordFilter.getLogReceiverUserIds(), newMemberIds);
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
+
                     wordFilter.beginTransaction();
-                    wordFilter.setLogReceiverUserIds(logRecieverList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+                    wordFilter.setLogReceiverUserIds(newMemberIds);
                     wordFilter.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
@@ -103,10 +113,10 @@ public class WordFilterCommand extends NavigationAbstract {
             case 3:
                 String[] wordArray = WordFilter.translateString(input).split(" ");
                 List<String> wordList = Arrays.stream(wordArray)
-                        .filter(str -> str.length() > 0)
+                        .filter(str -> !str.isEmpty())
                         .map(str -> str.substring(0, Math.min(MAX_LETTERS, str.length())))
                         .collect(Collectors.toList());
-                return wordsNavigationHelper.addData(wordList, input, event.getMember(), 0);
+                return wordsNavigationHelper.addData(wordList, input, event.getMember(), 0, BotLogEntity.Event.WORD_FILTER_WORDS);
 
             default:
                 return null;
@@ -128,6 +138,7 @@ public class WordFilterCommand extends NavigationAbstract {
                         wordFilter.beginTransaction();
                         wordFilter.setActive(!wordFilter.getActive());
                         wordFilter.commitTransaction();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_ACTIVE, event.getMember(), null, wordFilter.getActive());
 
                         setLog(LogStatus.SUCCESS, getString("onoffset", !wordFilter.getActive()));
                         return true;
@@ -157,6 +168,7 @@ public class WordFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_EXCLUDED_MEMBERS, event.getMember(), null, wordFilter.getExcludedMemberIds());
                     wordFilter.beginTransaction();
                     wordFilter.setExcludedMemberIds(Collections.emptyList());
                     wordFilter.commitTransaction();
@@ -172,6 +184,7 @@ public class WordFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.WORD_FILTER_LOG_RECEIVERS, event.getMember(), null, wordFilter.getLogReceiverUserIds());
                     wordFilter.beginTransaction();
                     wordFilter.setLogReceiverUserIds(Collections.emptyList());
                     wordFilter.commitTransaction();
@@ -190,7 +203,7 @@ public class WordFilterCommand extends NavigationAbstract {
                 return false;
 
             case 4:
-                return wordsNavigationHelper.removeData(i, 0);
+                return wordsNavigationHelper.removeData(i, event.getMember(), 0, BotLogEntity.Event.WORD_FILTER_WORDS);
 
             default:
                 return false;

@@ -1,6 +1,5 @@
 package commands.runnables.invitetrackingcategory;
 
-import java.util.*;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.runnables.ListAbstract;
@@ -17,6 +16,11 @@ import mysql.modules.invitetracking.InviteTrackingSlot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Optional;
 
 @CommandProperties(
         trigger = "invtop",
@@ -71,7 +75,7 @@ public class InvitesTopCommand extends ListAbstract {
     }
 
     @Override
-    protected Pair<String, String> getEntry(int i, int orderBy) {
+    protected Pair<String, String> getEntry(Member member, int i, int orderBy) {
         InviteMetrics inviteMetrics = inviteMetricsSlots.get(i);
         long memberId = inviteMetrics.getMemberId();
         String userString;
@@ -126,8 +130,8 @@ public class InvitesTopCommand extends ListAbstract {
     }
 
     @Override
-    protected EmbedBuilder postProcessEmbed(EmbedBuilder eb, int orderBy) {
-        return eb.setDescription(getString("desc"));
+    protected void postProcessEmbed(EmbedBuilder eb, int orderBy) {
+        eb.setDescription(getString("desc"));
     }
 
     private int getInviteValue(InviteMetrics inviteMetrics, OrderBy orderBy) {

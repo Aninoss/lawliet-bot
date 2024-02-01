@@ -22,6 +22,7 @@ import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import dashboard.data.GridRow
 import modules.schedulers.AlertScheduler
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.tracker.DBTracker
 import mysql.modules.tracker.TrackerData
@@ -79,7 +80,11 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
 
         val headers = getString(Category.UTILITY, "alerts_dashboard_gridheaders").split('\n').toTypedArray()
         val grid = DashboardGrid(headers, rows) {
-            alertMap.get(it.data.toInt())?.delete()
+            val alertSlot = alertMap.get(it.data.toInt())
+            if (alertSlot != null) {
+                BotLogEntity.log(entityManager, BotLogEntity.Event.ALERTS, atomicMember, null, alertSlot.commandTrigger)
+                alertSlot.delete()
+            }
             ActionResult()
                     .withRedraw()
         }
@@ -193,6 +198,7 @@ class AlertsCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: G
                     minInterval
             )
             clearAttributes()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.ALERTS, atomicMember, trackerData.commandTrigger, null)
             alertMap.put(trackerData.hashCode(), trackerData)
             AlertScheduler.loadAlert(trackerData)
             ActionResult()

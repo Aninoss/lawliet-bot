@@ -1,10 +1,5 @@
 package core.atomicassets;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import core.CustomObservableList;
 import core.MemberCacheController;
 import core.ShardManager;
@@ -12,6 +7,12 @@ import core.TextManager;
 import core.utils.StringUtil;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AtomicMember implements MentionableAtomicAsset<Member> {
 
@@ -26,6 +27,10 @@ public class AtomicMember implements MentionableAtomicAsset<Member> {
     public AtomicMember(Member member) {
         guildId = member.getGuild().getIdLong();
         memberId = member.getIdLong();
+    }
+
+    public long getGuildId() {
+        return guildId;
     }
 
     @Override

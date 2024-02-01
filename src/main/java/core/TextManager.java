@@ -27,6 +27,7 @@ public class TextManager {
     public static final String PERMISSIONS = "permissions";
     public static final String VERSIONS = "versions";
     public static final String FAQ = "faq";
+    public static final String LOGS = "logs";
 
     private static final LoadingCache<Pair<String, Locale>, ResourceBundle> bundles = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {

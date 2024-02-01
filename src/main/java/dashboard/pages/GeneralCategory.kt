@@ -20,6 +20,7 @@ import dashboard.container.HorizontalContainer
 import dashboard.container.VerticalContainer
 import dashboard.data.DiscordEntity
 import modules.Prefix
+import mysql.hibernate.entity.BotLogEntity
 import mysql.hibernate.entity.guild.GuildEntity
 import mysql.modules.autoquote.DBAutoQuote
 import net.dv8tion.jda.api.Permission
@@ -73,6 +74,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 }
 
                 val language = Language.valueOf(it.data)
+                BotLogEntity.log(entityManager, BotLogEntity.Event.LANGUAGE, atomicMember, guildEntity.language, language)
                 guildEntity.beginTransaction()
                 guildEntity.language = language
                 guildEntity.commitTransaction()
@@ -92,6 +94,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                 }
 
                 val prefix = it.data
+                BotLogEntity.log(entityManager, BotLogEntity.Event.PREFIX, atomicMember, guildEntity.prefix, prefix)
                 Prefix.changePrefix(guild, locale, prefix, guildEntity)
                 ActionResult()
             }
@@ -109,6 +112,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
                     .withRedraw()
             }
 
+            BotLogEntity.log(entityManager, BotLogEntity.Event.AUTO_QUOTE, atomicMember, null, it.data)
             DBAutoQuote.getInstance().retrieve(atomicGuild.idLong).isActive = it.data
             ActionResult()
         }
@@ -128,6 +132,7 @@ class GeneralCategory(guildId: Long, userId: Long, locale: Locale, guildEntity: 
             guildEntity.beginTransaction()
             guildEntity.removeAuthorMessage = it.data
             guildEntity.commitTransaction()
+            BotLogEntity.log(entityManager, BotLogEntity.Event.REMOVE_AUTHOR_MESSAGE, atomicMember, null, it.data)
             ActionResult()
         }
         switch.isChecked = guildEntity.removeAuthorMessageEffectively

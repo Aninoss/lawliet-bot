@@ -136,6 +136,7 @@ public class CommandContainer {
         commandList.add(StatsCommand.class);
         commandList.add(AddCommand.class);
         commandList.add(UpvoteCommand.class);
+        commandList.add(BotLogsCommand.class);
 
         //FISHERY SETTINGS
         commandList.add(FisheryCommand.class);

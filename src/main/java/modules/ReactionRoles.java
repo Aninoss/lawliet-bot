@@ -1,9 +1,5 @@
 package modules;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import commands.Category;
 import commands.Command;
 import commands.runnables.utilitycategory.ReactionRolesCommand;
@@ -34,6 +30,11 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class ReactionRoles {
 
@@ -152,9 +153,8 @@ public class ReactionRoles {
                                                List<ReactionRoleMessageSlot> slots, List<AtomicRole> roleRequirements,
                                                boolean showRoleConnections, String banner
     ) {
-        String newTitle = title != null && !title.isEmpty() ? title : TextManager.getString(locale, Category.UTILITY, "reactionroles_title");
         EmbedBuilder eb = EmbedFactory.getEmbedDefault()
-                .setTitle(Command.getCommandProperties(ReactionRolesCommand.class).emoji() + " " + newTitle)
+                .setTitle(Command.getCommandProperties(ReactionRolesCommand.class).emoji() + " " + title)
                 .setDescription(description)
                 .setImage(banner == null || banner.isBlank() ? null : banner)
                 .setFooter(TextManager.getString(locale, TextManager.GENERAL, "serverstaff_text"));
@@ -341,7 +341,7 @@ public class ReactionRoles {
                     channel.getGuild().getIdLong(),
                     channel.getIdLong(),
                     message.getIdLong(),
-                    (title != null && !title.isEmpty()) ? title : Command.getCommandLanguage(ReactionRolesCommand.class, locale).getTitle(),
+                    title,
                     description,
                     banner,
                     removeRole,
@@ -378,7 +378,7 @@ public class ReactionRoles {
                     channel.getGuild().getIdLong(),
                     channel.getIdLong(),
                     editMessageId,
-                    (title != null && !title.isEmpty()) ? title : Command.getCommandLanguage(ReactionRolesCommand.class, locale).getTitle(),
+                    title,
                     description,
                     banner,
                     removeRole,

@@ -1,12 +1,5 @@
 package commands.runnables.utilitycategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.MessageInputResponse;
@@ -18,6 +11,7 @@ import core.atomicassets.AtomicStandardGuildMessageChannel;
 import core.utils.*;
 import modules.Giveaway;
 import modules.schedulers.GiveawayScheduler;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.giveaway.DBGiveaway;
 import mysql.modules.giveaway.GiveawayData;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -35,6 +29,13 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "giveaway",
@@ -73,6 +74,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     private long messageId;
     private String title = "";
+    private String previousTitle = "";
     private String description = "";
     private long durationMinutes = 10080;
     private int amountOfWinners = 1;
@@ -100,7 +102,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @ControllerMessage(state = ADD_MESSAGE)
     public MessageInputResponse onMessageAddMessage(MessageReceivedEvent event, String input) {
         List<StandardGuildMessageChannel> channel = MentionUtil.getStandardGuildMessageChannels(event.getGuild(), input).getList();
-        if (channel.size() > 0) {
+        if (!channel.isEmpty()) {
             if (checkWriteEmbedInChannelWithLog(channel.get(0))) {
                 this.channel = new AtomicStandardGuildMessageChannel(channel.get(0));
                 setLog(LogStatus.SUCCESS, getString("channelset"));
@@ -115,7 +117,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @ControllerMessage(state = UPDATE_TITLE)
     public MessageInputResponse onMessageUpdateTitle(MessageReceivedEvent event, String input) {
-        if (input.length() > 0 && input.length() <= ARTICLE_LENGTH_MAX) {
+        if (!input.isEmpty() && input.length() <= ARTICLE_LENGTH_MAX) {
             title = input;
             setLog(LogStatus.SUCCESS, getString("titleset", input));
             setState(CONFIGURE_MESSAGE);
@@ -128,7 +130,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
     @ControllerMessage(state = UPDATE_DESC)
     public MessageInputResponse onMessageUpdateDesc(MessageReceivedEvent event, String input) {
-        if (input.length() > 0 && input.length() <= DESC_LENGTH_MAX) {
+        if (!input.isEmpty() && input.length() <= DESC_LENGTH_MAX) {
             description = input;
             setLog(LogStatus.SUCCESS, getString("descriptionset", input));
             setState(CONFIGURE_MESSAGE);
@@ -180,7 +182,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @ControllerMessage(state = UPDATE_EMOJI)
     public MessageInputResponse onMessageUpdateEmoji(MessageReceivedEvent event, String input) {
         List<Emoji> emojiList = MentionUtil.getEmojis(event.getMessage(), input).getList();
-        if (emojiList.size() > 0) {
+        if (!emojiList.isEmpty()) {
             Emoji emoji = emojiList.get(0);
             return processEmoji(emoji) ? MessageInputResponse.SUCCESS : MessageInputResponse.FAILED;
         }
@@ -192,7 +194,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     @ControllerMessage(state = UPDATE_IMAGE)
     public MessageInputResponse onMessageUpdateImage(MessageReceivedEvent event, String input) {
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
-        if (attachments.size() > 0) {
+        if (!attachments.isEmpty()) {
             Message.Attachment attachment = attachments.get(0);
             LocalFile tempFile = new LocalFile(LocalFile.Directory.CDN, String.format("giveaway/%s.%s", RandomUtil.generateRandomString(30), attachment.getFileExtension()));
             boolean success = FileUtil.downloadImageAttachment(attachment, tempFile);
@@ -242,7 +244,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 return true;
 
             case 1:
-                if (getActiveGiveawaySlots().size() > 0) {
+                if (!getActiveGiveawaySlots().isEmpty()) {
                     setState(EDIT_MESSAGE);
                     editMode = true;
                 } else {
@@ -251,7 +253,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
                 return true;
 
             case 2:
-                if (getCompletedGiveawaySlots().size() > 0) {
+                if (!getCompletedGiveawaySlots().isEmpty()) {
                     setState(REROLL_MESSAGE);
                 } else {
                     setLog(LogStatus.FAILURE, getString("nothing_completed"));
@@ -293,6 +295,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             GiveawayData giveaway = giveaways.get(i);
             messageId = giveaway.getMessageId();
             title = giveaway.getTitle();
+            previousTitle = title;
             description = giveaway.getDescription();
             durationMinutes = giveaway.getDurationMinutes();
             amountOfWinners = giveaway.getWinners();
@@ -327,7 +330,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
     }
 
     @ControllerButton(state = CONFIGURE_MESSAGE)
-    public boolean onButtonConfigureMessage(ButtonInteractionEvent event, int i) throws ExecutionException, InterruptedException {
+    public boolean onButtonConfigureMessage(ButtonInteractionEvent event, int i) {
         switch (i) {
             case -1:
                 if (!editMode) {
@@ -375,6 +378,11 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
 
             case 7:
                 if (!title.isEmpty()) {
+                    if (editMode) {
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_END, event.getMember(), previousTitle);
+                    } else {
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_ADD, event.getMember(), title);
+                    }
                     send(event, editMode);
                 } else {
                     setLog(LogStatus.FAILURE, getString("noitem"));
@@ -384,6 +392,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             case 8:
                 if (editMode) {
                     if (!title.isEmpty()) {
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_EDIT, event.getMember(), previousTitle);
                         send(event, false);
                     } else {
                         setLog(LogStatus.FAILURE, getString("noitem"));
@@ -481,6 +490,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
         } else if (i == 0 && rerollWinners > 0) {
             boolean messageExists = GiveawayScheduler.processGiveawayUsers(rerollGiveawayData, rerollWinners, true).join();
             if (messageExists) {
+                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_REROLL, event.getMember(), rerollGiveawayData.getTitle());
                 setLog(LogStatus.SUCCESS, getString("rerollset", rerollGiveawayData.getTitle()));
             } else {
                 setLog(LogStatus.FAILURE, getString("error"));
@@ -488,6 +498,7 @@ public class GiveawayCommand extends NavigationAbstract implements OnReactionLis
             setState(REROLL_MESSAGE);
             return true;
         } else if (i == (rerollWinners > 0 ? 1 : 0)) {
+            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.GIVEAWAYS_REMOVE, event.getMember(), rerollGiveawayData.getTitle());
             giveawayMap.remove(rerollGiveawayData.getMessageId());
             setLog(LogStatus.SUCCESS, getString("removed", rerollGiveawayData.getTitle()));
             setState(REROLL_MESSAGE);

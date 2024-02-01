@@ -1,6 +1,5 @@
 package events.discordevents;
 
-import java.util.function.Consumer;
 import commands.CommandContainer;
 import commands.CommandListenerMeta;
 import core.EmbedFactory;
@@ -9,6 +8,8 @@ import core.utils.BotPermissionUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
+
+import java.util.function.Consumer;
 
 public interface InteractionListenerHandler<T extends GenericComponentInteractionCreateEvent> {
 

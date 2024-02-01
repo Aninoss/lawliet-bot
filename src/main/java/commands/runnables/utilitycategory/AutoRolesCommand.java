@@ -14,6 +14,7 @@ import core.atomicassets.AtomicRole;
 import core.cache.ServerPatreonBoostCache;
 import core.utils.MentionUtil;
 import modules.RoleAssigner;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.autoroles.AutoRolesData;
 import mysql.modules.autoroles.DBAutoRoles;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -64,7 +65,7 @@ public class AutoRolesCommand extends NavigationAbstract {
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             List<Role> roleList = MentionUtil.getRoles(event.getGuild(), input).getList();
-            return roleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), 0);
+            return roleNavigationHelper.addData(AtomicRole.from(roleList), input, event.getMember(), 0, BotLogEntity.Event.AUTO_ROLES);
         }
 
         return null;
@@ -102,6 +103,7 @@ public class AutoRolesCommand extends NavigationAbstract {
                             yield true;
                         }
 
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.AUTO_ROLES_SYNC, event.getMember());
                         setLog(LogStatus.SUCCESS, getString("syncstart"));
                         yield true;
                     }
@@ -116,7 +118,7 @@ public class AutoRolesCommand extends NavigationAbstract {
                 return false;
 
             case 2:
-                return roleNavigationHelper.removeData(i, 0);
+                return roleNavigationHelper.removeData(i, event.getMember(), 0, BotLogEntity.Event.AUTO_ROLES);
 
             default:
                 return false;

@@ -19,6 +19,7 @@ import core.utils.MentionUtil;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryManage;
 import modules.fishery.FisheryMemberGroup;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.redis.fisheryusers.FisheryMemberData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -30,6 +31,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -99,8 +101,8 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), args));
             } else if (type == 3 + FisheryGear.values().length) {
                 FeatureLogger.inc(PremiumFeature.FISHERY, event.getGuild().getIdLong());
-
                 fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
+                logReset(event.getMember());
                 drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("reset", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag(getLocale()))))
                         .exceptionally(ExceptionLogger.get());
                 return true;
@@ -109,6 +111,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 String valueBefore = valueOfProperty(type);
                 if (FisheryManage.updateValues(fisheryMemberGroup.getFisheryMemberList(), getGuildEntity(), type, amountString)) {
                     String valueNow = valueOfProperty(type);
+                    logUpdate(type, event.getMember(), valueBefore, valueNow);
                     drawMessageNew(EmbedFactory.getEmbedDefault(this, getString("set", fisheryMemberGroup.getAsTag(getLocale()), emojiOfProperty(type), valueBefore, valueNow)))
                             .exceptionally(ExceptionLogger.get());
                     return true;
@@ -133,7 +136,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                 return MessageInputResponse.FAILED;
             }
             String valueNow = valueOfProperty(state - 1);
-
+            logUpdate(state - 1, event.getMember(), valueBefore, valueNow);
             setLog(LogStatus.SUCCESS, getString("set_log", fisheryMemberGroup.getAsTag(getLocale()), nameOfProperty(state - 1), valueBefore, valueNow));
             resetLog = true;
             setState(0);
@@ -161,6 +164,7 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                     setLog(LogStatus.WARNING, TextManager.getString(getLocale(), TextManager.GENERAL, "confirm_warning_button"));
                 } else {
                     fisheryMemberGroup.getFisheryMemberList().forEach(FisheryMemberData::remove);
+                    logReset(event.getMember());
                     resetLog = true;
                     setLog(LogStatus.SUCCESS, getString("reset_log", fisheryMemberGroup.containsMultiple(), fisheryMemberGroup.getAsTag(getLocale())));
                     setState(0);
@@ -218,6 +222,21 @@ public class FisheryManageCommand extends NavigationAbstract implements FisheryI
                     getString("state1_title", nameOfProperty(state - 1))
             );
         }
+    }
+
+    private void logUpdate(int type, Member member, String valueBefore, String valueNow) {
+        BotLogEntity.Event logEvent = BotLogEntity.Event.values()[(BotLogEntity.Event.FISHERY_MANAGE_FISH.ordinal() + type)];
+        List<Long> memberIds = fisheryMemberGroup.getFisheryMemberList().stream()
+                .map(FisheryMemberData::getMemberId)
+                .collect(Collectors.toList());
+        BotLogEntity.log(getEntityManager(), logEvent, member, valueBefore, valueNow, memberIds);
+    }
+
+    private void logReset(Member member) {
+        List<Long> memberIds = fisheryMemberGroup.getFisheryMemberList().stream()
+                .map(FisheryMemberData::getMemberId)
+                .collect(Collectors.toList());
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_MANAGE_RESET, member, null, null, memberIds);
     }
 
     private String emojiOfProperty(int i) {

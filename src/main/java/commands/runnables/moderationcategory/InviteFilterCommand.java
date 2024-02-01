@@ -12,6 +12,8 @@ import core.atomicassets.AtomicMember;
 import core.atomicassets.AtomicTextChannel;
 import core.utils.MentionUtil;
 import core.utils.StringUtil;
+import kotlin.Pair;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.InviteFilterEntity;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -60,15 +62,19 @@ public class InviteFilterCommand extends NavigationAbstract {
         switch (state) {
             case 1:
                 List<Member> userIgnoredList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
-                if (userIgnoredList.size() == 0) {
+                if (userIgnoredList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else if (userIgnoredList.size() > MAX_IGNORED_USERS) {
                     setLog(LogStatus.FAILURE, getString("toomanyignoredusers", StringUtil.numToString(MAX_IGNORED_USERS)));
                     return MessageInputResponse.FAILED;
                 } else {
+                    List<Long> newMemberIds = userIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
+                    Pair<List<String>, List<String>> addRemoveLists = BotLogEntity.oldNewToAddRemove(inviteFilter.getExcludedMemberIds(), newMemberIds);
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_MEMBERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
+
                     inviteFilter.beginTransaction();
-                    inviteFilter.setExcludedMemberIds(userIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+                    inviteFilter.setExcludedMemberIds(newMemberIds);
                     inviteFilter.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("ignoredusersset"));
@@ -78,15 +84,19 @@ public class InviteFilterCommand extends NavigationAbstract {
 
             case 2:
                 List<TextChannel> channelIgnoredList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-                if (channelIgnoredList.size() == 0) {
+                if (channelIgnoredList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else if (channelIgnoredList.size() > MAX_IGNORED_CHANNELS) {
                     setLog(LogStatus.FAILURE, getString("toomanyignoredchannels", StringUtil.numToString(MAX_IGNORED_CHANNELS)));
                     return MessageInputResponse.FAILED;
                 } else {
+                    List<Long> newChannelIds = channelIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
+                    Pair<List<String>, List<String>> addRemoveLists = BotLogEntity.oldNewToAddRemove(inviteFilter.getExcludedChannelIds(), newChannelIds);
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
+
                     inviteFilter.beginTransaction();
-                    inviteFilter.setExcludedChannelIds(channelIgnoredList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+                    inviteFilter.setExcludedChannelIds(newChannelIds);
                     inviteFilter.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("ignoredchannelsset"));
@@ -96,15 +106,19 @@ public class InviteFilterCommand extends NavigationAbstract {
 
             case 3:
                 List<Member> logRecieverList = MentionUtil.getMembers(event.getGuild(), input, null).getList();
-                if (logRecieverList.size() == 0) {
+                if (logRecieverList.isEmpty()) {
                     setLog(LogStatus.FAILURE, TextManager.getNoResultsString(getLocale(), input));
                     return MessageInputResponse.FAILED;
                 } else if (logRecieverList.size() > MAX_LOG_RECEIVERS) {
                     setLog(LogStatus.FAILURE, getString("toomanylogreceivers", StringUtil.numToString(MAX_LOG_RECEIVERS)));
                     return MessageInputResponse.FAILED;
                 } else {
+                    List<Long> newMemberIds = logRecieverList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList());
+                    Pair<List<String>, List<String>> addRemoveLists = BotLogEntity.oldNewToAddRemove(inviteFilter.getLogReceiverUserIds(), newMemberIds);
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_LOG_RECEIVERS, event.getMember(), addRemoveLists.getFirst(), addRemoveLists.getSecond());
+
                     inviteFilter.beginTransaction();
-                    inviteFilter.setLogReceiverUserIds(logRecieverList.stream().map(ISnowflake::getIdLong).collect(Collectors.toList()));
+                    inviteFilter.setLogReceiverUserIds(newMemberIds);
                     inviteFilter.commitTransaction();
 
                     setLog(LogStatus.SUCCESS, getString("logrecieverset"));
@@ -132,6 +146,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                         inviteFilter.beginTransaction();
                         inviteFilter.setActive(!inviteFilter.getActive());
                         inviteFilter.commitTransaction();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_ACTIVE, event.getMember(), null, inviteFilter.getActive());
 
                         setLog(LogStatus.SUCCESS, getString("onoffset", !inviteFilter.getActive()));
                         return true;
@@ -161,6 +176,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_MEMBERS, event.getMember(), null, inviteFilter.getExcludedMemberIds());
                     inviteFilter.beginTransaction();
                     inviteFilter.setExcludedMemberIds(Collections.emptyList());
                     inviteFilter.commitTransaction();
@@ -176,6 +192,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_EXCLUDED_CHANNELS, event.getMember(), null, inviteFilter.getExcludedChannelIds());
                     inviteFilter.beginTransaction();
                     inviteFilter.setExcludedChannelIds(Collections.emptyList());
                     inviteFilter.commitTransaction();
@@ -191,6 +208,7 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i == 0) {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_LOG_RECEIVERS, event.getMember(), null, inviteFilter.getLogReceiverUserIds());
                     inviteFilter.beginTransaction();
                     inviteFilter.setLogReceiverUserIds(Collections.emptyList());
                     inviteFilter.commitTransaction();
@@ -206,8 +224,10 @@ public class InviteFilterCommand extends NavigationAbstract {
                     setState(0);
                     return true;
                 } else if (i <= 2) {
+                    InviteFilterEntity.Action newAction = InviteFilterEntity.Action.values()[i];
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.INVITE_FILTER_ACTION, event.getMember(), inviteFilter.getAction(), newAction);
                     inviteFilter.beginTransaction();
-                    inviteFilter.setAction(InviteFilterEntity.Action.values()[i]);
+                    inviteFilter.setAction(newAction);
                     inviteFilter.commitTransaction();
 
                     setState(0);

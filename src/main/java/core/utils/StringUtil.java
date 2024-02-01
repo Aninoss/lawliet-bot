@@ -204,7 +204,7 @@ public final class StringUtil {
             }
         }
 
-        while (str.length() > 0 && (str.charAt(str.length() - 1) == ',' || str.charAt(str.length() - 1) == '.' || str.charAt(str.length() - 1) == ' ' || str.charAt(str.length() - 1) == '\n')) {
+        while (!str.isEmpty() && (str.charAt(str.length() - 1) == ',' || str.charAt(str.length() - 1) == '.' || str.charAt(str.length() - 1) == ' ' || str.charAt(str.length() - 1) == '\n')) {
             str = str.substring(0, str.length() - 1);
         }
 

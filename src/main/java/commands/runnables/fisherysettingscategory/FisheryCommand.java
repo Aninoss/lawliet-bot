@@ -24,6 +24,7 @@ import modules.fishery.Fishery;
 import modules.fishery.FisheryGear;
 import modules.fishery.FisheryPowerUp;
 import modules.fishery.FisheryStatus;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.hibernate.entity.guild.FisheryEntity;
 import mysql.modules.staticreactionmessages.DBStaticReactionMessages;
 import mysql.redis.fisheryusers.FisheryGuildData;
@@ -94,7 +95,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
     public MessageInputResponse controllerMessage(MessageReceivedEvent event, String input, int state) {
         if (state == 1) {
             List<TextChannel> channelList = MentionUtil.getTextChannels(event.getGuild(), input).getList();
-            return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMessage().getMember(), 0);
+            return channelNavigationHelper.addData(AtomicTextChannel.from(channelList), input, event.getMessage().getMember(), 0, BotLogEntity.Event.FISHERY_EXCLUDED_CHANNELS);
         }
 
         return null;
@@ -115,6 +116,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         fishery.beginTransaction();
                         fishery.setTreasureChests(!fishery.getTreasureChests());
                         fishery.commitTransaction();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_TREASURE_CHESTS, event.getMember(), null, fishery.getTreasureChests());
 
                         setLog(LogStatus.SUCCESS, getString("treasurechestsset", fishery.getTreasureChests()));
                         stopLock = true;
@@ -124,6 +126,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         fishery.beginTransaction();
                         fishery.setPowerUps(!fishery.getPowerUps());
                         fishery.commitTransaction();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_POWER_UPS, event.getMember(), null, fishery.getPowerUps());
 
                         setLog(LogStatus.SUCCESS, getString("powerupsset", fishery.getPowerUps()));
                         stopLock = true;
@@ -133,6 +136,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         fishery.beginTransaction();
                         fishery.setFishReminders(!fishery.getFishReminders());
                         fishery.commitTransaction();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_FISH_REMINDERS, event.getMember(), null, fishery.getFishReminders());
 
                         setLog(LogStatus.SUCCESS, getString("remindersset", fishery.getFishReminders()));
                         stopLock = true;
@@ -142,6 +146,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         fishery.beginTransaction();
                         fishery.setCoinGiftLimit(!fishery.getCoinGiftLimit());
                         fishery.commitTransaction();
+                        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_COIN_GIFT_LIMIT, event.getMember(), null, fishery.getCoinGiftLimit());
 
                         setLog(LogStatus.SUCCESS, getString("coinsgivenset", fishery.getCoinGiftLimit()));
                         stopLock = true;
@@ -193,9 +198,20 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                                     }
 
                                     FisheryEntity newFishery = getGuildEntity().getFishery();
+
+                                    double newTreasureChestProbability = NumberUtil.trimDecimalPositions(treasureChestsProbability, 2);
+                                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_TREASURE_CHEST_PROBABILITY, e.getMember(),
+                                            newFishery.getTreasureChestProbabilityInPercent(), newTreasureChestProbability
+                                    );
+
+                                    double newPowerUpProbability = NumberUtil.trimDecimalPositions(powerUpsProbability, 2);
+                                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_POWER_UP_PROBABILITY, e.getMember(),
+                                            newFishery.getPowerUpProbabilityInPercent(), newPowerUpProbability
+                                    );
+
                                     newFishery.beginTransaction();
-                                    newFishery.setTreasureChestProbabilityInPercent(NumberUtil.trimDecimalPositions(treasureChestsProbability, 2));
-                                    newFishery.setPowerUpProbabilityInPercent(NumberUtil.trimDecimalPositions(powerUpsProbability, 2));
+                                    newFishery.setTreasureChestProbabilityInPercent(newTreasureChestProbability);
+                                    newFishery.setPowerUpProbabilityInPercent(newPowerUpProbability);
                                     newFishery.commitTransaction();
 
                                     setLog(LogStatus.SUCCESS, getString("probabilitiesset"));
@@ -217,13 +233,17 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                         return true;
 
                     case 7:
-                        fishery.beginTransaction();
                         if (fishery.getFisheryStatus() != FisheryStatus.ACTIVE) {
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.ACTIVE);
+                            fishery.beginTransaction();
                             fishery.setFisheryStatus(FisheryStatus.ACTIVE);
+                            fishery.commitTransaction();
                         } else {
+                            BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.PAUSED);
+                            fishery.beginTransaction();
                             fishery.setFisheryStatus(FisheryStatus.PAUSED);
+                            fishery.commitTransaction();
                         }
-                        fishery.commitTransaction();
 
                         setLog(LogStatus.SUCCESS, getString("setstatus"));
                         stopLock = true;
@@ -237,6 +257,8 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                             } else {
                                 GlobalThreadPool.submit(() -> FisheryUserManager.deleteGuildData(event.getGuild().getIdLong()));
 
+                                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_STATUS, event.getMember(), fishery.getFisheryStatus(), FisheryStatus.STOPPED);
+                                BotLogEntity.log(getEntityManager(), BotLogEntity.Event.FISHERY_DATA_RESET, event.getMember());
                                 fishery.beginTransaction();
                                 fishery.setFisheryStatus(FisheryStatus.STOPPED);
                                 fishery.commitTransaction();
@@ -259,7 +281,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 return false;
 
             case 2:
-                return channelNavigationHelper.removeData(i, 0);
+                return channelNavigationHelper.removeData(i, event.getMember(), 0, BotLogEntity.Event.FISHERY_EXCLUDED_CHANNELS);
 
             default:
                 return false;
@@ -276,7 +298,7 @@ public class FisheryCommand extends NavigationAbstract implements OnStaticButton
                 Button[] buttons = new Button[options.length];
                 for (int i = 0; i < options.length; i++) {
                     buttons[i] = Button.of(
-                            i == 7 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY,
+                            i == 8 ? ButtonStyle.DANGER : ButtonStyle.PRIMARY,
                             String.valueOf(i),
                             options[i]
                     );

@@ -13,6 +13,7 @@ import core.utils.BotPermissionUtil
 import dashboard.component.DashboardText
 import dashboard.container.DashboardContainer
 import dashboard.container.VerticalContainer
+import mysql.hibernate.EntityManagerWrapper
 import mysql.hibernate.entity.guild.GuildEntity
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
@@ -26,6 +27,8 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
     val atomicMember: AtomicMember = AtomicMember(guildId, userId)
     val properties: DashboardProperties = this.javaClass.getAnnotation(DashboardProperties::class.java)
     val prefix: String = guildEntity.prefix
+    val entityManager: EntityManagerWrapper
+        get() = guildEntity.entityManager
     val isPremium
         get() = PatreonCache.getInstance().hasPremium(atomicMember.idLong, true) ||
                 PatreonCache.getInstance().isUnlocked(atomicGuild.idLong)
@@ -62,7 +65,7 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
     fun missingBotPermissions(): List<Permission> {
         return ShardManager.getLocalGuildById(guildId).orElse(null)?.let { guild ->
             return properties.botPermissions
-                .filter { !BotPermissionUtil.can(guild, it) }
+                    .filter { !BotPermissionUtil.can(guild, it) }
         } ?: emptyList()
     }
 
@@ -70,7 +73,7 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
         return ShardManager.getLocalGuildById(guildId).orElse(null)?.let { guild ->
             return MemberCacheController.getInstance().loadMember(guild, userId).get()?.let { member ->
                 return properties.userPermissions
-                    .filter { !BotPermissionUtil.can(member, it) }
+                        .filter { !BotPermissionUtil.can(member, it) }
             } ?: emptyList()
         } ?: emptyList()
     }
@@ -82,9 +85,9 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
 
         val member = atomicMember.get().get()
         return properties.commandAccessRequirements
-            .any {
-                CommandManager.commandIsTurnedOnEffectively(it.java, member, null)
-            }
+                .any {
+                    CommandManager.commandIsTurnedOnEffectively(it.java, member, null)
+                }
     }
 
     fun anyCommandsAreAccessible(vararg classes: KClass<out Command>): Boolean {
@@ -94,9 +97,9 @@ abstract class DashboardCategory(private val guildId: Long, private val userId: 
 
         val member = atomicMember.get().get()
         return classes
-            .any {
-                CommandManager.commandIsTurnedOnEffectively(it.java, member, null)
-            }
+                .any {
+                    CommandManager.commandIsTurnedOnEffectively(it.java, member, null)
+                }
     }
 
     fun getString(category: String, key: String, vararg args: String): String {

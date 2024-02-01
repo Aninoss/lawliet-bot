@@ -1,11 +1,13 @@
 package commands.runnables.utilitycategory;
 
-import java.util.Locale;
 import commands.listeners.CommandProperties;
 import commands.runnables.CommandOnOffSwitchAbstract;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.autoquote.DBAutoQuote;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+
+import java.util.Locale;
 
 @CommandProperties(
         trigger = "autoquote",
@@ -28,6 +30,7 @@ public class AutoQuoteCommand extends CommandOnOffSwitchAbstract {
     @Override
     protected boolean setActive(Member member, boolean active) {
         DBAutoQuote.getInstance().retrieve(member.getGuild().getIdLong()).setActive(active);
+        BotLogEntity.log(getEntityManager(), BotLogEntity.Event.AUTO_QUOTE, member, null, active);
         return true;
     }
 

@@ -19,6 +19,7 @@ import core.featurelogger.FeatureLogger;
 import core.featurelogger.PremiumFeature;
 import core.utils.*;
 import modules.ReactionRoles;
+import mysql.hibernate.entity.BotLogEntity;
 import mysql.modules.reactionroles.DBReactionRoles;
 import mysql.modules.reactionroles.ReactionRoleMessage;
 import mysql.modules.reactionroles.ReactionRoleMessageSlot;
@@ -91,6 +92,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
             SENT = 9;
 
     private String title;
+    private String previousTitle;
     private String description;
     private List<ReactionRoleMessageSlot> slots = new ArrayList<>();
     private List<AtomicRole> roleRequirements = new ArrayList<>();
@@ -442,6 +444,12 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
                 if (error != null) {
                     setLog(LogStatus.FAILURE, error);
                     return true;
+                }
+
+                if (editMode) {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.REACTION_ROLES_EDIT, event.getMember(), previousTitle);
+                } else {
+                    BotLogEntity.log(getEntityManager(), BotLogEntity.Event.REACTION_ROLES_ADD, event.getMember(), title);
                 }
                 ReactionRoles.sendMessage(getLocale(), textChannel, title, description, slots, roleRequirements, removeRole,
                         multipleRoles, showRoleConnections, newComponents, showRoleNumbers, banner, editMode, editMessageId
@@ -1114,6 +1122,7 @@ public class ReactionRolesCommand extends NavigationAbstract implements OnReacti
 
     private void updateValuesFromMessage(ReactionRoleMessage message) {
         this.title = message.getTitle();
+        this.previousTitle = this.title;
         this.description = message.getDesc();
         this.banner = message.getImage();
         this.multipleRoles = message.getMultipleRoles();
