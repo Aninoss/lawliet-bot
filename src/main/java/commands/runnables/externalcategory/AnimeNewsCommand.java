@@ -1,13 +1,5 @@
 package commands.runnables.externalcategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
@@ -16,6 +8,7 @@ import constants.AssetIds;
 import constants.Language;
 import core.EmbedFactory;
 import core.ExceptionLogger;
+import core.MainLogger;
 import core.utils.EmbedUtil;
 import modules.animenews.AnimeNewsArticle;
 import modules.animenews.AnimeNewsDownloader;
@@ -24,6 +17,15 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "animenews",
@@ -41,7 +43,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
         event.deferReply();
         List<AnimeNewsArticle> articles = AnimeNewsDownloader.retrieveArticles(getLocale());
         EmbedBuilder eb;
-        if (articles != null && articles.size() > 0) {
+        if (articles != null && !articles.isEmpty()) {
             eb = EmbedUtil.addTrackerNoteLog(getLocale(), event.getMember(), getEmbed(articles.get(0)), getPrefix(), getTrigger());
         } else {
             eb = EmbedFactory.getApiDownEmbed(this, getPrefix() + getTrigger());
@@ -64,7 +66,7 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
                 ? Language.EN.getLocale()
                 : getLocale();
         List<AnimeNewsArticle> articles = AnimeNewsDownloader.retrieveArticles(locale);
-        if (articles == null || articles.size() == 0) {
+        if (articles == null || articles.isEmpty()) {
             return AlertResponse.CONTINUE;
         }
 
@@ -82,8 +84,11 @@ public class AnimeNewsCommand extends Command implements OnAlertListener {
             embedList = List.of(getEmbed(articles.get(0)).build());
         }
 
-        if (embedList.size() > 0) {
+        if (!embedList.isEmpty()) {
             slot.sendMessage(getLocale(), true, embedList);
+            if (slot.getGuildId() == 1190310706248167506L) {
+                MainLogger.get().info("### Anime news triggered");
+            }
         }
         slot.setArgs(articles.get(0).getPublicationTime().toString());
         return AlertResponse.CONTINUE_AND_SAVE;

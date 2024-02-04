@@ -1,18 +1,12 @@
 package commands.runnables.externalcategory;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import commands.Command;
 import commands.CommandEvent;
 import commands.listeners.CommandProperties;
 import commands.listeners.OnAlertListener;
 import core.EmbedFactory;
 import core.ExceptionLogger;
+import core.MainLogger;
 import core.utils.EmbedUtil;
 import core.utils.InternetUtil;
 import core.utils.StringUtil;
@@ -24,6 +18,14 @@ import mysql.modules.tracker.TrackerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @CommandProperties(
         trigger = "crunchyroll",
@@ -92,14 +94,20 @@ public class AnimeReleasesCommand extends Command implements OnAlertListener {
                 .collect(Collectors.toCollection(ArrayList::new));
 
         Collections.reverse(embedList);
-        if (embedList.size() > 0) {
+        if (!embedList.isEmpty()) {
             slot.sendMessage(getLocale(), true, embedList);
+            if (slot.getGuildId() == 1190310706248167506L) {
+                MainLogger.get().info("### Crunchyroll triggered 1");
+            }
         }
 
-        if (first && postBundle.getPosts().size() == 0) {
+        if (first && postBundle.getPosts().isEmpty()) {
             EmbedBuilder eb = EmbedFactory.getEmbedDefault(this)
                     .setDescription(getString("no_results", true, StringUtil.shortenString(slot.getCommandKey(), 200)));
             slot.sendMessage(getLocale(), false, eb.build());
+            if (slot.getGuildId() == 1190310706248167506L) {
+                MainLogger.get().info("### Crunchyroll triggered 2");
+            }
         }
 
         if (postBundle.getNewestPost() != null) {
