@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @CommandProperties(
@@ -53,7 +54,7 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
     }
 
     @Override
-    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) {
+    public boolean onTrigger(@NotNull CommandEvent event, @NotNull String args) throws ExecutionException, InterruptedException {
         List<Role> roles = MentionUtil.getRoles(event.getGuild(), args).getList();
 
         /* check for no role mention */
@@ -95,11 +96,10 @@ public class AssignRoleCommand extends Command implements OnButtonListener {
         }
 
         FeatureLogger.inc(PremiumFeature.ROLE_ASSIGNMENTS, event.getGuild().getIdLong());
-        CompletableFuture<Boolean> future = futureOpt.get();
-        future.thenAccept(this::onAssignmentFinished);
-
         setComponents(Button.of(ButtonStyle.SECONDARY, "quit", TextManager.getString(getLocale(), TextManager.GENERAL, "process_abort")));
-        registerButtonListener(event.getMember());
+        registerButtonListener(event.getMember()).get();
+
+        futureOpt.get().thenAccept(this::onAssignmentFinished);
         return true;
     }
 

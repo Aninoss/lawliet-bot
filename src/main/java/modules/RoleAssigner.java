@@ -3,10 +3,13 @@ package modules;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import commands.Command;
+import core.CustomObservableMap;
 import core.MainLogger;
 import core.MemberCacheController;
 import core.utils.BotPermissionUtil;
 import core.utils.FutureUtil;
+import mysql.modules.jails.DBJails;
+import mysql.modules.jails.JailData;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -34,23 +37,41 @@ public class RoleAssigner {
             busyServers.put(guild.getIdLong(), active);
             return Optional.of(FutureUtil.supplyAsync(() -> {
                 try {
-                    Thread.sleep(500);
+                    CustomObservableMap<Long, JailData> jails = DBJails.getInstance().retrieve(guild.getIdLong());
                     MemberCacheController.getInstance().loadMembersFull(guild).join();
-                    for (Member member : new ArrayList<>(guild.getMembers())) {
-                        if (active.get()) {
-                            MemberCacheController.getInstance().loadMembersFull(guild).join();
-                            boolean canInteract = roles.stream().allMatch(role ->
-                                    BotPermissionUtil.can(role.getGuild(), Permission.MANAGE_ROLES) &&
-                                            BotPermissionUtil.canManage(role)
-                            );
 
-                            if (guild.getMembers().contains(member) && canInteract) {
-                                AuditableRestAction<Void> restAction = guild.modifyMemberRoles(member, add ? roles : Collections.emptyList(), add ? Collections.emptyList() : roles)
-                                        .reason(Command.getCommandLanguage(commandClass, locale).getTitle());
-                                restAction.complete();
-                            }
-                        } else {
+                    for (Member member : new ArrayList<>(guild.getMembers())) {
+                        if (!active.get()) {
                             return false;
+                        }
+
+                        if (jails.containsKey(member.getIdLong())) {
+                            JailData jailData = jails.get(member.getIdLong());
+                            HashSet<Long> previousRoleIds = new HashSet<>(jailData.getPreviousRoleIds());
+                            if (add) {
+                                roles.forEach(r -> previousRoleIds.add(r.getIdLong()));
+                            } else {
+                                roles.forEach(r -> previousRoleIds.remove(r.getIdLong()));
+                            }
+
+                            JailData newJailData = new JailData(guild.getIdLong(), member.getIdLong(), jailData.getExpirationTime().orElse(null), new ArrayList<>(previousRoleIds));
+                            jails.put(newJailData.getMemberId(), newJailData);
+
+                            if (add) {
+                                continue;
+                            }
+                        }
+
+                        MemberCacheController.getInstance().loadMembersFull(guild).join();
+                        boolean canInteract = roles.stream().allMatch(role ->
+                                BotPermissionUtil.can(role.getGuild(), Permission.MANAGE_ROLES) &&
+                                        BotPermissionUtil.canManage(role)
+                        );
+
+                        if (guild.getMembers().contains(member) && canInteract) {
+                            AuditableRestAction<Void> restAction = guild.modifyMemberRoles(member, add ? roles : Collections.emptyList(), add ? Collections.emptyList() : roles)
+                                    .reason(Command.getCommandLanguage(commandClass, locale).getTitle());
+                            restAction.complete();
                         }
                     }
                     return true;
