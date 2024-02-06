@@ -1,17 +1,5 @@
 package core.utils;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import constants.RegexPatterns;
 import core.MainLogger;
 import core.MemberCacheController;
@@ -32,6 +20,19 @@ import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class MentionUtil {
 
@@ -194,6 +195,10 @@ public class MentionUtil {
             boolean found = false;
             for (T t : sourceList) {
                 String tag = function.apply(t);
+                if (tag.isBlank()) {
+                    continue;
+                }
+
                 if (!StringUtil.stringIsInt(tag.trim()) && matches(input, tag)) {
                     input = input.replaceAll("(?i)" + Pattern.quote(tag.trim()), "");
                     if (!mentionList.contains(t)) {
@@ -213,9 +218,8 @@ public class MentionUtil {
     }
 
     private static boolean matches(String input, String check) {
-        check = check.toLowerCase();
         input = " " + input.toLowerCase().replace("\n", " ") + " ";
-        return input.contains(check);
+        return input.contains(check.toLowerCase());
     }
 
     public static MentionList<URL> getImages(String string) {
