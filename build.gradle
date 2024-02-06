@@ -1,9 +1,11 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id 'application'
     id 'java'
     id 'org.openjfx.javafxplugin' version '0.0.9'
     id 'com.google.cloud.tools.jib' version '2.7.1'
-    id 'org.jetbrains.kotlin.jvm' version '1.7.22'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.0'
 }
 
 ext {
@@ -26,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.0.0-beta.18'
+    implementation 'net.dv8tion:JDA:5.0.0-beta.20'
     implementation 'mysql:mysql-connector-java:8.0.23'
     implementation 'org.hibernate.ogm:hibernate-ogm-mongodb:5.4.1.Final'
     implementation 'org.jboss.jbossts:jbossjta:4.16.6.Final'
@@ -92,23 +94,10 @@ jar {
     }
 }
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-
 allprojects {
-    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    tasks.withType(KotlinCompile).configureEach {
         kotlinOptions {
             freeCompilerArgs = ['-Xjvm-default=all']
-            jvmTarget = "1.8"
         }
     }
 }

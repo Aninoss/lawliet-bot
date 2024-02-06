@@ -22,14 +22,12 @@ import java.util.concurrent.CompletableFuture
 
 interface OnInteractionListener : Drawable {
 
-    @JvmDefault
     fun deregisterListenersWithComponents() {
         val command = this as Command
         command.setActionRows()
         command.deregisterListeners()
     }
 
-    @JvmDefault
     fun deregisterListenersWithComponentMessage() {
         val command = this as Command
         command.drawMessageId.ifPresent { messageId: Long ->
